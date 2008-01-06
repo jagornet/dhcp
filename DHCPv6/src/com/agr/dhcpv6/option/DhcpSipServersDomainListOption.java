@@ -84,15 +84,17 @@ public class DhcpSipServersDomainListOption implements DhcpOption
 
     public void decode(ByteBuffer bb) throws IOException
     {
-        // already have the code, so length is next
-        short len = bb.getShort();
-        if (log.isDebugEnabled())
-            log.debug(sipServersDomainListOption.getName() + " reports length=" + len +
-                      ":  bytes remaining in buffer=" + bb.remaining());
-        short eof = (short)(bb.position() + len);
-        while (bb.position() < eof) {
-            String domain = decodeDomainName(bb, eof);
-            this.addDomainName(domain);
+        if ((bb != null) && bb.hasRemaining()) {
+            // already have the code, so length is next
+            short len = bb.getShort();
+            if (log.isDebugEnabled())
+                log.debug(sipServersDomainListOption.getName() + " reports length=" + len +
+                          ":  bytes remaining in buffer=" + bb.remaining());
+            short eof = (short)(bb.position() + len);
+            while (bb.position() < eof) {
+                String domain = decodeDomainName(bb, eof);
+                this.addDomainName(domain);
+            }
         }
     }
     

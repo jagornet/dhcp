@@ -19,34 +19,7 @@ import java.io.Serializable;
  * @version $Revision: $
  */
 
-public class PreferenceOptionDTO implements Serializable
+public class PreferenceOptionDTO extends ByteOptionDTO
 {
-    protected byte value;
-    protected Short code;
-    protected String name;
-    
-    public Short getCode()
-    {
-        return code;
-    }
-    public void setCode(Short code)
-    {
-        this.code = code;
-    }
-    public String getName()
-    {
-        return name;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-    public byte getValue()
-    {
-        return value;
-    }
-    public void setValue(byte value)
-    {
-        this.value = value;
-    }
+    // nothing to do
 }

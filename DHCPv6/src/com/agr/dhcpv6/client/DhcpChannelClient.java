@@ -3,11 +3,11 @@ package com.agr.dhcpv6.client;
 import java.io.IOException;
 import java.net.SocketException;
 
+import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.option.DhcpClientIdOption;
 import com.agr.dhcpv6.option.DhcpElapsedTimeOption;
 import com.agr.dhcpv6.option.DhcpUserClassOption;
 import com.agr.dhcpv6.server.DhcpChannel;
-import com.agr.dhcpv6.server.DhcpMessage;
 import com.agr.dhcpv6.server.config.xml.ClientIdOption;
 import com.agr.dhcpv6.server.config.xml.ElapsedTimeOption;
 import com.agr.dhcpv6.server.config.xml.UserClassOption;
@@ -36,7 +36,7 @@ public class DhcpChannelClient implements Runnable
 	{
         DhcpMessage msg = new DhcpMessage(DhcpConstants.LOCALHOST,
                                           DhcpConstants.SERVER_PORT);
-        for (int i=0; i<99999; i++) {
+        for (int i=0; i<100; i++) {
             sendInfoRequest(i, msg);            
         }
 	}

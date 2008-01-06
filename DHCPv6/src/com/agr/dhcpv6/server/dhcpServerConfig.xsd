@@ -34,6 +34,8 @@
 				<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
 				<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
 				<xs:element name="domainListOption" type="domainListOption" minOccurs="0"/>
+				<xs:element name="sipServersAddressListOption" type="sipServersAddressListOption" minOccurs="0"/>
+				<xs:element name="sipServersDomainListOption" type="sipServersDomainListOption" minOccurs="0"/>
 				<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element name="filterGroups" minOccurs="0" maxOccurs="unbounded">
 					<xs:complexType>
@@ -49,6 +51,8 @@
 							<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
 							<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
 							<xs:element name="domainListOption" type="domainListOption" minOccurs="0"/>
+							<xs:element name="sipServersAddressListOption" type="sipServersAddressListOption" minOccurs="0"/>
+							<xs:element name="sipServersDomainListOption" type="sipServersDomainListOption" minOccurs="0"/>
 							<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
 						</xs:sequence>
 					</xs:complexType>
@@ -67,6 +71,8 @@
 							<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
 							<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
 							<xs:element name="domainListOption" type="domainListOption" minOccurs="0"/>
+							<xs:element name="sipServersAddressListOption" type="sipServersAddressListOption" minOccurs="0"/>
+							<xs:element name="sipServersDomainListOption" type="sipServersDomainListOption" minOccurs="0"/>
 							<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="filterGroups" minOccurs="0" maxOccurs="unbounded">
 								<xs:complexType>
@@ -82,6 +88,8 @@
 										<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
 										<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
 										<xs:element name="domainListOption" type="domainListOption" minOccurs="0"/>
+										<xs:element name="sipServersAddressListOption" type="sipServersAddressListOption" minOccurs="0"/>
+										<xs:element name="sipServersDomainListOption" type="sipServersDomainListOption" minOccurs="0"/>
 										<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
 									</xs:sequence>
 								</xs:complexType>

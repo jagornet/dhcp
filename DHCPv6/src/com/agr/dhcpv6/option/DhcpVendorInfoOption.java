@@ -77,19 +77,21 @@ public class DhcpVendorInfoOption implements DhcpOption
      */
     public void decode(ByteBuffer bb) throws IOException
     {
-        // already have the code, so length is next
-        short len = bb.getShort();
-        if (log.isDebugEnabled())
-            log.debug(vendorInfoOption.getName() + " reports length=" + len +
-                    ":  bytes remaining in buffer=" + bb.remaining());
-        if (bb.remaining() > 3) {
-            vendorInfoOption.setEnterpriseNumber(bb.getInt());
-            while (bb.remaining() > 3) {
-                Option subopt = new Option();
-                subopt.setCode(bb.getShort());
-                OpaqueData opaque = OpaqueDataUtil.decode(bb);
-                subopt.setData(opaque);
-                this.addVendorSubOption(subopt);
+        if ((bb != null) && bb.hasRemaining()) {
+            // already have the code, so length is next
+            short len = bb.getShort();
+            if (log.isDebugEnabled())
+                log.debug(vendorInfoOption.getName() + " reports length=" + len +
+                        ":  bytes remaining in buffer=" + bb.remaining());
+            if (bb.remaining() > 3) {
+                vendorInfoOption.setEnterpriseNumber(bb.getInt());
+                while (bb.remaining() > 3) {
+                    Option subopt = new Option();
+                    subopt.setCode(bb.getShort());
+                    OpaqueData opaque = OpaqueDataUtil.decode(bb);
+                    subopt.setData(opaque);
+                    this.addVendorSubOption(subopt);
+                }
             }
         }
     }

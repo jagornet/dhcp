@@ -70,19 +70,21 @@ public class DhcpServerIdOption implements DhcpOption, DhcpComparableOption
 
     public void decode(ByteBuffer bb) throws IOException
     {
-        // already have the code, so length is next
-        short len = bb.getShort();
-        if (log.isDebugEnabled())
-            log.debug(serverIdOption.getName() + " reports length=" + len +
-                      ":  bytes remaining in buffer=" + bb.remaining());
-        short eof = (short)(bb.position() + len);
-        while (bb.position() < eof) {
-            OpaqueData opaque = OpaqueDataUtil.decodeDataOnly(bb, len);
-            if (opaque.getAsciiValue() != null) {
-                serverIdOption.setAsciiValue(opaque.getAsciiValue());
-            }
-            else {
-                serverIdOption.setHexValue(opaque.getHexValue());
+        if ((bb != null) && bb.hasRemaining()) {
+            // already have the code, so length is next
+            short len = bb.getShort();
+            if (log.isDebugEnabled())
+                log.debug(serverIdOption.getName() + " reports length=" + len +
+                          ":  bytes remaining in buffer=" + bb.remaining());
+            short eof = (short)(bb.position() + len);
+            while (bb.position() < eof) {
+                OpaqueData opaque = OpaqueDataUtil.decodeDataOnly(bb, len);
+                if (opaque.getAsciiValue() != null) {
+                    serverIdOption.setAsciiValue(opaque.getAsciiValue());
+                }
+                else {
+                    serverIdOption.setHexValue(opaque.getHexValue());
+                }
             }
         }
     }

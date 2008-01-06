@@ -83,15 +83,17 @@ public class DhcpUserClassOption implements DhcpOption, DhcpComparableOption
 
     public void decode(ByteBuffer bb) throws IOException
     {
-        // already have the code, so length is next
-        short len = bb.getShort();
-        if (log.isDebugEnabled())
-            log.debug(userClassOption.getName() + " reports length=" + len +
-                      ":  bytes remaining in buffer=" + bb.remaining());
-        short eof = (short)(bb.position() + len);
-        while (bb.position() < eof) {
-            OpaqueData opaque = OpaqueDataUtil.decode(bb);
-            this.addUserClass(opaque);
+        if ((bb != null) && bb.hasRemaining()) {
+            // already have the code, so length is next
+            short len = bb.getShort();
+            if (log.isDebugEnabled())
+                log.debug(userClassOption.getName() + " reports length=" + len +
+                          ":  bytes remaining in buffer=" + bb.remaining());
+            short eof = (short)(bb.position() + len);
+            while (bb.position() < eof) {
+                OpaqueData opaque = OpaqueDataUtil.decode(bb);
+                this.addUserClass(opaque);
+            }
         }
     }
 

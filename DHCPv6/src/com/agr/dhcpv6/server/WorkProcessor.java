@@ -11,6 +11,9 @@ import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.agr.dhcpv6.message.DhcpMessage;
+import com.agr.dhcpv6.message.DhcpMessageHandler;
+
 /**
  * <p>Title: WorkProcessor </p>
  * <p>Description: </p>
@@ -63,13 +66,23 @@ public class WorkProcessor implements Runnable
                 log.info("Waiting for work...");
                 DhcpMessage message = workQueue.take();
                 if (message != null) {
+                    log.info("Have work message, creating handler...");
                     DhcpMessageHandler handler =
                         MessageHandlerFactory.createMessageHandler(dhcpChannel, message);
-                    if (log.isDebugEnabled())
-                        log.debug("Sending to pool: " + message.toStringWithOptions());
-                    else if (log.isInfoEnabled())
-                        log.info("Sending to pool: " + message.toString());
-                    threadPool.execute(handler);
+                    if (handler != null) {
+                        log.info("Message handler: " + handler.getClass());
+	                    if (log.isDebugEnabled())
+	                        log.debug("Sending to pool: " + message.toStringWithOptions());
+	                    else if (log.isInfoEnabled())
+	                        log.info("Sending to pool: " + message.toString());
+	                    threadPool.execute(handler);
+                    }
+                    else {
+                    	log.warn("Message dropped: " + message.toString());
+                    }
+                }
+                else {
+                    log.error("Work message is null");
                 }
             }
             catch (InterruptedException ex) {

@@ -11,6 +11,8 @@ import java.nio.channels.DatagramChannel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.agr.dhcpv6.message.DhcpMessage;
+
 /**
  * <p>Title: </p>
  * <p>Description: </p>

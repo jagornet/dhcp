@@ -91,17 +91,19 @@ public class DhcpVendorClassOption implements DhcpOption, DhcpComparableOption
      */
     public void decode(ByteBuffer bb) throws IOException
     {
-        // already have the code, so length is next
-        short len = bb.getShort();
-        if (log.isDebugEnabled())
-            log.debug(vendorClassOption.getName() + " reports length=" + len +
-                    ":  bytes remaining in buffer=" + bb.remaining());
-        short eof = (short)(bb.position() + len);
-        if (bb.position() < eof) {
-            vendorClassOption.setEnterpriseNumber(bb.getInt());
-            while (bb.position() < eof) {
-                OpaqueData opaque = OpaqueDataUtil.decode(bb);
-                this.addVendorClass(opaque);
+        if ((bb != null) && bb.hasRemaining()) {
+            // already have the code, so length is next
+            short len = bb.getShort();
+            if (log.isDebugEnabled())
+                log.debug(vendorClassOption.getName() + " reports length=" + len +
+                        ":  bytes remaining in buffer=" + bb.remaining());
+            short eof = (short)(bb.position() + len);
+            if (bb.position() < eof) {
+                vendorClassOption.setEnterpriseNumber(bb.getInt());
+                while (bb.position() < eof) {
+                    OpaqueData opaque = OpaqueDataUtil.decode(bb);
+                    this.addVendorClass(opaque);
+                }
             }
         }
     }

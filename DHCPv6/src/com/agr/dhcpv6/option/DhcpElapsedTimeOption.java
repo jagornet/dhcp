@@ -70,14 +70,16 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
 
     public void decode(ByteBuffer bb) throws IOException
     {
-        // already have the code, so length is next
-        short len = bb.getShort();
-        if (log.isDebugEnabled())
-            log.debug(elapsedTimeOption.getName() + " reports length=" + len +
-                      ":  bytes remaining in buffer=" + bb.remaining());
-        short eof = (short)(bb.position() + len);
-        if (bb.position() < eof) {
-            elapsedTimeOption.setValue(bb.getShort());
+        if ((bb != null) && bb.hasRemaining()) {
+            // already have the code, so length is next
+            short len = bb.getShort();
+            if (log.isDebugEnabled())
+                log.debug(elapsedTimeOption.getName() + " reports length=" + len +
+                          ":  bytes remaining in buffer=" + bb.remaining());
+            short eof = (short)(bb.position() + len);
+            if (bb.position() < eof) {
+                elapsedTimeOption.setValue(bb.getShort());
+            }
         }
     }
 

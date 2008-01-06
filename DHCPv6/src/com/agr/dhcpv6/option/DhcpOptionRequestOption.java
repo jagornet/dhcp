@@ -69,14 +69,16 @@ public class DhcpOptionRequestOption implements DhcpOption
     
     public void decode(ByteBuffer bb) throws IOException
     {
-        // already have the code, so length is next
-        short len = bb.getShort();
-        if (log.isDebugEnabled())
-            log.debug(optionRequestOption.getName() + " reports length=" + len +
-                      ":  bytes remaining in buffer=" + bb.remaining());
-        for (int i=0; i<len/2; i++) {
-            if (bb.hasRemaining()) {
-                this.addRequestedOptionCode(bb.getShort());
+        if ((bb != null) && bb.hasRemaining()) {
+            // already have the code, so length is next
+            short len = bb.getShort();
+            if (log.isDebugEnabled())
+                log.debug(optionRequestOption.getName() + " reports length=" + len +
+                          ":  bytes remaining in buffer=" + bb.remaining());
+            for (int i=0; i<len/2; i++) {
+                if (bb.hasRemaining()) {
+                    this.addRequestedOptionCode(bb.getShort());
+                }
             }
         }
     }

@@ -1,7 +1,5 @@
 package com.agr.dhcpv6.server;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -10,10 +8,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -25,7 +19,9 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.option.DhcpOption;
+import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig;
 import com.agr.dhcpv6.util.DhcpConstants;
 
@@ -50,7 +46,6 @@ public class DhcpServer implements Runnable
     protected static int QUEUE_SIZE = 10000;  
 
     protected String configFilename = DEFAULT_CONFIG_FILENAME;
-    protected static DhcpV6ServerConfig dhcpServerConfig;
 
     protected Selector selector;
     protected DhcpChannel dhcpChannel;
@@ -75,7 +70,7 @@ public class DhcpServer implements Runnable
             System.exit(0);
         }
 
-        dhcpServerConfig = loadConfig(configFilename);
+        DhcpServerConfiguration.init(configFilename);
         
         selector = Selector.open();
         dhcpChannel = new DhcpChannel(DhcpConstants.SERVER_PORT);
@@ -92,40 +87,18 @@ public class DhcpServer implements Runnable
     // use this method without requiring JAXB libs
             throws Exception
     {
-        log.info("Loading server configuration: " + filename);
-        FileInputStream fis = new FileInputStream(filename);
-        // the newInstance method accepts the package name
-        // where the JAXB classes live
-        log.debug("Creating JAXB context...");
-        //JAXBContext jc = JAXBContext.newInstance("ipv6test.xml");
-//        JAXBContext jc = JAXBContext.newInstance("com.agr.dhcpv6.xml");
-        JAXBContext jc = JAXBContext.newInstance("com.agr.dhcpv6.server.config.xml");
-        Unmarshaller u = jc.createUnmarshaller();
-        log.debug("Unmarshalling XML...");
-        return (DhcpV6ServerConfig)u.unmarshal(fis);
+        return DhcpServerConfiguration.loadConfig(filename);
     }
     
-    // this method and loadConfig should really be moved into some
-    // sort of wrapper class for the DhcpV6ServerConfig object
     public static void saveConfig(DhcpV6ServerConfig config, String filename)
         throws Exception    // see comment for loadConfig
     {
-        log.info("Saving server configuration: " + filename);
-        FileOutputStream fos = new FileOutputStream(filename);
-        // the newInstance method accepts the package name
-        // where the JAXB classes live
-        log.debug("Creating JAXB context...");
-        //JAXBContext jc = JAXBContext.newInstance("ipv6test.xml");
-//        JAXBContext jc = JAXBContext.newInstance("com.agr.dhcpv6.xml");
-        JAXBContext jc = JAXBContext.newInstance("com.agr.dhcpv6.server.config.xml");
-        Marshaller m = jc.createMarshaller();
-        log.debug("Marshalling to XML...");
-        m.marshal(config, fos);
+        DhcpServerConfiguration.saveConfig(config, filename);
     }
 
     public static DhcpV6ServerConfig getDhcpServerConfig()
     {
-        return dhcpServerConfig;
+        return DhcpServerConfiguration.getConfig();
     }
 
     /**
@@ -153,11 +126,11 @@ public class DhcpServer implements Runnable
                 // Get the keys corresponding to the activity
                 // that has been detected, and process them
                 // one by one
-                Set keys = selector.selectedKeys();
-                Iterator it = keys.iterator();
+                Set<SelectionKey> keys = selector.selectedKeys();
+                Iterator<SelectionKey> it = keys.iterator();
                 while (it.hasNext()) {
                     // Get a key representing one of bits of I/O activity
-                    SelectionKey key = (SelectionKey)it.next();
+                    SelectionKey key = it.next();
 
                     if (key.isReadable()) {
                         log.debug("DHCP socket read selected");

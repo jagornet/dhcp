@@ -100,7 +100,7 @@ public class OpaqueDataUtil
     
     public static OpaqueData decode(ByteBuffer bb)
     {
-        if (bb == null)
+        if ((bb == null) || !bb.hasRemaining())
             return null;
         
         OpaqueData opaque = new OpaqueData();

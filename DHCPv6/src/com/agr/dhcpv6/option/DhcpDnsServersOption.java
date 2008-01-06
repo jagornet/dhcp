@@ -68,17 +68,19 @@ public class DhcpDnsServersOption implements DhcpOption
 
     public void decode(ByteBuffer bb) throws IOException
     {
-        // already have the code, so length is next
-        short len = bb.getShort();
-        if (log.isDebugEnabled())
-            log.debug(dnsServersOption.getName() + " reports length=" + len +
-                      ":  bytes remaining in buffer=" + bb.remaining());
-        short eof = (short)(bb.position() + len);
-        while (bb.position() < eof) {
-            // it has to be hex from the wire, right?
-            byte b[] = new byte[16];
-            bb.get(b);
-            this.addDnsServer(b);
+        if ((bb != null) && bb.hasRemaining()) {
+            // already have the code, so length is next
+            short len = bb.getShort();
+            if (log.isDebugEnabled())
+                log.debug(dnsServersOption.getName() + " reports length=" + len +
+                          ":  bytes remaining in buffer=" + bb.remaining());
+            short eof = (short)(bb.position() + len);
+            while (bb.position() < eof) {
+                // it has to be hex from the wire, right?
+                byte b[] = new byte[16];
+                bb.get(b);
+                this.addDnsServer(b);
+            }
         }
     }
 
