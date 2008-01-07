@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="dhcpServerConfig.xsl"?>
+<dhcpV6ServerConfig 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:noNamespaceSchemaLocation="dhcpServerConfig.xsd">
+	
+	<abcPolicy>true</abcPolicy>
+	<serverIdOption>
+		<hexValue>abcdef0123456789</hexValue>
+	</serverIdOption>
+	<dnsServersOption>
+		<serverIpAddresses>3ffe::0001</serverIpAddresses>
+		<serverIpAddresses>3ffe::0002</serverIpAddresses>
+		<serverIpAddresses>3ffe::0003</serverIpAddresses>
+	</dnsServersOption>
+	<domainListOption>
+		<domainNames>foo.com.</domainNames>
+		<domainNames>bar.com.</domainNames>
+		<domainNames>yuk.com.</domainNames>
+	</domainListOption>
+	<filterGroups>
+		<name>UserClass Filter Group 1</name>
+		<optionExpressions>
+			<code>15</code>
+			<data>
+				<asciiValue>FilterUserClass</asciiValue>
+			</data>
+		</optionExpressions>
+		<domainListOption>
+			<domainNames>filter.com.</domainNames>
+		</domainListOption>
+	</filterGroups>
+</dhcpV6ServerConfig>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<dhcpV6ServerConfig>
+
+	<abc_policy>true</abc_policy>
+
+	<serverIdOption>
+		<hexValue>abcdef0123456789</hexValue>
+	</serverIdOption>
+
+	<dnsServersOption>
+		<serverIpAddresses>3ffe::0001</serverIpAddresses>
+		<serverIpAddresses>3ffe::0002</serverIpAddresses>
+		<serverIpAddresses>3ffe::0003</serverIpAddresses>
+	</dnsServersOption>
+
+</dhcpV6ServerConfig>
