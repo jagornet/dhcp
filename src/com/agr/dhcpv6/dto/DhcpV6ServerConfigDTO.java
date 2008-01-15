@@ -24,12 +24,12 @@ public class DhcpV6ServerConfigDTO implements Serializable
     protected boolean abcPolicy;
     protected Integer xyzPolicy;
 //    protected List genericPolicies;
-//    protected ServerIdOption serverIdOption;
+    protected ServerIdOptionDTO serverIdOption;
     protected PreferenceOptionDTO preferenceOption;
 //    protected ServerUnicastOption serverUnicastOption;
 //    protected StatusCodeOption statusCodeOption;
 //    protected VendorInfoOption vendorInfoOption;
-//    protected DnsServersOption dnsServersOption;
+    protected DnsServersOptionDTO dnsServersOption;
 //    protected DomainListOption domainListOption;
 //    protected List genericOptions;
 //    protected List<DhcpV6ServerConfig.FilterGroups> filterGroups;
@@ -58,5 +58,21 @@ public class DhcpV6ServerConfigDTO implements Serializable
     public void setXyzPolicy(Integer xyzPolicy)
     {
         this.xyzPolicy = xyzPolicy;
+    }
+    public ServerIdOptionDTO getServerIdOption()
+    {
+        return serverIdOption;
+    }
+    public void setServerIdOption(ServerIdOptionDTO serverIdOption)
+    {
+        this.serverIdOption = serverIdOption;
+    }
+    public DnsServersOptionDTO getDnsServersOption()
+    {
+        return dnsServersOption;
+    }
+    public void setDnsServersOption(DnsServersOptionDTO dnsServersOption)
+    {
+        this.dnsServersOption = dnsServersOption;
     }
 }

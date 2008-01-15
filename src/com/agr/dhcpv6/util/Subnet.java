@@ -9,11 +9,17 @@ package com.agr.dhcpv6.util;
  * @version 1.0
  */
 
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class Subnet
 {
+    private static Log log = LogFactory.getLog(Subnet.class);
+
     private InetAddress subnetAddress;
     private int prefixLength;
 
@@ -53,6 +59,35 @@ public class Subnet
     public void setPrefixLength(int prefixLength)
     {
         this.prefixLength = prefixLength;
+    }
+    
+    public InetAddress getEndAddress()
+    {
+        InetAddress endAddr = null;
+        BigInteger start = new BigInteger(subnetAddress.getAddress());
+        // turn on each bit that isn't masked by the prefix
+        for (int i=0; i<(128-prefixLength); i++) {
+            start = start.setBit(i);
+        }
+        try {
+            endAddr = InetAddress.getByAddress(start.toByteArray());
+        }
+        catch (UnknownHostException ex) {
+            log.error("Failed to calculate subnet end address: " + ex);
+        }
+        return endAddr;
+    }
+    
+    public boolean contains(InetAddress inetAddr)
+    {
+        boolean rc = false;
+        BigInteger start = new BigInteger(getSubnetAddress().getAddress());
+        BigInteger end = new BigInteger(getEndAddress().getAddress());
+        BigInteger addr = new BigInteger(inetAddr.getAddress());
+        if ((addr.compareTo(start) >= 0) && (addr.compareTo(end) <= 0)) {
+            rc = true;
+        }
+        return rc;
     }
     
     /**

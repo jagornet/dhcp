@@ -1,6 +1,6 @@
 package com.agr.dhcpv6.dto;
 
-public class OpaqueDataDTO extends BaseOptionDTO
+public class OpaqueDataDTO
 {
     protected String asciiValue;
     protected byte[] hexValue;
