@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.Comparator;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.xml.bind.JAXBContext;
@@ -110,7 +111,23 @@ public class DhcpServerConfiguration
         }
         return linkMap;
     }
-        
+
+    public static Links findLinkForAddress(InetAddress inetAddr)
+    {
+        Links link = null;
+        if (linkMap != null) {
+            Subnet s = new Subnet(inetAddr, 128);
+            SortedMap<Subnet, Links> subMap = linkMap.headMap(s);
+            if (subMap != null) {
+                s = subMap.lastKey();
+                if (s.contains(inetAddr)) {
+                    link = subMap.get(s);
+                }
+            }
+        }
+        return link;
+    }
+    
     public static DhcpV6ServerConfig loadConfig(String filename) 
         throws FileNotFoundException, JAXBException
     {

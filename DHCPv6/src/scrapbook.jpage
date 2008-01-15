@@ -19,5 +19,11 @@ else
     for (int i=0; i<str.length(); i++)
         System.out.println("0x" + data[i]);
 
-Invalid escape sequence (valid ones are  \b  \t  \n  \f  \r  \"  \'  \\ )String[] labels = "foo.bar.baz".split("\\.");
+String[] labels = "foo.bar.baz".split("\\.");
 System.out.println(labels.length);
+
+String splitme = "addr1, addr2, \naddr3";
+System.out.println(splitme);
+String[] split = splitme.split("[,\\p{Space}+]");
+for (int i=0; i<split.length; i++)
+    System.out.println("s[" + i + "]=" + split[i]);

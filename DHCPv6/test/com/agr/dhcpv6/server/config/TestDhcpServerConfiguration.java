@@ -25,7 +25,7 @@ public class TestDhcpServerConfiguration extends TestCase
         assertNotNull(subMap);
         assertEquals(2, subMap.size());
 
-        // there are two subnets greater than our search address
+        // there are three subnets less than our search address
         subMap = linkMap.headMap(searchAddr);
         assertNotNull(subMap);
         assertEquals(3, subMap.size());

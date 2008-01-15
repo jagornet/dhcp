@@ -1,7 +1,6 @@
 package com.agr.dhcpv6.server;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,10 +35,9 @@ import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.Links;
 import com.agr.dhcpv6.util.DhcpConstants;
 
 /**
- * Title:        DhcpInfoRequest
- * Description:  A DhcpMessageHandler for INFO_REQUEST messages.  Basically,
- *               this class implements the processing of a stateless DHCPv6
- *               server.
+ * Title:        DhcpInfoRequestProcessor
+ * Description:  The main class for processing INFO_REQUEST messages.
+ * 
  * Copyright:    Copyright (c) 2003
  * Company:      AGR Consulting
  * @author A. Gregory Rabil
@@ -58,8 +56,9 @@ public class DhcpInfoRequestProcessor
     protected DhcpMessage replyMsg;
 
     /**
-     * Construct an DhcpInfoRequest handler
+     * Construct an DhcpInfoRequest processor
      *
+     * @param   clientLink  the interface address for the client link
      * @param   reqMsg  must be an INFO_REQUEST type DhcpMessage
      */
     public DhcpInfoRequestProcessor(InetAddress clientLink, DhcpMessage reqMsg)
@@ -146,10 +145,18 @@ public class DhcpInfoRequestProcessor
             log.warn("No ClientId option supplied in Info-Request");
         }
 
+        // put any globally defined options in the reply packet
         setGlobalOptions();
+        
         // process global filter groups
         processFilterGroups(dhcpServerConfig.getFilterGroups());
-        processLinks(dhcpServerConfig.getLinks());
+        
+        // handle configuration for the client's link
+        Links link = DhcpServerConfiguration.findLinkForAddress(clientLink);
+        if (link != null) {
+            log.info("Processing configuration for link: " + link.getAddress());
+            processLink(link);
+        }
 
         log.info("Built: " + replyMsg.toString());
         
@@ -268,43 +275,32 @@ public class DhcpInfoRequestProcessor
         setVendorInfoOption(filter.getVendorInfoOption());
     }
     
-    private void processLinks(List<Links> links)
+    private void processLink(Links link)
     {
-        if (links != null) {
-            for (Links link : links) {
-                try {
-                    InetAddress addr = InetAddress.getByName(link.getAddress());
-                    if (addr.equals(clientLink)) {
-                        setLinkOptions(link);
-                        // Oddly enough, the JAXB compiler creates two separate inner classes
-                        // of the DhcpV6ServerConfiguration class to represent the global
-                        // filter groups and the link-specific filter groups, even though
-                        // these two classes are the same.
-                        // So we'll "convert" the link-specific filters to "global" filters 
-                        // so that we can reuse the filter handling in processFilterGroups()
-                        if (link.getFilterGroups() != null) {
-                            List<Links.FilterGroups> linkFilterGroups = link.getFilterGroups();
-                            List<FilterGroups> filterGroups = new ArrayList<FilterGroups>();
-                            for (Links.FilterGroups linkFilterGroup : linkFilterGroups) {
-                                FilterGroups filterGroup = new FilterGroups();
-                                try {
-                                    // copy (destination, source)
-                                    BeanUtils.copyProperties(filterGroup, linkFilterGroup);
-                                    filterGroups.add(filterGroup);
-                                }
-                                catch (Exception ex) {
-                                    log.error("Failed to convert Links.FilterGroups to FilterGroups" + 
-                                              ex);
-                                }
-                            }
-                            processFilterGroups(filterGroups);
-                        }
+        if (link != null) {
+            setLinkOptions(link);
+            // Oddly enough, the JAXB compiler creates two separate inner classes
+            // of the DhcpV6ServerConfiguration class to represent the global
+            // filter groups and the link-specific filter groups, even though
+            // these two classes are the same.
+            // So we'll "convert" the link-specific filters to "global" filters 
+            // so that we can reuse the filter handling in processFilterGroups()
+            if (link.getFilterGroups() != null) {
+                List<Links.FilterGroups> linkFilterGroups = link.getFilterGroups();
+                List<FilterGroups> filterGroups = new ArrayList<FilterGroups>();
+                for (Links.FilterGroups linkFilterGroup : linkFilterGroups) {
+                    FilterGroups filterGroup = new FilterGroups();
+                    try {
+                        // copy (destination, source)
+                        BeanUtils.copyProperties(filterGroup, linkFilterGroup);
+                        filterGroups.add(filterGroup);
+                    }
+                    catch (Exception ex) {
+                        log.error("Failed to convert Links.FilterGroups to FilterGroups" + 
+                                  ex);
                     }
                 }
-                catch (UnknownHostException ex) {
-                    log.error("Invalid link address: " + link.getAddress() +
-                              ": " + ex);
-                }
+                processFilterGroups(filterGroups);
             }
         }
     }

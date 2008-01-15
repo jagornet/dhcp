@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE mappings PUBLIC "-//DOZER//DTD MAPPINGS//EN"
+    "http://dozer.sourceforge.net/dtd/dozerbeanmapping.dtd">
+<mappings>          
+  <mapping> 
+    <class-a>com.agr.dhcpv6.server.config.xml.DnsServersOption</class-a>
+    <class-b>com.agr.dhcpv6.dto.DnsServersOptionDTO</class-b>   
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">serverIpAddresses</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>serverIpAddresses</b>
+    </field>
+  </mapping>  
+  <mapping> 
+    <class-a>com.agr.dhcpv6.server.config.xml.UserClassOption</class-a>
+    <class-b>com.agr.dhcpv6.dto.UserClassOptionDTO</class-b>   
+    <field>
+      <a>userClasses</a>
+      <b>userClasses</b>
+      <!-- since we can't yet use Java 5 generics with GWT, we
+      	   must tell Dozer what kinds of objects are in the lists
+      	   so that it can convert between them properly -->
+      <a-hint>com.agr.dhcpv6.server.config.xml.OpaqueData</a-hint>
+	  <b-hint>com.agr.dhcpv6.dto.OpaqueDataDTO</b-hint>
+    </field>
+  </mapping>
+</mappings>
