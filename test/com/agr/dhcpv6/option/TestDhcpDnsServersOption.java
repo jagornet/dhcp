@@ -18,8 +18,8 @@ public class TestDhcpDnsServersOption extends TestCase
     public void testEncode() throws Exception
     {
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
-        dso.addDnsServer("2001:db8::1");    // 16 bytes
-        dso.addDnsServer("2001:db8::2");    // 16 bytes
+        dso.addServer("2001:db8::1");    // 16 bytes
+        dso.addServer("2001:db8::2");    // 16 bytes
         ByteBuffer bb = dso.encode();
         assertNotNull(bb);
         assertEquals(36, bb.capacity());    // +4 (code=2bytes, len=2bytes)

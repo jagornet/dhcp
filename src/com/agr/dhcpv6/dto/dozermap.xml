@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
   <!DOCTYPE mappings PUBLIC "-//DOZER//DTD MAPPINGS//EN"
     "http://dozer.sourceforge.net/dtd/dozerbeanmapping.dtd">
-<mappings>          
+<mappings>
   <mapping> 
     <class-a>com.agr.dhcpv6.server.config.xml.DnsServersOption</class-a>
-    <class-b>com.agr.dhcpv6.dto.DnsServersOptionDTO</class-b>   
+    <class-b>com.agr.dhcpv6.dto.DnsServersOptionDTO</class-b>
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -12,10 +12,76 @@
       <!-- the DTO class has normal getter/setter -->
       <b>serverIpAddresses</b>
     </field>
-  </mapping>  
+  </mapping>
+  <mapping>
+    <class-a>com.agr.dhcpv6.server.config.xml.DomainSearchListOption</class-a>
+    <class-b>com.agr.dhcpv6.dto.DomainSearchListOptionDTO</class-b>
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">domainNames</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>domainNames</b>
+    </field>
+  </mapping>
+  <mapping>
+    <class-a>com.agr.dhcpv6.server.config.xml.NisServersOption</class-a>
+    <class-b>com.agr.dhcpv6.dto.NisServersOptionDTO</class-b>
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">serverIpAddresses</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>serverIpAddresses</b>
+    </field>
+  </mapping>
+  <mapping>
+    <class-a>com.agr.dhcpv6.server.config.xml.NisPlusServersOption</class-a>
+    <class-b>com.agr.dhcpv6.dto.NisPlusServersOptionDTO</class-b>
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">serverIpAddresses</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>serverIpAddresses</b>
+    </field>
+  </mapping>
   <mapping> 
+    <class-a>com.agr.dhcpv6.server.config.xml.SipServerAddressesOption</class-a>
+    <class-b>com.agr.dhcpv6.dto.SipServerAddressesOptionDTO</class-b>
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">serverIpAddresses</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>serverIpAddresses</b>
+    </field>
+  </mapping>
+  <mapping>
+    <class-a>com.agr.dhcpv6.server.config.xml.SipServerDomainNamesOption</class-a>
+    <class-b>com.agr.dhcpv6.dto.SipServerDomainNamesOptionDTO</class-b>
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">domainNames</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>domainNames</b>
+    </field>
+  </mapping>
+  <mapping>
+    <class-a>com.agr.dhcpv6.server.config.xml.SntpServersOption</class-a>
+    <class-b>com.agr.dhcpv6.dto.SntpServersOptionDTO</class-b>
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">serverIpAddresses</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>serverIpAddresses</b>
+    </field>
+  </mapping>
+  <mapping>
     <class-a>com.agr.dhcpv6.server.config.xml.UserClassOption</class-a>
-    <class-b>com.agr.dhcpv6.dto.UserClassOptionDTO</class-b>   
+    <class-b>com.agr.dhcpv6.dto.UserClassOptionDTO</class-b>
     <field>
       <a>userClasses</a>
       <b>userClasses</b>

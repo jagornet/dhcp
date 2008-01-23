@@ -13,22 +13,22 @@ import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.option.DhcpClientIdOption;
 import com.agr.dhcpv6.option.DhcpComparableOption;
 import com.agr.dhcpv6.option.DhcpDnsServersOption;
-import com.agr.dhcpv6.option.DhcpDomainListOption;
+import com.agr.dhcpv6.option.DhcpDomainSearchListOption;
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.option.DhcpPreferenceOption;
 import com.agr.dhcpv6.option.DhcpServerIdOption;
-import com.agr.dhcpv6.option.DhcpSipServersAddressListOption;
-import com.agr.dhcpv6.option.DhcpSipServersDomainListOption;
+import com.agr.dhcpv6.option.DhcpSipServerAddressesOption;
+import com.agr.dhcpv6.option.DhcpSipServerDomainNamesOption;
 import com.agr.dhcpv6.option.DhcpVendorInfoOption;
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig;
 import com.agr.dhcpv6.server.config.xml.DnsServersOption;
-import com.agr.dhcpv6.server.config.xml.DomainListOption;
+import com.agr.dhcpv6.server.config.xml.DomainSearchListOption;
 import com.agr.dhcpv6.server.config.xml.OptionExpression;
 import com.agr.dhcpv6.server.config.xml.PreferenceOption;
 import com.agr.dhcpv6.server.config.xml.ServerIdOption;
-import com.agr.dhcpv6.server.config.xml.SipServersAddressListOption;
-import com.agr.dhcpv6.server.config.xml.SipServersDomainListOption;
+import com.agr.dhcpv6.server.config.xml.SipServerAddressesOption;
+import com.agr.dhcpv6.server.config.xml.SipServerDomainNamesOption;
 import com.agr.dhcpv6.server.config.xml.VendorInfoOption;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.FilterGroups;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.Links;
@@ -167,9 +167,9 @@ public class DhcpInfoRequestProcessor
     {
         setPreferenceOption(dhcpServerConfig.getPreferenceOption());
         setDnsServersOption(dhcpServerConfig.getDnsServersOption());
-        setDomainListOption(dhcpServerConfig.getDomainListOption());
-        setSipServersAddressListOption(dhcpServerConfig.getSipServersAddressListOption());
-        setSipServersDomainListOption(dhcpServerConfig.getSipServersDomainListOption());
+        setDomainSearchListOption(dhcpServerConfig.getDomainSearchListOption());
+        setSipServerAddressesOption(dhcpServerConfig.getSipServerAddressesOption());
+        setSipServerDomainNamesOption(dhcpServerConfig.getSipServerDomainNamesOption());
         setVendorInfoOption(dhcpServerConfig.getVendorInfoOption());
     }
     
@@ -187,24 +187,24 @@ public class DhcpInfoRequestProcessor
         }
     }
 
-    private void setDomainListOption(DomainListOption domainListOption)
+    private void setDomainSearchListOption(DomainSearchListOption domainSearchListOption)
     {
-        if (domainListOption != null) {
-            replyMsg.setOption(new DhcpDomainListOption(domainListOption)); 
+        if (domainSearchListOption != null) {
+            replyMsg.setOption(new DhcpDomainSearchListOption(domainSearchListOption)); 
         }
     }
     
-    private void setSipServersAddressListOption(SipServersAddressListOption sipServersAddressListOption)
+    private void setSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
     {
-        if (sipServersAddressListOption != null) {
-            replyMsg.setOption(new DhcpSipServersAddressListOption(sipServersAddressListOption)); 
+        if (sipServerAddressesOption != null) {
+            replyMsg.setOption(new DhcpSipServerAddressesOption(sipServerAddressesOption)); 
         }
     }
 
-    private void setSipServersDomainListOption(SipServersDomainListOption sipServersDomainListOption)
+    private void setSipServerDomainNamesOption(SipServerDomainNamesOption sipServerDomainNamesOption)
     {
-        if (sipServersDomainListOption != null) {
-            replyMsg.setOption(new DhcpSipServersDomainListOption(sipServersDomainListOption)); 
+        if (sipServerDomainNamesOption != null) {
+            replyMsg.setOption(new DhcpSipServerDomainNamesOption(sipServerDomainNamesOption)); 
         }
     }
 
@@ -269,9 +269,9 @@ public class DhcpInfoRequestProcessor
     {
         setPreferenceOption(filter.getPreferenceOption());
         setDnsServersOption(filter.getDnsServersOption());
-        setDomainListOption(filter.getDomainListOption());
-        setSipServersAddressListOption(filter.getSipServersAddressListOption());
-        setSipServersDomainListOption(filter.getSipServersDomainListOption());
+        setDomainSearchListOption(filter.getDomainSearchListOption());
+        setSipServerAddressesOption(filter.getSipServerAddressesOption());
+        setSipServerDomainNamesOption(filter.getSipServerDomainNamesOption());
         setVendorInfoOption(filter.getVendorInfoOption());
     }
     
@@ -309,9 +309,9 @@ public class DhcpInfoRequestProcessor
     {
         setPreferenceOption(link.getPreferenceOption());
         setDnsServersOption(link.getDnsServersOption());
-        setDomainListOption(link.getDomainListOption());
-        setSipServersAddressListOption(link.getSipServersAddressListOption());
-        setSipServersDomainListOption(link.getSipServersDomainListOption());
+        setDomainSearchListOption(link.getDomainSearchListOption());
+        setSipServerAddressesOption(link.getSipServerAddressesOption());
+        setSipServerDomainNamesOption(link.getSipServerDomainNamesOption());
         setVendorInfoOption(link.getVendorInfoOption());
     }
 }
