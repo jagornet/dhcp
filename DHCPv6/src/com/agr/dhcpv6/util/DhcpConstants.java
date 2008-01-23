@@ -94,7 +94,13 @@ public class DhcpConstants
     public static final short OPTION_RECONF_MSG = 19;
     public static final short OPTION_RECONF_ACCEPT = 20;
     public static final short OPTION_DNS_SERVERS = 23;
-    public static final short OPTION_DOMAIN_LIST = 24;
+    public static final short OPTION_DOMAIN_SEARCH_LIST = 24;
+    public static final short OPTION_NIS_SERVERS = 27;
+    public static final short OPTION_NISPLUS_SERVERS = 28;
+    public static final short OPTION_NIS_DOMAIN_NAME = 29;
+    public static final short OPTION_NISPLUS_DOMAIN_NAME = 30;
+    public static final short OPTION_SNTP_SERVERS = 31;
+    public static final short OPTION_INFO_REFRESH_TIME = 32;
 
 	static {
 		try {

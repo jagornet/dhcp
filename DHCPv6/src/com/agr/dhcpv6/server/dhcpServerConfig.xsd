@@ -33,9 +33,15 @@
 				<xs:element name="statusCodeOption" type="statusCodeOption" minOccurs="0"/>
 				<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
 				<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
-				<xs:element name="domainListOption" type="domainListOption" minOccurs="0"/>
-				<xs:element name="sipServersAddressListOption" type="sipServersAddressListOption" minOccurs="0"/>
-				<xs:element name="sipServersDomainListOption" type="sipServersDomainListOption" minOccurs="0"/>
+				<xs:element name="domainSearchListOption" type="domainSearchListOption" minOccurs="0"/>
+				<xs:element name="sipServerAddressesOption" type="sipServerAddressesOption" minOccurs="0"/>
+				<xs:element name="sipServerDomainNamesOption" type="sipServerDomainNamesOption" minOccurs="0"/>
+				<xs:element name="nisServersOption" type="nisServersOption" minOccurs="0"/>
+				<xs:element name="nisDomainNameOption" type="nisDomainNameOption" minOccurs="0"/>
+				<xs:element name="nisPlusServersOption" type="nisPlusServersOption" minOccurs="0"/>
+				<xs:element name="nisPlusDomainNameOption" type="nisPlusDomainNameOption" minOccurs="0"/>
+				<xs:element name="sntpServersOption" type="sntpServersOption" minOccurs="0"/>
+				<xs:element name="infoRefreshTimeOption" type="infoRefreshTimeOption" minOccurs="0"/>
 				<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element name="filterGroups" minOccurs="0" maxOccurs="unbounded">
 					<xs:complexType>
@@ -50,9 +56,15 @@
 							<xs:element name="statusCodeOption" type="statusCodeOption" minOccurs="0"/>
 							<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
 							<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
-							<xs:element name="domainListOption" type="domainListOption" minOccurs="0"/>
-							<xs:element name="sipServersAddressListOption" type="sipServersAddressListOption" minOccurs="0"/>
-							<xs:element name="sipServersDomainListOption" type="sipServersDomainListOption" minOccurs="0"/>
+							<xs:element name="domainSearchListOption" type="domainSearchListOption" minOccurs="0"/>
+							<xs:element name="sipServerAddressesOption" type="sipServerAddressesOption" minOccurs="0"/>
+							<xs:element name="sipServerDomainNamesOption" type="sipServerDomainNamesOption" minOccurs="0"/>
+							<xs:element name="nisServersOption" type="nisServersOption" minOccurs="0"/>
+							<xs:element name="nisDomainNameOption" type="nisDomainNameOption" minOccurs="0"/>
+							<xs:element name="nisPlusServersOption" type="nisPlusServersOption" minOccurs="0"/>
+							<xs:element name="nisPlusDomainNameOption" type="nisPlusDomainNameOption" minOccurs="0"/>
+							<xs:element name="sntpServersOption" type="sntpServersOption" minOccurs="0"/>
+							<xs:element name="infoRefreshTimeOption" type="infoRefreshTimeOption" minOccurs="0"/>
 							<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
 						</xs:sequence>
 					</xs:complexType>
@@ -70,9 +82,15 @@
 							<xs:element name="statusCodeOption" type="statusCodeOption" minOccurs="0"/>
 							<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
 							<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
-							<xs:element name="domainListOption" type="domainListOption" minOccurs="0"/>
-							<xs:element name="sipServersAddressListOption" type="sipServersAddressListOption" minOccurs="0"/>
-							<xs:element name="sipServersDomainListOption" type="sipServersDomainListOption" minOccurs="0"/>
+							<xs:element name="domainSearchListOption" type="domainSearchListOption" minOccurs="0"/>
+							<xs:element name="sipServerAddressesOption" type="sipServerAddressesOption" minOccurs="0"/>
+							<xs:element name="sipServerDomainNamesOption" type="sipServerDomainNamesOption" minOccurs="0"/>
+							<xs:element name="nisServersOption" type="nisServersOption" minOccurs="0"/>
+							<xs:element name="nisDomainNameOption" type="nisDomainNameOption" minOccurs="0"/>
+							<xs:element name="nisPlusServersOption" type="nisPlusServersOption" minOccurs="0"/>
+							<xs:element name="nisPlusDomainNameOption" type="nisPlusDomainNameOption" minOccurs="0"/>
+							<xs:element name="sntpServersOption" type="sntpServersOption" minOccurs="0"/>
+							<xs:element name="infoRefreshTimeOption" type="infoRefreshTimeOption" minOccurs="0"/>
 							<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="filterGroups" minOccurs="0" maxOccurs="unbounded">
 								<xs:complexType>
@@ -87,9 +105,15 @@
 										<xs:element name="statusCodeOption" type="statusCodeOption" minOccurs="0"/>
 										<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
 										<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
-										<xs:element name="domainListOption" type="domainListOption" minOccurs="0"/>
-										<xs:element name="sipServersAddressListOption" type="sipServersAddressListOption" minOccurs="0"/>
-										<xs:element name="sipServersDomainListOption" type="sipServersDomainListOption" minOccurs="0"/>
+										<xs:element name="domainSearchListOption" type="domainSearchListOption" minOccurs="0"/>
+										<xs:element name="sipServerAddressesOption" type="sipServerAddressesOption" minOccurs="0"/>
+										<xs:element name="sipServerDomainNamesOption" type="sipServerDomainNamesOption" minOccurs="0"/>
+										<xs:element name="nisServersOption" type="nisServersOption" minOccurs="0"/>
+										<xs:element name="nisDomainNameOption" type="nisDomainNameOption" minOccurs="0"/>
+										<xs:element name="nisPlusServersOption" type="nisPlusServersOption" minOccurs="0"/>
+										<xs:element name="nisPlusDomainNameOption" type="nisPlusDomainNameOption" minOccurs="0"/>
+										<xs:element name="sntpServersOption" type="sntpServersOption" minOccurs="0"/>
+										<xs:element name="infoRefreshTimeOption" type="infoRefreshTimeOption" minOccurs="0"/>
 										<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
 									</xs:sequence>
 								</xs:complexType>
@@ -172,8 +196,9 @@
 	<xs:simpleType name="domainName">
 		<xs:restriction base="xs:string">
 			<!-- A domain name cannot be more than 63 characters 
-				 see RFC1035 Section 3.1 -->
-			<xs:maxLength value="63"/>
+				 see RFC1035 Section 3.1... but a full domain name
+				 can be 255, so we may need a FQDN type in addition -->
+			<xs:maxLength value="255"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="optionExpression">
@@ -275,19 +300,19 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<xs:complexType name="sipServersDomainListOption">
+	<xs:complexType name="sipServerDomainNamesOption">
 		<xs:sequence>
 			<xs:element name="domainNames" type="domainName" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="21"/>
-		<xs:attribute name="name" type="name" fixed="SIP Servers Domain Name List"/>
+		<xs:attribute name="name" type="name" fixed="SIP Server Domain Names"/>
 	</xs:complexType>
-	<xs:complexType name="sipServersAddressListOption">
+	<xs:complexType name="sipServerAddressesOption">
 		<xs:sequence>
 			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="22"/>
-		<xs:attribute name="name" type="name" fixed="SIP Servers"/>
+		<xs:attribute name="name" type="name" fixed="SIP Server Addresses"/>
 	</xs:complexType>
 	<xs:complexType name="dnsServersOption">
 		<xs:sequence>
@@ -296,12 +321,55 @@
 		<xs:attribute name="code" type="code" fixed="23"/>
 		<xs:attribute name="name" type="name" fixed="DNS Recursive Name Server"/>
 	</xs:complexType>
-	<xs:complexType name="domainListOption">
+	<xs:complexType name="domainSearchListOption">
 		<xs:sequence>
 			<xs:element name="domainNames" type="domainName" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="24"/>
 		<xs:attribute name="name" type="name" fixed="Domain Search List"/>
+	</xs:complexType>
+	<xs:complexType name="nisServersOption">
+		<xs:sequence>
+			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="code" type="code" fixed="27"/>
+		<xs:attribute name="name" type="name" fixed="Network Information Service (NIS) Servers"/>
+	</xs:complexType>
+	<xs:complexType name="nisPlusServersOption">
+		<xs:sequence>
+			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="code" type="code" fixed="28"/>
+		<xs:attribute name="name" type="name" fixed="Network Information Service V2 (NIS+) Servers"/>
+	</xs:complexType>
+	<xs:complexType name="nisDomainNameOption">
+		<xs:sequence>
+			<xs:element name="domainName" type="domainName"/>
+		</xs:sequence>
+		<xs:attribute name="code" type="code" fixed="29"/>
+		<xs:attribute name="name" type="name" fixed="Network Information Service (NIS) Domain Name"/>
+	</xs:complexType>
+	<xs:complexType name="nisPlusDomainNameOption">
+		<xs:sequence>
+			<xs:element name="domainName" type="domainName"/>
+		</xs:sequence>
+		<xs:attribute name="code" type="code" fixed="30"/>
+		<xs:attribute name="name" type="name" fixed="Network Information Service V2 (NIS+) Domain Name"/>
+	</xs:complexType>
+	<xs:complexType name="sntpServersOption">
+		<xs:sequence>
+			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="code" type="code" fixed="31"/>
+		<xs:attribute name="name" type="name" fixed="Simple Network Time Protocol (SNTP) Servers"/>
+	</xs:complexType>
+	<xs:complexType name="infoRefreshTimeOption">
+		<xs:simpleContent>
+			<xs:extension base="xs:int">
+				<xs:attribute name="code" type="code" fixed="32"/>
+				<xs:attribute name="name" type="name" fixed="Information Refresh Time"/>
+			</xs:extension>
+		</xs:simpleContent>
 	</xs:complexType>
 
 <!-- Consider using these types	

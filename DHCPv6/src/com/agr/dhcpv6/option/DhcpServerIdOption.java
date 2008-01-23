@@ -18,7 +18,7 @@ import com.agr.dhcpv6.server.config.xml.ServerIdOption;
  * @version $Revision: $
  */
 
-public class DhcpServerIdOption implements DhcpOption, DhcpComparableOption
+public class DhcpServerIdOption extends BaseOpaqueDataOption
 {
     private static Log log = LogFactory.getLog(DhcpServerIdOption.class);
     
@@ -53,68 +53,14 @@ public class DhcpServerIdOption implements DhcpOption, DhcpComparableOption
     {
         return serverIdOption.getCode();
     }
-
-    public short getLength()
+    
+    public String getName()
     {
-        return OpaqueDataUtil.getLengthDataOnly(serverIdOption);
+        return serverIdOption.getName();
     }
-
-    public ByteBuffer encode() throws IOException
+    
+    public OpaqueData getOpaqueData()
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
-        OpaqueDataUtil.encodeDataOnly(bb, serverIdOption);
-        return (ByteBuffer)bb.flip();
-    }
-
-    public void decode(ByteBuffer bb) throws IOException
-    {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(serverIdOption.getName() + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
-            short eof = (short)(bb.position() + len);
-            while (bb.position() < eof) {
-                OpaqueData opaque = OpaqueDataUtil.decodeDataOnly(bb, len);
-                if (opaque.getAsciiValue() != null) {
-                    serverIdOption.setAsciiValue(opaque.getAsciiValue());
-                }
-                else {
-                    serverIdOption.setHexValue(opaque.getHexValue());
-                }
-            }
-        }
-    }
-
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-
-        return OpaqueDataUtil.matches(expression, serverIdOption);
-    }
-
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(serverIdOption.getName());
-        sb.append(": ");
-        sb.append(OpaqueDataUtil.toString(serverIdOption));
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (obj instanceof DhcpServerIdOption) {
-            DhcpServerIdOption that = (DhcpServerIdOption) obj;
-            return OpaqueDataUtil.equals(this.getServerIdOption(), 
-                                         that.getServerIdOption());
-        }
-        return false;
+        return (OpaqueData)this.serverIdOption;
     }
 }

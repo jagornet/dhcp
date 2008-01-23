@@ -43,8 +43,26 @@ public class DhcpOptionFactory
             case DhcpConstants.OPTION_DNS_SERVERS:
                 option = new DhcpDnsServersOption();
                 break;
-            case DhcpConstants.OPTION_DOMAIN_LIST:
-                option = new DhcpDomainListOption();
+            case DhcpConstants.OPTION_DOMAIN_SEARCH_LIST:
+                option = new DhcpDomainSearchListOption();
+                break;
+            case DhcpConstants.OPTION_NIS_SERVERS:
+                option = new DhcpNisServersOption();
+                break;
+            case DhcpConstants.OPTION_NISPLUS_SERVERS:
+                option = new DhcpNisPlusServersOption();
+                break;
+            case DhcpConstants.OPTION_NIS_DOMAIN_NAME:
+                option = new DhcpNisDomainNameOption();
+                break;
+            case DhcpConstants.OPTION_NISPLUS_DOMAIN_NAME:
+                option = new DhcpNisPlusDomainNameOption();
+                break;
+            case DhcpConstants.OPTION_SNTP_SERVERS:
+                option = new DhcpSntpServersOption();
+                break;
+            case DhcpConstants.OPTION_INFO_REFRESH_TIME:
+                option = new DhcpInfoRefreshTimeOption();
                 break;
             case DhcpConstants.OPTION_RELAY_MSG:
                 option = new DhcpRelayOption(peer);
