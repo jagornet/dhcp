@@ -96,11 +96,6 @@ public class DhcpVendorInfoOption implements DhcpOption
         }
     }
 
-    public short getCode()
-    {
-        return vendorInfoOption.getCode();
-    }
-
     public short getLength()
     {
         short len = 4;  // size of enterprise number (int)
@@ -121,6 +116,16 @@ public class DhcpVendorInfoOption implements DhcpOption
     public void addVendorSubOption(Option subopt)
     {
         vendorInfoOption.getSuboptions().add(subopt);
+    }
+
+    public short getCode()
+    {
+        return vendorInfoOption.getCode();
+    }
+
+    public String getName()
+    {
+        return vendorInfoOption.getName();
     }
 
     public String toString()

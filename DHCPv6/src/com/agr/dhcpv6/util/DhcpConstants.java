@@ -93,8 +93,12 @@ public class DhcpConstants
     public static final short OPTION_INTERFACE_ID = 18;
     public static final short OPTION_RECONF_MSG = 19;
     public static final short OPTION_RECONF_ACCEPT = 20;
+    public static final short OPTION_SIP_SERVERS_DOMAIN_LIST = 21;
+    public static final short OPTION_SIP_SERVERS_ADDRESS_LIST = 22;
     public static final short OPTION_DNS_SERVERS = 23;
     public static final short OPTION_DOMAIN_SEARCH_LIST = 24;
+    public static final short OPTION_IA_PD = 25;
+    public static final short OPTION_IA_PD_PREFIX = 26;
     public static final short OPTION_NIS_SERVERS = 27;
     public static final short OPTION_NISPLUS_SERVERS = 28;
     public static final short OPTION_NIS_DOMAIN_NAME = 29;
@@ -102,7 +106,14 @@ public class DhcpConstants
     public static final short OPTION_SNTP_SERVERS = 31;
     public static final short OPTION_INFO_REFRESH_TIME = 32;
 
-	static {
+    public static final short STATUS_CODE_SUCCESS = 0;
+    public static final short STATUS_CODE_UNSPEC_FAIL = 1;
+    public static final short STATUS_CODE_NOADDRSAVAIL = 2;
+    public static final short STATUS_CODE_NOBINDING = 3;
+    public static final short STATUS_CODE_NOTONLINK = 4;
+    public static final short STATUS_CODE_USEMULTICAST = 5;
+
+    static {
 		try {
             LOCALHOST = InetAddress.getByName("127.0.0.1");
             BROADCAST = InetAddress.getByName("255.255.255.255");

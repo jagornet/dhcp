@@ -22,8 +22,6 @@ public abstract class BaseDomainNameListOption implements DhcpOption
 {
     private static Log log = LogFactory.getLog(BaseDomainNameListOption.class);
 
-    public abstract short getCode();
-    public abstract String getName();
     public abstract List<String> getDomainNames();
     
     public ByteBuffer encode() throws IOException

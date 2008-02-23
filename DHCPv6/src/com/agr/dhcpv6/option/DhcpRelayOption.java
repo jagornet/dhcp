@@ -28,11 +28,6 @@ public class DhcpRelayOption implements DhcpOption
         this.peerAddress = peerAddress;
     }
 
-    public short getCode()
-    {
-        return DhcpConstants.OPTION_RELAY_MSG;
-    }
-
     public short getLength()
     {
         // the length of this option is the length of the contained message
@@ -94,6 +89,16 @@ public class DhcpRelayOption implements DhcpOption
     public void setPeerAddress(InetAddress peerAddress)
     {
         this.peerAddress = peerAddress;
+    }
+
+    public short getCode()
+    {
+        return DhcpConstants.OPTION_RELAY_MSG;
+    }
+
+    public String getName()
+    {
+        return NAME;
     }
 
     public String toString()

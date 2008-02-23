@@ -24,8 +24,6 @@ public abstract class BaseOpaqueDataOption implements DhcpOption, DhcpComparable
 {
     private static Log log = LogFactory.getLog(BaseOpaqueDataOption.class);
 
-    public abstract short getCode();
-    public abstract String getName();
     public abstract OpaqueData getOpaqueData();
     
     public short getLength()

@@ -49,11 +49,6 @@ public class DhcpInterfaceIdOption implements DhcpOption, DhcpComparableOption
             this.interfaceIdOption = interfaceIdOption;
     }
 
-    public short getCode()
-    {
-        return interfaceIdOption.getCode();
-    }
-
     public short getLength()
     {
         return OpaqueDataUtil.getLengthDataOnly(interfaceIdOption);
@@ -99,6 +94,16 @@ public class DhcpInterfaceIdOption implements DhcpOption, DhcpComparableOption
         return OpaqueDataUtil.matches(expression, interfaceIdOption);
     }
 
+    public short getCode()
+    {
+        return interfaceIdOption.getCode();
+    }
+
+    public String getName()
+    {
+        return interfaceIdOption.getName();
+    }
+    
     public String toString()
     {
         StringBuilder sb = new StringBuilder(interfaceIdOption.getName());

@@ -50,11 +50,6 @@ public class DhcpVendorClassOption implements DhcpOption, DhcpComparableOption
             this.vendorClassOption = vendorClassOption;
     }
 
-    public short getCode()
-    {
-        return vendorClassOption.getCode();
-    }
-
     public short getLength()
     {
         short len = 4;  // size of enterprise number (int)
@@ -149,6 +144,16 @@ public class DhcpVendorClassOption implements DhcpOption, DhcpComparableOption
     public void addVendorClass(OpaqueData opaque)
     {
         vendorClassOption.getVendorClasses().add(opaque);        
+    }
+
+    public short getCode()
+    {
+        return vendorClassOption.getCode();
+    }
+
+    public String getName()
+    {
+        return vendorClassOption.getName();
     }
     
     public String toString()

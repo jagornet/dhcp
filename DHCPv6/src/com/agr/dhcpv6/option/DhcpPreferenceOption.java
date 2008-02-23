@@ -47,11 +47,6 @@ public class DhcpPreferenceOption implements DhcpOption
             this.preferenceOption = preferenceOption;
     }
 
-    public short getCode()
-    {
-        return preferenceOption.getCode();
-    }
-
     public short getLength()
     {
         return 1;   // always one bytes
@@ -78,6 +73,16 @@ public class DhcpPreferenceOption implements DhcpOption
                 preferenceOption.setValue(bb.get());
             }
         }
+    }
+
+    public short getCode()
+    {
+        return preferenceOption.getCode();
+    }
+
+    public String getName()
+    {
+        return preferenceOption.getName();
     }
     
     public String toString()

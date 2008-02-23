@@ -6,52 +6,53 @@ import java.nio.ByteBuffer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.agr.dhcpv6.server.config.xml.ElapsedTimeOption;
+import com.agr.dhcpv6.server.config.xml.StatusCodeOption;
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.OptionExpression;
 
 /**
- * <p>Title: DhcpElapsedTimeOption </p>
+ * <p>Title: DhcpStatusCodeOption </p>
  * <p>Description: </p>
  * 
  * @author A. Gregory Rabil
  * @version $Revision: $
  */
 
-public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
+public class DhcpStatusCodeOption implements DhcpOption, DhcpComparableOption
 {
-    private static Log log = LogFactory.getLog(DhcpElapsedTimeOption.class);
+    private static Log log = LogFactory.getLog(DhcpStatusCodeOption.class);
     
-    private ElapsedTimeOption elapsedTimeOption;
+    private StatusCodeOption statusCodeOption;
     
-    public DhcpElapsedTimeOption()
+    public DhcpStatusCodeOption()
     {
         super();
-        elapsedTimeOption = new ElapsedTimeOption();
+        statusCodeOption = new StatusCodeOption();
     }
-    public DhcpElapsedTimeOption(ElapsedTimeOption elapsedTimeOption)
+    public DhcpStatusCodeOption(StatusCodeOption statusCodeOption)
     {
         super();
-        if (elapsedTimeOption != null)
-            this.elapsedTimeOption = elapsedTimeOption;
+        if (statusCodeOption != null)
+            this.statusCodeOption = statusCodeOption;
         else
-            this.elapsedTimeOption = new ElapsedTimeOption();
+            this.statusCodeOption = new StatusCodeOption();
     }
 
-    public ElapsedTimeOption getElapsedTimeOption()
+    public StatusCodeOption getStatusCodeOption()
     {
-        return elapsedTimeOption;
+        return statusCodeOption;
     }
 
-    public void setElapsedTimeOption(ElapsedTimeOption elapsedTimeOption)
+    public void setStatusCodeOption(StatusCodeOption statusCodeOption)
     {
-        if (elapsedTimeOption != null)
-            this.elapsedTimeOption = elapsedTimeOption;
+        if (statusCodeOption != null)
+            this.statusCodeOption = statusCodeOption;
     }
 
     public short getLength()
     {
-        return 2;   // always two bytes (short)
+        String msg = statusCodeOption.getMessage();
+        return (short)(2 + (msg!=null ? msg.length() : 0));
     }
 
     public ByteBuffer encode() throws IOException
@@ -59,7 +60,8 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
         ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
         bb.putShort(this.getCode());
         bb.putShort(this.getLength());
-        bb.putShort(elapsedTimeOption.getValue());
+        bb.putShort(statusCodeOption.getStatusCode());
+        bb.put(statusCodeOption.getMessage().getBytes());
         return (ByteBuffer)bb.flip();
     }
 
@@ -69,15 +71,23 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
             // already have the code, so length is next
             short len = bb.getShort();
             if (log.isDebugEnabled())
-                log.debug(elapsedTimeOption.getName() + " reports length=" + len +
+                log.debug(statusCodeOption.getName() + " reports length=" + len +
                           ":  bytes remaining in buffer=" + bb.remaining());
             short eof = (short)(bb.position() + len);
             if (bb.position() < eof) {
-                elapsedTimeOption.setValue(bb.getShort());
+                statusCodeOption.setStatusCode(bb.getShort());
+                if (bb.position() < eof) {
+                    byte[] data = new byte[len-2];  // minus 2 for the status code
+                    bb.get(data);
+                    statusCodeOption.setMessage(new String(data));
+                }
             }
         }
     }
 
+    /**
+     * Matches only the status code, not the message text
+     */
     public boolean matches(OptionExpression expression)
     {
         if (expression == null)
@@ -90,7 +100,7 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
             String ascii = opaque.getAsciiValue();
             if (ascii != null) {
                 try {
-                    if (elapsedTimeOption.getValue() == Short.parseShort(ascii)) {
+                    if (statusCodeOption.getStatusCode() == Short.parseShort(ascii)) {
                         return true;
                     }
                 }
@@ -108,7 +118,7 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
                         hexShort = (short)(hex[0]*256);
                         hexShort += (short)hex[1];
                     }
-                    if (elapsedTimeOption.getValue() == hexShort) {
+                    if (statusCodeOption.getStatusCode() == hexShort) {
                         return true;
                     }
                 }
@@ -119,19 +129,22 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
 
     public short getCode()
     {
-        return elapsedTimeOption.getCode();
+        return statusCodeOption.getCode();
     }
 
     public String getName()
     {
-        return elapsedTimeOption.getName();
+        return statusCodeOption.getName();
     }
-    
+
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(elapsedTimeOption.getName());
+        StringBuilder sb = new StringBuilder(statusCodeOption.getName());
         sb.append(": ");
-        sb.append(elapsedTimeOption.getValue());
+        sb.append("code=");
+        sb.append(statusCodeOption.getStatusCode());
+        sb.append(" message=");
+        sb.append(statusCodeOption.getMessage());
         return sb.toString();
     }
     

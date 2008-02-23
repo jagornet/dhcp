@@ -66,6 +66,8 @@ public class Subnet
         InetAddress endAddr = null;
         BigInteger start = new BigInteger(subnetAddress.getAddress());
         // turn on each bit that isn't masked by the prefix
+        // note that bit zero(0) is the lowest order bit, so
+        // this loop logically moves from right to left
         for (int i=0; i<(128-prefixLength); i++) {
             start = start.setBit(i);
         }
