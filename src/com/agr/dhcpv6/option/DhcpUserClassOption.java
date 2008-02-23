@@ -50,11 +50,6 @@ public class DhcpUserClassOption implements DhcpOption, DhcpComparableOption
             this.userClassOption = userClassOption;
     }
 
-    public short getCode()
-    {
-        return userClassOption.getCode();
-    }
-
     public short getLength()
     {
         short len = 0;
@@ -140,6 +135,16 @@ public class DhcpUserClassOption implements DhcpOption, DhcpComparableOption
         userClassOption.getUserClasses().add(opaque);
     }
 
+    public short getCode()
+    {
+        return userClassOption.getCode();
+    }
+
+    public String getName()
+    {
+        return userClassOption.getName();
+    }
+    
     public String toString()
     {
         if (userClassOption == null)

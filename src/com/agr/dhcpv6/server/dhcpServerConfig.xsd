@@ -26,6 +26,7 @@
 			<xs:sequence>
 				<xs:element name="abcPolicy" type="abcPolicy"/>
 				<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
+				<xs:element name="sendRequestedOptionsOnlyPolicy" type="sendRequestedOptionsOnlyPolicy" minOccurs="0"/>
 				<xs:element name="genericPolicies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element name="serverIdOption" type="serverIdOption"/>
 				<xs:element name="preferenceOption" type="preferenceOption" minOccurs="0"/>
@@ -50,6 +51,7 @@
 							<xs:element name="optionExpressions" type="optionExpression" maxOccurs="unbounded"/>
 							<xs:element name="abcPolicy" type="abcPolicy" minOccurs="0"/>
 							<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
+							<xs:element name="sendRequestedOptionsOnlyPolicy" type="sendRequestedOptionsOnlyPolicy" minOccurs="0"/>
 							<xs:element name="genericPolicies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="preferenceOption" type="preferenceOption" minOccurs="0"/>
 							<xs:element name="serverUnicastOption" type="serverUnicastOption" minOccurs="0"/>
@@ -75,6 +77,7 @@
 							<xs:element name="address" type="xs:string"/>
 							<xs:element name="abcPolicy" type="abcPolicy" minOccurs="0"/>
 							<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
+							<xs:element name="sendRequestedOptionsOnlyPolicy" type="sendRequestedOptionsOnlyPolicy" minOccurs="0"/>
 							<xs:element name="genericPolicies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="serverIdOption" type="serverIdOption" minOccurs="0"/>
 							<xs:element name="preferenceOption" type="preferenceOption" minOccurs="0"/>
@@ -99,6 +102,7 @@
 										<xs:element name="optionExpressions" type="optionExpression" maxOccurs="unbounded"/>
 										<xs:element name="abcPolicy" type="abcPolicy" minOccurs="0"/>
 										<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
+										<xs:element name="sendRequestedOptionsOnlyPolicy" type="sendRequestedOptionsOnlyPolicy" minOccurs="0"/>
 										<xs:element name="genericPolicies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
 										<xs:element name="preferenceOption" type="preferenceOption" minOccurs="0"/>
 										<xs:element name="serverUnicastOption" type="serverUnicastOption" minOccurs="0"/>
@@ -153,6 +157,12 @@
 			<xs:documentation>Special architected XYZ policy</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:int"/>
+	</xs:simpleType>
+	<xs:simpleType name="sendRequestedOptionsOnlyPolicy">
+		<xs:annotation>
+			<xs:documentation>Send reply messages that contain only the options requested by the client in the ORO option, if such options are configured.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:boolean"/>
 	</xs:simpleType>
 	<xs:simpleType name="code">
 		<xs:restriction base="xs:short"/>

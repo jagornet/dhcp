@@ -49,11 +49,6 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
             this.elapsedTimeOption = elapsedTimeOption;
     }
 
-    public short getCode()
-    {
-        return elapsedTimeOption.getCode();
-    }
-
     public short getLength()
     {
         return 2;   // always two bytes (short)
@@ -122,6 +117,16 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
         return false;
     }
 
+    public short getCode()
+    {
+        return elapsedTimeOption.getCode();
+    }
+
+    public String getName()
+    {
+        return elapsedTimeOption.getName();
+    }
+    
     public String toString()
     {
         StringBuilder sb = new StringBuilder(elapsedTimeOption.getName());

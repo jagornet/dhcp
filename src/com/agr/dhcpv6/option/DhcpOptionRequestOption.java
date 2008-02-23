@@ -61,11 +61,6 @@ public class DhcpOptionRequestOption implements DhcpOption
         }
         return (ByteBuffer)bb.flip();
     }
-
-    public short getCode()
-    {
-        return optionRequestOption.getCode();
-    }
     
     public void decode(ByteBuffer bb) throws IOException
     {
@@ -98,6 +93,16 @@ public class DhcpOptionRequestOption implements DhcpOption
         if (code != null) {
             optionRequestOption.getRequestedOptionCodes().add(code);
         }
+    }
+
+    public short getCode()
+    {
+        return optionRequestOption.getCode();
+    }
+
+    public String getName()
+    {
+        return optionRequestOption.getName();
     }
     
     public String toString()

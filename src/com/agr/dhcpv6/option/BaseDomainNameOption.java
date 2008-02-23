@@ -22,8 +22,6 @@ public abstract class BaseDomainNameOption implements DhcpOption
 {
     private static Log log = LogFactory.getLog(BaseDomainNameOption.class);
 
-    public abstract short getCode();
-    public abstract String getName();
     public abstract String getDomainName();
     public abstract void setDomainName(String domainName);
     

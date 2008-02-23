@@ -14,6 +14,8 @@ import com.agr.dhcpv6.option.DhcpClientIdOption;
 import com.agr.dhcpv6.option.DhcpComparableOption;
 import com.agr.dhcpv6.option.DhcpDnsServersOption;
 import com.agr.dhcpv6.option.DhcpDomainSearchListOption;
+import com.agr.dhcpv6.option.DhcpIaNaOption;
+import com.agr.dhcpv6.option.DhcpIaTaOption;
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.option.DhcpPreferenceOption;
 import com.agr.dhcpv6.option.DhcpServerIdOption;
@@ -102,6 +104,7 @@ public class DhcpInfoRequestProcessor
         DhcpServerIdOption dhcpServerIdOption =
             new DhcpServerIdOption(serverIdOption);
         
+        boolean hasIaOption = false;
         DhcpClientIdOption clientIdOption = null;
         DhcpServerIdOption requestedServerIdOption = null;
         Collection<DhcpOption> options = requestMsg.getOptions();
@@ -111,10 +114,24 @@ public class DhcpInfoRequestProcessor
                 if (option instanceof DhcpClientIdOption) {
                     clientIdOption = (DhcpClientIdOption)option;
                 }
-                if (option instanceof DhcpServerIdOption) {
+                else if (option instanceof DhcpServerIdOption) {
                     requestedServerIdOption = (DhcpServerIdOption)option;
                 }
+                else if (option instanceof DhcpIaNaOption) {
+                    hasIaOption = true;
+                }
+                else if (option instanceof DhcpIaTaOption) {
+                    hasIaOption = true;
+                }
             }
+        }
+        
+        // if the client message has an IA option (IA_NA, IA_TA)
+        // then the Stateless DHCPv6 server must ignore the request
+        if (hasIaOption) {
+            log.warn("Ignoring Info-Request message: " +
+                     " client message contains an IA option.");
+            return null;
         }
         
         // if the client provided a ServerID option, then it MUST

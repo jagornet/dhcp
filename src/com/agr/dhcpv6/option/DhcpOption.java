@@ -13,11 +13,7 @@ public interface DhcpOption extends Encodable, Decodable
 {
     public abstract short getCode();
 
-//    public abstract void setCode(Short code);
-
-//    public abstract String getName();
-
-//    public abstract void setName(String name);
+    public abstract String getName();
     
     public abstract short getLength();
     

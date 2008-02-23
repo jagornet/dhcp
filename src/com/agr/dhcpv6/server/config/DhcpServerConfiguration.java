@@ -77,7 +77,7 @@ public class DhcpServerConfiguration
         
         try {
             List<Links> links = CONFIG.getLinks();
-            if (links != null) {
+            if ((links != null) && !links.isEmpty()) {
                 for (Links link : links) {
                     String addr = link.getAddress();
                     if (addr != null) {
@@ -115,10 +115,10 @@ public class DhcpServerConfiguration
     public static Links findLinkForAddress(InetAddress inetAddr)
     {
         Links link = null;
-        if (linkMap != null) {
+        if ((linkMap != null) && !linkMap.isEmpty()) {
             Subnet s = new Subnet(inetAddr, 128);
             SortedMap<Subnet, Links> subMap = linkMap.headMap(s);
-            if (subMap != null) {
+            if ((subMap != null) && !subMap.isEmpty()) {
                 s = subMap.lastKey();
                 if (s.contains(inetAddr)) {
                     link = subMap.get(s);

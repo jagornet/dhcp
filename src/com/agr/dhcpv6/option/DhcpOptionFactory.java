@@ -16,6 +16,12 @@ public class DhcpOptionFactory
             case DhcpConstants.OPTION_SERVERID:
                 option = new DhcpServerIdOption();
                 break;
+            case DhcpConstants.OPTION_IA_NA:
+                option = new DhcpIaNaOption();
+                break;
+            case DhcpConstants.OPTION_IA_TA:
+                option = new DhcpIaNaOption();
+                break;
             case DhcpConstants.OPTION_ORO:
                 option = new DhcpOptionRequestOption();
                 break;
@@ -26,7 +32,7 @@ public class DhcpOptionFactory
                 option = new DhcpElapsedTimeOption();
                 break;
             case DhcpConstants.OPTION_STATUS_CODE:
-                //option = new DhcpStatusCodeOption();
+                option = new DhcpStatusCodeOption();
                 break;
             case DhcpConstants.OPTION_USER_CLASS:
                 option = new DhcpUserClassOption();
@@ -38,7 +44,7 @@ public class DhcpOptionFactory
                 option = new DhcpVendorInfoOption();
                 break;
             case DhcpConstants.OPTION_INTERFACE_ID:
-                //option = new DhcpInterfaceIdOption();
+                option = new DhcpInterfaceIdOption();
                 break;
             case DhcpConstants.OPTION_DNS_SERVERS:
                 option = new DhcpDnsServersOption();

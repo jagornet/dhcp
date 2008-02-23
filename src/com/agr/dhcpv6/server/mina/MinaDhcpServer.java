@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,6 +16,10 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.jmx.HierarchyDynamicMBean;
+import org.apache.log4j.spi.LoggerRepository;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoService;
@@ -42,10 +49,16 @@ public class MinaDhcpServer
     public MinaDhcpServer() 
     {
         try {
-            DhcpServerConfiguration.init("/svn/dhcpv6/trunk/DHCPv6/src/com/agr/dhcpv6/server/dhcpServerConfig2.xml");
+            DhcpServerConfiguration.init("/temp/dhcpV6ServerConfig.xml");
             
             acceptor = new NioDatagramAcceptor();
-            acceptor.setLocalAddress(new InetSocketAddress(DhcpConstants.SERVER_PORT));
+            List<SocketAddress> localAddrs = new ArrayList<SocketAddress>();
+            localAddrs.add(new InetSocketAddress(DhcpConstants.SERVER_PORT));
+            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS,
+                                                 DhcpConstants.SERVER_PORT));
+            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS,
+                                                 DhcpConstants.SERVER_PORT));
+            acceptor.setDefaultLocalAddresses(localAddrs);
             acceptor.setHandler(new MinaDhcpHandler(this));
     
             registerJmx(acceptor);
@@ -78,11 +91,16 @@ public class MinaDhcpServer
             DatagramSessionConfig dcfg = acceptor.getSessionConfig();
             dcfg.setReuseAddress(true);
 
-            log.info("Binding to: " + acceptor.getLocalAddress());
+            registerLog4jInJmx();
+            
+            List<SocketAddress> defaultAddrs = acceptor.getDefaultLocalAddresses();
+            for (SocketAddress socketAddress : defaultAddrs) {
+                log.info("Binding to default local address: " + socketAddress);
+            }
             acceptor.bind();
         }
         catch (Exception ex) {
-            log.error("Failed to start server: " + ex);
+            log.error("Failed to start server: " + ex, ex);
         }
     }
     
@@ -143,6 +161,35 @@ public class MinaDhcpServer
         }
         catch (Exception ex) {
             log.error("Failure registering server in JMX: " + ex);
+        }
+    }
+    
+    protected void registerLog4jInJmx()
+    {
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();  
+        try {
+            // Create and Register the top level Log4J MBean
+            HierarchyDynamicMBean hdm = new HierarchyDynamicMBean();
+            ObjectName mbo = new ObjectName("log4j:hiearchy=default");
+            mbs.registerMBean(hdm, mbo);
+    
+            // Add the root logger to the Hierarchy MBean
+            Logger rootLogger = Logger.getRootLogger();
+            hdm.addLoggerMBean(rootLogger.getName());
+    
+            // Get each logger from the Log4J Repository and add it to
+            // the Hierarchy MBean created above.
+            LoggerRepository r = LogManager.getLoggerRepository();
+            Enumeration<Logger> loggers = r.getCurrentLoggers();
+            if (loggers != null) {
+                while (loggers.hasMoreElements()) {
+                    Logger logger = (Logger) loggers.nextElement();
+                    hdm.addLoggerMBean(logger.getName());
+                }
+            }
+        }
+        catch (Exception ex) {
+            log.error("Failure registering Log4J in JMX: " + ex);
         }
     }
     

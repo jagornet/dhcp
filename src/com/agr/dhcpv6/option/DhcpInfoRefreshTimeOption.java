@@ -49,11 +49,6 @@ public class DhcpInfoRefreshTimeOption implements DhcpOption, DhcpComparableOpti
             this.infoRefreshTimeOption = infoRefreshTimeOption;
     }
 
-    public short getCode()
-    {
-        return infoRefreshTimeOption.getCode();
-    }
-
     public short getLength()
     {
         return 4;   // always four bytes (int)
@@ -133,6 +128,16 @@ public class DhcpInfoRefreshTimeOption implements DhcpOption, DhcpComparableOpti
         return false;
     }
 
+    public short getCode()
+    {
+        return infoRefreshTimeOption.getCode();
+    }
+
+    public String getName()
+    {
+        return infoRefreshTimeOption.getName();
+    }
+   
     public String toString()
     {
         StringBuilder sb = new StringBuilder(infoRefreshTimeOption.getName());
