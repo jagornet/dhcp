@@ -73,7 +73,8 @@ public class DhcpServer implements Runnable
         DhcpServerConfiguration.init(configFilename);
         
         selector = Selector.open();
-        dhcpChannel = new DhcpChannel(DhcpConstants.SERVER_PORT);
+//        dhcpChannel = new DhcpChannel(DhcpConstants.SERVER_PORT);
+        dhcpChannel = new DhcpChannel(10000 + DhcpConstants.SERVER_PORT);
         workQueue = new LinkedBlockingQueue<DhcpMessage>(QUEUE_SIZE);
         
         workProcessor = new WorkProcessor(dhcpChannel, workQueue);

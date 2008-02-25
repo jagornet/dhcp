@@ -29,13 +29,15 @@ public class DhcpChannelClient implements Runnable
     public DhcpChannelClient()
 		    throws IOException, SocketException
     {
-		dhcpChannel = new DhcpChannel(DhcpConstants.CLIENT_PORT);
+//		dhcpChannel = new DhcpChannel(DhcpConstants.CLIENT_PORT);
+		dhcpChannel = new DhcpChannel(10000 + DhcpConstants.CLIENT_PORT);
     }
 
 	public void run()
 	{
         DhcpMessage msg = new DhcpMessage(DhcpConstants.LOCALHOST,
-                                          DhcpConstants.SERVER_PORT);
+//                                          DhcpConstants.SERVER_PORT);
+        								  10000 + DhcpConstants.SERVER_PORT);
         for (int i=0; i<100; i++) {
             sendInfoRequest(i, msg);            
         }
