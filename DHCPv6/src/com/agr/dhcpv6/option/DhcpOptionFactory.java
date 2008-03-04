@@ -46,6 +46,12 @@ public class DhcpOptionFactory
             case DhcpConstants.OPTION_INTERFACE_ID:
                 option = new DhcpInterfaceIdOption();
                 break;
+            case DhcpConstants.OPTION_SIP_SERVERS_DOMAIN_LIST:
+            	option = new DhcpSipServerDomainNamesOption();
+            	break;
+            case DhcpConstants.OPTION_SIP_SERVERS_ADDRESS_LIST:
+            	option = new DhcpSipServerAddressesOption();
+            	break;
             case DhcpConstants.OPTION_DNS_SERVERS:
                 option = new DhcpDnsServersOption();
                 break;

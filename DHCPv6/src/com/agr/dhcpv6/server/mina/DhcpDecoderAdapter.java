@@ -1,6 +1,8 @@
 package com.agr.dhcpv6.server.mina;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,13 +23,27 @@ public class DhcpDecoderAdapter extends ProtocolDecoderAdapter
     public void decode(IoSession session, IoBuffer in, ProtocolDecoderOutput out)
             throws Exception
     {
-        DhcpMessage dhcpMessage = null;
-        
         InetSocketAddress from = (InetSocketAddress)session.getRemoteAddress();
         if (log.isDebugEnabled())
             log.debug("Decoding DhcpMessage from: " + from);
         
-        if ((in != null) && in.hasRemaining()) {
+        DhcpMessage dhcpMessage = decode(in.buf(), from);
+        
+        if (dhcpMessage != null) {
+            if (log.isDebugEnabled())
+                log.debug("Writing decoded message from: " + from);
+            out.write(dhcpMessage);
+        }
+        else {
+            log.error("No message decoded.");
+        }
+    }
+
+	public DhcpMessage decode(ByteBuffer in, InetSocketAddress from)
+			throws IOException,	ProtocolDecoderException
+	{
+		DhcpMessage dhcpMessage = null;		
+		if ((in != null) && in.hasRemaining()) {
 
             // get the message type byte to see if we can handle it
             byte msgtype = in.get();
@@ -41,7 +57,7 @@ public class DhcpDecoderAdapter extends ProtocolDecoderAdapter
                 // set the message type - we only read it ourselves so 
                 // that we could use it for the factory.
                 in.rewind();
-                dhcpMessage.decode(in.buf());
+                dhcpMessage.decode(in);
             }
         }
         else {
@@ -49,14 +65,6 @@ public class DhcpDecoderAdapter extends ProtocolDecoderAdapter
             log.error(errmsg);
             throw new ProtocolDecoderException(errmsg);
         }
-        
-        if (dhcpMessage != null) {
-            if (log.isDebugEnabled())
-                log.debug("Writing decoded message from: " + from);
-            out.write(dhcpMessage);
-        }
-        else {
-            log.error("No message decoded.");
-        }
-    }
+		return dhcpMessage;
+	}
 }

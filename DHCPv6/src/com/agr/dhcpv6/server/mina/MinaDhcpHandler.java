@@ -42,30 +42,11 @@ public class MinaDhcpHandler extends IoHandlerAdapter
         if (message instanceof DhcpMessage) {
             
             DhcpMessage dhcpMessage = (DhcpMessage) message;
-            server.recvUpdate(remoteAddress, dhcpMessage);
+    		server.recvUpdate(remoteAddress, dhcpMessage);
 
-            DhcpMessage replyMessage = null;
-            if (dhcpMessage.getMessageType() == DhcpConstants.INFO_REQUEST) {
-                replyMessage = 
-                    handleInfoRequest(((InetSocketAddress)session.getLocalAddress()).getAddress(),
-                                       dhcpMessage);
-            }
-            else if (dhcpMessage.getMessageType() == DhcpConstants.RELAY_FORW) {
-                if (message instanceof DhcpRelayMessage) {
-                    DhcpRelayMessage relayMessage = (DhcpRelayMessage) dhcpMessage;
-                    replyMessage = handleRelayFoward(relayMessage);
-                }
-                else {
-                    // Note: in theory, we can't get here, because the
-                    // codec would have thrown an exception beforehand
-                    log.error("Received unknown relay message object: " + 
-                              message.getClass());
-                }
-            }
-            else {
-                log.warn("Ignoring unsupported message type: " + 
-                         DhcpConstants.getMessageString(dhcpMessage.getMessageType()));
-            }
+            DhcpMessage replyMessage = 
+            	handleMessage(((InetSocketAddress)session.getLocalAddress()).getAddress(),
+            				  dhcpMessage);
             
             if (replyMessage != null) {
                 // do we really want to write to the remoteAddress
@@ -86,6 +67,32 @@ public class MinaDhcpHandler extends IoHandlerAdapter
         }
     }
     
+    public DhcpMessage handleMessage(InetAddress localAddress,
+    								 DhcpMessage dhcpMessage)
+    {
+		DhcpMessage replyMessage = null;
+		if (dhcpMessage.getMessageType() == DhcpConstants.INFO_REQUEST) {
+		    replyMessage = handleInfoRequest(localAddress, dhcpMessage);
+		}
+		else if (dhcpMessage.getMessageType() == DhcpConstants.RELAY_FORW) {
+		    if (dhcpMessage instanceof DhcpRelayMessage) {
+		        DhcpRelayMessage relayMessage = (DhcpRelayMessage) dhcpMessage;
+		        replyMessage = handleRelayFoward(relayMessage);
+		    }
+		    else {
+		        // Note: in theory, we can't get here, because the
+		        // codec would have thrown an exception beforehand
+		        log.error("Received unknown relay message object: " + 
+		                  dhcpMessage.getClass());
+		    }
+		}
+		else {
+		    log.warn("Ignoring unsupported message type: " + 
+		             DhcpConstants.getMessageString(dhcpMessage.getMessageType()));
+		}
+		return replyMessage;
+	}
+    
     private DhcpMessage handleInfoRequest(InetAddress linkAddr, 
                                           DhcpMessage dhcpMessage)
     {
@@ -96,7 +103,7 @@ public class MinaDhcpHandler extends IoHandlerAdapter
         return reply;
     }
     
-    private DhcpMessage handleRelayFoward(DhcpRelayMessage relayMessage)
+    private DhcpRelayMessage handleRelayFoward(DhcpRelayMessage relayMessage)
     {
         InetAddress linkAddr = relayMessage.getLinkAddress();
         DhcpRelayOption relayOption = relayMessage.getRelayOption();
@@ -107,7 +114,10 @@ public class MinaDhcpHandler extends IoHandlerAdapter
                 if (relayOptionMessage instanceof DhcpRelayMessage) {
                     // encapsulated message is another relay message
                     DhcpRelayMessage anotherRelayMessage = 
-                        (DhcpRelayMessage)relayOptionMessage; 
+                        (DhcpRelayMessage)relayOptionMessage;
+                    // flip this inner relay_forward into a relay_reply,
+                    // because we reuse the relay message "stack" for the reply
+                    anotherRelayMessage.setMessageType(DhcpConstants.RELAY_REPL);
                     // reset the client link reference
                     linkAddr = anotherRelayMessage.getLinkAddress();
                     // reset the current relay option reference to the
@@ -126,9 +136,12 @@ public class MinaDhcpHandler extends IoHandlerAdapter
                             // replace the original Info-Request message inside
                             // the relayed message with the generated Reply message
                             relayOption.setRelayMessage(replyMessage);
+                            // flip the outer-most relay_foward into a relay_reply
+                            relayMessage.setMessageType(DhcpConstants.RELAY_REPL);
                             // return the relay message we started with, 
-                            // which should look the same except the lowest 
-                            // level message should be our reply
+                            // with each relay "layer" flipped from a relay_forward
+                            // to a relay_reply, and the lowest level relayOption
+                            // will contain our Reply for the Info-Request
                             return relayMessage;
                         }
                     }

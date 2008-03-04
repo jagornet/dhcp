@@ -2,8 +2,11 @@ package com.agr.dhcpv6.server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
@@ -16,11 +19,14 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig;
+import com.agr.dhcpv6.server.mina.DhcpDecoderAdapter;
+import com.agr.dhcpv6.server.mina.MinaDhcpHandler;
 import com.agr.dhcpv6.util.DhcpConstants;
 
 /**
@@ -112,21 +118,30 @@ public class DhcpSocketServer implements Runnable
                     if (srcInetSocketAddress != null) {
                         log.info("Received datagram from: " + srcInetSocketAddress);
                         ByteBuffer bbuf = ByteBuffer.wrap(buf);
-                        DhcpMessage inMessage = 
-                            DhcpMessage.decode(srcInetSocketAddress, bbuf);
-                        if (log.isDebugEnabled())
-                            log.debug("Decoded message: " + 
-                                      (inMessage != null ? 
-                                      inMessage.toStringWithOptions() : "null"));
-                        DhcpInfoRequestProcessor processor =
-                            new DhcpInfoRequestProcessor(srcInetSocketAddress.getAddress(),
-                                                         inMessage);
-                        DhcpMessage outMessage = processor.process();
-                        if (outMessage != null) {
-                            sendMessage(outMessage);
+                        
+                        DhcpDecoderAdapter decoder = new DhcpDecoderAdapter();
+                        DhcpMessage inMessage = null;
+                        try {
+                        	inMessage = decoder.decode(bbuf, srcInetSocketAddress);
                         }
-                        else {
-                            log.warn("Processor returned null reply message");
+                        catch (ProtocolDecoderException ex) {
+                        	log.error("Failed to decode message: " + ex);
+                        	continue;
+                        }
+                        if (inMessage != null) {
+                            if (log.isDebugEnabled())
+                                log.debug("Decoded message: " + 
+                                          (inMessage != null ? 
+                                          inMessage.toStringWithOptions() : "null"));
+                        	MinaDhcpHandler handler = new MinaDhcpHandler(null);	// hack, no server provided
+                        	DhcpMessage outMessage = 
+                        		handler.handleMessage(getLocalAddress(), inMessage);
+                            if (outMessage != null) {
+                                sendMessage(outMessage);
+                            }
+                            else {
+                                log.warn("Handler returned null reply message");
+                            }
                         }
                     }
                     else {
@@ -143,6 +158,18 @@ public class DhcpSocketServer implements Runnable
         }
     }
 
+    private InetAddress getLocalAddress()
+    {
+    	InetAddress localAddr = null;
+    	try {
+    		localAddr = Inet6Address.getLocalHost();
+    	}
+    	catch (UnknownHostException ex) {
+    		log.error("Failed to get local IPv6 address: " + ex);
+    	}
+    	return localAddr;
+    }
+    
     /**
      * Sends a DhcpMessage object to a predifined host.
      * @param outMessage well-formed DhcpMessage to be sent to a host
@@ -150,10 +177,15 @@ public class DhcpSocketServer implements Runnable
     public void sendMessage(DhcpMessage outMessage)
             throws IOException
     {
+        if (log.isDebugEnabled())
+            log.debug("Sending message: " + 
+                      (outMessage != null ? 
+                       outMessage.toStringWithOptions() : "null"));
         ByteBuffer bbuf = outMessage.encode();
         DatagramPacket dp = new DatagramPacket(bbuf.array(), bbuf.limit());
         dp.setSocketAddress(outMessage.getSocketAddress());
         dhcpSocket.send(dp);
+        log.info("Sent datagram to: " + dp.getSocketAddress());
     }
 
     /**

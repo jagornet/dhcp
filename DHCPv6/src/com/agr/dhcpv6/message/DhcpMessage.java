@@ -318,7 +318,7 @@ public class DhcpMessage
         sb.append(" (xactId=");
         sb.append(getTransactionId());
         sb.append(")");
-        sb.append(" from ");
+        sb.append(" to/from ");
         sb.append(getHost().getHostAddress());
         sb.append(":");
         sb.append(getPort());
