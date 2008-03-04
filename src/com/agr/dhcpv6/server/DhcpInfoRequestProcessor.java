@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
@@ -16,21 +17,36 @@ import com.agr.dhcpv6.option.DhcpDnsServersOption;
 import com.agr.dhcpv6.option.DhcpDomainSearchListOption;
 import com.agr.dhcpv6.option.DhcpIaNaOption;
 import com.agr.dhcpv6.option.DhcpIaTaOption;
+import com.agr.dhcpv6.option.DhcpInfoRefreshTimeOption;
+import com.agr.dhcpv6.option.DhcpNisDomainNameOption;
+import com.agr.dhcpv6.option.DhcpNisPlusDomainNameOption;
+import com.agr.dhcpv6.option.DhcpNisPlusServersOption;
+import com.agr.dhcpv6.option.DhcpNisServersOption;
 import com.agr.dhcpv6.option.DhcpOption;
+import com.agr.dhcpv6.option.DhcpOptionRequestOption;
 import com.agr.dhcpv6.option.DhcpPreferenceOption;
 import com.agr.dhcpv6.option.DhcpServerIdOption;
 import com.agr.dhcpv6.option.DhcpSipServerAddressesOption;
 import com.agr.dhcpv6.option.DhcpSipServerDomainNamesOption;
+import com.agr.dhcpv6.option.DhcpSntpServersOption;
+import com.agr.dhcpv6.option.DhcpStatusCodeOption;
 import com.agr.dhcpv6.option.DhcpVendorInfoOption;
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig;
 import com.agr.dhcpv6.server.config.xml.DnsServersOption;
 import com.agr.dhcpv6.server.config.xml.DomainSearchListOption;
+import com.agr.dhcpv6.server.config.xml.InfoRefreshTimeOption;
+import com.agr.dhcpv6.server.config.xml.NisDomainNameOption;
+import com.agr.dhcpv6.server.config.xml.NisPlusDomainNameOption;
+import com.agr.dhcpv6.server.config.xml.NisPlusServersOption;
+import com.agr.dhcpv6.server.config.xml.NisServersOption;
 import com.agr.dhcpv6.server.config.xml.OptionExpression;
 import com.agr.dhcpv6.server.config.xml.PreferenceOption;
 import com.agr.dhcpv6.server.config.xml.ServerIdOption;
 import com.agr.dhcpv6.server.config.xml.SipServerAddressesOption;
 import com.agr.dhcpv6.server.config.xml.SipServerDomainNamesOption;
+import com.agr.dhcpv6.server.config.xml.SntpServersOption;
+import com.agr.dhcpv6.server.config.xml.StatusCodeOption;
 import com.agr.dhcpv6.server.config.xml.VendorInfoOption;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.FilterGroups;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.Links;
@@ -56,7 +72,8 @@ public class DhcpInfoRequestProcessor
     protected InetAddress clientLink;
     protected DhcpMessage requestMsg;
     protected DhcpMessage replyMsg;
-
+    protected List<Short> requestedOptionCodes;
+    
     /**
      * Construct an DhcpInfoRequest processor
      *
@@ -67,6 +84,19 @@ public class DhcpInfoRequestProcessor
     {
         this.clientLink = clientLink;
         this.requestMsg = reqMsg;
+        Map<Short, DhcpOption> optionMap = this.requestMsg.getDhcpOptions();
+        if (optionMap != null) {
+        	DhcpOptionRequestOption oro = 
+        		(DhcpOptionRequestOption) optionMap.get(DhcpConstants.OPTION_ORO);
+        	if (oro != null) {
+        		requestedOptionCodes = 
+        			oro.getOptionRequestOption().getRequestedOptionCodes();
+        	}
+        }
+        else {
+        	// TODO throw exception?
+        	log.error("No options found in Info-RequestMessage!");
+        }    	
     }
 
     /**
@@ -183,52 +213,133 @@ public class DhcpInfoRequestProcessor
     private void setGlobalOptions()
     {
         setPreferenceOption(dhcpServerConfig.getPreferenceOption());
+        // don't set this option for stateless servers?
+        // setServerUnicastOption(dhcpServerConfig.getServerUnicastOption());
+        setStatusCodeOption(dhcpServerConfig.getStatusCodeOption());
+        setVendorInfoOption(dhcpServerConfig.getVendorInfoOption());
         setDnsServersOption(dhcpServerConfig.getDnsServersOption());
         setDomainSearchListOption(dhcpServerConfig.getDomainSearchListOption());
         setSipServerAddressesOption(dhcpServerConfig.getSipServerAddressesOption());
         setSipServerDomainNamesOption(dhcpServerConfig.getSipServerDomainNamesOption());
-        setVendorInfoOption(dhcpServerConfig.getVendorInfoOption());
+        setNisServersOption(dhcpServerConfig.getNisServersOption());
+        setNisDomainNameOption(dhcpServerConfig.getNisDomainNameOption());
+        setNisPlusServersOption(dhcpServerConfig.getNisPlusServersOption());
+        setNisPlusDomainNameOption(dhcpServerConfig.getNisPlusDomainNameOption());
+        setSntpServersOption(dhcpServerConfig.getSntpServersOption());
+        setInfoRefreshTimeOption(dhcpServerConfig.getInfoRefreshTimeOption());    	
+    }
+    
+    private boolean clientWantsOption(short optionCode)
+    {
+    	if (requestedOptionCodes != null)
+    		return requestedOptionCodes.contains(optionCode);
+    	
+    	// if there is no ORO, then the client doesn't care,
+    	// so go ahead and send it if so configured
+    	return true;
     }
     
     private void setPreferenceOption(PreferenceOption preferenceOption)
     {
         if (preferenceOption != null) {
-            replyMsg.setOption(new DhcpPreferenceOption(preferenceOption)); 
+        	if (clientWantsOption(preferenceOption.getCode()))
+        		replyMsg.setOption(new DhcpPreferenceOption(preferenceOption)); 
         }
     }    
+    
+    private void setStatusCodeOption(StatusCodeOption statusCodeOption)
+    {
+        if (statusCodeOption != null) {
+        	if (clientWantsOption(statusCodeOption.getCode()))
+        		replyMsg.setOption(new DhcpStatusCodeOption(statusCodeOption)); 
+        }
+    }    
+
+    private void setVendorInfoOption(VendorInfoOption vendorInfoOption)
+    {
+        if (vendorInfoOption != null) {
+        	if (clientWantsOption(vendorInfoOption.getCode()))
+        		replyMsg.setOption(new DhcpVendorInfoOption(vendorInfoOption)); 
+        }
+    }
     
     private void setDnsServersOption(DnsServersOption dnsServersOption)
     {
         if (dnsServersOption != null) {
-            replyMsg.setOption(new DhcpDnsServersOption(dnsServersOption)); 
+        	if (clientWantsOption(dnsServersOption.getCode()))
+        			replyMsg.setOption(new DhcpDnsServersOption(dnsServersOption)); 
         }
     }
 
     private void setDomainSearchListOption(DomainSearchListOption domainSearchListOption)
     {
         if (domainSearchListOption != null) {
-            replyMsg.setOption(new DhcpDomainSearchListOption(domainSearchListOption)); 
+        	if (clientWantsOption(domainSearchListOption.getCode()))
+        			replyMsg.setOption(new DhcpDomainSearchListOption(domainSearchListOption)); 
         }
     }
     
     private void setSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
     {
         if (sipServerAddressesOption != null) {
-            replyMsg.setOption(new DhcpSipServerAddressesOption(sipServerAddressesOption)); 
+        	if (clientWantsOption(sipServerAddressesOption.getCode()))
+        		replyMsg.setOption(new DhcpSipServerAddressesOption(sipServerAddressesOption)); 
         }
     }
 
     private void setSipServerDomainNamesOption(SipServerDomainNamesOption sipServerDomainNamesOption)
     {
         if (sipServerDomainNamesOption != null) {
-            replyMsg.setOption(new DhcpSipServerDomainNamesOption(sipServerDomainNamesOption)); 
+        	if (clientWantsOption(sipServerDomainNamesOption.getCode()))
+        		replyMsg.setOption(new DhcpSipServerDomainNamesOption(sipServerDomainNamesOption)); 
         }
     }
 
-    private void setVendorInfoOption(VendorInfoOption vendorInfoOption)
+    private void setNisServersOption(NisServersOption nisServersOption)
     {
-        if (vendorInfoOption != null) {
-            replyMsg.setOption(new DhcpVendorInfoOption(vendorInfoOption)); 
+        if (nisServersOption != null) {
+        	if (clientWantsOption(nisServersOption.getCode()))
+        		replyMsg.setOption(new DhcpNisServersOption(nisServersOption)); 
+        }
+    }
+
+    private void setNisDomainNameOption(NisDomainNameOption nisDomainNameOption)
+    {
+        if (nisDomainNameOption != null) {
+        	if (clientWantsOption(nisDomainNameOption.getCode()))
+        		replyMsg.setOption(new DhcpNisDomainNameOption(nisDomainNameOption)); 
+        }
+    }
+
+    private void setNisPlusServersOption(NisPlusServersOption nisPlusServersOption)
+    {
+        if (nisPlusServersOption != null) {
+        	if (clientWantsOption(nisPlusServersOption.getCode()))
+        		replyMsg.setOption(new DhcpNisPlusServersOption(nisPlusServersOption)); 
+        }
+    }
+
+    private void setNisPlusDomainNameOption(NisPlusDomainNameOption nisPlusDomainNameOption)
+    {
+        if (nisPlusDomainNameOption != null) {
+        	if (clientWantsOption(nisPlusDomainNameOption.getCode()))
+        		replyMsg.setOption(new DhcpNisPlusDomainNameOption(nisPlusDomainNameOption)); 
+        }
+    }
+
+    private void setSntpServersOption(SntpServersOption sntpServersOption)
+    {
+        if (sntpServersOption != null) {
+        	if (clientWantsOption(sntpServersOption.getCode()))
+        		replyMsg.setOption(new DhcpSntpServersOption(sntpServersOption)); 
+        }
+    }
+
+    private void setInfoRefreshTimeOption(InfoRefreshTimeOption infoRefreshTimeOption)
+    {
+        if (infoRefreshTimeOption != null) {
+        	if (clientWantsOption(infoRefreshTimeOption.getCode()))
+        		replyMsg.setOption(new DhcpInfoRefreshTimeOption(infoRefreshTimeOption)); 
         }
     }
     
@@ -285,11 +396,20 @@ public class DhcpInfoRequestProcessor
     private void setFilterGroupOptions(FilterGroups filter)
     {
         setPreferenceOption(filter.getPreferenceOption());
+        // don't set this option for stateless servers?
+        // setServerUnicastOption(filter.getServerUnicastOption());
+        setStatusCodeOption(filter.getStatusCodeOption());
+        setVendorInfoOption(filter.getVendorInfoOption());
         setDnsServersOption(filter.getDnsServersOption());
         setDomainSearchListOption(filter.getDomainSearchListOption());
         setSipServerAddressesOption(filter.getSipServerAddressesOption());
         setSipServerDomainNamesOption(filter.getSipServerDomainNamesOption());
-        setVendorInfoOption(filter.getVendorInfoOption());
+        setNisServersOption(filter.getNisServersOption());
+        setNisDomainNameOption(filter.getNisDomainNameOption());
+        setNisPlusServersOption(filter.getNisPlusServersOption());
+        setNisPlusDomainNameOption(filter.getNisPlusDomainNameOption());
+        setSntpServersOption(filter.getSntpServersOption());
+        setInfoRefreshTimeOption(filter.getInfoRefreshTimeOption());    	
     }
     
     private void processLink(Links link)
@@ -325,10 +445,19 @@ public class DhcpInfoRequestProcessor
     private void setLinkOptions(Links link)
     {
         setPreferenceOption(link.getPreferenceOption());
+        // don't set this option for stateless servers?
+        // setServerUnicastOption(link.getServerUnicastOption());
+        setStatusCodeOption(link.getStatusCodeOption());
+        setVendorInfoOption(link.getVendorInfoOption());
         setDnsServersOption(link.getDnsServersOption());
         setDomainSearchListOption(link.getDomainSearchListOption());
         setSipServerAddressesOption(link.getSipServerAddressesOption());
         setSipServerDomainNamesOption(link.getSipServerDomainNamesOption());
-        setVendorInfoOption(link.getVendorInfoOption());
+        setNisServersOption(link.getNisServersOption());
+        setNisDomainNameOption(link.getNisDomainNameOption());
+        setNisPlusServersOption(link.getNisPlusServersOption());
+        setNisPlusDomainNameOption(link.getNisPlusDomainNameOption());
+        setSntpServersOption(link.getSntpServersOption());
+        setInfoRefreshTimeOption(link.getInfoRefreshTimeOption());    	
     }
 }
