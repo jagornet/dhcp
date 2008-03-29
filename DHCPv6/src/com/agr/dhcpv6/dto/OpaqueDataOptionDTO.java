@@ -2,23 +2,46 @@ package com.agr.dhcpv6.dto;
 
 public class OpaqueDataOptionDTO extends BaseOptionDTO
 {
-    protected String asciiValue;
-    protected byte[] hexValue;
+	protected OpaqueDataDTO data;
 
+	public OpaqueDataDTO getData() {
+		return data;
+	}
+
+	public void setData(OpaqueDataDTO opaqueData) {
+		this.data = opaqueData;
+	}
+	
+	// provide the necessary getter/setter
+	// accessor methods to support DTO mapping
     public String getAsciiValue()
     {
-        return asciiValue;
+    	if (data != null)
+    		return data.getAsciiValue();
+    	
+    	return null;
     }
     public void setAsciiValue(String asciiValue)
     {
-        this.asciiValue = asciiValue;
+    	if (data == null)
+    		data = new OpaqueDataDTO();
+    	
+    	data.setAsciiValue(asciiValue);
+    	data.setHexValue(null);	// it can't be both
     }
     public byte[] getHexValue()
     {
-        return hexValue;
+    	if (data != null)
+    		return data.getHexValue();
+    	
+        return null;
     }
     public void setHexValue(byte[] hexValue)
     {
-        this.hexValue = hexValue;
+    	if (data == null)
+    		data = new OpaqueDataDTO();
+    	
+        data.setHexValue(hexValue);
+        data.setAsciiValue(null);	// it can't be both
     }
 }

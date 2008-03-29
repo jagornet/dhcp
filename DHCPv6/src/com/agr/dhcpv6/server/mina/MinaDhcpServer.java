@@ -1,6 +1,5 @@
 package com.agr.dhcpv6.server.mina;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -35,7 +34,6 @@ import org.apache.mina.integration.jmx.IoSessionMBean;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 
-import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
 import com.agr.dhcpv6.util.DhcpConstants;
 
@@ -46,20 +44,22 @@ public class MinaDhcpServer
     protected NioDatagramAcceptor acceptor;
     protected ExecutorService executorService;
     
-    public MinaDhcpServer() 
+    public MinaDhcpServer(String configFilename, int port) 
     {
         try {
-            DhcpServerConfiguration.init("/temp/dhcpV6ServerConfig.xml");
+            DhcpServerConfiguration.init(configFilename);
             
             acceptor = new NioDatagramAcceptor();
             List<SocketAddress> localAddrs = new ArrayList<SocketAddress>();
-            localAddrs.add(new InetSocketAddress(DhcpConstants.SERVER_PORT));
+            localAddrs.add(new InetSocketAddress(port));
+            // TODO: check if this even makes sense, since this is a multicast address
             localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS,
-                                                 DhcpConstants.SERVER_PORT));
+                                                 port));
+            // TODO: check if this even makes sense, since this is a multicast address
             localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS,
-                                                 DhcpConstants.SERVER_PORT));
+                                                 port));
             acceptor.setDefaultLocalAddresses(localAddrs);
-            acceptor.setHandler(new MinaDhcpHandler(this));
+            acceptor.setHandler(new MinaDhcpHandler());
     
             registerJmx(acceptor);
             
@@ -74,7 +74,7 @@ public class MinaDhcpServer
  *      Where should I put an ExecutorFilter in an IoFilterChain?
  * 
  *          It depends on the characteristics of your application. 
- *          For an application with a ProtocolCodecFilter implemetation and 
+ *          For an application with a ProtocolCodecFilter implementation and 
  *          a usual IoHandler implementation with database operations, 
  *          I'd suggest you to add the ExecutorFilter after the 
  *          ProtocolCodecFilter implementation. It is because the 
@@ -95,7 +95,7 @@ public class MinaDhcpServer
             
             List<SocketAddress> defaultAddrs = acceptor.getDefaultLocalAddresses();
             for (SocketAddress socketAddress : defaultAddrs) {
-                log.info("Binding to default local address: " + socketAddress);
+                log.info("Binding to local address: " + socketAddress);
             }
             acceptor.bind();
         }
@@ -191,15 +191,5 @@ public class MinaDhcpServer
         catch (Exception ex) {
             log.error("Failure registering Log4J in JMX: " + ex);
         }
-    }
-    
-    protected void recvUpdate(SocketAddress clientAddr, DhcpMessage dhcpMessage)
-    {
-        log.info("Received: " + dhcpMessage.toStringWithOptions());
-    }
-
-    public static void main(String[] args) throws IOException
-    {
-        new MinaDhcpServer();
     }
 }

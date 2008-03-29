@@ -13,13 +13,13 @@ import java.io.Serializable;
 
 public class ByteOptionDTO extends BaseOptionDTO
 {
-    protected byte value;
+    protected Byte value;
 
-    public byte getValue()
+    public Byte getValue()
     {
         return value;
     }
-    public void setValue(byte value)
+    public void setValue(Byte value)
     {
         this.value = value;
     }

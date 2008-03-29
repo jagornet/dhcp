@@ -13,13 +13,13 @@ import java.io.Serializable;
 
 public class IntOptionDTO extends BaseOptionDTO
 {
-    protected int value;
+    protected Integer value;
 
-    public int getValue()
+    public Integer getValue()
     {
         return value;
     }
-    public void setValue(int value)
+    public void setValue(Integer value)
     {
         this.value = value;
     }

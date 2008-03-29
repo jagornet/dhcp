@@ -1,6 +1,8 @@
 package com.agr.dhcpv6.dto;
 
-public class OpaqueDataDTO
+import java.io.Serializable;
+
+public class OpaqueDataDTO implements Serializable
 {
     protected String asciiValue;
     protected byte[] hexValue;

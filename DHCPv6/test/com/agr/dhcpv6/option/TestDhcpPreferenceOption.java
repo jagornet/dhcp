@@ -48,6 +48,6 @@ public class TestDhcpPreferenceOption extends TestCase
         MapperIF mapper = new DozerBeanMapper();
         PreferenceOptionDTO dto = (PreferenceOptionDTO)
                                     mapper.map(po, PreferenceOptionDTO.class);
-        assertEquals(po.getValue(), dto.getValue());
+        assertEquals(Integer.valueOf(po.getValue()), dto.getValue());
     }
 }

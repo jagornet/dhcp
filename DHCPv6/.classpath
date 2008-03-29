@@ -9,12 +9,17 @@
 	<classpathentry kind="lib" path="/Users/agrabil/javadotnet/jaxb-ri-20071219/lib/jsr173_1.0_api.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/javadotnet/jaxb-ri-20071219/lib/jaxb-api.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/javadotnet/jaxb-ri-20071219/lib/jaxb-impl.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/mina-core-2.0.0-M1.jar" sourcepath="C:/Apache/mina-2.0.0/mina-core-2.0.0-M1-20071119.042532-93-sources.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/mina-integration-jmx-2.0.0-M1.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-beanutils-1.7.0/commons-beanutils.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/dozer-4.2/dist/dozer-4.2.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-collections-3.2/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-lang-2.3/commons-lang-2.3.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/slf4j-1.5.0/slf4j-log4j12-1.5.0.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/slf4j-1.5.0/slf4j-api-1.5.0.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/ognl-2.6.9.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/core/target/mina-core-2.0.0-M1.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/integration-beans/target/mina-integration-beans-2.0.0-M1.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/integration-jmx/target/mina-integration-jmx-2.0.0-M1.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M1/integration-ognl/target/mina-integration-ognl-2.0.0-M1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
