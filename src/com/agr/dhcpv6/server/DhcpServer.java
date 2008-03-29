@@ -22,12 +22,13 @@ import org.apache.commons.logging.LogFactory;
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
-import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig;
 import com.agr.dhcpv6.util.DhcpConstants;
 
 /**
  * Title:        DHCPServer
- * Description:  The main class for a DHCPv6 server
+ * Description:  The main class for a DHCPv6 server.  This is my original, hand-rolled, multi-threaded
+ * 				 implementation using NIO Channels and Java 5 Concurrency package.  This class is now
+ * 				 deprecated in favor of the MINA-based DHCP server, but it is kept here for posterity.
  * Copyright:    Copyright (c) 2003
  * Company:      AGR Consulting
  * @author A. Gregory Rabil
@@ -57,49 +58,17 @@ public class DhcpServer implements Runnable
     private WorkProcessor workProcessor;
     private Thread processorThread;
 
-    public DhcpServer(String args[]) throws Exception
+    public DhcpServer(String configFilename, int port) throws Exception
     {
-        options = new Options();
-        parser = new BasicParser();
-        setupOptions();
-
-        if(!parseOptions(args)) {
-            formatter = new HelpFormatter();
-            String cliName = this.getClass().getName();
-            formatter.printHelp(cliName, options);
-            System.exit(0);
-        }
-
         DhcpServerConfiguration.init(configFilename);
         
         selector = Selector.open();
-//        dhcpChannel = new DhcpChannel(DhcpConstants.SERVER_PORT);
-        dhcpChannel = new DhcpChannel(10000 + DhcpConstants.SERVER_PORT);
+        dhcpChannel = new DhcpChannel(port);
         workQueue = new LinkedBlockingQueue<DhcpMessage>(QUEUE_SIZE);
         
         workProcessor = new WorkProcessor(dhcpChannel, workQueue);
         processorThread = new Thread(workProcessor, "work.processor");
         processorThread.start();
-    }
-    
-    public static DhcpV6ServerConfig loadConfig(String filename)
-    // TODO: change to throws IOException, JAXBException...
-    // right now, just throw Exception so as to allow GUI to
-    // use this method without requiring JAXB libs
-            throws Exception
-    {
-        return DhcpServerConfiguration.loadConfig(filename);
-    }
-    
-    public static void saveConfig(DhcpV6ServerConfig config, String filename)
-        throws Exception    // see comment for loadConfig
-    {
-        DhcpServerConfiguration.saveConfig(config, filename);
-    }
-
-    public static DhcpV6ServerConfig getDhcpServerConfig()
-    {
-        return DhcpServerConfiguration.getConfig();
     }
 
     /**
@@ -215,56 +184,4 @@ public class DhcpServer implements Runnable
             }
         }
     }
-/*
-    public static void main(String[] args)
-    {
-        try {
-            DhcpServer.loadConfig(args[0]);
-            DhcpServer server = new DhcpServer();
-            server.run();
-        }
-        catch (Exception ex) {
-            System.err.println(ex);
-            ex.printStackTrace();
-        }
-    }
-*/
-    private void setupOptions()
-    {
-        Option configFileOption = new Option("c", "configfile", true,
-                                             "Configuration File");
-        options.addOption(configFileOption);
-    }
-
-    protected boolean parseOptions(String[] args)
-    {
-        try {
-            CommandLine cmd = parser.parse(options, args);
-            if(cmd.hasOption("c")) {
-                configFilename = cmd.getOptionValue("c");
-            }
-            if(cmd.hasOption("?")) {
-                return false;
-            }
-        }
-        catch(ParseException pe) {
-            log.warn("Parsing exception: " + pe);
-            return false;
-        }
-        return true;
-    }
-    
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
-    {
-        try {
-            DhcpServer server = new DhcpServer(args);
-            server.run();
-        }
-        catch (Exception ex) {
-            System.err.println("Fatal exception: " + ex);
-        }
-    }    
 }

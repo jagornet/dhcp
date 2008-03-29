@@ -56,7 +56,7 @@ public class MinaDhcpClient extends IoHandlerAdapter
         log.debug("About to connect to the server...");
         ConnectFuture connFuture = 
             connector.connect(new InetSocketAddress(DhcpConstants.LOCALHOST, 
-                                                    DhcpConstants.SERVER_PORT));
+                                                    10000 + DhcpConstants.SERVER_PORT));
 
         log.debug("About to wait.");
         connFuture.awaitUninterruptibly();
@@ -83,7 +83,7 @@ public class MinaDhcpClient extends IoHandlerAdapter
     {
         for (int id=0; id<100; id++) {
             DhcpMessage msg = new DhcpMessage(DhcpConstants.LOCALHOST,
-                                              DhcpConstants.SERVER_PORT);
+                                              10000 + DhcpConstants.SERVER_PORT);
             msg.setMessageType(DhcpConstants.INFO_REQUEST);
             msg.setTransactionId(id);
             byte[] clientIdBytes = { (byte)0xde,

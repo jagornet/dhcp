@@ -3,6 +3,50 @@
     "http://dozer.sourceforge.net/dtd/dozerbeanmapping.dtd">
 <mappings>
   <mapping> 
+    <class-a>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig</class-a>
+    <class-b>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO</class-b>
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">filterGroups</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>filterGroups</b>
+      <!-- since we can't yet use Java 5 generics with GWT, we
+      	   must tell Dozer what kinds of objects are in the lists
+      	   so that it can convert between them properly -->
+      <a-hint>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$FilterGroups</a-hint>
+	  <b-hint>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$FilterGroups</b-hint>
+    </field>
+  </mapping>
+
+  <mapping>
+    <!-- note the syntax for specifying inner classes using the dollar sign -->
+    <class-a>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$FilterGroups</class-a>
+    <class-b>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$FilterGroups</class-b>
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">optionExpressions</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>optionExpressions</b>
+      <!-- since we can't yet use Java 5 generics with GWT, we
+      	   must tell Dozer what kinds of objects are in the lists
+      	   so that it can convert between them properly -->
+      <a-hint>com.agr.dhcpv6.server.config.xml.OptionExpression</a-hint>
+	  <b-hint>com.agr.dhcpv6.dto.OptionExpressionDTO</b-hint>
+    </field>
+  </mapping>
+
+  <mapping>
+      <class-a>com.agr.dhcpv6.server.config.xml.OptionExpression</class-a>
+	  <class-b>com.agr.dhcpv6.dto.OptionExpressionDTO</class-b>
+  	  <field custom-converter="com.agr.dhcpv6.util.OperatorConverter">
+    	<a>operator</a>
+    	<b>operator</b>
+  	  </field>
+  </mapping>
+  
+  <mapping>
     <class-a>com.agr.dhcpv6.server.config.xml.DnsServersOption</class-a>
     <class-b>com.agr.dhcpv6.dto.DnsServersOptionDTO</class-b>
     <field>

@@ -8,23 +8,13 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 
 import com.agr.dhcpv6.message.DhcpMessage;
-import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
-import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig;
 import com.agr.dhcpv6.server.mina.DhcpDecoderAdapter;
 import com.agr.dhcpv6.server.mina.MinaDhcpHandler;
 import com.agr.dhcpv6.util.DhcpConstants;
@@ -42,58 +32,21 @@ import com.agr.dhcpv6.util.DhcpConstants;
  * MulticastSocket because MulticastChannels are not yet
  * available in Java :-(
  */
-public class DhcpSocketServer implements Runnable
+public class MulticastDhcpServer implements Runnable
 {
-    private static Log log = LogFactory.getLog(DhcpSocketServer.class);
-
-    protected Options options;
-    protected CommandLineParser parser;
-    protected HelpFormatter formatter;
-
-    protected static String DEFAULT_CONFIG_FILENAME = "dhcpServerConfig.xml";
-
-    protected String configFilename = DEFAULT_CONFIG_FILENAME;
+    private static Log log = LogFactory.getLog(MulticastDhcpServer.class);
 
     protected MulticastSocket dhcpSocket;
 
-    public DhcpSocketServer(String args[]) throws Exception
+    public MulticastDhcpServer(String configFilename, int port) throws Exception
     {
-        options = new Options();
-        parser = new BasicParser();
-        setupOptions();
-
-        if(!parseOptions(args)) {
-            formatter = new HelpFormatter();
-            String cliName = this.getClass().getName();
-            formatter.printHelp(cliName, options);
-            System.exit(0);
-        }
-
         DhcpServerConfiguration.init(configFilename);
 
-        dhcpSocket = new MulticastSocket(DhcpConstants.SERVER_PORT);
+        dhcpSocket = new MulticastSocket(port);
         dhcpSocket.joinGroup(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS);
         dhcpSocket.joinGroup(DhcpConstants.ALL_DHCP_SERVERS);
-    }
-    
-    public static DhcpV6ServerConfig loadConfig(String filename)
-    // TODO: change to throws IOException, JAXBException...
-    // right now, just throw Exception so as to allow GUI to
-    // use this method without requiring JAXB libs
-            throws Exception
-    {
-        return DhcpServerConfiguration.loadConfig(filename);
-    }
-    
-    public static void saveConfig(DhcpV6ServerConfig config, String filename)
-        throws Exception    // see comment for loadConfig
-    {
-        DhcpServerConfiguration.saveConfig(config, filename);
-    }
-
-    public static DhcpV6ServerConfig getDhcpServerConfig()
-    {
-        return DhcpServerConfiguration.getConfig();
+        
+        run();
     }
 
     /**
@@ -133,7 +86,7 @@ public class DhcpSocketServer implements Runnable
                                 log.debug("Decoded message: " + 
                                           (inMessage != null ? 
                                           inMessage.toStringWithOptions() : "null"));
-                        	MinaDhcpHandler handler = new MinaDhcpHandler(null);	// hack, no server provided
+                        	MinaDhcpHandler handler = new MinaDhcpHandler();
                         	DhcpMessage outMessage = 
                         		handler.handleMessage(getLocalAddress(), inMessage);
                             if (outMessage != null) {
@@ -158,20 +111,22 @@ public class DhcpSocketServer implements Runnable
         }
     }
 
+	InetAddress localAddr = null;
     private InetAddress getLocalAddress()
     {
-    	InetAddress localAddr = null;
-    	try {
-    		localAddr = Inet6Address.getLocalHost();
-    	}
-    	catch (UnknownHostException ex) {
-    		log.error("Failed to get local IPv6 address: " + ex);
+    	if (localAddr == null) {
+	    	try {
+	    		localAddr = Inet6Address.getLocalHost();
+	    	}
+	    	catch (UnknownHostException ex) {
+	    		log.error("Failed to get local IPv6 address: " + ex);
+	    	}
     	}
     	return localAddr;
     }
     
     /**
-     * Sends a DhcpMessage object to a predifined host.
+     * Sends a DhcpMessage object to a predefined host.
      * @param outMessage well-formed DhcpMessage to be sent to a host
      */
     public void sendMessage(DhcpMessage outMessage)
@@ -187,60 +142,4 @@ public class DhcpSocketServer implements Runnable
         dhcpSocket.send(dp);
         log.info("Sent datagram to: " + dp.getSocketAddress());
     }
-
-    /**
-     * Print out the options contained in a DHCPMessage to the
-     * logger.
-     */
-    private void debugOptions(DhcpMessage msg)
-    {
-        if (log.isDebugEnabled()) {
-            Collection<DhcpOption> options = msg.getOptions();
-            if (options != null) {
-                for (DhcpOption option : options) {
-                    log.debug(option.toString());
-                }
-            }
-        }
-    }
-
-    private void setupOptions()
-    {
-        Option configFileOption = new Option("c", "configfile", true,
-                                             "Configuration File");
-        options.addOption(configFileOption);
-    }
-
-    protected boolean parseOptions(String[] args)
-    {
-        try {
-            CommandLine cmd = parser.parse(options, args);
-            if(cmd.hasOption("c")) {
-                configFilename = cmd.getOptionValue("c");
-            }
-            if(cmd.hasOption("?")) {
-                return false;
-            }
-        }
-        catch(ParseException pe) {
-            log.warn("Parsing exception: " + pe);
-            return false;
-        }
-        return true;
-    }
-    
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
-    {
-        try {
-            log.info("Starting DhcpSocketServer");
-            DhcpSocketServer server = new DhcpSocketServer(args);
-            server.run();
-        }
-        catch (Exception ex) {
-            log.fatal("DhcpSocketServer ABORT!", ex);
-        }
-    }    
 }

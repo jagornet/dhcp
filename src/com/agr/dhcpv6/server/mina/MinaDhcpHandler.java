@@ -18,12 +18,10 @@ import com.agr.dhcpv6.util.DhcpConstants;
 public class MinaDhcpHandler extends IoHandlerAdapter
 {
     private static Log log = LogFactory.getLog(MinaDhcpHandler.class);
-    
-    private MinaDhcpServer server;
 
-    public MinaDhcpHandler(MinaDhcpServer server)
+    public MinaDhcpHandler()
     {
-        this.server = server;
+    	// empty constructor
     }
 
     @Override
@@ -42,7 +40,7 @@ public class MinaDhcpHandler extends IoHandlerAdapter
         if (message instanceof DhcpMessage) {
             
             DhcpMessage dhcpMessage = (DhcpMessage) message;
-    		server.recvUpdate(remoteAddress, dhcpMessage);
+            log.info("Received: " + dhcpMessage.toStringWithOptions());
 
             DhcpMessage replyMessage = 
             	handleMessage(((InetSocketAddress)session.getLocalAddress()).getAddress(),

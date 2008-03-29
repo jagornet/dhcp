@@ -49,8 +49,11 @@ public class OpaqueDataUtil
             return (short)(ascii.length());
         }
         else {
+        	byte[] hex = opaque.getHexValue();
+        	if (hex == null)
+        		return 0;
             // two bytes for the len + len of hex data
-            return (short)(opaque.getHexValue().length);
+            return (short)(hex.length);
         }
     }
     

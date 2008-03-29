@@ -1,6 +1,7 @@
 package com.agr.dhcpv6.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
