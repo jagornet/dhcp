@@ -44,7 +44,7 @@
 				<xs:element name="sntpServersOption" type="sntpServersOption" minOccurs="0"/>
 				<xs:element name="infoRefreshTimeOption" type="infoRefreshTimeOption" minOccurs="0"/>
 				<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
-				<xs:element name="filterGroups" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="filters" minOccurs="0" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence>
 							<xs:element name="name" type="name"/>
@@ -74,6 +74,7 @@
 				<xs:element name="links" minOccurs="0" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence>
+							<xs:element name="name" type="name"/>
 							<xs:element name="address" type="xs:string"/>
 							<xs:element name="abcPolicy" type="abcPolicy" minOccurs="0"/>
 							<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
@@ -95,7 +96,7 @@
 							<xs:element name="sntpServersOption" type="sntpServersOption" minOccurs="0"/>
 							<xs:element name="infoRefreshTimeOption" type="infoRefreshTimeOption" minOccurs="0"/>
 							<xs:element name="genericOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
-							<xs:element name="filterGroups" minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="filters" minOccurs="0" maxOccurs="unbounded">
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="name" type="name"/>
