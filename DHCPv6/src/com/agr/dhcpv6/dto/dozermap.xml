@@ -2,27 +2,46 @@
   <!DOCTYPE mappings PUBLIC "-//DOZER//DTD MAPPINGS//EN"
     "http://dozer.sourceforge.net/dtd/dozerbeanmapping.dtd">
 <mappings>
-  <mapping> 
+
+  <mapping>
+  
     <class-a>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig</class-a>
     <class-b>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
-      <a is-accessible="true">filterGroups</a>
+      <a is-accessible="true">filters</a>
       <!-- the DTO class has normal getter/setter -->
-      <b>filterGroups</b>
+      <b>filters</b>
       <!-- since we can't yet use Java 5 generics with GWT, we
       	   must tell Dozer what kinds of objects are in the lists
       	   so that it can convert between them properly -->
-      <a-hint>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$FilterGroups</a-hint>
-	  <b-hint>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$FilterGroups</b-hint>
+      <a-hint>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Filters</a-hint>
+	  <b-hint>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Filters</b-hint>
     </field>
+    
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">links</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>links</b>
+      <!-- since we can't yet use Java 5 generics with GWT, we
+      	   must tell Dozer what kinds of objects are in the lists
+      	   so that it can convert between them properly -->
+      <a-hint>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Links</a-hint>
+	  <b-hint>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Links</b-hint>
+    </field>
+    
   </mapping>
 
   <mapping>
+  
     <!-- note the syntax for specifying inner classes using the dollar sign -->
-    <class-a>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$FilterGroups</class-a>
-    <class-b>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$FilterGroups</class-b>
+    <class-a>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Filters</class-a>
+    <class-b>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Filters</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -35,20 +54,68 @@
       <a-hint>com.agr.dhcpv6.server.config.xml.OptionExpression</a-hint>
 	  <b-hint>com.agr.dhcpv6.dto.OptionExpressionDTO</b-hint>
     </field>
+    
   </mapping>
 
   <mapping>
+  
+    <!-- note the syntax for specifying inner classes using the dollar sign -->
+    <class-a>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Links</class-a>
+    <class-b>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Links</class-b>
+        
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">filters</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>filters</b>
+      <!-- since we can't yet use Java 5 generics with GWT, we
+      	   must tell Dozer what kinds of objects are in the lists
+      	   so that it can convert between them properly -->
+      <a-hint>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Links$Filters</a-hint>
+	  <b-hint>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Filters</b-hint>
+    </field>
+    
+  </mapping>
+
+  <mapping>
+  
+    <!-- note the syntax for specifying inner classes using the dollar sign -->
+    <class-a>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Links$Filters</class-a>
+    <class-b>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Filters</class-b>
+    
+    <field>
+      <!-- the generated XML class does not have a getter, so
+      	   we tell Dozer to access the field directly -->
+      <a is-accessible="true">optionExpressions</a>
+      <!-- the DTO class has normal getter/setter -->
+      <b>optionExpressions</b>
+      <!-- since we can't yet use Java 5 generics with GWT, we
+      	   must tell Dozer what kinds of objects are in the lists
+      	   so that it can convert between them properly -->
+      <a-hint>com.agr.dhcpv6.server.config.xml.OptionExpression</a-hint>
+	  <b-hint>com.agr.dhcpv6.dto.OptionExpressionDTO</b-hint>
+    </field>
+    
+  </mapping>
+
+  <mapping>
+  
       <class-a>com.agr.dhcpv6.server.config.xml.OptionExpression</class-a>
 	  <class-b>com.agr.dhcpv6.dto.OptionExpressionDTO</class-b>
+	  
   	  <field custom-converter="com.agr.dhcpv6.util.OperatorConverter">
     	<a>operator</a>
     	<b>operator</b>
   	  </field>
+  	  
   </mapping>
   
   <mapping>
+  
     <class-a>com.agr.dhcpv6.server.config.xml.DnsServersOption</class-a>
     <class-b>com.agr.dhcpv6.dto.DnsServersOptionDTO</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -56,10 +123,14 @@
       <!-- the DTO class has normal getter/setter -->
       <b>serverIpAddresses</b>
     </field>
+    
   </mapping>
+  
   <mapping>
+  
     <class-a>com.agr.dhcpv6.server.config.xml.DomainSearchListOption</class-a>
     <class-b>com.agr.dhcpv6.dto.DomainSearchListOptionDTO</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -67,10 +138,14 @@
       <!-- the DTO class has normal getter/setter -->
       <b>domainNames</b>
     </field>
+    
   </mapping>
+  
   <mapping>
+  
     <class-a>com.agr.dhcpv6.server.config.xml.NisServersOption</class-a>
     <class-b>com.agr.dhcpv6.dto.NisServersOptionDTO</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -78,10 +153,14 @@
       <!-- the DTO class has normal getter/setter -->
       <b>serverIpAddresses</b>
     </field>
+    
   </mapping>
+  
   <mapping>
+  
     <class-a>com.agr.dhcpv6.server.config.xml.NisPlusServersOption</class-a>
     <class-b>com.agr.dhcpv6.dto.NisPlusServersOptionDTO</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -89,10 +168,14 @@
       <!-- the DTO class has normal getter/setter -->
       <b>serverIpAddresses</b>
     </field>
+    
   </mapping>
-  <mapping> 
+  
+  <mapping>
+   
     <class-a>com.agr.dhcpv6.server.config.xml.SipServerAddressesOption</class-a>
     <class-b>com.agr.dhcpv6.dto.SipServerAddressesOptionDTO</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -100,10 +183,14 @@
       <!-- the DTO class has normal getter/setter -->
       <b>serverIpAddresses</b>
     </field>
+    
   </mapping>
+  
   <mapping>
+  
     <class-a>com.agr.dhcpv6.server.config.xml.SipServerDomainNamesOption</class-a>
     <class-b>com.agr.dhcpv6.dto.SipServerDomainNamesOptionDTO</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -111,10 +198,14 @@
       <!-- the DTO class has normal getter/setter -->
       <b>domainNames</b>
     </field>
+    
   </mapping>
+  
   <mapping>
+  
     <class-a>com.agr.dhcpv6.server.config.xml.SntpServersOption</class-a>
     <class-b>com.agr.dhcpv6.dto.SntpServersOptionDTO</class-b>
+    
     <field>
       <!-- the generated XML class does not have a getter, so
       	   we tell Dozer to access the field directly -->
@@ -122,10 +213,14 @@
       <!-- the DTO class has normal getter/setter -->
       <b>serverIpAddresses</b>
     </field>
+    
   </mapping>
+  
   <mapping>
+  
     <class-a>com.agr.dhcpv6.server.config.xml.UserClassOption</class-a>
     <class-b>com.agr.dhcpv6.dto.UserClassOptionDTO</class-b>
+    
     <field>
       <a>userClasses</a>
       <b>userClasses</b>
@@ -135,5 +230,7 @@
       <a-hint>com.agr.dhcpv6.server.config.xml.OpaqueData</a-hint>
 	  <b-hint>com.agr.dhcpv6.dto.OpaqueDataDTO</b-hint>
     </field>
+    
   </mapping>
+  
 </mappings>

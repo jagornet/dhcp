@@ -48,7 +48,7 @@ import com.agr.dhcpv6.server.config.xml.SipServerDomainNamesOption;
 import com.agr.dhcpv6.server.config.xml.SntpServersOption;
 import com.agr.dhcpv6.server.config.xml.StatusCodeOption;
 import com.agr.dhcpv6.server.config.xml.VendorInfoOption;
-import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.FilterGroups;
+import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.Filters;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.Links;
 import com.agr.dhcpv6.util.DhcpConstants;
 
@@ -196,7 +196,7 @@ public class DhcpInfoRequestProcessor
         setGlobalOptions();
         
         // process global filter groups
-        processFilterGroups(dhcpServerConfig.getFilterGroups());
+        processFilters(dhcpServerConfig.getFilters());
         
         // handle configuration for the client's link
         Links link = DhcpServerConfiguration.findLinkForAddress(clientLink);
@@ -343,10 +343,10 @@ public class DhcpInfoRequestProcessor
         }
     }
     
-    private void processFilterGroups(List<FilterGroups> filterGroups)
+    private void processFilters(List<Filters> filters)
     {
-        if (filterGroups != null) {
-            for (FilterGroups filter : filterGroups) {
+        if (filters != null) {
+            for (Filters filter : filters) {
                 List<OptionExpression> expressions = filter.getOptionExpressions();
                 if (expressions != null) {
                     boolean matches = true;     // assume match
@@ -373,7 +373,7 @@ public class DhcpInfoRequestProcessor
                     if (matches) {
                         // got a match, apply filter group options to the reply message
                         log.info("Request matches filter: " + filter.getName());
-                        setFilterGroupOptions(filter);                        
+                        setFilterOptions(filter);                        
                     }
                 }
             }
@@ -393,7 +393,7 @@ public class DhcpInfoRequestProcessor
         return matches;
     }
     
-    private void setFilterGroupOptions(FilterGroups filter)
+    private void setFilterOptions(Filters filter)
     {
         setPreferenceOption(filter.getPreferenceOption());
         // don't set this option for stateless servers?
@@ -421,23 +421,23 @@ public class DhcpInfoRequestProcessor
             // filter groups and the link-specific filter groups, even though
             // these two classes are the same.
             // So we'll "convert" the link-specific filters to "global" filters 
-            // so that we can reuse the filter handling in processFilterGroups()
-            if (link.getFilterGroups() != null) {
-                List<Links.FilterGroups> linkFilterGroups = link.getFilterGroups();
-                List<FilterGroups> filterGroups = new ArrayList<FilterGroups>();
-                for (Links.FilterGroups linkFilterGroup : linkFilterGroups) {
-                    FilterGroups filterGroup = new FilterGroups();
+            // so that we can reuse the filter handling in processFilters()
+            if (link.getFilters() != null) {
+                List<Links.Filters> linkFilters = link.getFilters();
+                List<Filters> filters = new ArrayList<Filters>();
+                for (Links.Filters linkFilter : linkFilters) {
+                    Filters filter = new Filters();
                     try {
                         // copy (destination, source)
-                        BeanUtils.copyProperties(filterGroup, linkFilterGroup);
-                        filterGroups.add(filterGroup);
+                        BeanUtils.copyProperties(filter, linkFilter);
+                        filters.add(filter);
                     }
                     catch (Exception ex) {
-                        log.error("Failed to convert Links.FilterGroups to FilterGroups" + 
+                        log.error("Failed to convert Links.Filters to Filters" + 
                                   ex);
                     }
                 }
-                processFilterGroups(filterGroups);
+                processFilters(filters);
             }
         }
     }

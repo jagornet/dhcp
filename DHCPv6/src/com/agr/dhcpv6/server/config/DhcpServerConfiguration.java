@@ -152,6 +152,7 @@ public class DhcpServerConfiguration
         log.debug("Creating JAXB context...");
         JAXBContext jc = JAXBContext.newInstance("com.agr.dhcpv6.server.config.xml");
         Marshaller m = jc.createMarshaller();
+        m.setProperty("jaxb.formatted.output", Boolean.TRUE);
         log.debug("Marshalling to XML...");
         m.marshal(config, fos);
     }
