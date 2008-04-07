@@ -2,16 +2,16 @@ package com.agr.dhcpv6.option;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.message.DhcpMessageFactory;
 import com.agr.dhcpv6.util.DhcpConstants;
 
-public class DhcpRelayOption implements DhcpOption
+public class DhcpRelayOption extends BaseDhcpOption
 {
     private static Log log = LogFactory.getLog(DhcpRelayOption.class);
     
@@ -28,45 +28,36 @@ public class DhcpRelayOption implements DhcpOption
         this.peerAddress = peerAddress;
     }
 
-    public short getLength()
+    public int getLength()
     {
         // the length of this option is the length of the contained message
         return relayMessage.getLength();
     }
 
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
-        bb.put(relayMessage.encode());
-        return (ByteBuffer)bb.flip();
+        IoBuffer iobuf = super.encodeCodeAndLength();
+        iobuf.put(relayMessage.encode());
+        return iobuf.flip();
     }
 
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(NAME + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
-            short eof = (short)(bb.position() + len);
-            if (bb.position() < eof) {
-                int p = bb.position();
-                byte msgtype = bb.get();
-                DhcpMessage dhcpMessage = 
-                    DhcpMessageFactory.getDhcpMessage(msgtype, peerAddress);
-                if (dhcpMessage != null) {
-                    // reset buffer position so DhcpMessage decoder will 
-                    // read it and set the message type - we only read it 
-                    // ourselves so that we could use it for the factory.
-                    bb.position(p); 
-                    dhcpMessage.decode(bb);
-                    // now that it is decoded, we can set
-                    // the reference to it for this option
-                    relayMessage = dhcpMessage;
-                }
+    	int len = super.decodeLength(iobuf);
+    	if ((len > 0) && (len <= iobuf.remaining())) {
+            int p = iobuf.position();
+            short msgtype = iobuf.getUnsigned();
+            DhcpMessage dhcpMessage = 
+                DhcpMessageFactory.getDhcpMessage(msgtype, peerAddress);
+            if (dhcpMessage != null) {
+                // reset buffer position so DhcpMessage decoder will 
+                // read it and set the message type - we only read it 
+                // ourselves so that we could use it for the factory.
+                iobuf.position(p); 
+                dhcpMessage.decode(iobuf);
+                // now that it is decoded, we can set
+                // the reference to it for this option
+                relayMessage = dhcpMessage;
             }
         }
     }
@@ -91,7 +82,7 @@ public class DhcpRelayOption implements DhcpOption
         this.peerAddress = peerAddress;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return DhcpConstants.OPTION_RELAY_MSG;
     }

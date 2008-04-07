@@ -1,11 +1,11 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.OptionExpression;
@@ -19,7 +19,7 @@ import com.agr.dhcpv6.server.config.xml.VendorClassOption;
  * @version $Revision: $
  */
 
-public class DhcpVendorClassOption implements DhcpOption, DhcpComparableOption
+public class DhcpVendorClassOption extends BaseDhcpOption implements DhcpComparableOption
 {
     private static Log log = LogFactory.getLog(DhcpVendorClassOption.class);
 
@@ -50,12 +50,12 @@ public class DhcpVendorClassOption implements DhcpOption, DhcpComparableOption
             this.vendorClassOption = vendorClassOption;
     }
 
-    public short getLength()
+    public int getLength()
     {
-        short len = 4;  // size of enterprise number (int)
-        List<OpaqueData> userClasses = vendorClassOption.getVendorClasses();
-        if (userClasses != null) {
-            for (OpaqueData opaque : userClasses) {
+        int len = 4;  // size of enterprise number (int)
+        List<OpaqueData> vendorClasses = vendorClassOption.getVendorClasses();
+        if (vendorClasses != null) {
+            for (OpaqueData opaque : vendorClasses) {
                 len += 2;   // opaque data length
                 len += OpaqueDataUtil.getLength(opaque);
             }
@@ -66,37 +66,31 @@ public class DhcpVendorClassOption implements DhcpOption, DhcpComparableOption
     /* (non-Javadoc)
      * @see com.agr.dhcpv6.option.Encodable#encode()
      */
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
-        bb.putInt(vendorClassOption.getEnterpriseNumber());
+        IoBuffer iobuf = super.encodeCodeAndLength();
+        iobuf.putInt((int)vendorClassOption.getEnterpriseNumber());
         List<OpaqueData> vendorClasses = vendorClassOption.getVendorClasses();
         if (vendorClasses != null) {
             for (OpaqueData opaque : vendorClasses) {
-                OpaqueDataUtil.encode(bb, opaque);
+                OpaqueDataUtil.encode(iobuf, opaque);
             }
         }
-        return (ByteBuffer)bb.flip();        
+        return iobuf.flip();        
     }
 
     /* (non-Javadoc)
      * @see com.agr.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
      */
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(vendorClassOption.getName() + " reports length=" + len +
-                        ":  bytes remaining in buffer=" + bb.remaining());
-            short eof = (short)(bb.position() + len);
-            if (bb.position() < eof) {
-                vendorClassOption.setEnterpriseNumber(bb.getInt());
-                while (bb.position() < eof) {
-                    OpaqueData opaque = OpaqueDataUtil.decode(bb);
+    	int len = super.decodeLength(iobuf);
+    	if ((len > 0) && (len <= iobuf.remaining())) {
+            int eof = iobuf.position() + len;
+            if (iobuf.position() < eof) {
+                vendorClassOption.setEnterpriseNumber(iobuf.getUnsignedInt());
+                while (iobuf.position() < eof) {
+                    OpaqueData opaque = OpaqueDataUtil.decode(iobuf);
                     this.addVendorClass(opaque);
                 }
             }
@@ -146,7 +140,7 @@ public class DhcpVendorClassOption implements DhcpOption, DhcpComparableOption
         vendorClassOption.getVendorClasses().add(opaque);        
     }
 
-    public short getCode()
+    public int getCode()
     {
         return vendorClassOption.getCode();
     }

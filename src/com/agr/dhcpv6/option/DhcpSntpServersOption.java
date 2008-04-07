@@ -46,7 +46,7 @@ public class DhcpSntpServersOption extends BaseServerAddressesOption
             this.sntpServersOption = sntpServersOption;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return sntpServersOption.getCode();
     }

@@ -1,11 +1,11 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.server.config.xml.OptionRequestOption;
 
@@ -17,7 +17,7 @@ import com.agr.dhcpv6.server.config.xml.OptionRequestOption;
  * @version $Revision: $
  */
 
-public class DhcpOptionRequestOption implements DhcpOption
+public class DhcpOptionRequestOption extends BaseDhcpOption
 {
     private static Log log = LogFactory.getLog(DhcpOptionRequestOption.class);
     
@@ -48,54 +48,48 @@ public class DhcpOptionRequestOption implements DhcpOption
             this.optionRequestOption = optionRequestOption;
     }
 
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
-        List<Short> oros = optionRequestOption.getRequestedOptionCodes();
+        IoBuffer iobuf = super.encodeCodeAndLength();
+        List<Integer> oros = optionRequestOption.getRequestedOptionCodes();
         if (oros != null) {
-            for (Short oro : oros) {
-                bb.putShort(oro);
+            for (int oro : oros) {
+                iobuf.putShort((short)oro);
             }
         }
-        return (ByteBuffer)bb.flip();
+        return iobuf.flip();
     }
     
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(optionRequestOption.getName() + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
+    	int len = super.decodeLength(iobuf);
+    	if ((len > 0) && (len <= iobuf.remaining())) {
             for (int i=0; i<len/2; i++) {
-                if (bb.hasRemaining()) {
-                    this.addRequestedOptionCode(bb.getShort());
+                if (iobuf.hasRemaining()) {
+                    this.addRequestedOptionCode(iobuf.getUnsignedShort());
                 }
             }
         }
     }
 
-    public short getLength()
+    public int getLength()
     {
-        short len = 0;
-        List<Short> oros = optionRequestOption.getRequestedOptionCodes();
+        int len = 0;
+        List<Integer> oros = optionRequestOption.getRequestedOptionCodes();
         if (oros != null) {
-            len = (short)(oros.size() * 2);
+            len = oros.size() * 2;
         }
         return len;
     }
 
-    public void addRequestedOptionCode(Short code)
+    public void addRequestedOptionCode(Integer code)
     {
         if (code != null) {
             optionRequestOption.getRequestedOptionCodes().add(code);
         }
     }
 
-    public short getCode()
+    public int getCode()
     {
         return optionRequestOption.getCode();
     }
@@ -109,9 +103,9 @@ public class DhcpOptionRequestOption implements DhcpOption
     {
         StringBuilder sb = new StringBuilder(optionRequestOption.getName());
         sb.append(": ");
-        List<Short> oros = optionRequestOption.getRequestedOptionCodes();
+        List<Integer> oros = optionRequestOption.getRequestedOptionCodes();
         if (oros != null) {
-            for (Short oro : oros) {
+            for (Integer oro : oros) {
                 sb.append(oro);
                 sb.append(",");
             }

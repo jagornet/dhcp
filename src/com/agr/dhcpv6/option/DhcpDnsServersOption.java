@@ -46,7 +46,7 @@ public class DhcpDnsServersOption extends BaseServerAddressesOption
             this.dnsServersOption = dnsServersOption;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return dnsServersOption.getCode();
     }

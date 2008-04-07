@@ -2,7 +2,6 @@ package com.agr.dhcpv6.server.mina;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +26,7 @@ public class DhcpDecoderAdapter extends ProtocolDecoderAdapter
         if (log.isDebugEnabled())
             log.debug("Decoding DhcpMessage from: " + from);
         
-        DhcpMessage dhcpMessage = decode(in.buf(), from);
+        DhcpMessage dhcpMessage = decode(in, from);
         
         if (dhcpMessage != null) {
             if (log.isDebugEnabled())
@@ -39,7 +38,7 @@ public class DhcpDecoderAdapter extends ProtocolDecoderAdapter
         }
     }
 
-	public DhcpMessage decode(ByteBuffer in, InetSocketAddress from)
+	public DhcpMessage decode(IoBuffer in, InetSocketAddress from)
 			throws IOException,	ProtocolDecoderException
 	{
 		DhcpMessage dhcpMessage = null;		

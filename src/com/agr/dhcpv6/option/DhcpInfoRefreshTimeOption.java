@@ -1,14 +1,15 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.server.config.xml.InfoRefreshTimeOption;
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.OptionExpression;
+import com.agr.dhcpv6.util.Util;
 
 /**
  * <p>Title: DhcpInfoRefreshTimeOption </p>
@@ -18,7 +19,7 @@ import com.agr.dhcpv6.server.config.xml.OptionExpression;
  * @version $Revision: $
  */
 
-public class DhcpInfoRefreshTimeOption implements DhcpOption, DhcpComparableOption
+public class DhcpInfoRefreshTimeOption extends BaseDhcpOption implements DhcpComparableOption
 {
     private static Log log = LogFactory.getLog(DhcpInfoRefreshTimeOption.class);
     
@@ -49,32 +50,23 @@ public class DhcpInfoRefreshTimeOption implements DhcpOption, DhcpComparableOpti
             this.infoRefreshTimeOption = infoRefreshTimeOption;
     }
 
-    public short getLength()
+    public int getLength()
     {
         return 4;   // always four bytes (int)
     }
 
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
-        bb.putInt(infoRefreshTimeOption.getValue());
-        return (ByteBuffer)bb.flip();
+        IoBuffer iobuf = super.encodeCodeAndLength();
+        iobuf.putInt((int)infoRefreshTimeOption.getValue());
+        return (IoBuffer)iobuf.flip();
     }
 
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(infoRefreshTimeOption.getName() + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
-            short eof = (short)(bb.position() + len);
-            if (bb.position() < eof) {
-                infoRefreshTimeOption.setValue(bb.getInt());
-            }
+    	int len = super.decodeLength(iobuf); 
+    	if ((len > 0) && (len <= iobuf.remaining())) {
+    		infoRefreshTimeOption.setValue(iobuf.getUnsignedInt());
         }
     }
 
@@ -90,7 +82,8 @@ public class DhcpInfoRefreshTimeOption implements DhcpOption, DhcpComparableOpti
             String ascii = opaque.getAsciiValue();
             if (ascii != null) {
                 try {
-                    if (infoRefreshTimeOption.getValue() == Integer.parseInt(ascii)) {
+                	// need a long to handle unsigned int
+                    if (infoRefreshTimeOption.getValue() == Long.parseLong(ascii)) {
                         return true;
                     }
                 }
@@ -100,26 +93,8 @@ public class DhcpInfoRefreshTimeOption implements DhcpOption, DhcpComparableOpti
                 byte[] hex = opaque.getHexValue();
                 if ( (hex != null) && 
                      (hex.length >= 1) && (hex.length <= 4) ) {
-                    int hexInt = 0;
-                    if (hex.length == 1) {
-                        hexInt = (int)hex[0];
-                    }
-                    else if (hex.length == 2) {
-                        hexInt = (int)(hex[0]*256);
-                        hexInt += (int)hex[1];
-                    }
-                    else if (hex.length == 3) {
-                        hexInt = (int)(hex[0]*256*256);
-                        hexInt += (int)(hex[1]*256);
-                        hexInt += (int)hex[2];
-                    }
-                    else if (hex.length == 4) {
-                        hexInt = (int)(hex[0]*256*256*256);
-                        hexInt += (int)(hex[1]*256*256);
-                        hexInt += (int)(hex[2]*256);
-                        hexInt += (int)hex[3];
-                    }
-                    if (infoRefreshTimeOption.getValue() == hexInt) {
+                	long hexLong = Long.valueOf(Util.toHexString(hex), 16);
+                    if (infoRefreshTimeOption.getValue() == hexLong) {
                         return true;
                     }
                 }
@@ -128,7 +103,7 @@ public class DhcpInfoRefreshTimeOption implements DhcpOption, DhcpComparableOpti
         return false;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return infoRefreshTimeOption.getCode();
     }

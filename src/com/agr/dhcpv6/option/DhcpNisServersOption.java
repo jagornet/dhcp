@@ -46,7 +46,7 @@ public class DhcpNisServersOption extends BaseServerAddressesOption
             this.nisServersOption = nisServersOption;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return nisServersOption.getCode();
     }

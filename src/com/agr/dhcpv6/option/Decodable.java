@@ -1,7 +1,8 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
+
+import org.apache.mina.common.IoBuffer;
 
 /**
  * <p>Title: Decodable </p>
@@ -14,6 +15,6 @@ import java.nio.ByteBuffer;
 public interface Decodable
 {
 
-    public abstract void decode(ByteBuffer bb) throws IOException;
+    public abstract void decode(IoBuffer iobuf) throws IOException;
 
 }

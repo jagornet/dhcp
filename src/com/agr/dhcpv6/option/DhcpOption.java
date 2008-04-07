@@ -11,11 +11,13 @@ package com.agr.dhcpv6.option;
 
 public interface DhcpOption extends Encodable, Decodable
 {
-    public abstract short getCode();
+	// code is unsigned short - java int
+    public abstract int getCode();
 
     public abstract String getName();
     
-    public abstract short getLength();
+    // length is unsigned short - java int
+    public abstract int getLength();
     
     public abstract String toString();
 }

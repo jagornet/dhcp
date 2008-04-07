@@ -13,14 +13,14 @@ import java.io.Serializable;
 
 public abstract class BaseOptionDTO implements Serializable
 {
-    protected Short code;
+    protected Integer code;
     protected String name;
     
-    public Short getCode()
+    public Integer getCode()
     {
         return code;
     }
-    public void setCode(Short code)
+    public void setCode(Integer code)
     {
         this.code = code;
     }

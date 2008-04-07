@@ -44,7 +44,7 @@ public class DhcpNisDomainNameOption extends BaseDomainNameOption
             this.nisDomainNameOption = nisDomainNameOption;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return nisDomainNameOption.getCode();
     }

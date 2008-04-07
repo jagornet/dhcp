@@ -49,7 +49,7 @@ public class DhcpServerIdOption extends BaseOpaqueDataOption
             this.serverIdOption = serverIdOption;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return serverIdOption.getCode();
     }

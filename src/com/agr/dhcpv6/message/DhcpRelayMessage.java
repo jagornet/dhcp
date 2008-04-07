@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.option.DhcpRelayOption;
@@ -27,7 +27,7 @@ public class DhcpRelayMessage extends DhcpMessage
     private static Log log = LogFactory.getLog(DhcpRelayMessage.class);
 
     // messageType is in DhcpMessage superclass
-    protected byte hopCount = 0;
+    protected short hopCount = 0;	// need a short to hold unsigned byte
     protected InetAddress linkAddress = null;
     protected InetAddress peerAddress = null;
     
@@ -43,66 +43,66 @@ public class DhcpRelayMessage extends DhcpMessage
     }
 
     @Override
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
         if (log.isDebugEnabled())
             log.debug("Encoding DhcpRelayMessage for: " + socketAddress);
         
         long s = System.currentTimeMillis();
         
-        ByteBuffer buf = ByteBuffer.allocate(1024);
-        buf.put(messageType);
-        buf.put(hopCount);
-        buf.put(linkAddress.getAddress());
-        buf.put(peerAddress.getAddress());
-        buf.put(encodeOptions());
-        buf.flip();
+        IoBuffer iobuf = IoBuffer.allocate(1024);
+        iobuf.put((byte)messageType);
+        iobuf.put((byte)hopCount);
+        iobuf.put(linkAddress.getAddress());
+        iobuf.put(peerAddress.getAddress());
+        iobuf.put(encodeOptions());
+        iobuf.flip();
         
         if (log.isDebugEnabled())
             log.debug("DhcpRelayMessage encoded in " +
                     String.valueOf(System.currentTimeMillis()-s) + " ms.");
         
-        return buf;
+        return iobuf;
     }
     
     public static DhcpRelayMessage decode(InetSocketAddress srcInetSocketAddress,
-                                          ByteBuffer buf)
+                                          IoBuffer iobuf)
             throws IOException
     {
         DhcpRelayMessage relayMessage = 
             new DhcpRelayMessage(srcInetSocketAddress.getAddress());
-        relayMessage.decode(buf);
+        relayMessage.decode(iobuf);
         return relayMessage;
     }
 
     @Override
-    public void decode(ByteBuffer buf) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
         if (log.isDebugEnabled())
             log.debug("Decoding DhcpRelayMessage from: " + socketAddress);
 
         long s = System.currentTimeMillis();
 
-        if ((buf != null) && buf.hasRemaining()) {
-            decodeMessageType(buf);
-            setHopCount(buf.get());
+        if ((iobuf != null) && iobuf.hasRemaining()) {
+            decodeMessageType(iobuf);
+            setHopCount(iobuf.getUnsigned());
             if (log.isDebugEnabled())
                 log.debug("HopCount=" + getHopCount());
             
-            if (buf.hasRemaining()) {
-                InetAddress linkAddr = decodeInet6Address(buf);
+            if (iobuf.hasRemaining()) {
+                InetAddress linkAddr = decodeInet6Address(iobuf);
                 setLinkAddress(linkAddr);
                 if (log.isDebugEnabled())
                     log.debug("LinkAddress: " + linkAddr);
                 
-                if (buf.hasRemaining()) {
-                    InetAddress peerAddr = decodeInet6Address(buf);
+                if (iobuf.hasRemaining()) {
+                    InetAddress peerAddr = decodeInet6Address(iobuf);
                     setPeerAddress(peerAddr);
                     if (log.isDebugEnabled())
                         log.debug("PeerAddress: " + peerAddr);
                     
-                    if (buf.hasRemaining()) {
-                        Map<Short,DhcpOption> options = decodeOptions(buf);
+                    if (iobuf.hasRemaining()) {
+                        Map<Integer,DhcpOption> options = decodeOptions(iobuf);
                         if ( (options != null) &&
                              options.containsKey(DhcpConstants.OPTION_RELAY_MSG)) {
                             setDhcpOptions(options);
@@ -145,15 +145,15 @@ public class DhcpRelayMessage extends DhcpMessage
         }
     }
     
-    protected InetAddress decodeInet6Address(ByteBuffer buf) throws IOException
+    protected InetAddress decodeInet6Address(IoBuffer iobuf) throws IOException
     {
-        if (buf.remaining() >= 16) {
+        if (iobuf.remaining() >= 16) {
             byte[] addr = new byte[16];
-            buf.get(addr);
+            iobuf.get(addr);
             return Inet6Address.getByAddress(addr);
         }
         else {
-            String errmsg = "Failed to decode address: " + buf.remaining() +
+            String errmsg = "Failed to decode address: " + iobuf.remaining() +
                             " bytes remaining in buffer.";
             log.error(errmsg);
             throw new IOException(errmsg);
@@ -161,19 +161,19 @@ public class DhcpRelayMessage extends DhcpMessage
     }
     
     @Override
-    public short getLength()
+    public int getLength()
     {
-        short len = 34;     // relay msg type (1) + hop count (1) +
-                            // link addr (16) + peer addr (16)
+        int len = 34;     // relay msg type (1) + hop count (1) +
+                          // link addr (16) + peer addr (16)
         len += getOptionsLength();
         return len;
     }
     
-    public byte getHopCount()
+    public short getHopCount()
     {
         return hopCount;
     }
-    public void setHopCount(byte hopCount)
+    public void setHopCount(short hopCount)
     {
         this.hopCount = hopCount;
     }

@@ -10,13 +10,13 @@ package com.agr.dhcpv6.dto;
 
 public class ShortOptionDTO extends BaseOptionDTO
 {
-    protected short value;
+    protected Short value;
 
-    public short getValue()
+    public Short getValue()
     {
         return value;
     }
-    public void setValue(short value)
+    public void setValue(Short value)
     {
         this.value = value;
     }

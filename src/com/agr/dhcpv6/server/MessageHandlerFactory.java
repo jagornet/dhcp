@@ -25,7 +25,7 @@ public class MessageHandlerFactory
     public static DhcpMessageHandler createMessageHandler(DhcpChannel channel, DhcpMessage message)
     {
         DhcpMessageHandler handler = null;
-        byte msgType = message.getMessageType();
+        short msgType = message.getMessageType();
         if (msgType == DhcpConstants.INFO_REQUEST) {
             handler = new DhcpInfoRequestHandler(channel, message);
         }

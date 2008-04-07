@@ -1,10 +1,10 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.util.DhcpConstants;
 
@@ -12,7 +12,7 @@ public class DhcpIaTaOption implements DhcpOption
 {
     private static Log log = LogFactory.getLog(DhcpIaTaOption.class);
 
-    public short getCode()
+    public int getCode()
     {
         return DhcpConstants.OPTION_IA_TA;
     }
@@ -22,32 +22,32 @@ public class DhcpIaTaOption implements DhcpOption
         return "IA_TA";
     }
 
-    public short getLength()
+    public int getLength()
     {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
+        if ((iobuf != null) && iobuf.hasRemaining()) {
             // already have the code, so length is next
-            short len = bb.getShort();
+            int len = iobuf.getUnsignedShort();
             if (log.isDebugEnabled())
                 log.debug("IA_TA option reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
-            short eof = (short)(bb.position() + len);
-            if (bb.position() < eof) {
+                          ":  bytes remaining in buffer=" + iobuf.remaining());
+            int eof = iobuf.position() + len;
+            if (iobuf.position() < eof) {
                 // we don't really decode the option, because
                 // this message will be thrown away as per RFC3736
                 // but we'll "eat" the option to complete the decode
-                bb.get(new byte[len]);
+                iobuf.get(new byte[len]);
             }
         }
     }

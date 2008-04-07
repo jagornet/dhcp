@@ -19,7 +19,7 @@ public class DhcpEncoderAdapter extends ProtocolEncoderAdapter
     {
         if (message instanceof DhcpMessage) {
             DhcpMessage dhcpMessage = (DhcpMessage) message;
-            IoBuffer buffer = IoBuffer.wrap(dhcpMessage.encode());
+            IoBuffer buffer = dhcpMessage.encode();
             if (log.isDebugEnabled())
                 log.debug("Writing encoded message for: " + 
                           dhcpMessage.getSocketAddress());

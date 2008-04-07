@@ -1,10 +1,10 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.server.config.xml.PreferenceOption;
 
@@ -16,7 +16,7 @@ import com.agr.dhcpv6.server.config.xml.PreferenceOption;
  * @version $Revision: $
  */
 
-public class DhcpPreferenceOption implements DhcpOption
+public class DhcpPreferenceOption extends BaseDhcpOption
 {
     private static Log log = LogFactory.getLog(DhcpPreferenceOption.class);
 
@@ -47,35 +47,27 @@ public class DhcpPreferenceOption implements DhcpOption
             this.preferenceOption = preferenceOption;
     }
 
-    public short getLength()
+    public int getLength()
     {
         return 1;   // always one bytes
     }
 
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
-        bb.put(preferenceOption.getValue());
-        return (ByteBuffer)bb.flip();
+        IoBuffer iobuf = super.encodeCodeAndLength();
+        iobuf.put((byte)preferenceOption.getValue());
+        return iobuf.flip();
     }
 
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(preferenceOption.getName() + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
-            if (bb.remaining() > 0) {
-                preferenceOption.setValue(bb.get());
-            }
+    	int len = super.decodeLength(iobuf);
+    	if ((len > 0) && (len <= iobuf.remaining())) {
+            preferenceOption.setValue(iobuf.getUnsigned());
         }
     }
 
-    public short getCode()
+    public int getCode()
     {
         return preferenceOption.getCode();
     }

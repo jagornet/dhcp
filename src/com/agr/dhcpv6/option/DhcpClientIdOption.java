@@ -45,7 +45,7 @@ public class DhcpClientIdOption extends BaseOpaqueDataOption
             this.clientIdOption = clientIdOption;
     }
     
-    public short getCode()
+    public int getCode()
     {
         return clientIdOption.getCode();
     }

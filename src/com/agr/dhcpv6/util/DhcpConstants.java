@@ -32,21 +32,21 @@ public class DhcpConstants
 	public static final int SERVER_PORT = 547;
 
 	/**
-	 * DHCP Message Types
+	 * DHCP Message Types - use short to support unsigned byte
 	 */
-	public static final byte SOLICIT = (byte)1;
-	public static final byte ADVERTISE = (byte)2;
-	public static final byte REQUEST = (byte)3;
-	public static final byte CONFIRM = (byte)4;
-	public static final byte RENEW = (byte)5;
-	public static final byte REBIND = (byte)6;
-	public static final byte REPLY = (byte)7;
-	public static final byte RELEASE = (byte)8;
-	public static final byte DECLINE = (byte)9;
-	public static final byte RECONIFURE = (byte)10;
-	public static final byte INFO_REQUEST = (byte)11;
-	public static final byte RELAY_FORW = (byte)12;
-	public static final byte RELAY_REPL = (byte)13;
+	public static final short SOLICIT = 1;
+	public static final short ADVERTISE = 2;
+	public static final short REQUEST = 3;
+	public static final short CONFIRM = 4;
+	public static final short RENEW = 5;
+	public static final short REBIND = 6;
+	public static final short REPLY = 7;
+	public static final short RELEASE = 8;
+	public static final short DECLINE = 9;
+	public static final short RECONIFURE = 10;
+	public static final short INFO_REQUEST = 11;
+	public static final short RELAY_FORW = 12;
+	public static final short RELAY_REPL = 13;
 
     public static final String[] MESSAGE_STRING = { "Unknown",
                                                     "Solicit",
@@ -63,7 +63,15 @@ public class DhcpConstants
                                                     "Relay-Forward",
                                                     "Relay-Reply" };
     
-    public static final String getMessageString(byte msg)
+    /**
+     * Get the string representation of a DHCP message
+     * given the message type.  Note that the type is
+     * an unsigned byte, so we need a short to store
+     * it properly. 
+     * @param msg  the message type as a short (i.e. unsigned byte)
+     * @return
+     */
+    public static final String getMessageString(short msg)
     {
         if ( (msg > 0) && (msg <= RELAY_REPL)) {
             return MESSAGE_STRING[msg];
@@ -74,44 +82,44 @@ public class DhcpConstants
 	/**
 	 * DHCP Options
 	 */
-    public static final short OPTION_CLIENTID = 1;
-    public static final short OPTION_SERVERID = 2;
-    public static final short OPTION_IA_NA = 3;
-    public static final short OPTION_IA_TA = 4;
-    public static final short OPTION_IAADDR = 5;
-    public static final short OPTION_ORO = 6;
-    public static final short OPTION_PREFERENCE = 7;
-    public static final short OPTION_ELAPSED_TIME = 8;
-    public static final short OPTION_RELAY_MSG = 9;
-    public static final short OPTION_AUTH = 11;
-    public static final short OPTION_UNICAST = 12;
-    public static final short OPTION_STATUS_CODE = 13;
-    public static final short OPTION_RAPID_COMMIT = 14;
-    public static final short OPTION_USER_CLASS = 15;
-    public static final short OPTION_VENDOR_CLASS = 16;
-    public static final short OPTION_VENDOR_OPTS = 17;
-    public static final short OPTION_INTERFACE_ID = 18;
-    public static final short OPTION_RECONF_MSG = 19;
-    public static final short OPTION_RECONF_ACCEPT = 20;
-    public static final short OPTION_SIP_SERVERS_DOMAIN_LIST = 21;
-    public static final short OPTION_SIP_SERVERS_ADDRESS_LIST = 22;
-    public static final short OPTION_DNS_SERVERS = 23;
-    public static final short OPTION_DOMAIN_SEARCH_LIST = 24;
-    public static final short OPTION_IA_PD = 25;
-    public static final short OPTION_IA_PD_PREFIX = 26;
-    public static final short OPTION_NIS_SERVERS = 27;
-    public static final short OPTION_NISPLUS_SERVERS = 28;
-    public static final short OPTION_NIS_DOMAIN_NAME = 29;
-    public static final short OPTION_NISPLUS_DOMAIN_NAME = 30;
-    public static final short OPTION_SNTP_SERVERS = 31;
-    public static final short OPTION_INFO_REFRESH_TIME = 32;
+    public static final int OPTION_CLIENTID = 1;
+    public static final int OPTION_SERVERID = 2;
+    public static final int OPTION_IA_NA = 3;
+    public static final int OPTION_IA_TA = 4;
+    public static final int OPTION_IAADDR = 5;
+    public static final int OPTION_ORO = 6;
+    public static final int OPTION_PREFERENCE = 7;
+    public static final int OPTION_ELAPSED_TIME = 8;
+    public static final int OPTION_RELAY_MSG = 9;
+    public static final int OPTION_AUTH = 11;
+    public static final int OPTION_UNICAST = 12;
+    public static final int OPTION_STATUS_CODE = 13;
+    public static final int OPTION_RAPID_COMMIT = 14;
+    public static final int OPTION_USER_CLASS = 15;
+    public static final int OPTION_VENDOR_CLASS = 16;
+    public static final int OPTION_VENDOR_OPTS = 17;
+    public static final int OPTION_INTERFACE_ID = 18;
+    public static final int OPTION_RECONF_MSG = 19;
+    public static final int OPTION_RECONF_ACCEPT = 20;
+    public static final int OPTION_SIP_SERVERS_DOMAIN_LIST = 21;
+    public static final int OPTION_SIP_SERVERS_ADDRESS_LIST = 22;
+    public static final int OPTION_DNS_SERVERS = 23;
+    public static final int OPTION_DOMAIN_SEARCH_LIST = 24;
+    public static final int OPTION_IA_PD = 25;
+    public static final int OPTION_IA_PD_PREFIX = 26;
+    public static final int OPTION_NIS_SERVERS = 27;
+    public static final int OPTION_NISPLUS_SERVERS = 28;
+    public static final int OPTION_NIS_DOMAIN_NAME = 29;
+    public static final int OPTION_NISPLUS_DOMAIN_NAME = 30;
+    public static final int OPTION_SNTP_SERVERS = 31;
+    public static final int OPTION_INFO_REFRESH_TIME = 32;
 
-    public static final short STATUS_CODE_SUCCESS = 0;
-    public static final short STATUS_CODE_UNSPEC_FAIL = 1;
-    public static final short STATUS_CODE_NOADDRSAVAIL = 2;
-    public static final short STATUS_CODE_NOBINDING = 3;
-    public static final short STATUS_CODE_NOTONLINK = 4;
-    public static final short STATUS_CODE_USEMULTICAST = 5;
+    public static final int STATUS_CODE_SUCCESS = 0;
+    public static final int STATUS_CODE_UNSPEC_FAIL = 1;
+    public static final int STATUS_CODE_NOADDRSAVAIL = 2;
+    public static final int STATUS_CODE_NOBINDING = 3;
+    public static final int STATUS_CODE_NOTONLINK = 4;
+    public static final int STATUS_CODE_USEMULTICAST = 5;
 
     static {
 		try {

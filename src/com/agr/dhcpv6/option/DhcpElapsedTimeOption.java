@@ -1,14 +1,15 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.server.config.xml.ElapsedTimeOption;
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.OptionExpression;
+import com.agr.dhcpv6.util.Util;
 
 /**
  * <p>Title: DhcpElapsedTimeOption </p>
@@ -18,7 +19,7 @@ import com.agr.dhcpv6.server.config.xml.OptionExpression;
  * @version $Revision: $
  */
 
-public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
+public class DhcpElapsedTimeOption extends BaseDhcpOption implements DhcpComparableOption
 {
     private static Log log = LogFactory.getLog(DhcpElapsedTimeOption.class);
     
@@ -49,32 +50,23 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
             this.elapsedTimeOption = elapsedTimeOption;
     }
 
-    public short getLength()
+    public int getLength()
     {
         return 2;   // always two bytes (short)
     }
 
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
-        bb.putShort(elapsedTimeOption.getValue());
-        return (ByteBuffer)bb.flip();
+        IoBuffer iobuf = super.encodeCodeAndLength();
+        iobuf.putShort((short)elapsedTimeOption.getValue());
+        return (IoBuffer)iobuf.flip();
     }
 
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(elapsedTimeOption.getName() + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
-            short eof = (short)(bb.position() + len);
-            if (bb.position() < eof) {
-                elapsedTimeOption.setValue(bb.getShort());
-            }
+    	int len = super.decodeLength(iobuf);
+    	if ((len > 0) && (len <= iobuf.remaining())) {
+    		elapsedTimeOption.setValue(iobuf.getUnsignedShort());
         }
     }
 
@@ -90,7 +82,8 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
             String ascii = opaque.getAsciiValue();
             if (ascii != null) {
                 try {
-                    if (elapsedTimeOption.getValue() == Short.parseShort(ascii)) {
+                	// need an Integer to handle unsigned short
+                    if (elapsedTimeOption.getValue() == Integer.parseInt(ascii)) {
                         return true;
                     }
                 }
@@ -100,15 +93,8 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
                 byte[] hex = opaque.getHexValue();
                 if ( (hex != null) && 
                      (hex.length >= 1) && (hex.length <= 2) ) {
-                    short hexShort = 0;
-                    if (hex.length == 1) {
-                        hexShort = (short)hex[0];
-                    }
-                    else {
-                        hexShort = (short)(hex[0]*256);
-                        hexShort += (short)hex[1];
-                    }
-                    if (elapsedTimeOption.getValue() == hexShort) {
+                	int hexUnsignedShort = Integer.valueOf(Util.toHexString(hex), 16);
+                    if (elapsedTimeOption.getValue() == hexUnsignedShort) {
                         return true;
                     }
                 }
@@ -117,7 +103,7 @@ public class DhcpElapsedTimeOption implements DhcpOption, DhcpComparableOption
         return false;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return elapsedTimeOption.getCode();
     }

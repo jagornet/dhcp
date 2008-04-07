@@ -1,9 +1,8 @@
 package com.agr.dhcpv6.option;
 
-import java.nio.ByteBuffer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.Operator;
@@ -22,7 +21,7 @@ public class OpaqueDataUtil
 {
     private static final Log log = LogFactory.getLog(OpaqueDataUtil.class);
     
-    public static short getLength(OpaqueData opaque)
+    public static int getLength(OpaqueData opaque)
     {
         if (opaque == null)
             return 0;
@@ -30,87 +29,85 @@ public class OpaqueDataUtil
         String ascii = opaque.getAsciiValue();
         if (ascii != null) {
             // two bytes for the len + len of string
-            return (short)(2 + ascii.length());
+            return 2 + ascii.length();
         }
         else {
             // two bytes for the len + len of hex data
-            return (short)(2 + opaque.getHexValue().length);
+            return 2 + opaque.getHexValue().length;
         }
     }
 
-    public static short getLengthDataOnly(OpaqueData opaque)
+    public static int getLengthDataOnly(OpaqueData opaque)
     {
         if (opaque == null)
             return 0;
         
         String ascii = opaque.getAsciiValue();
         if (ascii != null) {
-            // two bytes for the len + len of string
-            return (short)(ascii.length());
+            return ascii.length();
         }
         else {
         	byte[] hex = opaque.getHexValue();
         	if (hex == null)
         		return 0;
-            // two bytes for the len + len of hex data
-            return (short)(hex.length);
+            return hex.length;
         }
     }
     
     /**
-     * @param bb
+     * @param iobuf
      * @param opaque
      */
-    public static void encode(ByteBuffer bb, OpaqueData opaque)
+    public static void encode(IoBuffer iobuf, OpaqueData opaque)
     {
-        if ( (bb == null) || (opaque == null) )
+        if ( (iobuf == null) || (opaque == null) )
             return;
         
         String ascii = opaque.getAsciiValue();
         if (ascii != null) {
-            bb.putShort((short)ascii.length());
-            bb.put(ascii.getBytes());
+            iobuf.putShort((short)ascii.length());
+            iobuf.put(ascii.getBytes());
         }
         else {
             byte[] hexval = opaque.getHexValue();
             if (hexval != null) {
-                bb.putShort((short)hexval.length);
-                bb.put(hexval);
+                iobuf.putShort((short)hexval.length);
+                iobuf.put(hexval);
             }
         }        
     }
     
     /**
-     * @param bb
+     * @param iobuf
      * @param opaque
      */
-    public static void encodeDataOnly(ByteBuffer bb, OpaqueData opaque)
+    public static void encodeDataOnly(IoBuffer iobuf, OpaqueData opaque)
     {
-        if ( (bb == null) || (opaque == null) )
+        if ( (iobuf == null) || (opaque == null) )
             return;
 
         String ascii = opaque.getAsciiValue();
         if (ascii != null) {
-            bb.put(ascii.getBytes());
+            iobuf.put(ascii.getBytes());
         }
         else {
             byte[] hexval = opaque.getHexValue();
             if (hexval != null) {
-                bb.put(hexval);
+                iobuf.put(hexval);
             }
         }        
     }
     
-    public static OpaqueData decode(ByteBuffer bb)
+    public static OpaqueData decode(IoBuffer iobuf)
     {
-        if ((bb == null) || !bb.hasRemaining())
+        if ((iobuf == null) || !iobuf.hasRemaining())
             return null;
         
         OpaqueData opaque = new OpaqueData();
-        short len = bb.getShort();
+        int len = iobuf.getUnsignedShort();
         if (len > 0) {
             byte[] data = new byte[len];
-            bb.get(data);
+            iobuf.get(data);
             String str = new String(data);
             if (str.matches("\\p{Print}+")) {
                 opaque.setAsciiValue(str);
@@ -122,15 +119,15 @@ public class OpaqueDataUtil
         return opaque;
     }
     
-    public static OpaqueData decodeDataOnly(ByteBuffer bb, short len)
+    public static OpaqueData decodeDataOnly(IoBuffer iobuf, int len)
     {
-        if (bb == null)
+        if (iobuf == null)
             return null;
         
         OpaqueData opaque = new OpaqueData();
         if (len > 0) {
             byte[] data = new byte[len];
-            bb.get(data);
+            iobuf.get(data);
             String str = new String(data);
             if (str.matches("\\p{Print}+")) {
                 opaque.setAsciiValue(str);

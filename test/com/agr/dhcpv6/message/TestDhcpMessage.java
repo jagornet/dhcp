@@ -7,6 +7,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.apache.mina.common.IoBuffer;
+
 import com.agr.dhcpv6.option.DhcpClientIdOption;
 import com.agr.dhcpv6.option.DhcpDnsServersOption;
 import com.agr.dhcpv6.option.DhcpOption;
@@ -74,7 +76,7 @@ public class TestDhcpMessage extends TestCase
     public void testEncode() throws Exception
     {
         DhcpMessage dhcpMessage = buildMockDhcpMessage();
-        ByteBuffer bb = dhcpMessage.encode();
+        ByteBuffer bb = dhcpMessage.encode().buf();
         assertNotNull(bb);
         assertEquals(70, bb.limit());
         checkEncodedMockDhcpMessage(bb);
@@ -84,18 +86,18 @@ public class TestDhcpMessage extends TestCase
     public static ByteBuffer buildMockClientRequest()
     {
         ByteBuffer bb = ByteBuffer.allocate(1024);
-        bb.put(DhcpConstants.INFO_REQUEST);
-        bb.put(DhcpTransactionId.encode(90599));
+        bb.put((byte)DhcpConstants.INFO_REQUEST);
+        bb.put(new byte[] { (byte)0xff, (byte)0xff, (byte)0xff });
         // client id option
-        bb.putShort(DhcpConstants.OPTION_CLIENTID);
+        bb.putShort((short)DhcpConstants.OPTION_CLIENTID);
         bb.putShort((short)10);
         bb.put("MyClientId".getBytes());
         // option request option
-        bb.putShort(DhcpConstants.OPTION_ORO);
+        bb.putShort((short)DhcpConstants.OPTION_ORO);
         bb.putShort((short)2);
-        bb.putShort(DhcpConstants.OPTION_DNS_SERVERS);
+        bb.putShort((short)DhcpConstants.OPTION_DNS_SERVERS);
         // user class option
-        bb.putShort(DhcpConstants.OPTION_USER_CLASS);
+        bb.putShort((short)DhcpConstants.OPTION_USER_CLASS);
         bb.putShort((short)26);
         bb.putShort((short)11);
         bb.put("UserClass 1".getBytes());
@@ -109,8 +111,8 @@ public class TestDhcpMessage extends TestCase
     {
         assertEquals(CLIENT_ADDR, dhcpMessage.getSocketAddress());
         assertEquals(DhcpConstants.INFO_REQUEST, dhcpMessage.getMessageType());
-        assertEquals(90599, dhcpMessage.getTransactionId());
-        Map<Short, DhcpOption> options = dhcpMessage.getDhcpOptions();
+        assertEquals(Long.parseLong("FFFFFF", 16), dhcpMessage.getTransactionId());
+        Map<Integer, DhcpOption> options = dhcpMessage.getDhcpOptions();
         assertNotNull(options);
         DhcpClientIdOption clientId = 
             (DhcpClientIdOption)options.get(DhcpConstants.OPTION_CLIENTID);
@@ -120,7 +122,7 @@ public class TestDhcpMessage extends TestCase
             (DhcpOptionRequestOption)options.get(DhcpConstants.OPTION_ORO);
         assertNotNull(oro);
         assertEquals(DhcpConstants.OPTION_DNS_SERVERS, 
-                (short)oro.getOptionRequestOption().getRequestedOptionCodes().get(0));
+                oro.getOptionRequestOption().getRequestedOptionCodes().get(0).shortValue());
         DhcpUserClassOption userClass =
             (DhcpUserClassOption)options.get(DhcpConstants.OPTION_USER_CLASS);
         assertNotNull(userClass);
@@ -135,7 +137,7 @@ public class TestDhcpMessage extends TestCase
     {
         ByteBuffer bb = buildMockClientRequest();
         int len = bb.limit();
-        DhcpMessage dhcpMessage = DhcpMessage.decode(CLIENT_ADDR, bb);
+        DhcpMessage dhcpMessage = DhcpMessage.decode(CLIENT_ADDR, IoBuffer.wrap(bb));
         assertNotNull(dhcpMessage);
         assertEquals(len, dhcpMessage.getLength());
         checkMockClientRequest(dhcpMessage);

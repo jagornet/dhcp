@@ -46,7 +46,7 @@ public class DhcpSipServerDomainNamesOption extends BaseDomainNameListOption
             this.sipServerDomainNamesOption = sipServerDomainNamesOption;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return sipServerDomainNamesOption.getCode();
     }

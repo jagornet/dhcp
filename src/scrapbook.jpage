@@ -36,3 +36,24 @@ org.apache.mina.transport.socket.nio.NioDatagramAcceptor acceptor =
 acceptor.setDefaultLocalAddress(new java.net.InetSocketAddress("::1", 555));
 acceptor.setHandler(new org.apache.mina.common.IoHandlerAdapter());
 acceptor.bind();
+
+java.nio.ByteBuffer bb2 = java.nio.ByteBuffer.wrap(new byte[] { (byte)0xff, (byte)0xff });
+bb2.rewind();
+Short s = bb2.getShort();
+System.out.println("short=" + s);
+System.out.println("long=" + s.longValue());
+
+org.apache.mina.common.IoBuffer iobuf = org.apache.mina.common.IoBuffer.allocate(1);
+short s = 255;
+iobuf.put((byte)s);
+iobuf.rewind();
+short ubyte = iobuf.getUnsigned();
+System.out.println("ubyte=" + ubyte);
+
+
+org.apache.mina.common.IoBuffer iobuf = org.apache.mina.common.IoBuffer.allocate(2);
+int i = 65535;
+iobuf.putShort((short)i);
+iobuf.rewind();
+int ushort = iobuf.getUnsignedShort();
+System.out.println("ushort=" + ushort);

@@ -1,11 +1,11 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.Option;
@@ -19,7 +19,7 @@ import com.agr.dhcpv6.server.config.xml.VendorInfoOption;
  * @version $Revision: $
  */
 
-public class DhcpVendorInfoOption implements DhcpOption
+public class DhcpVendorInfoOption extends BaseDhcpOption
 {
     private static Log log = LogFactory.getLog(DhcpVendorInfoOption.class);
 
@@ -53,42 +53,37 @@ public class DhcpVendorInfoOption implements DhcpOption
     /* (non-Javadoc)
      * @see com.agr.dhcpv6.option.Encodable#encode()
      */
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
-        bb.putInt(vendorInfoOption.getEnterpriseNumber());
+        IoBuffer iobuf = super.encodeCodeAndLength();
+        iobuf.putInt((int)vendorInfoOption.getEnterpriseNumber());
         List<Option> subopts = vendorInfoOption.getSuboptions();
         if (subopts != null) {
             for (Option subopt : subopts) {
-                bb.putShort(subopt.getCode());  // suboption code
+                iobuf.putShort((short)subopt.getCode());  // suboption code
                 OpaqueData opaque = subopt.getData();
                 if (opaque != null) {
-                    OpaqueDataUtil.encode(bb, opaque);
+                    OpaqueDataUtil.encode(iobuf, opaque);
                 }
             }
         }
-        return (ByteBuffer)bb.flip();        
+        return iobuf.flip();        
     }
 
     /* (non-Javadoc)
      * @see com.agr.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
      */
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(vendorInfoOption.getName() + " reports length=" + len +
-                        ":  bytes remaining in buffer=" + bb.remaining());
-            if (bb.remaining() > 3) {
-                vendorInfoOption.setEnterpriseNumber(bb.getInt());
-                while (bb.remaining() > 3) {
+    	int len = super.decodeLength(iobuf);
+    	if ((len > 0) && (len <= iobuf.remaining())) {
+            int eof = iobuf.position() + len;
+            if (iobuf.position() < eof) {
+                vendorInfoOption.setEnterpriseNumber(iobuf.getUnsignedInt());
+                while (iobuf.position() < eof) {
                     Option subopt = new Option();
-                    subopt.setCode(bb.getShort());
-                    OpaqueData opaque = OpaqueDataUtil.decode(bb);
+                    subopt.setCode(iobuf.getUnsignedShort());
+                    OpaqueData opaque = OpaqueDataUtil.decode(iobuf);
                     subopt.setData(opaque);
                     this.addVendorSubOption(subopt);
                 }
@@ -96,9 +91,9 @@ public class DhcpVendorInfoOption implements DhcpOption
         }
     }
 
-    public short getLength()
+    public int getLength()
     {
-        short len = 4;  // size of enterprise number (int)
+        int len = 4;  // size of enterprise number (int)
         List<Option> subopts = vendorInfoOption.getSuboptions();
         if (subopts != null) {
             for (Option subopt : subopts) {
@@ -118,7 +113,7 @@ public class DhcpVendorInfoOption implements DhcpOption
         vendorInfoOption.getSuboptions().add(subopt);
     }
 
-    public short getCode()
+    public int getCode()
     {
         return vendorInfoOption.getCode();
     }

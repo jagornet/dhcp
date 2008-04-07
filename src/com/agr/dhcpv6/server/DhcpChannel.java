@@ -5,11 +5,11 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 
@@ -70,7 +70,7 @@ public class DhcpChannel
     public void send(DhcpMessage outMessage)
     {
         try {
-            channel.send(outMessage.encode(), outMessage.getSocketAddress());
+            channel.send(outMessage.encode().buf(), outMessage.getSocketAddress());
         }
         catch (IOException ex) {
             // TODO Auto-generated catch block
@@ -80,18 +80,18 @@ public class DhcpChannel
     
     public void receive(DhcpMessage inMessage)
     {
-        ByteBuffer buf = ByteBuffer.allocate(PACKET_SIZE);
+        IoBuffer iobuf = IoBuffer.allocate(PACKET_SIZE);
         try {
             
             InetSocketAddress srcInetSocketAddress =
-                (InetSocketAddress)channel.receive(buf);
+                (InetSocketAddress)channel.receive(iobuf.buf());
             // in theory, receive should never return null
             // but better safe than NPE!
             if (srcInetSocketAddress != null) {
                 inMessage.setSocketAddress(srcInetSocketAddress);
                 log.info("Received datagram from: " + srcInetSocketAddress);
-                buf.flip();
-                inMessage.decode(buf);
+                iobuf.flip();
+                inMessage.decode(iobuf);
                 if (log.isDebugEnabled())
                     log.debug("Decoded message: " + 
                               inMessage.toStringWithOptions());
@@ -108,18 +108,18 @@ public class DhcpChannel
     
     public DhcpMessage receive()
     {
-        ByteBuffer buf = ByteBuffer.allocate(PACKET_SIZE);
+        IoBuffer iobuf = IoBuffer.allocate(PACKET_SIZE);
         DhcpMessage inMessage = null; 
         try {
             
             InetSocketAddress srcInetSocketAddress =
-                (InetSocketAddress)channel.receive(buf);
+                (InetSocketAddress)channel.receive(iobuf.buf());
             // in theory, receive should never return null
             // but better safe than NPE!
             if (srcInetSocketAddress != null) {
                 log.info("Received datagram from: " + srcInetSocketAddress);
-                buf.flip();
-                inMessage = DhcpMessage.decode(srcInetSocketAddress, buf);
+                iobuf.flip();
+                inMessage = DhcpMessage.decode(srcInetSocketAddress, iobuf);
                 if (log.isDebugEnabled())
                     log.debug("Decoded message: " + 
                               (inMessage != null ? 

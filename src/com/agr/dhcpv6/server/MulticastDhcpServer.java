@@ -7,10 +7,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 
 import com.agr.dhcpv6.message.DhcpMessage;
@@ -70,12 +70,12 @@ public class MulticastDhcpServer implements Runnable
                     // but better safe than NPE!
                     if (srcInetSocketAddress != null) {
                         log.info("Received datagram from: " + srcInetSocketAddress);
-                        ByteBuffer bbuf = ByteBuffer.wrap(buf);
+                        IoBuffer iobuf = IoBuffer.wrap(buf);
                         
                         DhcpDecoderAdapter decoder = new DhcpDecoderAdapter();
                         DhcpMessage inMessage = null;
                         try {
-                        	inMessage = decoder.decode(bbuf, srcInetSocketAddress);
+                        	inMessage = decoder.decode(iobuf, srcInetSocketAddress);
                         }
                         catch (ProtocolDecoderException ex) {
                         	log.error("Failed to decode message: " + ex);
@@ -136,8 +136,8 @@ public class MulticastDhcpServer implements Runnable
             log.debug("Sending message: " + 
                       (outMessage != null ? 
                        outMessage.toStringWithOptions() : "null"));
-        ByteBuffer bbuf = outMessage.encode();
-        DatagramPacket dp = new DatagramPacket(bbuf.array(), bbuf.limit());
+        IoBuffer iobuf = outMessage.encode();
+        DatagramPacket dp = new DatagramPacket(iobuf.buf().array(), iobuf.buf().limit());
         dp.setSocketAddress(outMessage.getSocketAddress());
         dhcpSocket.send(dp);
         log.info("Sent datagram to: " + dp.getSocketAddress());

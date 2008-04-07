@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.mina.common.IoBuffer;
+
 import junit.framework.TestCase;
 import net.sf.dozer.util.mapping.DozerBeanMapper;
 import net.sf.dozer.util.mapping.MapperIF;
@@ -20,7 +22,7 @@ public class TestDhcpDnsServersOption extends TestCase
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
         dso.addServer("2001:db8::1");    // 16 bytes
         dso.addServer("2001:db8::2");    // 16 bytes
-        ByteBuffer bb = dso.encode();
+        ByteBuffer bb = dso.encode().buf();
         assertNotNull(bb);
         assertEquals(36, bb.capacity());    // +4 (code=2bytes, len=2bytes)
         assertEquals(36, bb.limit());
@@ -46,7 +48,7 @@ public class TestDhcpDnsServersOption extends TestCase
         bb.put(InetAddress.getByName("2001:db8::2").getAddress());
         bb.flip();
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
-        dso.decode(bb);
+        dso.decode(IoBuffer.wrap(bb));
         assertNotNull(dso.getDnsServersOption());
         assertEquals(2, dso.getDnsServersOption().getServerIpAddresses().size());
         List dnsServers = dso.getDnsServersOption().getServerIpAddresses();

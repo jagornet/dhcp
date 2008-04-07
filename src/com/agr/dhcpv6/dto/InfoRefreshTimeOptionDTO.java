@@ -8,7 +8,7 @@ package com.agr.dhcpv6.dto;
  * @version $Revision: $
  */
 
-public class InfoRefreshTimeOptionDTO extends IntOptionDTO
+public class InfoRefreshTimeOptionDTO extends LongOptionDTO
 {
-    // nothing to do
+    // extend from LongOptionDTO to support unsigned int
 }

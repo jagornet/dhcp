@@ -1,11 +1,11 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.OptionExpression;
@@ -19,7 +19,7 @@ import com.agr.dhcpv6.server.config.xml.UserClassOption;
  * @version $Revision: $
  */
 
-public class DhcpUserClassOption implements DhcpOption, DhcpComparableOption
+public class DhcpUserClassOption extends BaseDhcpOption implements DhcpComparableOption
 {
     private static Log log = LogFactory.getLog(DhcpUserClassOption.class);
 
@@ -50,9 +50,9 @@ public class DhcpUserClassOption implements DhcpOption, DhcpComparableOption
             this.userClassOption = userClassOption;
     }
 
-    public short getLength()
+    public int getLength()
     {
-        short len = 0;
+        int len = 0;
         List<OpaqueData> userClasses = userClassOption.getUserClasses();
         if (userClasses != null) {
             for (OpaqueData opaque : userClasses) {
@@ -62,31 +62,25 @@ public class DhcpUserClassOption implements DhcpOption, DhcpComparableOption
         return len;
     }
     
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
+        IoBuffer iobuf = super.encodeCodeAndLength();
         List<OpaqueData> userClasses = userClassOption.getUserClasses();
         if (userClasses != null) {
             for (OpaqueData opaque : userClasses) {
-                OpaqueDataUtil.encode(bb, opaque);
+                OpaqueDataUtil.encode(iobuf, opaque);
             }
         }
-        return (ByteBuffer)bb.flip();
+        return iobuf.flip();
     }
 
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(userClassOption.getName() + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
-            short eof = (short)(bb.position() + len);
-            while (bb.position() < eof) {
-                OpaqueData opaque = OpaqueDataUtil.decode(bb);
+    	int len = super.decodeLength(iobuf);
+    	if ((len > 0) && (len <= iobuf.remaining())) {
+    		int eof = iobuf.position() + len;
+            while (iobuf.position() < eof) {
+                OpaqueData opaque = OpaqueDataUtil.decode(iobuf);
                 this.addUserClass(opaque);
             }
         }
@@ -135,7 +129,7 @@ public class DhcpUserClassOption implements DhcpOption, DhcpComparableOption
         userClassOption.getUserClasses().add(opaque);
     }
 
-    public short getCode()
+    public int getCode()
     {
         return userClassOption.getCode();
     }
