@@ -356,12 +356,19 @@
 	</xs:complexType>
 	<xs:complexType name="infoRefreshTimeOption">
 		<xs:simpleContent>
-			<xs:extension base="xs:unsignedInt">
+			<xs:extension base="infoRefreshTimeType">
 				<xs:attribute name="code" type="code" fixed="32"/>
 				<xs:attribute name="name" type="name" fixed="Information Refresh Time"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
+	
+	<xs:simpleType name="infoRefreshTimeType">
+		<xs:restriction base="xs:unsignedInt">
+			<xs:minInclusive value="600"/>
+			<xs:maxInclusive value="4294967295"/>	<!-- 0xffffffff -->
+		</xs:restriction>
+	</xs:simpleType>
 
 <!-- Consider using these types	
      <simpleType name="dotQuadIPv4Type">
