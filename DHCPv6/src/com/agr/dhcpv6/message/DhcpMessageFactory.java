@@ -11,7 +11,7 @@ public class DhcpMessageFactory
 {
     private static Log log = LogFactory.getLog(DhcpMessageFactory.class);
 
-    public static DhcpMessage getDhcpMessage(byte msgtype, InetAddress from) 
+    public static DhcpMessage getDhcpMessage(short msgtype, InetAddress from) 
     {
         DhcpMessage dhcpMessage = null;
         switch (msgtype) {

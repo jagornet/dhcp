@@ -6,6 +6,8 @@ import junit.framework.TestCase;
 import net.sf.dozer.util.mapping.DozerBeanMapper;
 import net.sf.dozer.util.mapping.MapperIF;
 
+import org.apache.mina.common.IoBuffer;
+
 import com.agr.dhcpv6.dto.PreferenceOptionDTO;
 import com.agr.dhcpv6.server.config.xml.PreferenceOption;
 import com.agr.dhcpv6.util.DhcpConstants;
@@ -16,7 +18,7 @@ public class TestDhcpPreferenceOption extends TestCase
     {
         DhcpPreferenceOption dpo = new DhcpPreferenceOption();
         dpo.getPreferenceOption().setValue((byte)2);
-        ByteBuffer bb = dpo.encode();
+        ByteBuffer bb = dpo.encode().buf();
         assertNotNull(bb);
         assertEquals(5, bb.capacity());
         assertEquals(5, bb.limit());
@@ -35,7 +37,7 @@ public class TestDhcpPreferenceOption extends TestCase
         bb.put((byte)2);
         bb.flip();
         DhcpPreferenceOption dpo = new DhcpPreferenceOption();
-        dpo.decode(bb);
+        dpo.decode(IoBuffer.wrap(bb));
         assertNotNull(dpo.getPreferenceOption());
         assertEquals(1, dpo.getLength());
         assertEquals(2, dpo.getPreferenceOption().getValue());
@@ -48,6 +50,6 @@ public class TestDhcpPreferenceOption extends TestCase
         MapperIF mapper = new DozerBeanMapper();
         PreferenceOptionDTO dto = (PreferenceOptionDTO)
                                     mapper.map(po, PreferenceOptionDTO.class);
-        assertEquals(Integer.valueOf(po.getValue()), dto.getValue());
+        assertEquals(Short.valueOf(po.getValue()), dto.getValue());
     }
 }

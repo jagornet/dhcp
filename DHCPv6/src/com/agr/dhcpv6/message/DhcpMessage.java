@@ -3,13 +3,13 @@ package com.agr.dhcpv6.message;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.mina.common.IoBuffer;
 
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.option.DhcpOptionFactory;
@@ -77,9 +77,9 @@ public class DhcpMessage
     
     protected InetSocketAddress socketAddress;
 
-    protected byte messageType = 0;
+    protected short messageType = 0;	// need a short to hold unsigned byte
     protected long transactionId = 0;   // we only use low order three bytes
-    protected Map<Short, DhcpOption> dhcpOptions = null;
+    protected Map<Integer, DhcpOption> dhcpOptions = null;
 
     public DhcpMessage()
     {
@@ -103,63 +103,63 @@ public class DhcpMessage
     public DhcpMessage(InetSocketAddress socketAddress)
     {
         this.socketAddress = socketAddress;
-        dhcpOptions = new HashMap<Short, DhcpOption>();
+        dhcpOptions = new HashMap<Integer, DhcpOption>();
     }
     
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
         if (log.isDebugEnabled())
             log.debug("Encoding DhcpMessage for: " + socketAddress);
         
         long s = System.currentTimeMillis();
         
-        ByteBuffer buf = ByteBuffer.allocate(1024);
-        buf.put(messageType);
-        buf.put(DhcpTransactionId.encode(transactionId));
-        buf.put(encodeOptions());
-        buf.flip();
+        IoBuffer iobuf = IoBuffer.allocate(1024);
+        iobuf.put((byte)messageType);
+        iobuf.put(DhcpTransactionId.encode(transactionId));
+        iobuf.put(encodeOptions());
+        iobuf.flip();
         
         if (log.isDebugEnabled())
             log.debug("DhcpMessage encoded in " +
                     String.valueOf(System.currentTimeMillis()-s) + " ms.");
         
-        return buf;
+        return iobuf;
     }
 
-    protected ByteBuffer encodeOptions() throws IOException
+    protected IoBuffer encodeOptions() throws IOException
     {
-        ByteBuffer buf = ByteBuffer.allocate(1020); // 1024 - 1(msgType) - 3(transId) = 1020 (options)
+    	IoBuffer iobuf = IoBuffer.allocate(1020); // 1024 - 1(msgType) - 3(transId) = 1020 (options)
         if (dhcpOptions != null) {
             for (DhcpOption option : dhcpOptions.values()) {
-                 buf.put(option.encode());
+                 iobuf.put(option.encode());
             }
         }
-        return (ByteBuffer)buf.flip();
+        return iobuf.flip();
     }
     
     public static DhcpMessage decode(InetSocketAddress srcInetSocketAddress,
-                                     ByteBuffer buf)
+                                     IoBuffer iobuf)
             throws IOException
     {
         DhcpMessage dhcpMessage = new DhcpMessage(srcInetSocketAddress);
-        dhcpMessage.decode(buf);
+        dhcpMessage.decode(iobuf);
         return dhcpMessage;
     }
 
-    public void decode(ByteBuffer buf) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
         if (log.isDebugEnabled())
             log.debug("Decoding DhcpMessage from: " + socketAddress);
         
         long s = System.currentTimeMillis();
         
-        if ((buf != null) && buf.hasRemaining()) {
-            decodeMessageType(buf);
-            if (buf.hasRemaining()) {
-                setTransactionId(DhcpTransactionId.decode(buf));
+        if ((iobuf != null) && iobuf.hasRemaining()) {
+            decodeMessageType(iobuf);
+            if (iobuf.hasRemaining()) {
+                setTransactionId(DhcpTransactionId.decode(iobuf));
                 log.debug("TransactionId=" + transactionId);
-                if (buf.hasRemaining()) {
-                    setDhcpOptions(decodeOptions(buf));
+                if (iobuf.hasRemaining()) {
+                    setDhcpOptions(decodeOptions(iobuf));
                 }
                 else {
                     String errmsg = "Failed to decode options: buffer is empty";
@@ -185,12 +185,12 @@ public class DhcpMessage
         }
     }
 
-    public void decodeMessageType(ByteBuffer buf) throws IOException
+    public void decodeMessageType(IoBuffer iobuf) throws IOException
     {
-        if ((buf != null) && buf.hasRemaining()) {
+        if ((iobuf != null) && iobuf.hasRemaining()) {
             // TODO check that it is a valid message type, even though
             //      this should have already been done
-            setMessageType(buf.get());
+            setMessageType(iobuf.getUnsigned());
             if (log.isDebugEnabled())
                 log.debug("MessageType=" + DhcpConstants.getMessageString(messageType));
         }
@@ -201,16 +201,16 @@ public class DhcpMessage
         }
     }
     
-    public Map<Short, DhcpOption> decodeOptions(ByteBuffer buf) 
+    public Map<Integer, DhcpOption> decodeOptions(IoBuffer iobuf) 
             throws IOException
     {
-        Map<Short, DhcpOption> _dhcpOptions = new HashMap<Short, DhcpOption>();
-        while (buf.hasRemaining()) {
-            short code = buf.getShort();
+        Map<Integer, DhcpOption> _dhcpOptions = new HashMap<Integer, DhcpOption>();
+        while (iobuf.hasRemaining()) {
+            int code = iobuf.getUnsignedShort();
             log.debug("Option code=" + code);
             DhcpOption option = DhcpOptionFactory.getDhcpOption(code, getHost());
             if (option != null) {
-                option.decode(buf);
+                option.decode(iobuf);
                 _dhcpOptions.put(option.getCode(), option);
             }
             else {
@@ -220,16 +220,16 @@ public class DhcpMessage
         return _dhcpOptions;
     }
 
-    public short getLength()
+    public int getLength()
     {
-        short len = 4;    // msg type (1) + transaction id (3)
+        int len = 4;    // msg type (1) + transaction id (3)
         len += getOptionsLength();
         return len;
     }
     
-    public short getOptionsLength()
+    public int getOptionsLength()
     {
-        short len = 0;
+        int len = 0;
         if (dhcpOptions != null) {
             for (DhcpOption option : dhcpOptions.values()) {
                 len += 4;   // option code (2 bytes) + length (2 bytes) 
@@ -261,11 +261,11 @@ public class DhcpMessage
         this.socketAddress = socketAddress;
     }
 
-    public byte getMessageType()
+    public short getMessageType()
     {
         return messageType;
     }
-    public void setMessageType(byte messageType)
+    public void setMessageType(short messageType)
     {
         this.messageType = messageType;
     }
@@ -278,7 +278,7 @@ public class DhcpMessage
         this.transactionId = transactionId;
     }
 
-    public boolean hasOption(short optionCode)
+    public boolean hasOption(int optionCode)
     {
         if(dhcpOptions.containsKey(optionCode)) {
             return true;
@@ -286,7 +286,7 @@ public class DhcpMessage
         return false;
     }
 
-    public DhcpOption getOption(short optionCode)
+    public DhcpOption getOption(int optionCode)
     {
         return (DhcpOption)dhcpOptions.get(optionCode);
     }
@@ -297,11 +297,11 @@ public class DhcpMessage
         }
     }
     
-    public Map<Short, DhcpOption> getDhcpOptions()
+    public Map<Integer, DhcpOption> getDhcpOptions()
     {
         return dhcpOptions;
     }
-    public void setDhcpOptions(Map<Short, DhcpOption> dhcpOptions)
+    public void setDhcpOptions(Map<Integer, DhcpOption> dhcpOptions)
     {
         this.dhcpOptions = dhcpOptions;
     }

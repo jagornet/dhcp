@@ -1,14 +1,11 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.agr.dhcpv6.server.config.xml.DomainSearchListOption;
+import org.apache.mina.common.IoBuffer;
 
 /**
  * <p>Title: BaseDomainNameListOption </p>
@@ -18,45 +15,39 @@ import com.agr.dhcpv6.server.config.xml.DomainSearchListOption;
  * @version $Revision: $
  */
 
-public abstract class BaseDomainNameListOption implements DhcpOption
+public abstract class BaseDomainNameListOption extends BaseDhcpOption
 {
     private static Log log = LogFactory.getLog(BaseDomainNameListOption.class);
 
     public abstract List<String> getDomainNames();
     
-    public ByteBuffer encode() throws IOException
+    public IoBuffer encode() throws IOException
     {
-        ByteBuffer bb = ByteBuffer.allocate(2+2+ getLength());
-        bb.putShort(this.getCode());
-        bb.putShort(this.getLength());
+    	IoBuffer iobuf = super.encodeCodeAndLength();
         List<String> domainNames = this.getDomainNames();
         if (domainNames != null) {
             for (String domain : domainNames) {
-                BaseDomainNameOption.encodeDomainName(bb, domain);
+                BaseDomainNameOption.encodeDomainName(iobuf, domain);
             }
         }
-        return (ByteBuffer)bb.flip();
+        return iobuf.flip();
     }
 
-    public void decode(ByteBuffer bb) throws IOException
+    public void decode(IoBuffer iobuf) throws IOException
     {
-        if ((bb != null) && bb.hasRemaining()) {
-            // already have the code, so length is next
-            short len = bb.getShort();
-            if (log.isDebugEnabled())
-                log.debug(this.getName() + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + bb.remaining());
-            short eof = (short)(bb.position() + len);
-            while (bb.position() < eof) {
-                String domain = BaseDomainNameOption.decodeDomainName(bb, eof);
+    	int len = super.decodeLength(iobuf); 
+    	if ((len > 0) && (len <= iobuf.remaining())) {
+            int eof = iobuf.position() + len;
+            while (iobuf.position() < eof) {
+                String domain = BaseDomainNameOption.decodeDomainName(iobuf, eof);
                 this.addDomainName(domain);
             }
         }
     }
 
-    public short getLength()
+    public int getLength()
     {
-        short len = 0;
+        int len = 0;
         List<String> domainNames = this.getDomainNames();
         if (domainNames != null) {
             for (String domain : domainNames) {

@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @version $Revision: $
  */
 
-public class PreferenceOptionDTO extends ByteOptionDTO
+public class PreferenceOptionDTO extends ShortOptionDTO
 {
-    // nothing to do
+    // extend from Short option to support unsigned byte
 }

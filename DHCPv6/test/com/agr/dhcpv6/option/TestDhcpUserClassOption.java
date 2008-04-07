@@ -8,10 +8,10 @@ import junit.framework.TestCase;
 import net.sf.dozer.util.mapping.DozerBeanMapper;
 import net.sf.dozer.util.mapping.MapperIF;
 
-import com.agr.dhcpv6.dto.DnsServersOptionDTO;
+import org.apache.mina.common.IoBuffer;
+
 import com.agr.dhcpv6.dto.OpaqueDataDTO;
 import com.agr.dhcpv6.dto.UserClassOptionDTO;
-import com.agr.dhcpv6.server.config.xml.DnsServersOption;
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.UserClassOption;
 import com.agr.dhcpv6.util.DhcpConstants;
@@ -23,7 +23,7 @@ public class TestDhcpUserClassOption extends TestCase
         DhcpUserClassOption duco = new DhcpUserClassOption();
         duco.addUserClass("UserClass 1");   // len = 2 + 11
         duco.addUserClass("UserClass 2");   // len = 2 + 11
-        ByteBuffer bb = duco.encode();
+        ByteBuffer bb = duco.encode().buf();
         assertNotNull(bb);
         assertEquals(30, bb.capacity());    // +4 (code=2bytes, len=2bytes)
         assertEquals(30, bb.limit());
@@ -45,7 +45,7 @@ public class TestDhcpUserClassOption extends TestCase
         bb.put("UserClass 2".getBytes());
         bb.flip();
         DhcpUserClassOption duco = new DhcpUserClassOption();
-        duco.decode(bb);
+        duco.decode(IoBuffer.wrap(bb));
         assertNotNull(duco.getUserClassOption());
         List<OpaqueData> userClasses = duco.getUserClassOption().getUserClasses();
         assertNotNull(userClasses);

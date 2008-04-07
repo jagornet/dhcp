@@ -4,22 +4,22 @@ import java.io.Serializable;
 
 
 /**
- * <p>Title: ByteOptionDTO </p>
+ * <p>Title: LongOptionDTO </p>
  * <p>Description: </p>
  * 
  * @author A. Gregory Rabil
  * @version $Revision: $
  */
 
-public class ByteOptionDTO extends BaseOptionDTO
+public class LongOptionDTO extends BaseOptionDTO
 {
-    protected Byte value;
+    protected Long value;
 
-    public Byte getValue()
+    public Long getValue()
     {
         return value;
     }
-    public void setValue(Byte value)
+    public void setValue(Long value)
     {
         this.value = value;
     }

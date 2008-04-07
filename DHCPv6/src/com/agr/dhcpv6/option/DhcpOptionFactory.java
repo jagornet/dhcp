@@ -6,7 +6,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpOptionFactory
 {
-    public static DhcpOption getDhcpOption(short code, InetAddress peer)
+    public static DhcpOption getDhcpOption(int code, InetAddress peer)
     {
         DhcpOption option = null;
         switch(code) {

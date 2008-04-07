@@ -72,7 +72,7 @@ public class DhcpInfoRequestProcessor
     protected InetAddress clientLink;
     protected DhcpMessage requestMsg;
     protected DhcpMessage replyMsg;
-    protected List<Short> requestedOptionCodes;
+    protected List<Integer> requestedOptionCodes;
     
     /**
      * Construct an DhcpInfoRequest processor
@@ -84,7 +84,7 @@ public class DhcpInfoRequestProcessor
     {
         this.clientLink = clientLink;
         this.requestMsg = reqMsg;
-        Map<Short, DhcpOption> optionMap = this.requestMsg.getDhcpOptions();
+        Map<Integer, DhcpOption> optionMap = this.requestMsg.getDhcpOptions();
         if (optionMap != null) {
         	DhcpOptionRequestOption oro = 
         		(DhcpOptionRequestOption) optionMap.get(DhcpConstants.OPTION_ORO);
@@ -229,7 +229,7 @@ public class DhcpInfoRequestProcessor
         setInfoRefreshTimeOption(dhcpServerConfig.getInfoRefreshTimeOption());    	
     }
     
-    private boolean clientWantsOption(short optionCode)
+    private boolean clientWantsOption(int optionCode)
     {
     	if (requestedOptionCodes != null)
     		return requestedOptionCodes.contains(optionCode);

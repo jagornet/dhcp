@@ -8,7 +8,7 @@ package com.agr.dhcpv6.dto;
  * @version $Revision: $
  */
 
-public class ElapsedTimeOptionDTO extends ShortOptionDTO
+public class ElapsedTimeOptionDTO extends IntOptionDTO
 {
-    // nothing to do
+    // extend from IntOptionDTO to support unsigned short
 }

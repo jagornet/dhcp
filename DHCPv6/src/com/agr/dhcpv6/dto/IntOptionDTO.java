@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 
 /**
- * <p>Title: ShortOptionDTO </p>
+ * <p>Title: IntOptionDTO </p>
  * <p>Description: </p>
  * 
  * @author A. Gregory Rabil

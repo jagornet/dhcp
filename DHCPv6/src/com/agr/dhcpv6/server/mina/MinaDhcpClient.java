@@ -98,7 +98,7 @@ public class MinaDhcpClient extends IoHandlerAdapter
             msg.setOption(new DhcpClientIdOption(clientIdOption));
             
             ElapsedTimeOption elapsedTimeOption = new ElapsedTimeOption();
-            elapsedTimeOption.setValue((short)(id+1000));
+            elapsedTimeOption.setValue(id+1000);
             msg.setOption(new DhcpElapsedTimeOption(elapsedTimeOption));
 
             UserClassOption userClassOption = new UserClassOption();

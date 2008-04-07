@@ -13,8 +13,6 @@ import java.util.List;
 
 public class DhcpV6ServerConfigDTO implements Serializable
 {
-    protected boolean abcPolicy;
-    protected Integer xyzPolicy;
     protected Boolean sendRequestedOptionsOnlyPolicy;
 //TODO    protected List genericPolicies;
     protected ServerIdOptionDTO serverIdOption;
@@ -60,22 +58,6 @@ public class DhcpV6ServerConfigDTO implements Serializable
     */
     protected List links;
     
-
-	public boolean isAbcPolicy() {
-		return abcPolicy;
-	}
-
-	public void setAbcPolicy(boolean abcPolicy) {
-		this.abcPolicy = abcPolicy;
-	}
-
-	public Integer getXyzPolicy() {
-		return xyzPolicy;
-	}
-
-	public void setXyzPolicy(Integer xyzPolicy) {
-		this.xyzPolicy = xyzPolicy;
-	}
 
 	public Boolean getSendRequestedOptionsOnlyPolicy() {
 		return sendRequestedOptionsOnlyPolicy;
@@ -219,8 +201,6 @@ public class DhcpV6ServerConfigDTO implements Serializable
 	    */		
 	    protected List optionExpressions;
 	    
-		protected Boolean abcPolicy;
-		protected Integer xyzPolicy;
 		protected Boolean sendRequestedOptionsOnlyPolicy;
 //TODO		protected List<Policy> genericPolicies;
 		protected PreferenceOptionDTO preferenceOption;
@@ -250,18 +230,6 @@ public class DhcpV6ServerConfigDTO implements Serializable
 		}
 		public void setOptionExpressions(List optionExpressions) {
 			this.optionExpressions = optionExpressions;
-		}
-		public Boolean getAbcPolicy() {
-			return abcPolicy;
-		}
-		public void setAbcPolicy(Boolean abcPolicy) {
-			this.abcPolicy = abcPolicy;
-		}
-		public Integer getXyzPolicy() {
-			return xyzPolicy;
-		}
-		public void setXyzPolicy(Integer xyzPolicy) {
-			this.xyzPolicy = xyzPolicy;
 		}
 		public Boolean getSendRequestedOptionsOnlyPolicy() {
 			return sendRequestedOptionsOnlyPolicy;
@@ -348,8 +316,6 @@ public class DhcpV6ServerConfigDTO implements Serializable
     {
     	protected String name;
         protected String address;
-        protected Boolean abcPolicy;
-        protected Integer xyzPolicy;
         protected Boolean sendRequestedOptionsOnlyPolicy;
 //TODO        protected List<Policy> genericPolicies;
         protected ServerIdOptionDTO serverIdOption;
@@ -397,18 +363,6 @@ public class DhcpV6ServerConfigDTO implements Serializable
 		}
 		public void setAddress(String address) {
 			this.address = address;
-		}
-		public Boolean getAbcPolicy() {
-			return abcPolicy;
-		}
-		public void setAbcPolicy(Boolean abcPolicy) {
-			this.abcPolicy = abcPolicy;
-		}
-		public Integer getXyzPolicy() {
-			return xyzPolicy;
-		}
-		public void setXyzPolicy(Integer xyzPolicy) {
-			this.xyzPolicy = xyzPolicy;
 		}
 		public Boolean getSendRequestedOptionsOnlyPolicy() {
 			return sendRequestedOptionsOnlyPolicy;

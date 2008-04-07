@@ -46,7 +46,7 @@ public class DhcpSipServerAddressesOption extends BaseServerAddressesOption
             this.sipServerAddressesOption = sipServerAddressesOption;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return sipServerAddressesOption.getCode();
     }

@@ -46,7 +46,7 @@ public class DhcpDomainSearchListOption extends BaseDomainNameListOption
             this.domainSearchListOption = domainSearchListOption;
     }
 
-    public short getCode()
+    public int getCode()
     {
         return domainSearchListOption.getCode();
     }

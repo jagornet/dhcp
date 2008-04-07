@@ -24,8 +24,6 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="abcPolicy" type="abcPolicy"/>
-				<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
 				<xs:element name="sendRequestedOptionsOnlyPolicy" type="sendRequestedOptionsOnlyPolicy" minOccurs="0"/>
 				<xs:element name="genericPolicies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element name="serverIdOption" type="serverIdOption"/>
@@ -49,8 +47,6 @@
 						<xs:sequence>
 							<xs:element name="name" type="name"/>
 							<xs:element name="optionExpressions" type="optionExpression" maxOccurs="unbounded"/>
-							<xs:element name="abcPolicy" type="abcPolicy" minOccurs="0"/>
-							<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
 							<xs:element name="sendRequestedOptionsOnlyPolicy" type="sendRequestedOptionsOnlyPolicy" minOccurs="0"/>
 							<xs:element name="genericPolicies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="preferenceOption" type="preferenceOption" minOccurs="0"/>
@@ -76,8 +72,6 @@
 						<xs:sequence>
 							<xs:element name="name" type="name"/>
 							<xs:element name="address" type="xs:string"/>
-							<xs:element name="abcPolicy" type="abcPolicy" minOccurs="0"/>
-							<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
 							<xs:element name="sendRequestedOptionsOnlyPolicy" type="sendRequestedOptionsOnlyPolicy" minOccurs="0"/>
 							<xs:element name="genericPolicies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="serverIdOption" type="serverIdOption" minOccurs="0"/>
@@ -101,8 +95,6 @@
 									<xs:sequence>
 										<xs:element name="name" type="name"/>
 										<xs:element name="optionExpressions" type="optionExpression" maxOccurs="unbounded"/>
-										<xs:element name="abcPolicy" type="abcPolicy" minOccurs="0"/>
-										<xs:element name="xyzPolicy" type="xyzPolicy" minOccurs="0"/>
 										<xs:element name="sendRequestedOptionsOnlyPolicy" type="sendRequestedOptionsOnlyPolicy" minOccurs="0"/>
 										<xs:element name="genericPolicies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
 										<xs:element name="preferenceOption" type="preferenceOption" minOccurs="0"/>
@@ -147,18 +139,6 @@
 			<xs:element name="value" type="value"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:simpleType name="abcPolicy">
-		<xs:annotation>
-			<xs:documentation>Special architected ABC policy</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:boolean"/>
-	</xs:simpleType>
-	<xs:simpleType name="xyzPolicy">
-		<xs:annotation>
-			<xs:documentation>Special architected XYZ policy</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:int"/>
-	</xs:simpleType>
 	<xs:simpleType name="sendRequestedOptionsOnlyPolicy">
 		<xs:annotation>
 			<xs:documentation>Send reply messages that contain only the options requested by the client in the ORO option, if such options are configured.</xs:documentation>
@@ -166,10 +146,10 @@
 		<xs:restriction base="xs:boolean"/>
 	</xs:simpleType>
 	<xs:simpleType name="code">
-		<xs:restriction base="xs:short"/>
+		<xs:restriction base="xs:unsignedShort"/>
 	</xs:simpleType>
 	<xs:simpleType name="length">
-		<xs:restriction base="xs:short"/>
+		<xs:restriction base="xs:unsignedShort"/>
 	</xs:simpleType>
 	<xs:complexType name="opaqueData">
 		<xs:choice>
@@ -187,7 +167,7 @@
 		</xs:sequence>
 	</xs:complexType>
 	<xs:simpleType name="offset">
-		<xs:restriction base="xs:short"/>
+		<xs:restriction base="xs:unsignedShort"/>
 	</xs:simpleType>
 	<xs:simpleType name="operator">
 		<xs:restriction base="xs:string">
@@ -199,7 +179,7 @@
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="enterpriseNumber">
-		<xs:restriction base="xs:int"/>
+		<xs:restriction base="xs:unsignedInt"/>
 	</xs:simpleType>
 	<xs:simpleType name="ipAddress">
 		<xs:restriction base="xs:string"/>
@@ -243,14 +223,14 @@
 	</xs:complexType>
 	<xs:complexType name="optionRequestOption">
 		<xs:sequence>
-			<xs:element name="requestedOptionCodes" type="xs:short" maxOccurs="unbounded"/>
+			<xs:element name="requestedOptionCodes" type="xs:unsignedShort" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="6"/>
 		<xs:attribute name="name" type="name" fixed="Option Request"/>
 	</xs:complexType>
 	<xs:complexType name="preferenceOption">
 		<xs:simpleContent>
-			<xs:extension base="xs:byte">
+			<xs:extension base="xs:unsignedByte">
 				<xs:attribute name="code" type="code" fixed="7"/>
 				<xs:attribute name="name" type="name" fixed="Preference"/>
 			</xs:extension>
@@ -258,7 +238,7 @@
 	</xs:complexType>
 	<xs:complexType name="elapsedTimeOption">
 		<xs:simpleContent>
-			<xs:extension base="xs:short">
+			<xs:extension base="xs:unsignedShort">
 				<xs:attribute name="code" type="code" fixed="8"/>
 				<xs:attribute name="name" type="name" fixed="Elapsed Time"/>
 			</xs:extension>
@@ -376,7 +356,7 @@
 	</xs:complexType>
 	<xs:complexType name="infoRefreshTimeOption">
 		<xs:simpleContent>
-			<xs:extension base="xs:int">
+			<xs:extension base="xs:unsignedInt">
 				<xs:attribute name="code" type="code" fixed="32"/>
 				<xs:attribute name="name" type="name" fixed="Information Refresh Time"/>
 			</xs:extension>

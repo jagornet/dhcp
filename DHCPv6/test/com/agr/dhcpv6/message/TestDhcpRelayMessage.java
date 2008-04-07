@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
-import com.agr.dhcpv6.message.DhcpMessage;
-import com.agr.dhcpv6.message.DhcpRelayMessage;
+import org.apache.mina.common.IoBuffer;
+
 import com.agr.dhcpv6.option.DhcpRelayOption;
 import com.agr.dhcpv6.util.DhcpConstants;
 
@@ -71,7 +71,7 @@ public class TestDhcpRelayMessage extends TestCase
     {
         DhcpRelayMessage relayMessage = buildMockDhcpRelayMessage();
 
-        ByteBuffer bb  = relayMessage.encode();
+        ByteBuffer bb  = relayMessage.encode().buf();
         assertNotNull(bb);
         // length = 34(relay message header) + 2 (relay option code)
         //          2 (relay option length) + 70 (relay message option)
@@ -103,7 +103,7 @@ public class TestDhcpRelayMessage extends TestCase
         
         relayMessage2.setOption(relayOption2);
         
-        ByteBuffer bb = relayMessage2.encode();
+        ByteBuffer bb = relayMessage2.encode().buf();
         assertNotNull(bb);
         // length = 2 x (34(relay message header) + 2 (relay option code)
         //          2 (relay option length)) + 70 (relay message option)
@@ -131,11 +131,11 @@ public class TestDhcpRelayMessage extends TestCase
     public static ByteBuffer buildMockRelayFoward() throws Exception
     {
         ByteBuffer bb = ByteBuffer.allocate(1024);
-        bb.put(DhcpConstants.RELAY_FORW);
+        bb.put((byte)DhcpConstants.RELAY_FORW);
         bb.put((byte)0);    // hop count
         bb.put(RELAY1_CLIENTSIDE_ADDR.getAddress().getAddress());   // link addr
         bb.put(TestDhcpMessage.CLIENT_ADDR.getAddress().getAddress());  // peer addr
-        bb.putShort(DhcpConstants.OPTION_RELAY_MSG);
+        bb.putShort((short)DhcpConstants.OPTION_RELAY_MSG);
         ByteBuffer bb2 = TestDhcpMessage.buildMockClientRequest();
         bb.putShort((short)bb2.limit());
         bb.put(bb2);
@@ -160,7 +160,7 @@ public class TestDhcpRelayMessage extends TestCase
     {
         ByteBuffer bb = buildMockRelayFoward();
         int len = bb.limit();
-        DhcpRelayMessage relayMessage = DhcpRelayMessage.decode(RELAY1_ADDR, bb);
+        DhcpRelayMessage relayMessage = DhcpRelayMessage.decode(RELAY1_ADDR, IoBuffer.wrap(bb));
         assertNotNull(relayMessage);
         assertEquals(len, relayMessage.getLength());
         checkMockRelayFoward(relayMessage);
@@ -169,18 +169,18 @@ public class TestDhcpRelayMessage extends TestCase
     public void testDecode2() throws Exception
     {
         ByteBuffer bb = ByteBuffer.allocate(1024);
-        bb.put(DhcpConstants.RELAY_FORW);
+        bb.put((byte)DhcpConstants.RELAY_FORW);
         bb.put((byte)1);    // hop count
         bb.put(RELAY2_RELAY1SIDE_ADDR.getAddress().getAddress());   // link addr
         bb.put(RELAY1_ADDR.getAddress().getAddress());              // peer addr
-        bb.putShort(DhcpConstants.OPTION_RELAY_MSG);
+        bb.putShort((short)DhcpConstants.OPTION_RELAY_MSG);
         ByteBuffer bb2 = buildMockRelayFoward();
         bb.putShort((short)bb2.limit());
         bb.put(bb2);
         bb.flip();
 
         int len = bb.limit();
-        DhcpRelayMessage relayMessage = DhcpRelayMessage.decode(RELAY2_ADDR, bb);
+        DhcpRelayMessage relayMessage = DhcpRelayMessage.decode(RELAY2_ADDR, IoBuffer.wrap(bb));
         assertNotNull(relayMessage);
         assertEquals(len, relayMessage.getLength());
         assertEquals(1, relayMessage.getHopCount());
