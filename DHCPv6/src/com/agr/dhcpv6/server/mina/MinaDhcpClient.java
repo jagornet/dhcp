@@ -2,8 +2,6 @@ package com.agr.dhcpv6.server.mina;
 
 import java.net.InetSocketAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.ConnectFuture;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IdleStatus;
@@ -16,6 +14,8 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioDatagramConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.option.DhcpClientIdOption;
@@ -28,7 +28,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class MinaDhcpClient extends IoHandlerAdapter
 {
-    private static Log log = LogFactory.getLog(MinaDhcpClient.class);
+	private static Logger log = LoggerFactory.getLogger(MinaDhcpClient.class);
 
     private IoSession session;
 

@@ -46,7 +46,7 @@ public class DhcpV6Server
         }
         else {
         	// my original channel-based server, which is 
-        	// now superceeded by the MinaDhcpSever
+        	// now superseded by the MinaDhcpSever
         	// DhcpSever server = new DhcpServer(configFilename, portNumber);
         	MinaDhcpServer minaServer = 
         		new MinaDhcpServer(configFilename, portNumber);

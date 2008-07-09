@@ -9,20 +9,15 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
-import com.agr.dhcpv6.util.DhcpConstants;
 
 /**
  * Title:        DHCPServer
@@ -37,7 +32,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpServer implements Runnable
 {
-    private static Log log = LogFactory.getLog(DhcpServer.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpServer.class);
 
     protected Options options;
     protected CommandLineParser parser;
@@ -125,7 +120,7 @@ public class DhcpServer implements Runnable
             }
         }
         catch (IOException ex) {
-            log.fatal("DHCPv6 Server Abort", ex);
+            log.error("DHCPv6 Server Abort", ex);
         }
     }
 

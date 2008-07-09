@@ -3,13 +3,13 @@ package com.agr.dhcpv6.server.mina;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.message.DhcpMessageFactory;
@@ -17,7 +17,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpDecoderAdapter extends ProtocolDecoderAdapter
 {
-    private static Log log = LogFactory.getLog(DhcpDecoderAdapter.class);
+    private static Logger log = LoggerFactory.getLogger(DhcpDecoderAdapter.class);
 
     public void decode(IoSession session, IoBuffer in, ProtocolDecoderOutput out)
             throws Exception

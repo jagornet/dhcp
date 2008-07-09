@@ -7,9 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.option.DhcpOptionFactory;
@@ -73,7 +73,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpMessage
 {
-    private static Log log = LogFactory.getLog(DhcpMessage.class);
+    private static Logger log = LoggerFactory.getLogger(DhcpMessage.class);
     
     protected InetSocketAddress socketAddress;
 

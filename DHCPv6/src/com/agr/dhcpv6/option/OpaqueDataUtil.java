@@ -1,8 +1,8 @@
 package com.agr.dhcpv6.option;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.Operator;
@@ -19,7 +19,7 @@ import com.agr.dhcpv6.util.Util;
 
 public class OpaqueDataUtil
 {
-    private static final Log log = LogFactory.getLog(OpaqueDataUtil.class);
+	private static Logger log = LoggerFactory.getLogger(OpaqueDataUtil.class);
     
     public static int getLength(OpaqueData opaque)
     {

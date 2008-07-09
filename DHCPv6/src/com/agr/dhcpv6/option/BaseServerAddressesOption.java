@@ -6,9 +6,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: BaseServerAddressesOption </p>
@@ -20,7 +20,7 @@ import org.apache.mina.common.IoBuffer;
 
 public abstract class BaseServerAddressesOption extends BaseDhcpOption
 {
-    private static Log log = LogFactory.getLog(BaseServerAddressesOption.class);
+	private static Logger log = LoggerFactory.getLogger(BaseServerAddressesOption.class);
 
     public abstract List<String> getServerIpAddresses();
 

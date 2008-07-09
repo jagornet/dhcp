@@ -1,13 +1,9 @@
 package com.agr.dhcpv6.option;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
-import com.agr.dhcpv6.server.config.xml.OptionExpression;
 import com.agr.dhcpv6.server.config.xml.ServerIdOption;
 
 /**
@@ -20,7 +16,7 @@ import com.agr.dhcpv6.server.config.xml.ServerIdOption;
 
 public class DhcpServerIdOption extends BaseOpaqueDataOption
 {
-    private static Log log = LogFactory.getLog(DhcpServerIdOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpServerIdOption.class);
     
     private ServerIdOption serverIdOption;
     

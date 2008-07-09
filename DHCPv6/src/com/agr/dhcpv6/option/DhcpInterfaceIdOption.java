@@ -1,7 +1,7 @@
 package com.agr.dhcpv6.option;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.InterfaceIdOption;
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
@@ -16,7 +16,7 @@ import com.agr.dhcpv6.server.config.xml.OpaqueData;
 
 public class DhcpInterfaceIdOption extends BaseOpaqueDataOption
 {
-    private static Log log = LogFactory.getLog(DhcpInterfaceIdOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpInterfaceIdOption.class);
     
     private InterfaceIdOption interfaceIdOption;
     

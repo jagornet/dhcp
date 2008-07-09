@@ -2,8 +2,8 @@ package com.agr.dhcpv6.option;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.SipServerDomainNamesOption;
 
@@ -17,7 +17,7 @@ import com.agr.dhcpv6.server.config.xml.SipServerDomainNamesOption;
 
 public class DhcpSipServerDomainNamesOption extends BaseDomainNameListOption
 {
-    private static Log log = LogFactory.getLog(DhcpSipServerDomainNamesOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpSipServerDomainNamesOption.class);
 
     private SipServerDomainNamesOption sipServerDomainNamesOption;
 

@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-cli-1.1/commons-cli-1.1.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/apache-log4j-1.2.15/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/javadotnet/jaxb-ri-20071219/lib/jsr173_1.0_api.jar"/>

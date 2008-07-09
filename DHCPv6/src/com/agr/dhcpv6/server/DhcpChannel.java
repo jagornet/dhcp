@@ -7,9 +7,9 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 
@@ -24,7 +24,7 @@ import com.agr.dhcpv6.message.DhcpMessage;
 
 public class DhcpChannel
 {
-    private static Log log = LogFactory.getLog(DhcpChannel.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpChannel.class);
     private static int PACKET_SIZE = 1500;   // default max MTU for ethernet
 
     private DatagramChannel channel = null;
@@ -73,8 +73,7 @@ public class DhcpChannel
             channel.send(outMessage.encode().buf(), outMessage.getSocketAddress());
         }
         catch (IOException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            log.error("Failure sending message: " + ex);
         }
     }
     
@@ -101,8 +100,7 @@ public class DhcpChannel
             }
         }
         catch (IOException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            log.error("Failure receiving message: " + ex);
         }
     }
     
@@ -130,8 +128,7 @@ public class DhcpChannel
             }
         }
         catch (IOException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            log.error("Failure receiving message: " + ex);
         }
         return inMessage;
     }

@@ -2,9 +2,9 @@ package com.agr.dhcpv6.option;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: DhcpDomainSearchListOption </p>
@@ -16,7 +16,7 @@ import org.apache.mina.common.IoBuffer;
 
 public abstract class BaseDomainNameOption extends BaseDhcpOption
 {
-    private static Log log = LogFactory.getLog(BaseDomainNameOption.class);
+	private static Logger log = LoggerFactory.getLogger(BaseDomainNameOption.class);
 
     public abstract String getDomainName();
     public abstract void setDomainName(String domainName);

@@ -2,9 +2,9 @@ package com.agr.dhcpv6.option;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.PreferenceOption;
 
@@ -18,7 +18,7 @@ import com.agr.dhcpv6.server.config.xml.PreferenceOption;
 
 public class DhcpPreferenceOption extends BaseDhcpOption
 {
-    private static Log log = LogFactory.getLog(DhcpPreferenceOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpPreferenceOption.class);
 
     private PreferenceOption preferenceOption;
 

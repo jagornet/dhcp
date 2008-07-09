@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.option.DhcpClientIdOption;
@@ -64,7 +64,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpInfoRequestProcessor
 {
-    private static Log log = LogFactory.getLog(DhcpInfoRequestProcessor.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpInfoRequestProcessor.class);
 
     protected static DhcpV6ServerConfig dhcpServerConfig = 
                                         DhcpServerConfiguration.getConfig();

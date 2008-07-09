@@ -15,8 +15,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig;
 import com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig.Links;
@@ -24,7 +24,7 @@ import com.agr.dhcpv6.util.Subnet;
 
 public class DhcpServerConfiguration
 {
-    private static Log log = LogFactory.getLog(DhcpServerConfiguration.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpServerConfiguration.class);
 
     private static volatile DhcpV6ServerConfig CONFIG;
     private static TreeMap<Subnet, Links> linkMap;

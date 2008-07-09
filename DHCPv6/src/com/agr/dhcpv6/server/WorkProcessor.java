@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.message.DhcpMessageHandler;
@@ -24,7 +24,7 @@ import com.agr.dhcpv6.message.DhcpMessageHandler;
 
 public class WorkProcessor implements Runnable
 {
-    private static Log log = LogFactory.getLog(WorkProcessor.class);
+	private static Logger log = LoggerFactory.getLogger(WorkProcessor.class);
 
     private static int POOL_SIZE = 100;  
 

@@ -6,9 +6,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.option.DhcpOption;
 import com.agr.dhcpv6.option.DhcpRelayOption;
@@ -24,7 +24,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpRelayMessage extends DhcpMessage
 {
-    private static Log log = LogFactory.getLog(DhcpRelayMessage.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpRelayMessage.class);
 
     // messageType is in DhcpMessage superclass
     protected short hopCount = 0;	// need a short to hold unsigned byte

@@ -3,9 +3,9 @@ package com.agr.dhcpv6.option;
 import java.io.IOException;
 import java.net.InetAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.message.DhcpMessageFactory;
@@ -13,7 +13,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpRelayOption extends BaseDhcpOption
 {
-    private static Log log = LogFactory.getLog(DhcpRelayOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpRelayOption.class);
     
     protected static String NAME = "Relay Message";
     
