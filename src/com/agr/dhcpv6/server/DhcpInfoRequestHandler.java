@@ -1,7 +1,7 @@
 package com.agr.dhcpv6.server;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.message.DhcpMessageHandler;
@@ -19,7 +19,7 @@ import com.agr.dhcpv6.message.DhcpMessageHandler;
 
 public class DhcpInfoRequestHandler implements DhcpMessageHandler
 {
-    private static Log log = LogFactory.getLog(DhcpInfoRequestHandler.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpInfoRequestHandler.class);
 
     private DhcpChannel dhcpChannel;
     private DhcpInfoRequestProcessor dhcpProcessor;

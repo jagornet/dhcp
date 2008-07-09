@@ -13,12 +13,12 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Subnet
 {
-    private static Log log = LogFactory.getLog(Subnet.class);
+	private static Logger log = LoggerFactory.getLogger(Subnet.class);
 
     private InetAddress subnetAddress;
     private int prefixLength;

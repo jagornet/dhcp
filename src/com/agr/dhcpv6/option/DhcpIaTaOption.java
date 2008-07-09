@@ -2,15 +2,15 @@ package com.agr.dhcpv6.option;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpIaTaOption implements DhcpOption
 {
-    private static Log log = LogFactory.getLog(DhcpIaTaOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpIaTaOption.class);
 
     public int getCode()
     {

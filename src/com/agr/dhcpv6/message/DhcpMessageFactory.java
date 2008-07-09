@@ -2,14 +2,14 @@ package com.agr.dhcpv6.message;
 
 import java.net.InetAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.util.DhcpConstants;
 
 public class DhcpMessageFactory
 {
-    private static Log log = LogFactory.getLog(DhcpMessageFactory.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpMessageFactory.class);
 
     public static DhcpMessage getDhcpMessage(short msgtype, InetAddress from) 
     {

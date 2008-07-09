@@ -1,7 +1,7 @@
 package com.agr.dhcpv6.option;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.NisDomainNameOption;
 
@@ -15,7 +15,7 @@ import com.agr.dhcpv6.server.config.xml.NisDomainNameOption;
 
 public class DhcpNisDomainNameOption extends BaseDomainNameOption
 {
-    private static Log log = LogFactory.getLog(DhcpNisDomainNameOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpNisDomainNameOption.class);
 
     private NisDomainNameOption nisDomainNameOption;
 

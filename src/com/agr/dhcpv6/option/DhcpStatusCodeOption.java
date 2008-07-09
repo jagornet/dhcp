@@ -2,9 +2,9 @@ package com.agr.dhcpv6.option;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.OptionExpression;
@@ -21,7 +21,7 @@ import com.agr.dhcpv6.util.Util;
 
 public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparableOption
 {
-    private static Log log = LogFactory.getLog(DhcpStatusCodeOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpStatusCodeOption.class);
     
     private StatusCodeOption statusCodeOption;
     

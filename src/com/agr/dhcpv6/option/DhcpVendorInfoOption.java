@@ -3,9 +3,9 @@ package com.agr.dhcpv6.option;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.xml.OpaqueData;
 import com.agr.dhcpv6.server.config.xml.Option;
@@ -21,7 +21,7 @@ import com.agr.dhcpv6.server.config.xml.VendorInfoOption;
 
 public class DhcpVendorInfoOption extends BaseDhcpOption
 {
-    private static Log log = LogFactory.getLog(DhcpVendorInfoOption.class);
+	private static Logger log = LoggerFactory.getLogger(DhcpVendorInfoOption.class);
 
     private VendorInfoOption vendorInfoOption;
 

@@ -13,10 +13,7 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.apache.log4j.jmx.HierarchyDynamicMBean;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
@@ -33,13 +30,15 @@ import org.apache.mina.integration.jmx.IoServiceMBean;
 import org.apache.mina.integration.jmx.IoSessionMBean;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
 import com.agr.dhcpv6.util.DhcpConstants;
 
 public class MinaDhcpServer
 {
-    private static Log log = LogFactory.getLog(MinaDhcpServer.class);
+	private static Logger log = LoggerFactory.getLogger(MinaDhcpServer.class);
     
     protected NioDatagramAcceptor acceptor;
     protected ExecutorService executorService;
@@ -174,7 +173,8 @@ public class MinaDhcpServer
             mbs.registerMBean(hdm, mbo);
     
             // Add the root logger to the Hierarchy MBean
-            Logger rootLogger = Logger.getRootLogger();
+            org.apache.log4j.Logger rootLogger =
+            	org.apache.log4j.Logger.getRootLogger();
             hdm.addLoggerMBean(rootLogger.getName());
     
             // Get each logger from the Log4J Repository and add it to
@@ -183,7 +183,8 @@ public class MinaDhcpServer
             Enumeration<Logger> loggers = r.getCurrentLoggers();
             if (loggers != null) {
                 while (loggers.hasMoreElements()) {
-                    Logger logger = (Logger) loggers.nextElement();
+                	org.apache.log4j.Logger logger = 
+                		(org.apache.log4j.Logger) loggers.nextElement();
                     hdm.addLoggerMBean(logger.getName());
                 }
             }

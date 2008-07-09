@@ -1,7 +1,7 @@
 package com.agr.dhcpv6.server;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.message.DhcpMessageHandler;
@@ -17,7 +17,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class MessageHandlerFactory
 {
-    private static Log log = LogFactory.getLog(MessageHandlerFactory.class);
+	private static Logger log = LoggerFactory.getLogger(MessageHandlerFactory.class);
 
     // private constructor - can't instantiate this class
     private MessageHandlerFactory() { }

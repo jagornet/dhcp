@@ -4,10 +4,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoHandlerAdapter;
 import org.apache.mina.common.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.message.DhcpMessage;
 import com.agr.dhcpv6.message.DhcpRelayMessage;
@@ -17,7 +17,7 @@ import com.agr.dhcpv6.util.DhcpConstants;
 
 public class MinaDhcpHandler extends IoHandlerAdapter
 {
-    private static Log log = LogFactory.getLog(MinaDhcpHandler.class);
+	private static Logger log = LoggerFactory.getLogger(MinaDhcpHandler.class);
 
     public MinaDhcpHandler()
     {

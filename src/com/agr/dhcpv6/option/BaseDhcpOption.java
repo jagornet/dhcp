@@ -1,15 +1,14 @@
 package com.agr.dhcpv6.option;
 
 import java.io.IOException;
-import java.math.BigInteger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.mina.common.IoBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BaseDhcpOption implements DhcpOption
 {
-    private static Log log = LogFactory.getLog(BaseDhcpOption.class);
+	private static Logger log = LoggerFactory.getLogger(BaseDhcpOption.class);
 
     /**
      * Encode the DHCP option code and length fields of any DHCP option
