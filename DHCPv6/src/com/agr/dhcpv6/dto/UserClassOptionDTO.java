@@ -18,18 +18,14 @@ public class UserClassOptionDTO extends BaseOptionDTO
     //      object in the List<OpaqueDataDTO>; however, we
     //      can't use generics in the DTOs yet, because
     //      GWT won't support them until v1.5
-//  We can't use Java 5 Generics with GWT yet
-//    protected List<OpaqueDataDTO> userClasses;
-    protected List userClasses;
+    protected List<OpaqueDataDTO> userClasses;
 
-//    public List<OpaqueDataDTO> getUserClasses()
-    public List getUserClasses()
+    public List<OpaqueDataDTO> getUserClasses()
     {
         return userClasses;
     }
 
-//    public void setUserClasses(List<OpaqueDataDTO> userClasses)
-    public void setUserClasses(List userClasses)
+    public void setUserClasses(List<OpaqueDataDTO> userClasses)
     {
         this.userClasses = userClasses;
     }
@@ -37,8 +33,7 @@ public class UserClassOptionDTO extends BaseOptionDTO
     public void addUserClass(OpaqueDataDTO userClass)
     {
         if (this.userClasses == null)
-//            this.userClasses = new ArrayList<OpaqueDataDTO>();
-            this.userClasses = new ArrayList();
+            this.userClasses = new ArrayList<OpaqueDataDTO>();
         userClasses.add(userClass);
     }
 }
