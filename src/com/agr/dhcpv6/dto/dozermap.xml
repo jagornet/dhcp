@@ -14,9 +14,9 @@
       <a is-accessible="true">filters</a>
       <!-- the DTO class has normal getter/setter -->
       <b>filters</b>
-      <!-- since we can't yet use Java 5 generics with GWT, we
-      	   must tell Dozer what kinds of objects are in the lists
-      	   so that it can convert between them properly -->
+      <!-- even though we now have Java 5 generics with GWT,
+      	   it seems that dozer still needs these hints,
+      	   probably because the "is-accessible" attribute above -->
       <a-hint>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Filters</a-hint>
 	  <b-hint>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Filters</b-hint>
     </field>
@@ -27,9 +27,9 @@
       <a is-accessible="true">links</a>
       <!-- the DTO class has normal getter/setter -->
       <b>links</b>
-      <!-- since we can't yet use Java 5 generics with GWT, we
-      	   must tell Dozer what kinds of objects are in the lists
-      	   so that it can convert between them properly -->
+      <!-- even though we now have Java 5 generics with GWT,
+      	   it seems that dozer still needs these hints,
+      	   probably because the "is-accessible" attribute above -->
       <a-hint>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Links</a-hint>
 	  <b-hint>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Links</b-hint>
     </field>
@@ -48,9 +48,9 @@
       <a is-accessible="true">optionExpressions</a>
       <!-- the DTO class has normal getter/setter -->
       <b>optionExpressions</b>
-      <!-- since we can't yet use Java 5 generics with GWT, we
-      	   must tell Dozer what kinds of objects are in the lists
-      	   so that it can convert between them properly -->
+      <!-- even though we now have Java 5 generics with GWT,
+      	   it seems that dozer still needs these hints,
+      	   probably because the "is-accessible" attribute above -->
       <a-hint>com.agr.dhcpv6.server.config.xml.OptionExpression</a-hint>
 	  <b-hint>com.agr.dhcpv6.dto.OptionExpressionDTO</b-hint>
     </field>
@@ -69,9 +69,9 @@
       <a is-accessible="true">filters</a>
       <!-- the DTO class has normal getter/setter -->
       <b>filters</b>
-      <!-- since we can't yet use Java 5 generics with GWT, we
-      	   must tell Dozer what kinds of objects are in the lists
-      	   so that it can convert between them properly -->
+      <!-- even though we now have Java 5 generics with GWT,
+      	   it seems that dozer still needs these hints,
+      	   probably because the "is-accessible" attribute above -->
       <a-hint>com.agr.dhcpv6.server.config.xml.DhcpV6ServerConfig$Links$Filters</a-hint>
 	  <b-hint>com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO$Filters</b-hint>
     </field>
@@ -90,9 +90,9 @@
       <a is-accessible="true">optionExpressions</a>
       <!-- the DTO class has normal getter/setter -->
       <b>optionExpressions</b>
-      <!-- since we can't yet use Java 5 generics with GWT, we
-      	   must tell Dozer what kinds of objects are in the lists
-      	   so that it can convert between them properly -->
+      <!-- even though we now have Java 5 generics with GWT,
+      	   it seems that dozer still needs these hints,
+      	   probably because the "is-accessible" attribute above -->
       <a-hint>com.agr.dhcpv6.server.config.xml.OptionExpression</a-hint>
 	  <b-hint>com.agr.dhcpv6.dto.OptionExpressionDTO</b-hint>
     </field>

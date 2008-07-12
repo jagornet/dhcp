@@ -32,32 +32,9 @@ public class DhcpV6ServerConfigDTO implements Serializable
     protected SntpServersOptionDTO sntpServersOption;
 // TODO		protected List genericOptions;
     
-//  We can't use Java 5 Generics with GWT yet
-//  protected List<DhcpV6ServerConfigDTO.Filters> filters;
-   /**
-    * NOTE:  Make sure there are two asterixes ** to
-    *        ensure that this is JavaDoc, not a comment!
-    *        
-    * This annotation tells GWT what type of Object is
-    * contained in the list - generics would solve this
-    * 
-    *  @gwt.typeArgs <com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO.Filters>
-    */
-    protected List filters;
+    protected List<DhcpV6ServerConfigDTO.Filters> filters;
 
-//  We can't use Java 5 Generics with GWT yet
-//	protected List<DhcpV6ServerConfigDTO.Links> links;
-   /**
-    * NOTE:  Make sure there are two asterixes ** to
-    *        ensure that this is JavaDoc, not a comment!
-    *        
-    * This annotation tells GWT what type of Object is
-    * contained in the list - generics would solve this
-    * 
-    *  @gwt.typeArgs <com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO.Links>
-    */
-    protected List links;
-    
+	protected List<DhcpV6ServerConfigDTO.Links> links;    
 
 	public Boolean getSendRequestedOptionsOnlyPolicy() {
 		return sendRequestedOptionsOnlyPolicy;
@@ -169,37 +146,26 @@ public class DhcpV6ServerConfigDTO implements Serializable
 		this.sntpServersOption = sntpServersOption;
 	}
 
-	public List getFilters() {
+	public List<DhcpV6ServerConfigDTO.Filters> getFilters() {
 		return filters;
 	}
 
-	public void setFilters(List filters) {
+	public void setFilters(List<DhcpV6ServerConfigDTO.Filters> filters) {
 		this.filters = filters;
 	}
 
-	public List getLinks() {
+	public List<DhcpV6ServerConfigDTO.Links> getLinks() {
 		return links;
 	}
 
-	public void setLinks(List links) {
+	public void setLinks(List<DhcpV6ServerConfigDTO.Links> links) {
 		this.links = links;
 	}
 	
     public static class Filters implements Serializable
 	{
 		protected String name;
-//  We can't use Java 5 Generics with GWT yet
-//		protected List<OptionExpression> optionExpressions;
-	   /**
-	    * NOTE:  Make sure there are two asterixes ** to
-	    *        ensure that this is JavaDoc, not a comment!
-	    *        
-	    * This annotation tells GWT what type of Object is
-	    * contained in the list - generics would solve this
-	    * 
-	    *  @gwt.typeArgs <com.agr.dhcpv6.dto.OptionExpressionDTO>
-	    */		
-	    protected List optionExpressions;
+		protected List<OptionExpressionDTO> optionExpressions;
 	    
 		protected Boolean sendRequestedOptionsOnlyPolicy;
 //TODO		protected List<Policy> genericPolicies;
@@ -225,10 +191,10 @@ public class DhcpV6ServerConfigDTO implements Serializable
 		public void setName(String name) {
 			this.name = name;
 		}
-		public List getOptionExpressions() {
+		public List<OptionExpressionDTO> getOptionExpressions() {
 			return optionExpressions;
 		}
-		public void setOptionExpressions(List optionExpressions) {
+		public void setOptionExpressions(List<OptionExpressionDTO> optionExpressions) {
 			this.optionExpressions = optionExpressions;
 		}
 		public Boolean getSendRequestedOptionsOnlyPolicy() {
@@ -335,22 +301,9 @@ public class DhcpV6ServerConfigDTO implements Serializable
         protected InfoRefreshTimeOptionDTO infoRefreshTimeOption;
 //TODO        protected List<Option> genericOptions;
 
-        //  We can't use Java 5 Generics with GWT yet
         // NOTE: for this DTO we don't require a Links.Filters class, instead
         //		 we can just reuse the DhcpV6ServerConfigDTO.Filters class
-        // protected List<DhcpV6ServerConfigDTO.Filters> filters;
-       /**
-        * NOTE:  Make sure there are two asterixes ** to
-        *        ensure that this is JavaDoc, not a comment!
-        *        
-        * This annotation tells GWT what type of Object is
-        * contained in the list - generics would solve this
-        * 
-        * DON'T CREATE ANOTHER INNER-CLASS for Links.Filters, instead just
-        * reuse the DhcpV6ServerConfigDTO.Filters class
-        *  @gwt.typeArgs <com.agr.dhcpv6.dto.DhcpV6ServerConfigDTO.Filters>
-        */
-    	protected List filters;
+        protected List<DhcpV6ServerConfigDTO.Filters> filters;
 	
 		public String getName() {
 			return name;
@@ -448,10 +401,10 @@ public class DhcpV6ServerConfigDTO implements Serializable
 				InfoRefreshTimeOptionDTO infoRefreshTimeOption) {
 			this.infoRefreshTimeOption = infoRefreshTimeOption;
 		}
-		public List getFilters() {
+		public List<DhcpV6ServerConfigDTO.Filters> getFilters() {
 			return filters;
 		}
-		public void setFilters(List filters) {
+		public void setFilters(List<DhcpV6ServerConfigDTO.Filters> filters) {
 			this.filters = filters;
 		}
     }
