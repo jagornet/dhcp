@@ -7,7 +7,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.mina.common.IoBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 
 import com.agr.dhcpv6.option.DhcpClientIdOption;
 import com.agr.dhcpv6.option.DhcpDnsServersOption;

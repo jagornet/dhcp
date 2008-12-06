@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-import org.apache.mina.common.IoBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +40,22 @@ public class MulticastDhcpServer implements Runnable
 
     public MulticastDhcpServer(String configFilename, int port) throws Exception
     {
-        DhcpServerConfiguration.init(configFilename);
-
-        dhcpSocket = new MulticastSocket(port);
-        dhcpSocket.joinGroup(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS);
-        dhcpSocket.joinGroup(DhcpConstants.ALL_DHCP_SERVERS);
+    	try {
+	        DhcpServerConfiguration.init(configFilename);
+	
+	        log.debug("Configuring java.net.MulticastSocket on port: " + port);
+	        dhcpSocket = new MulticastSocket(port);
+	        log.debug("Joining All_DHCP_Relay_Agents_and_Servers multicast group: " + 
+	        		  DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS);
+	        dhcpSocket.joinGroup(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS);
+	        log.debug("Joining All_DHCP_Servers multicast group: " + 
+	        		  DhcpConstants.ALL_DHCP_SERVERS);
+	        dhcpSocket.joinGroup(DhcpConstants.ALL_DHCP_SERVERS);
+        }
+        catch (Exception ex) {
+            log.error("Failed to start server: " + ex, ex);
+            throw ex;
+        }
         
         run();
     }

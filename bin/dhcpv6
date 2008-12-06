@@ -1,0 +1,155 @@
+#!/bin/sh
+
+OP=$1
+# shift causes all arguments to be moved left by one
+# which essentially removes this wrapper script's argument
+shift
+#echo "$*"
+DHCPV6_OPTS="$*"
+
+# This block of shell script for determining the
+# application's home directory was borrowed from 
+# the Apache ActiveMQ server startup script.
+if [ -z "$DHCPV6_HOME" ] ; then
+  # try to find DHCPV6
+  if [ -d /opt/dhcpv6 ] ; then
+    DHCPV6_HOME=/opt/dhcpv6
+  fi
+
+  if [ -d "${HOME}/opt/dhcpv6" ] ; then
+    DHCPV6_HOME="${HOME}/opt/dhcpv6"
+  fi
+
+  ## resolve links - $0 may be a link dhcpv6's home
+  PRG="$0"
+  progname=`basename "$0"`
+  saveddir=`pwd`
+
+  # need this for relative symlinks
+  dirname_prg=`dirname "$PRG"`
+  cd "$dirname_prg"
+
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '.*/.*' > /dev/null; then
+    PRG="$link"
+    else
+    PRG=`dirname "$PRG"`"/$link"
+    fi
+  done
+
+  DHCPV6_HOME=`dirname "$PRG"`/..
+
+  cd "$saveddir"
+
+  # make it fully qualified
+  DHCPV6_HOME=`cd "$DHCPV6_HOME" && pwd`
+fi
+
+# Add the config directory to the beginning of the CLASSPATH
+# so that the server can find the log4j.properties file
+DHCPV6_CLASSPATH="$DHCPV6_HOME/conf"
+
+# Loop through all the jars, and add them to the CLASSPATH
+for file in `find $DHCPV6_HOME/lib/ -name *.jar`
+do
+DHCPV6_CLASSPATH="$DHCPV6_CLASSPATH:$file"
+done
+
+# The "main" Java class for the DHCPv6 Server
+DHCPV6_MAIN="com.agr.dhcpv6.server.DhcpV6Server"
+
+
+# Note: log4j.configuration property references a file in the classpath (see above)
+#       the default is shown, change only if necessary
+#LOG4J="-Dlog4j.configuration=log4j.properties"
+
+JMX="-Dcom.sun.management.jmxremote.port=14700 \
+	 -Dcom.sun.management.jmxremote.authenticate=false \
+	 -Dcom.sun.management.jmxremote.ssl=false"
+	 
+JAVA_OPTS="-server $LOG4J $JMX"
+
+DHCPV6_PID="$DHCPV6_HOME/dhcpv6server.pid"
+
+isRunning() {
+
+	if [ -f "$DHCPV6_PID" ]; then
+	   kill -0 `cat $DHCPV6_PID` > /dev/null 2>&1
+	   if [ $? -eq 0 ]; then
+	      return 1;
+	   fi
+	fi
+	return 0;
+}
+
+start() {
+
+	isRunning
+	if [ "$?" -eq "1" ]; then
+		echo "DHCPv6 Server already running."
+	else
+		echo "Starting DHCPv6 Server..."
+		java $JAVA_OPTS -Ddhcpv6.home="${DHCPV6_HOME}" -cp $DHCPV6_CLASSPATH $DHCPV6_MAIN $DHCPV6_OPTS > $DHCPV6_HOME/log/dhcpv6server.out & 
+		echo "$!" > $DHCPV6_PID
+		sleep 5
+		isRunning
+		if [ "$?" -eq "1" ]; then
+			echo "DHCPv6 Server started."
+		fi
+	fi
+}
+
+stop() {
+
+	isRunning
+	if [ "$?" -ne "1" ]; then
+		echo "DHCPv6 Server is not running."
+	else
+		if [ -f "$DHCPV6_PID" ]; then
+		   echo "Stopping DHCPv6 Server..."
+		   kill `cat $DHCPV6_PID` > /dev/null 2>&1
+		   sleep 3
+		   isRunning
+		   if [ "$?" -ne "1" ]; then
+			  echo "DHCPv6 Server stopped."
+		   fi		   
+		   if [ $? -eq 0 ];then
+		      rm -f $DHCPV6_PID
+		   fi
+		fi
+	fi
+}
+
+status() {
+	isRunning
+	if [ "$?" -eq "1" ]; then
+		echo "DHCPv6 Server is running."
+	else
+		echo "DHCPv6 Server is not running."
+	fi
+}
+
+
+case "$OP" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		sleep 2
+		start
+		;;
+	status)
+		status
+		;;
+	*)
+		echo "Usage: $0 { start | stop | restart | status }"
+		exit 1
+		;;
+esac
+exit 0

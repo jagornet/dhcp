@@ -2,7 +2,7 @@ package com.agr.dhcpv6.option;
 
 import java.io.IOException;
 
-import org.apache.mina.common.IoBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

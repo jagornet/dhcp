@@ -16,11 +16,11 @@ import javax.management.ObjectName;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.jmx.HierarchyDynamicMBean;
 import org.apache.log4j.spi.LoggerRepository;
-import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.common.IdleStatus;
-import org.apache.mina.common.IoService;
-import org.apache.mina.common.IoServiceListener;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.service.IoService;
+import org.apache.mina.core.service.IoServiceListener;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.agr.dhcpv6.server.config.DhcpServerConfiguration;
-import com.agr.dhcpv6.util.DhcpConstants;
 
 public class MinaDhcpServer
 {
@@ -43,7 +42,7 @@ public class MinaDhcpServer
     protected NioDatagramAcceptor acceptor;
     protected ExecutorService executorService;
     
-    public MinaDhcpServer(String configFilename, int port) 
+    public MinaDhcpServer(String configFilename, int port) throws Exception
     {
         try {
             DhcpServerConfiguration.init(configFilename);
@@ -51,12 +50,12 @@ public class MinaDhcpServer
             acceptor = new NioDatagramAcceptor();
             List<SocketAddress> localAddrs = new ArrayList<SocketAddress>();
             localAddrs.add(new InetSocketAddress(port));
-            // TODO: check if this even makes sense, since this is a multicast address
-            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS,
-                                                 port));
-            // TODO: check if this even makes sense, since this is a multicast address
-            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS,
-                                                 port));
+// We can't yet support Multicast addresses with MINA, and if/when we do
+// this may not be the way to specify these addresses anyway
+//            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS,
+//                                                 port));
+//            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS,
+//                                                 port));
             acceptor.setDefaultLocalAddresses(localAddrs);
             acceptor.setHandler(new MinaDhcpHandler());
     
@@ -100,6 +99,7 @@ public class MinaDhcpServer
         }
         catch (Exception ex) {
             log.error("Failed to start server: " + ex, ex);
+            throw ex;
         }
     }
     

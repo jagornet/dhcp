@@ -1,5 +1,7 @@
 package com.agr.dhcpv6.server;
 
+import java.io.PrintWriter;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -19,7 +21,9 @@ public class DhcpV6Server
     protected CommandLineParser parser;
     protected HelpFormatter formatter;
 
-    public static String DEFAULT_CONFIG_FILENAME = "dhcpv6server-config.xml";
+    public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.DHCPV6_HOME != null ? 
+    	DhcpConstants.DHCPV6_HOME + "/conf/" + "dhcpv6server.xml" : "dhcpv6server.xml";
+    
     protected String configFilename = DEFAULT_CONFIG_FILENAME;
     
     protected int portNumber = DhcpConstants.SERVER_PORT;
@@ -36,7 +40,9 @@ public class DhcpV6Server
         if(!parseOptions(args)) {
             formatter = new HelpFormatter();
             String cliName = this.getClass().getName();
-            formatter.printHelp(cliName, options);
+//            formatter.printHelp(cliName, options);
+            PrintWriter stderr = new PrintWriter(System.err, true);	// auto-flush=true
+            formatter.printHelp(stderr, 80, cliName, null, options, 2, 2, null);
             System.exit(0);
         }
         
@@ -56,22 +62,29 @@ public class DhcpV6Server
 	private void setupOptions()
     {
         Option configFileOption = new Option("c", "configfile", true,
-                                             "Configuration File");
+                                             "Configuration File [$DHCPV6_HOME/conf/dhcpv6server.xml]");
         options.addOption(configFileOption);
         
         Option portOption = new Option("p", "port", true,
-        							  "Port Number");
+        							  "Port Number [547]");
         options.addOption(portOption);
         
         Option multicastOption = new Option("m", "multicast", false,
-        									"Multicast");
+        									"Multicast [false]");
         options.addOption(multicastOption);
+        
+        Option helpOption = new Option("?", "help", false, "Show this help page.");
+        
+        options.addOption(helpOption);
     }
 
     protected boolean parseOptions(String[] args)
     {
         try {
             CommandLine cmd = parser.parse(options, args);
+            if (cmd.hasOption("?")) {
+                return false;
+            }
             if (cmd.hasOption("c")) {
                 configFilename = cmd.getOptionValue("c");
             }
@@ -89,9 +102,6 @@ public class DhcpV6Server
             if (cmd.hasOption("m")) {
             	supportMulticast = true;
             }
-            if (cmd.hasOption("?")) {
-                return false;
-            }
         }
         catch (ParseException pe) {
             System.err.println("Command line option parsing failure: " + pe);
@@ -107,8 +117,9 @@ public class DhcpV6Server
             DhcpV6Server server = new DhcpV6Server(args);
         }
         catch (Exception ex) {
-            System.err.println("DhcpSocketServer ABORT!");
+            System.err.println("DhcpV6Server ABORT!");
             ex.printStackTrace();
+            System.exit(1);
         }
 	}
     

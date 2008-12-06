@@ -13,6 +13,8 @@ import java.net.*;
 
 public class DhcpConstants
 {
+	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
+
     /**
      * IPv4 Addresses
      */

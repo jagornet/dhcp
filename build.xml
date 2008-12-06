@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DHCPv6" default="dist" basedir=".">
+    <description>
+        Ant build file for DHCPv6 Server
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build/classes"/>
+  <property name="dist" location="dist"/>
+  <property name="conf" location="conf"/>
+  <property name="bin" location="bin"/>
+  <property name="install" value="agrdhcpv6"/>
+  <property file="build.properties"/>
+  
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source" >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}"/>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/lib"/>
+
+    <!-- Put everything in ${build} into the agrdhcpv6.jar file -->
+    <jar jarfile="${dist}/lib/agrdhcpv6.jar" basedir="${build}" excludes="*.properties"/>
+    
+    <!-- Copy all the dependent jars into the distribution library folder -->
+    <copy todir="${dist}/lib" flatten="true">
+    	<filelist dir="/" files="${dependent.jars}"/>
+    </copy>
+    
+    <mkdir dir="${dist}/conf"/>    
+    <copy todir="${dist}/conf">
+    	<fileset dir="${conf}"/>
+    </copy>
+
+    <mkdir dir="${dist}/bin"/>    
+    <copy todir="${dist}/bin">
+    	<fileset dir="${bin}"/>
+    </copy>
+    
+    <mkdir dir="${dist}/log"/>
+<!--    
+    <tar destfile="${dist}/dhcpv6.tar" basedir="${dist}" 
+    	 excludes="*.tar, *.gz"/>
+-->
+	<tar destfile="${dist}/dhcpv6.tar">
+	  <tarfileset dir="${dist}" prefix="${install}" mode="755">
+	    <include name="bin/*"/>
+	    <exclude name="bin/*.bat"/>
+	    <exclude name="**/wrapper.*"/>
+	    <exclude name="*.tar"/>
+	    <exclude name="*.gz"/>
+	    <exclude name="*.zip"/>
+	  </tarfileset>
+	  <tarfileset dir="${dist}" prefix="${install}">
+	    <include name="**/*"/>
+	    <exclude name="bin/*"/>
+	    <exclude name="bin/*.bat"/>
+	    <exclude name="**/wrapper.*"/>
+	    <exclude name="*.tar"/>
+	    <exclude name="*.gz"/>
+	    <exclude name="*.zip"/>
+	  </tarfileset>
+	</tar>
+	
+	<gzip destfile="${dist}/dhcpv6.tar.gz" src="${dist}/dhcpv6.tar"/>
+
+	<zip destfile="${dist}/dhcpv6.zip">
+		<zipfileset dir="${dist}" prefix="${install}">
+			<exclude name="bin/dhcpv6*"/>
+			<exclude name="*.tar"/>
+		    <exclude name="*.gz"/>
+		    <exclude name="*.zip"/>
+		</zipfileset>
+	</zip>
+	
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+</project>
+
