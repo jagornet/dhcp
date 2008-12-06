@@ -4,8 +4,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import org.apache.mina.common.IoHandlerAdapter;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +103,12 @@ public class MinaDhcpHandler extends IoHandlerAdapter
     
     private DhcpRelayMessage handleRelayFoward(DhcpRelayMessage relayMessage)
     {
+    	/**
+    	 * TODO: Verify that because we re-use the relay_forward message
+    	 * 		 for our relay_reply, then we will end up including any
+    	 * 		 Interface-ID option that was contained therein, as
+    	 * 		 required by RFC 3315 Section 22.18.
+    	 */
         InetAddress linkAddr = relayMessage.getLinkAddress();
         DhcpRelayOption relayOption = relayMessage.getRelayOption();
         if (relayOption != null) {

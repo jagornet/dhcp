@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+<dhcpV6ServerConfig xmlns="http://www.ipv6universe.com"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="http://ipv6universe.com/dhcpv6
+									    http://ipv6universe.com/dhcpv6/dhcpv6server.xsd">
+-->
+<dhcpV6ServerConfig>
+    <abcPolicy>false</abcPolicy>
+    <serverIdOption name="Server Identifier">
+        <hexValue>ABCDEF0123456789</hexValue>
+    </serverIdOption>
+    <preferenceOption name="Preference">0</preferenceOption>
+    <dnsServersOption name="DNS Recursive Name Server"/>
+    <domainSearchListOption name="Domain Search List"/>
+    <sipServerAddressesOption name="SIP Server Addresses"/>
+    <sipServerDomainNamesOption name="SIP Server Domain Names"/>
+    <nisServersOption name="Network Information Service (NIS) Servers"/>
+    <nisDomainNameOption name="Network Information Service (NIS) Domain Name">
+        <domainName></domainName>
+    </nisDomainNameOption>
+    <nisPlusServersOption name="Network Information Service V2 (NIS+) Servers"/>
+    <nisPlusDomainNameOption name="Network Information Service V2 (NIS+) Domain Name">
+        <domainName></domainName>
+    </nisPlusDomainNameOption>
+    <sntpServersOption name="Simple Network Time Protocol (SNTP) Servers"/>
+    <infoRefreshTimeOption name="Information Refresh Time">0</infoRefreshTimeOption>
+    <filters>
+        <name>Joe Filter</name>
+        <optionExpressions>
+            <code>1</code>
+            <data>
+                <asciiValue>Joe</asciiValue>
+            </data>
+        </optionExpressions>
+        <preferenceOption name="Preference">0</preferenceOption>
+        <dnsServersOption name="DNS Recursive Name Server"/>
+        <domainSearchListOption name="Domain Search List"/>
+        <sipServerAddressesOption name="SIP Server Addresses"/>
+        <sipServerDomainNamesOption name="SIP Server Domain Names"/>
+        <nisServersOption name="Network Information Service (NIS) Servers"/>
+        <nisDomainNameOption name="Network Information Service (NIS) Domain Name">
+            <domainName></domainName>
+        </nisDomainNameOption>
+        <nisPlusServersOption name="Network Information Service V2 (NIS+) Servers"/>
+        <nisPlusDomainNameOption name="Network Information Service V2 (NIS+) Domain Name">
+            <domainName></domainName>
+        </nisPlusDomainNameOption>
+        <sntpServersOption name="Simple Network Time Protocol (SNTP) Servers"/>
+        <infoRefreshTimeOption name="Information Refresh Time">0</infoRefreshTimeOption>
+    </filters>
+    <filters>
+        <name>Bob Filter</name>
+        <optionExpressions>
+            <code>2</code>
+            <data>
+                <asciiValue>Bob</asciiValue>
+            </data>
+        </optionExpressions>
+        <preferenceOption name="Preference">0</preferenceOption>
+        <dnsServersOption name="DNS Recursive Name Server">
+            <serverIpAddresses>2001::1</serverIpAddresses>
+        </dnsServersOption>
+        <domainSearchListOption name="Domain Search List"/>
+        <sipServerAddressesOption name="SIP Server Addresses"/>
+        <sipServerDomainNamesOption name="SIP Server Domain Names"/>
+        <nisServersOption name="Network Information Service (NIS) Servers"/>
+        <nisDomainNameOption name="Network Information Service (NIS) Domain Name">
+            <domainName></domainName>
+        </nisDomainNameOption>
+        <nisPlusServersOption name="Network Information Service V2 (NIS+) Servers"/>
+        <nisPlusDomainNameOption name="Network Information Service V2 (NIS+) Domain Name">
+            <domainName></domainName>
+        </nisPlusDomainNameOption>
+        <sntpServersOption name="Simple Network Time Protocol (SNTP) Servers"/>
+        <infoRefreshTimeOption name="Information Refresh Time">0</infoRefreshTimeOption>
+    </filters>
+    <links>
+        <name>3ffe::1</name>
+        <preferenceOption name="Preference">0</preferenceOption>
+        <dnsServersOption name="DNS Recursive Name Server">
+            <serverIpAddresses>3ffe::1</serverIpAddresses>
+        </dnsServersOption>
+        <domainSearchListOption name="Domain Search List"/>
+        <sipServerAddressesOption name="SIP Server Addresses"/>
+        <sipServerDomainNamesOption name="SIP Server Domain Names"/>
+        <nisServersOption name="Network Information Service (NIS) Servers"/>
+        <nisDomainNameOption name="Network Information Service (NIS) Domain Name">
+            <domainName></domainName>
+        </nisDomainNameOption>
+        <nisPlusServersOption name="Network Information Service V2 (NIS+) Servers"/>
+        <nisPlusDomainNameOption name="Network Information Service V2 (NIS+) Domain Name">
+            <domainName></domainName>
+        </nisPlusDomainNameOption>
+        <sntpServersOption name="Simple Network Time Protocol (SNTP) Servers"/>
+        <infoRefreshTimeOption name="Information Refresh Time">0</infoRefreshTimeOption>
+        <filters>
+            <name>3ffe::1 ClientID Filter</name>
+            <optionExpressions>
+                <code>1</code>
+                <data>
+                    <asciiValue>link-filter-clientid</asciiValue>
+                </data>
+            </optionExpressions>
+            <preferenceOption name="Preference">0</preferenceOption>
+            <dnsServersOption name="DNS Recursive Name Server"/>
+            <domainSearchListOption name="Domain Search List"/>
+            <sipServerAddressesOption name="SIP Server Addresses">
+                <serverIpAddresses>3ffe::2</serverIpAddresses>
+            </sipServerAddressesOption>
+            <sipServerDomainNamesOption name="SIP Server Domain Names"/>
+            <nisServersOption name="Network Information Service (NIS) Servers"/>
+            <nisDomainNameOption name="Network Information Service (NIS) Domain Name">
+                <domainName></domainName>
+            </nisDomainNameOption>
+            <nisPlusServersOption name="Network Information Service V2 (NIS+) Servers"/>
+            <nisPlusDomainNameOption name="Network Information Service V2 (NIS+) Domain Name">
+                <domainName></domainName>
+            </nisPlusDomainNameOption>
+            <sntpServersOption name="Simple Network Time Protocol (SNTP) Servers"/>
+            <infoRefreshTimeOption name="Information Refresh Time">0</infoRefreshTimeOption>
+        </filters>
+    </links>
+    <links>
+        <name>2001::1</name>
+        <preferenceOption>0</preferenceOption>
+        <dnsServersOption/>
+        <domainSearchListOption/>
+        <sipServerAddressesOption/>
+        <sipServerDomainNamesOption/>
+        <nisServersOption/>
+        <nisDomainNameOption>
+            <domainName></domainName>
+        </nisDomainNameOption>
+        <nisPlusServersOption/>
+        <nisPlusDomainNameOption>
+            <domainName></domainName>
+        </nisPlusDomainNameOption>
+        <sntpServersOption/>
+        <infoRefreshTimeOption>0</infoRefreshTimeOption>
+        <filters>
+            <name>2001::1 New Filter</name>
+            <optionExpressions>
+                <code>2</code>
+                <data>
+                    <asciiValue>2001-serverid-option</asciiValue>
+                </data>
+            </optionExpressions>
+            <preferenceOption>0</preferenceOption>
+            <dnsServersOption>
+                <serverIpAddresses>mydomain.com</serverIpAddresses>
+            </dnsServersOption>
+            <domainSearchListOption/>
+            <sipServerAddressesOption/>
+            <sipServerDomainNamesOption/>
+            <nisServersOption/>
+            <nisDomainNameOption>
+                <domainName></domainName>
+            </nisDomainNameOption>
+            <nisPlusServersOption/>
+            <nisPlusDomainNameOption>
+                <domainName></domainName>
+            </nisPlusDomainNameOption>
+            <sntpServersOption/>
+            <infoRefreshTimeOption>0</infoRefreshTimeOption>
+        </filters>
+    </links>
+</dhcpV6ServerConfig>

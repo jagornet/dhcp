@@ -2,13 +2,13 @@ package com.agr.dhcpv6.server.mina;
 
 import java.net.InetSocketAddress;
 
-import org.apache.mina.common.ConnectFuture;
-import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.common.IdleStatus;
-import org.apache.mina.common.IoConnector;
-import org.apache.mina.common.IoFutureListener;
-import org.apache.mina.common.IoHandlerAdapter;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.service.IoConnector;
+import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;

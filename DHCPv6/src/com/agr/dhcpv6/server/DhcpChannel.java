@@ -7,7 +7,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
-import org.apache.mina.common.IoBuffer;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
