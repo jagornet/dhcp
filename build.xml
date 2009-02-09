@@ -5,42 +5,68 @@
     </description>
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
-  <property name="build" location="build/classes"/>
+  <property name="build" location="build"/>
+  <property name="lib" location="build/lib"/>
+  <property name="classes" location="build/classes"/>
   <property name="dist" location="dist"/>
   <property name="conf" location="conf"/>
   <property name="bin" location="bin"/>
-  <property name="install" value="agrdhcpv6"/>
+  <property name="install" value="dhcpv6"/>
   <property file="build.properties"/>
   
+  <!-- define the xbean task -->
+  <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="${xmlbeans.jar}:${jsr173.api.jar}"/>
+	
   <target name="init">
     <!-- Create the time stamp -->
     <tstamp/>
     <!-- Create the build directory structure used by compile -->
     <mkdir dir="${build}"/>
+  	<mkdir dir="${lib}"/>
+  	<mkdir dir="${classes}"/>
   </target>
 
-  <target name="compile" depends="init"
-        description="compile the source" >
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}"/>
+  <target name="schema" depends="init"
+  		description="compile the schema">
+  	<!-- we set the schema attribute to the 'conf' directory, which will
+  		 cause the XMLBeans schema compiler to compile any .xsd files in
+  		 that directory, also including the .xsdconfig file -->
+    <xmlbean javasource="1.5" schema="${conf}" destfile="${lib}/xmltypes.jar">
+    	<classpath>
+        	<filelist files="${xmlbeans.jars}"/>
+    	</classpath>
+    </xmlbean>
+  </target>		   
+
+  <target name="compile" depends="init,schema"
+        description="compile the source">
+    <!-- Compile the java code from ${src} into ${classes} -->
+    <javac srcdir="${src}" destdir="${classes}" target="1.6">
+    	<classpath>
+        	<filelist files="${dependent.jars}"/>
+    		<filelist files="${lib}/xmltypes.jar"/>
+    	</classpath>
+    </javac>
   </target>
 
-  <target name="dist" depends="compile"
+  <target name="dist" depends="schema,compile"
         description="generate the distribution" >
-    <!-- Create the distribution directory -->
-    <mkdir dir="${dist}/lib"/>
 
-    <!-- Put everything in ${build} into the agrdhcpv6.jar file -->
-    <jar jarfile="${dist}/lib/agrdhcpv6.jar" basedir="${build}" excludes="*.properties"/>
+  	<mkdir dir="${dist}"/>
+  	<mkdir dir="${dist}/lib"/>
+
+  	<!-- Put everything in ${classes} into the dhcpv6.jar file -->
+    <jar jarfile="${dist}/lib/dhcpv6.jar" basedir="${classes}" excludes="*.properties"/>
     
     <!-- Copy all the dependent jars into the distribution library folder -->
     <copy todir="${dist}/lib" flatten="true">
-    	<filelist dir="/" files="${dependent.jars}"/>
+    	<filelist dir="${lib}" files="xmltypes.jar"/>
+    	<filelist dir="/" files="${dependent.jars} ${wrapper.dll}"/>
     </copy>
     
     <mkdir dir="${dist}/conf"/>    
     <copy todir="${dist}/conf">
-    	<fileset dir="${conf}"/>
+    	<fileset dir="${conf}" includes="*.xml,*.xsd,*.conf,*.properties"/>
     </copy>
 
     <mkdir dir="${dist}/bin"/>    
@@ -49,10 +75,7 @@
     </copy>
     
     <mkdir dir="${dist}/log"/>
-<!--    
-    <tar destfile="${dist}/dhcpv6.tar" basedir="${dist}" 
-    	 excludes="*.tar, *.gz"/>
--->
+
 	<tar destfile="${dist}/dhcpv6.tar">
 	  <tarfileset dir="${dist}" prefix="${install}" mode="755">
 	    <include name="bin/*"/>
