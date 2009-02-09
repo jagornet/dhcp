@@ -1,5 +1,7 @@
 #!/bin/sh
 
+NAME="Jagornet DHCPv6 Server"
+
 OP=$1
 # shift causes all arguments to be moved left by one
 # which essentially removes this wrapper script's argument
@@ -12,12 +14,12 @@ DHCPV6_OPTS="$*"
 # the Apache ActiveMQ server startup script.
 if [ -z "$DHCPV6_HOME" ] ; then
   # try to find DHCPV6
-  if [ -d /opt/dhcpv6 ] ; then
-    DHCPV6_HOME=/opt/dhcpv6
+  if [ -d /opt/jagornet/dhcpv6 ] ; then
+    DHCPV6_HOME=/opt/jagornet/dhcpv6
   fi
 
-  if [ -d "${HOME}/opt/dhcpv6" ] ; then
-    DHCPV6_HOME="${HOME}/opt/dhcpv6"
+  if [ -d "${HOME}/opt/jagornet/dhcpv6" ] ; then
+    DHCPV6_HOME="${HOME}/opt/jagornet/dhcpv6"
   fi
 
   ## resolve links - $0 may be a link dhcpv6's home
@@ -57,8 +59,10 @@ do
 DHCPV6_CLASSPATH="$DHCPV6_CLASSPATH:$file"
 done
 
+CLASSPATH=$CLASSPATH:$DHCPV6_CLASSPATH; export CLASSPATH
+
 # The "main" Java class for the DHCPv6 Server
-DHCPV6_MAIN="com.agr.dhcpv6.server.DhcpV6Server"
+DHCPV6_MAIN="com.jagornet.dhcpv6.server.DhcpV6Server"
 
 
 # Note: log4j.configuration property references a file in the classpath (see above)
@@ -76,7 +80,7 @@ DHCPV6_PID="$DHCPV6_HOME/dhcpv6server.pid"
 isRunning() {
 
 	if [ -f "$DHCPV6_PID" ]; then
-	   kill -0 `cat $DHCPV6_PID` > /dev/null 2>&1
+	   ps -p `cat $DHCPV6_PID` > /dev/null 2>&1
 	   if [ $? -eq 0 ]; then
 	      return 1;
 	   fi
@@ -88,15 +92,15 @@ start() {
 
 	isRunning
 	if [ "$?" -eq "1" ]; then
-		echo "DHCPv6 Server already running."
+		echo "$NAME already running."
 	else
-		echo "Starting DHCPv6 Server..."
-		java $JAVA_OPTS -Ddhcpv6.home="${DHCPV6_HOME}" -cp $DHCPV6_CLASSPATH $DHCPV6_MAIN $DHCPV6_OPTS > $DHCPV6_HOME/log/dhcpv6server.out & 
+		echo "Starting $NAME..."
+		java $JAVA_OPTS -Ddhcpv6.home="$DHCPV6_HOME" $DHCPV6_MAIN $DHCPV6_OPTS > $DHCPV6_HOME/log/dhcpv6server.out & 
 		echo "$!" > $DHCPV6_PID
 		sleep 5
 		isRunning
 		if [ "$?" -eq "1" ]; then
-			echo "DHCPv6 Server started."
+			echo "$NAME started."
 		fi
 	fi
 }
@@ -105,15 +109,15 @@ stop() {
 
 	isRunning
 	if [ "$?" -ne "1" ]; then
-		echo "DHCPv6 Server is not running."
+		echo "$NAME is not running."
 	else
 		if [ -f "$DHCPV6_PID" ]; then
-		   echo "Stopping DHCPv6 Server..."
+		   echo "Stopping $NAME..."
 		   kill `cat $DHCPV6_PID` > /dev/null 2>&1
 		   sleep 3
 		   isRunning
 		   if [ "$?" -ne "1" ]; then
-			  echo "DHCPv6 Server stopped."
+			  echo "$NAME stopped."
 		   fi		   
 		   if [ $? -eq 0 ];then
 		      rm -f $DHCPV6_PID
@@ -125,9 +129,9 @@ stop() {
 status() {
 	isRunning
 	if [ "$?" -eq "1" ]; then
-		echo "DHCPv6 Server is running."
+		echo "$NAME is running."
 	else
-		echo "DHCPv6 Server is not running."
+		echo "$NAME is not running."
 	fi
 }
 

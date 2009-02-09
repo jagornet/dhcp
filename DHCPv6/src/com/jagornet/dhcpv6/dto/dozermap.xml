@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE mappings PUBLIC "-//DOZER//DTD MAPPINGS//EN"
+    "http://dozer.sourceforge.net/dtd/dozerbeanmapping.dtd">
+<mappings>
+
+  <configuration>
+    <custom-converters> <!-- these are always bi-directional -->
+      <converter type="com.jagornet.dhcpv6.util.OperatorConverter" >
+        <class-a>com.jagornet.dhcpv6.xml.Operator$Enum</class-a>
+        <class-b>java.lang.String</class-b>
+      </converter>
+    </custom-converters>
+  </configuration>
+
+  <mapping>
+<!-- 
+	 The bean-factory attribute should not be required because the XML
+     objects will/should not be instantiated by Dozer.  That is, the XML
+     is either created from the DTO objects, or the DTO objects are
+     created from the XML.  Note also, that if the bean-factory is set
+     for the XxxYyyOption classes (e.g. DnsServersOption), then there is
+     a nasty side-effect of the auto-instantiation via XMLBeanFactory's
+     invoking the internal XxxYyyOption.Factory.newInstance() method
+     which does not "set" the 'code' and 'name' fixed attribute values.
+     
+    <class-a bean-factory="net.sf.dozer.util.mapping.factory.XMLBeanFactory">
+-->
+    <class-a>
+    	com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument$DhcpV6ServerConfig
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.DhcpV6ServerConfigDTO
+    </class-b>
+    <field>
+    	<a>filtersArray</a>
+    	<b>filters</b>
+    </field>
+    <field>
+    	<a>linksArray</a>
+    	<b>links</b>
+    </field>
+  </mapping>
+
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument$DhcpV6ServerConfig$Filters
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.DhcpV6ServerConfigDTO$Filters
+    </class-b>
+    <field>
+    	<a>optionExpressionsArray</a>
+    	<b>optionExpressions</b>
+    </field>
+  </mapping>
+  
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.DnsServersOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.DnsServersOptionDTO
+    </class-b>
+    <field>
+    	<a>serverIpAddressesArray</a>
+    	<b>serverIpAddresses</b>
+    </field>
+  </mapping>
+  
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.DomainSearchListOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.DomainSearchListOptionDTO
+    </class-b>
+    <field>
+    	<a>domainNamesArray</a>
+    	<b>domainNames</b>
+    </field>
+  </mapping>
+
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.NisServersOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.NisServersOptionDTO
+    </class-b>
+    <field>
+    	<a>serverIpAddressesArray</a>
+    	<b>serverIpAddresses</b>
+    </field>
+  </mapping>
+
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.NisPlusServersOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.NisPlusServersOptionDTO
+    </class-b>
+    <field>
+    	<a>serverIpAddressesArray</a>
+    	<b>serverIpAddresses</b>
+    </field>
+  </mapping>
+
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.SipServerAddressesOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.SipServerAddressesOptionDTO
+    </class-b>
+    <field>
+    	<a>serverIpAddressesArray</a>
+    	<b>serverIpAddresses</b>
+    </field>
+  </mapping>
+
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.SipServerDomainNamesOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.SipServerDomainNamesOptionDTO
+    </class-b>
+    <field>
+    	<a>domainNamesArray</a>
+    	<b>domainNames</b>
+    </field>
+  </mapping>
+
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.SntpServersOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.SntpServersOptionDTO
+    </class-b>
+    <field>
+    	<a>serverIpAddressesArray</a>
+    	<b>serverIpAddresses</b>
+    </field>
+  </mapping>
+
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.UserClassOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.UserClassOptionDTO
+    </class-b>
+    <field>
+    	<a>userClassesArray</a>
+    	<b>userClasses</b>
+    </field>
+  </mapping>
+
+<!--
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.VendorClassOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.VendorClassOptionDTO
+    </class-b>
+    <field>
+    	<a>vendorClassesArray</a>
+    	<b>vendorClasses</b>
+    </field>
+  </mapping>
+
+  <mapping>
+    <class-a>
+    	com.jagornet.dhcpv6.xml.VendorInfoOption
+    </class-a>
+    <class-b>
+    	com.jagornet.dhcpv6.dto.VendorInfoOptionDTO
+    </class-b>
+    <field>
+    	<a>subOptionsArray</a>
+    	<b>subOptions</b>
+    </field>
+  </mapping>
+-->
+
+</mappings>

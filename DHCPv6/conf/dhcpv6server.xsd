@@ -1,24 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
 		   targetNamespace="http://ipv6universe.com/dhcpv6"
-		   xmlns="http://ipv6universe.com/dhcpv6"
-           jaxb:extensionBindingPrefixes="xjc"
-           jaxb:version="2.0"
-		   elementFormDefault="qualified" 
-		   attributeFormDefault="unqualified">
+		   xmlns="http://ipv6universe.com/dhcpv6">
 
-    <xs:annotation>
-       <xs:appinfo>
-          <jaxb:globalBindings>
-			<!-- need all generated classes to be Serializable
-				 for use with Wicket -->
-           <xjc:superInterface name="java.io.Serializable"/>
-          </jaxb:globalBindings>
-       </xs:appinfo>
-    </xs:annotation>
-		   
 	<xs:element name="dhcpV6ServerConfig">
 		<xs:annotation>
 			<xs:documentation>DHCPv6 Server Configuration Schema</xs:documentation>
@@ -210,7 +194,6 @@
 		<xs:complexContent>
 			<xs:extension base="opaqueData">
 				<xs:attribute name="code" type="code" fixed="1"/>
-				<xs:attribute name="name" type="name" fixed="Client Identifier"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -218,7 +201,6 @@
 		<xs:complexContent>
 			<xs:extension base="opaqueData">
 				<xs:attribute name="code" type="code" fixed="2"/>
-				<xs:attribute name="name" type="name" fixed="Server Identifier"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -227,13 +209,11 @@
 			<xs:element name="requestedOptionCodes" type="xs:unsignedShort" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="6"/>
-		<xs:attribute name="name" type="name" fixed="Option Request"/>
 	</xs:complexType>
 	<xs:complexType name="preferenceOption">
 		<xs:simpleContent>
 			<xs:extension base="xs:unsignedByte">
 				<xs:attribute name="code" type="code" fixed="7"/>
-				<xs:attribute name="name" type="name" fixed="Preference"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -241,7 +221,6 @@
 		<xs:simpleContent>
 			<xs:extension base="xs:unsignedShort">
 				<xs:attribute name="code" type="code" fixed="8"/>
-				<xs:attribute name="name" type="name" fixed="Elapsed Time"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -249,7 +228,6 @@
 		<xs:simpleContent>
 			<xs:extension base="xs:string">
 				<xs:attribute name="code" type="code" fixed="12"/>
-				<xs:attribute name="name" type="name" fixed="Server Unicast"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
@@ -259,14 +237,12 @@
 			<xs:element name="message" type="xs:string"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="13"/>
-		<xs:attribute name="name" type="name" fixed="Status Code"/>
 	</xs:complexType>
 	<xs:complexType name="userClassOption">
 		<xs:sequence>
 			<xs:element name="userClasses" type="opaqueData" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="15"/>
-		<xs:attribute name="name" type="name" fixed="User Class"/>
 	</xs:complexType>
 	<xs:complexType name="vendorClassOption">
 		<xs:sequence>
@@ -274,7 +250,6 @@
 			<xs:element name="vendorClasses" type="opaqueData" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="16"/>
-		<xs:attribute name="name" type="name" fixed="Vendor Class"/>
 	</xs:complexType>
 	<xs:complexType name="vendorInfoOption">
 		<xs:sequence>
@@ -282,13 +257,11 @@
 			<xs:element name="suboptions" type="option" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="17"/>
-		<xs:attribute name="name" type="name" fixed="Vendor-specific Information"/>
 	</xs:complexType>
 	<xs:complexType name="interfaceIdOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueData">
 				<xs:attribute name="code" type="code" fixed="18"/>
-				<xs:attribute name="name" type="name" fixed="Interface ID"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -297,69 +270,59 @@
 			<xs:element name="domainNames" type="domainName" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="21"/>
-		<xs:attribute name="name" type="name" fixed="SIP Server Domain Names"/>
 	</xs:complexType>
 	<xs:complexType name="sipServerAddressesOption">
 		<xs:sequence>
 			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="22"/>
-		<xs:attribute name="name" type="name" fixed="SIP Server Addresses"/>
 	</xs:complexType>
 	<xs:complexType name="dnsServersOption">
 		<xs:sequence>
 			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="23"/>
-		<xs:attribute name="name" type="name" fixed="DNS Recursive Name Server"/>
 	</xs:complexType>
 	<xs:complexType name="domainSearchListOption">
 		<xs:sequence>
 			<xs:element name="domainNames" type="domainName" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="24"/>
-		<xs:attribute name="name" type="name" fixed="Domain Search List"/>
 	</xs:complexType>
 	<xs:complexType name="nisServersOption">
 		<xs:sequence>
 			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="27"/>
-		<xs:attribute name="name" type="name" fixed="Network Information Service (NIS) Servers"/>
 	</xs:complexType>
 	<xs:complexType name="nisPlusServersOption">
 		<xs:sequence>
 			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="28"/>
-		<xs:attribute name="name" type="name" fixed="Network Information Service V2 (NIS+) Servers"/>
 	</xs:complexType>
 	<xs:complexType name="nisDomainNameOption">
 		<xs:sequence>
 			<xs:element name="domainName" type="domainName"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="29"/>
-		<xs:attribute name="name" type="name" fixed="Network Information Service (NIS) Domain Name"/>
 	</xs:complexType>
 	<xs:complexType name="nisPlusDomainNameOption">
 		<xs:sequence>
 			<xs:element name="domainName" type="domainName"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="30"/>
-		<xs:attribute name="name" type="name" fixed="Network Information Service V2 (NIS+) Domain Name"/>
 	</xs:complexType>
 	<xs:complexType name="sntpServersOption">
 		<xs:sequence>
 			<xs:element name="serverIpAddresses" type="ipAddress" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="31"/>
-		<xs:attribute name="name" type="name" fixed="Simple Network Time Protocol (SNTP) Servers"/>
 	</xs:complexType>
 	<xs:complexType name="infoRefreshTimeOption">
 		<xs:simpleContent>
 			<xs:extension base="infoRefreshTimeType">
 				<xs:attribute name="code" type="code" fixed="32"/>
-				<xs:attribute name="name" type="name" fixed="Information Refresh Time"/>
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
