@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dhc:dhcpV6ServerConfig xmlns:dhc="http://ipv6universe.com/dhcpv6">
+	
+	<sendRequestedOptionsOnlyPolicy>true</sendRequestedOptionsOnlyPolicy>
+	<serverIdOption>
+		<hexValue>abcdef0123456789</hexValue>
+	</serverIdOption>
+	<dnsServersOption>
+		<serverIpAddresses>3ffe::0001</serverIpAddresses>
+		<serverIpAddresses>3ffe::0002</serverIpAddresses>
+		<serverIpAddresses>3ffe::0003</serverIpAddresses>
+	</dnsServersOption>
+	<domainSearchListOption>
+		<domainNames>foo.com.</domainNames>
+		<domainNames>bar.com.</domainNames>
+		<domainNames>yuk.com.</domainNames>
+	</domainSearchListOption>
+	<filterGroups>
+		<name>UserClass Filter Group 1</name>
+		<optionExpressions>
+			<code>15</code>
+			<data>
+				<asciiValue>FilterUserClass</asciiValue>
+			</data>
+		</optionExpressions>
+		<domainListOption>
+			<domainNames>filter.com.</domainNames>
+		</domainListOption>
+	</filterGroups>
+	
+	<links>
+		<address>2001:DB8:1::/48</address>
+		<dnsServersOption>
+			<serverIpAddresses>2001:DB8:1::1</serverIpAddresses>
+		</dnsServersOption>
+	</links>
+	<links>
+		<address>2001:DB8:2::/48</address>
+		<dnsServersOption>
+			<serverIpAddresses>2001:DB8:2::1</serverIpAddresses>
+		</dnsServersOption>
+	</links>
+	<links>
+		<address>2001:DB8:3::/48</address>
+		<dnsServersOption>
+			<serverIpAddresses>2001:DB8:3::1</serverIpAddresses>
+		</dnsServersOption>
+	</links>
+	<links>
+		<address>2001:DB8:4::/48</address>
+		<dnsServersOption>
+			<serverIpAddresses>2001:DB8:4::1</serverIpAddresses>
+		</dnsServersOption>
+	</links>
+	<links>
+		<address>2001:DB8:5::/48</address>
+		<dnsServersOption>
+			<serverIpAddresses>2001:DB8:5::1</serverIpAddresses>
+		</dnsServersOption>
+	</links>
+
+</dhc:dhcpV6ServerConfig>
