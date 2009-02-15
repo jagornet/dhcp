@@ -1,4 +1,4 @@
-package com.jagornet.dhcpv6.server;
+package com.jagornet.dhcpv6.message;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -7,30 +7,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.xml.DnsServersOption;
-import com.jagornet.dhcpv6.xml.DomainSearchListOption;
-import com.jagornet.dhcpv6.xml.InfoRefreshTimeOption;
-import com.jagornet.dhcpv6.xml.NisDomainNameOption;
-import com.jagornet.dhcpv6.xml.NisPlusDomainNameOption;
-import com.jagornet.dhcpv6.xml.NisPlusServersOption;
-import com.jagornet.dhcpv6.xml.NisServersOption;
-import com.jagornet.dhcpv6.xml.OptionExpression;
-import com.jagornet.dhcpv6.xml.PreferenceOption;
-import com.jagornet.dhcpv6.xml.ServerIdOption;
-import com.jagornet.dhcpv6.xml.SipServerAddressesOption;
-import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
-import com.jagornet.dhcpv6.xml.SntpServersOption;
-import com.jagornet.dhcpv6.xml.StatusCodeOption;
-import com.jagornet.dhcpv6.xml.VendorInfoOption;
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig.Filters;
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig.Links;
-import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.message.DhcpRequestProcessor;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.option.DhcpDnsServersOption;
@@ -53,6 +32,26 @@ import com.jagornet.dhcpv6.option.DhcpStatusCodeOption;
 import com.jagornet.dhcpv6.option.DhcpVendorInfoOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.DnsServersOption;
+import com.jagornet.dhcpv6.xml.DomainSearchListOption;
+import com.jagornet.dhcpv6.xml.Filter;
+import com.jagornet.dhcpv6.xml.FilterExpression;
+import com.jagornet.dhcpv6.xml.InfoRefreshTimeOption;
+import com.jagornet.dhcpv6.xml.Link;
+import com.jagornet.dhcpv6.xml.NisDomainNameOption;
+import com.jagornet.dhcpv6.xml.NisPlusDomainNameOption;
+import com.jagornet.dhcpv6.xml.NisPlusServersOption;
+import com.jagornet.dhcpv6.xml.NisServersOption;
+import com.jagornet.dhcpv6.xml.OptionExpression;
+import com.jagornet.dhcpv6.xml.PreferenceOption;
+import com.jagornet.dhcpv6.xml.ServerIdOption;
+import com.jagornet.dhcpv6.xml.SipServerAddressesOption;
+import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
+import com.jagornet.dhcpv6.xml.SntpServersOption;
+import com.jagornet.dhcpv6.xml.StandardOptions;
+import com.jagornet.dhcpv6.xml.StatusCodeOption;
+import com.jagornet.dhcpv6.xml.VendorInfoOption;
+import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
 /**
  * Title:        DhcpInfoRequestProcessor
@@ -206,7 +205,7 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         processFilters(Arrays.asList(dhcpServerConfig.getFiltersArray()));
         
         // handle configuration for the client's link
-        Links link = DhcpServerConfiguration.findLinkForAddress(clientLink);
+        Link link = DhcpServerConfiguration.findLinkForAddress(clientLink);
         if (link != null) {
             log.info("Processing configuration for link: " + link.getAddress());
             processLink(link);
@@ -219,21 +218,28 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
 
     private void setGlobalOptions()
     {
-        setPreferenceOption(dhcpServerConfig.getPreferenceOption());
-        // don't set this option for stateless servers?
-        // setServerUnicastOption(dhcpServerConfig.getServerUnicastOption());
-        setStatusCodeOption(dhcpServerConfig.getStatusCodeOption());
-        setVendorInfoOption(dhcpServerConfig.getVendorInfoOption());
-        setDnsServersOption(dhcpServerConfig.getDnsServersOption());
-        setDomainSearchListOption(dhcpServerConfig.getDomainSearchListOption());
-        setSipServerAddressesOption(dhcpServerConfig.getSipServerAddressesOption());
-        setSipServerDomainNamesOption(dhcpServerConfig.getSipServerDomainNamesOption());
-        setNisServersOption(dhcpServerConfig.getNisServersOption());
-        setNisDomainNameOption(dhcpServerConfig.getNisDomainNameOption());
-        setNisPlusServersOption(dhcpServerConfig.getNisPlusServersOption());
-        setNisPlusDomainNameOption(dhcpServerConfig.getNisPlusDomainNameOption());
-        setSntpServersOption(dhcpServerConfig.getSntpServersOption());
-        setInfoRefreshTimeOption(dhcpServerConfig.getInfoRefreshTimeOption());    	
+    	setStandardOptions(dhcpServerConfig.getStandardOptions());
+    }
+
+    private void setStandardOptions(StandardOptions standardOptions)
+    {
+    	if (standardOptions != null) {
+	        setPreferenceOption(standardOptions.getPreferenceOption());
+	        // don't set this option for stateless servers?
+	        // setServerUnicastOption(dhcpServerConfig.getServerUnicastOption());
+	        setStatusCodeOption(standardOptions.getStatusCodeOption());
+	        setVendorInfoOption(standardOptions.getVendorInfoOption());
+	        setDnsServersOption(standardOptions.getDnsServersOption());
+	        setDomainSearchListOption(standardOptions.getDomainSearchListOption());
+	        setSipServerAddressesOption(standardOptions.getSipServerAddressesOption());
+	        setSipServerDomainNamesOption(standardOptions.getSipServerDomainNamesOption());
+	        setNisServersOption(standardOptions.getNisServersOption());
+	        setNisDomainNameOption(standardOptions.getNisDomainNameOption());
+	        setNisPlusServersOption(standardOptions.getNisPlusServersOption());
+	        setNisPlusDomainNameOption(standardOptions.getNisPlusDomainNameOption());
+	        setSntpServersOption(standardOptions.getSntpServersOption());
+	        setInfoRefreshTimeOption(standardOptions.getInfoRefreshTimeOption());
+    	}
     }
     
     private boolean clientWantsOption(int optionCode)
@@ -350,19 +356,21 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
     
-    private void processFilters(List<Filters> filters)
+    private void processFilters(List<Filter> filters)
     {
         if (filters != null) {
-            for (Filters filter : filters) {
-                List<OptionExpression> expressions = Arrays.asList(filter.getOptionExpressionsArray());
+            for (Filter filter : filters) {
+                List<FilterExpression> expressions = Arrays.asList(filter.getFilterExpressionsArray());
                 if (expressions != null) {
                     boolean matches = true;     // assume match
-                    for (OptionExpression expression : expressions) {
-                        DhcpOption option = requestMsg.getOption(expression.getCode());
+                    for (FilterExpression expression : expressions) {
+                    	OptionExpression optexpr = expression.getOptionExpression();
+                    	// TODO: handle CustomExpression filters
+                        DhcpOption option = requestMsg.getOption(optexpr.getCode());
                         if (option != null) {
                             // found the filter option in the request,
                             // so check if the expression matches
-                            if (!evaluateExpression(expression, option)) {
+                            if (!evaluateExpression(optexpr, option)) {
                                 // it must match all expressions for the filter
                                 // group (i.e. expressions are ANDed), so if
                                 // just one doesn't match, then we're done
@@ -400,71 +408,24 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         return matches;
     }
     
-    private void setFilterOptions(Filters filter)
+    private void setFilterOptions(Filter filter)
     {
-        setPreferenceOption(filter.getPreferenceOption());
-        // don't set this option for stateless servers?
-        // setServerUnicastOption(filter.getServerUnicastOption());
-        setStatusCodeOption(filter.getStatusCodeOption());
-        setVendorInfoOption(filter.getVendorInfoOption());
-        setDnsServersOption(filter.getDnsServersOption());
-        setDomainSearchListOption(filter.getDomainSearchListOption());
-        setSipServerAddressesOption(filter.getSipServerAddressesOption());
-        setSipServerDomainNamesOption(filter.getSipServerDomainNamesOption());
-        setNisServersOption(filter.getNisServersOption());
-        setNisDomainNameOption(filter.getNisDomainNameOption());
-        setNisPlusServersOption(filter.getNisPlusServersOption());
-        setNisPlusDomainNameOption(filter.getNisPlusDomainNameOption());
-        setSntpServersOption(filter.getSntpServersOption());
-        setInfoRefreshTimeOption(filter.getInfoRefreshTimeOption());    	
+    	setStandardOptions(filter.getStandardOptions());
     }
     
-    private void processLink(Links link)
+    private void processLink(Link link)
     {
         if (link != null) {
             setLinkOptions(link);
-            // Both JAXB and XMLBeans compilers create two separate inner classes
-            // of the DhcpV6ServerConfiguration class to represent the global
-            // filter groups and the link-specific filter groups, even though
-            // these two classes are the same.
-            // So we'll "convert" the link-specific filters to "global" filters 
-            // so that we can reuse the filter handling in processFilters()
             if (link.getFiltersArray() != null) {
-                List<Links.Filters> linkFilters = Arrays.asList(link.getFiltersArray());
-                List<Filters> filters = new ArrayList<Filters>();
-                for (Links.Filters linkFilter : linkFilters) {
-                    Filters filter = Filters.Factory.newInstance();
-                    try {
-                        // copy (destination, source)
-                        BeanUtils.copyProperties(filter, linkFilter);
-                        filters.add(filter);
-                    }
-                    catch (Exception ex) {
-                        log.error("Failed to convert Links.Filters to Filters" + 
-                                  ex);
-                    }
-                }
+            	List<Filter> filters = Arrays.asList(link.getFiltersArray());
                 processFilters(filters);
             }
         }
     }
     
-    private void setLinkOptions(Links link)
+    private void setLinkOptions(Link link)
     {
-        setPreferenceOption(link.getPreferenceOption());
-        // don't set this option for stateless servers?
-        // setServerUnicastOption(link.getServerUnicastOption());
-        setStatusCodeOption(link.getStatusCodeOption());
-        setVendorInfoOption(link.getVendorInfoOption());
-        setDnsServersOption(link.getDnsServersOption());
-        setDomainSearchListOption(link.getDomainSearchListOption());
-        setSipServerAddressesOption(link.getSipServerAddressesOption());
-        setSipServerDomainNamesOption(link.getSipServerDomainNamesOption());
-        setNisServersOption(link.getNisServersOption());
-        setNisDomainNameOption(link.getNisDomainNameOption());
-        setNisPlusServersOption(link.getNisPlusServersOption());
-        setNisPlusDomainNameOption(link.getNisPlusDomainNameOption());
-        setSntpServersOption(link.getSntpServersOption());
-        setInfoRefreshTimeOption(link.getInfoRefreshTimeOption());    	
+    	setStandardOptions(link.getStandardOptions());
     }
 }

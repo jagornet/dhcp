@@ -32,6 +32,10 @@
     	com.jagornet.dhcpv6.dto.DhcpV6ServerConfigDTO
     </class-b>
     <field>
+    	<a>policiesArray</a>
+    	<b>policies</b>
+    </field>
+    <field>
     	<a>filtersArray</a>
     	<b>filters</b>
     </field>
@@ -43,14 +47,14 @@
 
   <mapping>
     <class-a>
-    	com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument$DhcpV6ServerConfig$Filters
+    	com.jagornet.dhcpv6.xml.Filter
     </class-a>
     <class-b>
-    	com.jagornet.dhcpv6.dto.DhcpV6ServerConfigDTO$Filters
+    	com.jagornet.dhcpv6.dto.FilterDTO
     </class-b>
     <field>
-    	<a>optionExpressionsArray</a>
-    	<b>optionExpressions</b>
+    	<a>filterExpressionsArray</a>
+    	<b>filterExpressions</b>
     </field>
   </mapping>
   

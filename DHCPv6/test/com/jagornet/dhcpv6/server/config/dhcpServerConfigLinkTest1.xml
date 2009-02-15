@@ -1,62 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dhc:dhcpV6ServerConfig xmlns:dhc="http://ipv6universe.com/dhcpv6">
+<dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
 	
-	<sendRequestedOptionsOnlyPolicy>true</sendRequestedOptionsOnlyPolicy>
+	<policies>
+		<name>sendRequestedOptionsOnly</name>
+		<value>true</value>
+	</policies>
+
 	<serverIdOption>
 		<hexValue>abcdef0123456789</hexValue>
 	</serverIdOption>
-	<dnsServersOption>
-		<serverIpAddresses>3ffe::0001</serverIpAddresses>
-		<serverIpAddresses>3ffe::0002</serverIpAddresses>
-		<serverIpAddresses>3ffe::0003</serverIpAddresses>
-	</dnsServersOption>
-	<domainSearchListOption>
-		<domainNames>foo.com.</domainNames>
-		<domainNames>bar.com.</domainNames>
-		<domainNames>yuk.com.</domainNames>
-	</domainSearchListOption>
-	<filterGroups>
+
+	<standardOptions>
+		<dnsServersOption>
+			<serverIpAddresses>3ffe::0001</serverIpAddresses>
+			<serverIpAddresses>3ffe::0002</serverIpAddresses>
+			<serverIpAddresses>3ffe::0003</serverIpAddresses>
+		</dnsServersOption>
+		<domainSearchListOption>
+			<domainNames>foo.com.</domainNames>
+			<domainNames>bar.com.</domainNames>
+			<domainNames>yuk.com.</domainNames>
+		</domainSearchListOption>
+	</standardOptions>
+
+	<filters>
 		<name>UserClass Filter Group 1</name>
-		<optionExpressions>
-			<code>15</code>
-			<data>
-				<asciiValue>FilterUserClass</asciiValue>
-			</data>
-		</optionExpressions>
-		<domainListOption>
-			<domainNames>filter.com.</domainNames>
-		</domainListOption>
-	</filterGroups>
+		<filterExpressions>
+			<optionExpression>
+				<code>15</code>
+				<data>
+					<asciiValue>FilterUserClass</asciiValue>
+				</data>
+			</optionExpression>
+		</filterExpressions>
+		<standardOptions>
+			<domainListOption>
+				<domainNames>filter.com.</domainNames>
+			</domainListOption>
+		</standardOptions>
+	</filters>
 	
 	<links>
+		<name>Client Link 1</name>
 		<address>2001:DB8:1::/48</address>
-		<dnsServersOption>
-			<serverIpAddresses>2001:DB8:1::1</serverIpAddresses>
-		</dnsServersOption>
+		<standardOptions>
+			<dnsServersOption>
+				<serverIpAddresses>2001:DB8:1::1</serverIpAddresses>
+			</dnsServersOption>
+		</standardOptions>
 	</links>
 	<links>
+		<name>Client Link 2</name>
 		<address>2001:DB8:2::/48</address>
-		<dnsServersOption>
-			<serverIpAddresses>2001:DB8:2::1</serverIpAddresses>
-		</dnsServersOption>
+		<standardOptions>
+			<dnsServersOption>
+				<serverIpAddresses>2001:DB8:2::1</serverIpAddresses>
+			</dnsServersOption>
+		</standardOptions>
 	</links>
 	<links>
+		<name>Client Link 3</name>
 		<address>2001:DB8:3::/48</address>
-		<dnsServersOption>
-			<serverIpAddresses>2001:DB8:3::1</serverIpAddresses>
-		</dnsServersOption>
+		<standardOptions>
+			<dnsServersOption>
+				<serverIpAddresses>2001:DB8:3::1</serverIpAddresses>
+			</dnsServersOption>
+		</standardOptions>
 	</links>
 	<links>
+		<name>Client Link 4</name>
 		<address>2001:DB8:4::/48</address>
-		<dnsServersOption>
-			<serverIpAddresses>2001:DB8:4::1</serverIpAddresses>
-		</dnsServersOption>
+		<standardOptions>
+			<dnsServersOption>
+				<serverIpAddresses>2001:DB8:4::1</serverIpAddresses>
+			</dnsServersOption>
+		</standardOptions>
 	</links>
 	<links>
+		<name>Client Link 5</name>
 		<address>2001:DB8:5::/48</address>
-		<dnsServersOption>
-			<serverIpAddresses>2001:DB8:5::1</serverIpAddresses>
-		</dnsServersOption>
+		<standardOptions>
+			<dnsServersOption>
+				<serverIpAddresses>2001:DB8:5::1</serverIpAddresses>
+			</dnsServersOption>
+		</standardOptions>
 	</links>
 
 </dhc:dhcpV6ServerConfig>

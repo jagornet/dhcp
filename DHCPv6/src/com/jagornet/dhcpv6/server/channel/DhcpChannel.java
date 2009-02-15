@@ -1,7 +1,8 @@
-package com.jagornet.dhcpv6.server;
+package com.jagornet.dhcpv6.server.channel;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -25,19 +26,62 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
 public class DhcpChannel
 {
 	private static Logger log = LoggerFactory.getLogger(DhcpChannel.class);
-    private static int PACKET_SIZE = 1500;   // default max MTU for ethernet
+	
+	/**
+	 * RFC 2460 specifies a minimum MTU of 1280 for IPv6, but
+	 * it also recommends using 1500 on link where the MTU is
+	 * configurable.  Also, RFC 3146 specifies a default MTU
+	 * of 1500 for IEEE1394 networks.  So, we'll use 1500.
+	 */
+    private static int PACKET_SIZE = 1500;
 
+    /**
+     * The channel is the Java NIO abstraction for UDP sockets.
+     * Preferring composition to inheritance here.
+     */
     private DatagramChannel channel = null;
+    /**
+     * The Java docs state that the DatagramChannel is not a
+     * complete abstraction, so we need to manipulate the
+     * underlying DatagramSocket as well, at least for now.
+     */
     private DatagramSocket socket = null;
 
+    /**
+     * Create a DhcpChannel on the localhost by creating
+     * a datagram socket on any available local IP address
+     * and binding the socket to the given UDP port.
+     * 
+     * @param port the UDP port number to bind to
+     * @throws IOException
+     * @throws SocketException
+     */
     public DhcpChannel(int port)
             throws IOException, SocketException
     {
+    	this(null, port);
+    }
+    
+    /**
+     * Create a DhcpChannel on the localhost by creating
+     * a datagram socket on the given local IP address
+     * and binding the socket to the given UDP port.
+     * 
+     * @param localAddress localhost IP address, null will
+     * 					   select any available local IP
+     * @param port the UDP port number to bind to
+     * @throws IOException
+     * @throws SocketException
+     */
+    public DhcpChannel(InetAddress localAddress, int port)
+    		throws IOException, SocketException
+    {
         channel = DatagramChannel.open();
         socket = channel.socket();
-        // the socket address represents the wildcard address for localhost
-        SocketAddress sa = new InetSocketAddress(port);
-        socket.bind(sa);    // bind to localhost DHCP port
+        // create a socket on the local IP address, null for "any"
+        SocketAddress sa = new InetSocketAddress(localAddress, port);
+        // bind to the UDP port on the localhost
+        socket.bind(sa);
     }
 
     public DatagramChannel getChannel()
@@ -67,6 +111,14 @@ public class DhcpChannel
         return PACKET_SIZE;
     }
 
+    /**
+     * Encode the supplied DhcpMessage to wire format, and
+     * send the data via this channel to the target host
+     * defined within the supplied message.
+     * 
+     * @param outMessage DhcpMessage containing the data to be sent
+     * 					 and the target host's socket address.
+     */
     public void send(DhcpMessage outMessage)
     {
         try {
@@ -77,39 +129,17 @@ public class DhcpChannel
         }
     }
     
-    public void receive(DhcpMessage inMessage)
-    {
-        IoBuffer iobuf = IoBuffer.allocate(PACKET_SIZE);
-        try {
-            
-            InetSocketAddress srcInetSocketAddress =
-                (InetSocketAddress)channel.receive(iobuf.buf());
-            // in theory, receive should never return null
-            // but better safe than NPE!
-            if (srcInetSocketAddress != null) {
-                inMessage.setSocketAddress(srcInetSocketAddress);
-                log.info("Received datagram from: " + srcInetSocketAddress);
-                iobuf.flip();
-                inMessage.decode(iobuf);
-                if (log.isDebugEnabled())
-                    log.debug("Decoded message: " + 
-                              inMessage.toStringWithOptions());
-            }
-            else {
-                log.error("Channel received returned null!");
-            }
-        }
-        catch (IOException ex) {
-            log.error("Failure receiving message: " + ex);
-        }
-    }
-    
+    /**
+     * Receive and decode a message on this channel.
+     * 
+     * @return a DhcpMessage containing the decoded data and the
+     * 		   source address of the host which sent the message.
+     */
     public DhcpMessage receive()
     {
         IoBuffer iobuf = IoBuffer.allocate(PACKET_SIZE);
         DhcpMessage inMessage = null; 
         try {
-            
             InetSocketAddress srcInetSocketAddress =
                 (InetSocketAddress)channel.receive(iobuf.buf());
             // in theory, receive should never return null

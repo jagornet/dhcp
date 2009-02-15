@@ -1,4 +1,4 @@
-package com.jagornet.dhcpv6.server;
+package com.jagornet.dhcpv6.server.channel;
 
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;

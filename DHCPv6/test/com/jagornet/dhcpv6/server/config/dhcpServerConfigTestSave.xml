@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dhc:dhcpV6ServerConfig xmlns:dhc="http://ipv6universe.com/dhcpv6">
-    <sendRequestedOptionsOnlyPolicy>true</sendRequestedOptionsOnlyPolicy>
+<dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
+    <policies>
+        <name>sendRequestedOptionsOnly</name>
+        <value>true</value>
+    </policies>
 </dhc:dhcpV6ServerConfig>

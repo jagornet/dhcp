@@ -1,4 +1,4 @@
-package com.jagornet.dhcpv6.client;
+package com.jagornet.dhcpv6.server.channel;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -10,7 +10,6 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpElapsedTimeOption;
 import com.jagornet.dhcpv6.option.DhcpUserClassOption;
-import com.jagornet.dhcpv6.server.DhcpChannel;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 
@@ -66,7 +65,7 @@ public class DhcpChannelClient implements Runnable
             // send the Info-Request
             dhcpChannel.send(msg);
             // go get the reply from the server
-            dhcpChannel.receive(new DhcpMessage());
+            dhcpChannel.receive();
         }
         catch (Exception ex) {
             System.err.println(ex);

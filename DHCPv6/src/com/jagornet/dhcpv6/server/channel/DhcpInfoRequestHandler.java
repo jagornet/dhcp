@@ -1,8 +1,9 @@
-package com.jagornet.dhcpv6.server;
+package com.jagornet.dhcpv6.server.channel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.message.DhcpInfoRequestProcessor;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.message.DhcpMessageHandler;
 

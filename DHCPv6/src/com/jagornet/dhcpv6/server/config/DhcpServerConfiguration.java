@@ -15,21 +15,21 @@ import org.apache.xmlbeans.XmlOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.ServerIdOption;
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig.Links;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.server.DhcpV6Server;
 import com.jagornet.dhcpv6.util.Subnet;
+import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument;
+import com.jagornet.dhcpv6.xml.Link;
+import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.xml.ServerIdOption;
+import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
 public class DhcpServerConfiguration
 {
 	private static Logger log = LoggerFactory.getLogger(DhcpServerConfiguration.class);
 
     private static volatile DhcpV6ServerConfig CONFIG;
-    private static TreeMap<Subnet, Links> linkMap;
+    private static TreeMap<Subnet, Link> linkMap;
     
     // Private constructor suppresses generation of a (public) default constructor
     private DhcpServerConfiguration() {}
@@ -69,7 +69,7 @@ public class DhcpServerConfiguration
     public static void initLinkMap() throws Exception
     {
         linkMap = 
-            new TreeMap<Subnet, Links>(new Comparator<Subnet>() {
+            new TreeMap<Subnet, Link>(new Comparator<Subnet>() {
 
                 public int compare(Subnet s1, Subnet s2)
                 {
@@ -98,9 +98,9 @@ public class DhcpServerConfiguration
             });
         
         try {
-        	List<Links> links = Arrays.asList(CONFIG.getLinksArray());
+        	List<Link> links = Arrays.asList(CONFIG.getLinksArray());
             if ((links != null) && !links.isEmpty()) {
-                for (Links link : links) {
+                for (Link link : links) {
                     String addr = link.getAddress();
                     if (addr != null) {
                         String[] subnet = addr.split("/");
@@ -126,7 +126,7 @@ public class DhcpServerConfiguration
         return CONFIG;
     }
     
-    public static TreeMap<Subnet, Links> getLinkMap()
+    public static TreeMap<Subnet, Link> getLinkMap()
     {
         if (CONFIG == null) {
             throw new IllegalStateException("DhcpServerConfiguration not initialized");
@@ -134,12 +134,12 @@ public class DhcpServerConfiguration
         return linkMap;
     }
 
-    public static Links findLinkForAddress(InetAddress inetAddr)
+    public static Link findLinkForAddress(InetAddress inetAddr)
     {
-        Links link = null;
+        Link link = null;
         if ((linkMap != null) && !linkMap.isEmpty()) {
             Subnet s = new Subnet(inetAddr, 128);
-            SortedMap<Subnet, Links> subMap = linkMap.headMap(s);
+            SortedMap<Subnet, Link> subMap = linkMap.headMap(s);
             if ((subMap != null) && !subMap.isEmpty()) {
                 s = subMap.lastKey();
                 if (s.contains(inetAddr)) {

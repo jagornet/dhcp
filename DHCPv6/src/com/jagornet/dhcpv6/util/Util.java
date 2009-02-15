@@ -1,17 +1,44 @@
-package com.jagornet.dhcpv6.util;
-
-
-/**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2000</p>
- * <p>Company: </p>
- * @author unascribed
- * @version 1.0
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
  */
 
+/*
+ *   This file Util.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+package com.jagornet.dhcpv6.util;
+
+/**
+ * The class Util.
+ * Utility class for converting byte arrays to/from hex strings.
+ */
 public class Util
 {
+    
+    /**
+     * To hex string.
+     * 
+     * @param binary the byte array to convert
+     * 
+     * @return the string the converted hex string
+     */
     public static String toHexString(byte[] binary)
     {
         if(binary != null) {
@@ -25,6 +52,13 @@ public class Util
         return null;
     }
 
+    /**
+     * From hex string.
+     * 
+     * @param hexString the hex string to convert
+     * 
+     * @return the byte[] the converted byte array
+     */
     public static byte[] fromHexString(String hexString)
     {
         if(hexString != null) {

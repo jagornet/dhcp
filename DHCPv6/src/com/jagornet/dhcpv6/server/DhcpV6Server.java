@@ -20,6 +20,7 @@ import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 import com.jagornet.dhcpv6.dto.DhcpV6ServerConfigDTO;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.mina.MinaDhcpServer;
+import com.jagornet.dhcpv6.server.multicast.MulticastDhcpServer;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 public class DhcpV6Server
