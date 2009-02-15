@@ -70,25 +70,30 @@ public class MulticastDhcpServer
     public void run()
     {
         while (true) {
-        	DhcpMessage inMessage = receiveMessage();
-            if (inMessage != null) {
-                if (log.isDebugEnabled())
-                    log.debug("Decoded message: " + 
-                              (inMessage != null ? 
-                              inMessage.toStringWithOptions() : "null"));
-            	MinaDhcpHandler handler = new MinaDhcpHandler();
-            	DhcpMessage outMessage = 
-            		handler.handleMessage(getLocalAddress(), inMessage);
-                if (outMessage != null) {
-                    sendMessage(outMessage);
-                }
-                else {
-                    log.warn("Handler returned null reply message");
-                }
-            }
-            else {
-            	log.warn("No message received");
-            }
+        	try {
+	        	DhcpMessage inMessage = receiveMessage();
+	            if (inMessage != null) {
+	                if (log.isDebugEnabled())
+	                    log.debug("Decoded message: " + 
+	                              (inMessage != null ? 
+	                              inMessage.toStringWithOptions() : "null"));
+	            	MinaDhcpHandler handler = new MinaDhcpHandler();
+	            	DhcpMessage outMessage = 
+	            		handler.handleMessage(getLocalAddress(), inMessage);
+	                if (outMessage != null) {
+	                    sendMessage(outMessage);
+	                }
+	                else {
+	                    log.warn("Handler returned null reply message");
+	                }
+	            }
+	            else {
+	            	log.warn("No message received");
+	            }
+        	}
+        	catch (Exception ex) {
+        		log.error("Exception caught", ex);
+        	}
         }
     }
 
