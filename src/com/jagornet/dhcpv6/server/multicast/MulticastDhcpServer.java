@@ -1,4 +1,4 @@
-package com.jagornet.dhcpv6.server;
+package com.jagornet.dhcpv6.server.multicast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

@@ -1,5 +1,5 @@
 
-package com.jagornet.dhcpv6.server;
+package com.jagornet.dhcpv6.server.channel;
 
 import java.util.Collections;
 import java.util.Map;

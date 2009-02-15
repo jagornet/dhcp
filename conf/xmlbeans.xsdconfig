@@ -1,13 +1,13 @@
 <!-- An xsdconfig file must begin with a "config" element in the 
         http://xml.apache.org/xmlbeans/2004/02/xbean/config namespace. Also, be sure
         to declare any namespaces used to qualify types in your schema (here,
-        the namespace corresponding to the agr prefix. -->
-<xb:config xmlns:agr="http://ipv6universe.com/dhcpv6" 
+        the namespace corresponding to the dhc prefix. -->
+<xb:config xmlns:dhc="http://ietf.org/dhc/dhcpv6" 
     xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config">
 
     <!-- Use the "namespace" element to map a namespace to the Java package
         name that should be generated. -->
-    <xb:namespace uri="http://ipv6universe.com/dhcpv6">
+    <xb:namespace uri="http://ietf.org/dhc/dhcpv6">
         <xb:package>com.jagornet.dhcpv6.xml</xb:package>
     </xb:namespace>
 
