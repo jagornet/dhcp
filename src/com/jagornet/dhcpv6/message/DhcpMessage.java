@@ -1,8 +1,33 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file DhcpMessage.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.message;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,101 +90,153 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  *                  depends on the definition of the option.
  * </pre>
  * 
- * Copyright:    Copyright (c) 2003
- * Company:      AGR Consulting
  * @author A. Gregory Rabil
- * @version 1.0
  */
 
 public class DhcpMessage
 {
     private static Logger log = LoggerFactory.getLogger(DhcpMessage.class);
     
-    protected InetSocketAddress socketAddress;
-
+    protected static DhcpMessageFactory msgFactory = DhcpMessageFactory.getInstance();
+    
+    // the IP and port on the local host on 
+    // which the message is sent or received
+    protected InetSocketAddress localAddress;
+    
+    // the IP and port on the remote host from
+    // which the message is received or sent
+    protected InetSocketAddress remoteAddress;
+    
     protected short messageType = 0;	// need a short to hold unsigned byte
-    protected long transactionId = 0;   // we only use low order three bytes
+    protected int transactionId = 0;   	// we only use low order three bytes
     protected Map<Integer, DhcpOption> dhcpOptions = null;
 
-    public DhcpMessage()
+    /**
+     * Construct a DhcpMessage.
+     * 
+     * @param localAddress	InetSocketAddress on the local host on which
+     * 						this message is received or sent
+     * @param remoteAddress InetSocketAddress on the remote host on which
+     * 						this message is sent or received
+     */
+    public DhcpMessage(InetSocketAddress localAddress, InetSocketAddress remoteAddress)
     {
-        this(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS,
-             DhcpConstants.CLIENT_PORT);
-    }
-    public DhcpMessage(InetAddress host)
-    {
-        this(host,
-             DhcpConstants.CLIENT_PORT);
-    }
-    public DhcpMessage(int port)
-    {
-        this(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS,
-             port);
-    }
-    public DhcpMessage(InetAddress host, int port)
-    {
-        this(new InetSocketAddress(host, port));
-    }
-    public DhcpMessage(InetSocketAddress socketAddress)
-    {
-        this.socketAddress = socketAddress;
+    	this.localAddress = localAddress;
+    	this.remoteAddress = remoteAddress;
         dhcpOptions = new HashMap<Integer, DhcpOption>();
     }
     
-    public IoBuffer encode() throws IOException
+    /**
+     * Encode this DhcpMessage to wire format for sending.
+     * 
+     * @return	a ByteBuffer containing the encoded DhcpMessage
+     * @throws IOException
+     */
+    public ByteBuffer encode() throws IOException
     {
         if (log.isDebugEnabled())
-            log.debug("Encoding DhcpMessage for: " + socketAddress);
+            log.debug("Encoding DhcpMessage for: " + 
+            		socketAddressAsString(remoteAddress));
         
         long s = System.currentTimeMillis();
         
-        IoBuffer iobuf = IoBuffer.allocate(1024);
-        iobuf.put((byte)messageType);
-        iobuf.put(DhcpTransactionId.encode(transactionId));
-        iobuf.put(encodeOptions());
-        iobuf.flip();
+        ByteBuffer buf = ByteBuffer.allocate(1024);
+        buf.put((byte)messageType);
+        buf.put(DhcpTransactionId.encode(transactionId));
+        buf.put(encodeOptions());
+        buf.flip();
         
         if (log.isDebugEnabled())
             log.debug("DhcpMessage encoded in " +
                     String.valueOf(System.currentTimeMillis()-s) + " ms.");
         
-        return iobuf;
+        return buf;
     }
 
-    protected IoBuffer encodeOptions() throws IOException
+    /**
+     * Encode the options of this DhcpMessage to wire format for sending.
+     * 
+     * @return	a ByteBuffer containing the encoded options
+     * @throws IOException
+     */
+    protected ByteBuffer encodeOptions() throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.allocate(1020); // 1024 - 1(msgType) - 3(transId) = 1020 (options)
+    	ByteBuffer buf = ByteBuffer.allocate(1020); // 1024 - 1(msgType) - 3(transId) = 1020 (options)
         if (dhcpOptions != null) {
             for (DhcpOption option : dhcpOptions.values()) {
-                 iobuf.put(option.encode());
+                 buf.put(option.encode());
             }
         }
-        return iobuf.flip();
-    }
-    
-    public static DhcpMessage decode(InetSocketAddress srcInetSocketAddress,
-                                     IoBuffer iobuf)
-            throws IOException
-    {
-        DhcpMessage dhcpMessage = new DhcpMessage(srcInetSocketAddress);
-        dhcpMessage.decode(iobuf);
-        return dhcpMessage;
+        return (ByteBuffer)buf.flip();
     }
 
-    public void decode(IoBuffer iobuf) throws IOException
+    /**
+     * Decode a packet received on the wire into a DhcpMessage object.
+     * 
+     * @param buf			ByteBuffer containing the packet to be decoded
+     * @param localAddr		InetSocketAddress on the local host on which
+     * 						packet was received
+     * @param remoteAddr	InetSocketAddress on the remote host from which
+     * 						the packet was received
+     * @return	a decoded DhcpMessage object, or null if the packet could not be decoded
+     * @throws IOException
+     */
+	public static DhcpMessage decode(ByteBuffer buf, InetSocketAddress localAddr, InetSocketAddress remoteAddr)
+			throws IOException
+	{
+		DhcpMessage dhcpMessage = null;		
+		if ((buf != null) && buf.hasRemaining()) {
+
+			if (log.isDebugEnabled()) {
+	            log.debug("Decoding DhcpMessage:" + 
+	            		" localAddr=" + socketAddressAsString(localAddr) +
+	            		" remoteAddr=" + socketAddressAsString(remoteAddr));
+			}
+
+            // get the message type byte to see if we can handle it
+            byte msgtype = buf.get();
+            if (log.isDebugEnabled())
+                log.debug("MessageType=" + DhcpConstants.getMessageString(msgtype));
+
+            // get either a DhcpMessage or a DhcpRelayMessage object
+            dhcpMessage = msgFactory.getDhcpMessage(msgtype, localAddr, remoteAddr);
+            if (dhcpMessage != null) {
+                // rewind buffer so DhcpMessage decoder will read it and 
+                // set the message type - we only read it ourselves so 
+                // that we could use it for the factory.
+                buf.rewind();
+                dhcpMessage.decode(buf);
+            }
+        }
+        else {
+            String errmsg = "IoBuffer is null or empty";
+            log.error(errmsg);
+            throw new IOException(errmsg);
+        }
+		return dhcpMessage;
+	}
+
+	/**
+	 * Decode a datagram packet into this DhcpMessage object.
+	 *  
+	 * @param buf	ByteBuffer containing the packet to be decoded
+	 * @throws IOException
+	 */
+    public void decode(ByteBuffer buf) throws IOException
     {
         if (log.isDebugEnabled())
-            log.debug("Decoding DhcpMessage from: " + socketAddress);
+            log.debug("Decoding DhcpMessage from: " + 
+            		socketAddressAsString(remoteAddress));
         
         long s = System.currentTimeMillis();
         
-        if ((iobuf != null) && iobuf.hasRemaining()) {
-            decodeMessageType(iobuf);
-            if (iobuf.hasRemaining()) {
-                setTransactionId(DhcpTransactionId.decode(iobuf));
+        if ((buf != null) && buf.hasRemaining()) {
+            decodeMessageType(buf);
+            if (buf.hasRemaining()) {
+                setTransactionId(DhcpTransactionId.decode(buf));
                 log.debug("TransactionId=" + transactionId);
-                if (iobuf.hasRemaining()) {
-                    setDhcpOptions(decodeOptions(iobuf));
+                if (buf.hasRemaining()) {
+                    setDhcpOptions(decodeOptions(buf));
                 }
                 else {
                     String errmsg = "Failed to decode options: buffer is empty";
@@ -185,9 +262,16 @@ public class DhcpMessage
         }
     }
 
-    public void decodeMessageType(IoBuffer iobuf) throws IOException
+    /**
+     * Decode the message type.
+     * 
+     * @param buf	ByteBuffer positioned at the message type in the packet
+     * @throws IOException
+     */
+    protected void decodeMessageType(ByteBuffer buf) throws IOException
     {
-        if ((iobuf != null) && iobuf.hasRemaining()) {
+        if ((buf != null) && buf.hasRemaining()) {
+        	IoBuffer iobuf = IoBuffer.wrap(buf);
             // TODO check that it is a valid message type, even though
             //      this should have already been done
             setMessageType(iobuf.getUnsigned());
@@ -201,16 +285,24 @@ public class DhcpMessage
         }
     }
     
-    public Map<Integer, DhcpOption> decodeOptions(IoBuffer iobuf) 
+    /**
+     * Decode the options.
+     * @param buf	ByteBuffer positioned at the start of the options in the packet
+     * @return	a Map of DhcpOptions keyed by the option code
+     * @throws IOException
+     */
+    protected Map<Integer, DhcpOption> decodeOptions(ByteBuffer buf) 
             throws IOException
     {
+    	IoBuffer iobuf = IoBuffer.wrap(buf);
         Map<Integer, DhcpOption> _dhcpOptions = new HashMap<Integer, DhcpOption>();
         while (iobuf.hasRemaining()) {
             int code = iobuf.getUnsignedShort();
             log.debug("Option code=" + code);
-            DhcpOption option = DhcpOptionFactory.getDhcpOption(code, getHost());
+            DhcpOption option = DhcpOptionFactory.getDhcpOption(code);
             if (option != null) {
-                option.decode(iobuf);
+                option.setDhcpMessage(this);
+                option.decode(iobuf.buf());
                 _dhcpOptions.put(option.getCode(), option);
             }
             else {
@@ -220,6 +312,10 @@ public class DhcpMessage
         return _dhcpOptions;
     }
 
+    /**
+     * Return the length of this DhcpMessage in bytes.
+     * @return	an int containing a length of a least four(4)
+     */
     public int getLength()
     {
         int len = 4;    // msg type (1) + transaction id (3)
@@ -227,7 +323,11 @@ public class DhcpMessage
         return len;
     }
     
-    public int getOptionsLength()
+    /**
+     * Return the length of the options in this DhcpMessage in bytes.
+     * @return	an int containing the total length of all options
+     */
+    protected int getOptionsLength()
     {
         int len = 0;
         if (dhcpOptions != null) {
@@ -238,30 +338,24 @@ public class DhcpMessage
         }
         return len;
     }
+        
+	public InetSocketAddress getLocalAddress() {
+		return localAddress;
+	}
 
-    /**
-     * getHost() is overridden in DhcpRelayMessage to
-     * return the peerAddress
-     * @return
-     */
-    public InetAddress getHost()
-    {
-        return socketAddress.getAddress();
-    }
-    public int getPort()
-    {
-        return socketAddress.getPort();
-    }
-    public InetSocketAddress getSocketAddress()
-    {
-        return socketAddress;
-    }
-    public void setSocketAddress(InetSocketAddress socketAddress)
-    {
-        this.socketAddress = socketAddress;
-    }
+	public void setLocalAddress(InetSocketAddress localAddress) {
+		this.localAddress = localAddress;
+	}
 
-    public short getMessageType()
+	public InetSocketAddress getRemoteAddress() {
+		return remoteAddress;
+	}
+
+	public void setRemoteAddress(InetSocketAddress remoteAddress) {
+		this.remoteAddress = remoteAddress;
+	}
+
+	public short getMessageType()
     {
         return messageType;
     }
@@ -269,11 +363,11 @@ public class DhcpMessage
     {
         this.messageType = messageType;
     }
-    public long getTransactionId()
+    public int getTransactionId()
     {
         return transactionId;
     }
-    public void setTransactionId(long transactionId)
+    public void setTransactionId(int transactionId)
     {
         this.transactionId = transactionId;
     }
@@ -293,6 +387,7 @@ public class DhcpMessage
     public void setOption(DhcpOption dhcpOption)
     {
         if(dhcpOption != null) {
+        	dhcpOption.setDhcpMessage(this);
             dhcpOptions.put(dhcpOption.getCode(), dhcpOption);
         }
     }
@@ -318,10 +413,11 @@ public class DhcpMessage
         sb.append(" (xactId=");
         sb.append(getTransactionId());
         sb.append(")");
-        sb.append(" to/from ");
-        sb.append(getHost().getHostAddress());
-        sb.append(":");
-        sb.append(getPort());
+        if (this.messageType == DhcpConstants.REPLY)
+        	sb.append(" to ");
+        else
+        	sb.append(" from ");
+        sb.append(socketAddressAsString(remoteAddress));
         return sb.toString();
     }
     
@@ -338,4 +434,16 @@ public class DhcpMessage
         }
         return sb.toString();
     }
+	
+	public static String socketAddressAsString(InetSocketAddress saddr) {
+		if (saddr == null)
+			return null;
+		else
+			return saddr.getAddress().getHostAddress() +
+					":" + saddr.getPort();
+	}
+	
+	public static DhcpMessageFactory getDhcpMessageFactory() {
+		return msgFactory;
+	}
 }

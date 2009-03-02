@@ -23,6 +23,24 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+/*
+ *   This file Subnet.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.util;
 
 import java.math.BigInteger;
@@ -33,12 +51,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The Class Subnet.
- * A utility class for managing IPv6 subnets.
+ * Title: Subnet
+ * Description: A utility class for managing IPv6 subnets.
+ * 
+ * TODO: Refactor to use java.net.InterfaceAddress?
+ * 
+ * @author A. Gregory Rabil
  */
 public class Subnet
 {
-	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(Subnet.class);
 

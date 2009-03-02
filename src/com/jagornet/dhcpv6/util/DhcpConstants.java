@@ -23,22 +23,44 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+/*
+ *   This file DhcpConstants.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.util;
 
 import java.net.*;
 
 /**
  * The Class DhcpConstants.
- * Defines standard DHCPv6 constants 
+ * Defines standard DHCPv6 constants
+ * 
+ * @author A. Gregory Rabil
  */
 public class DhcpConstants
 {
-	
 	/** The DHCPv6 home. */
 	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
 
     /** IPv4 Addresses. */
     public static InetAddress LOCALHOST = null;
+    
+    /** IPv6 Addresses. */
+    public static InetAddress LOCALHOST_V6 = null;
     
     /** The BROADCAST. */
     public static InetAddress BROADCAST = null;
@@ -83,7 +105,7 @@ public class DhcpConstants
 	public static final short DECLINE = 9;
 	
 	/** The Constant RECONIFURE. */
-	public static final short RECONIFURE = 10;
+	public static final short RECONFIGURE = 10;
 	
 	/** The Constant INFO_REQUEST. */
 	public static final short INFO_REQUEST = 11;
@@ -242,6 +264,7 @@ public class DhcpConstants
     static {
 		try {
             LOCALHOST = InetAddress.getByName("127.0.0.1");
+            LOCALHOST_V6 = InetAddress.getByName("::1");
             BROADCAST = InetAddress.getByName("255.255.255.255");
 			ALL_DHCP_RELAY_AGENTS_AND_SERVERS = InetAddress.getByName("FF02::1:2");
 			ALL_DHCP_SERVERS = InetAddress.getByName("FF05::1:3");

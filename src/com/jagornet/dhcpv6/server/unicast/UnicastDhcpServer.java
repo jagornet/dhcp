@@ -1,7 +1,35 @@
-package com.jagornet.dhcpv6.server.mina;
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file UnicastDhcpServer.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+package com.jagornet.dhcpv6.server.unicast;
 
 import java.lang.management.ManagementFactory;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -13,9 +41,6 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.jmx.HierarchyDynamicMBean;
-import org.apache.log4j.spi.LoggerRepository;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.IoServiceListener;
@@ -35,29 +60,69 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 
-public class MinaDhcpServer
+/**
+ * This is a Apache MINA based DHCPv6 server that uses
+ * DatagramChannels for receiving unicast messages.
+ * 
+ * Note: Java 7 should support MulticastChannels, and then
+ * this class can be refactored to support both unicast and
+ * multicast packets.
+ * 
+ * @author A. Gregory Rabil
+ */
+public class UnicastDhcpServer
 {
-	private static Logger log = LoggerFactory.getLogger(MinaDhcpServer.class);
+	/** The log. */
+	private static Logger log = LoggerFactory.getLogger(UnicastDhcpServer.class);
     
+    /** The acceptor. */
     protected NioDatagramAcceptor acceptor;
+    
+    /** The executor service. */
     protected ExecutorService executorService;
     
-    public MinaDhcpServer(String configFilename, int port) throws Exception
+    /**
+     * Instantiates a new unicast dhcp server.
+     * 
+     * @param configFilename the config filename
+     * @param port the port
+     * 
+     * @throws Exception the exception
+     */
+    public UnicastDhcpServer(String configFilename, int port) throws Exception
     {
         try {
             DhcpServerConfiguration.init(configFilename);
             
             acceptor = new NioDatagramAcceptor();
-            List<SocketAddress> localAddrs = new ArrayList<SocketAddress>();
-            localAddrs.add(new InetSocketAddress(port));
 // We can't yet support Multicast addresses with MINA, and if/when we do
 // this may not be the way to specify these addresses anyway
+//            List<SocketAddress> localAddrs = new ArrayList<SocketAddress>();
 //            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS,
 //                                                 port));
 //            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS,
-//                                                 port));
+//                                                 port));        
+//            acceptor.setDefaultLocalAddresses(localAddrs);
+            
+            Enumeration<NetworkInterface> localInterfaces =
+            	NetworkInterface.getNetworkInterfaces();
+            List<SocketAddress> localAddrs = new ArrayList<SocketAddress>();
+            while (localInterfaces.hasMoreElements()) {
+            	NetworkInterface netIf = localInterfaces.nextElement();
+//            	if (!netIf.isLoopback()) {
+	            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
+	            	while (ifAddrs.hasMoreElements()) {
+	            		InetAddress ip = ifAddrs.nextElement();
+	            		if (ip instanceof Inet6Address) {
+	            			// only bind to IPv6 interface addresses
+		            		SocketAddress sockAddr = new InetSocketAddress(ip, port);
+		            		localAddrs.add(sockAddr);
+	            		}
+//	            	}
+            	}
+            }
             acceptor.setDefaultLocalAddresses(localAddrs);
-            acceptor.setHandler(new MinaDhcpHandler());
+            acceptor.setHandler(new DhcpHandlerAdapter());
     
             registerJmx(acceptor);
             
@@ -88,9 +153,6 @@ public class MinaDhcpServer
             
             DatagramSessionConfig dcfg = acceptor.getSessionConfig();
             dcfg.setReuseAddress(true);
-
-            registerLog4jInJmx();
-
         }
         catch (Exception ex) {
             log.error("Failed to initialize server: " + ex, ex);
@@ -98,6 +160,11 @@ public class MinaDhcpServer
         }
     }
     
+    /**
+     * Start.
+     * 
+     * @throws Exception the exception
+     */
     public void start() throws Exception
     {        
         List<SocketAddress> defaultAddrs = acceptor.getDefaultLocalAddresses();
@@ -109,18 +176,26 @@ public class MinaDhcpServer
     
     // TODO: Support calling this shutdown method somehow
     //       see - http://java.sun.com/j2se/1.4.2/docs/guide/lang/hook-design.html
+    /**
+     * Shutdown.
+     */
     protected void shutdown()
     {
         acceptor.unbind();
         executorService.shutdown();        
     }
     
+    /**
+     * Register jmx.
+     * 
+     * @param service the service
+     */
     protected void registerJmx(IoService service)
     {
         try {
             IoServiceMBean serviceMBean = new IoServiceMBean(service);
             MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();  
-            ObjectName name = new ObjectName( "com.jagornet.dhcpv6:type=IOServiceMBean,name=MinaDhcpV6Server" );
+            ObjectName name = new ObjectName( "com.jagornet.dhcpv6:type=IOServiceMBean,name=UnicastDhcpServer" );
             mbs.registerMBean(serviceMBean, name);
             service.addListener( new IoServiceListener()
             {
@@ -165,37 +240,6 @@ public class MinaDhcpServer
         }
         catch (Exception ex) {
             log.error("Failure registering server in JMX: " + ex);
-        }
-    }
-    
-    protected void registerLog4jInJmx()
-    {
-        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();  
-        try {
-            // Create and Register the top level Log4J MBean
-            HierarchyDynamicMBean hdm = new HierarchyDynamicMBean();
-            ObjectName mbo = new ObjectName("log4j:hiearchy=default");
-            mbs.registerMBean(hdm, mbo);
-    
-            // Add the root logger to the Hierarchy MBean
-            org.apache.log4j.Logger rootLogger =
-            	org.apache.log4j.Logger.getRootLogger();
-            hdm.addLoggerMBean(rootLogger.getName());
-    
-            // Get each logger from the Log4J Repository and add it to
-            // the Hierarchy MBean created above.
-            LoggerRepository r = LogManager.getLoggerRepository();
-            Enumeration<Logger> loggers = r.getCurrentLoggers();
-            if (loggers != null) {
-                while (loggers.hasMoreElements()) {
-                	org.apache.log4j.Logger logger = 
-                		(org.apache.log4j.Logger) loggers.nextElement();
-                    hdm.addLoggerMBean(logger.getName());
-                }
-            }
-        }
-        catch (Exception ex) {
-            log.error("Failure registering Log4J in JMX: " + ex);
         }
     }
 }

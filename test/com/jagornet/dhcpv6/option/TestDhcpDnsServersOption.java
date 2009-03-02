@@ -9,12 +9,9 @@ import junit.framework.TestCase;
 import net.sf.dozer.util.mapping.DozerBeanMapper;
 import net.sf.dozer.util.mapping.MapperIF;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
-import com.jagornet.dhcpv6.xml.DnsServersOption;
 import com.jagornet.dhcpv6.dto.DnsServersOptionDTO;
-import com.jagornet.dhcpv6.option.DhcpDnsServersOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.DnsServersOption;
 
 public class TestDhcpDnsServersOption extends TestCase
 {
@@ -23,7 +20,7 @@ public class TestDhcpDnsServersOption extends TestCase
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
         dso.addServer("2001:db8::1");    // 16 bytes
         dso.addServer("2001:db8::2");    // 16 bytes
-        ByteBuffer bb = dso.encode().buf();
+        ByteBuffer bb = dso.encode();
         assertNotNull(bb);
         assertEquals(36, bb.capacity());    // +4 (code=2bytes, len=2bytes)
         assertEquals(36, bb.limit());
@@ -49,7 +46,7 @@ public class TestDhcpDnsServersOption extends TestCase
         bb.put(InetAddress.getByName("2001:db8::2").getAddress());
         bb.flip();
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
-        dso.decode(IoBuffer.wrap(bb));
+        dso.decode(bb);
         assertNotNull(dso.getDnsServersOption());
         assertEquals(2, dso.getServerIpAddresses().size());
         List<String> dnsServers = dso.getServerIpAddresses();
@@ -97,9 +94,9 @@ public class TestDhcpDnsServersOption extends TestCase
                                 mapper.map(dto, DnsServersOption.class);
         assertNotNull(dso);
         assertEquals(DhcpConstants.OPTION_DNS_SERVERS, dso.getCode());
-        assertNotNull(dso.getServerIpAddressesArray());
-        assertEquals(2, dso.getServerIpAddressesArray().length);
-        assertEquals("2001:db8::1", dso.getServerIpAddressesArray()[0]);
-        assertEquals("2001:db8::2", dso.getServerIpAddressesArray()[1]);
+        assertNotNull(dso.getServerIpAddressesList());
+        assertEquals(2, dso.getServerIpAddressesList().size());
+        assertEquals("2001:db8::1", dso.getServerIpAddressesList().get(0));
+        assertEquals("2001:db8::2", dso.getServerIpAddressesList().get(1));
     }
 }

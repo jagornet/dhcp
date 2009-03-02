@@ -1,9 +1,53 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file DhcpRelayMessage.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/*
+ *   This file DhcpRelayMessage.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.message;
 
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -14,12 +58,79 @@ import com.jagornet.dhcpv6.option.DhcpOption;
 import com.jagornet.dhcpv6.option.DhcpRelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
+// TODO: Auto-generated Javadoc
 /**
- * <p>Title: DhcpRelayMessage </p>
- * <p>Description: </p>
+ * Title: DhcpRelayMessage
+ * Description:Object that represents a DHCPv6 relay message as defined in
+ * RFC 3315.
+ * 
+ * There are two relay agent messages, which share the following format:
+ * 
+ * <pre>
+ * 0                   1                   2                   3
+ * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |    msg-type   |   hop-count   |                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+ * |                                                               |
+ * |                         link-address                          |
+ * |                                                               |
+ * |                               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
+ * |                               |                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+ * |                                                               |
+ * |                         peer-address                          |
+ * |                                                               |
+ * |                               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
+ * |                               |                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+ * .                                                               .
+ * .            options (variable number and length)   ....        .
+ * |                                                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * 
+ * The following sections describe the use of the Relay Agent message
+ * header.
+ * 
+ * 7.1. Relay-forward Message
+ * 
+ * The following table defines the use of message fields in a Relay-
+ * forward message.
+ * 
+ * msg-type       RELAY-FORW
+ * 
+ * hop-count      Number of relay agents that have relayed this
+ * message.
+ * 
+ * link-address   A global or site-local address that will be used by
+ * the server to identify the link on which the client
+ * is located.
+ * 
+ * peer-address   The address of the client or relay agent from which
+ * the message to be relayed was received.
+ * 
+ * options        MUST include a "Relay Message option" (see
+ * section 22.10); MAY include other options added by
+ * the relay agent.
+ * 
+ * 7.2. Relay-reply Message
+ * 
+ * The following table defines the use of message fields in a
+ * Relay-reply message.
+ * 
+ * msg-type       RELAY-REPL
+ * 
+ * hop-count      Copied from the Relay-forward message
+ * 
+ * link-address   Copied from the Relay-forward message
+ * 
+ * peer-address   Copied from the Relay-forward message
+ * 
+ * options        MUST include a "Relay Message option"; see
+ * section 22.10; MAY include other options
+ * </pre>
  * 
  * @author A. Gregory Rabil
- * @version $Revision: $
  */
 
 public class DhcpRelayMessage extends DhcpMessage
@@ -27,26 +138,45 @@ public class DhcpRelayMessage extends DhcpMessage
 	private static Logger log = LoggerFactory.getLogger(DhcpRelayMessage.class);
 
     // messageType is in DhcpMessage superclass
-    protected short hopCount = 0;	// need a short to hold unsigned byte
-    protected InetAddress linkAddress = null;
-    protected InetAddress peerAddress = null;
+	
+	/** The hop count.  Need a short to hold unsigned byte. */
+    protected short hopCount = 0;
     
-    // MUST have a relay option to be a relay message
-    // this object is here as a convenience, because
-    // it must ALSO be in the dhcpOptions Map that is
-    // in the DhcpMessage superclass
+    /** The link address.  A global or site-local address that will be used by
+     *  the server to identify the link on which the client is located. */
+    protected InetAddress linkAddress = null;
+    
+    /** The peer address.  The address of the client or relay agent from which
+     *  the message to be relayed was received. */
+	protected InetAddress peerAddress = null;
+    
+    /** The relay option.  MUST have a relay option to be a relay message.
+     * this object is here as a convenience, because
+     * it must ALSO be in the dhcpOptions Map that is
+     * in the DhcpMessage superclass */
     protected DhcpRelayOption relayOption = null;
     
-    public DhcpRelayMessage(InetAddress peerAddress)
+    /**
+     * Construct a DhcpRelayMessage.
+     * 
+     * @param localAddress InetSocketAddress on the local host on which
+     * this message is received or sent
+     * @param remoteAddress InetSocketAddress on the remote host on which
+     * this message is sent or received
+     */
+    public DhcpRelayMessage(InetSocketAddress localAddress, InetSocketAddress remoteAddress)
     {
-        super(peerAddress, DhcpConstants.SERVER_PORT);
+        super(localAddress, remoteAddress);
     }
 
+    /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.message.DhcpMessage#encode()
+     */
     @Override
-    public IoBuffer encode() throws IOException
+    public ByteBuffer encode() throws IOException
     {
         if (log.isDebugEnabled())
-            log.debug("Encoding DhcpRelayMessage for: " + socketAddress);
+            log.debug("Encoding DhcpRelayMessage for: " + remoteAddress);
         
         long s = System.currentTimeMillis();
         
@@ -62,29 +192,23 @@ public class DhcpRelayMessage extends DhcpMessage
             log.debug("DhcpRelayMessage encoded in " +
                     String.valueOf(System.currentTimeMillis()-s) + " ms.");
         
-        return iobuf;
-    }
-    
-    public static DhcpRelayMessage decode(InetSocketAddress srcInetSocketAddress,
-                                          IoBuffer iobuf)
-            throws IOException
-    {
-        DhcpRelayMessage relayMessage = 
-            new DhcpRelayMessage(srcInetSocketAddress.getAddress());
-        relayMessage.decode(iobuf);
-        return relayMessage;
+        return iobuf.buf();
     }
 
+    /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.message.DhcpMessage#decode(java.nio.ByteBuffer)
+     */
     @Override
-    public void decode(IoBuffer iobuf) throws IOException
+    public void decode(ByteBuffer buf) throws IOException
     {
         if (log.isDebugEnabled())
-            log.debug("Decoding DhcpRelayMessage from: " + socketAddress);
+            log.debug("Decoding DhcpRelayMessage from: " + remoteAddress);
 
         long s = System.currentTimeMillis();
 
-        if ((iobuf != null) && iobuf.hasRemaining()) {
-            decodeMessageType(iobuf);
+        if ((buf != null) && buf.hasRemaining()) {
+        	IoBuffer iobuf = IoBuffer.wrap(buf);
+            decodeMessageType(iobuf.buf());
             setHopCount(iobuf.getUnsigned());
             if (log.isDebugEnabled())
                 log.debug("HopCount=" + getHopCount());
@@ -102,7 +226,7 @@ public class DhcpRelayMessage extends DhcpMessage
                         log.debug("PeerAddress: " + peerAddr);
                     
                     if (iobuf.hasRemaining()) {
-                        Map<Integer,DhcpOption> options = decodeOptions(iobuf);
+                        Map<Integer,DhcpOption> options = decodeOptions(iobuf.buf());
                         if ( (options != null) &&
                              options.containsKey(DhcpConstants.OPTION_RELAY_MSG)) {
                             setDhcpOptions(options);
@@ -145,6 +269,15 @@ public class DhcpRelayMessage extends DhcpMessage
         }
     }
     
+    /**
+     * Decode inet6 address.
+     * 
+     * @param iobuf the iobuf
+     * 
+     * @return the inet address
+     * 
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     protected InetAddress decodeInet6Address(IoBuffer iobuf) throws IOException
     {
         if (iobuf.remaining() >= 16) {
@@ -160,6 +293,9 @@ public class DhcpRelayMessage extends DhcpMessage
         }
     }
     
+    /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.message.DhcpMessage#getLength()
+     */
     @Override
     public int getLength()
     {
@@ -169,42 +305,83 @@ public class DhcpRelayMessage extends DhcpMessage
         return len;
     }
     
+    /**
+     * Gets the hop count.
+     * 
+     * @return the hop count
+     */
     public short getHopCount()
     {
         return hopCount;
     }
+    
+    /**
+     * Sets the hop count.
+     * 
+     * @param hopCount the new hop count
+     */
     public void setHopCount(short hopCount)
     {
         this.hopCount = hopCount;
     }
+    
+    /**
+     * Gets the link address.
+     * 
+     * @return the link address
+     */
     public InetAddress getLinkAddress()
     {
         return linkAddress;
     }
+    
+    /**
+     * Sets the link address.
+     * 
+     * @param linkAddress the new link address
+     */
     public void setLinkAddress(InetAddress linkAddress)
     {
         this.linkAddress = linkAddress;
     }
+    
+    /**
+     * Gets the peer address.
+     * 
+     * @return the peer address
+     */
     public InetAddress getPeerAddress()
     {
-        return peerAddress;
-    }
-    public void setPeerAddress(InetAddress peerAddress)
-    {
-        this.peerAddress = peerAddress;
-    }
-    public DhcpRelayOption getRelayOption()
+		return peerAddress;
+	}
+	
+	/**
+	 * Sets the peer address.
+	 * 
+	 * @param peerAddress the new peer address
+	 */
+	public void setPeerAddress(InetAddress peerAddress)
+	{
+		this.peerAddress = peerAddress;
+	}
+	
+	/**
+	 * Gets the relay option.
+	 * 
+	 * @return the relay option
+	 */
+	public DhcpRelayOption getRelayOption()
     {
         return relayOption;
     }
+    
+    /**
+     * Sets the relay option.
+     * 
+     * @param relayOption the new relay option
+     */
     public void setRelayOption(DhcpRelayOption relayOption)
     {
         this.relayOption = relayOption;
-    }
-    
-    @Override
-    public InetAddress getHost()
-    {
-        return peerAddress;
     }
 }

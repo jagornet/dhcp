@@ -1,183 +1,182 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file MulticastDhcpServer.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.server.multicast;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
-import java.net.UnknownHostException;
+import java.net.NetworkInterface;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
-import com.jagornet.dhcpv6.server.mina.DhcpDecoderAdapter;
-import com.jagornet.dhcpv6.server.mina.MinaDhcpHandler;
-import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.option.DhcpOption;
 
 /**
- * Title:        DHCPServer
- * Copyright:    Copyright (c) 2003
- * Company:      AGR Consulting
+ * This is a simple, multi-threaded DHCPv6 server that uses
+ * MulticastSockets for receiving packets.
+ * 
+ * Note: Java 7 should support MulticastChannels, and then
+ * this class can be deprecated in favor of the MINA based
+ * multithreaded implementation.
+ * 
  * @author A. Gregory Rabil
- * @version 1.0
  */
-
-/**
- * This is a simple, single-threaded DHCPv6 server that uses
- * MulticastSocket because MulticastChannels are not yet
- * available in Java :-(
- */
-public class MulticastDhcpServer
+public class MulticastDhcpServer implements Runnable
 {
+	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(MulticastDhcpServer.class);
 
-    protected MulticastSocket dhcpSocket;
+	/** the map of DhcpServerSockets keyed by InetSocketAddress so
+	 that it can be located by the DhcpHandlerThread thread */
+	private static Map<InetSocketAddress, DhcpServerSocket> dhcpSocketMap =
+    	new HashMap<InetSocketAddress, DhcpServerSocket>();
 
-    public MulticastDhcpServer(String configFilename, int port) throws Exception
+    // TODO: a configurable queue size is needed at least,
+    //		 and may want more than one queue?
+    /** The queue size. */
+    private static int QUEUE_SIZE = 10000; 
+    
+    /** The work queue. */
+    private static BlockingQueue<DhcpMessage> workQueue =
+    	new LinkedBlockingQueue<DhcpMessage>(QUEUE_SIZE);
+    
+    // would more than one queue need more processors?
+    /** The work processor. */
+    private WorkProcessor workProcessor;
+    
+    /** The processor thread. */
+    private Thread processorThread;
+
+    /**
+     * Instantiates a new multicast dhcp server.
+     * 
+     * @param netIfs the list of multicast interfaces to listen
+     * for DHCP client requests on
+     * @param port the server port to listen on
+     * 
+     * @throws Exception the exception
+     */
+    public MulticastDhcpServer(List<NetworkInterface> netIfs, int port) throws Exception
     {
     	try {
-	        DhcpServerConfiguration.init(configFilename);
-	
-	        log.debug("Configuring java.net.MulticastSocket on port: " + port);
-	        dhcpSocket = new MulticastSocket(port);
-	        log.debug("Joining All_DHCP_Relay_Agents_and_Servers multicast group: " + 
-	        		  DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS);
-	        dhcpSocket.joinGroup(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS);
-	        log.debug("Joining All_DHCP_Servers multicast group: " + 
-	        		  DhcpConstants.ALL_DHCP_SERVERS);
-	        dhcpSocket.joinGroup(DhcpConstants.ALL_DHCP_SERVERS);
-        }
+    		for (NetworkInterface netIf : netIfs) {
+				DhcpServerSocket dhcpSocket = new DhcpServerSocket(netIf, port);
+				dhcpSocketMap.put(dhcpSocket.getLocalAddress(), dhcpSocket);
+			}
+	        workProcessor = new WorkProcessor(workQueue);
+	        processorThread = new Thread(workProcessor, "work.processor");
+	        processorThread.start();
+    	}
         catch (Exception ex) {
             log.error("Failed to initialize server: " + ex, ex);
             throw ex;
         }
     }
 
+    /**
+     * Start the multicast server.
+     */
     public void start()
     {
     	run();
     }
-    
+
     /**
-     * Loop forever, processing incoming packets from the DHCPv6 server UDP
-     * socket.
+     * Launch a new thread for each configured DhcpServerSocket
      */
     public void run()
     {
-        while (true) {
-        	try {
-	        	DhcpMessage inMessage = receiveMessage();
-	            if (inMessage != null) {
-	                if (log.isDebugEnabled())
-	                    log.debug("Decoded message: " + 
-	                              (inMessage != null ? 
-	                              inMessage.toStringWithOptions() : "null"));
-	            	MinaDhcpHandler handler = new MinaDhcpHandler();
-	            	DhcpMessage outMessage = 
-	            		handler.handleMessage(getLocalAddress(), inMessage);
-	                if (outMessage != null) {
-	                    sendMessage(outMessage);
-	                }
-	                else {
-	                    log.warn("Handler returned null reply message");
-	                }
-	            }
-	            else {
-	            	log.warn("No message received");
-	            }
-        	}
-        	catch (Exception ex) {
-        		log.error("Exception caught", ex);
-        	}
-        }
-    }
-
-	InetAddress localAddr = null;
-    private InetAddress getLocalAddress()
-    {
-    	if (localAddr == null) {
-	    	try {
-	    		localAddr = Inet6Address.getLocalHost();
-	    	}
-	    	catch (UnknownHostException ex) {
-	    		log.error("Failed to get local IPv6 address: " + ex);
+    	if (dhcpSocketMap != null) {
+    		Collection<DhcpServerSocket> dhcpSockets = dhcpSocketMap.values();
+	    	if (dhcpSockets != null) {
+	    		for (DhcpServerSocket dhcpSock : dhcpSockets) {
+	    			Thread mcastThread = 
+	    				new Thread(dhcpSock, "mcast.socket." + 
+	    						   dhcpSock.getNetworkInterface().getDisplayName());
+	    			mcastThread.start();
+				}
 	    	}
     	}
-    	return localAddr;
     }
 
     /**
-     * Receive a DhcpMessage.
-     * Wait for a packet and then try to decode it.
+     * Gets the DhcpServerSocket for the the given socket address.
      * 
-     * @return a decoded DhcpMessage, or null if an error occurred
+     * @param sockAddr the InetSocketAddress key for the map of DhcpServerSockets
+     * 
+     * @return the DhcpServerSocket or null if not found
      */
-    public DhcpMessage receiveMessage()
+    public static DhcpServerSocket getDhcpServerSocket(InetSocketAddress sockAddr)
     {
-        DhcpDecoderAdapter decoder = new DhcpDecoderAdapter();
-
-        byte[] buf = new byte[1024];
-        DatagramPacket packet = new DatagramPacket(buf, 1024);
-
-        log.info("Waiting for datagram packet...");
-        try {
-	        dhcpSocket.receive(packet);
-	        if (packet != null) {
-	            InetSocketAddress srcInetSocketAddress =
-	                (InetSocketAddress)packet.getSocketAddress();
-	            // in theory, receive should never return null
-	            // but better safe than NPE!
-	            if (srcInetSocketAddress != null) {
-	                log.info("Received datagram from: " + srcInetSocketAddress);
-	                IoBuffer iobuf = IoBuffer.wrap(packet.getData());
-	                try {
-	                	return decoder.decode(iobuf, srcInetSocketAddress);
-	                }
-	                catch (ProtocolDecoderException ex) {
-	                	log.error("Failed to decode message: " + ex);
-	                }
-	            }
-	            else {
-	                log.error("Null source address for packet");
-	            }
-	        }
-	        else {
-	            log.error("Null packet received");
-	        }
-        }
-        catch (IOException ex) {
-        	log.error("Failure receiving message: " + ex);
-        }
-        return null;
+    	return dhcpSocketMap.get(sockAddr);
     }
     
     /**
-     * Sends a DhcpMessage object to a predefined host.
-     * @param outMessage well-formed DhcpMessage to be sent to a host
+     * Queue a DhcpMessage to be processed by the WorkProcessor.
+     * 
+     * @param msg the DhcpMessage to put on the work queue.
      */
-    public void sendMessage(DhcpMessage outMessage)
+    public static void queueMessage(DhcpMessage msg)
     {
-    	try {
-			if (outMessage != null) {
-			    if (log.isDebugEnabled())
-			        log.debug("Sending message: " + outMessage.toStringWithOptions());
-			    IoBuffer iobuf = outMessage.encode();
-			    DatagramPacket dp = new DatagramPacket(iobuf.buf().array(), iobuf.buf().limit());
-			    dp.setSocketAddress(outMessage.getSocketAddress());
-			    dhcpSocket.send(dp);
-			    log.info("Sent datagram to: " + dp.getSocketAddress());
-			}
-			else {
-				log.error("Attempted to send null message");
-			}
-		}
-    	catch (IOException ex) {
-			log.error("Failure sending message: " + ex);
-		}
+        if (log.isInfoEnabled()) {
+            StringBuffer sb = new StringBuffer("Received DHCP ");
+            sb.append(msg.toString());
+            log.info(sb.toString());
+            debugOptions(msg);
+        }
+        log.info("Queueing message...");
+        if (workQueue.offer(msg)) {
+            log.info("Message queued");
+        }
+        else {
+            log.error("Failed to queue message: full queue");
+        }
+    }
+
+    /**
+     * Print out the options contained in a DHCPMessage to the
+     * logger.
+     * 
+     * @param msg the DhcpMessage to print to the log
+     */
+    public static void debugOptions(DhcpMessage msg)
+    {
+        if (log.isDebugEnabled()) {
+            Collection<DhcpOption> options = msg.getOptions();
+            if (options != null) {
+                for (DhcpOption option : options) {
+                    log.debug(option.toString());
+                }
+            }
+        }
     }
 }

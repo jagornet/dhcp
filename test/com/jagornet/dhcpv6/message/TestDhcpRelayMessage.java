@@ -6,15 +6,13 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
-import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.message.DhcpRelayMessage;
 import com.jagornet.dhcpv6.option.DhcpRelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 public class TestDhcpRelayMessage extends TestCase
 {
+	public static InetSocketAddress LOCALHOST_ADDR =
+		new InetSocketAddress("::1", DhcpConstants.SERVER_PORT);
     // the relay closest to the client
     public static InetSocketAddress RELAY1_CLIENTSIDE_ADDR =
         new InetSocketAddress("2001:DB8::1", DhcpConstants.SERVER_PORT);
@@ -28,7 +26,7 @@ public class TestDhcpRelayMessage extends TestCase
     
     public static DhcpRelayMessage buildMockDhcpRelayMessage() throws Exception
     {
-        DhcpRelayMessage relayMessage = new DhcpRelayMessage(RELAY1_ADDR.getAddress());
+        DhcpRelayMessage relayMessage = new DhcpRelayMessage(LOCALHOST_ADDR, RELAY1_ADDR);
         relayMessage.setMessageType(DhcpConstants.RELAY_REPL);
         relayMessage.setHopCount((byte)0);
         relayMessage.setLinkAddress(RELAY1_CLIENTSIDE_ADDR.getAddress());
@@ -38,8 +36,7 @@ public class TestDhcpRelayMessage extends TestCase
         DhcpMessage dhcpMessage = TestDhcpMessage.buildMockDhcpMessage();
         // create relay message option - logically the encapsulated message
         // comes from the client, i.e. peer address, so use that as the source
-        DhcpRelayOption relayOption = 
-            new DhcpRelayOption(TestDhcpMessage.CLIENT_ADDR.getAddress());
+        DhcpRelayOption relayOption = new DhcpRelayOption();
         // the client's request is contained within the relay option
         relayOption.setRelayMessage(dhcpMessage);
         // add the relay message option to the relay message
@@ -73,7 +70,7 @@ public class TestDhcpRelayMessage extends TestCase
     {
         DhcpRelayMessage relayMessage = buildMockDhcpRelayMessage();
 
-        ByteBuffer bb  = relayMessage.encode().buf();
+        ByteBuffer bb  = relayMessage.encode();
         assertNotNull(bb);
         // length = 34(relay message header) + 2 (relay option code)
         //          2 (relay option length) + 70 (relay message option)
@@ -88,7 +85,7 @@ public class TestDhcpRelayMessage extends TestCase
     {
         DhcpRelayMessage relayMessage = buildMockDhcpRelayMessage();        
         // simulate another relay - logically, we receive it from the RELAY2_ADDR
-        DhcpRelayMessage relayMessage2 = new DhcpRelayMessage(RELAY2_ADDR.getAddress());
+        DhcpRelayMessage relayMessage2 = new DhcpRelayMessage(LOCALHOST_ADDR, RELAY2_ADDR);
         relayMessage2.setMessageType(DhcpConstants.RELAY_REPL);
         relayMessage2.setHopCount((byte)1);
         // the link address could be zero(0), but logically, it is the address
@@ -100,12 +97,12 @@ public class TestDhcpRelayMessage extends TestCase
         // put the first relay message in this relay message's relay message option
         // logically, the encapsulated relay message comes from relay 1, so
         // use that as the source address of the message in the relay option
-        DhcpRelayOption relayOption2 = new DhcpRelayOption(RELAY1_ADDR.getAddress());
+        DhcpRelayOption relayOption2 = new DhcpRelayOption();
         relayOption2.setRelayMessage(relayMessage);
         
         relayMessage2.setOption(relayOption2);
         
-        ByteBuffer bb = relayMessage2.encode().buf();
+        ByteBuffer bb = relayMessage2.encode();
         assertNotNull(bb);
         // length = 2 x (34(relay message header) + 2 (relay option code)
         //          2 (relay option length)) + 70 (relay message option)
@@ -147,7 +144,7 @@ public class TestDhcpRelayMessage extends TestCase
     
     public static void checkMockRelayFoward(DhcpRelayMessage relayMessage) throws Exception
     {
-        assertEquals(RELAY1_ADDR, relayMessage.getSocketAddress());
+        assertEquals(RELAY1_ADDR.getAddress(), relayMessage.remoteAddress.getAddress());
         assertEquals(0, relayMessage.getHopCount());
         assertEquals(RELAY1_CLIENTSIDE_ADDR.getAddress(), 
                      relayMessage.getLinkAddress());
@@ -162,7 +159,8 @@ public class TestDhcpRelayMessage extends TestCase
     {
         ByteBuffer bb = buildMockRelayFoward();
         int len = bb.limit();
-        DhcpRelayMessage relayMessage = DhcpRelayMessage.decode(RELAY1_ADDR, IoBuffer.wrap(bb));
+        DhcpRelayMessage relayMessage = (DhcpRelayMessage)
+        	DhcpRelayMessage.decode(bb, LOCALHOST_ADDR, RELAY1_ADDR);
         assertNotNull(relayMessage);
         assertEquals(len, relayMessage.getLength());
         checkMockRelayFoward(relayMessage);
@@ -182,7 +180,8 @@ public class TestDhcpRelayMessage extends TestCase
         bb.flip();
 
         int len = bb.limit();
-        DhcpRelayMessage relayMessage = DhcpRelayMessage.decode(RELAY2_ADDR, IoBuffer.wrap(bb));
+        DhcpRelayMessage relayMessage = (DhcpRelayMessage)
+        	DhcpRelayMessage.decode(bb, LOCALHOST_ADDR, RELAY2_ADDR);
         assertNotNull(relayMessage);
         assertEquals(len, relayMessage.getLength());
         assertEquals(1, relayMessage.getHopCount());

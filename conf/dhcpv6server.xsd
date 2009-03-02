@@ -96,23 +96,24 @@
 	<xs:complexType name="interface">
 		<xs:annotation>
 			<xs:documentation>
-				An interface is used to define configuration parameters for messages received
-				on a local interface.  The name or number element identifies the interface
-				of the local machine.  A name of '*' or a number of '0' can be used to
-				indicate all interfaces. 
+				An interface is used to select a specific network interface on the
+				DHCPv6 server host to listen for DHCPv6 request messages on.  If no
+				interfaces are specified, then the server should listen on all network
+				interfaces which are configured with at least one global IPv6 address.
+				
+				Note: It is tempting to support policies, options, filters, and even
+					  links within an interface.  But a link is a link, regardless of
+					  which interface(s) the request is received on.  It would seem
+					  a stretch to need to configure different parameters for clients
+					  on the same link based upon which interface the request was
+					  received.  In fact, this could/would cause the server to send
+					  inconsistent replies, which may only confuse the client.
 			</xs:documentation>
 		</xs:annotation>
-		<xs:sequence>
+		<xs:choice>
 			<xs:element name="name" type="name"/>
 			<xs:element name="number" type="xs:unsignedShort"/>
-			<xs:element name="policies" type="policy" minOccurs="0" maxOccurs="unbounded"/>
-			<!-- allow serverIdOption override at the interface level? -->
-			<xs:element name="serverIdOption" type="serverIdOption" minOccurs="0"/>
-			<xs:element name="standardOptions" type="standardOptions"/>
-			<xs:element name="otherOptions" type="option" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="filters" type="filter" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="pools" type="pool" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	
 	<xs:complexType name="pool">
