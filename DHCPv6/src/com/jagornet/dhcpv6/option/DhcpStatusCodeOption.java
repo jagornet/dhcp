@@ -1,31 +1,64 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file DhcpStatusCodeOption.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.option;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.StatusCodeOption;
-import com.jagornet.dhcpv6.util.Util;
 
 /**
  * <p>Title: DhcpStatusCodeOption </p>
- * <p>Description: </p>
+ * <p>Description: </p>.
  * 
  * @author A. Gregory Rabil
- * @version $Revision: $
  */
-
 public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparableOption
 {
+    /** The status code option. */
     private StatusCodeOption statusCodeOption;
     
+    /**
+     * Instantiates a new dhcp status code option.
+     */
     public DhcpStatusCodeOption()
     {
-        super();
-        statusCodeOption = StatusCodeOption.Factory.newInstance();
+        this(null);
     }
+    
+    /**
+     * Instantiates a new dhcp status code option.
+     * 
+     * @param statusCodeOption the status code option
+     */
     public DhcpStatusCodeOption(StatusCodeOption statusCodeOption)
     {
         super();
@@ -35,24 +68,40 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
             this.statusCodeOption = StatusCodeOption.Factory.newInstance();
     }
 
+    /**
+     * Gets the status code option.
+     * 
+     * @return the status code option
+     */
     public StatusCodeOption getStatusCodeOption()
     {
         return statusCodeOption;
     }
 
+    /**
+     * Sets the status code option.
+     * 
+     * @param statusCodeOption the new status code option
+     */
     public void setStatusCodeOption(StatusCodeOption statusCodeOption)
     {
         if (statusCodeOption != null)
             this.statusCodeOption = statusCodeOption;
     }
 
+    /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
+     */
     public int getLength()
     {
         String msg = statusCodeOption.getMessage();
         return (2 + (msg!=null ? msg.length() : 0));
     }
 
-    public IoBuffer encode() throws IOException
+    /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.option.Encodable#encode()
+     */
+    public ByteBuffer encode() throws IOException
     {
         IoBuffer iobuf = super.encodeCodeAndLength();
         iobuf.putShort((short)statusCodeOption.getStatusCode());
@@ -60,11 +109,15 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
         if (msg != null) {
         	iobuf.put(msg.getBytes());
         }
-        return iobuf.flip();
+        return iobuf.flip().buf();
     }
 
-    public void decode(IoBuffer iobuf) throws IOException
+    /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
+     */
+    public void decode(ByteBuffer buf) throws IOException
     {
+    	IoBuffer iobuf = IoBuffer.wrap(buf);
     	int len = super.decodeLength(iobuf);
     	if ((len > 0) && (len <= iobuf.remaining())) {
             statusCodeOption.setStatusCode(iobuf.getUnsignedShort());
@@ -78,7 +131,11 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
     }
 
     /**
-     * Matches only the status code, not the message text
+     * Matches only the status code, not the message text.
+     * 
+     * @param expression the expression
+     * 
+     * @return true, if matches
      */
     public boolean matches(OptionExpression expression)
     {
@@ -113,11 +170,17 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
+     */
     public int getCode()
     {
         return statusCodeOption.getCode();
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     public String toString()
     {
         StringBuilder sb = new StringBuilder(super.getName());

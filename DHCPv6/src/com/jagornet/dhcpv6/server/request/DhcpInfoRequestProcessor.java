@@ -1,8 +1,31 @@
-package com.jagornet.dhcpv6.message;
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file DhcpInfoRequestProcessor.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+package com.jagornet.dhcpv6.server.request;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +33,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.option.DhcpDnsServersOption;
@@ -54,32 +78,38 @@ import com.jagornet.dhcpv6.xml.VendorInfoOption;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
 /**
- * Title:        DhcpInfoRequestProcessor
- * Description:  The main class for processing INFO_REQUEST messages.
+ * Title: DhcpInfoRequestProcessor
+ * Description: The main class for processing INFO_REQUEST messages.
  * 
- * Copyright:    Copyright (c) 2003
- * Company:      AGR Consulting
  * @author A. Gregory Rabil
- * @version 1.0
  */
 
 public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
 {
+	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpInfoRequestProcessor.class);
 
+    /** The dhcp server config. */
     protected static DhcpV6ServerConfig dhcpServerConfig = 
                                         DhcpServerConfiguration.getConfig();
 
+    /** The client link address. */
     protected final InetAddress clientLink;
+    
+    /** The request message. */
     protected final DhcpMessage requestMsg;
+    
+    /** The reply message. */
     protected DhcpMessage replyMsg;
+    
+    /** The requested option codes. */
     protected List<Integer> requestedOptionCodes;
     
     /**
-     * Construct an DhcpInfoRequest processor
-     *
-     * @param   clientLink  the interface address for the client link
-     * @param   reqMsg  must be an INFO_REQUEST type DhcpMessage
+     * Construct an DhcpInfoRequest processor.
+     * 
+     * @param clientLink the client link address
+     * @param reqMsg the Info-Request message
      */
     public DhcpInfoRequestProcessor(InetAddress clientLink, DhcpMessage reqMsg)
     {
@@ -90,17 +120,10 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         	DhcpOptionRequestOption oro = 
         		(DhcpOptionRequestOption) optionMap.get(DhcpConstants.OPTION_ORO);
         	if (oro != null) {
-        		int[] opCodeArray = oro.getOptionRequestOption().getRequestedOptionCodesArray();
-        		if ( (opCodeArray != null) && (opCodeArray.length > 0)) {
-        			requestedOptionCodes = new ArrayList<Integer>();
-        			for (int opCode : opCodeArray) {
-						requestedOptionCodes.add(opCode);
-					}
-        		}
+        		requestedOptionCodes = oro.getOptionRequestOption().getRequestedOptionCodesList();
         	}
         }
         else {
-        	// TODO throw exception?
         	log.error("No options found in Info-RequestMessage!");
         }    	
     }
@@ -110,25 +133,27 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
      * criteria in the request message that can be matched against the server's
      * configuration, then formulate a response message containing the options
      * to be sent to the client.
+     * 
+     * @return a Reply DhcpMessage
      */
     public DhcpMessage process()
     {
-/**
+/*
  * FROM RFC 3315:
  * 
  * 15.12. Information-request Message
-
-   Clients MUST discard any received Information-request messages.
-
-   Servers MUST discard any received Information-request message that
-   meets any of the following conditions:
-
-   -  The message includes a Server Identifier option and the DUID in
-      the option does not match the server's DUID.
-
-   -  The message includes an IA option.
+ *
+ *  Clients MUST discard any received Information-request messages.
+ *
+ *  Servers MUST discard any received Information-request message that
+ *  meets any of the following conditions:
+ *
+ *  -  The message includes a Server Identifier option and the DUID in
+ *     the option does not match the server's DUID.
+ *
+ *  -  The message includes an IA option.
+ *  
  */     
-        
         log.info("Processing: " + requestMsg.toString());
 
         ServerIdOption serverIdOption = dhcpServerConfig.getServerIdOption();
@@ -180,8 +205,8 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
             return null;
         }
         
-        // build a message destined to the host:port which sent the request
-        replyMsg = new DhcpMessage(requestMsg.getHost(), requestMsg.getPort());
+        // build a reply message using the local and remote sockets from the request
+        replyMsg = new DhcpMessage(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
         // copy the transaction ID into the reply
         replyMsg.setTransactionId(requestMsg.getTransactionId());
         // this is a reply message
@@ -202,7 +227,7 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         setGlobalOptions();
         
         // process global filter groups
-        processFilters(Arrays.asList(dhcpServerConfig.getFiltersArray()));
+        processFilters(dhcpServerConfig.getFiltersList());
         
         // handle configuration for the client's link
         Link link = DhcpServerConfiguration.findLinkForAddress(clientLink);
@@ -216,11 +241,19 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         return replyMsg;
     }
 
+    /**
+     * Sets configured global options in the reply.
+     */
     private void setGlobalOptions()
     {
     	setStandardOptions(dhcpServerConfig.getStandardOptions());
     }
 
+    /**
+     * Sets the standard options in the reply.
+     * 
+     * @param standardOptions the new standard options
+     */
     private void setStandardOptions(StandardOptions standardOptions)
     {
     	if (standardOptions != null) {
@@ -242,6 +275,15 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
     	}
     }
     
+    /**
+     * Check if the client requested a particular option in the OptionRequestOption.
+     * If no OptionRequestOption was supplied by the client, then assume that it
+     * wants any option.
+     * 
+     * @param optionCode the option code to check if the client requested
+     * 
+     * @return true, if successful
+     */
     private boolean clientWantsOption(int optionCode)
     {
     	if (requestedOptionCodes != null)
@@ -252,6 +294,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
     	return true;
     }
     
+    /**
+     * Sets the preference option.
+     * 
+     * @param preferenceOption the new preference option
+     */
     private void setPreferenceOption(PreferenceOption preferenceOption)
     {
         if (preferenceOption != null) {
@@ -260,6 +307,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }    
     
+    /**
+     * Sets the status code option.
+     * 
+     * @param statusCodeOption the new status code option
+     */
     private void setStatusCodeOption(StatusCodeOption statusCodeOption)
     {
         if (statusCodeOption != null) {
@@ -268,6 +320,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }    
 
+    /**
+     * Sets the vendor info option.
+     * 
+     * @param vendorInfoOption the new vendor info option
+     */
     private void setVendorInfoOption(VendorInfoOption vendorInfoOption)
     {
         if (vendorInfoOption != null) {
@@ -276,6 +333,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
     
+    /**
+     * Sets the dns servers option.
+     * 
+     * @param dnsServersOption the new dns servers option
+     */
     private void setDnsServersOption(DnsServersOption dnsServersOption)
     {
         if (dnsServersOption != null) {
@@ -284,6 +346,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
 
+    /**
+     * Sets the domain search list option.
+     * 
+     * @param domainSearchListOption the new domain search list option
+     */
     private void setDomainSearchListOption(DomainSearchListOption domainSearchListOption)
     {
         if (domainSearchListOption != null) {
@@ -292,6 +359,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
     
+    /**
+     * Sets the sip server addresses option.
+     * 
+     * @param sipServerAddressesOption the new sip server addresses option
+     */
     private void setSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
     {
         if (sipServerAddressesOption != null) {
@@ -300,6 +372,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
 
+    /**
+     * Sets the sip server domain names option.
+     * 
+     * @param sipServerDomainNamesOption the new sip server domain names option
+     */
     private void setSipServerDomainNamesOption(SipServerDomainNamesOption sipServerDomainNamesOption)
     {
         if (sipServerDomainNamesOption != null) {
@@ -308,6 +385,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
 
+    /**
+     * Sets the nis servers option.
+     * 
+     * @param nisServersOption the new nis servers option
+     */
     private void setNisServersOption(NisServersOption nisServersOption)
     {
         if (nisServersOption != null) {
@@ -316,6 +398,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
 
+    /**
+     * Sets the nis domain name option.
+     * 
+     * @param nisDomainNameOption the new nis domain name option
+     */
     private void setNisDomainNameOption(NisDomainNameOption nisDomainNameOption)
     {
         if (nisDomainNameOption != null) {
@@ -324,6 +411,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
 
+    /**
+     * Sets the nis plus servers option.
+     * 
+     * @param nisPlusServersOption the new nis plus servers option
+     */
     private void setNisPlusServersOption(NisPlusServersOption nisPlusServersOption)
     {
         if (nisPlusServersOption != null) {
@@ -332,6 +424,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
 
+    /**
+     * Sets the nis plus domain name option.
+     * 
+     * @param nisPlusDomainNameOption the new nis plus domain name option
+     */
     private void setNisPlusDomainNameOption(NisPlusDomainNameOption nisPlusDomainNameOption)
     {
         if (nisPlusDomainNameOption != null) {
@@ -340,6 +437,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
 
+    /**
+     * Sets the sntp servers option.
+     * 
+     * @param sntpServersOption the new sntp servers option
+     */
     private void setSntpServersOption(SntpServersOption sntpServersOption)
     {
         if (sntpServersOption != null) {
@@ -348,6 +450,11 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
 
+    /**
+     * Sets the info refresh time option.
+     * 
+     * @param infoRefreshTimeOption the new info refresh time option
+     */
     private void setInfoRefreshTimeOption(InfoRefreshTimeOption infoRefreshTimeOption)
     {
         if (infoRefreshTimeOption != null) {
@@ -356,11 +463,18 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
     }
     
+    /**
+     * Process filters.  Test all filter expressions to see that they
+     * match the request, and then apply any options configured for the
+     * filter.
+     * 
+     * @param filters the filters
+     */
     private void processFilters(List<Filter> filters)
     {
         if (filters != null) {
             for (Filter filter : filters) {
-                List<FilterExpression> expressions = Arrays.asList(filter.getFilterExpressionsArray());
+                List<FilterExpression> expressions = filter.getFilterExpressionsList();
                 if (expressions != null) {
                     boolean matches = true;     // assume match
                     for (FilterExpression expression : expressions) {
@@ -395,6 +509,14 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }        
     }
     
+    /**
+     * Evaluate expression.  Determine if an option matches based on an expression.
+     * 
+     * @param expression the option expression
+     * @param option the option to compare
+     * 
+     * @return true, if successful
+     */
     private boolean evaluateExpression(OptionExpression expression, DhcpOption option)
     {
         boolean matches = false;
@@ -408,22 +530,35 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         return matches;
     }
     
+    /**
+     * Sets the filter options.
+     * 
+     * @param filter the new filter options
+     */
     private void setFilterOptions(Filter filter)
     {
     	setStandardOptions(filter.getStandardOptions());
     }
     
+    /**
+     * Process link.  Set any options configured for the link,
+     * and then process any filters defined for the link.
+     * 
+     * @param link the link
+     */
     private void processLink(Link link)
     {
         if (link != null) {
             setLinkOptions(link);
-            if (link.getFiltersArray() != null) {
-            	List<Filter> filters = Arrays.asList(link.getFiltersArray());
-                processFilters(filters);
-            }
+            processFilters(link.getFiltersList());
         }
     }
     
+    /**
+     * Sets the link options.
+     * 
+     * @param link the new link options
+     */
     private void setLinkOptions(Link link)
     {
     	setStandardOptions(link.getStandardOptions());

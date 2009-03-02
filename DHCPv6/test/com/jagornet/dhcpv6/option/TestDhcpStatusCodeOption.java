@@ -4,9 +4,6 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
-import com.jagornet.dhcpv6.option.DhcpStatusCodeOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 public class TestDhcpStatusCodeOption extends TestCase
@@ -16,7 +13,7 @@ public class TestDhcpStatusCodeOption extends TestCase
         DhcpStatusCodeOption dsco = new DhcpStatusCodeOption();
         dsco.getStatusCodeOption().setStatusCode(DhcpConstants.STATUS_CODE_SUCCESS);
         dsco.getStatusCodeOption().setMessage("All is well");
-        ByteBuffer bb = dsco.encode().buf();
+        ByteBuffer bb = dsco.encode();
         assertNotNull(bb);
         assertEquals(17, bb.capacity());
         assertEquals(17, bb.limit());
@@ -39,7 +36,7 @@ public class TestDhcpStatusCodeOption extends TestCase
         bb.put("All is well".getBytes());
         bb.flip();
         DhcpStatusCodeOption dsco = new DhcpStatusCodeOption();
-        dsco.decode(IoBuffer.wrap(bb));
+        dsco.decode(bb);
         assertNotNull(dsco.getStatusCodeOption());
         assertEquals(13, dsco.getLength());
         assertEquals(DhcpConstants.STATUS_CODE_SUCCESS, 

@@ -8,14 +8,11 @@ import junit.framework.TestCase;
 import net.sf.dozer.util.mapping.DozerBeanMapper;
 import net.sf.dozer.util.mapping.MapperIF;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.UserClassOption;
 import com.jagornet.dhcpv6.dto.OpaqueDataDTO;
 import com.jagornet.dhcpv6.dto.UserClassOptionDTO;
-import com.jagornet.dhcpv6.option.DhcpUserClassOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.xml.UserClassOption;
 
 public class TestDhcpUserClassOption extends TestCase
 {
@@ -24,7 +21,7 @@ public class TestDhcpUserClassOption extends TestCase
         DhcpUserClassOption duco = new DhcpUserClassOption();
         duco.addUserClass("UserClass 1");   // len = 2 + 11
         duco.addUserClass("UserClass 2");   // len = 2 + 11
-        ByteBuffer bb = duco.encode().buf();
+        ByteBuffer bb = duco.encode();
         assertNotNull(bb);
         assertEquals(30, bb.capacity());    // +4 (code=2bytes, len=2bytes)
         assertEquals(30, bb.limit());
@@ -46,13 +43,13 @@ public class TestDhcpUserClassOption extends TestCase
         bb.put("UserClass 2".getBytes());
         bb.flip();
         DhcpUserClassOption duco = new DhcpUserClassOption();
-        duco.decode(IoBuffer.wrap(bb));
+        duco.decode(bb);
         assertNotNull(duco.getUserClassOption());
-        OpaqueData[] userClasses = duco.getUserClassOption().getUserClassesArray();
+        List<OpaqueData> userClasses = duco.getUserClassOption().getUserClassesList();
         assertNotNull(userClasses);
-        assertEquals(2, userClasses.length);
-        assertEquals("UserClass 1", userClasses[0].getAsciiValue());
-        assertEquals("UserClass 2", userClasses[1].getAsciiValue());
+        assertEquals(2, userClasses.size());
+        assertEquals("UserClass 1", userClasses.get(0).getAsciiValue());
+        assertEquals("UserClass 2", userClasses.get(1).getAsciiValue());
     }
     
     public void testToDTO() throws Exception
@@ -99,11 +96,11 @@ public class TestDhcpUserClassOption extends TestCase
         UserClassOption uco = (UserClassOption)
                                 mapper.map(dto, UserClassOption.class);
         assertNotNull(uco);
-        assertNotNull(uco.getUserClassesArray());
-        assertEquals(2, uco.getUserClassesArray().length);
+        assertNotNull(uco.getUserClassesList());
+        assertEquals(2, uco.getUserClassesList().size());
         assertEquals("UserClass 1",
-                    ((OpaqueData)uco.getUserClassesArray()[0]).getAsciiValue());
+                    ((OpaqueData)uco.getUserClassesList().get(0)).getAsciiValue());
         assertEquals("UserClass 2",
-                    ((OpaqueData)uco.getUserClassesArray()[1]).getAsciiValue());
+                    ((OpaqueData)uco.getUserClassesList().get(1)).getAsciiValue());
     }
 }

@@ -1,3 +1,28 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file OpaqueDataUtil.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.option;
 
 import java.net.NetworkInterface;
@@ -15,16 +40,22 @@ import com.jagornet.dhcpv6.util.Util;
 
 /**
  * <p>Title: OpaqueDataUtil </p>
- * <p>Description: </p>
+ * <p>Description: Utility class for handling OpaqueData objects.</p>
  * 
  * @author A. Gregory Rabil
- * @version $Revision: $
  */
-
 public class OpaqueDataUtil
-{
+{	
+	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(OpaqueDataUtil.class);
     
+    /**
+     * Gets the length.
+     * 
+     * @param opaque the opaque
+     * 
+     * @return the length
+     */
     public static int getLength(OpaqueData opaque)
     {
         if (opaque == null)
@@ -41,6 +72,13 @@ public class OpaqueDataUtil
         }
     }
 
+    /**
+     * Gets the length data only.
+     * 
+     * @param opaque the opaque
+     * 
+     * @return the length data only
+     */
     public static int getLengthDataOnly(OpaqueData opaque)
     {
         if (opaque == null)
@@ -59,8 +97,10 @@ public class OpaqueDataUtil
     }
     
     /**
-     * @param iobuf
-     * @param opaque
+     * Encode.
+     * 
+     * @param iobuf the iobuf
+     * @param opaque the opaque
      */
     public static void encode(IoBuffer iobuf, OpaqueData opaque)
     {
@@ -82,8 +122,10 @@ public class OpaqueDataUtil
     }
     
     /**
-     * @param iobuf
-     * @param opaque
+     * Encode data only.
+     * 
+     * @param iobuf the iobuf
+     * @param opaque the opaque
      */
     public static void encodeDataOnly(IoBuffer iobuf, OpaqueData opaque)
     {
@@ -102,6 +144,13 @@ public class OpaqueDataUtil
         }        
     }
     
+    /**
+     * Decode.
+     * 
+     * @param iobuf the iobuf
+     * 
+     * @return the opaque data
+     */
     public static OpaqueData decode(IoBuffer iobuf)
     {
         if ((iobuf == null) || !iobuf.hasRemaining())
@@ -123,6 +172,14 @@ public class OpaqueDataUtil
         return opaque;
     }
     
+    /**
+     * Decode data only.
+     * 
+     * @param iobuf the iobuf
+     * @param len the len
+     * 
+     * @return the opaque data
+     */
     public static OpaqueData decodeDataOnly(IoBuffer iobuf, int len)
     {
         if (iobuf == null)
@@ -143,6 +200,14 @@ public class OpaqueDataUtil
         return opaque;
     }
 
+    /**
+     * Matches.
+     * 
+     * @param expression the expression
+     * @param myOpaque the my opaque
+     * 
+     * @return true, if successful
+     */
     public static boolean matches(OptionExpression expression, OpaqueData myOpaque)
     {
         if (expression == null)
@@ -259,6 +324,13 @@ public class OpaqueDataUtil
         return false;
     }
     
+    /**
+     * To string.
+     * 
+     * @param opaque the opaque
+     * 
+     * @return the string
+     */
     public static String toString(OpaqueData opaque)
     {
         if (opaque == null)
@@ -271,6 +343,14 @@ public class OpaqueDataUtil
             return Util.toHexString(opaque.getHexValue());
     }
     
+    /**
+     * Equals.
+     * 
+     * @param opaque1 the opaque1
+     * @param opaque2 the opaque2
+     * 
+     * @return true, if successful
+     */
     public static boolean equals(OpaqueData opaque1, OpaqueData opaque2)
     {
         if ( (opaque1 == null) || (opaque2 == null) )
@@ -304,7 +384,8 @@ public class OpaqueDataUtil
     
     /**
      * Generate the DHCPv6 Server's DUID-LLT.  See sections 9 and 22.3 of RFC 3315.
-     * @return
+     * 
+     * @return the opaque data
      */
     public static OpaqueData generateDUID_LLT()
     {
@@ -333,6 +414,11 @@ public class OpaqueDataUtil
     	return opaque;
     }
     
+    /**
+     * The main method.
+     * 
+     * @param args the arguments
+     */
     public static void main(String[] args)
     {
     	/*

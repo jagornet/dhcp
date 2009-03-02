@@ -1,12 +1,54 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file DhcpTransactionId.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.message;
+
+import java.nio.ByteBuffer;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
+/**
+ * Title: DhcpTransactionId
+ * Description: A class representing the Transaction Id of a DhcpMessage.
+ * 
+ * @author A. Gregory Rabil
+ */
 public class DhcpTransactionId
 {
-    public static IoBuffer encode(long xId)
+    
+    /**
+     * Encode.
+     * 
+     * @param xId the transaction id to be encoded
+     * 
+     * @return the byte buffer
+     */
+    public static ByteBuffer encode(int xId)
     {
         IoBuffer iobuf = IoBuffer.allocate(3);
+/*
         //byte i0 = (byte)(xId >>> 24);         // r_shift out the last three bytes
         byte i1 = (byte)((xId << 8) >>> 24);  // l_shift first byte out of int, then unsigned r_shift back to one byte
         byte i2 = (byte)((xId << 16) >>> 24); // l_shift first 2 bytes out of int, then unsigned r_shift back to one byte
@@ -14,11 +56,21 @@ public class DhcpTransactionId
         iobuf.put(i1);
         iobuf.put(i2);
         iobuf.put(i3);
-        return iobuf.flip();
+*/
+        iobuf.putMediumInt(xId);
+        return iobuf.flip().buf();
     }
 
-    public static long decode(IoBuffer iobuf)
+    /**
+     * Decode.
+     * 
+     * @param buf the byte buffer
+     * 
+     * @return the int as the decoded transaction id
+     */
+    public static int decode(ByteBuffer buf)
     {
+    	IoBuffer iobuf = IoBuffer.wrap(buf);
     	return iobuf.getUnsignedMediumInt();
     }
 }

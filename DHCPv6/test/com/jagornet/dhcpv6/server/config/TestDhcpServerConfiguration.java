@@ -39,10 +39,10 @@ public class TestDhcpServerConfiguration extends TestCase
 		DhcpServerConfiguration.saveConfig(config, "test/com/jagornet/dhcpv6/server/config/dhcpServerConfigTestSave.xml");
 		config = DhcpServerConfiguration.loadConfig("test/com/jagornet/dhcpv6/server/config/dhcpServerConfigTestSave.xml");
 		assertNotNull(config);
-		assertNotNull(config.getPoliciesArray());
-		assertEquals(1, config.getPoliciesArray().length);
-		assertEquals("sendRequestedOptionsOnly", config.getPoliciesArray(0).getName());
-		assertEquals("true", config.getPoliciesArray(0).getValue());
+		assertNotNull(config.getPoliciesList());
+		assertEquals(1, config.getPoliciesList().size());
+		assertEquals("sendRequestedOptionsOnly", config.getPoliciesList().get(0).getName());
+		assertEquals("true", config.getPoliciesList().get(0).getValue());
 	}
 	
     public void testLinkMap() throws Exception
@@ -51,21 +51,21 @@ public class TestDhcpServerConfiguration extends TestCase
         
         DhcpV6ServerConfig config = DhcpServerConfiguration.getConfig();
         assertNotNull(config);
-		assertNotNull(config.getPoliciesArray());
-		assertEquals(1, config.getPoliciesArray().length);
-		assertEquals("sendRequestedOptionsOnly", config.getPoliciesArray(0).getName());
-		assertEquals("true", config.getPoliciesArray(0).getValue());
+		assertNotNull(config.getPoliciesList());
+		assertEquals(1, config.getPoliciesList().size());
+		assertEquals("sendRequestedOptionsOnly", config.getPoliciesList().get(0).getName());
+		assertEquals("true", config.getPoliciesList().get(0).getValue());
         assertEquals("abcdef0123456789", Util.toHexString(config.getServerIdOption().getHexValue()));
         assertNotNull(config.getStandardOptions().getDnsServersOption());
-        assertEquals(3, config.getStandardOptions().getDnsServersOption().getServerIpAddressesArray().length);
-        assertEquals("3ffe::0001", config.getStandardOptions().getDnsServersOption().getServerIpAddressesArray(0));
-        assertEquals("3ffe::0002", config.getStandardOptions().getDnsServersOption().getServerIpAddressesArray(1));
-        assertEquals("3ffe::0003", config.getStandardOptions().getDnsServersOption().getServerIpAddressesArray(2));
+        assertEquals(3, config.getStandardOptions().getDnsServersOption().getServerIpAddressesList().size());
+        assertEquals("3ffe::0001", config.getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(0));
+        assertEquals("3ffe::0002", config.getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(1));
+        assertEquals("3ffe::0003", config.getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(2));
         assertNotNull(config.getStandardOptions().getDomainSearchListOption());
-        assertEquals(3, config.getStandardOptions().getDomainSearchListOption().getDomainNamesArray().length);
-        assertEquals("foo.com.", config.getStandardOptions().getDomainSearchListOption().getDomainNamesArray(0));
-        assertEquals("bar.com.", config.getStandardOptions().getDomainSearchListOption().getDomainNamesArray(1));
-        assertEquals("yuk.com.", config.getStandardOptions().getDomainSearchListOption().getDomainNamesArray(2));
+        assertEquals(3, config.getStandardOptions().getDomainSearchListOption().getDomainNamesList().size());
+        assertEquals("foo.com.", config.getStandardOptions().getDomainSearchListOption().getDomainNamesList().get(0));
+        assertEquals("bar.com.", config.getStandardOptions().getDomainSearchListOption().getDomainNamesList().get(1));
+        assertEquals("yuk.com.", config.getStandardOptions().getDomainSearchListOption().getDomainNamesList().get(2));
         
         TreeMap<Subnet, Link> linkMap = DhcpServerConfiguration.getLinkMap();
         assertNotNull(linkMap);
@@ -159,33 +159,33 @@ public class TestDhcpServerConfiguration extends TestCase
                 mapper.map(dto, DhcpV6ServerConfig.class);
         
         assertNotNull(config);
-		assertNotNull(config.getPoliciesArray());
-		assertEquals(1, config.getPoliciesArray().length);
-		assertEquals("sendRequestedOptionsOnly", config.getPoliciesArray(0).getName());
-		assertEquals("true", config.getPoliciesArray(0).getValue());
+		assertNotNull(config.getPoliciesList());
+		assertEquals(1, config.getPoliciesList().size());
+		assertEquals("sendRequestedOptionsOnly", config.getPoliciesList().get(0).getName());
+		assertEquals("true", config.getPoliciesList().get(0).getValue());
         assertNotNull(config.getStandardOptions().getPreferenceOption());
         assertEquals(10, config.getStandardOptions().getPreferenceOption().getShortValue());
         assertNotNull(config.getStandardOptions().getDnsServersOption());
         assertEquals(DhcpConstants.OPTION_DNS_SERVERS, config.getStandardOptions().getDnsServersOption().getCode());
-        assertEquals(3, config.getStandardOptions().getDnsServersOption().sizeOfServerIpAddressesArray());
-        assertEquals("3ffe::0001", config.getStandardOptions().getDnsServersOption().getServerIpAddressesArray(0));
-        assertEquals("3ffe::0002", config.getStandardOptions().getDnsServersOption().getServerIpAddressesArray(1));
-        assertEquals("3ffe::0003", config.getStandardOptions().getDnsServersOption().getServerIpAddressesArray(2));
-        assertNotNull(config.getFiltersArray());
-        assertEquals(1, config.getFiltersArray().length);
-        assertEquals(1, config.getFiltersArray(0).getFilterExpressionsArray().length);
-        assertNotNull(config.getFiltersArray(0).getFilterExpressionsArray(0).getOptionExpression());
+        assertEquals(3, config.getStandardOptions().getDnsServersOption().getServerIpAddressesList().size());
+        assertEquals("3ffe::0001", config.getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(0));
+        assertEquals("3ffe::0002", config.getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(1));
+        assertEquals("3ffe::0003", config.getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(2));
+        assertNotNull(config.getFiltersList());
+        assertEquals(1, config.getFiltersList().size());
+        assertEquals(1, config.getFiltersList().get(0).getFilterExpressionsList().size());
+        assertNotNull(config.getFiltersList().get(0).getFilterExpressionsList().get(0).getOptionExpression());
         assertEquals(DhcpConstants.OPTION_CLIENTID,
-        		config.getFiltersArray(0).getFilterExpressionsArray(0).getOptionExpression().getCode());
+        		config.getFiltersList().get(0).getFilterExpressionsList().get(0).getOptionExpression().getCode());
         assertEquals("equals",
-   			 	config.getFiltersArray(0).getFilterExpressionsArray(0).getOptionExpression().getOperator().toString());
+   			 	config.getFiltersList().get(0).getFilterExpressionsList().get(0).getOptionExpression().getOperator().toString());
         assertEquals("foobar",
-   			 	config.getFiltersArray(0).getFilterExpressionsArray(0).getOptionExpression().getData().getAsciiValue());
-        assertNotNull(config.getFiltersArray(0).getStandardOptions().getDnsServersOption());
-        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, config.getFiltersArray(0).getStandardOptions().getDnsServersOption().getCode());
-        assertEquals(3, config.getFiltersArray(0).getStandardOptions().getDnsServersOption().sizeOfServerIpAddressesArray());
-        assertEquals("4ffe::0001", config.getFiltersArray(0).getStandardOptions().getDnsServersOption().getServerIpAddressesArray(0));
-        assertEquals("4ffe::0002", config.getFiltersArray(0).getStandardOptions().getDnsServersOption().getServerIpAddressesArray(1));
-        assertEquals("4ffe::0003", config.getFiltersArray(0).getStandardOptions().getDnsServersOption().getServerIpAddressesArray(2));
+   			 	config.getFiltersList().get(0).getFilterExpressionsList().get(0).getOptionExpression().getData().getAsciiValue());
+        assertNotNull(config.getFiltersList().get(0).getStandardOptions().getDnsServersOption());
+        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, config.getFiltersList().get(0).getStandardOptions().getDnsServersOption().getCode());
+        assertEquals(3, config.getFiltersList().get(0).getStandardOptions().getDnsServersOption().getServerIpAddressesList().size());
+        assertEquals("4ffe::0001", config.getFiltersList().get(0).getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(0));
+        assertEquals("4ffe::0002", config.getFiltersList().get(0).getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(1));
+        assertEquals("4ffe::0003", config.getFiltersList().get(0).getStandardOptions().getDnsServersOption().getServerIpAddressesList().get(2));
     }
 }

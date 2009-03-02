@@ -1,3 +1,28 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file DhcpServerConfiguration.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.server.config;
 
 import java.io.FileInputStream;
@@ -5,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.SortedMap;
@@ -24,16 +48,35 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
+/**
+ * Title: DhcpServerConfiguration
+ * Description: The class representing the DHCPv6 server configuration.
+ * 
+ * @author A. Gregory Rabil
+ */
 public class DhcpServerConfiguration
-{
+{	
+	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpServerConfiguration.class);
 
+    /** The CONFIG. */
     private static volatile DhcpV6ServerConfig CONFIG;
+    
+    /** The link map. */
     private static TreeMap<Subnet, Link> linkMap;
     
-    // Private constructor suppresses generation of a (public) default constructor
+    /**
+     * Private constructor suppresses generation of a (public) default constructor
+     */
     private DhcpServerConfiguration() {}
 
+    /**
+     * Initialize the DhcpServerConfiguration.
+     * 
+     * @param filename the full path and filename of the server configuration
+     * 
+     * @throws Exception the exception
+     */
     public static void init(String filename) 
         throws Exception
     {
@@ -47,6 +90,11 @@ public class DhcpServerConfiguration
             }
     }
     
+    /**
+     * Initialize the server id.
+     * 
+     * @throws Exception the exception
+     */
     public static void initServerId() throws Exception
     {
     	ServerIdOption serverId = CONFIG.getServerIdOption();
@@ -66,6 +114,11 @@ public class DhcpServerConfiguration
     	}
     }
     
+    /**
+     * Initialize the link map.
+     * 
+     * @throws Exception the exception
+     */
     public static void initLinkMap() throws Exception
     {
         linkMap = 
@@ -98,7 +151,7 @@ public class DhcpServerConfiguration
             });
         
         try {
-        	List<Link> links = Arrays.asList(CONFIG.getLinksArray());
+        	List<Link> links = CONFIG.getLinksList();
             if ((links != null) && !links.isEmpty()) {
                 for (Link link : links) {
                     String addr = link.getAddress();
@@ -118,6 +171,11 @@ public class DhcpServerConfiguration
         }
     }
     
+    /**
+     * Gets the server configuration.
+     * 
+     * @return the DhcpV6ServerConfig object representing the server's configuration
+     */
     public static DhcpV6ServerConfig getConfig()
     {
         if (CONFIG == null) {
@@ -126,6 +184,11 @@ public class DhcpServerConfiguration
         return CONFIG;
     }
     
+    /**
+     * Gets the link map.
+     * 
+     * @return the link map
+     */
     public static TreeMap<Subnet, Link> getLinkMap()
     {
         if (CONFIG == null) {
@@ -134,6 +197,13 @@ public class DhcpServerConfiguration
         return linkMap;
     }
 
+    /**
+     * Find link for address.
+     * 
+     * @param inetAddr an InetAddress to find a Link for
+     * 
+     * @return the link
+     */
     public static Link findLinkForAddress(InetAddress inetAddr)
     {
         Link link = null;
@@ -150,6 +220,15 @@ public class DhcpServerConfiguration
         return link;
     }
     
+    /**
+     * Load the server configuration from a file.
+     * 
+     * @param filename the full path and filename for the configuration
+     * 
+     * @return the loaded DhcpV6ServerConfig 
+     * 
+     * @throws Exception the exception
+     */
     public static DhcpV6ServerConfig loadConfig(String filename) throws Exception
     {
     	DhcpV6ServerConfig config = null;
@@ -169,6 +248,14 @@ public class DhcpServerConfiguration
     	return config;
     }
     
+    /**
+     * Save the server configuration to a file.
+     * 
+     * @param config the DhcpV6ServerConfig to save
+     * @param filename the full path and filename for the configuration
+     * 
+     * @throws Exception the exception
+     */
     public static void saveConfig(DhcpV6ServerConfig config, String filename) throws Exception
     {
     	FileOutputStream fos = null;
