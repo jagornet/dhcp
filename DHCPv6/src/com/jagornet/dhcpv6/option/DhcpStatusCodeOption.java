@@ -30,8 +30,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
-import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.StatusCodeOption;
 
@@ -120,12 +119,16 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
     	IoBuffer iobuf = IoBuffer.wrap(buf);
     	int len = super.decodeLength(iobuf);
     	if ((len > 0) && (len <= iobuf.remaining())) {
-            statusCodeOption.setStatusCode(iobuf.getUnsignedShort());
             int eof = iobuf.position() + len;
             if (iobuf.position() < eof) {
-                byte[] data = new byte[len-2];  // minus 2 for the status code
-                iobuf.get(data);
-                statusCodeOption.setMessage(new String(data));
+	            statusCodeOption.setStatusCode(iobuf.getUnsignedShort());
+	            if (iobuf.position() < eof) {
+	            	if (len > 2) {
+		                byte[] data = new byte[len-2];  // minus 2 for the status code
+		                iobuf.get(data);
+		                statusCodeOption.setMessage(new String(data));
+	            	}
+	            }
             }
         }
     }
@@ -144,6 +147,8 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
         if (expression.getCode() != this.getCode())
             return false;
 
+        
+/*
         OpaqueData opaque = expression.getData();
         if (opaque != null) {
             String ascii = opaque.getAsciiValue();
@@ -167,6 +172,7 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
                 }
             }
         }
+*/
         return false;
     }
 

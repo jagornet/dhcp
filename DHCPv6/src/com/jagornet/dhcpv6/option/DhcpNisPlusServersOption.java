@@ -25,8 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
-import java.util.List;
-
+import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcpv6.xml.NisPlusServersOption;
 
 /**
@@ -35,77 +34,26 @@ import com.jagornet.dhcpv6.xml.NisPlusServersOption;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpNisPlusServersOption extends BaseServerAddressesOption
+public class DhcpNisPlusServersOption extends BaseIpAddressListOption
 {
-    /** The nis plus servers option. */
-    private NisPlusServersOption nisPlusServersOption;
-
-    /**
-     * Instantiates a new dhcp nis plus servers option.
-     */
-    public DhcpNisPlusServersOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp nis plus servers option.
-     * 
-     * @param nisPlusServersOption the nis plus servers option
-     */
-    public DhcpNisPlusServersOption(NisPlusServersOption nisPlusServersOption)
-    {
-        super();
-        if (nisPlusServersOption != null)
-            this.nisPlusServersOption = nisPlusServersOption;
-        else
-            this.nisPlusServersOption = NisPlusServersOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the nis plus servers option.
-     * 
-     * @return the nis plus servers option
-     */
-    public NisPlusServersOption getNisPlusServersOption()
-    {
-        return nisPlusServersOption;
-    }
-
-    /**
-     * Sets the nis plus servers option.
-     * 
-     * @param nisPlusServersOption the new nis plus servers option
-     */
-    public void setNisPlusServersOption(NisPlusServersOption nisPlusServersOption)
-    {
-        if (nisPlusServersOption != null)
-            this.nisPlusServersOption = nisPlusServersOption;
-    }
-
+	public DhcpNisPlusServersOption()
+	{
+		this(null);
+	}
+	
+	public DhcpNisPlusServersOption(NisPlusServersOption nisPlusServersOption)
+	{
+		if (nisPlusServersOption != null)
+			this.serverAddressesOption = nisPlusServersOption;
+		else
+			this.serverAddressesOption = NisPlusServersOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return nisPlusServersOption.getCode();
+        return ((NisPlusServersOption)serverAddressesOption).getCode();
     }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseServerAddressesOption#getServerIpAddresses()
-     */
-    @Override
-    public List<String> getServerIpAddresses()
-    {
-        return nisPlusServersOption.getServerIpAddressesList();
-    }
-    
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.BaseServerAddressesOption#addServerIpAddress(java.lang.String)
-	 */
-	@Override
-	public void addServerIpAddress(String serverIpAddress)
-	{
-		nisPlusServersOption.addServerIpAddresses(serverIpAddress);
-	}
 }

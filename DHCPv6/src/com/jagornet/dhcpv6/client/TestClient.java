@@ -68,6 +68,7 @@ import com.jagornet.dhcpv6.server.unicast.DhcpEncoderAdapter;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
 import com.jagornet.dhcpv6.xml.ElapsedTimeOption;
+import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.UserClassOption;
 
 /**
@@ -317,13 +318,16 @@ public class TestClient  extends IoHandlerAdapter
                                      (byte)0xde,
                                      (byte)0xb0,
                                      (byte)id };
+            OpaqueData opaque = OpaqueData.Factory.newInstance();
+            opaque.setHexValue(clientIdBytes);
+
             ClientIdOption clientIdOption = ClientIdOption.Factory.newInstance();
-            clientIdOption.setHexValue(clientIdBytes);
+            clientIdOption.setOpaqueData(opaque);
             
             msg.setOption(new DhcpClientIdOption(clientIdOption));
             
             ElapsedTimeOption elapsedTimeOption = ElapsedTimeOption.Factory.newInstance();
-            elapsedTimeOption.setIntValue(id+1000);
+            elapsedTimeOption.setUnsignedShort(id+1000);
             msg.setOption(new DhcpElapsedTimeOption(elapsedTimeOption));
 
             UserClassOption userClassOption = UserClassOption.Factory.newInstance();
@@ -331,7 +335,7 @@ public class TestClient  extends IoHandlerAdapter
             // utility method for adding userclass string
             DhcpUserClassOption dhcpUserClassOption = 
                 new DhcpUserClassOption(userClassOption);
-            dhcpUserClassOption.addUserClass("FilterUserClass");
+            dhcpUserClassOption.addOpaqueData("FilterUserClass");
             msg.setOption(dhcpUserClassOption);
 
             msgs.add(msg);

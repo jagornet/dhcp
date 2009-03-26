@@ -23,28 +23,11 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-/*
- *   This file LinkDTO.java is part of DHCPv6.
- *
- *   DHCPv6 is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   DHCPv6 is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
 package com.jagornet.dhcpv6.dto;
 
 import java.io.Serializable;
-import java.util.List;
+
+import com.jagornet.dhcpv6.dto.option.ServerIdOptionDTO;
 
 /**
  * The Class LinkDTO.
@@ -65,18 +48,16 @@ public class LinkDTO implements Serializable
     protected String address;
 	
 	/** The policies. */
-	protected List<PolicyDTO> policies;
+	protected PoliciesDTO policies;
     
     /** The server id option. */
     protected ServerIdOptionDTO serverIdOption;
     
-    /** The standard options. */
-    protected StandardOptionsDTO standardOptions;
-    
-    //    protected List<OptionDTO> otherOptions;
+    /** The configured options. */
+    protected OptionsDTO options;
     
     /** The filters. */
-    protected List<FilterDTO> filters;
+    protected FiltersDTO filters;
 
     //    protected List<PoolDTO> pools;
 
@@ -121,7 +102,7 @@ public class LinkDTO implements Serializable
 	 * 
 	 * @return the policies
 	 */
-	public List<PolicyDTO> getPolicies() {
+	public PoliciesDTO getPolicies() {
 		return policies;
 	}
 	
@@ -130,7 +111,7 @@ public class LinkDTO implements Serializable
 	 * 
 	 * @param policies the new policies
 	 */
-	public void setPolicies(List<PolicyDTO> policies) {
+	public void setPolicies(PoliciesDTO policies) {
 		this.policies = policies;
 	}
 	
@@ -153,21 +134,21 @@ public class LinkDTO implements Serializable
 	}
 	
 	/**
-	 * Gets the standard options.
+	 * Gets the configured options.
 	 * 
-	 * @return the standard options
+	 * @return the configured options
 	 */
-	public StandardOptionsDTO getStandardOptions() {
-		return standardOptions;
+	public OptionsDTO getOptions() {
+		return options;
 	}
 	
 	/**
-	 * Sets the standard options.
+	 * Sets the configured options.
 	 * 
-	 * @param standardOptions the new standard options
+	 * @param options the new configured options
 	 */
-	public void setStandardOptions(StandardOptionsDTO standardOptions) {
-		this.standardOptions = standardOptions;
+	public void setOptions(OptionsDTO options) {
+		this.options = options;
 	}
 	
 	/**
@@ -175,7 +156,7 @@ public class LinkDTO implements Serializable
 	 * 
 	 * @return the filters
 	 */
-	public List<FilterDTO> getFilters() {
+	public FiltersDTO getFilters() {
 		return filters;
 	}
 	
@@ -184,7 +165,7 @@ public class LinkDTO implements Serializable
 	 * 
 	 * @param filters the new filters
 	 */
-	public void setFilters(List<FilterDTO> filters) {
+	public void setFilters(FiltersDTO filters) {
 		this.filters = filters;
 	}
 }

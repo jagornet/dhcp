@@ -31,8 +31,12 @@ import java.util.List;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.Option;
+import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
+import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.option.generic.GenericOpaqueDataOption;
+import com.jagornet.dhcpv6.option.generic.GenericOptionFactory;
+import com.jagornet.dhcpv6.xml.GenericOptionsType;
+import com.jagornet.dhcpv6.xml.OptionDefType;
 import com.jagornet.dhcpv6.xml.VendorInfoOption;
 
 /**
@@ -96,17 +100,19 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
     {
         IoBuffer iobuf = super.encodeCodeAndLength();
         iobuf.putInt((int)vendorInfoOption.getEnterpriseNumber());
-        List<Option> subopts = vendorInfoOption.getSuboptionsList();
-        if ((subopts != null) && !subopts.isEmpty()) {
-            for (Option subopt : subopts) {
-                iobuf.putShort((short)subopt.getCode());  // suboption code
-                OpaqueData opaque = subopt.getData();
-                if (opaque != null) {
-                    OpaqueDataUtil.encode(iobuf, opaque);
-                }
-            }
+        GenericOptionsType suboptList = vendorInfoOption.getSuboptionList();
+        if (suboptList != null) {
+        	List<OptionDefType> subopts = suboptList.getOptionDefList();
+	        if ((subopts != null) && !subopts.isEmpty()) {
+	            for (OptionDefType subopt : subopts) {
+	            	DhcpOption genericOption = GenericOptionFactory.getDhcpOption(subopt);
+	            	if (genericOption != null) {
+	            		iobuf.put(genericOption.encode());
+	            	}
+	            }
+	        }
         }
-        return iobuf.flip().buf();        
+        return iobuf.flip().buf();
     }
 
     /* (non-Javadoc)
@@ -120,12 +126,13 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
             int eof = iobuf.position() + len;
             if (iobuf.position() < eof) {
                 vendorInfoOption.setEnterpriseNumber(iobuf.getUnsignedInt());
+            	GenericOptionsType suboptList = vendorInfoOption.addNewSuboptionList();
                 while (iobuf.position() < eof) {
-                    Option subopt = Option.Factory.newInstance();
-                    subopt.setCode(iobuf.getUnsignedShort());
-                    OpaqueData opaque = OpaqueDataUtil.decode(iobuf);
-                    subopt.setData(opaque);
-                    this.addVendorSubOption(subopt);
+                	int code = iobuf.getUnsignedShort();
+                	GenericOpaqueDataOption subopt = new GenericOpaqueDataOption(code, null);
+                	subopt.decode(iobuf.buf());
+                	OptionDefType optionDef = suboptList.addNewOptionDef();
+                	optionDef.setOpaqueDataOption(subopt.getOpaqueDataOptionType());
                 }
             }
         }
@@ -137,28 +144,19 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
     public int getLength()
     {
         int len = 4;  // size of enterprise number (int)
-        List<Option> subopts = vendorInfoOption.getSuboptionsList();
-        if ((subopts != null) && !subopts.isEmpty()) {
-            for (Option subopt : subopts) {
-                len += 2;   // suboption code
-                OpaqueData opaque = subopt.getData();
-                if (opaque != null) {
-                    len += 2;   // opaque data len
-                    len += OpaqueDataUtil.getLength(opaque);
-                }
-            }
+        GenericOptionsType suboptList = vendorInfoOption.getSuboptionList();
+        if (suboptList != null) {
+        	List<OptionDefType> subopts = suboptList.getOptionDefList();
+	        if ((subopts != null) && !subopts.isEmpty()) {
+	            for (OptionDefType subopt : subopts) {
+	            	DhcpOption genericOption = GenericOptionFactory.getDhcpOption(subopt);
+	            	if (genericOption != null) {
+	            		len += genericOption.getLength();
+	            	}
+	            }
+	        }
         }
         return len;
-    }
-
-    /**
-     * Adds the vendor sub option.
-     * 
-     * @param subopt the subopt
-     */
-    public void addVendorSubOption(Option subopt)
-    {
-        vendorInfoOption.addNewSuboptions().set(subopt);
     }
 
     /* (non-Javadoc)
@@ -179,16 +177,20 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
         sb.append("Enterprise Number=");
         sb.append(vendorInfoOption.getEnterpriseNumber());
         sb.append(" ");
-        List<Option> subopts = vendorInfoOption.getSuboptionsList();
-        if ((subopts != null) && !subopts.isEmpty()) {
-            sb.append("suboptions: ");
-            for (Option subopt : subopts) {
-                sb.append(subopt.getCode());
-                sb.append("=");
-                sb.append(OpaqueDataUtil.toString(subopt.getData()));
-                sb.append(",");
-            }
-            sb.setLength(sb.length()-1);
+        GenericOptionsType suboptList = vendorInfoOption.getSuboptionList();
+        if (suboptList != null) {
+        	List<OptionDefType> subopts = suboptList.getOptionDefList();
+	        if ((subopts != null) && !subopts.isEmpty()) {
+	            sb.append("Suboptions: ");
+	            for (OptionDefType subopt : subopts) {
+	            	DhcpOption genericOption = GenericOptionFactory.getDhcpOption(subopt);
+	            	if (genericOption != null) {
+		            	sb.append(genericOption.toString());
+	            	}
+	            	sb.append(",");
+	            }
+	            sb.setLength(sb.length()-1);
+	        }
         }
         return sb.toString();
     }

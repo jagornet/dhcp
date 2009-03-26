@@ -25,8 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
-import java.util.List;
-
+import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcpv6.xml.SntpServersOption;
 
 /**
@@ -35,77 +34,26 @@ import com.jagornet.dhcpv6.xml.SntpServersOption;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpSntpServersOption extends BaseServerAddressesOption
+public class DhcpSntpServersOption extends BaseIpAddressListOption
 {
-    /** The sntp servers option. */
-    private SntpServersOption sntpServersOption;
-
-    /**
-     * Instantiates a new dhcp sntp servers option.
-     */
-    public DhcpSntpServersOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp sntp servers option.
-     * 
-     * @param sntpServersOption the sntp servers option
-     */
-    public DhcpSntpServersOption(SntpServersOption sntpServersOption)
-    {
-        super();
-        if (sntpServersOption != null)
-            this.sntpServersOption = sntpServersOption;
-        else
-            this.sntpServersOption = SntpServersOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the sntp servers option.
-     * 
-     * @return the sntp servers option
-     */
-    public SntpServersOption getSntpServersOption()
-    {
-        return sntpServersOption;
-    }
-
-    /**
-     * Sets the sntp servers option.
-     * 
-     * @param sntpServersOption the new sntp servers option
-     */
-    public void setSntpServersOption(SntpServersOption sntpServersOption)
-    {
-        if (sntpServersOption != null)
-            this.sntpServersOption = sntpServersOption;
-    }
-
+	public DhcpSntpServersOption()
+	{
+		this(null);
+	}
+	
+	public DhcpSntpServersOption(SntpServersOption sntpServersOption)
+	{
+		if (sntpServersOption != null)
+			this.serverAddressesOption = sntpServersOption;
+		else
+			this.serverAddressesOption = SntpServersOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return sntpServersOption.getCode();
+        return ((SntpServersOption)serverAddressesOption).getCode();
     }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseServerAddressesOption#getServerIpAddresses()
-     */
-    @Override
-    public List<String> getServerIpAddresses()
-    {
-        return sntpServersOption.getServerIpAddressesList();
-    }
-    
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.BaseServerAddressesOption#addServerIpAddress(java.lang.String)
-	 */
-	@Override
-	public void addServerIpAddress(String serverIpAddress)
-	{
-		sntpServersOption.addServerIpAddresses(serverIpAddress);
-	}
 }

@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
+import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
 import com.jagornet.dhcpv6.xml.NisDomainNameOption;
 
 /**
@@ -34,74 +35,25 @@ import com.jagornet.dhcpv6.xml.NisDomainNameOption;
  * @author A. Gregory Rabil
  */
 public class DhcpNisDomainNameOption extends BaseDomainNameOption
-{ 
-    /** The nis domain name option. */
-    private NisDomainNameOption nisDomainNameOption;
-
-    /**
-     * Instantiates a new dhcp nis domain name option.
-     */
-    public DhcpNisDomainNameOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp nis domain name option.
-     * 
-     * @param nisDomainNameOption the nis domain name option
-     */
-    public DhcpNisDomainNameOption(NisDomainNameOption nisDomainNameOption)
-    {
-        super();
-        if (nisDomainNameOption != null)
-            this.nisDomainNameOption = nisDomainNameOption;
-        else
-            this.nisDomainNameOption = NisDomainNameOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the nis domain name option.
-     * 
-     * @return the nis domain name option
-     */
-    public NisDomainNameOption getNisDomainNameOption()
-    {
-        return nisDomainNameOption;
-    }
-
-    /**
-     * Sets the nis domain name option.
-     * 
-     * @param nisDomainNameOption the new nis domain name option
-     */
-    public void setNisDomainNameOption(NisDomainNameOption nisDomainNameOption)
-    {
-        if (nisDomainNameOption != null)
-            this.nisDomainNameOption = nisDomainNameOption;
-    }
-
+{
+	public DhcpNisDomainNameOption()
+	{
+		this(null);
+	}
+	
+	public DhcpNisDomainNameOption(NisDomainNameOption nisDomainNameOption)
+	{
+		if (nisDomainNameOption != null)
+			this.domainNameOption = nisDomainNameOption;
+		else
+			this.domainNameOption = NisDomainNameOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return nisDomainNameOption.getCode();
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseDomainNameOption#getDomainName()
-     */
-    public String getDomainName()
-    {
-        return nisDomainNameOption.getDomainName();
-    }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseDomainNameOption#setDomainName(java.lang.String)
-     */
-    public void setDomainName(String domainName)
-    {
-        nisDomainNameOption.setDomainName(domainName);
+        return ((NisDomainNameOption)domainNameOption).getCode();
     }
 }

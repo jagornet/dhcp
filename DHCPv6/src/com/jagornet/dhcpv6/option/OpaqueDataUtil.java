@@ -33,10 +33,11 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.OptionExpression;
-import com.jagornet.dhcpv6.util.Util;
 
 /**
  * <p>Title: OpaqueDataUtil </p>
@@ -67,17 +68,17 @@ public class OpaqueDataUtil
             return 2 + ascii.length();
         }
         else {
-            // two bytes for the len + len of hex data
+            // two bytes for the len + len of hex opaqueData
             return 2 + opaque.getHexValue().length;
         }
     }
 
     /**
-     * Gets the length data only.
+     * Gets the length opaqueData only.
      * 
      * @param opaque the opaque
      * 
-     * @return the length data only
+     * @return the length opaqueData only
      */
     public static int getLengthDataOnly(OpaqueData opaque)
     {
@@ -97,10 +98,10 @@ public class OpaqueDataUtil
     }
     
     /**
-     * Encode.
+     * Encode the opaque opaqueData, including length, into a byte buffer.
      * 
      * @param iobuf the iobuf
-     * @param opaque the opaque
+     * @param opaque the opaque opaqueData
      */
     public static void encode(IoBuffer iobuf, OpaqueData opaque)
     {
@@ -122,14 +123,15 @@ public class OpaqueDataUtil
     }
     
     /**
-     * Encode data only.
+     * Encode the opaqueData only, that is without the length,
+     * from an opaque object into a byte buffer.
      * 
      * @param iobuf the iobuf
-     * @param opaque the opaque
+     * @param opaque the opaque opaqueData
      */
     public static void encodeDataOnly(IoBuffer iobuf, OpaqueData opaque)
     {
-        if ( (iobuf == null) || (opaque == null) )
+        if ((iobuf == null) || (opaque == null))
             return;
 
         String ascii = opaque.getAsciiValue();
@@ -145,18 +147,16 @@ public class OpaqueDataUtil
     }
     
     /**
-     * Decode.
+     * Decode the byte buffer, including length, into an opaque opaqueData object.
      * 
+     * @param opaque the opaque opaqueData
      * @param iobuf the iobuf
-     * 
-     * @return the opaque data
      */
-    public static OpaqueData decode(IoBuffer iobuf)
+    public static void decode(OpaqueData opaque, IoBuffer iobuf)
     {
         if ((iobuf == null) || !iobuf.hasRemaining())
-            return null;
+            return;
         
-        OpaqueData opaque = OpaqueData.Factory.newInstance();
         int len = iobuf.getUnsignedShort();
         if (len > 0) {
             byte[] data = new byte[len];
@@ -169,35 +169,32 @@ public class OpaqueDataUtil
                 opaque.setHexValue(data);
             }
         }
-        return opaque;
     }
     
     /**
-     * Decode data only.
+     * Decode the opaqueData only, that is without the length,
+     * from a byte buffer into an opaque opaqueData object.
      * 
+     * @param opaque the opaque opaqueData
      * @param iobuf the iobuf
      * @param len the len
      * 
-     * @return the opaque data
+     * @return the opaque opaqueData
      */
-    public static OpaqueData decodeDataOnly(IoBuffer iobuf, int len)
+    public static void decodeDataOnly(OpaqueData opaque, IoBuffer iobuf, int len)
     {
-        if (iobuf == null)
-            return null;
-        
-        OpaqueData opaque = OpaqueData.Factory.newInstance();
-        if (len > 0) {
-            byte[] data = new byte[len];
-            iobuf.get(data);
-            String str = new String(data);
-            if (str.matches("\\p{Print}+")) {
-                opaque.setAsciiValue(str);
-            }
-            else {
-                opaque.setHexValue(data);
-            }
+    	if ( (opaque == null) || (iobuf == null) || (len <= 0) )
+    		return;
+
+        byte[] data = new byte[len];
+        iobuf.get(data);
+        String str = new String(data);
+        if (str.matches("\\p{Print}+")) {
+            opaque.setAsciiValue(str);
         }
-        return opaque;
+        else {
+            opaque.setHexValue(data);
+        }
     }
 
     /**
@@ -213,9 +210,13 @@ public class OpaqueDataUtil
         if (expression == null)
             return false;
         
-        Operator.Enum op = expression.getOperator();
-        OpaqueData expOpaque = expression.getData();
+        OpaqueDataOptionType opaqueOption = expression.getOpaqueDataOption();
+        if (opaqueOption == null)
+        	return false;
+        
+        OpaqueData expOpaque = opaqueOption.getOpaqueData();
         if (expOpaque != null) {
+            Operator.Enum op = expression.getOperator();
             String expAscii = expOpaque.getAsciiValue();
             String myAscii = myOpaque.getAsciiValue();
             if ( (expAscii != null) && (myAscii != null) ) {
@@ -235,7 +236,7 @@ public class OpaqueDataUtil
                     return myAscii.matches(expAscii);
                 }
                 else {
-                    log.error("Unknown expression operator: " + op);
+                    log.error("Unsupported expression operator: " + op);
                     return false;
                 }
             }
@@ -311,11 +312,11 @@ public class OpaqueDataUtil
                         }
                     }
                     else if (op.equals(Operator.REG_EXP)) {
-                        log.error("Regular expression operator not valid for hex opaque data");
+                        log.error("Regular expression operator not valid for hex opaque opaqueData");
                         return false;
                     }
                     else {
-                        log.error("Unknown expression operator: " + op);
+                        log.error("Unsupported expression operator: " + op);
                         return false;
                     }
                 }
@@ -385,7 +386,7 @@ public class OpaqueDataUtil
     /**
      * Generate the DHCPv6 Server's DUID-LLT.  See sections 9 and 22.3 of RFC 3315.
      * 
-     * @return the opaque data
+     * @return the opaque opaqueData
      */
     public static OpaqueData generateDUID_LLT()
     {

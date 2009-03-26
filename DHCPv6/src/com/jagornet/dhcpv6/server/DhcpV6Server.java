@@ -357,7 +357,7 @@ public class DhcpV6Server
      * 
      * @param filename the configuration filename
      * 
-     * @return DhcpV6ServerConfigDTO data transfer object
+     * @return DhcpV6ServerConfigDTO opaqueData transfer object
      * 
      * @throws Exception the exception
      */
@@ -387,7 +387,7 @@ public class DhcpV6Server
     /**
      * Static method used by the GUI to save the configuration file.
      * 
-     * @param dto DhcpV6ServerConfigDTO data transfer object
+     * @param dto DhcpV6ServerConfigDTO opaqueData transfer object
      * @param filename the configuration filename
      * 
      * @throws Exception the exception
@@ -449,7 +449,7 @@ public class DhcpV6Server
     }
 
     /**
-     * Convert the DhcpV6ServerConfigDTO data-tranfer object to
+     * Convert the DhcpV6ServerConfigDTO opaqueData-tranfer object to
      * its equivalent domain version.
      * This implementation uses Dozer (dozer.sourceforge.net)
      * to perform the conversion via reflection.
@@ -457,7 +457,7 @@ public class DhcpV6Server
      * @param dto the dto
      * 
      * @return          DhcpV6ServerConfig object populated
-     * with the contents of the data-transfer object
+     * with the contents of the opaqueData-transfer object
      * 
      * @throws Exception the exception
      */

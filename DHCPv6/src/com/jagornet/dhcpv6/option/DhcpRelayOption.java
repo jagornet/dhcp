@@ -33,6 +33,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.message.DhcpRelayMessage;
+import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**

@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.option.DhcpOption;
+import com.jagornet.dhcpv6.option.base.DhcpOption;
 
 /**
  * This is a simple, multi-threaded DHCPv6 server that uses

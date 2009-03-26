@@ -25,8 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
-import java.util.List;
-
+import com.jagornet.dhcpv6.option.base.BaseDomainNameListOption;
 import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
 
 /**
@@ -37,75 +36,24 @@ import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
  */
 public class DhcpSipServerDomainNamesOption extends BaseDomainNameListOption
 {
-    /** The sip server domain names option. */
-    private SipServerDomainNamesOption sipServerDomainNamesOption;
-
-    /**
-     * Instantiates a new dhcp sip server domain names option.
-     */
-    public DhcpSipServerDomainNamesOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp sip server domain names option.
-     * 
-     * @param sipServerDomainNamesOption the sip server domain names option
-     */
-    public DhcpSipServerDomainNamesOption(SipServerDomainNamesOption sipServerDomainNamesOption)
-    {
-        super();
-        if (sipServerDomainNamesOption != null)
-            this.sipServerDomainNamesOption = sipServerDomainNamesOption;
-        else
-            this.sipServerDomainNamesOption = SipServerDomainNamesOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the sip server domain names option.
-     * 
-     * @return the sip server domain names option
-     */
-    public SipServerDomainNamesOption getSipServerDomainNamesOption()
-    {
-        return sipServerDomainNamesOption;
-    }
-
-    /**
-     * Sets the sip server domain names option.
-     * 
-     * @param sipServerDomainNamesOption the new sip server domain names option
-     */
-    public void setSipServerDomainNamesOption(SipServerDomainNamesOption sipServerDomainNamesOption)
-    {
-        if (sipServerDomainNamesOption != null)
-            this.sipServerDomainNamesOption = sipServerDomainNamesOption;
-    }
-
+	public DhcpSipServerDomainNamesOption()
+	{
+		this(null);
+	}
+	
+	public DhcpSipServerDomainNamesOption(SipServerDomainNamesOption sipServerDomainNamesOption)
+	{
+		if (sipServerDomainNamesOption != null)
+			this.domainNameListOption = sipServerDomainNamesOption;
+		else
+			this.domainNameListOption = SipServerDomainNamesOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return sipServerDomainNamesOption.getCode();
+        return ((SipServerDomainNamesOption)domainNameListOption).getCode();
     }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseDomainNameListOption#getDomainNames()
-     */
-    @Override
-    public List<String> getDomainNames()
-    {
-    	return sipServerDomainNamesOption.getDomainNamesList();
-    }
-    
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.BaseDomainNameListOption#addDomainName(java.lang.String)
-	 */
-	@Override
-	public void addDomainName(String domainName)
-	{
-		sipServerDomainNamesOption.addDomainNames(domainName);
-	}
 }

@@ -25,8 +25,8 @@
  */
 package com.jagornet.dhcpv6.option;
 
+import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
-import com.jagornet.dhcpv6.xml.OpaqueData;
 
 /**
  * <p>Title: DhcpClientIdOption </p>
@@ -35,66 +35,26 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
  * @author A. Gregory Rabil
  */
 public class DhcpClientIdOption extends BaseOpaqueDataOption
-{ 
-    /** The client id option. */
-    private ClientIdOption clientIdOption;
-    
-    /**
-     * Instantiates a new dhcp client id option.
-     */
-    public DhcpClientIdOption()
-    {
-    	this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp client id option.
-     * 
-     * @param clientIdOption the client id option
-     */
-    public DhcpClientIdOption(ClientIdOption clientIdOption)
-    {
-        super();
-        if (clientIdOption != null)
-            this.clientIdOption = clientIdOption;
-        else
-            this.clientIdOption = ClientIdOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the client id option.
-     * 
-     * @return the client id option
-     */
-    public ClientIdOption getClientIdOption()
-    {
-        return clientIdOption;
-    }
-
-    /**
-     * Sets the client id option.
-     * 
-     * @param clientIdOption the new client id option
-     */
-    public void setClientIdOption(ClientIdOption clientIdOption)
-    {
-        if (clientIdOption != null)
-            this.clientIdOption = clientIdOption;
-    }
-    
+{
+	public DhcpClientIdOption()
+	{
+		this(null);
+	}
+	
+	public DhcpClientIdOption(ClientIdOption clientIdOption)
+	{
+		if (clientIdOption != null)
+			this.opaqueDataOption = clientIdOption;
+		else
+			this.opaqueDataOption = ClientIdOption.Factory.newInstance();
+		
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return clientIdOption.getCode();
-    }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseOpaqueDataOption#getOpaqueData()
-     */
-    public OpaqueData getOpaqueData()
-    {
-        return (OpaqueData)this.clientIdOption;
+        return ((ClientIdOption)opaqueDataOption).getCode();
     }
 }

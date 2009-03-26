@@ -44,6 +44,7 @@ import com.jagornet.dhcpv6.server.DhcpV6Server;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument;
 import com.jagornet.dhcpv6.xml.Link;
+import com.jagornet.dhcpv6.xml.LinksType;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
@@ -98,19 +99,19 @@ public class DhcpServerConfiguration
     public static void initServerId() throws Exception
     {
     	ServerIdOption serverId = CONFIG.getServerIdOption();
-    	if ( (serverId == null) || 
-    		 ( ((serverId.getAsciiValue() == null) || (serverId.getAsciiValue().length() <= 0)) &&
-    		   ((serverId.getHexValue() == null) || (serverId.getHexValue().length <= 0)) ) ) {
-    		OpaqueData opaque = OpaqueDataUtil.generateDUID_LLT();
-    		if (opaque == null) {
-    			throw new IllegalStateException("Failed to create ServerID");
-    		}
-    		if (serverId == null) {
-    			serverId = ServerIdOption.Factory.newInstance();
-    		}
-    		serverId.setHexValue(opaque.getHexValue());
-    		CONFIG.setServerIdOption(serverId);
-    		saveConfig(CONFIG, DhcpV6Server.DEFAULT_CONFIG_FILENAME);
+    	if (serverId != null) {
+	    	OpaqueData opaque = serverId.getOpaqueData();
+	    	if ( ( (opaque == null) ||
+	    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().length() <= 0)) &&
+	    		   ((opaque.getHexValue() == null) || (opaque.getHexValue().length <= 0)) ) ) {
+	    		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
+	    		if (duid == null) {
+	    			throw new IllegalStateException("Failed to create ServerID");
+	    		}
+	    		serverId.setOpaqueData(duid);
+	    		CONFIG.setServerIdOption(serverId);
+	    		saveConfig(CONFIG, DhcpV6Server.DEFAULT_CONFIG_FILENAME);
+	    	}
     	}
     }
     
@@ -151,19 +152,22 @@ public class DhcpServerConfiguration
             });
         
         try {
-        	List<Link> links = CONFIG.getLinksList();
-            if ((links != null) && !links.isEmpty()) {
-                for (Link link : links) {
-                    String addr = link.getAddress();
-                    if (addr != null) {
-                        String[] subnet = addr.split("/");
-                        if ((subnet != null) && (subnet.length == 2)) {
-                            Subnet s = new Subnet(subnet[0], subnet[1]);
-                            linkMap.put(s, link);
-                        }
-                    }
-                }
-            }
+        	LinksType linksType = CONFIG.getLinks();
+        	if (linksType != null) {
+	        	List<Link> links = linksType.getLinkList();
+	            if ((links != null) && !links.isEmpty()) {
+	                for (Link link : links) {
+	                    String addr = link.getAddress();
+	                    if (addr != null) {
+	                        String[] subnet = addr.split("/");
+	                        if ((subnet != null) && (subnet.length == 2)) {
+	                            Subnet s = new Subnet(subnet[0], subnet[1]);
+	                            linkMap.put(s, link);
+	                        }
+	                    }
+	                }
+	        	}
+        	}
         }
         catch (Exception ex) {
             log.error("Failed to build linkMap: " + ex);

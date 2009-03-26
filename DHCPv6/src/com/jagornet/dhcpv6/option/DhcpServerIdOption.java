@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
-import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
 
 /**
@@ -36,65 +36,25 @@ import com.jagornet.dhcpv6.xml.ServerIdOption;
  */
 public class DhcpServerIdOption extends BaseOpaqueDataOption
 {
-    /** The server id option. */
-    private ServerIdOption serverIdOption;
-    
-    /**
-     * Instantiates a new dhcp server id option.
-     */
-    public DhcpServerIdOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp server id option.
-     * 
-     * @param serverIdOption the server id option
-     */
-    public DhcpServerIdOption(ServerIdOption serverIdOption)
-    {
-        super();
-        if (serverIdOption != null)
-            this.serverIdOption = serverIdOption;
-        else
-            this.serverIdOption = ServerIdOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the server id option.
-     * 
-     * @return the server id option
-     */
-    public ServerIdOption getServerIdOption()
-    {
-        return serverIdOption;
-    }
-
-    /**
-     * Sets the server id option.
-     * 
-     * @param serverIdOption the new server id option
-     */
-    public void setServerIdOption(ServerIdOption serverIdOption)
-    {
-        if (serverIdOption != null)
-            this.serverIdOption = serverIdOption;
-    }
-
+	public DhcpServerIdOption()
+	{
+		this(null);
+	}
+	
+	public DhcpServerIdOption(ServerIdOption serverIdOption)
+	{
+		if (serverIdOption != null)
+			this.opaqueDataOption = serverIdOption;
+		else
+			this.opaqueDataOption = ServerIdOption.Factory.newInstance();
+		
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return serverIdOption.getCode();
-    }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseOpaqueDataOption#getOpaqueData()
-     */
-    public OpaqueData getOpaqueData()
-    {
-        return (OpaqueData)this.serverIdOption;
+        return ((ServerIdOption)opaqueDataOption).getCode();
     }
 }
