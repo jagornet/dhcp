@@ -36,8 +36,8 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.option.DhcpOption;
 import com.jagornet.dhcpv6.option.DhcpOptionFactory;
+import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
@@ -76,7 +76,7 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *    |          option-code          |           option-len          |
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *    |                          option-data                          |
+ *    |                          option-opaqueData                          |
  *    |                      (option-len octets)                      |
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * 
@@ -84,9 +84,9 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  *                  type carried in this option.
  * 
  *    option-len    An unsigned integer giving the length of the
- *                  option-data field in this option in octets.
+ *                  option-opaqueData field in this option in octets.
  * 
- *    option-data   The data for the option; the format of this data
+ *    option-opaqueData   The opaqueData for the option; the format of this opaqueData
  *                  depends on the definition of the option.
  * </pre>
  * 

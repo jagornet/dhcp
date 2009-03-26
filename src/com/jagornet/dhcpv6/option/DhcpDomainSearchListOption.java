@@ -25,8 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
-import java.util.List;
-
+import com.jagornet.dhcpv6.option.base.BaseDomainNameListOption;
 import com.jagornet.dhcpv6.xml.DomainSearchListOption;
 
 /**
@@ -36,76 +35,25 @@ import com.jagornet.dhcpv6.xml.DomainSearchListOption;
  * @author A. Gregory Rabil
  */
 public class DhcpDomainSearchListOption extends BaseDomainNameListOption
-{ 
-    /** The domain search list option. */
-    private DomainSearchListOption domainSearchListOption;
-
-    /**
-     * Instantiates a new dhcp domain search list option.
-     */
-    public DhcpDomainSearchListOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp domain search list option.
-     * 
-     * @param domainSearchListOption the domain search list option
-     */
-    public DhcpDomainSearchListOption(DomainSearchListOption domainSearchListOption)
-    {
-        super();
-        if (domainSearchListOption != null)
-            this.domainSearchListOption = domainSearchListOption;
-        else
-            this.domainSearchListOption = DomainSearchListOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the domain search list option.
-     * 
-     * @return the domain search list option
-     */
-    public DomainSearchListOption getDomainSearchListOption()
-    {
-        return domainSearchListOption;
-    }
-
-    /**
-     * Sets the domain search list option.
-     * 
-     * @param domainSearchListOption the new domain search list option
-     */
-    public void setDomainSearchListOption(DomainSearchListOption domainSearchListOption)
-    {
-        if (domainSearchListOption != null)
-            this.domainSearchListOption = domainSearchListOption;
-    }
-
+{
+	public DhcpDomainSearchListOption()
+	{
+		this(null);
+	}
+	
+	public DhcpDomainSearchListOption(DomainSearchListOption domainSearchListOption)
+	{
+		if (domainSearchListOption != null)
+			this.domainNameListOption = domainSearchListOption;
+		else
+			this.domainNameListOption = DomainSearchListOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return domainSearchListOption.getCode();
+        return ((DomainSearchListOption)domainNameListOption).getCode();
     }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseDomainNameListOption#getDomainNames()
-     */
-    @Override
-    public List<String> getDomainNames()
-    {
-    	return domainSearchListOption.getDomainNamesList();
-    }
-    
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.BaseDomainNameListOption#addDomainName(java.lang.String)
-	 */
-	@Override
-	public void addDomainName(String domainName)
-	{
-		domainSearchListOption.addDomainNames(domainName);
-	}
 }

@@ -45,6 +45,7 @@ package com.jagornet.dhcpv6.util;
 
 import java.net.*;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpConstants.
  * Defines standard DHCPv6 constants
@@ -53,6 +54,7 @@ import java.net.*;
  */
 public class DhcpConstants
 {
+	
 	/** The DHCPv6 home. */
 	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
 
@@ -243,6 +245,39 @@ public class DhcpConstants
     /** The Constant OPTION_INFO_REFRESH_TIME. */
     public static final int OPTION_INFO_REFRESH_TIME = 32;
 
+    /** The Constant OPTION_BCMCS_DOMAIN_NAMES. */
+    public static final int OPTION_BCMCS_DOMAIN_NAMES = 33;
+    
+    /** The Constant OPTION_BCMCS_ADDRESSES. */
+    public static final int OPTION_BCMCS_ADDRESSES = 34;
+    
+    /** The Constant OPTION_GEOCONF_CIVIC. */
+    public static final int OPTION_GEOCONF_CIVIC = 36;
+    
+    /** The Constant OPTION_REMOTE_ID. */
+    public static final int OPTION_REMOTE_ID = 37;
+    
+    /** The Constant OPTION_SUBSCRIBER_ID. */
+    public static final int OPTION_SUBSCRIBER_ID = 38;
+    
+    /** The Constant OPTION_CLIENT_FQDN. */
+    public static final int OPTION_CLIENT_FQDN = 39;
+    
+    /** The Constant OPTION_PANA_AGENT_ADDRESSES. */
+    public static final int OPTION_PANA_AGENT_ADDRESSES = 40;
+    
+    /** The Constant OPTION_NEW_POSIX_TIMEZONE. */
+    public static final int OPTION_NEW_POSIX_TIMEZONE = 41;
+    
+    /** The Constant OPTION_NEW_TZDB_TIMEZONE. */
+    public static final int OPTION_NEW_TZDB_TIMEZONE = 42;
+    
+    /** The Constant OPTION_ECHO_REQUEST. */
+    public static final int OPTION_ECHO_REQUEST = 43;
+    
+    /** The Constant OPTION_LOST_SERVER_DOMAIN_NAME. */
+    public static final int OPTION_LOST_SERVER_DOMAIN_NAME = 51;
+    
     /** The Constant STATUS_CODE_SUCCESS. */
     public static final int STATUS_CODE_SUCCESS = 0;
     

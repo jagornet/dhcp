@@ -31,6 +31,7 @@ import java.util.List;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
+import com.jagornet.dhcpv6.option.base.BaseOpaqueDataListOption;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.VendorClassOption;
@@ -41,67 +42,27 @@ import com.jagornet.dhcpv6.xml.VendorClassOption;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpVendorClassOption extends BaseDhcpOption implements DhcpComparableOption
+public class DhcpVendorClassOption extends BaseOpaqueDataListOption
 {
-    /** The vendor class option. */
-    private VendorClassOption vendorClassOption;
-
-    /**
-     * Instantiates a new dhcp vendor class option.
-     */
-    public DhcpVendorClassOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp vendor class option.
-     * 
-     * @param vendorClassOption the vendor class option
-     */
-    public DhcpVendorClassOption(VendorClassOption vendorClassOption)
-    {
-        super();
-        if (vendorClassOption != null)
-            this.vendorClassOption = vendorClassOption;
-        else
-            this.vendorClassOption = VendorClassOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the vendor class option.
-     * 
-     * @return the vendor class option
-     */
-    public VendorClassOption getVendorClassOption()
-    {
-        return vendorClassOption;
-    }
-
-    /**
-     * Sets the vendor class option.
-     * 
-     * @param vendorClassOption the new vendor class option
-     */
-    public void setVendorClassOption(VendorClassOption vendorClassOption)
-    {
-        if (vendorClassOption != null)
-            this.vendorClassOption = vendorClassOption;
-    }
-
+	public DhcpVendorClassOption()
+	{
+		this(null);
+	}
+	
+	public DhcpVendorClassOption(VendorClassOption vendorClassOption)
+	{
+		if (vendorClassOption != null)
+			this.opaqueDataListOption = vendorClassOption;
+		else
+			this.opaqueDataListOption = VendorClassOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
     {
-        int len = 4;  // size of enterprise number (int)
-        List<OpaqueData> vendorClasses = vendorClassOption.getVendorClassesList();
-        if ((vendorClasses != null) && !vendorClasses.isEmpty()) {
-            for (OpaqueData opaque : vendorClasses) {
-                len += 2;   // opaque data length
-                len += OpaqueDataUtil.getLength(opaque);
-            }
-        }
+        int len = 4 + super.getLength();  // size of enterprise number (int)
         return len;
     }
     
@@ -111,8 +72,10 @@ public class DhcpVendorClassOption extends BaseDhcpOption implements DhcpCompara
     public ByteBuffer encode() throws IOException
     {
         IoBuffer iobuf = super.encodeCodeAndLength();
+        VendorClassOption vendorClassOption = 
+        	(VendorClassOption)opaqueDataListOption;
         iobuf.putInt((int)vendorClassOption.getEnterpriseNumber());
-        List<OpaqueData> vendorClasses = vendorClassOption.getVendorClassesList();
+        List<OpaqueData> vendorClasses = vendorClassOption.getOpaqueDataList();
         if ((vendorClasses != null) && !vendorClasses.isEmpty()) {
             for (OpaqueData opaque : vendorClasses) {
                 OpaqueDataUtil.encode(iobuf, opaque);
@@ -124,6 +87,7 @@ public class DhcpVendorClassOption extends BaseDhcpOption implements DhcpCompara
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
      */
+	@SuppressWarnings("unused")
     public void decode(ByteBuffer buf) throws IOException
     {
     	IoBuffer iobuf = IoBuffer.wrap(buf);
@@ -131,10 +95,12 @@ public class DhcpVendorClassOption extends BaseDhcpOption implements DhcpCompara
     	if ((len > 0) && (len <= iobuf.remaining())) {
             int eof = iobuf.position() + len;
             if (iobuf.position() < eof) {
+                VendorClassOption vendorClassOption = 
+                	(VendorClassOption)opaqueDataListOption;
                 vendorClassOption.setEnterpriseNumber(iobuf.getUnsignedInt());
                 while (iobuf.position() < eof) {
-                    OpaqueData opaque = OpaqueDataUtil.decode(iobuf);
-                    this.addVendorClass(opaque);
+    				OpaqueData opaque = opaqueDataListOption.addNewOpaqueData();
+                    OpaqueDataUtil.decode(opaque, iobuf);
                 }
             }
         }
@@ -150,63 +116,15 @@ public class DhcpVendorClassOption extends BaseDhcpOption implements DhcpCompara
         if (expression.getCode() != this.getCode())
             return false;
 
-        List<OpaqueData> vendorClasses = vendorClassOption.getVendorClassesList();
-        if ((vendorClasses != null) && !vendorClasses.isEmpty()) {
-            for (OpaqueData opaque : vendorClasses) {
-                if (OpaqueDataUtil.matches(expression, opaque)) {
-                    // if one of the vendor classes matches the
-                    // expression, then consider it a match
-                    return true;
-                }
-            }
-        }
         return false;
     }
-
-    /**
-     * Adds the vendor class.
-     * 
-     * @param vendorclass the vendorclass
-     */
-    public void addVendorClass(String vendorclass)
-    {
-        if (vendorclass != null) {
-            OpaqueData opaque = OpaqueData.Factory.newInstance();
-            opaque.setAsciiValue(vendorclass);
-            this.addVendorClass(opaque);
-        }
-    }
-
-    /**
-     * Adds the vendor class.
-     * 
-     * @param vendorclass the vendorclass
-     */
-    public void addVendorClass(byte[] vendorclass)
-    {
-        if (vendorclass != null) {
-            OpaqueData opaque = OpaqueData.Factory.newInstance();
-            opaque.setHexValue(vendorclass);
-            this.addVendorClass(opaque);
-        }
-    }
-
-    /**
-     * Adds the vendor class.
-     * 
-     * @param opaque the opaque
-     */
-    public void addVendorClass(OpaqueData opaque)
-    {
-        vendorClassOption.addNewVendorClasses().set(opaque);        
-    }
-
+    
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return vendorClassOption.getCode();
+        return ((VendorClassOption)opaqueDataListOption).getCode();
     }
     
     /* (non-Javadoc)
@@ -217,16 +135,11 @@ public class DhcpVendorClassOption extends BaseDhcpOption implements DhcpCompara
         StringBuilder sb = new StringBuilder(super.getName());
         sb.append(": ");
         sb.append("Enterprise Number=");
+        VendorClassOption vendorClassOption = 
+        	(VendorClassOption)opaqueDataListOption;
         sb.append(vendorClassOption.getEnterpriseNumber());
         sb.append(" ");
-        List<OpaqueData> vendorClasses = vendorClassOption.getVendorClassesList();
-        if ((vendorClasses != null) && !vendorClasses.isEmpty()) {
-            for (OpaqueData opaque : vendorClasses) {
-                sb.append(OpaqueDataUtil.toString(opaque));
-                sb.append(",");
-            }
-            sb.setLength(sb.length()-1);
-        }
+        sb.append(super.toString());
         return sb.toString();
     }
 }

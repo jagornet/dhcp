@@ -45,7 +45,6 @@ import com.jagornet.dhcpv6.option.DhcpNisDomainNameOption;
 import com.jagornet.dhcpv6.option.DhcpNisPlusDomainNameOption;
 import com.jagornet.dhcpv6.option.DhcpNisPlusServersOption;
 import com.jagornet.dhcpv6.option.DhcpNisServersOption;
-import com.jagornet.dhcpv6.option.DhcpOption;
 import com.jagornet.dhcpv6.option.DhcpOptionRequestOption;
 import com.jagornet.dhcpv6.option.DhcpPreferenceOption;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
@@ -54,12 +53,16 @@ import com.jagornet.dhcpv6.option.DhcpSipServerDomainNamesOption;
 import com.jagornet.dhcpv6.option.DhcpSntpServersOption;
 import com.jagornet.dhcpv6.option.DhcpStatusCodeOption;
 import com.jagornet.dhcpv6.option.DhcpVendorInfoOption;
+import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.ConfigOptionsType;
 import com.jagornet.dhcpv6.xml.DnsServersOption;
 import com.jagornet.dhcpv6.xml.DomainSearchListOption;
 import com.jagornet.dhcpv6.xml.Filter;
 import com.jagornet.dhcpv6.xml.FilterExpression;
+import com.jagornet.dhcpv6.xml.FilterExpressionsType;
+import com.jagornet.dhcpv6.xml.FiltersType;
 import com.jagornet.dhcpv6.xml.InfoRefreshTimeOption;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.NisDomainNameOption;
@@ -72,8 +75,8 @@ import com.jagornet.dhcpv6.xml.ServerIdOption;
 import com.jagornet.dhcpv6.xml.SipServerAddressesOption;
 import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
 import com.jagornet.dhcpv6.xml.SntpServersOption;
-import com.jagornet.dhcpv6.xml.StandardOptions;
 import com.jagornet.dhcpv6.xml.StatusCodeOption;
+import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
 import com.jagornet.dhcpv6.xml.VendorInfoOption;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
@@ -120,7 +123,10 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         	DhcpOptionRequestOption oro = 
         		(DhcpOptionRequestOption) optionMap.get(DhcpConstants.OPTION_ORO);
         	if (oro != null) {
-        		requestedOptionCodes = oro.getOptionRequestOption().getRequestedOptionCodesList();
+        		UnsignedShortListOptionType ushortListOption = oro.getUnsignedShortListOption();
+        		if (ushortListOption != null) {
+        			requestedOptionCodes = ushortListOption.getUnsignedShortList();
+        		}
         	}
         }
         else {
@@ -227,7 +233,10 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         setGlobalOptions();
         
         // process global filter groups
-        processFilters(dhcpServerConfig.getFiltersList());
+        FiltersType filtersType = dhcpServerConfig.getFilters();
+        if (filtersType != null) {
+        	processFilters(filtersType.getFilterList());
+        }
         
         // handle configuration for the client's link
         Link link = DhcpServerConfiguration.findLinkForAddress(clientLink);
@@ -246,32 +255,32 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
      */
     private void setGlobalOptions()
     {
-    	setStandardOptions(dhcpServerConfig.getStandardOptions());
+    	setConfigurationOptions(dhcpServerConfig.getOptions());
     }
 
     /**
-     * Sets the standard options in the reply.
+     * Sets the configuration options in the reply.
      * 
-     * @param standardOptions the new standard options
+     * @param configOptions the new standard options
      */
-    private void setStandardOptions(StandardOptions standardOptions)
+    private void setConfigurationOptions(ConfigOptionsType configOptions)
     {
-    	if (standardOptions != null) {
-	        setPreferenceOption(standardOptions.getPreferenceOption());
+    	if (configOptions != null) {
+	        setPreferenceOption(configOptions.getPreferenceOption());
 	        // don't set this option for stateless servers?
 	        // setServerUnicastOption(dhcpServerConfig.getServerUnicastOption());
-	        setStatusCodeOption(standardOptions.getStatusCodeOption());
-	        setVendorInfoOption(standardOptions.getVendorInfoOption());
-	        setDnsServersOption(standardOptions.getDnsServersOption());
-	        setDomainSearchListOption(standardOptions.getDomainSearchListOption());
-	        setSipServerAddressesOption(standardOptions.getSipServerAddressesOption());
-	        setSipServerDomainNamesOption(standardOptions.getSipServerDomainNamesOption());
-	        setNisServersOption(standardOptions.getNisServersOption());
-	        setNisDomainNameOption(standardOptions.getNisDomainNameOption());
-	        setNisPlusServersOption(standardOptions.getNisPlusServersOption());
-	        setNisPlusDomainNameOption(standardOptions.getNisPlusDomainNameOption());
-	        setSntpServersOption(standardOptions.getSntpServersOption());
-	        setInfoRefreshTimeOption(standardOptions.getInfoRefreshTimeOption());
+	        setStatusCodeOption(configOptions.getStatusCodeOption());
+	        setVendorInfoOption(configOptions.getVendorInfoOption());
+	        setDnsServersOption(configOptions.getDnsServersOption());
+	        setDomainSearchListOption(configOptions.getDomainSearchListOption());
+	        setSipServerAddressesOption(configOptions.getSipServerAddressesOption());
+	        setSipServerDomainNamesOption(configOptions.getSipServerDomainNamesOption());
+	        setNisServersOption(configOptions.getNisServersOption());
+	        setNisDomainNameOption(configOptions.getNisDomainNameOption());
+	        setNisPlusServersOption(configOptions.getNisPlusServersOption());
+	        setNisPlusDomainNameOption(configOptions.getNisPlusDomainNameOption());
+	        setSntpServersOption(configOptions.getSntpServersOption());
+	        setInfoRefreshTimeOption(configOptions.getInfoRefreshTimeOption());
     	}
     }
     
@@ -474,37 +483,40 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
     {
         if (filters != null) {
             for (Filter filter : filters) {
-                List<FilterExpression> expressions = filter.getFilterExpressionsList();
-                if (expressions != null) {
-                    boolean matches = true;     // assume match
-                    for (FilterExpression expression : expressions) {
-                    	OptionExpression optexpr = expression.getOptionExpression();
-                    	// TODO: handle CustomExpression filters
-                        DhcpOption option = requestMsg.getOption(optexpr.getCode());
-                        if (option != null) {
-                            // found the filter option in the request,
-                            // so check if the expression matches
-                            if (!evaluateExpression(optexpr, option)) {
-                                // it must match all expressions for the filter
-                                // group (i.e. expressions are ANDed), so if
-                                // just one doesn't match, then we're done
-                                matches = false;
-                                break;
-                            }
-                        }
-                        else {
-                            // if the expression option wasn't found in the
-                            // request message, then it can't match
-                            matches = false;
-                            break;
-                        }
-                    }
-                    if (matches) {
-                        // got a match, apply filter group options to the reply message
-                        log.info("Request matches filter: " + filter.getName());
-                        setFilterOptions(filter);                        
-                    }
-                }
+            	FilterExpressionsType filterExprs = filter.getFilterExpressions();
+            	if (filterExprs != null) {
+	            	List<FilterExpression> expressions = filterExprs.getFilterExpressionList();
+	                if (expressions != null) {
+	                    boolean matches = true;     // assume match
+	                    for (FilterExpression expression : expressions) {
+	                    	OptionExpression optexpr = expression.getOptionExpression();
+	                    	// TODO: handle CustomExpression filters
+	                        DhcpOption option = requestMsg.getOption(optexpr.getCode());
+	                        if (option != null) {
+	                            // found the filter option in the request,
+	                            // so check if the expression matches
+	                            if (!evaluateExpression(optexpr, option)) {
+	                                // it must match all expressions for the filter
+	                                // group (i.e. expressions are ANDed), so if
+	                                // just one doesn't match, then we're done
+	                                matches = false;
+	                                break;
+	                            }
+	                        }
+	                        else {
+	                            // if the expression option wasn't found in the
+	                            // request message, then it can't match
+	                            matches = false;
+	                            break;
+	                        }
+	                    }
+	                    if (matches) {
+	                        // got a match, apply filter group options to the reply message
+	                        log.info("Request matches filter: " + filter.getName());
+	                        setFilterOptions(filter);                        
+	                    }
+	                }
+            	}
             }
         }        
     }
@@ -537,7 +549,7 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
      */
     private void setFilterOptions(Filter filter)
     {
-    	setStandardOptions(filter.getStandardOptions());
+    	setConfigurationOptions(filter.getOptions());
     }
     
     /**
@@ -550,7 +562,10 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
     {
         if (link != null) {
             setLinkOptions(link);
-            processFilters(link.getFiltersList());
+            FiltersType filtersType = link.getFilters();
+            if (filtersType != null) {
+            	processFilters(filtersType.getFilterList());
+            }
         }
     }
     
@@ -561,6 +576,6 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
      */
     private void setLinkOptions(Link link)
     {
-    	setStandardOptions(link.getStandardOptions());
+    	setConfigurationOptions(link.getOptions());
     }
 }

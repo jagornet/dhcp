@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
+import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
@@ -114,6 +115,39 @@ public class DhcpOptionFactory
             case DhcpConstants.OPTION_RELAY_MSG:
                 option = new DhcpRelayOption();
                 break;
+            case DhcpConstants.OPTION_BCMCS_DOMAIN_NAMES:
+            	option = new DhcpBcmcsDomainNamesOption();
+            	break;
+            case DhcpConstants.OPTION_BCMCS_ADDRESSES:
+            	option = new DhcpBcmcsAddressesOption();
+            	break;
+            case DhcpConstants.OPTION_GEOCONF_CIVIC:
+            	option = new DhcpGeoconfCivicOption();
+            	break;
+            case DhcpConstants.OPTION_REMOTE_ID:
+            	option = new DhcpRemoteIdOption();
+            	break;
+            case DhcpConstants.OPTION_SUBSCRIBER_ID:
+            	option = new DhcpSubscriberIdOption();
+            	break;
+            case DhcpConstants.OPTION_CLIENT_FQDN:
+            	option = new DhcpClientFqdnOption();
+            	break;
+            case DhcpConstants.OPTION_PANA_AGENT_ADDRESSES:
+            	option = new DhcpPanaAgentAddressesOption();
+            	break;
+            case DhcpConstants.OPTION_NEW_POSIX_TIMEZONE:
+            	option = new DhcpNewPosixTimezoneOption();
+            	break;
+            case DhcpConstants.OPTION_NEW_TZDB_TIMEZONE:
+            	option = new DhcpNewTzdbTimezoneOption();
+            	break;
+            case DhcpConstants.OPTION_ECHO_REQUEST:
+            	option = new DhcpEchoRequestOption();
+            	break;
+            case DhcpConstants.OPTION_LOST_SERVER_DOMAIN_NAME:
+            	option = new DhcpLostServerDomainNameOption();
+            	break; 
             default:
 //                option = new DhcpOption();
 //                option.setCode(code);

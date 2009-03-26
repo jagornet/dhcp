@@ -25,8 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
-import java.util.List;
-
+import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcpv6.xml.SipServerAddressesOption;
 
 /**
@@ -35,77 +34,26 @@ import com.jagornet.dhcpv6.xml.SipServerAddressesOption;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpSipServerAddressesOption extends BaseServerAddressesOption
+public class DhcpSipServerAddressesOption extends BaseIpAddressListOption
 {
-    /** The sip server addresses option. */
-    private SipServerAddressesOption sipServerAddressesOption;
-
-    /**
-     * Instantiates a new dhcp sip server addresses option.
-     */
-    public DhcpSipServerAddressesOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp sip server addresses option.
-     * 
-     * @param sipServerAddressesOption the sip server addresses option
-     */
-    public DhcpSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
-    {
-        super();
-        if (sipServerAddressesOption != null)
-            this.sipServerAddressesOption = sipServerAddressesOption;
-        else
-            this.sipServerAddressesOption = SipServerAddressesOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the sip server addresses option.
-     * 
-     * @return the sip server addresses option
-     */
-    public SipServerAddressesOption getSipServerAddressesOption()
-    {
-        return sipServerAddressesOption;
-    }
-
-    /**
-     * Sets the sip server addresses option.
-     * 
-     * @param sipServerAddressesOption the new sip server addresses option
-     */
-    public void setSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
-    {
-        if (sipServerAddressesOption != null)
-            this.sipServerAddressesOption = sipServerAddressesOption;
-    }
-
+	public DhcpSipServerAddressesOption()
+	{
+		this(null);
+	}
+	
+	public DhcpSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
+	{
+		if (sipServerAddressesOption != null)
+			this.serverAddressesOption = sipServerAddressesOption;
+		else
+			this.serverAddressesOption = SipServerAddressesOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return sipServerAddressesOption.getCode();
+        return ((SipServerAddressesOption)serverAddressesOption).getCode();
     }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseServerAddressesOption#getServerIpAddresses()
-     */
-    @Override
-    public List<String> getServerIpAddresses()
-    {
-        return sipServerAddressesOption.getServerIpAddressesList();
-    }
-    
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.BaseServerAddressesOption#addServerIpAddress(java.lang.String)
-	 */
-	@Override
-	public void addServerIpAddress(String serverIpAddress)
-	{
-		sipServerAddressesOption.addServerIpAddresses(serverIpAddress);
-	}
 }

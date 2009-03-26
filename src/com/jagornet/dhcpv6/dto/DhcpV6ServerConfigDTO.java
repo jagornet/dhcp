@@ -44,7 +44,8 @@
 package com.jagornet.dhcpv6.dto;
 
 import java.io.Serializable;
-import java.util.List;
+
+import com.jagornet.dhcpv6.dto.option.ServerIdOptionDTO;
 
 /**
  * Title: DhcpV6ServerConfigDTO
@@ -62,41 +63,21 @@ public class DhcpV6ServerConfigDTO implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	/** The policies. */
-	protected List<PolicyDTO> policies;
+	protected PoliciesDTO policies;
     
     /** The server id option. */
     protected ServerIdOptionDTO serverIdOption;
     
-    /** The standard options. */
-    protected StandardOptionsDTO standardOptions;
-    
-//    protected List<OptionDTO> otherOptions;
+    /** The configured options. */
+    protected OptionsDTO options;
     
     /** The filters. */
-    protected List<FilterDTO> filters;
+    protected FiltersDTO filters;
 	
 	/** The links. */
-	protected List<LinkDTO> links;
+    protected LinksDTO links;
 
-	/**
-	 * Gets the policies.
-	 * 
-	 * @return the policies
-	 */
-	public List<PolicyDTO> getPolicies() {
-		return policies;
-	}
-
-	/**
-	 * Sets the policies.
-	 * 
-	 * @param policies the new policies
-	 */
-	public void setPolicies(List<PolicyDTO> policies) {
-		this.policies = policies;
-	}
-
-	/**
+    /**
 	 * Gets the server id option.
 	 * 
 	 * @return the server id option
@@ -115,57 +96,44 @@ public class DhcpV6ServerConfigDTO implements Serializable
 	}
 
 	/**
-	 * Gets the standard options.
+	 * Gets the configured options.
 	 * 
-	 * @return the standard options
+	 * @return the configured options
 	 */
-	public StandardOptionsDTO getStandardOptions() {
-		return standardOptions;
+	public OptionsDTO getOptions() {
+		return options;
 	}
 
 	/**
-	 * Sets the standard options.
+	 * Sets the configured options.
 	 * 
-	 * @param standardOptions the new standard options
+	 * @param options the new configured options
 	 */
-	public void setStandardOptions(StandardOptionsDTO standardOptions) {
-		this.standardOptions = standardOptions;
+	public void setOptions(OptionsDTO options) {
+		this.options = options;
 	}
 
-	/**
-	 * Gets the filters.
-	 * 
-	 * @return the filters
-	 */
-	public List<FilterDTO> getFilters() {
+	public PoliciesDTO getPolicies() {
+		return policies;
+	}
+
+	public void setPolicies(PoliciesDTO policies) {
+		this.policies = policies;
+	}
+
+	public FiltersDTO getFilters() {
 		return filters;
 	}
- 
-	/**
-	 * Sets the filters.
-	 * 
-	 * @param filters the new filters
-	 */
-	public void setFilters(List<FilterDTO> filters) {
+
+	public void setFilters(FiltersDTO filters) {
 		this.filters = filters;
 	}
 
-	/**
-	 * Gets the links.
-	 * 
-	 * @return the links
-	 */
-	public List<LinkDTO> getLinks() {
+	public LinksDTO getLinks() {
 		return links;
 	}
 
-	/**
-	 * Sets the links.
-	 * 
-	 * @param links the new links
-	 */
-	public void setLinks(List<LinkDTO> links) {
+	public void setLinks(LinksDTO links) {
 		this.links = links;
 	}
-	    
 }

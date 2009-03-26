@@ -39,11 +39,10 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpServerSocket.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 public class DhcpServerSocket implements Runnable
 {

@@ -5,6 +5,7 @@
     </description>
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
+  <property name="javadoc" location="doc/javadoc"/>
   <property name="build" location="build"/>
   <property name="lib" location="build/lib"/>
   <property name="classes" location="build/classes"/>
@@ -21,6 +22,7 @@
     <!-- Create the time stamp -->
     <tstamp/>
     <!-- Create the build directory structure used by compile -->
+  	<mkdir dir="${javadoc}"/>
     <mkdir dir="${build}"/>
   	<mkdir dir="${lib}"/>
   	<mkdir dir="${classes}"/>
@@ -47,6 +49,13 @@
     		<filelist files="${lib}/xmltypes.jar"/>
     	</classpath>
     </javac>
+  </target>
+	
+  <target name="javadoc" depends="init">
+  	<!-- just rebuild the JavaDoc each time -->
+    <delete dir="${javadoc}"/>
+  	<javadoc sourcepath="${src}" destdir="${javadoc}">
+  	</javadoc>
   </target>
 
   <target name="dist" depends="schema,compile"

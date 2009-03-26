@@ -32,6 +32,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**

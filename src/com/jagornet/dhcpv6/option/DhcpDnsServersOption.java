@@ -25,8 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
-import java.util.List;
-
+import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcpv6.xml.DnsServersOption;
 
 /**
@@ -35,77 +34,26 @@ import com.jagornet.dhcpv6.xml.DnsServersOption;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpDnsServersOption extends BaseServerAddressesOption
-{ 
-    /** The dns servers option. */
-    private DnsServersOption dnsServersOption;
-
-    /**
-     * Instantiates a new dhcp dns servers option.
-     */
-    public DhcpDnsServersOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp dns servers option.
-     * 
-     * @param dnsServersOption the dns servers option
-     */
-    public DhcpDnsServersOption(DnsServersOption dnsServersOption)
-    {
-        super();
-        if (dnsServersOption != null)
-            this.dnsServersOption = dnsServersOption;
-        else
-            this.dnsServersOption = DnsServersOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the dns servers option.
-     * 
-     * @return the dns servers option
-     */
-    public DnsServersOption getDnsServersOption()
-    {
-        return dnsServersOption;
-    }
-
-    /**
-     * Sets the dns servers option.
-     * 
-     * @param dnsServersOption the new dns servers option
-     */
-    public void setDnsServersOption(DnsServersOption dnsServersOption)
-    {
-        if (dnsServersOption != null)
-            this.dnsServersOption = dnsServersOption;
-    }
-
+public class DhcpDnsServersOption extends BaseIpAddressListOption
+{
+	public DhcpDnsServersOption()
+	{
+		this(null);
+	}
+	
+	public DhcpDnsServersOption(DnsServersOption dnsServersOption)
+	{
+		if (dnsServersOption != null)
+			this.serverAddressesOption = dnsServersOption;
+		else
+			this.serverAddressesOption = DnsServersOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return dnsServersOption.getCode();
+        return ((DnsServersOption)serverAddressesOption).getCode();
     }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseServerAddressesOption#getServerIpAddresses()
-     */
-    @Override
-    public List<String> getServerIpAddresses()
-    {
-        return dnsServersOption.getServerIpAddressesList();
-    }
-    
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.BaseServerAddressesOption#addServerIpAddress(java.lang.String)
-	 */
-	@Override
-	public void addServerIpAddress(String serverIpAddress)
-	{
-		dnsServersOption.addServerIpAddresses(serverIpAddress);
-	}
 }

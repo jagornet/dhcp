@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
+import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
 import com.jagornet.dhcpv6.xml.NisPlusDomainNameOption;
 
 /**
@@ -35,73 +36,24 @@ import com.jagornet.dhcpv6.xml.NisPlusDomainNameOption;
  */
 public class DhcpNisPlusDomainNameOption extends BaseDomainNameOption
 {
-    /** The nis plus domain name option. */
-    private NisPlusDomainNameOption nisPlusDomainNameOption;
-
-    /**
-     * Instantiates a new dhcp nis plus domain name option.
-     */
-    public DhcpNisPlusDomainNameOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new dhcp nis plus domain name option.
-     * 
-     * @param nisPlusDomainNameOption the nis plus domain name option
-     */
-    public DhcpNisPlusDomainNameOption(NisPlusDomainNameOption nisPlusDomainNameOption)
-    {
-        super();
-        if (nisPlusDomainNameOption != null)
-            this.nisPlusDomainNameOption = nisPlusDomainNameOption;
-        else
-            this.nisPlusDomainNameOption = NisPlusDomainNameOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the nis plus domain name option.
-     * 
-     * @return the nis plus domain name option
-     */
-    public NisPlusDomainNameOption getNisPlusDomainNameOption()
-    {
-        return nisPlusDomainNameOption;
-    }
-
-    /**
-     * Sets the nis plus domain name option.
-     * 
-     * @param nisPlusDomainNameOption the new nis plus domain name option
-     */
-    public void setNisPlusDomainNameOption(NisPlusDomainNameOption nisPlusDomainNameOption)
-    {
-        if (nisPlusDomainNameOption != null)
-            this.nisPlusDomainNameOption = nisPlusDomainNameOption;
-    }
-
+	public DhcpNisPlusDomainNameOption()
+	{
+		this(null);
+	}
+	
+	public DhcpNisPlusDomainNameOption(NisPlusDomainNameOption nisPlusDomainNameOption)
+	{
+		if (nisPlusDomainNameOption != null)
+			this.domainNameOption = nisPlusDomainNameOption;
+		else
+			this.domainNameOption = NisPlusDomainNameOption.Factory.newInstance();
+	}
+	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return nisPlusDomainNameOption.getCode();
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseDomainNameOption#getDomainName()
-     */
-    public String getDomainName()
-    {
-        return nisPlusDomainNameOption.getDomainName();
-    }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseDomainNameOption#setDomainName(java.lang.String)
-     */
-    public void setDomainName(String domainName)
-    {
-        nisPlusDomainNameOption.setDomainName(domainName);
+        return ((NisPlusDomainNameOption)domainNameOption).getCode();
     }
 }

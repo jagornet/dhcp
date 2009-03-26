@@ -9,11 +9,12 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpDnsServersOption;
-import com.jagornet.dhcpv6.option.DhcpOption;
 import com.jagornet.dhcpv6.option.DhcpOptionRequestOption;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.option.DhcpUserClassOption;
+import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
 
 public class TestDhcpMessage extends TestCase
@@ -34,15 +35,18 @@ public class TestDhcpMessage extends TestCase
         dhcpMessage.setMessageType(DhcpConstants.REPLY);    // 1 byte
         dhcpMessage.setTransactionId(90599);                // 3 bytes
 
+        OpaqueData opaque = OpaqueData.Factory.newInstance();
+        opaque.setAsciiValue("jagornet-dhcpv6");	// 15 bytes
+
         // MUST include server id in reply
         ServerIdOption serverId = ServerIdOption.Factory.newInstance();     // 4 bytes (code + len)
-        serverId.setAsciiValue("AGR-DHCPv6");               // 10 bytes
+        serverId.setOpaqueData(opaque);
         dhcpMessage.setOption(new DhcpServerIdOption(serverId));
 
-        DhcpDnsServersOption dnsServers = new DhcpDnsServersOption();   // 4 bytes
-        dnsServers.addServer(DNS1);                 // 16 bytes
-        dnsServers.addServer(DNS2);                 // 16 bytes
-        dnsServers.addServer(DNS3);                 // 16 bytes
+        DhcpDnsServersOption dnsServers = new DhcpDnsServersOption();	// 4 bytes
+        dnsServers.getServerAddressesOption().addIpAddress(DNS1);		// 16 bytes
+        dnsServers.getServerAddressesOption().addIpAddress(DNS2);		// 16 bytes
+        dnsServers.getServerAddressesOption().addIpAddress(DNS3);		// 16 bytes
         dhcpMessage.setOption(dnsServers);
         return dhcpMessage;
     }
@@ -57,10 +61,10 @@ public class TestDhcpMessage extends TestCase
         assertEquals((byte)0xe7, bb.get());
         // server id option
         assertEquals(DhcpConstants.OPTION_SERVERID, bb.getShort());
-        assertEquals(10, bb.getShort());
-        byte[] b = new byte[10];
+        assertEquals(15, bb.getShort());
+        byte[] b = new byte[15];
         bb.get(b);
-        assertEquals("AGR-DHCPv6", new String(b));
+        assertEquals("jagornet-dhcpv6", new String(b));
         // dns servers option
         assertEquals(DhcpConstants.OPTION_DNS_SERVERS, bb.getShort());
         assertEquals(48, bb.getShort());
@@ -78,7 +82,7 @@ public class TestDhcpMessage extends TestCase
         DhcpMessage dhcpMessage = buildMockDhcpMessage();
         ByteBuffer bb = dhcpMessage.encode();
         assertNotNull(bb);
-        assertEquals(70, bb.limit());
+        assertEquals(75, bb.limit());
         checkEncodedMockDhcpMessage(bb);
         assertEquals(false, bb.hasRemaining());
     }
@@ -117,19 +121,19 @@ public class TestDhcpMessage extends TestCase
         DhcpClientIdOption clientId = 
             (DhcpClientIdOption)options.get(DhcpConstants.OPTION_CLIENTID);
         assertNotNull(clientId);
-        assertEquals("MyClientId", clientId.getClientIdOption().getAsciiValue());
+        assertEquals("MyClientId", clientId.getOpaqueDataOptionType().getOpaqueData().getAsciiValue());
         DhcpOptionRequestOption oro =
             (DhcpOptionRequestOption)options.get(DhcpConstants.OPTION_ORO);
         assertNotNull(oro);
         assertEquals(Integer.valueOf(DhcpConstants.OPTION_DNS_SERVERS), 
-        		oro.getOptionRequestOption().getRequestedOptionCodesList().get(0)); 
+        		oro.getUnsignedShortListOption().getUnsignedShortList().get(0)); 
         DhcpUserClassOption userClass =
             (DhcpUserClassOption)options.get(DhcpConstants.OPTION_USER_CLASS);
         assertNotNull(userClass);
         assertEquals("UserClass 1",
-                userClass.getUserClassOption().getUserClassesList().get(0).getAsciiValue());
+                userClass.getOpaqueDataListOptionType().getOpaqueDataList().get(0).getAsciiValue());
         assertEquals("UserClass 2",
-                userClass.getUserClassOption().getUserClassesList().get(1).getAsciiValue());
+                userClass.getOpaqueDataListOptionType().getOpaqueDataList().get(1).getAsciiValue());
         
     }
     
