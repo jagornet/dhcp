@@ -44,9 +44,9 @@ public class DhcpDnsServersOption extends BaseIpAddressListOption
 	public DhcpDnsServersOption(DnsServersOption dnsServersOption)
 	{
 		if (dnsServersOption != null)
-			this.serverAddressesOption = dnsServersOption;
+			this.ipAddressListOption = dnsServersOption;
 		else
-			this.serverAddressesOption = DnsServersOption.Factory.newInstance();
+			this.ipAddressListOption = DnsServersOption.Factory.newInstance();
 	}
 	
     /* (non-Javadoc)
@@ -54,6 +54,6 @@ public class DhcpDnsServersOption extends BaseIpAddressListOption
      */
     public int getCode()
     {
-        return ((DnsServersOption)serverAddressesOption).getCode();
+        return ((DnsServersOption)ipAddressListOption).getCode();
     }
 }

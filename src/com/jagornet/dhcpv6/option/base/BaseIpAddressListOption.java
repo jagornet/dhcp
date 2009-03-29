@@ -53,31 +53,31 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseIpAddressListOption.class);
 	
-	protected IpAddressListOptionType serverAddressesOption;
+	protected IpAddressListOptionType ipAddressListOption;
 	
 	public BaseIpAddressListOption()
 	{
 		this(null);
 	}
 	
-	public BaseIpAddressListOption(IpAddressListOptionType serverAddressesOption)
+	public BaseIpAddressListOption(IpAddressListOptionType ipAddressListOption)
 	{
 		super();
-		if (serverAddressesOption != null)
-			this.serverAddressesOption = serverAddressesOption;
+		if (ipAddressListOption != null)
+			this.ipAddressListOption = ipAddressListOption;
 		else
-			this.serverAddressesOption = IpAddressListOptionType.Factory.newInstance();
+			this.ipAddressListOption = IpAddressListOptionType.Factory.newInstance();
 	}
 
-    public IpAddressListOptionType getServerAddressesOption()
+    public IpAddressListOptionType getIpAddressListOption()
     {
-		return serverAddressesOption;
+		return ipAddressListOption;
 	}
 
-	public void setServerAddressesOption(IpAddressListOptionType serverAddressesOption)
+	public void setIpAddressListOption(IpAddressListOptionType ipAddressListOption)
 	{
-		if (serverAddressesOption != null)
-			this.serverAddressesOption = serverAddressesOption;
+		if (ipAddressListOption != null)
+			this.ipAddressListOption = ipAddressListOption;
 	}
 
 	/* (non-Javadoc)
@@ -86,7 +86,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     public ByteBuffer encode() throws IOException
     {
         IoBuffer iobuf = super.encodeCodeAndLength();
-        List<String> serverIps = serverAddressesOption.getIpAddressList();
+        List<String> serverIps = ipAddressListOption.getIpAddressList();
         if (serverIps != null) {
             for (String ip : serverIps) {
                 InetAddress inet6Addr = Inet6Address.getByName(ip);
@@ -120,7 +120,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     public int getLength()
     {
         int len = 0;
-        List<String> serverIps = serverAddressesOption.getIpAddressList();
+        List<String> serverIps = ipAddressListOption.getIpAddressList();
         if (serverIps != null) {
             len += serverIps.size() * 16;   // each IPv6 address is 16 bytes
         }
@@ -153,7 +153,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     public void addServer(InetAddress inetAddr)
     {
         if (inetAddr != null) {
-        	serverAddressesOption.addIpAddress(inetAddr.getHostAddress());
+        	ipAddressListOption.addIpAddress(inetAddr.getHostAddress());
         }
     }
 
@@ -166,10 +166,10 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (serverAddressesOption == null)
+        if (ipAddressListOption == null)
         	return false;
 
-        List<String> myServerIps = serverAddressesOption.getIpAddressList();
+        List<String> myServerIps = ipAddressListOption.getIpAddressList();
         if (myServerIps == null)
         	return false;
         
@@ -202,7 +202,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
         
         StringBuilder sb = new StringBuilder(this.getName());
         sb.append(": ");
-        List<String> serverIps = serverAddressesOption.getIpAddressList();
+        List<String> serverIps = ipAddressListOption.getIpAddressList();
         if (serverIps != null) {
             for (String ip : serverIps) {
                 sb.append(ip);

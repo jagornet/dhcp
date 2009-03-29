@@ -44,9 +44,9 @@ public class DhcpNisServersOption extends BaseIpAddressListOption
 	public DhcpNisServersOption(NisServersOption nisServersOption)
 	{
 		if (nisServersOption != null)
-			this.serverAddressesOption = nisServersOption;
+			this.ipAddressListOption = nisServersOption;
 		else
-			this.serverAddressesOption = NisServersOption.Factory.newInstance();
+			this.ipAddressListOption = NisServersOption.Factory.newInstance();
 	}
 	
     /* (non-Javadoc)
@@ -54,6 +54,6 @@ public class DhcpNisServersOption extends BaseIpAddressListOption
      */
     public int getCode()
     {
-        return ((NisServersOption)serverAddressesOption).getCode();
+        return ((NisServersOption)ipAddressListOption).getCode();
     }
 }

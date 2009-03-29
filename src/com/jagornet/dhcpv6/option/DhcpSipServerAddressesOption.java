@@ -44,9 +44,9 @@ public class DhcpSipServerAddressesOption extends BaseIpAddressListOption
 	public DhcpSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
 	{
 		if (sipServerAddressesOption != null)
-			this.serverAddressesOption = sipServerAddressesOption;
+			this.ipAddressListOption = sipServerAddressesOption;
 		else
-			this.serverAddressesOption = SipServerAddressesOption.Factory.newInstance();
+			this.ipAddressListOption = SipServerAddressesOption.Factory.newInstance();
 	}
 	
     /* (non-Javadoc)
@@ -54,6 +54,6 @@ public class DhcpSipServerAddressesOption extends BaseIpAddressListOption
      */
     public int getCode()
     {
-        return ((SipServerAddressesOption)serverAddressesOption).getCode();
+        return ((SipServerAddressesOption)ipAddressListOption).getCode();
     }
 }

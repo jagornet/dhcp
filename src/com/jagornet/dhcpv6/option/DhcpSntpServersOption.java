@@ -44,9 +44,9 @@ public class DhcpSntpServersOption extends BaseIpAddressListOption
 	public DhcpSntpServersOption(SntpServersOption sntpServersOption)
 	{
 		if (sntpServersOption != null)
-			this.serverAddressesOption = sntpServersOption;
+			this.ipAddressListOption = sntpServersOption;
 		else
-			this.serverAddressesOption = SntpServersOption.Factory.newInstance();
+			this.ipAddressListOption = SntpServersOption.Factory.newInstance();
 	}
 	
     /* (non-Javadoc)
@@ -54,6 +54,6 @@ public class DhcpSntpServersOption extends BaseIpAddressListOption
      */
     public int getCode()
     {
-        return ((SntpServersOption)serverAddressesOption).getCode();
+        return ((SntpServersOption)ipAddressListOption).getCode();
     }
 }

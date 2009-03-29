@@ -211,4 +211,38 @@ public class OptionDefDTO extends BaseOptionDTO
 	public void setOpaqueDataOption(OpaqueDataOptionDTO opaqueDataOption) {
 		this.opaqueDataOption = opaqueDataOption;
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public String getName()
+	{
+		if (name == null) {
+			Class clazz = null;
+			if (uByteOption != null) {
+				clazz = uByteOption.getClass();
+			}
+			else if (uShortOption != null) {
+				clazz = uShortOption.getClass();
+			}
+			else if (uIntOption != null) {
+				clazz = uIntOption.getClass();
+			}
+			else if (stringOption != null) {
+				clazz = stringOption.getClass();
+			}
+			else if (ipAddressListOption != null) {
+				clazz = ipAddressListOption.getClass();
+			}
+			else if (domainNameListOption != null) {
+				clazz = domainNameListOption.getClass();
+			}
+			else if (opaqueDataOption != null) {
+				clazz = opaqueDataOption.getClass();
+			}
+			if (clazz != null)
+				name = super.getSimpleClassName(clazz);
+		}
+		return name;
+	}
+	
 }
