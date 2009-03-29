@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
+	
+	<policies>
+		<policy>
+			<name>sendRequestedOptionsOnly</name>
+			<value>true</value>
+		</policy>
+	</policies>
+
+	<serverIdOption>
+		<opaqueData>
+			<hexValue>abcdef0123456789</hexValue>
+		</opaqueData>
+	</serverIdOption>
+
+	<options>
+		<dnsServersOption>
+			<ipAddress>3ffe::0001</ipAddress>
+			<ipAddress>3ffe::0002</ipAddress>
+			<ipAddress>3ffe::0003</ipAddress>
+		</dnsServersOption>
+		<domainSearchListOption>
+			<domainName>foo.com.</domainName>
+			<domainName>bar.com.</domainName>
+			<domainName>yuk.com.</domainName>
+		</domainSearchListOption>
+	</options>
+
+	<filters>
+	  <filter>
+		<name>UserClass Filter Group 1</name>
+		<filterExpressions>
+			<filterExpression>
+				<optionExpression code="15">
+					<opaqueOption>
+						<opaqueData>
+							<asciiValue>FilterUserClass</asciiValue>
+						</opaqueData>
+					</opaqueOption>
+				</optionExpression>
+			</filterExpression>
+		</filterExpressions>
+		<options>
+			<domainListOption>
+				<domainName>filter.com.</domainName>
+			</domainListOption>
+		</options>
+	  </filter>
+	</filters>
+	
+	<links>
+		<link>
+			<name>Client Link 1</name>
+			<address>2001:DB8:1::/48</address>
+			<options>
+				<dnsServersOption>
+					<ipAddress>2001:DB8:1::1</ipAddress>
+				</dnsServersOption>
+			</options>
+		</link>
+		<link>
+			<name>Client Link 2</name>
+			<address>2001:DB8:2::/48</address>
+			<options>
+				<dnsServersOption>
+					<ipAddress>2001:DB8:2::1</ipAddress>
+				</dnsServersOption>
+			</options>
+		</link>
+		<link>
+			<name>Client Link 3</name>
+			<address>2001:DB8:3::/48</address>
+			<options>
+				<dnsServersOption>
+					<ipAddress>2001:DB8:3::1</ipAddress>
+				</dnsServersOption>
+			</options>
+		</link>
+		<link>
+			<name>Client Link 4</name>
+			<address>2001:DB8:4::/48</address>
+			<options>
+				<dnsServersOption>
+					<ipAddress>2001:DB8:4::1</ipAddress>
+				</dnsServersOption>
+			</options>
+		</link>
+		<link>
+			<name>Client Link 5</name>
+			<address>2001:DB8:5::/48</address>
+			<options>
+				<dnsServersOption>
+					<ipAddress>2001:DB8:5::1</ipAddress>
+				</dnsServersOption>
+			</options>
+		</link>
+	</links>
+
+</dhc:dhcpV6ServerConfig>
