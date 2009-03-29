@@ -63,13 +63,17 @@ public class TestDhcpServerConfiguration extends TestCase
 		assertEquals(1, config.getPolicies().getPolicyList().size());
 		assertEquals("sendRequestedOptionsOnly", config.getPolicies().getPolicyList().get(0).getName());
 		assertEquals("true", config.getPolicies().getPolicyList().get(0).getValue());
+        assertNotNull(config.getServerIdOption());
+		assertEquals(DhcpConstants.OPTION_SERVERID, config.getServerIdOption().getCode());
         assertEquals("abcdef0123456789", Util.toHexString(config.getServerIdOption().getOpaqueData().getHexValue()));
         assertNotNull(config.getOptions().getDnsServersOption());
+        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, config.getOptions().getDnsServersOption().getCode());
         assertEquals(3, config.getOptions().getDnsServersOption().getIpAddressList().size());
         assertEquals("3ffe::0001", config.getOptions().getDnsServersOption().getIpAddressList().get(0));
         assertEquals("3ffe::0002", config.getOptions().getDnsServersOption().getIpAddressList().get(1));
         assertEquals("3ffe::0003", config.getOptions().getDnsServersOption().getIpAddressList().get(2));
         assertNotNull(config.getOptions().getDomainSearchListOption());
+        assertEquals(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, config.getOptions().getDomainSearchListOption().getCode());
         assertEquals(3, config.getOptions().getDomainSearchListOption().getDomainNameList().size());
         assertEquals("foo.com.", config.getOptions().getDomainSearchListOption().getDomainNameList().get(0));
         assertEquals("bar.com.", config.getOptions().getDomainSearchListOption().getDomainNameList().get(1));
