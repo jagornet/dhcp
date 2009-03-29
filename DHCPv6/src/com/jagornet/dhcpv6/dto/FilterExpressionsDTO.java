@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -32,8 +33,13 @@ import java.util.List;
  * 
  * @author A. Gregory Rabil
  */
-public class FilterExpressionsDTO
+public class FilterExpressionsDTO implements Serializable
 {	
+	/**
+	 * Default serial version id.
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	/** The filter expression list. */
 	protected List<FilterExpressionDTO> filterExpressionList;
 

@@ -74,6 +74,13 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 		if (domainNameListOption != null)
 			this.domainNameListOption = domainNameListOption;
 	}
+	
+	public void addDomainName(String domainName)
+	{
+		if (domainName != null) {
+			domainNameListOption.addDomainName(domainName);
+		}
+	}
 
 	public ByteBuffer encode() throws IOException
     {

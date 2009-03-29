@@ -44,9 +44,9 @@ public class DhcpBcmcsAddressesOption extends BaseIpAddressListOption
 	public DhcpBcmcsAddressesOption(BcmcsAddressesOption bcmcsAddressesOption)
 	{
 		if (bcmcsAddressesOption != null)
-			this.serverAddressesOption = bcmcsAddressesOption;
+			this.ipAddressListOption = bcmcsAddressesOption;
 		else
-			this.serverAddressesOption = BcmcsAddressesOption.Factory.newInstance();
+			this.ipAddressListOption = BcmcsAddressesOption.Factory.newInstance();
 	}
 	
     /* (non-Javadoc)
@@ -54,6 +54,6 @@ public class DhcpBcmcsAddressesOption extends BaseIpAddressListOption
      */
     public int getCode()
     {
-        return ((BcmcsAddressesOption)serverAddressesOption).getCode();
+        return ((BcmcsAddressesOption)ipAddressListOption).getCode();
     }
 }

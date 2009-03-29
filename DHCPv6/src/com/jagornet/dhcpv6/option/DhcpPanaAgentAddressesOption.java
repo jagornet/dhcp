@@ -44,9 +44,9 @@ public class DhcpPanaAgentAddressesOption extends BaseIpAddressListOption
 	public DhcpPanaAgentAddressesOption(PanaAgentAddressesOption panaAgentAddressesOption)
 	{
 		if (panaAgentAddressesOption != null)
-			this.serverAddressesOption = panaAgentAddressesOption;
+			this.ipAddressListOption = panaAgentAddressesOption;
 		else
-			this.serverAddressesOption = PanaAgentAddressesOption.Factory.newInstance();
+			this.ipAddressListOption = PanaAgentAddressesOption.Factory.newInstance();
 	}
 	
     /* (non-Javadoc)
@@ -54,6 +54,6 @@ public class DhcpPanaAgentAddressesOption extends BaseIpAddressListOption
      */
     public int getCode()
     {
-        return ((PanaAgentAddressesOption)serverAddressesOption).getCode();
+        return ((PanaAgentAddressesOption)ipAddressListOption).getCode();
     }
 }

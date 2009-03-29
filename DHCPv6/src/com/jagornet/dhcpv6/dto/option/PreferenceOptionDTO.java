@@ -26,7 +26,6 @@
 package com.jagornet.dhcpv6.dto.option;
 
 import com.jagornet.dhcpv6.dto.option.base.UByteOptionDTO;
-import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
  * The Class PreferenceOptionDTO.
@@ -40,9 +39,4 @@ public class PreferenceOptionDTO extends UByteOptionDTO
 	 * Default serial version id.
 	 */
 	private static final long serialVersionUID = 1L;
-
-	@Override
-	public Integer getCode() {
-		return DhcpConstants.OPTION_PREFERENCE;
-	}
 }

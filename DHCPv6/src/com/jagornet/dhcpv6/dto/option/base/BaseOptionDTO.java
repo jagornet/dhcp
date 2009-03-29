@@ -68,9 +68,34 @@ public abstract class BaseOptionDTO implements Serializable
      */
     public String getName()
     {
-    	if (name == null)
-    		name = 	this.getClass().getSimpleName();
+    	if (name == null) {
+    		name = getSimpleClassName(this.getClass());
+    	}
         return name;
+    }
+
+    /**
+     * Code our own Class.simpleName method, because it
+     * is not available for use from GWT.
+     * 
+     * @param clazz the Class to build the name from
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+	public static String getSimpleClassName(Class clazz)
+    {
+    	String cname = clazz.getName();
+		if (cname != null) {
+    		int d = cname.lastIndexOf(".");
+    		if ((d > 0) && (cname.length() > d+1)) {
+    			cname = cname.substring(d+1);
+    			d = cname.indexOf("DTO");
+    			if ((d > 0) && (cname.length() > d)) {
+    				cname = cname.substring(0, d);
+    			}
+    		}
+		}
+		return cname;
     }
     
     /**

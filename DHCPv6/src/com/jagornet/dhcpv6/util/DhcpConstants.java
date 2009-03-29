@@ -43,7 +43,8 @@
  */
 package com.jagornet.dhcpv6.util;
 
-import java.net.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 // TODO: Auto-generated Javadoc
 /**
