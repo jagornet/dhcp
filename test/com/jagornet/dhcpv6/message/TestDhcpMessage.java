@@ -44,9 +44,9 @@ public class TestDhcpMessage extends TestCase
         dhcpMessage.setOption(new DhcpServerIdOption(serverId));
 
         DhcpDnsServersOption dnsServers = new DhcpDnsServersOption();	// 4 bytes
-        dnsServers.getServerAddressesOption().addIpAddress(DNS1);		// 16 bytes
-        dnsServers.getServerAddressesOption().addIpAddress(DNS2);		// 16 bytes
-        dnsServers.getServerAddressesOption().addIpAddress(DNS3);		// 16 bytes
+        dnsServers.getIpAddressListOption().addIpAddress(DNS1);		// 16 bytes
+        dnsServers.getIpAddressListOption().addIpAddress(DNS2);		// 16 bytes
+        dnsServers.getIpAddressListOption().addIpAddress(DNS3);		// 16 bytes
         dhcpMessage.setOption(dnsServers);
         return dhcpMessage;
     }

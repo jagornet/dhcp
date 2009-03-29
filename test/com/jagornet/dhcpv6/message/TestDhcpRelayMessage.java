@@ -62,7 +62,7 @@ public class TestDhcpRelayMessage extends TestCase
                      InetAddress.getByAddress(b));
         // relayed message
         assertEquals(DhcpConstants.OPTION_RELAY_MSG, bb.getShort());
-        assertEquals(70, bb.getShort());
+        assertEquals(75, bb.getShort());
         TestDhcpMessage.checkEncodedMockDhcpMessage(bb);        
     }
     
@@ -73,8 +73,8 @@ public class TestDhcpRelayMessage extends TestCase
         ByteBuffer bb  = relayMessage.encode();
         assertNotNull(bb);
         // length = 34(relay message header) + 2 (relay option code)
-        //          2 (relay option length) + 70 (relay message option)
-        assertEquals(34+4+70, bb.limit());
+        //          2 (relay option length) + 75 (relay message option)
+        assertEquals(34+4+75, bb.limit());
         
         checkEncodedMockDhcpRelayMessage(bb);
 
@@ -105,8 +105,8 @@ public class TestDhcpRelayMessage extends TestCase
         ByteBuffer bb = relayMessage2.encode();
         assertNotNull(bb);
         // length = 2 x (34(relay message header) + 2 (relay option code)
-        //          2 (relay option length)) + 70 (relay message option)
-        assertEquals((2*(34+4))+70, bb.limit());
+        //          2 (relay option length)) + 75 (relay message option)
+        assertEquals((2*(34+4))+75, bb.limit());
         
         // message type
         assertEquals(DhcpConstants.RELAY_REPL, bb.get());
@@ -123,7 +123,7 @@ public class TestDhcpRelayMessage extends TestCase
                      InetAddress.getByAddress(b));
         // relayed message
         assertEquals(DhcpConstants.OPTION_RELAY_MSG, bb.getShort());
-        assertEquals(34+4+70, bb.getShort());
+        assertEquals(34+4+75, bb.getShort());
         checkEncodedMockDhcpRelayMessage(bb);        
     }
     

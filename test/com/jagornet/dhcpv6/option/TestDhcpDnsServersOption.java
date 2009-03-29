@@ -61,9 +61,9 @@ public class TestDhcpDnsServersOption extends TestCase
         bb.flip();
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
         dso.decode(bb);
-        assertNotNull(dso.getServerAddressesOption());
-        assertEquals(2, dso.getServerAddressesOption().getIpAddressList().size());
-        List<String> dnsServers = dso.getServerAddressesOption().getIpAddressList();
+        assertNotNull(dso.getIpAddressListOption());
+        assertEquals(2, dso.getIpAddressListOption().getIpAddressList().size());
+        List<String> dnsServers = dso.getIpAddressListOption().getIpAddressList();
         assertEquals(dns1, 
                      InetAddress.getByName((String)dnsServers.get(0)));
         assertEquals(dns2, 
