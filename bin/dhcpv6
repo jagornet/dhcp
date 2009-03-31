@@ -6,8 +6,8 @@ OP=$1
 # shift causes all arguments to be moved left by one
 # which essentially removes this wrapper script's argument
 shift
-#echo "$*"
-DHCPV6_OPTS="$*"
+#echo "$@"
+DHCPV6_OPTS="$@"
 
 # This block of shell script for determining the
 # application's home directory was borrowed from 
@@ -95,7 +95,7 @@ start() {
 		echo "$NAME already running."
 	else
 		echo "Starting $NAME..."
-		java $JAVA_OPTS -Ddhcpv6.home="$DHCPV6_HOME" $DHCPV6_MAIN $DHCPV6_OPTS > $DHCPV6_HOME/log/dhcpv6server.out & 
+		java $JAVA_OPTS -Ddhcpv6.home="$DHCPV6_HOME" $DHCPV6_MAIN $DHCPV6_OPTS > "$DHCPV6_HOME/log/dhcpv6server.out" & 
 		echo "$!" > $DHCPV6_PID
 		sleep 5
 		isRunning
