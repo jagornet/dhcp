@@ -1,16 +1,11 @@
 package com.jagornet.dhcpv6.option;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.sf.dozer.util.mapping.DozerBeanMapper;
-import net.sf.dozer.util.mapping.MapperIF;
 
-import com.jagornet.dhcpv6.dto.option.DomainSearchListOptionDTO;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.DomainSearchListOption;
 
 public class TestDhcpDomainSearchListOption extends TestCase
 {
@@ -87,45 +82,5 @@ public class TestDhcpDomainSearchListOption extends TestCase
         List<String> domainNames = dslo.getDomainNameListOption().getDomainNameList();
         assertEquals(domain1, domainNames.get(0)); 
         assertEquals(domain2, domainNames.get(1)); 
-    }
-    
-    public void testToDTO() throws Exception
-    {
-        List<String> mappingFiles = new ArrayList<String>();
-        mappingFiles.add("com/jagornet/dhcpv6/dto/dozermap.xml");
-        
-        DomainSearchListOption dslo = DomainSearchListOption.Factory.newInstance();
-        dslo.addDomainName(domain1);
-        dslo.addDomainName(domain2);
-        MapperIF mapper = new DozerBeanMapper(mappingFiles);
-        DomainSearchListOptionDTO dto = (DomainSearchListOptionDTO)
-                                    mapper.map(dslo, DomainSearchListOptionDTO.class);
-        assertNotNull(dto);
-        assertEquals(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, dto.getCode().intValue());
-        assertNotNull(dto.getDomainNameList());
-        assertEquals(2, dto.getDomainNameList().size());
-        assertEquals(domain1, dto.getDomainNameList().get(0));
-        assertEquals(domain2, dto.getDomainNameList().get(1));
-    }
-    
-    public void testFromDTO() throws Exception
-    {
-        List<String> mappingFiles = new ArrayList<String>();
-        mappingFiles.add("com/jagornet/dhcpv6/dto/dozermap.xml");
-        
-        DomainSearchListOptionDTO dto = new DomainSearchListOptionDTO();
-        List<String> domainNames = new ArrayList<String>();
-        domainNames.add(domain1);
-        domainNames.add(domain2);
-        dto.setDomainNameList(domainNames);
-        MapperIF mapper = new DozerBeanMapper(mappingFiles);
-        DomainSearchListOption dslo = (DomainSearchListOption)
-                                mapper.map(dto, DomainSearchListOption.class);
-        assertNotNull(dslo);
-        assertEquals(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, dslo.getCode());
-        assertNotNull(dslo.getDomainNameList());
-        assertEquals(2, dslo.getDomainNameList().size());
-        assertEquals(domain1, dslo.getDomainNameList().get(0));
-        assertEquals(domain2, dslo.getDomainNameList().get(1));
     }
 }

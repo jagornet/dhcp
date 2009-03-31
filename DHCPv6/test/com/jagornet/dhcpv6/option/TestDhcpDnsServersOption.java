@@ -2,16 +2,11 @@ package com.jagornet.dhcpv6.option;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.sf.dozer.util.mapping.DozerBeanMapper;
-import net.sf.dozer.util.mapping.MapperIF;
 
-import com.jagornet.dhcpv6.dto.option.DnsServersOptionDTO;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.DnsServersOption;
 
 public class TestDhcpDnsServersOption extends TestCase
 {
@@ -68,49 +63,5 @@ public class TestDhcpDnsServersOption extends TestCase
                      InetAddress.getByName((String)dnsServers.get(0)));
         assertEquals(dns2, 
                      InetAddress.getByName((String)dnsServers.get(1)));
-    }
-    
-    public void testToDTO() throws Exception
-    {
-        List<String> mappingFiles = new ArrayList<String>();
-        mappingFiles.add("com/jagornet/dhcpv6/dto/dozermap.xml");
-        
-        DnsServersOption dso = DnsServersOption.Factory.newInstance();
-        dso.addIpAddress(dns1.getHostAddress());
-        dso.addIpAddress(dns2.getHostAddress());
-        // hack to get/set the "fixed" fields so that the 'isSet' flag
-        // for each field is turned ON (true) to allow Dozer to map them
-//        dso.setCode(dso.getCode());
-//        dso.setName(dso.getName());
-        MapperIF mapper = new DozerBeanMapper(mappingFiles);
-        DnsServersOptionDTO dto = (DnsServersOptionDTO)
-                                    mapper.map(dso, DnsServersOptionDTO.class);
-        assertNotNull(dto);
-        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, dto.getCode().intValue());
-        assertNotNull(dto.getIpAddressList());
-        assertEquals(2, dto.getIpAddressList().size());
-        assertEquals(dns1.getHostAddress(), dto.getIpAddressList().get(0));
-        assertEquals(dns2.getHostAddress(), dto.getIpAddressList().get(1));
-    }
-    
-    public void testFromDTO() throws Exception
-    {
-        List<String> mappingFiles = new ArrayList<String>();
-        mappingFiles.add("com/jagornet/dhcpv6/dto/dozermap.xml");
-        
-        DnsServersOptionDTO dto = new DnsServersOptionDTO();
-        List<String> serverIps = new ArrayList<String>();
-        serverIps.add(dns1.getHostAddress());
-        serverIps.add(dns2.getHostAddress());
-        dto.setIpAddressList(serverIps);
-        MapperIF mapper = new DozerBeanMapper(mappingFiles);
-        DnsServersOption dso = (DnsServersOption)
-                                mapper.map(dto, DnsServersOption.class);
-        assertNotNull(dso);
-        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, dso.getCode());
-        assertNotNull(dso.getIpAddressList());
-        assertEquals(2, dso.getIpAddressList().size());
-        assertEquals(dns1.getHostAddress(), dso.getIpAddressList().get(0));
-        assertEquals(dns2.getHostAddress(), dso.getIpAddressList().get(1));
     }
 }
