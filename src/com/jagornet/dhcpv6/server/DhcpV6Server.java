@@ -34,15 +34,11 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
-import net.sf.dozer.util.mapping.DozerBeanMapper;
-import net.sf.dozer.util.mapping.MapperIF;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -58,7 +54,6 @@ import org.apache.log4j.spi.LoggerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.dto.DhcpV6ServerConfigDTO;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.multicast.MulticastDhcpServer;
 import com.jagornet.dhcpv6.server.unicast.UnicastDhcpServer;
@@ -85,10 +80,6 @@ public class DhcpV6Server
     /** The default config filename. */
     public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.DHCPV6_HOME != null ? 
     	DhcpConstants.DHCPV6_HOME + "/conf/" + "dhcpv6server.xml" : "dhcpv6server.xml";
-
-    /** The dozer bean mapper. */
-    protected static MapperIF mapper = 
-    	new DozerBeanMapper(Arrays.asList("com/jagornet/dhcpv6/dto/dozermap.xml"));
     
     /** The configuration filename. */
     protected String configFilename = DEFAULT_CONFIG_FILENAME;
@@ -176,7 +167,7 @@ public class DhcpV6Server
         	.withArgName("args")
         	.withDescription("Multicast interfaces [none]" +
         			" - list interface names separated by spaces," +
-        			" or * for all IPv6 configured interfaces")
+        			" or * for all IPv6 interfaces")
         	.hasArgs()
         	.create("m");
         				 
@@ -353,29 +344,11 @@ public class DhcpV6Server
 	}
     
     /**
-     * Static method used by the GUI to load the config file.
-     * 
-     * @param filename the configuration filename
-     * 
-     * @return DhcpV6ServerConfigDTO opaqueData transfer object
-     * 
-     * @throws Exception the exception
-     */
-    public static DhcpV6ServerConfigDTO loadConfigDTO(String filename) throws Exception
-    {
-        DhcpV6ServerConfig config = DhcpV6Server.loadConfig(filename);
-        if (config != null) {
-            return convertToDTO(config);
-        }
-        return null;
-    }
-    
-    /**
      * Load server configuration.
      * 
      * @param filename the configuration filename
      * 
-     * @return DhcpV6ServerConfig domain object
+     * @return DhcpV6ServerConfig XML document object
      * 
      * @throws Exception the exception
      */
@@ -385,23 +358,9 @@ public class DhcpV6Server
     }
     
     /**
-     * Static method used by the GUI to save the configuration file.
-     * 
-     * @param dto DhcpV6ServerConfigDTO opaqueData transfer object
-     * @param filename the configuration filename
-     * 
-     * @throws Exception the exception
-     */
-    public static void saveConfigDTO(DhcpV6ServerConfigDTO dto, String filename) throws Exception
-    {
-        DhcpV6ServerConfig config = convertFromDTO(dto);
-        DhcpV6Server.saveConfig(config, filename);
-    }
-    
-    /**
      * Save server configuration.
      * 
-     * @param config DhcpV6ServerConfig domain object
+     * @param config DhcpV6ServerConfig XML document object
      * @param filename the configuration filename
      * 
      * @throws Exception the exception
@@ -412,66 +371,13 @@ public class DhcpV6Server
     }
 
     /**
-     * Static method used by the GUI to get the server configuration.
+     * Static method to get the server configuration.
      * 
-     * @return the DhcpV6ServerConfig domain object
+     * @return the DhcpV6ServerConfig XML document object
      */
     public static DhcpV6ServerConfig getDhcpServerConfig()
     {
         return DhcpServerConfiguration.getConfig();
-    }
-    
-
-    /**
-     * Convert the XML-based DhcpV6ServerConfig domain object to
-     * its equivalent Data Transfer Object (DTO) version.
-     * This implementation uses Dozer (dozer.sourceforge.net)
-     * to perform the conversion via reflection.
-     * 
-     * @param config    DhcpV6ServerConfig domain object to convert
-     * 
-     * @return          DhcpV6ServerConfigDTO object populated
-     * with the contents of the domain object
-     * 
-     * @throws Exception the exception
-     */
-    public static DhcpV6ServerConfigDTO convertToDTO(DhcpV6ServerConfig config) throws Exception 
-    {
-        DhcpV6ServerConfigDTO dto = null;
-        try {
-            dto = (DhcpV6ServerConfigDTO) mapper.map(config, DhcpV6ServerConfigDTO.class);
-        }
-        catch (Exception ex) {
-            log.error("Failure converting domain object to DTO:" + ex);
-            throw ex;
-        }
-        return dto;
-    }
-
-    /**
-     * Convert the DhcpV6ServerConfigDTO opaqueData-tranfer object to
-     * its equivalent domain version.
-     * This implementation uses Dozer (dozer.sourceforge.net)
-     * to perform the conversion via reflection.
-     * 
-     * @param dto the dto
-     * 
-     * @return          DhcpV6ServerConfig object populated
-     * with the contents of the opaqueData-transfer object
-     * 
-     * @throws Exception the exception
-     */
-    public static DhcpV6ServerConfig convertFromDTO(DhcpV6ServerConfigDTO dto) throws Exception 
-    {
-        DhcpV6ServerConfig config = null;
-        try {
-            config = (DhcpV6ServerConfig) mapper.map(dto, DhcpV6ServerConfig.class);
-        }
-        catch (Exception ex) {
-            log.error("Failure converting DTO to domain object:" + ex);
-            throw ex;
-        }
-        return config;
     }
         
     /**
