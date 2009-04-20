@@ -23,80 +23,38 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcpv6.server.multicast;
+package com.jagornet.dhcpv6.server.net;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
-import java.net.NetworkInterface;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
  * The Class DhcpServerSocket.
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpServerSocket implements Runnable
+public abstract class DhcpServerSocket implements Runnable
 {
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpServerSocket.class);
-	
-	/** the local network interface for this socket. */
-	private final NetworkInterface netIf;
 
-	/** the multicast socket itself */
-	private final MulticastSocket msock;
+	/** the socket itself which is a DatagramSocket or MulticastSocket. */
+	protected DatagramSocket sock;
 	
-	/** the socket address of the local network interface for this socket
-	where the IP is the interface address and the port is the server port */
-	private final InetSocketAddress localAddress;
-	
-	/**
-	 * Instantiates a new DHCP server socket.
-	 * 
-	 * @param netIf the multicast interface to create the socket on
-	 * 
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	public DhcpServerSocket(NetworkInterface netIf) throws IOException
-	{
-		this(netIf, DhcpConstants.SERVER_PORT);
-	}
-	
-	/**
-	 * Instantiates a new DHCP server socket.
-	 * 
-	 * @param netIf the multicast interface to create the socket on
-	 * @param port the port number for the socket
-	 * 
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	public DhcpServerSocket(NetworkInterface netIf, int port) throws IOException
-	{
-		this.netIf = netIf;
-        log.debug("Configuring MulticastSocket on:" + 
-        		  " interface=" + netIf.getDisplayName() +
-        		  " port=" + port);	
-    	SocketAddress saddr = new InetSocketAddress(port);
-    	msock = new MulticastSocket(saddr);
-    	msock.setNetworkInterface(netIf);
-        log.debug("Joining All_DHCP_Relay_Agents_and_Servers multicast group: " + 
-      		  DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS);
-        msock.joinGroup(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS);
-        log.debug("Joining All_DHCP_Servers multicast group: " + 
-        		  DhcpConstants.ALL_DHCP_SERVERS);
-        msock.joinGroup(DhcpConstants.ALL_DHCP_SERVERS);
-        localAddress = new InetSocketAddress(msock.getInterface(), port);
-	}
+	/** the socket address of the local network interface for this socket where the IP is the interface address and the port is the server port. */
+	protected InetSocketAddress localAddress;
 
+	/** the NetDhcpServer associated with this socket. */
+	protected NetDhcpServer netDhcpServer;
+	
 	/**
 	 * Gets the local address for this DHCP server socket.
 	 * 
@@ -107,18 +65,29 @@ public class DhcpServerSocket implements Runnable
 		return localAddress;
 	}
 	
-	/**
-	 * Gets the local network interface for this DHCP server socket.
-	 * 
-	 * @return the local NetworkInterface
-	 */
-	public NetworkInterface getNetworkInterface()
-	{
-		return netIf;
+    /**
+     * Gets the net dhcp server.
+     * 
+     * @return the net dhcp server
+     */
+    public NetDhcpServer getNetDhcpServer()
+    {
+		return netDhcpServer;
 	}
+
+	/**
+	 * Sets the net dhcp server.
+	 * 
+	 * @param netDhcpServer the new net dhcp server
+	 */
+	public void setNetDhcpServer(NetDhcpServer netDhcpServer)
+	{
+		this.netDhcpServer = netDhcpServer;
+	}
+
     
     /**
-     * Loop forever.  Receive a message from the multicast socket,
+     * Loop forever.  Receive a message from the datagram socket,
      * and queue the message to be worked on by the WorkProcessor.
      */
     public void run()
@@ -127,7 +96,7 @@ public class DhcpServerSocket implements Runnable
     		try {
     			DhcpMessage msg = receiveMessage();
                 if (msg != null) {
-                    MulticastDhcpServer.queueMessage(msg);
+                    netDhcpServer.queueMessage(msg);
                 }
                 else {
                     log.error("Null message");
@@ -138,20 +107,20 @@ public class DhcpServerSocket implements Runnable
     		}
     	}
     }
-	
-    /**
-     * Receive a DhcpMessage.  Wait for a packet and decode it.
-     * 
-     * @return a decoded DhcpMessage, or null if an error occurred
-     */
+
+	/**
+	 * Receive a DhcpMessage.  Wait for a packet and decode it.
+	 * 
+	 * @return a decoded DhcpMessage, or null if an error occurred
+	 */
     public DhcpMessage receiveMessage()
     {
         byte[] buf = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buf, 1024);
 
-        log.info("Waiting for multicast datagram...");
+        log.info("Waiting for datagram...");
         try {
-	        msock.receive(packet);
+	        sock.receive(packet);
 	        if (packet != null) {
 	            InetSocketAddress remoteAddress =
 	                (InetSocketAddress)packet.getSocketAddress();
@@ -196,7 +165,7 @@ public class DhcpServerSocket implements Runnable
 			    DatagramPacket dp = new DatagramPacket(buf.array(), buf.limit());
 			    InetSocketAddress remoteAddr = outMessage.getRemoteAddress();
 			    dp.setSocketAddress(remoteAddr);
-			    msock.send(dp);
+			    sock.send(dp);
 			    log.info("Sent datagram to: " + DhcpMessage.socketAddressAsString(remoteAddr));
 			}
 			else {

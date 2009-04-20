@@ -3,126 +3,134 @@
     <description>
         Ant build file for DHCPv6 Server
     </description>
-  <!-- set global properties for this build -->
-  <property name="src" location="src"/>
-  <property name="javadoc" location="doc/javadoc"/>
-  <property name="build" location="build"/>
-  <property name="lib" location="build/lib"/>
-  <property name="classes" location="build/classes"/>
-  <property name="dist" location="dist"/>
-  <property name="conf" location="conf"/>
-  <property name="bin" location="bin"/>
-  <property name="install" value="dhcpv6"/>
-  <property file="build.properties"/>
-  
-  <!-- define the xbean task -->
-  <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="${xmlbeans.jar}:${jsr173.api.jar}"/>
 	
-  <target name="init">
-    <!-- Create the time stamp -->
-    <tstamp/>
-    <!-- Create the build directory structure used by compile -->
-  	<mkdir dir="${javadoc}"/>
-    <mkdir dir="${build}"/>
-  	<mkdir dir="${lib}"/>
-  	<mkdir dir="${classes}"/>
-  </target>
+  	<!-- set global properties for this build -->
+  	<property name="src" location="src"/>
+	<property name="docs" location="docs"/>
+  	<property name="javadoc" location="docs/javadoc"/>
+  	<property name="build" location="build"/>
+  	<property name="lib" location="build/lib"/>
+  	<property name="classes" location="build/classes"/>
+  	<property name="dist" location="dist"/>
+  	<property name="conf" location="conf"/>
+  	<property name="bin" location="bin"/>
+  	<property name="install" value="dhcpv6"/>
+  	<property file="build.properties"/>
+	
+	<echoproperties/>
+  
+  	<!-- define the xbean task -->
+  	<taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="${xmlbeans.jar}:${jsr173.api.jar}"/>
+	
+  	<target name="init">
+    	<!-- Create the time stamp -->
+    	<tstamp/>
+    	<!-- Create the build directory structure used by compile -->
+  		<mkdir dir="${javadoc}"/>
+    	<mkdir dir="${build}"/>
+  		<mkdir dir="${lib}"/>
+  		<mkdir dir="${classes}"/>
+  	</target>
 
-  <target name="schema" depends="init"
+  	<target name="schema" depends="init"
   		description="compile the schema">
-  	<!-- we set the schema attribute to the 'conf' directory, which will
+  		<!-- we set the schema attribute to the 'conf' directory, which will
   		 cause the XMLBeans schema compiler to compile any .xsd files in
   		 that directory, also including the .xsdconfig file -->
-    <xmlbean javasource="1.5" schema="${conf}" destfile="${lib}/xmltypes.jar">
-    	<classpath>
-        	<filelist files="${xmlbeans.jars}"/>
-    	</classpath>
-    </xmlbean>
-  </target>		   
+    	<xmlbean javasource="1.5" schema="${conf}" destfile="${lib}/xmltypes.jar">
+    		<classpath>
+        		<filelist files="${xmlbeans.jars}"/>
+	    	</classpath>
+	    </xmlbean>
+  	</target>		   
 
-  <target name="compile" depends="init,schema"
+  	<target name="compile" depends="init,schema"
         description="compile the source">
-    <!-- Compile the java code from ${src} into ${classes} -->
-    <javac srcdir="${src}" destdir="${classes}" target="1.6">
-    	<classpath>
-        	<filelist files="${dependent.jars}"/>
-    		<filelist files="${lib}/xmltypes.jar"/>
-    	</classpath>
-    </javac>
-  </target>
+    	<!-- Compile the java code from ${src} into ${classes} -->
+	    <javac srcdir="${src}" destdir="${classes}" target="1.6">
+	    	<classpath>
+	        	<filelist files="${dependent.jars}"/>
+	    		<filelist files="${lib}/xmltypes.jar"/>
+	    	</classpath>
+	    </javac>
+  	</target>
 	
-  <target name="javadoc" depends="init">
-  	<!-- just rebuild the JavaDoc each time -->
-    <delete dir="${javadoc}"/>
-  	<javadoc sourcepath="${src}" destdir="${javadoc}">
-  	</javadoc>
-  </target>
+  	<target name="javadoc" depends="init">
+  		<!-- just rebuild the JavaDoc each time -->
+	    <delete dir="${javadoc}"/>
+	  	<javadoc sourcepath="${src}" destdir="${javadoc}">
+	  	</javadoc>
+  	</target>
 
-  <target name="dist" depends="schema,compile"
+  	<target name="dist" depends="schema,compile"
         description="generate the distribution" >
 
-  	<mkdir dir="${dist}"/>
-  	<mkdir dir="${dist}/lib"/>
-
-  	<!-- Put everything in ${classes} into the dhcpv6.jar file -->
-    <jar jarfile="${dist}/lib/dhcpv6.jar" basedir="${classes}" excludes="*.properties"/>
-    
-    <!-- Copy all the dependent jars into the distribution library folder -->
-    <copy todir="${dist}/lib" flatten="true">
-    	<filelist dir="${lib}" files="xmltypes.jar"/>
-    	<filelist dir="/" files="${dependent.jars} ${wrapper.dll}"/>
-    </copy>
-    
-    <mkdir dir="${dist}/conf"/>    
-    <copy todir="${dist}/conf">
-    	<fileset dir="${conf}" includes="*.xml,*.xsd,*.conf,*.properties"/>
-    </copy>
-
-    <mkdir dir="${dist}/bin"/>    
-    <copy todir="${dist}/bin">
-    	<fileset dir="${bin}"/>
-    </copy>
-    
-    <mkdir dir="${dist}/log"/>
-
-	<tar destfile="${dist}/dhcpv6.tar">
-	  <tarfileset dir="${dist}" prefix="${install}" mode="755">
-	    <include name="bin/*"/>
-	    <exclude name="bin/*.bat"/>
-	    <exclude name="**/wrapper.*"/>
-	    <exclude name="*.tar"/>
-	    <exclude name="*.gz"/>
-	    <exclude name="*.zip"/>
-	  </tarfileset>
-	  <tarfileset dir="${dist}" prefix="${install}">
-	    <include name="**/*"/>
-	    <exclude name="bin/*"/>
-	    <exclude name="bin/*.bat"/>
-	    <exclude name="**/wrapper.*"/>
-	    <exclude name="*.tar"/>
-	    <exclude name="*.gz"/>
-	    <exclude name="*.zip"/>
-	  </tarfileset>
-	</tar>
+	  	<mkdir dir="${dist}"/>
+	  	<mkdir dir="${dist}/lib"/>
 	
-	<gzip destfile="${dist}/dhcpv6.tar.gz" src="${dist}/dhcpv6.tar"/>
-
-	<zip destfile="${dist}/dhcpv6.zip">
-		<zipfileset dir="${dist}" prefix="${install}">
-			<exclude name="bin/dhcpv6*"/>
-			<exclude name="*.tar"/>
-		    <exclude name="*.gz"/>
-		    <exclude name="*.zip"/>
-		</zipfileset>
-	</zip>
+	  	<!-- Put everything in ${classes} into the dhcpv6.jar file -->
+	    <jar jarfile="${dist}/lib/dhcpv6.jar" basedir="${classes}" excludes="*.properties"/>
+	    
+	    <!-- Copy all the dependent jars into the distribution library folder -->
+	    <copy todir="${dist}/lib" flatten="true">
+	    	<filelist dir="${lib}" files="xmltypes.jar"/>
+	    	<filelist dir="/" files="${dependent.jars} ${wrapper.dll}"/>
+	    </copy>
+	    
+  		<mkdir dir="${dist}/docs"/>
+  		<copy todir="${dist}/docs">
+  			<fileset dir="${docs}" includes="*.txt,*.html"/>
+  		</copy>
+  			
+	    <mkdir dir="${dist}/conf"/>    
+	    <copy todir="${dist}/conf">
+	    	<fileset dir="${conf}" includes="*.xml,*.xsd,*.conf,*.properties"/>
+	    </copy>
 	
-  </target>
+	    <mkdir dir="${dist}/bin"/>    
+	    <copy todir="${dist}/bin">
+	    	<fileset dir="${bin}"/>
+	    </copy>
+	    
+	    <mkdir dir="${dist}/log"/>
+	
+		<tar destfile="${dist}/dhcpv6.tar">
+		  	<tarfileset dir="${dist}" prefix="${install}" mode="755">
+			    <include name="bin/*"/>
+			    <exclude name="bin/*.bat"/>
+			    <exclude name="**/wrapper.*"/>
+			    <exclude name="*.tar"/>
+			    <exclude name="*.gz"/>
+			    <exclude name="*.zip"/>
+		  	</tarfileset>
+		  	<tarfileset dir="${dist}" prefix="${install}">
+			    <include name="**/*"/>
+			    <exclude name="bin/*"/>
+			    <exclude name="bin/*.bat"/>
+			    <exclude name="**/wrapper.*"/>
+			    <exclude name="*.tar"/>
+			    <exclude name="*.gz"/>
+			    <exclude name="*.zip"/>
+		  	</tarfileset>
+		</tar>
+		
+		<gzip destfile="${dist}/dhcpv6.tar.gz" src="${dist}/dhcpv6.tar"/>
+	
+		<zip destfile="${dist}/dhcpv6.zip">
+			<zipfileset dir="${dist}" prefix="${install}">
+				<exclude name="bin/dhcpv6*"/>
+				<exclude name="*.tar"/>
+			    <exclude name="*.gz"/>
+			    <exclude name="*.zip"/>
+			</zipfileset>
+		</zip>	
+  	</target>
 
-  <target name="clean"
-        description="clean up" >
-    <!-- Delete the ${build} and ${dist} directory trees -->
-    <delete dir="${build}"/>
-    <delete dir="${dist}"/>
-  </target>
+	<target name="clean"
+		description="clean up" >
+    	<!-- Delete the ${build} and ${dist} directory trees -->
+    	<delete dir="${build}"/>
+    	<delete dir="${dist}"/>
+  	</target>
+	
 </project>
-

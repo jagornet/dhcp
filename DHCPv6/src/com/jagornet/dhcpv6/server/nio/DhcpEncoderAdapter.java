@@ -23,7 +23,7 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcpv6.server.unicast;
+package com.jagornet.dhcpv6.server.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

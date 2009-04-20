@@ -33,7 +33,9 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -55,8 +57,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
-import com.jagornet.dhcpv6.server.multicast.MulticastDhcpServer;
-import com.jagornet.dhcpv6.server.unicast.UnicastDhcpServer;
+import com.jagornet.dhcpv6.server.net.MulticastDhcpServer;
+import com.jagornet.dhcpv6.server.net.UnicastDhcpServer;
+import com.jagornet.dhcpv6.server.nio.NioDhcpServer;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
@@ -93,6 +96,9 @@ public class DhcpV6Server
     /** The multicast server thread. */
     protected Thread mcastThread;
     
+    /** The unicast IP addresses. */
+    protected List<InetAddress> ucastAddrs = null;
+    
     /** The unicast server thread. */
     protected Thread ucastThread;
 
@@ -110,42 +116,63 @@ public class DhcpV6Server
         setupOptions();
 
         if(!parseOptions(args)) {
+        	System.err.println("Invalid command line options: " + Arrays.toString(args));
             formatter = new HelpFormatter();
             String cliName = this.getClass().getName();
 //            formatter.printHelp(cliName, options);
             PrintWriter stderr = new PrintWriter(System.err, true);	// auto-flush=true
-            formatter.printHelp(stderr, 80, cliName, null, options, 2, 2, null);
+            formatter.printHelp(stderr, 80, cliName + " [options]", null, options, 2, 2, null);
             System.exit(0);
         }        
     }
     
     /**
      * Start the DHCPv6 server.  If multicast network interfaces have
-     * been supplied on startup, then start a MulticastDhcpServer thread
-     * on each of those interfaces.  Start one UnicastDhcpServer thread
+     * been supplied on startup, then start a NetDhcpServer thread
+     * on each of those interfaces.  Start one NioDhcpServer thread
      * which will listen on all IPv6 interfaces on the local host.
      * 
      * @throws Exception the exception
      */
     protected void start() throws Exception
-    {        
+    {
+    	log.info("Starting Jagornet DHCPv6 Server");
+    	
         DhcpServerConfiguration.init(configFilename);
 
         registerLog4jInJmx();
 
+        System.out.println("Port number: " + portNumber);
+        
         // for now, the mcast interfaces MUST be listed at
         // startup to get the mcast behavior at all... but
         // we COULD default to use all IPv6 interfaces 
         if (mcastNetIfs != null) {
-	        MulticastDhcpServer mcastServer = 
-	        	new MulticastDhcpServer(mcastNetIfs, portNumber);
+        	System.out.println("Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray()));
+        	MulticastDhcpServer mcastServer = new MulticastDhcpServer(mcastNetIfs, portNumber);
 	        mcastThread = new Thread(mcastServer, "mcast.server");
 	        mcastThread.start();
         }
- 
-        UnicastDhcpServer ucastServer = 
-        		new UnicastDhcpServer(configFilename, portNumber);
-        ucastServer.start();
+        else {
+        	System.out.println("Multicast interfaces: none");
+        }
+        
+        // by default, all IPv6 addresses are selected for unicast
+        if (ucastAddrs == null) {
+        	ucastAddrs = getAllIPv6Addrs();
+        }
+        System.out.println("Unicast addresses: " + Arrays.toString(ucastAddrs.toArray()));
+        // NIO IPv6 DatagramChannels not supporte on Windows
+        // should be available in Vista/Windows2008 with Java 7
+        if (!DhcpConstants.IS_WINDOWS) {        
+	        NioDhcpServer ucastServer = new NioDhcpServer(ucastAddrs, portNumber);
+	        ucastServer.start();
+        }
+        else {
+	        UnicastDhcpServer ucastServer = new UnicastDhcpServer(ucastAddrs, portNumber);
+	        ucastThread = new Thread(ucastServer, "ucast.server");
+	        ucastThread.start();
+        }
     }
     
 	/**
@@ -154,24 +181,42 @@ public class DhcpV6Server
     @SuppressWarnings("static-access")
 	private void setupOptions()
     {
-        Option configFileOption = new Option("c", "configfile", true,
-                                             "Configuration File [$DHCPV6_HOME/conf/dhcpv6server.xml]");
+        Option configFileOption =
+        	OptionBuilder.withLongOpt("configfile")
+        	.withArgName("filename")
+        	.withDescription("Configuration File (default = $DHCPV6_HOME/conf/dhcpv6server.xml).")
+        	.hasArg()
+        	.create("c");
         options.addOption(configFileOption);
         
-        Option portOption = new Option("p", "port", true,
-        							  "Port Number [547]");
+        Option portOption =
+        	OptionBuilder.withLongOpt("port")
+        	.withArgName("portnum")
+        	.withDescription("Port Number (default = 547).")
+        	.hasArg()
+        	.create("p");
         options.addOption(portOption);
 
         Option mcastOption =
         	OptionBuilder.withLongOpt("mcast")
-        	.withArgName("args")
-        	.withDescription("Multicast interfaces [none]" +
-        			" - list interface names separated by spaces," +
-        			" or * for all IPv6 interfaces")
-        	.hasArgs()
+        	.withArgName("interfaces")
+        	.withDescription("Multicast support (default = no multicast). " +
+        			"Optionally list specific interfaces,\n" +
+        			"leave empty to select all IPv6 interfaces.")
+        	.hasOptionalArgs()
         	.create("m");
         				 
         options.addOption(mcastOption);
+
+        Option ucastOption =
+        	OptionBuilder.withLongOpt("ucast")
+        	.withArgName("interfaces")
+        	.withDescription("Unicast support (default = wildcard address). " +
+        			"Optionally list specific addresses to bind to.")
+        	.hasOptionalArgs()
+        	.create("u");
+        				 
+        options.addOption(ucastOption);
         
         Option helpOption = new Option("?", "help", false, "Show this help page.");
         
@@ -209,14 +254,22 @@ public class DhcpV6Server
             if (cmd.hasOption("m")) {
             	String[] ifnames = cmd.getOptionValues("m");
             	if ((ifnames == null) || (ifnames.length < 1)) {
-            		System.err.println("No multicast interfaces specified, -m option ignored");
+            		ifnames = new String[] { "*" };
             	}
-            	else {
-            		mcastNetIfs = getMcastNetIfs(ifnames);
-            		if ((mcastNetIfs == null) || mcastNetIfs.isEmpty()) {
-            			return false;
-            		}
+        		mcastNetIfs = getIPv6NetIfs(ifnames);
+        		if ((mcastNetIfs == null) || mcastNetIfs.isEmpty()) {
+        			return false;
+        		}
+            }
+            if (cmd.hasOption("u")) {
+            	String[] addrs = cmd.getOptionValues("u");
+            	if ((addrs == null) || (addrs.length < 1)) {
+            		addrs = new String[] { "*" };
             	}
+        		ucastAddrs = getIpAddrs(addrs);
+        		if ((ucastAddrs == null) || ucastAddrs.isEmpty()) {
+        			return false;
+        		}
             }
         }
         catch (ParseException pe) {
@@ -225,12 +278,15 @@ public class DhcpV6Server
         } catch (SocketException se) {
 			System.err.println("Network interface socket failure: " + se);
 			return false;
+		} catch (UnknownHostException he) {
+			System.err.println("IP Address failure: " + he);
 		}
+        
         return true;
     }
 
 	/**
-	 * Gets the multicast network interfaces for the supplied interface names.
+	 * Gets the IPv6 network interfaces for the supplied interface names.
 	 * 
 	 * @param ifnames the interface names to locate NetworkInterfaces by
 	 * 
@@ -239,18 +295,18 @@ public class DhcpV6Server
 	 * 
 	 * @throws SocketException the socket exception
 	 */
-	private List<NetworkInterface> getMcastNetIfs(String[] ifnames) throws SocketException 
+	private List<NetworkInterface> getIPv6NetIfs(String[] ifnames) throws SocketException 
 	{
-		List<NetworkInterface> netIfs = null;
+		List<NetworkInterface> netIfs = new ArrayList<NetworkInterface>();
 		for (String ifname : ifnames) {
 			if (ifname.equals("*")) {
-				return getAllMcastV6NetIfs();
+				return getAllIPv6NetIfs();
 			}
-			netIfs = new ArrayList<NetworkInterface>();
 			NetworkInterface netIf = NetworkInterface.getByName(ifname);
 			if (netIf != null) {
 				if (netIf.isUp()) {
-					if (netIf.supportsMulticast()) {
+		        	// for multicast, the loopback interface is excluded
+		        	if (netIf.supportsMulticast() && !netIf.isLoopback()) {
 						boolean isV6 = false;
 						List<InterfaceAddress> ifAddrs =
 							netIf.getInterfaceAddresses();
@@ -288,21 +344,21 @@ public class DhcpV6Server
 	}
 
 	/**
-	 * Gets all multicast IPv6 network interfaces on the local host.
+	 * Gets all IPv6 network interfaces on the local host.
 	 * 
 	 * @return the list NetworkInterfaces
 	 */
-	private List<NetworkInterface> getAllMcastV6NetIfs()
+	private List<NetworkInterface> getAllIPv6NetIfs()
 	{
-		List<NetworkInterface> netIfs = null;
+		List<NetworkInterface> netIfs = new ArrayList<NetworkInterface>();
 		try {
 	        Enumeration<NetworkInterface> localInterfaces =
 	        	NetworkInterface.getNetworkInterfaces();
 	        if (localInterfaces != null) {
-	        	netIfs = new ArrayList<NetworkInterface>();
 		        while (localInterfaces.hasMoreElements()) {
 		        	NetworkInterface netIf = localInterfaces.nextElement();
-		        	if (!netIf.isLoopback() && netIf.supportsMulticast()) {
+		        	// for multicast, the loopback interface is excluded
+		        	if (netIf.supportsMulticast() && !netIf.isLoopback()) {
 		            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
 		            	while (ifAddrs.hasMoreElements()) {
 		            		InetAddress ip = ifAddrs.nextElement();
@@ -324,6 +380,48 @@ public class DhcpV6Server
         return netIfs;
 	}
 	
+	private List<InetAddress> getIpAddrs(String[] addrs) throws UnknownHostException
+	{
+		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
+		for (String addr : addrs) {
+			if (addr.equals("*")) {
+				return getAllIPv6Addrs();
+			}
+			InetAddress ipAddr = InetAddress.getByName(addr);
+			// allow only IPv6 addresses?
+			ipAddrs.add(ipAddr);
+		}
+		return ipAddrs;
+	}
+	
+	private List<InetAddress> getAllIPv6Addrs()
+	{
+		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
+		try {
+	        Enumeration<NetworkInterface> localInterfaces =
+	        	NetworkInterface.getNetworkInterfaces();
+	        if (localInterfaces != null) {
+		        while (localInterfaces.hasMoreElements()) {
+		        	NetworkInterface netIf = localInterfaces.nextElement();
+	            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
+	            	while (ifAddrs.hasMoreElements()) {
+	            		InetAddress ip = ifAddrs.nextElement();
+	            		if (ip instanceof Inet6Address) {
+	            			ipAddrs.add(ip);
+	            		}
+	            	}
+		        }
+	        }
+	        else {
+	        	log.error("No network interfaces found!");
+	        }
+		}
+		catch (IOException ex) {
+			log.error("Failed to get IPv6 addresses: " + ex);
+		}
+        return ipAddrs;
+	}
+	
     /**
      * The main method.
      * 
@@ -332,7 +430,7 @@ public class DhcpV6Server
     public static void main(String[] args)
     {
         try {
-            System.out.println("Starting DhcpV6Server");
+            System.out.println("Starting Jagornet DHCPv6 Server");
             DhcpV6Server server = new DhcpV6Server(args);
             server.start();
         }

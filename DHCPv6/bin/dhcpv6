@@ -9,6 +9,17 @@ shift
 #echo "$@"
 DHCPV6_OPTS="$@"
 
+if [ -n "$JAVA_HOME" ] ; then
+  JAVA="$JAVA_HOME/bin/java"
+else
+  if [ -x java ] ; then
+    JAVA=java
+  else
+    echo "Error - Java not found.  Please set JAVA_HOME environment variable."
+    exit 1
+  fi
+fi
+
 # This block of shell script for determining the
 # application's home directory was borrowed from 
 # the Apache ActiveMQ server startup script.
@@ -64,14 +75,17 @@ CLASSPATH=$CLASSPATH:$DHCPV6_CLASSPATH; export CLASSPATH
 # The "main" Java class for the DHCPv6 Server
 DHCPV6_MAIN="com.jagornet.dhcpv6.server.DhcpV6Server"
 
+# The "main" Java class for the DHCPv6 Test Client
+DHCPV6TESTCLIENT_MAIN="com.jagornet.dhcpv6.client.TestClient"
 
 # Note: log4j.configuration property references a file in the classpath (see above)
 #       the default is shown, change only if necessary
 #LOG4J="-Dlog4j.configuration=log4j.properties"
 
-JMX="-Dcom.sun.management.jmxremote.port=14700 \
-	 -Dcom.sun.management.jmxremote.authenticate=false \
-	 -Dcom.sun.management.jmxremote.ssl=false"
+# The Jagornet DHCPv6 server supports Java Management Extensions (JMX)
+# for managing logging parameters and monitoring server statistics.
+# Sun's JRE 6 provides out-of-the-box support for JMX as described at
+# http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html.
 	 
 JAVA_OPTS="-server $LOG4J $JMX"
 
@@ -95,7 +109,7 @@ start() {
 		echo "$NAME already running."
 	else
 		echo "Starting $NAME..."
-		java $JAVA_OPTS -Ddhcpv6.home="$DHCPV6_HOME" $DHCPV6_MAIN $DHCPV6_OPTS > "$DHCPV6_HOME/log/dhcpv6server.out" & 
+		$JAVA $JAVA_OPTS -Ddhcpv6.home="$DHCPV6_HOME" $DHCPV6_MAIN $DHCPV6_OPTS > "$DHCPV6_HOME/log/dhcpv6server.out" & 
 		echo "$!" > $DHCPV6_PID
 		sleep 5
 		isRunning
@@ -135,6 +149,11 @@ status() {
 	fi
 }
 
+testclient() {
+	echo "Running TestClient..."
+	$JAVA -Ddhcpv6.home="$DHCPV6_HOME" -Dlog4j.configuration="testclient_log4j.properties" $DHCPV6TESTCLIENT_MAIN $DHCPV6_OPTS 
+}
+
 
 case "$OP" in
 	start)
@@ -151,8 +170,11 @@ case "$OP" in
 	status)
 		status
 		;;
+	testclient)
+		testclient
+		;;
 	*)
-		echo "Usage: $0 { start | stop | restart | status }"
+		echo "Usage: $0 { start | stop | restart | status | testclient }"
 		exit 1
 		;;
 esac

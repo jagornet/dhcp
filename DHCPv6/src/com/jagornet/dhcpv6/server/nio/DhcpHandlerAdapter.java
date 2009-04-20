@@ -23,7 +23,7 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcpv6.server.unicast;
+package com.jagornet.dhcpv6.server.nio;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -65,7 +65,7 @@ public class DhcpHandlerAdapter extends IoHandlerAdapter
             throws Exception 
     {
         log.error("Session exception caught", cause);
-        session.close();
+        session.close(true);
     }
 
     /* (non-Javadoc)

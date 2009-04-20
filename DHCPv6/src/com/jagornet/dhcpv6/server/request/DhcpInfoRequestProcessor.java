@@ -295,11 +295,20 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
      */
     private boolean clientWantsOption(int optionCode)
     {
-    	if (requestedOptionCodes != null)
+    	if (requestedOptionCodes != null) {
+    		// if the client requested it, then send it
     		return requestedOptionCodes.contains(optionCode);
+    	}
     	
-    	// if there is no ORO, then the client doesn't care,
-    	// so go ahead and send it if so configured
+    	// if there is no ORO, then the client did not request the option,
+    	// so now check if configured to send only requested options
+    	if (DhcpServerConfiguration.getBooleanPolicy("sendRequestedOptionsOnly", true)) {
+    		// don't send the option
+    		return false;
+    	}
+    	
+    	// if we're not sending requested options only,
+    	// then we're sending whatever we have configured
     	return true;
     }
     

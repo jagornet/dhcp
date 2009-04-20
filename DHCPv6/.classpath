@@ -5,20 +5,17 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-cli-1.1/commons-cli-1.1.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/apache-log4j-1.2.15/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-beanutils-1.7.0/commons-beanutils.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-collections-3.2/commons-collections-3.2.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-lang-2.3/commons-lang-2.3.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/slf4j-1.5.0/slf4j-log4j12-1.5.0.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/slf4j-1.5.0/slf4j-api-1.5.0.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/ognl-2.6.9.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M3/mina-core-2.0.0-M3.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M3/mina-integration-beans-2.0.0-M3.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M3/mina-integration-jmx-2.0.0-M3.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M3/mina-integration-ognl-2.0.0-M3.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M5/dist/mina-core-2.0.0-M5.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M5/dist/mina-integration-beans-2.0.0-M5.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M5/dist/mina-integration-jmx-2.0.0-M5.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/xmlbeans-2.4.0/lib/xbean.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/xmlbeans-2.4.0/lib/jsr173_1.0_api.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M5/dist/mina-integration-ognl-2.0.0-M5.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M5/lib/ognl-2.7.2.jar"/>
 	<classpathentry kind="lib" path="build/lib/xmltypes.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/mina-2.0.0-M5/lib/javassist-3.7.ga.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

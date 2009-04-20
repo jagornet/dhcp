@@ -23,7 +23,7 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcpv6.server.multicast;
+package com.jagornet.dhcpv6.server.net;
 
 import java.net.InetSocketAddress;
 
@@ -46,15 +46,19 @@ public class DhcpHandlerThread implements Runnable
 
 	/** The request message. */
 	private final DhcpMessage requestMessage;
+	
+	/** The NetDhcpServer. */
+	private final NetDhcpServer netDhcpServer;
  
     /**
      * Construct an DhcpInfoRequest handler.
      * 
      * @param reqMsg the Info-Request DhcpMessage
      */
-    public DhcpHandlerThread(DhcpMessage reqMsg)
+    public DhcpHandlerThread(DhcpMessage reqMsg, NetDhcpServer netDhcpServer)
     {
     	this.requestMessage = reqMsg;
+    	this.netDhcpServer = netDhcpServer;
     }
 
     /**
@@ -68,10 +72,11 @@ public class DhcpHandlerThread implements Runnable
     	InetSocketAddress local = requestMessage.getLocalAddress();
     	InetSocketAddress remote = requestMessage.getRemoteAddress();
     	
+    	//TODO: check this thread name manipulation, it does not look safe
     	Thread.currentThread().setName(Thread.currentThread().getName() + 
     			" (" + remote.getAddress().getHostAddress() + ")");
     	
-       	DhcpServerSocket dhcpServerSocket = MulticastDhcpServer.getDhcpServerSocket(local);
+       	DhcpServerSocket dhcpServerSocket = netDhcpServer.getDhcpServerSocket(local);
        	if (dhcpServerSocket != null) {       		
 	        DhcpMessage replyMessage = DhcpMessageHandler.handleMessage(
 	        			dhcpServerSocket.getLocalAddress().getAddress(),
