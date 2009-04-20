@@ -23,7 +23,7 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcpv6.server.multicast;
+package com.jagornet.dhcpv6.server.net;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,49 +50,49 @@ public class ThreadPoolStatus implements ThreadPoolStatusMBean
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.multicast.ThreadPoolStatusMBean#getActiveThreads()
+     * @see com.jagornet.dhcpv6.server.net.ThreadPoolStatusMBean#getActiveThreads()
      */
     public int getActiveThreads() {
         return pool.getPoolSize();
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.multicast.ThreadPoolStatusMBean#getActiveTasks()
+     * @see com.jagornet.dhcpv6.server.net.ThreadPoolStatusMBean#getActiveTasks()
      */
     public int getActiveTasks() {
         return pool.getActiveCount();
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.multicast.ThreadPoolStatusMBean#getTotalTasks()
+     * @see com.jagornet.dhcpv6.server.net.ThreadPoolStatusMBean#getTotalTasks()
      */
     public int getTotalTasks() {
         return pool.getTotalTasks();
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.multicast.ThreadPoolStatusMBean#getQueuedTasks()
+     * @see com.jagornet.dhcpv6.server.net.ThreadPoolStatusMBean#getQueuedTasks()
      */
     public int getQueuedTasks() {
         return pool.getQueue().size();
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.multicast.ThreadPoolStatusMBean#getAverageTaskTime()
+     * @see com.jagornet.dhcpv6.server.net.ThreadPoolStatusMBean#getAverageTaskTime()
      */
     public double getAverageTaskTime() {
         return pool.getAverageTaskTime();
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.multicast.ThreadPoolStatusMBean#getActiveTaskNames()
+     * @see com.jagornet.dhcpv6.server.net.ThreadPoolStatusMBean#getActiveTaskNames()
      */
     public String[] getActiveTaskNames() {
         return toStringArray(pool.getInProgressTasks());
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.multicast.ThreadPoolStatusMBean#getQueuedTaskNames()
+     * @see com.jagornet.dhcpv6.server.net.ThreadPoolStatusMBean#getQueuedTaskNames()
      */
     public String[] getQueuedTaskNames() {
         return toStringArray(pool.getQueue());

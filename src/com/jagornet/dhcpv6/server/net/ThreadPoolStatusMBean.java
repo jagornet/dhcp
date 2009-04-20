@@ -23,7 +23,7 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcpv6.server.multicast;
+package com.jagornet.dhcpv6.server.net;
 
 /**
  * <p>Title: ThreadPoolStatusMBean </p>

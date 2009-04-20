@@ -63,8 +63,8 @@ import com.jagornet.dhcpv6.message.DhcpMessageFactory;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpElapsedTimeOption;
 import com.jagornet.dhcpv6.option.DhcpUserClassOption;
-import com.jagornet.dhcpv6.server.unicast.DhcpDecoderAdapter;
-import com.jagornet.dhcpv6.server.unicast.DhcpEncoderAdapter;
+import com.jagornet.dhcpv6.server.nio.DhcpDecoderAdapter;
+import com.jagornet.dhcpv6.server.nio.DhcpEncoderAdapter;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
 import com.jagornet.dhcpv6.xml.ElapsedTimeOption;
@@ -266,6 +266,7 @@ public class TestClient  extends IoHandlerAdapter
                         // to wire format... well, hopefully it will!
                         session.write(msg);							
 					}
+                    System.exit(0);
                 } else {
                     log.error("Not connected...exiting");
                 }
@@ -296,6 +297,7 @@ public class TestClient  extends IoHandlerAdapter
 			packet.setPort(msg.getRemoteAddress().getPort());
 			msock.send(packet);	
 		}
+		System.exit(0);
     }
 
     /**

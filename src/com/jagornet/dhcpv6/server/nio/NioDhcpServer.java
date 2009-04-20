@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file UnicastDhcpServer.java is part of DHCPv6.
+ *   This file NioDhcpServer.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,16 +23,13 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcpv6.server.unicast;
+package com.jagornet.dhcpv6.server.nio;
 
 import java.lang.management.ManagementFactory;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,11 +55,9 @@ import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
-
 /**
  * This is a Apache MINA based DHCPv6 server that uses
- * DatagramChannels for receiving unicast messages.
+ * Java NIO DatagramChannels for receiving unicast messages.
  * 
  * Note: Java 7 should support MulticastChannels, and then
  * this class can be refactored to support both unicast and
@@ -70,10 +65,10 @@ import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
  * 
  * @author A. Gregory Rabil
  */
-public class UnicastDhcpServer
+public class NioDhcpServer
 {
 	/** The log. */
-	private static Logger log = LoggerFactory.getLogger(UnicastDhcpServer.class);
+	private static Logger log = LoggerFactory.getLogger(NioDhcpServer.class);
     
     /** The acceptor. */
     protected NioDatagramAcceptor acceptor;
@@ -84,44 +79,23 @@ public class UnicastDhcpServer
     /**
      * Instantiates a new unicast dhcp server.
      * 
-     * @param configFilename the config filename
      * @param port the port
      * 
      * @throws Exception the exception
      */
-    public UnicastDhcpServer(String configFilename, int port) throws Exception
+    public NioDhcpServer(List<InetAddress> addrs, int port) throws Exception
     {
         try {
-            DhcpServerConfiguration.init(configFilename);
-            
             acceptor = new NioDatagramAcceptor();
-// We can't yet support Multicast addresses with MINA, and if/when we do
-// this may not be the way to specify these addresses anyway
-//            List<SocketAddress> localAddrs = new ArrayList<SocketAddress>();
-//            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS,
-//                                                 port));
-//            localAddrs.add(new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS,
-//                                                 port));        
-//            acceptor.setDefaultLocalAddresses(localAddrs);
-            
-            Enumeration<NetworkInterface> localInterfaces =
-            	NetworkInterface.getNetworkInterfaces();
-            List<SocketAddress> localAddrs = new ArrayList<SocketAddress>();
-            while (localInterfaces.hasMoreElements()) {
-            	NetworkInterface netIf = localInterfaces.nextElement();
-//            	if (!netIf.isLoopback()) {
-	            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
-	            	while (ifAddrs.hasMoreElements()) {
-	            		InetAddress ip = ifAddrs.nextElement();
-	            		if (ip instanceof Inet6Address) {
-	            			// only bind to IPv6 interface addresses
-		            		SocketAddress sockAddr = new InetSocketAddress(ip, port);
-		            		localAddrs.add(sockAddr);
-	            		}
-//	            	}
-            	}
+            if ((addrs != null) && !addrs.isEmpty()) {
+                List<SocketAddress> socketAddrs = new ArrayList<SocketAddress>();
+            	for (InetAddress addr : addrs) {
+					SocketAddress sockAddr = new InetSocketAddress(addr, port);
+					socketAddrs.add(sockAddr);
+				}
+                acceptor.setDefaultLocalAddresses(socketAddrs);
             }
-            acceptor.setDefaultLocalAddresses(localAddrs);
+                        
             acceptor.setHandler(new DhcpHandlerAdapter());
     
             registerJmx(acceptor);
@@ -132,7 +106,7 @@ public class UnicastDhcpServer
             ProtocolEncoder encoder = new DhcpEncoderAdapter();
             ProtocolDecoder decoder = new DhcpDecoderAdapter();
 /*
- * From the wiki documentation:
+ * From the MINA Wiki documentation:
  * 
  *      Where should I put an ExecutorFilter in an IoFilterChain?
  * 
@@ -161,17 +135,23 @@ public class UnicastDhcpServer
     }
     
     /**
-     * Start.
+     * Start the unicast server.
      * 
      * @throws Exception the exception
      */
     public void start() throws Exception
-    {        
-        List<SocketAddress> defaultAddrs = acceptor.getDefaultLocalAddresses();
-        for (SocketAddress socketAddress : defaultAddrs) {
-            log.info("Binding to local address: " + socketAddress);
-        }
-        acceptor.bind();
+    {
+    	try {
+	    	List<SocketAddress> defaultAddrs = acceptor.getDefaultLocalAddresses();
+	        for (SocketAddress socketAddress : defaultAddrs) {
+	            log.info("Binding to local address: " + socketAddress);
+	        }
+	        acceptor.bind();
+    	}
+    	catch (Exception ex) {
+    		log.error("Failed to start Unicast server thread", ex);
+    		throw ex;
+    	}
     }
     
     // TODO: Support calling this shutdown method somehow
@@ -195,7 +175,7 @@ public class UnicastDhcpServer
         try {
             IoServiceMBean serviceMBean = new IoServiceMBean(service);
             MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();  
-            ObjectName name = new ObjectName( "com.jagornet.dhcpv6:type=IOServiceMBean,name=UnicastDhcpServer" );
+            ObjectName name = new ObjectName( "com.jagornet.dhcpv6:type=IOServiceMBean,name=NioDhcpServer" );
             mbs.registerMBean(serviceMBean, name);
             service.addListener( new IoServiceListener()
             {

@@ -46,6 +46,8 @@ import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinksType;
 import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.xml.PoliciesType;
+import com.jagornet.dhcpv6.xml.Policy;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
@@ -277,5 +279,41 @@ public class DhcpServerConfiguration
     			try { fos.close(); } catch (IOException ex) { }
     		}
     	}
+    }
+    
+    public static boolean getBooleanPolicy(String name, boolean defaultValue)
+    {
+    	String val = getStringPolicy(name, String.valueOf(defaultValue));
+    	if (val != null) {
+    		return Boolean.parseBoolean(val);
+    	}
+    	return defaultValue;
+    }
+    
+    public static int getIntPolicy(String name, int defaultValue)
+    {
+    	String val = getStringPolicy(name, String.valueOf(defaultValue));
+    	if (val != null) {
+    		return Integer.parseInt(val);
+    	}
+    	return defaultValue;
+    }
+    
+    public static String getStringPolicy(String name, String defaultValue)
+    {
+    	if (CONFIG != null) {
+    		PoliciesType policies = CONFIG.getPolicies();
+    		if (policies != null) {
+    			List<Policy> policyList = policies.getPolicyList();
+    			if (policyList != null) {
+    				for (Policy policy : policyList) {
+						if (policy.getName().equalsIgnoreCase(name)) {
+							return policy.getValue();
+						}
+					}
+    			}
+    		}
+    	}
+    	return defaultValue;
     }
 }

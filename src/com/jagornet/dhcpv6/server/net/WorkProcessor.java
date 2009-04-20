@@ -23,10 +23,9 @@
  *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcpv6.server.multicast;
+package com.jagornet.dhcpv6.server.net;
 
 import java.lang.management.ManagementFactory;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 
 /**
  * Title: WorkProcessor
@@ -50,25 +50,27 @@ public class WorkProcessor implements Runnable
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(WorkProcessor.class);
 
-    /** The thread pool size. */
-    private static int POOL_SIZE = 100;  
-
-    /** The work queue. */
-    private BlockingQueue<DhcpMessage> workQueue;
+    /** The default thread pool size. */
+    private static int DEFAULT_POOL_SIZE = 100;  
     
     /** The thread pool. */
     private TrackingThreadPool threadPool;
+    
+    /** The NetDhcpServer which holds this WorkProcessor. */
+    private NetDhcpServer netDhcpServer;
 
     /**
      * Instantiates a new work processor.
      * 
-     * @param workQueue the work queue
+     * @param netDhcpServer the NetDhcpServer which holds this WorkProcessor
      */
-    public WorkProcessor(BlockingQueue<DhcpMessage> workQueue)
+    public WorkProcessor(NetDhcpServer netDhcpServer)
     {
-        this.workQueue = workQueue;
-        threadPool = new TrackingThreadPool(POOL_SIZE, 
-                                            POOL_SIZE,
+        this.netDhcpServer = netDhcpServer;
+        int maxPoolSize = DhcpServerConfiguration.getIntPolicy("mcast.server.poolSize", 
+        										 				DEFAULT_POOL_SIZE);
+        threadPool = new TrackingThreadPool(DEFAULT_POOL_SIZE, 
+                                            maxPoolSize,
                                             0,
                                             TimeUnit.SECONDS,
                                             new LinkedBlockingQueue<Runnable>());
@@ -94,10 +96,10 @@ public class WorkProcessor implements Runnable
         while (true) {
             try {
                 log.info("Waiting for work...");
-                DhcpMessage message = workQueue.take();
+                DhcpMessage message = netDhcpServer.getWorkQueue().take();
                 if (message != null) {
                     log.info("Have work message, creating handler...");
-                    Runnable handler = new DhcpHandlerThread(message);
+                    Runnable handler = new DhcpHandlerThread(message, netDhcpServer);
                     if (handler != null) {
                         log.info("Message handler: " + handler.getClass());
 	                    if (log.isDebugEnabled())

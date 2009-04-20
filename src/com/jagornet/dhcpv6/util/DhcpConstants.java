@@ -59,6 +59,9 @@ public class DhcpConstants
 	/** The DHCPv6 home. */
 	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
 
+	public static boolean IS_WINDOWS =
+		System.getProperty("os.name", "").startsWith("Windows") ? true : false;
+	
     /** IPv4 Addresses. */
     public static InetAddress LOCALHOST = null;
     
