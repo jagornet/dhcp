@@ -9,7 +9,6 @@
 	<property name="docs" location="docs"/>
   	<property name="javadoc" location="docs/javadoc"/>
   	<property name="build" location="build"/>
-  	<property name="lib" location="build/lib"/>
   	<property name="classes" location="build/classes"/>
   	<property name="dist" location="dist"/>
   	<property name="conf" location="conf"/>
@@ -28,7 +27,6 @@
     	<!-- Create the build directory structure used by compile -->
   		<mkdir dir="${javadoc}"/>
     	<mkdir dir="${build}"/>
-  		<mkdir dir="${lib}"/>
   		<mkdir dir="${classes}"/>
   	</target>
 
@@ -37,7 +35,7 @@
   		<!-- we set the schema attribute to the 'conf' directory, which will
   		 cause the XMLBeans schema compiler to compile any .xsd files in
   		 that directory, also including the .xsdconfig file -->
-    	<xmlbean javasource="1.5" schema="${conf}" destfile="${lib}/xmltypes.jar">
+    	<xmlbean javasource="1.5" schema="${conf}" destfile="${build}/xmltypes.jar">
     		<classpath>
         		<filelist files="${xmlbeans.jars}"/>
 	    	</classpath>
@@ -50,7 +48,7 @@
 	    <javac srcdir="${src}" destdir="${classes}" target="1.6">
 	    	<classpath>
 	        	<filelist files="${dependent.jars}"/>
-	    		<filelist files="${lib}/xmltypes.jar"/>
+	    		<filelist files="${build}/xmltypes.jar"/>
 	    	</classpath>
 	    </javac>
   	</target>
@@ -73,8 +71,8 @@
 	    
 	    <!-- Copy all the dependent jars into the distribution library folder -->
 	    <copy todir="${dist}/lib" flatten="true">
-	    	<filelist dir="${lib}" files="xmltypes.jar"/>
-	    	<filelist dir="/" files="${dependent.jars} ${wrapper.dll}"/>
+	    	<filelist dir="${build}" files="xmltypes.jar"/>
+	    	<filelist files="${dependent.jars} ${wrapper.dll}"/>
 	    </copy>
 	    
   		<mkdir dir="${dist}/docs"/>
