@@ -36,6 +36,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -56,6 +57,7 @@ import org.apache.log4j.spi.LoggerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.Version;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.net.MulticastDhcpServer;
 import com.jagornet.dhcpv6.server.net.UnicastDhcpServer;
@@ -121,7 +123,8 @@ public class DhcpV6Server
             String cliName = this.getClass().getName();
 //            formatter.printHelp(cliName, options);
             PrintWriter stderr = new PrintWriter(System.err, true);	// auto-flush=true
-            formatter.printHelp(stderr, 80, cliName + " [options]", null, options, 2, 2, null);
+            formatter.printHelp(stderr, 80, cliName + " [options]", 
+            				    Version.getVersion(), options, 2, 2, null);
             System.exit(0);
         }        
     }
@@ -137,6 +140,14 @@ public class DhcpV6Server
     protected void start() throws Exception
     {
     	log.info("Starting Jagornet DHCPv6 Server");
+    	log.info(Version.getVersion());
+
+    	Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+            	  log.info("Stopping Jagornet DHCPv6 Server");
+                  System.out.println("Stopping Jagornet DHCPv6 Server: " + new Date());
+                }
+            });
     	
         DhcpServerConfiguration.init(configFilename);
 
@@ -217,9 +228,11 @@ public class DhcpV6Server
         	.create("u");
         				 
         options.addOption(ucastOption);
+
+        Option versionOption = new Option("v", "version", false, "Show version information.");
+        options.addOption(versionOption);
         
-        Option helpOption = new Option("?", "help", false, "Show this help page.");
-        
+        Option helpOption = new Option("?", "help", false, "Show this help page.");        
         options.addOption(helpOption);
     }
 
@@ -270,6 +283,10 @@ public class DhcpV6Server
         		if ((ucastAddrs == null) || ucastAddrs.isEmpty()) {
         			return false;
         		}
+            }
+            if (cmd.hasOption("v")) {
+            	System.err.println(Version.getVersion());
+            	System.exit(0);
             }
         }
         catch (ParseException pe) {
@@ -430,7 +447,8 @@ public class DhcpV6Server
     public static void main(String[] args)
     {
         try {
-            System.out.println("Starting Jagornet DHCPv6 Server");
+            System.out.println("Starting Jagornet DHCPv6 Server: " + new Date());
+            System.out.println(Version.getVersion());
             DhcpV6Server server = new DhcpV6Server(args);
             server.start();
         }

@@ -13,7 +13,6 @@
   	<property name="dist" location="dist"/>
   	<property name="conf" location="conf"/>
   	<property name="bin" location="bin"/>
-  	<property name="install" value="dhcpv6"/>
   	<property file="build.properties"/>
 	
 	<echoproperties/>
@@ -53,6 +52,26 @@
 	    </javac>
   	</target>
 	
+	<target name="jar" depends="compile"
+		description="build the dhcpv6.jar">
+		
+		<manifest file="MANIFEST.MF">
+	        <attribute name="Main-Class" value="com.jagornet.dhcpv6.Version"/>
+	    	<attribute name="Specification-Title" value="Jagornet DHCPv6 Community Edition"/>
+			<attribute name="Specification-Version" value="${version}"/>
+			<attribute name="Specification-Vendor" value="Jagornet Technologies"/>
+			<attribute name="Implementation-Title" value="Jagornet DHCPv6 Community Edition"/>
+			<attribute name="Implementation-Version" value="${version}"/> 
+			<attribute name="Implementation-Vendor" value="Jagornet Technologies"/>
+		</manifest>
+		
+	  	<!-- Put everything in ${classes} into the dhcpv6-x.y.z.jar file -->
+	    <jar jarfile="${build}/${product}.jar"
+	    	basedir="${classes}" 
+	    	excludes="*.properties"
+	    	manifest="MANIFEST.MF"/>
+	</target>		
+	
   	<target name="javadoc" depends="init">
   		<!-- just rebuild the JavaDoc each time -->
 	    <delete dir="${javadoc}"/>
@@ -60,18 +79,15 @@
 	  	</javadoc>
   	</target>
 
-  	<target name="dist" depends="schema,compile"
+  	<target name="dist" depends="jar"
         description="generate the distribution" >
 
 	  	<mkdir dir="${dist}"/>
 	  	<mkdir dir="${dist}/lib"/>
-	
-	  	<!-- Put everything in ${classes} into the dhcpv6.jar file -->
-	    <jar jarfile="${dist}/lib/dhcpv6.jar" basedir="${classes}" excludes="*.properties"/>
 	    
 	    <!-- Copy all the dependent jars into the distribution library folder -->
 	    <copy todir="${dist}/lib" flatten="true">
-	    	<filelist dir="${build}" files="xmltypes.jar"/>
+	    	<filelist dir="${build}" files="${product}.jar xmltypes.jar"/>
 	    	<filelist files="${dependent.jars} ${wrapper.dll}"/>
 	    </copy>
 	    
@@ -92,8 +108,8 @@
 	    
 	    <mkdir dir="${dist}/log"/>
 	
-		<tar destfile="${dist}/dhcpv6.tar">
-		  	<tarfileset dir="${dist}" prefix="${install}" mode="755">
+		<tar destfile="${dist}/${product}.tar">
+		  	<tarfileset dir="${dist}" prefix="${product}" mode="755">
 			    <include name="bin/*"/>
 			    <exclude name="bin/*.bat"/>
 			    <exclude name="**/wrapper.*"/>
@@ -101,7 +117,7 @@
 			    <exclude name="*.gz"/>
 			    <exclude name="*.zip"/>
 		  	</tarfileset>
-		  	<tarfileset dir="${dist}" prefix="${install}">
+		  	<tarfileset dir="${dist}" prefix="${product}">
 			    <include name="**/*"/>
 			    <exclude name="bin/*"/>
 			    <exclude name="bin/*.bat"/>
@@ -112,10 +128,10 @@
 		  	</tarfileset>
 		</tar>
 		
-		<gzip destfile="${dist}/dhcpv6.tar.gz" src="${dist}/dhcpv6.tar"/>
+		<gzip destfile="${dist}/${product}.tar.gz" src="${dist}/${product}.tar"/>
 	
-		<zip destfile="${dist}/dhcpv6.zip">
-			<zipfileset dir="${dist}" prefix="${install}">
+		<zip destfile="${dist}/${product}.zip">
+			<zipfileset dir="${dist}" prefix="${product}">
 				<exclude name="bin/dhcpv6*"/>
 				<exclude name="*.tar"/>
 			    <exclude name="*.gz"/>
