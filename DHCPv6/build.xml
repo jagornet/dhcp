@@ -55,21 +55,19 @@
 	<target name="jar" depends="compile"
 		description="build the dhcpv6.jar">
 		
-		<manifest file="MANIFEST.MF">
-	        <attribute name="Main-Class" value="com.jagornet.dhcpv6.Version"/>
-	    	<attribute name="Specification-Title" value="Jagornet DHCPv6 Community Edition"/>
-			<attribute name="Specification-Version" value="${version}"/>
-			<attribute name="Specification-Vendor" value="Jagornet Technologies"/>
-			<attribute name="Implementation-Title" value="Jagornet DHCPv6 Community Edition"/>
-			<attribute name="Implementation-Version" value="${version}"/> 
-			<attribute name="Implementation-Vendor" value="Jagornet Technologies"/>
-		</manifest>
-		
-	  	<!-- Put everything in ${classes} into the dhcpv6-x.y.z.jar file -->
-	    <jar jarfile="${build}/${product}.jar"
-	    	basedir="${classes}" 
-	    	excludes="*.properties"
-	    	manifest="MANIFEST.MF"/>
+	  	<!-- Build the dhcpv6-x.y.z.jar file from the class files, but no properties -->
+	    <jar jarfile="${build}/${product}.jar" basedir="${classes}" excludes="*.properties">
+	    	<!-- Add the manifest inline to the jar when it is created -->
+			<manifest>
+		        <attribute name="Main-Class" value="com.jagornet.dhcpv6.Version"/>
+		    	<attribute name="Specification-Title" value="Jagornet DHCPv6 Community Edition"/>
+				<attribute name="Specification-Version" value="${version}"/>
+				<attribute name="Specification-Vendor" value="Jagornet Technologies"/>
+				<attribute name="Implementation-Title" value="Jagornet DHCPv6 Community Edition"/>
+				<attribute name="Implementation-Version" value="${version}"/> 
+				<attribute name="Implementation-Vendor" value="Jagornet Technologies"/>
+			</manifest>
+		</jar>	    	
 	</target>		
 	
   	<target name="javadoc" depends="init">
