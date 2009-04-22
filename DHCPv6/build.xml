@@ -24,7 +24,6 @@
     	<!-- Create the time stamp -->
     	<tstamp/>
     	<!-- Create the build directory structure used by compile -->
-  		<mkdir dir="${javadoc}"/>
     	<mkdir dir="${build}"/>
   		<mkdir dir="${classes}"/>
   	</target>
