@@ -97,7 +97,7 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
                                         DhcpServerConfiguration.getConfig();
 
     /** The client link address. */
-    protected final InetAddress clientLink;
+    protected final InetAddress clientLinkAddress;
     
     /** The request message. */
     protected final DhcpMessage requestMsg;
@@ -111,12 +111,12 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
     /**
      * Construct an DhcpInfoRequest processor.
      * 
-     * @param clientLink the client link address
+     * @param clientLinkAddress the client link address
      * @param reqMsg the Info-Request message
      */
-    public DhcpInfoRequestProcessor(InetAddress clientLink, DhcpMessage reqMsg)
+    public DhcpInfoRequestProcessor(InetAddress clientLinkAddress, DhcpMessage reqMsg)
     {
-        this.clientLink = clientLink;
+        this.clientLinkAddress = clientLinkAddress;
         this.requestMsg = reqMsg;
         Map<Integer, DhcpOption> optionMap = this.requestMsg.getDhcpOptions();
         if (optionMap != null) {
@@ -239,7 +239,7 @@ public class DhcpInfoRequestProcessor implements DhcpRequestProcessor
         }
         
         // handle configuration for the client's link
-        Link link = DhcpServerConfiguration.findLinkForAddress(clientLink);
+        Link link = DhcpServerConfiguration.findLinkForAddress(clientLinkAddress);
         if (link != null) {
             log.info("Processing configuration for link: " + link.getAddress());
             processLink(link);

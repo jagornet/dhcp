@@ -159,6 +159,7 @@ public class DhcpV6Server
         // startup to get the mcast behavior at all... but
         // we COULD default to use all IPv6 interfaces 
         if (mcastNetIfs != null) {
+        	// this will fail on Windows, so maybe we should not even try?
         	System.out.println("Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray()));
         	MulticastDhcpServer mcastServer = new MulticastDhcpServer(mcastNetIfs, portNumber);
 	        mcastThread = new Thread(mcastServer, "mcast.server");
@@ -173,16 +174,18 @@ public class DhcpV6Server
         	ucastAddrs = getAllIPv6Addrs();
         }
         System.out.println("Unicast addresses: " + Arrays.toString(ucastAddrs.toArray()));
-        // NIO IPv6 DatagramChannels not supporte on Windows
-        // should be available in Vista/Windows2008 with Java 7
-        if (!DhcpConstants.IS_WINDOWS) {        
-	        NioDhcpServer ucastServer = new NioDhcpServer(ucastAddrs, portNumber);
-	        ucastServer.start();
-        }
-        else {
+        if (DhcpConstants.IS_WINDOWS) {
+        	// On Windows, we must use the DatatgramSocket server
+        	// because NIO IPv6 DatagramChannels will not be available
+        	// until Vista/Windows2008 with Java 7.
 	        UnicastDhcpServer ucastServer = new UnicastDhcpServer(ucastAddrs, portNumber);
 	        ucastThread = new Thread(ucastServer, "ucast.server");
 	        ucastThread.start();
+        }
+        else {
+        	// Run the NIO IPv6 DatagramChannel server, which is based on Apache MINA.
+	        NioDhcpServer ucastServer = new NioDhcpServer(ucastAddrs, portNumber);
+	        ucastServer.start();
         }
     }
     
