@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
 
-	<policies/>
-	
-	<serverIdOption>
-		<opaqueData>
-			<asciiValue>Jagornet DHCPv6</asciiValue>
-		</opaqueData>
-	</serverIdOption>
+	<serverIdOption/>
     
 </dhc:dhcpV6ServerConfig>
