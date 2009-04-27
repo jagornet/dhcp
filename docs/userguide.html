@@ -5,6 +5,12 @@
 
 
 
+
+
+
+  
+  
+  
   
   
   
@@ -19,11 +25,20 @@
 
 
 
+
+
+
 <h1><a class="mozTocH1" name="mozTocId725159"></a>Jagornet DHCPv6 User Guide</h1>
+
+
+
 Welcome to Jagornet DHCPv6 Community Edition. This user guide provides
 information on installing and running the Jagornet DHCPv6 server.
 &nbsp;The sections of the guide are defined in the following Table of
 Contents.<br>
+
+
+
 <ol id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId725159">Jagornet DHCPv6 User Guide</a>
     <ol>
@@ -39,9 +54,9 @@ Contents.<br>
       </li>
       <li><a href="#mozTocId119809">Configuration</a>
         <ol>
-          <li><a href="#mozTocId79202">Server Policies</a></li>
           <li><a href="#mozTocId921358">DHCPv6 Options</a>
             <ol>
+              <li><a href="#mozTocId521070">Server Identifier Option</a></li>
               <li><a href="#mozTocId144290">Configuration Options</a></li>
               <li><a href="#mozTocId999138">Generic Options</a>
                 <ol>
@@ -51,6 +66,7 @@ Contents.<br>
               </li>
             </ol>
           </li>
+          <li><a href="#mozTocId79202">Server Policies</a></li>
           <li><a href="#mozTocId483343">Filters</a>
             <ol>
               <li><a href="#mozTocId629245">Filter Expressions</a>
@@ -95,13 +111,22 @@ Contents.<br>
 
 
 
+
+
+
 <h2><a class="mozTocH2" name="mozTocId706912"></a>Getting Started</h2>
 
 
 
 
 
+
+
+
 <h3><a class="mozTocH3" name="mozTocId249477"></a>Installation</h3>
+
+
+
 
 
 
@@ -116,7 +141,13 @@ set to the home directory of your Java 6 JRE.</p>
 
 
 
+
+
+
 <ol>
+
+
+
 
 
 
@@ -128,7 +159,13 @@ expand the compressed installation file for your target platform.
     
     
     
+    
+    
+    
     <ul>
+
+
+
 
 
 
@@ -139,7 +176,13 @@ expand the compressed installation file for your target platform.
         
         
         
+        
+        
+        
         <ul>
+
+
+
 
 
 
@@ -151,17 +194,29 @@ expand the compressed installation file for your target platform.
 
 
 
+
+
+
           <li>Compressed install file: <code>dhcpv6.tar.gz</code></li>
 
 
 
 
 
+
+
+
+        
+        
+        
         
         
         
         
         </ul>
+
+
+
 
 
 
@@ -173,12 +228,21 @@ expand the compressed installation file for your target platform.
 
 
 
+
+
+
       <li>Windows
         
         
         
         
+        
+        
+        
         <ul>
+
+
+
 
 
 
@@ -190,17 +254,29 @@ expand the compressed installation file for your target platform.
 
 
 
+
+
+
           <li>Compressed install file: <code>dhcpv6.zip</code></li>
 
 
 
 
 
+
+
+
+        
+        
+        
         
         
         
         
         </ul>
+
+
+
 
 
 
@@ -212,6 +288,12 @@ expand the compressed installation file for your target platform.
 
 
 
+
+
+
+    
+    
+    
     
     
     
@@ -222,7 +304,13 @@ expand the compressed installation file for your target platform.
 
 
 
+
+
+
   </li>
+
+
+
 
 
 
@@ -236,7 +324,13 @@ created in the installation folder, with the following contents.
     
     
     
+    
+    
+    
     <ul>
+
+
+
 
 
 
@@ -248,12 +342,21 @@ created in the installation folder, with the following contents.
 
 
 
+
+
+
       <li>Windows: <code>DHCPV6_HOME=c:\jagornet\dhcpv6</code>
         
         
         
         
+        
+        
+        
         <ul>
+
+
+
 
 
 
@@ -267,8 +370,14 @@ the Server</a>.</li>
 
 
 
+
+
+
           <li><code>DHCPV6_HOME/conf</code> -
 configuration files. See the section on <a href="#config">Configuration</a>.</li>
+
+
+
 
 
 
@@ -281,8 +390,14 @@ documentation files.</li>
 
 
 
+
+
+
           <li><code>DHCPV6_HOME/lib</code> - Java
 library files.</li>
+
+
+
 
 
 
@@ -295,11 +410,20 @@ output files. &nbsp;See the section on <a href="#log">Logging</a>.</li>
 
 
 
+
+
+
+        
+        
+        
         
         
         
         
         </ul>
+
+
+
 
 
 
@@ -311,11 +435,20 @@ output files. &nbsp;See the section on <a href="#log">Logging</a>.</li>
 
 
 
+
+
+
+    
+    
+    
     
     
     
     
     </ul>
+
+
+
 
 
 
@@ -327,13 +460,22 @@ output files. &nbsp;See the section on <a href="#log">Logging</a>.</li>
 
 
 
+
+
+
 </ol>
 
 
 
 
 
+
+
+
 <h3><a class="mozTocH3" name="mozTocId544958"></a><a name="run">Running the Server</a></h3>
+
+
+
 
 
 
@@ -354,9 +496,15 @@ information.</p>
 
 
 
+
+
+
 <p>Open a command shell on the host system and run the script or
 command located
 in the <code>DHCPV6_HOME/bin</code> folder.</p>
+
+
+
 
 
 
@@ -368,12 +516,21 @@ in the <code>DHCPV6_HOME/bin</code> folder.</p>
 
 
 
+
+
+
   <li>Linux/Unix/Mac
     
     
     
     
+    
+    
+    
     <ul>
+
+
+
 
 
 
@@ -386,8 +543,14 @@ to start the server.</li>
 
 
 
+
+
+
       <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 stop</code>
 to stop the server.</li>
+
+
+
 
 
 
@@ -400,6 +563,9 @@ to stop and start the server.</li>
 
 
 
+
+
+
       <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 status</code>
 to check if the server is running.</li>
 
@@ -407,11 +573,20 @@ to check if the server is running.</li>
 
 
 
+
+
+
+    
+    
+    
     
     
     
     
     </ul>
+
+
+
 
 
 
@@ -423,12 +598,21 @@ to check if the server is running.</li>
 
 
 
+
+
+
   <li>Windows
     
     
     
     
+    
+    
+    
     <ul>
+
+
+
 
 
 
@@ -441,6 +625,9 @@ to run the server in the command window. Use Ctrl+C to stop.</li>
 
 
 
+
+
+
       <li><code>c:\jagornet\dhcpv6\bin\InstallJagornetDhcpv6.bat</code>
 to install the Jagornet DHCPv6 Server as a Windows Service.</li>
 
@@ -448,8 +635,14 @@ to install the Jagornet DHCPv6 Server as a Windows Service.</li>
 
 
 
+
+
+
       <li><code>c:\jagornet\dhcpv6\bin\UninstallJagornetDhcpv6.bat</code>
 to remove the Jagornet DHCPv6 Server as a Windows Service.</li>
+
+
+
 
 
 
@@ -464,6 +657,9 @@ Console (MMC).</li>
 
 
 
+
+
+
       <li><code>c:\jagornet\dhcpv6\bin\StopJagornetDhcpv6.bat</code>
 to stop the Jagornet DHCPv6 Server as a Windows Service. The server can
 also be stopped using the Windows Services Microsoft Management Console
@@ -473,11 +669,20 @@ also be stopped using the Windows Services Microsoft Management Console
 
 
 
+
+
+
+    
+    
+    
     
     
     
     
     </ul>
+
+
+
 
 
 
@@ -489,13 +694,22 @@ also be stopped using the Windows Services Microsoft Management Console
 
 
 
+
+
+
 </ul>
 
 
 
 
 
+
+
+
 <h4><a class="mozTocH4" name="mozTocId830497"></a><a name="startup">Startup Options</a></h4>
+
+
+
 
 
 
@@ -512,12 +726,21 @@ behavior:
 
 
 
+
+
+
   <li>Linux/Unix/Mac
     
     
     
     
+    
+    
+    
     <ul>
+
+
+
 
 
 
@@ -530,8 +753,14 @@ The server configuration file.</li>
 
 
 
+
+
+
       <li><code>-p (port) port number</code> The port
 number to listen on.</li>
+
+
+
 
 
 
@@ -545,6 +774,9 @@ traffic. </li>
 
 
 
+
+
+
       <li><code>-m (interfaces) multicast interfaces</code>
 A list of interfaces on the local host that support IPv6 multicast.</li>
 
@@ -552,6 +784,12 @@ A list of interfaces on the local host that support IPv6 multicast.</li>
 
 
 
+
+
+
+    
+    
+    
     
     
     
@@ -562,7 +800,13 @@ A list of interfaces on the local host that support IPv6 multicast.</li>
 
 
 
+
+
+
   </li>
+
+
+
 
 
 
@@ -579,7 +823,13 @@ for each option argument.
     
     
     
+    
+    
+    
     <ul>
+
+
+
 
 
 
@@ -592,8 +842,14 @@ The server configuration file.</li>
 
 
 
+
+
+
       <li><code>-p (port) port number</code> The port
 number to listen on.</li>
+
+
+
 
 
 
@@ -607,16 +863,37 @@ traffic. </li>
 
 
 
+
+
+
       <li>Multicast is not supported on Windows</li>
 
+
+
+
+    
+    
+    
     
     </ul>
 
+
+
+
   </li>
+
+
+
 
 </ul>
 
+
+
+
 <h2><a class="mozTocH2" name="mozTocId119809"></a><a name="config">Configuration</a></h2>
+
+
+
 
 
 
@@ -631,135 +908,14 @@ schema which defines all server configuration elements is available at <code>con
 
 
 
-<h3><a class="mozTocH3" name="mozTocId79202"></a>Server Policies</h3>
-
-
-
-
-
-Server polices are configured using the <code>polices</code>
-element. Each policy is
-specified with <code>name</code> and <code>value</code>
-elements. The currently
-supported polices include the following.<br>
-
-
-
-
-<br>
-
-
-
-
-
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-
-
-
-
-
-  <tbody>
-
-
-
-
-
-    <tr>
-
-
-
-
-
-      <th>Policy element</th>
-
-
-
-
-
-      <th>Sytnax</th>
-
-
-
-
-
-      <th>Description</th>
-
-
-
-
-
-    </tr>
-
-
-
-
-
-    <tr>
-
-
-
-
-
-      <td><code>sendRequestedOptionsOnly</code></td>
-
-
-
-
-
-      <td>
-      
-      
-      
-      
-      <pre>&lt;policies&gt;<br>  &lt;policy&gt;<br>    &lt;name&gt;sendRequestedOptionsOnly&lt;/name&gt;<br>    &lt;value&gt;true&lt;/value&gt;<br>  &lt;/policy&gt;<br>&lt;/policies&gt;</pre>
-
-
-
-
-      </td>
-
-
-
-
-
-      <td>This
-policy controls the DHCPv6
-server's behavior with respect to client requests that include the
-Option
-Request Option (ORO). If this policy is <code>true</code>,
-the server will send only the options configured for server to send to
-the client which are also requested by the client in the ORO. The
-default value is <code>false</code>
-meaning the server will send all configured options to the client.</td>
-
-
-
-
-
-    </tr>
-
-
-
-
-
-  
-  
-  
-  
-  </tbody>
-</table>
-
-
-
-
-<br>
-
-
 
 
 
 
 <h3><a class="mozTocH3" name="mozTocId921358"></a>DHCPv6 Options</h3>
+
+
+
 
 
 
@@ -773,10 +929,32 @@ well as
 other DHCPv6 options defined in additional RFCs.<br>
 
 
+<h4><a class="mozTocH4" name="mozTocId521070"></a>Server Identifier Option</h4>
 
 
+<p>The Server Identifier Option is required by the DHCPv6 protocol for the server to include in reply packets. &nbsp;The <span style="font-family: monospace;">serverIdOption</span> <span style="font-style: italic;">must</span> be specified in the <span style="font-family: monospace;">conf/dhcpv6server.xml</span> file. &nbsp;The default <span style="font-family: monospace;">conf/dhcpv6server.xml</span> file supplied with the Jagornet DHCPv6 server specifies an empty server identifier option as follows:</p>
+
+
+<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>	&lt;serverIdOption/&gt;<br>    <br>&lt;/dhc:dhcpV6ServerConfig&gt;</pre>
+
+
+<p>Using this default configuration, a&nbsp;DUID-LLT, as
+defined by section 9.2 of RFC 3315, will be automatically generated by
+the Jagornet DHCPv6 server upon initial startup. This will cause the <span style="font-family: monospace;">conf/dhcpv6server.xml</span> file to be rewritten with the generated <span style="font-family: monospace;">serverIdOption</span>, for example:</p>
+
+
+<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>    &lt;serverIdOption&gt;<br>        &lt;opaqueData&gt;<br>            &lt;hexValue&gt;0001000149EFC509001E52C94D49&lt;/hexValue&gt;<br>        &lt;/opaqueData&gt;<br>    &lt;/serverIdOption&gt;<br><br>&lt;/dhc:dhcpV6ServerConfig&gt;<br></pre>
+
+<p>This is the recommended way to create a server identifier. &nbsp;Optionally, the serverIdOption can be specified using an <a href="#opaquedata">opaque data</a> option type, for example:</p>
+
+<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>    &lt;serverIdOption&gt;<br>        &lt;opaqueData&gt;<br>            &lt;asciiValue&gt;Jagornet-DHCPv6&lt;/asciiValue&gt;<br>        &lt;/opaqueData&gt;<br>    &lt;/serverIdOption&gt;<br><br>&lt;/dhc:dhcpV6ServerConfig&gt;<br></pre>
+
+<p></p>
 
 <h4><a class="mozTocH4" name="mozTocId144290"></a>Configuration Options</h4>
+
+
+
 
 
 
@@ -788,13 +966,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
   <tbody>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -806,7 +993,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <th>Option element</th>
+
+
+
 
 
 
@@ -818,7 +1011,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <th>Reference</th>
+
+
+
 
 
 
@@ -830,7 +1029,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -842,7 +1047,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>preferenceOption</code></td>
+
+
+
 
 
 
@@ -853,13 +1064,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;preferenceOption&gt;<br>  &lt;unsignedByte&gt;10&lt;/unsignedByte&gt;<br>&lt;/preferenceOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -871,13 +1091,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -889,7 +1118,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>serverUnicastOption</code></td>
+
+
+
 
 
 
@@ -900,13 +1135,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;serverUnicastOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>&lt;/serverUnicastOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -918,13 +1162,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -936,7 +1189,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>statusCodeOption</code></td>
+
+
+
 
 
 
@@ -947,13 +1206,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;statusCodeOption&gt;<br>  &lt;code&gt;5&lt;/code&gt;<br>  &lt;message&gt;UseMulticast&lt;/message&gt;<br>&lt;/statusCodeOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -965,13 +1233,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -983,7 +1260,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>vendorInfoOption</code></td>
+
+
+
 
 
 
@@ -994,13 +1277,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;vendorInfoOption&gt;<br>  &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;<br>  &lt;subOptionList&gt;<br>    &lt;optionDef code="1" name="VendorSubopt1"&gt;<br>      &lt;stringOption&gt;<br>        &lt;string&gt;VendorSpecial&lt;/string&gt;<br>      &lt;/stringOption&gt;<br>    &lt;/optionDef&gt;<br>    &lt;optionDef code="2" name="VendorSubopt2"&gt;<br>      &lt;ipAddressOption&gt;<br>        &lt;ipAddress&gt;2001:db8::999&lt;/ipAddress&gt;<br>      &lt;/ipAddressOption&gt;<br>    &lt;/optionDef&gt;<br>  &lt;/subOptionList&gt;<br>&lt;/vendorInfoOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1012,13 +1304,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1030,7 +1331,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>sipServerDomainNamesOption</code></td>
+
+
+
 
 
 
@@ -1041,13 +1348,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;sipServerDomainNamesOption&gt;<br>  &lt;domainName&gt;sip.foo.com.&lt;/domainName&gt;<br>  &lt;domainName&gt;sip.bar.com.&lt;/domainName&gt;<br>&lt;/sipServerDomainNamesOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1060,13 +1376,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1078,7 +1403,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>sipServerAddressesOption</code></td>
+
+
+
 
 
 
@@ -1089,13 +1420,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;sipServerAddressesOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/sipServerAddressesOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1108,13 +1448,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1126,7 +1475,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>dnsServersOption</code></td>
+
+
+
 
 
 
@@ -1137,13 +1492,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;dnsServersOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/dnsServersOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1156,13 +1520,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1174,7 +1547,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>domainSearchListOption</code></td>
+
+
+
 
 
 
@@ -1185,13 +1564,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;domainSearchListOption&gt;<br>  &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>  &lt;domainName&gt;bar.com.&lt;/domainName&gt;<br>&lt;/domainSearchListOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1204,13 +1592,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1222,7 +1619,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>nisServersOption</code></td>
+
+
+
 
 
 
@@ -1233,13 +1636,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;nisServersOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/nisServersOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1252,13 +1664,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1270,7 +1691,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>nisPlusServersOption</code></td>
+
+
+
 
 
 
@@ -1281,13 +1708,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;nisPlusServersOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/nisPlusServersOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1300,13 +1736,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1318,7 +1763,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>nisDomainNameOption</code></td>
+
+
+
 
 
 
@@ -1329,13 +1780,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;nisDomainNameOption&gt;<br>  &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>&lt;/nisDomainNameOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1348,13 +1808,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1366,7 +1835,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>nisPlusDomainNameOption</code></td>
+
+
+
 
 
 
@@ -1377,13 +1852,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;nisPlusDomainNameOption&gt;<br>  &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>&lt;/nisPlusDomainNameOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1396,7 +1880,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
+
+
+
 
 
 
@@ -1408,7 +1898,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>31</td>
+
+
+
 
 
 
@@ -1420,7 +1916,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -1431,7 +1933,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1444,7 +1952,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
+
+
+
 
 
 
@@ -1456,7 +1970,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>32</td>
+
+
+
 
 
 
@@ -1468,7 +1988,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -1479,7 +2005,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1492,13 +2024,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1510,7 +2051,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>bcmcsDomainNamesOption</code></td>
+
+
+
 
 
 
@@ -1521,13 +2068,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;bcmcsDomainNamesOption&gt;<br>  &lt;domainName&gt;bcmcs.foo.com.&lt;/domainName&gt;<br>  &lt;domainName&gt;bcmcs.bar.com.&lt;/domainName&gt;<br>&lt;/bcmcsDomainNamesOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1540,13 +2096,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1558,7 +2123,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>bcmcsAddressesOption</code></td>
+
+
+
 
 
 
@@ -1569,13 +2140,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;bcmcsAddressesOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/bcmcsAddressesOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1588,7 +2168,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
+
+
+
 
 
 
@@ -1600,7 +2186,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>36</td>
+
+
+
 
 
 
@@ -1612,7 +2204,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -1623,7 +2221,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1636,7 +2240,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
+
+
+
 
 
 
@@ -1648,7 +2258,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>40</td>
+
+
+
 
 
 
@@ -1660,7 +2276,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -1671,7 +2293,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1684,13 +2312,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1702,7 +2339,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>newPosixTimezoneOption</code></td>
+
+
+
 
 
 
@@ -1713,13 +2356,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;newPosixTimezoneOption&gt;<br>  &lt;string&gt;EST5EDT4,M3.2.0/02:00,M11.1.0/02:00&lt;/string&gt;<br>&lt;/newPosixTimezoneOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1732,13 +2384,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1750,7 +2411,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td><code>newTzdbTimezoneOption</code></td>
+
+
+
 
 
 
@@ -1761,13 +2428,22 @@ other DHCPv6 options defined in additional RFCs.<br>
       
       
       
+      
+      
+      
       <pre>&lt;newTzdbTimezoneOption&gt;<br>  &lt;string&gt;Europe/Zurich&lt;/string&gt;<br>&lt;/newTzdbTimezoneOption&gt;<br></pre>
 
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1780,7 +2456,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
+
+
+
 
 
 
@@ -1792,7 +2474,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>51</td>
+
+
+
 
 
 
@@ -1804,7 +2492,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -1815,7 +2509,13 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -1828,12 +2528,21 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
+  
+  
+  
   
   
   
@@ -1844,13 +2553,22 @@ other DHCPv6 options defined in additional RFCs.<br>
 
 
 
+
+
+
 <br>
 
 
 
 
 
+
+
+
 <h4><a class="mozTocH4" name="mozTocId999138"></a>Generic Options</h4>
+
+
+
 
 
 
@@ -1873,7 +2591,13 @@ shown in the table above.<span style="font-weight: bold;"></span></p>
 
 
 
+
+
+
 <h5><a class="mozTocH5" name="mozTocId101942"></a>Option Definition Type</h5>
+
+
+
 
 
 
@@ -1886,7 +2610,13 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
+
+
 
 
 
@@ -1898,7 +2628,13 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1910,7 +2646,13 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <th>Syntax</th>
+
+
+
 
 
 
@@ -1922,7 +2664,13 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1934,12 +2682,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;uByteOption&gt;<br>    &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;<br>  &lt;/uByteOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -1951,13 +2708,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -1970,12 +2736,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;uShortOption&gt;<br>    &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;<br>  &lt;/uShortOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -1987,13 +2762,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2005,12 +2789,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;uShortListOption&gt;<br>    &lt;unsignedShort&gt;1&lt;/unsignedShort&gt;<br>    &lt;unsignedShort&gt;9999&lt;/unsignedShort&gt;<br>    &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;<br>  &lt;/uShortListOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2022,13 +2815,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2040,12 +2842,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;uIntOption&gt;<br>    &lt;unsignedInt&gt;4294697295&lt;/unsignedInt&gt;<br>  &lt;/uIntOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2057,13 +2868,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2075,12 +2895,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;stringOption&gt;<br>    &lt;string&gt;myOptionStringValue&lt;/string&gt;<br>  &lt;/stringOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2092,13 +2921,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2110,12 +2948,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;ipAddressOption&gt;<br>    &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;/ipAddressOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2127,13 +2974,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2145,12 +3001,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;ipAddressListOption&gt;<br>    &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>    &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>    &lt;ipAddress&gt;2001:db8::3&lt;/ipAddress&gt;<br>  &lt;/ipAddressListOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2162,13 +3027,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2180,12 +3054,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br> &lt;domainNameOption&gt;<br> &lt;domainName&gt;my.foo.com.&lt;/domainName&gt;<br> &lt;/domainNameOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2197,13 +3080,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2215,12 +3107,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;domainNameListOption&gt;<br>    &lt;domainName&gt;my.foo.com.&lt;/domainName&gt;<br>    &lt;domainName&gt;my.bar.com.&lt;/domainName&gt;<br>    &lt;domainName&gt;my.yuk.com.&lt;/domainName&gt;<br>  &lt;/domainNameListOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2232,13 +3133,22 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2250,12 +3160,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td>
       
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;opaqueDataOption&gt;<br>    &lt;opaqueData&gt;<br>      &lt;hexValue&gt;0123456789abcdef&lt;/hexValue&gt;<br>    &lt;/opaqueData&gt;<br>  &lt;/opaqueDataOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2267,7 +3186,13 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
+
+
+
 
 
 
@@ -2279,7 +3204,13 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
       <td><code>opaqueDataListOption</code></td>
+
+
+
 
 
 
@@ -2290,7 +3221,13 @@ use in creating new, experimental, or vendor options.</p>
       
       
       
+      
+      
+      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;opaqueDataListOption&gt;<br>    &lt;opaqueData&gt;<br>      &lt;hexValue&gt;0123456789abcdef&lt;/hexValue&gt;<br>    &lt;/opaqueData&gt;<br>    &lt;opaqueData&gt;<br>      &lt;asciiValue&gt;HelloWorld&lt;/asciiValue&gt;<br>    &lt;/opaqueData&gt;<br>    &lt;opaqueData&gt;<br>      &lt;hexValue&gt;0a1b2c3d4e5f&lt;/hexValue&gt;<br>    &lt;/opaqueData&gt;<br>  &lt;/opaqueDataListOption&gt;<br>&lt;/optionDef&gt;</pre>
+
+
+
 
 
 
@@ -2302,12 +3239,21 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
     </tr>
 
 
 
 
 
+
+
+
+  
+  
+  
   
   
   
@@ -2319,20 +3265,215 @@ use in creating new, experimental, or vendor options.</p>
 
 
 
+
+
+
 <br>
 
 
-<h5><a class="mozTocH5" name="mozTocId668523"></a>Opaque Data Option</h5>
+
+
+
+<h5><a class="mozTocH5" name="mozTocId668523"></a><a name="opaquedata"></a>Opaque Data Option</h5>
+
+
+
 
 
 <p>Opaque data options are those options which can contain opaque,
 binary data. &nbsp;Often, these options actually contain simple ASCII
 strings. &nbsp;Therefore, the <span style="font-family: monospace;">opaqueData</span> element contains either a <span style="font-family: monospace;">hexValue</span> element, which specifies the binary value as a hexadecimal string, or an <span style="font-family: monospace;">asciiValue</span> element, which specifies the ASCII string value.</p>
+<p></p>
+<h3><a class="mozTocH3" name="mozTocId79202"></a>Server Policies</h3>
 
 
 
 
+
+
+
+
+Server polices are configured using the <code>polices</code>
+element. Each policy is
+specified with <code>name</code> and <code>value</code>
+elements. The currently
+supported polices include the following.<br>
+
+
+
+
+
+
+
+<br>
+
+
+
+
+
+
+
+
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
+
+
+
+
+
+
+
+  <tbody>
+
+
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+
+
+      <th>Policy element</th>
+
+
+
+
+
+
+
+
+      <th>Sytnax</th>
+
+
+
+
+
+
+
+
+      <th>Description</th>
+
+
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+
+
+      <td><code>sendRequestedOptionsOnly</code></td>
+
+
+
+
+
+
+
+
+      <td>
+      
+      
+      
+      
+      
+      
+      
+      <pre>&lt;policies&gt;<br>  &lt;policy&gt;<br>    &lt;name&gt;sendRequestedOptionsOnly&lt;/name&gt;<br>    &lt;value&gt;true&lt;/value&gt;<br>  &lt;/policy&gt;<br>&lt;/policies&gt;</pre>
+
+
+
+
+
+
+
+      </td>
+
+
+
+
+
+
+
+
+      <td>This
+policy controls the DHCPv6
+server's behavior with respect to client requests that include the
+Option
+Request Option (ORO). If this policy is <code>true</code>,
+the server will send only the options configured for server to send to
+the client which are also requested by the client in the ORO. The
+default value is <code>false</code>
+meaning the server will send all configured options to the client.</td>
+
+
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><br>
+</p>
 <h3><a class="mozTocH3" name="mozTocId483343"></a>Filters</h3>
+
+
+
 
 
 
@@ -2350,7 +3491,13 @@ set of one or more configured options, and optional server policies.</p>
 
 
 
+
+
+
 <h4><a class="mozTocH4" name="mozTocId629245"></a>Filter Expressions</h4>
+
+
+
 
 
 
@@ -2361,7 +3508,13 @@ filter, then the client request must match <span style="font-style: italic;">all
 
 
 
+
+
+
 <h5><a class="mozTocH5" name="mozTocId585566"></a>Option Expression</h5>
+
+
+
 
 
 
@@ -2374,7 +3527,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
+
+
 
 
 
@@ -2386,7 +3545,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2398,12 +3563,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <th>Available operators</th>
 
 
 
 
+
+
+
       <th>Example Syntax</th>
+
+
+
 
 
 
@@ -2415,7 +3589,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2427,7 +3607,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -2437,7 +3623,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2447,12 +3639,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2462,12 +3663,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2477,12 +3687,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2492,7 +3711,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -2502,7 +3727,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>greaterThanOrEqual</pre>
+
+
+
 
 
 
@@ -2512,6 +3743,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -2522,7 +3759,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -2532,12 +3775,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;<code>uByteOption</code>&gt;<br>        &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;<br>      &lt;/<code>uByteOption</code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -2549,7 +3801,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2562,7 +3820,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -2572,7 +3836,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2582,12 +3852,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2597,12 +3876,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2612,12 +3900,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2627,7 +3924,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -2637,7 +3940,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>greaterThanOrEqual</pre>
+
+
+
 
 
 
@@ -2647,6 +3956,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -2656,6 +3971,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -2666,7 +3987,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -2676,12 +4003,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="lessThan"&gt;<br>      &lt;uShortOption&gt;<br>        &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;<br>      &lt;/uShortOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -2693,7 +4029,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2705,7 +4047,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -2715,7 +4063,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2725,7 +4079,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -2735,7 +4095,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>contains</pre>
+
+
+
 
 
 
@@ -2745,6 +4111,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -2754,6 +4126,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -2764,7 +4142,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -2774,12 +4158,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;uShortListOption&gt;<br>        &lt;unsignedShort&gt;1&lt;/unsignedShort&gt;<br>        &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;<br>      &lt;/uShortListOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -2791,7 +4184,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2803,7 +4202,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -2813,7 +4218,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2823,12 +4234,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2838,12 +4258,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2853,12 +4282,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2868,7 +4306,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -2878,7 +4322,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>greaterThanOrEqual</pre>
+
+
+
 
 
 
@@ -2888,6 +4338,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -2897,6 +4353,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -2907,7 +4369,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -2917,12 +4385,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="greaterThan"&gt;<br>      &lt;uIntOption&gt;<br>        &lt;unsignedInt&gt;10000&lt;/unsignedInt&gt;<br>      &lt;/uIntOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -2934,7 +4411,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -2946,7 +4429,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -2956,7 +4445,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2966,12 +4461,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2981,12 +4485,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -2996,12 +4509,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3011,7 +4533,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -3021,7 +4549,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>regExp</pre>
+
+
+
 
 
 
@@ -3031,6 +4565,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3040,6 +4580,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3050,7 +4596,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3060,12 +4612,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="endsWith"&gt;<br>      &lt;stringOption&gt;<br>        &lt;string&gt;mySuffix&lt;/string&gt;<br>      &lt;/stringOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3077,7 +4638,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -3089,7 +4656,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -3099,7 +4672,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3109,12 +4688,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3124,12 +4712,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3139,12 +4736,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3154,7 +4760,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -3164,7 +4776,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>regExp</pre>
+
+
+
 
 
 
@@ -3174,6 +4792,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3183,6 +4807,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3193,7 +4823,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3203,12 +4839,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;ipAddressOption&gt;<br>        &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>      &lt;/ipAddressOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3220,7 +4865,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -3232,7 +4883,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -3242,7 +4899,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3252,7 +4915,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -3262,7 +4931,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>contains</pre>
+
+
+
 
 
 
@@ -3272,6 +4947,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3281,6 +4962,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3291,7 +4978,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3301,12 +4994,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="contains"&gt;<br>      &lt;ipAddressListOption&gt;<br>        &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>      &lt;/ipAddressListOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3318,7 +5020,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -3330,7 +5038,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -3340,7 +5054,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3350,12 +5070,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3365,12 +5094,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3380,12 +5118,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3395,7 +5142,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -3405,7 +5158,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>regExp</pre>
+
+
+
 
 
 
@@ -3415,6 +5174,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3424,6 +5189,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3434,7 +5205,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3444,12 +5221,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;<code>domainNameOption</code>&gt;<br>        &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>      &lt;/<code>domainNameOption</code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3461,7 +5247,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -3473,7 +5265,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -3483,7 +5281,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3493,7 +5297,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -3503,7 +5313,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>contains</pre>
+
+
+
 
 
 
@@ -3513,6 +5329,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3522,6 +5344,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3532,7 +5360,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3542,12 +5376,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="contains"&gt;<br>      &lt;<code>domainNameListOption</code>&gt;<br>        &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>      &lt;/<code>domainNameListOption</code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3559,7 +5402,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     <tr>
+
+
+
 
 
 
@@ -3571,7 +5420,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td>
+      
+      
+      
       
       
       
@@ -3581,7 +5436,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3591,12 +5452,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3606,12 +5476,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3621,12 +5500,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3636,7 +5524,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -3646,7 +5540,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>regExp</pre>
+
+
+
 
 
 
@@ -3656,6 +5556,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3665,6 +5571,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3675,7 +5587,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3685,7 +5603,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="regExp"&gt;<br>      &lt;<code>opaqueDataOption&gt;<br>        &lt;opaqueData&gt;<br>          &lt;asciiValue&gt;myRegularExpression&lt;/asciiValue&gt;<br>        &lt;/opaqueData&gt;<br></code>      &lt;/<code>opaqueDataOption</code><code></code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
+
+
+
 
 
 
@@ -3696,7 +5620,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
     </tr>
+
+
+
 
 
 
@@ -3708,7 +5638,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       <td><code>opaqueDataListOption</code></td>
+
+
+
 
 
 
@@ -3719,12 +5655,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <ul>
 
 
 
 
+
+
+
         <li>
+          
+          
+          
           
           
           
@@ -3734,7 +5679,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
         </li>
+
+
+
 
 
 
@@ -3744,7 +5695,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
           
           
           
+          
+          
+          
           <pre>contains</pre>
+
+
+
 
 
 
@@ -3754,6 +5711,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3763,6 +5726,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+      
+      
+      
       
       
       
@@ -3773,7 +5742,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3783,12 +5758,21 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
       
       
       
+      
+      
+      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;<code>opaqueDataOption&gt;<br>        &lt;opaqueData&gt;<br>          &lt;asciiValue&gt;opaqueAsciiData&lt;/asciiValue&gt;<br>        &lt;/opaqueData&gt;<br></code>      &lt;/<code>opaqueDataOption</code><code></code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
 
 
 
 
+
+
+
       </td>
+
+
+
 
 
 
@@ -3800,6 +5784,12 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
+  
+  
+  
   
   
   
@@ -3810,7 +5800,13 @@ expression. &nbsp;The <span style="font-family: monospace;">optionExpression</sp
 
 
 
+
+
+
 <h5><a class="mozTocH5" name="mozTocId505555"></a>Custom Expression</h5>
+
+
+
 
 
 
@@ -3823,7 +5819,13 @@ Edition does not support custom expressions.</span></p>
 
 
 
+
+
+
 <h5><a class="mozTocH5" name="mozTocId154454"></a>Filters Example</h5>
+
+
+
 
 
 
@@ -3837,7 +5839,13 @@ such clients.</p>
 
 
 
+
+
+
 <pre>&lt;filters&gt;<br><br>  &lt;filter&gt;<br>    &lt;name&gt;UserClass Filter Group 1&lt;/name&gt;<br><br>&nbsp;   &lt;filterExpressions&gt;<br>      &lt;filterExpression&gt;<br>        &lt;optionExpression code="6" operator="contains"&gt;<br>          &lt;uShortListOption&gt;<br>            &lt;unsignedShort&gt;15&lt;/unsignedShort&gt;<br>          &lt;/uShortListOption&gt;<br>        &lt;/optionExpression&gt;<br>        &lt;optionExpression code="15" operator="equals"&gt;<br>          &lt;opaqueOption&gt;<br>            &lt;opaqueData&gt;<br>              &lt;asciiValue&gt;FilterUserClass&lt;/asciiValue&gt;<br>            &lt;/opaqueData&gt;<br>          &lt;/opaqueOption&gt;<br>        &lt;/optionExpression&gt;<br>      &lt;/filterExpression&gt;<br>    &lt;/filterExpressions&gt;<br><br>    &lt;options&gt;<br>      &lt;domainListOption&gt;<br>        &lt;domainName&gt;filter.com.&lt;/domainName&gt;<br>      &lt;/domainListOption&gt;<br>    &lt;/options&gt;<br><br>  &lt;/filter&gt;<br><br>&lt;/filters&gt;<br></pre>
+
+
+
 
 
 
@@ -3852,12 +5860,21 @@ for such clients.</p>
 
 
 
+
+
+
 <pre>&lt;filters&gt;<br><br>  &lt;filter&gt;<br>    &lt;name&gt;VendorClass Filter Group 1&lt;/name&gt;<br><br>&nbsp;   &lt;filterExpressions&gt;<br>      &lt;filterExpression&gt;<br>        &lt;optionExpression code="16" operator="startsWith"&gt;<br>          &lt;opaqueOption&gt;<br>            &lt;opaqueData&gt;<br>              &lt;asciiValue&gt;VendorPrefix&lt;/asciiValue&gt;<br>            &lt;/opaqueData&gt;<br>          &lt;/opaqueOption&gt;<br>        &lt;/optionExpression&gt;<br>      &lt;/filterExpression&gt;<br>    &lt;/filterExpressions&gt;<br><br>    &lt;options&gt;<br>      &lt;vendorInfoOption&gt;<br>        &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;<br>        &lt;subOptionList&gt;<br>          &lt;optionDef code="1" name="VendorSubopt1"&gt;<br>            &lt;stringOption&gt;<br>              &lt;string&gt;VendorSpecial&lt;/string&gt;<br>            &lt;/stringOption&gt;<br>          &lt;/optionDef&gt;<br>          &lt;optionDef code="2" name="VendorSubopt2"&gt;<br>            &lt;ipAddressOption&gt;<br>              &lt;ipAddress&gt;2001:db8::999&lt;/ipAddress&gt;<br>            &lt;/ipAddressOption&gt;<br>          &lt;/optionDef&gt;<br>        &lt;/subOptionList&gt;<br>      &lt;/vendorInfoOption&gt;<br>&nbsp;   &lt;/options&gt;<br><br>  &lt;/filter&gt;<br><br>&lt;/filters&gt;<br><span style="font-weight: bold;"><br></span></pre>
 
 
 
 
+
+
+
 <h3><a class="mozTocH3" name="mozTocId544949"></a>Links</h3>
+
+
+
 
 
 
@@ -3880,7 +5897,13 @@ optional filters.</p>
 
 
 
+
+
+
 <h5><a class="mozTocH5" name="mozTocId819953"></a>Links Example</h5>
+
+
+
 
 
 
@@ -3892,7 +5915,13 @@ server address for clients on that link.</p>
 
 
 
+
+
+
 <pre>	<br>&lt;links&gt;<br><br>  &lt;link&gt;<br>    &lt;name&gt;Client Link 1&lt;/name&gt;<br>    &lt;address&gt;2001:DB8:1::/48&lt;/address&gt;<br><br>    &lt;options&gt;<br>      &lt;dnsServersOption&gt;<br>        &lt;ipAddress&gt;2001:DB8:1::1&lt;/ipAddress&gt;<br>      &lt;/dnsServersOption&gt;<br>    &lt;/options&gt;<br><br>  &lt;/link&gt;<br><br>  &lt;link&gt;<br>    &lt;name&gt;Client Link 2&lt;/name&gt;<br>    &lt;address&gt;2001:DB8:2::/48&lt;/address&gt;<br><br>    &lt;options&gt;<br>      &lt;dnsServersOption&gt;<br>        &lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;<br>      &lt;/dnsServersOption&gt;<br>    &lt;/options&gt;<br><br>  &lt;/link&gt;<br><br>  &lt;link&gt;<br>    &lt;name&gt;Client Link 3&lt;/name&gt;<br>    &lt;address&gt;2001:DB8:3::/48&lt;/address&gt;<br><br>    &lt;options&gt;<br>      &lt;dnsServersOption&gt;<br>        &lt;ipAddress&gt;2001:DB8:3::1&lt;/ipAddress&gt;<br>      &lt;/dnsServersOption&gt;<br>    &lt;/options&gt;<br><br>  &lt;/link&gt;<br><br>&lt;/links&gt;<br><br></pre>
+
+
+
 
 
 
@@ -3902,10 +5931,16 @@ server address for clients on that link.</p>
 
 
 
+
+
+
 <p><span style="font-style: italic;">Pools are used to define addresses and prefixes for allocation by a stateful DHCPv6 server. &nbsp;</span><span style="font-style: italic;">Pools
 are not supported by Jagornet DHCPv6 Server Community Edition, please
 see Jagornet DHCPv6 Professional Edition for stateful DHCPv6 server
 support.</span></p>
+
+
+
 
 <p><span style="font-style: italic;"></span></p>
 
@@ -3913,7 +5948,13 @@ support.</span></p>
 
 
 
+
+
+
 <h2><a class="mozTocH2" name="mozTocId148908"></a>Stateless DHCPv6 Operational Models</h2>
+
+
+
 
 
 
@@ -3936,7 +5977,13 @@ IPv6.<br>
 
 
 
+
+
+
 <h3><a class="mozTocH3" name="mozTocId260206"></a>Operational model using a DHCPv6 Relay</h3>
+
+
+
 
 
 
@@ -3946,6 +5993,9 @@ IPv6.<br>
 routers. Most IPv6 capable routers include an implementation of a
 DHCPv6 relay agent. Please consult your router vendor's documentation
 for details on enabling the DHCPv6 relay agent.</p>
+
+
+
 
 
 
@@ -3978,8 +6028,14 @@ the original client request.</p>
 
 
 
+
+
+
 <span style="font-family: monospace;"></span>
 <pre> -----------                  ----------                    -----------<br>|           |   Multicast    |          |     Unicast*     |           |<br>|           | -------------&gt; |          | ---------------&gt; |           |<br>| Stateless |  Info-Request  |  DHCPv6  |  Relay-Forward   | Stateless |<br>|  DHCPv6   |                |  Relay   |  (Info-Request)  |  DHCPv6   |<br>|  Client   |                | (Router) |                  |  Server   |<br>|           |    Unicast     |          |     Unicast      |           |<br>|           | &lt;------------- |          | &lt;--------------- |           |<br>|           |     Reply      |          |   Relay-Reply    |           |<br> -----------                  ----------      (Reply)       -----------<br></pre>
+
+
+
 
 
 
@@ -3990,9 +6046,15 @@ the original client request.</p>
 
 
 
+
+
+
 <p>Some IPv6 networks may not involve any IPv6 routers or will
 otherwise not
 utilize a DHCPv6 relay agent.</p>
+
+
+
 
 
 
@@ -4010,8 +6072,14 @@ original client request.</p>
 
 
 
+
+
+
 <span style="font-family: monospace;"></span>
 <pre> -----------                  -----------<br>|           |   Multicast    |           |<br>|           | -------------&gt; |           |<br>| Stateless |  Info-Request  | Stateless |<br>|  DHCPv6   |                |  DHCPv6   |<br>|  Client   |                |  Server   |<br>|           |    Unicast     |           |<br>|           | &lt;------------- |           |<br>|           |     Reply      |           |<br> -----------                  -----------<br></pre>
+
+
+
 
 
 
@@ -4022,21 +6090,42 @@ original client request.</p>
 
 
 
+
+
+
 <ul>
+
+
+
 
   <li>Linux/Unix/Mac
     
     
     
     
+    
+    
+    
     <ul>
+
+
+
 
       <li>Support unicast mode for operational model with a relay
 agent.</li>
 
+
+
+
       <li>Support mulicast mode for operational model without a
 relay agent.</li>
 
+
+
+
+    
+    
+    
     
     </ul>
 
@@ -4044,20 +6133,41 @@ relay agent.</li>
 
 
 
+
+
+
   </li>
+
+
+
 
   <li>Windows
     
     
     
     
+    
+    
+    
     <ul>
+
+
+
 
       <li>Support unicast mode for operational model with a relay
 agent.</li>
 
+
+
+
       <li>Mulicast mode not yet available.</li>
 
+
+
+
+    
+    
+    
     
     </ul>
 
@@ -4065,22 +6175,43 @@ agent.</li>
 
 
 
+
+
+
   </li>
+
+
+
 
 </ul>
 
 
 
 
+
+
+
 <h2><a class="mozTocH2" name="mozTocId154139"></a><span style="font-style: italic;"></span>Appendix</h2>
 
+
+
+
 <h3><a class="mozTocH4" name="mozTocId424719"></a><a name="log"></a>Logging</h3>
+
+
+
 
 <p>Logging for the Jagornet DHCPv6 server is performed using the <a href="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</a> logging service. &nbsp;The default Log4J configuration file is located in the <span style="font-family: monospace;">conf/log4j.properties</span>
 file. &nbsp;The server writes all intial startup messages to the
 standard output and error streams, which are redirected by the <span style="font-family: monospace;">bin/dhcpv6</span> script to the <span style="font-family: monospace;">log/dhcpv6server.out</span> file. &nbsp;After the server initialization, all messages are created via Log4J and configured by the <span style="font-family: monospace;">conf/log4j.properties</span> file. &nbsp;The default file outputs all server messages to the <span style="font-family: monospace;">log/dhcpv6server.log</span> rolling file. &nbsp;When the file reaches 10MB, it is "rolled" over to a new <span style="font-family: monospace;">log/dhcpv6server.log.#</span> file up to ten files of logging history. &nbsp;These settings are controlled by the <span style="font-family: monospace;">log4j.appender.Logfile</span> properties.</p>
 
+
+
+
 <h3><a class="mozTocH4" name="mozTocId945976"></a>Java Management Extensions</h3>
+
+
+
 
 <p>The
 Jagornet DHCPv6 Server supports Java Management Extensions (JMX) for
@@ -4088,7 +6219,13 @@ dynamically configuring logging parameters and for monitoring server
 statistics. &nbsp;Support for JMX is available in Sun's JRE 6. &nbsp;For more
 information, please see the <a href="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html">Java SE Monitoring and Management Guide</a>.</p>
 
+
+
+
 <p></p>
+
+
+
 
 </body>
 </html>
