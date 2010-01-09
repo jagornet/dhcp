@@ -79,12 +79,14 @@ public class DhcpHandlerAdapter extends IoHandlerAdapter
         if (message instanceof DhcpMessage) {
             
             DhcpMessage dhcpMessage = (DhcpMessage) message;
-            log.info("Received: " + dhcpMessage.toStringWithOptions());
+            if (log.isDebugEnabled())
+            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
+            else
+            	log.info("Received: " + dhcpMessage.toString());
             
             InetAddress localAddr = ((InetSocketAddress)session.getLocalAddress()).getAddress(); 
             DhcpMessage replyMessage = 
-            	DhcpMessageHandler.handleMessage(localAddr,
-            				  dhcpMessage);
+            	DhcpMessageHandler.handleMessage(localAddr, dhcpMessage);
             
             if (replyMessage != null) {
                 // do we really want to write to the remoteAddress
@@ -94,7 +96,7 @@ public class DhcpHandlerAdapter extends IoHandlerAdapter
                 session.write(replyMessage, remoteAddress);
             }
             else {
-                log.warn("Null DHCP reply message returned from processor");
+                log.warn("Null DHCP reply message returned from handler");
             }
             
         }

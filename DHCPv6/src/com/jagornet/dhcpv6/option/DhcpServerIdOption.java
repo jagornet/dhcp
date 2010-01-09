@@ -43,10 +43,14 @@ public class DhcpServerIdOption extends BaseOpaqueDataOption
 	
 	public DhcpServerIdOption(ServerIdOption serverIdOption)
 	{
-		if (serverIdOption != null)
+		if (serverIdOption != null) {
 			this.opaqueDataOption = serverIdOption;
-		else
+		}
+		else {
 			this.opaqueDataOption = ServerIdOption.Factory.newInstance();
+            // create an OpaqueData element to actually hold the data
+            this.opaqueDataOption.addNewOpaqueData();
+		}
 		
 	}
 	

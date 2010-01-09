@@ -35,6 +35,7 @@ import com.jagornet.dhcpv6.message.DhcpRelayMessage;
 import com.jagornet.dhcpv6.option.DhcpRelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
+// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpMessageHandler
  * Description: The main DHCP message handler class.
@@ -43,9 +44,10 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  */
 public class DhcpMessageHandler
 {
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpMessageHandler.class);
-
+	
 	/**
 	 * -  The link to which the client is attached.  The server determines
 	 * the link as follows:
@@ -70,51 +72,28 @@ public class DhcpMessageHandler
 	 * @param localAddress the address on the local host which received the message
 	 * @param dhcpMessage the Info-Request or Relay-Forward message to be handled
 	 * 
-	 * @return a Replay or Relay-Reply message
+	 * @return a Reply or Relay-Reply message
 	 */
-    public static DhcpMessage handleMessage(InetAddress localAddress,
-    								 		DhcpMessage dhcpMessage)
+	//TODO this is the magic method where the nio and net implementations come together
+    public static DhcpMessage handleMessage(InetAddress localAddress, DhcpMessage dhcpMessage)
     {
 		DhcpMessage replyMessage = null;
-		if (dhcpMessage.getMessageType() == DhcpConstants.INFO_REQUEST) {
-		    replyMessage = handleInfoRequest(localAddress, dhcpMessage);
-		}
-		else if (dhcpMessage.getMessageType() == DhcpConstants.RELAY_FORW) {
-		    if (dhcpMessage instanceof DhcpRelayMessage) {
+	    if (dhcpMessage instanceof DhcpRelayMessage) {
+	    	if (dhcpMessage.getMessageType() == DhcpConstants.RELAY_FORW) {
 		        DhcpRelayMessage relayMessage = (DhcpRelayMessage) dhcpMessage;
 		        replyMessage = handleRelayForward(relayMessage);
 		    }
 		    else {
-		        // Note: in theory, we can't get here, because the
-		        // codec would have thrown an exception beforehand
-		        log.error("Received unknown relay message object: " + 
-		                  dhcpMessage.getClass());
+		        log.error("Unsupported message type: " + dhcpMessage.getMessageType());
 		    }
 		}
 		else {
-		    log.warn("Ignoring unsupported message type: " + 
-		             DhcpConstants.getMessageString(dhcpMessage.getMessageType()));
+			log.info("Handling client request on local client link address: " +
+					localAddress.getHostAddress());
+			replyMessage = handleClientRequest(localAddress, dhcpMessage);
 		}
 		return replyMessage;
 	}
-    
-    /**
-     * Handle client Info-Request message.
-     * 
-     * @param linkAddr an address on the client's link
-     * @param dhcpMessage the Info-Request message
-     * 
-     * @return a Reply message
-     */
-    private static DhcpMessage handleInfoRequest(InetAddress linkAddr, 
-                                          		 DhcpMessage dhcpMessage)
-    {
-        DhcpInfoRequestProcessor processor = 
-            new DhcpInfoRequestProcessor(linkAddr, dhcpMessage);
-        
-        DhcpMessage reply = processor.process();
-        return reply;
-    }
     
     /**
      * Handle relay forward message.
@@ -132,9 +111,10 @@ public class DhcpMessageHandler
     	 * 		 required by RFC 3315 Section 22.18.
     	 */
         InetAddress linkAddr = relayMessage.getLinkAddress();
+		log.info("Handling relay forward on link address: " + linkAddr.getHostAddress());
         DhcpRelayOption relayOption = relayMessage.getRelayOption();
         if (relayOption != null) {
-            DhcpMessage relayOptionMessage = relayOption.getRelayMessage();
+            DhcpMessage relayOptionMessage = relayOption.getDhcpMessage();
             while (relayOptionMessage != null) {
                 // check what kind of message is in the option
                 if (relayOptionMessage instanceof DhcpRelayMessage) {
@@ -150,29 +130,25 @@ public class DhcpMessageHandler
                     // encapsulated relay message's relay option
                     relayOption = anotherRelayMessage.getRelayOption();
                     // reset the relayOptionMessage reference to recurse
-                    relayOptionMessage = relayOption.getRelayMessage();
+                    relayOptionMessage = relayOption.getDhcpMessage();
                 }
                 else {
                     // we've peeled off all the layers of the relay message(s),
-                    // so now go handle the Info-Request, assuming it is one
-                    if (relayOptionMessage.getMessageType() == DhcpConstants.INFO_REQUEST) {
-                        DhcpMessage replyMessage = 
-                            handleInfoRequest(linkAddr, relayOptionMessage);
-                        if (replyMessage != null) {
-                            // replace the original Info-Request message inside
-                            // the relayed message with the generated Reply message
-                            relayOption.setRelayMessage(replyMessage);
-                            // flip the outer-most relay_foward into a relay_reply
-                            relayMessage.setMessageType(DhcpConstants.RELAY_REPL);
-                            // return the relay message we started with, 
-                            // with each relay "layer" flipped from a relay_forward
-                            // to a relay_reply, and the lowest level relayOption
-                            // will contain our Reply for the Info-Request
-                            return relayMessage;
-                        }
-                    }
-                    else {
-                        log.error("Lowest level message in relay message is not an Info-Request");
+                    // so now go handle the client request
+        			log.info("Handling client request on remote client link address: " +
+        					linkAddr.getHostAddress());
+                	DhcpMessage replyMessage = handleClientRequest(linkAddr, relayOptionMessage);
+                    if (replyMessage != null) {
+                        // replace the original client request message inside
+                        // the relayed message with the generated Reply message
+                        relayOption.setDhcpMessage(replyMessage);
+                        // flip the outer-most relay_foward into a relay_reply
+                        relayMessage.setMessageType(DhcpConstants.RELAY_REPL);
+                        // return the relay message we started with, 
+                        // with each relay "layer" flipped from a relay_forward
+                        // to a relay_reply, and the lowest level relayOption
+                        // will contain our Reply for the client request
+                        return relayMessage;
                     }
                     relayOptionMessage = null;  // done with relayed messages
                 }
@@ -184,4 +160,132 @@ public class DhcpMessageHandler
         // if we get here, no reply was generated
         return null;
     }
+    
+    /**
+     * Handle client request.
+     * 
+     * @param linkAddress the link address
+     * @param dhcpMessage the dhcp message
+     * 
+     * @return the dhcp message
+     */
+    public static DhcpMessage handleClientRequest(InetAddress linkAddress, DhcpMessage dhcpMessage)
+    {
+    	DhcpMessageProcessor processor = null;
+    	switch (dhcpMessage.getMessageType()) {        
+	        case DhcpConstants.SOLICIT:
+	        	processor = new DhcpSolicitProcessor(dhcpMessage, linkAddress);
+	        	break;
+	        case DhcpConstants.REQUEST:
+	        	processor = new DhcpRequestProcessor(dhcpMessage, linkAddress);
+	        	break;
+	        case DhcpConstants.CONFIRM:
+	        	processor = new DhcpConfirmProcessor(dhcpMessage, linkAddress);
+	        	break;
+	        case DhcpConstants.RENEW:
+	        	processor = new DhcpRenewProcessor(dhcpMessage, linkAddress);
+	        	break;
+	        case DhcpConstants.REBIND:
+	        	processor = new DhcpRebindProcessor(dhcpMessage, linkAddress);
+	        	break;
+	        case DhcpConstants.RELEASE:
+	        	processor = new DhcpReleaseProcessor(dhcpMessage, linkAddress);
+	        	break;
+	        case DhcpConstants.DECLINE:
+	        	processor = new DhcpDeclineProcessor(dhcpMessage, linkAddress);
+	        	break;
+	        case DhcpConstants.INFO_REQUEST:
+	        	processor = new DhcpInfoRequestProcessor(dhcpMessage, linkAddress);
+	        	break;
+	        default:
+	            log.error("Unknown message type.");
+	            break;
+    	}
+    	if (processor != null) {
+    		return processor.processMessage();
+    	}
+    	else {
+    		log.error("No processor found for message type: " + dhcpMessage.getMessageType());
+    	}
+    	return null;
+    }
+
+    
+    
+//	private static String INFO_REQUEST_PROCESSOR_IMPL_DEFAULT =
+//		"com.jagornet.dhcpv6.server.request.DhcpInfoRequestProcessor";
+//	private static String SOLICIT_PROCESSOR_IMPL_DEFAULT =
+//		"com.jagornet.dhcpv6.server.request.DhcpSolicitProcessor";
+//	private static String REQUEST_PROCESSOR_IMPL_DEFAULT =
+//		"com.jagornet.dhcpv6.server.request.DhcpRequestProcessor";
+//	protected static String infoRequestProcessorImplClass = 
+//		INFO_REQUEST_PROCESSOR_IMPL_DEFAULT;
+//	protected static String solicitProcessorImplClass = 
+//		SOLICIT_PROCESSOR_IMPL_DEFAULT;
+//	protected static String requestProcessorImplClass = 
+//		REQUEST_PROCESSOR_IMPL_DEFAULT;
+//	    
+//    
+//    private static DhcpMessage handleInfoRequest(InetAddress linkAddress, DhcpMessage dhcpMessage)
+//    {
+//    	DhcpMessageProcessor messageProcessor = null;
+//		try {
+//			Class<?> c = Class.forName(infoRequestProcessorImplClass);
+//			messageProcessor = 
+//				(DhcpMessageProcessor) c
+//				.getConstructor(DhcpMessage.class, InetAddress.class)
+//				.newInstance(dhcpMessage, linkAddress);
+//		}
+//		catch (Exception e) {
+//			log.error("Failed to create Info-Request Processor: " + e);
+//		}
+//		
+//		if (messageProcessor != null) {
+//			return messageProcessor.process();
+//		}
+//		
+//		return null;
+//    }
+//    
+//    private static DhcpMessage handleSolicit(InetAddress linkAddress, DhcpMessage dhcpMessage)
+//    {
+//    	DhcpMessageProcessor messageProcessor = null;
+//		try {
+//			Class<?> c = Class.forName(solicitProcessorImplClass);
+//			messageProcessor = 
+//				(DhcpMessageProcessor) c
+//				.getConstructor(DhcpMessage.class, InetAddress.class)
+//				.newInstance(dhcpMessage, linkAddress);
+//		}
+//		catch (Exception e) {
+//			log.error("Failed to create Solicit Processor: " + e);
+//		}
+//		
+//		if (messageProcessor != null) {
+//			return messageProcessor.process();
+//		}
+//		
+//		return null;
+//    }
+//    
+//    private static DhcpMessage handleRequest(InetAddress linkAddress, DhcpMessage dhcpMessage)
+//    {
+//    	DhcpMessageProcessor messageProcessor = null;
+//		try {
+//			Class<?> c = Class.forName(requestProcessorImplClass);
+//			messageProcessor = 
+//				(DhcpMessageProcessor) c
+//				.getConstructor(DhcpMessage.class, InetAddress.class)
+//				.newInstance(dhcpMessage, linkAddress);
+//		}
+//		catch (Exception e) {
+//			log.error("Failed to create Request Processor: " + e);
+//		}
+//		
+//		if (messageProcessor != null) {
+//			return messageProcessor.process();
+//		}
+//		
+//		return null;
+//    }
 }

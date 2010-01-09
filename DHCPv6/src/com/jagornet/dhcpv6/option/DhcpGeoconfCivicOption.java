@@ -29,9 +29,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.CivicAddressElement;
 import com.jagornet.dhcpv6.xml.GeoconfCivicOption;
 
@@ -112,31 +111,31 @@ public class DhcpGeoconfCivicOption extends BaseDhcpOption
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
-        iobuf.put((byte)geoconfCivicOption.getWhat());
+        ByteBuffer buf = super.encodeCodeAndLength();
+        buf.put((byte)geoconfCivicOption.getWhat());
         String country = geoconfCivicOption.getCountryCode();
         if (country != null) {
-        	iobuf.put(country.getBytes());
+        	buf.put(country.getBytes());
         }
         else {
         	//TODO: throw exception?
-        	iobuf.put("XX".getBytes());
+        	buf.put("XX".getBytes());
         }
         List<CivicAddressElement> civicAddrs = geoconfCivicOption.getCivicAddressElementList();
     	if ((civicAddrs != null) && !civicAddrs.isEmpty()) {
     		for (CivicAddressElement civicAddr : civicAddrs) {
-    			iobuf.put((byte)civicAddr.getCaType());
+    			buf.put((byte)civicAddr.getCaType());
     			String caVal = civicAddr.getCaValue();
     			if (caVal != null) {
-    				iobuf.put((byte)caVal.length());
-    				iobuf.put(caVal.getBytes());
+    				buf.put((byte)caVal.length());
+    				buf.put(caVal.getBytes());
     			}
     			else {
-    				iobuf.put((byte)0);
+    				buf.put((byte)0);
     			}
     		}
     	}
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -144,23 +143,22 @@ public class DhcpGeoconfCivicOption extends BaseDhcpOption
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            if (iobuf.position() < eof) {
-            	geoconfCivicOption.setWhat(iobuf.getUnsigned());
-                if (iobuf.position() < eof) {
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            if (buf.position() < eof) {
+            	geoconfCivicOption.setWhat(Util.getUnsignedByte(buf));
+                if (buf.position() < eof) {
                 	byte[] country = new byte[2];
-                	iobuf.get(country);
+                	buf.get(country);
                 	geoconfCivicOption.setCountryCode(new String(country));
-                	while (iobuf.position() < eof) {
+                	while (buf.position() < eof) {
                 		CivicAddressElement civicAddr = geoconfCivicOption.addNewCivicAddressElement();
-                		civicAddr.setCaType(iobuf.getUnsigned());
-                		short caLen = iobuf.getUnsigned();
+                		civicAddr.setCaType(Util.getUnsignedByte(buf));
+                		short caLen = Util.getUnsignedByte(buf);
                 		if (caLen > 0) {
                 			byte[] caVal = new byte[caLen];
-                			iobuf.get(caVal);
+                			buf.get(caVal);
                 			civicAddr.setCaValue(new String(caVal));
                 		}
                 	}
@@ -182,21 +180,11 @@ public class DhcpGeoconfCivicOption extends BaseDhcpOption
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        sb.append(" what=");
-        sb.append(geoconfCivicOption.getWhat());
-        sb.append(" countryCode=");
-        sb.append(geoconfCivicOption.getCountryCode());
-        List<CivicAddressElement> civicAddrs = geoconfCivicOption.getCivicAddressElementList();
-        if ((civicAddrs != null) && !civicAddrs.isEmpty()) {
-        	for (CivicAddressElement civicAddr : civicAddrs) {
-            	sb.append(" caType=");
-            	sb.append(civicAddr.getCaType());
-            	sb.append(" caValue=");
-            	sb.append(civicAddr.getCaValue());
-			}
-        }
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(geoconfCivicOption.toString());
         return sb.toString();
     }
     

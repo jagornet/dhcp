@@ -28,7 +28,6 @@ package com.jagornet.dhcpv6.option.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,9 +108,9 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
-        iobuf.put((byte)uByteOption.getUnsignedByte());
-        return iobuf.flip().buf();
+        ByteBuffer buf = super.encodeCodeAndLength();
+        buf.put((byte)uByteOption.getUnsignedByte());
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -119,10 +118,9 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-    		uByteOption.setUnsignedByte(iobuf.getUnsigned());
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+    		uByteOption.setUnsignedByte(Util.getUnsignedByte(buf));
         }
     }
 
@@ -192,15 +190,17 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
         }
         return false;
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        sb.append(uByteOption.getUnsignedByte());
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(uByteOption.toString());
         return sb.toString();
     }
     

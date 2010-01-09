@@ -18,5 +18,13 @@
 	<classpathentry kind="lib" path="lib/xbean.jar"/>
 	<classpathentry kind="lib" path="build/xmltypes.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.7.ga.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/db-derby-10.5.1.1-bin/lib/derbyclient.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/spring-framework-2.5.6.SEC01/dist/spring.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/google/guice-2.0/guice-2.0.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/db-derby-10.5.1.1-bin/lib/derby.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/dbunit-2.4.7.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-codec-1.4/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/jboss/netty-3.1.5.GA/jar/netty-3.1.5.GA.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

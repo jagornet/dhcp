@@ -26,15 +26,19 @@
 package com.jagornet.dhcpv6.server.net;
 
 import java.io.IOException;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
+import java.util.Enumeration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * The Class DhcpMulticastSocket.
@@ -84,9 +88,25 @@ public class DhcpMulticastSocket extends DhcpServerSocket
         log.debug("Joining All_DHCP_Servers multicast group: " +
         		DhcpConstants.ALL_DHCP_SERVERS);
         msock.joinGroup(DhcpConstants.ALL_DHCP_SERVERS);
-        localAddress = new InetSocketAddress(msock.getInterface(), port);
+        Enumeration<InetAddress> netIfAddrs = netIf.getInetAddresses();
+        while (netIfAddrs.hasMoreElements()) {
+        	InetAddress netIfAddr = netIfAddrs.nextElement();
+        	if (netIfAddr instanceof Inet6Address) {
+                localAddress = new InetSocketAddress(netIfAddr, port);
+        		break;
+        	}
+        }
+        if (localAddress != null) {
+        	log.info("Local IPv6 address=" + Util.socketAddressAsString(localAddress) + 
+        			" for interface: " + netIf.getDisplayName());
+        }
+        else {
+        	throw new IllegalStateException(
+        			"Failed to determine local IPv6 address for interface: " + netIf);
+        }
         sock = msock;
 	}
+	
 	
 	/**
 	 * Gets the local network interface for this DHCP server socket.

@@ -183,6 +183,8 @@ public class DhcpConstants
     /** The Constant OPTION_RELAY_MSG. */
     public static final int OPTION_RELAY_MSG = 9;
     
+    // option code 10 is unassigned
+    
     /** The Constant OPTION_AUTH. */
     public static final int OPTION_AUTH = 11;
     

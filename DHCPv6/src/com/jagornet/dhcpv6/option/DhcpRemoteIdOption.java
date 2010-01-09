@@ -28,9 +28,8 @@ package com.jagornet.dhcpv6.option;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.RemoteIdOption;
@@ -50,10 +49,14 @@ public class DhcpRemoteIdOption extends BaseOpaqueDataOption
 	
 	public DhcpRemoteIdOption(RemoteIdOption remoteIdOption)
 	{
-		if (remoteIdOption != null)
+		if (remoteIdOption != null) {
 			this.opaqueDataOption = remoteIdOption;
-		else
+		}
+		else {
 			this.opaqueDataOption = RemoteIdOption.Factory.newInstance();
+            // create an OpaqueData element to actually hold the data
+            this.opaqueDataOption.addNewOpaqueData();
+		}
 	}
 	
     /* (non-Javadoc)
@@ -70,29 +73,27 @@ public class DhcpRemoteIdOption extends BaseOpaqueDataOption
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+        ByteBuffer buf = super.encodeCodeAndLength();
         RemoteIdOption remoteIdOption = (RemoteIdOption)opaqueDataOption;
-        iobuf.putInt((int)remoteIdOption.getEnterpriseNumber());
-        OpaqueDataUtil.encodeDataOnly(iobuf, remoteIdOption.getOpaqueData());
-        return iobuf.flip().buf();
+        buf.putInt((int)remoteIdOption.getEnterpriseNumber());
+        OpaqueDataUtil.encodeDataOnly(buf, remoteIdOption.getOpaqueData());
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
      */
-	@SuppressWarnings("unused")
-    public void decode(ByteBuffer buf) throws IOException
+	public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            if (iobuf.position() < eof) {
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            if (buf.position() < eof) {
                 RemoteIdOption remoteIdOption = (RemoteIdOption)opaqueDataOption;
-                remoteIdOption.setEnterpriseNumber(iobuf.getUnsignedInt());
-                while (iobuf.position() < eof) {
+                remoteIdOption.setEnterpriseNumber(Util.getUnsignedInt(buf));
+                while (buf.position() < eof) {
                 	OpaqueData opaque = remoteIdOption.addNewOpaqueData();
-                    OpaqueDataUtil.decodeDataOnly(opaque, iobuf, len);
+                    OpaqueDataUtil.decodeDataOnly(opaque, buf, len);
                 }
             }
         }
@@ -118,19 +119,17 @@ public class DhcpRemoteIdOption extends BaseOpaqueDataOption
     {
         return ((RemoteIdOption)opaqueDataOption).getCode();
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        sb.append("Enterprise Number=");
-        RemoteIdOption remoteIdOption = (RemoteIdOption)opaqueDataOption;
-        sb.append(remoteIdOption.getEnterpriseNumber());
-        sb.append(" ");
-        sb.append(super.toString());
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(((RemoteIdOption)opaqueDataOption).toString());
         return sb.toString();
     }
 }

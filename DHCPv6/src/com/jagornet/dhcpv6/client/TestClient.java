@@ -59,7 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.message.DhcpMessageFactory;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpElapsedTimeOption;
 import com.jagornet.dhcpv6.option.DhcpUserClassOption;
@@ -102,6 +101,8 @@ public class TestClient  extends IoHandlerAdapter
     
     /** The client port. */
     protected int clientPort = DhcpConstants.CLIENT_PORT;
+    
+    protected int numRequests = 100;
 
     /**
      * Instantiates a new test client.
@@ -137,6 +138,11 @@ public class TestClient  extends IoHandlerAdapter
 	 */
 	private void setupOptions()
     {
+		Option numOption = new Option("n", "number", true,
+										"Number of client requests to send" +
+										" [" + numRequests + "]");
+		options.addOption(numOption);
+		
         Option addrOption = new Option("a", "address", true,
         								"Address of DHCPv6 Server" +
         								" [" + serverAddr.getHostAddress() + "]");
@@ -174,6 +180,17 @@ public class TestClient  extends IoHandlerAdapter
             CommandLine cmd = parser.parse(options, args);
             if (cmd.hasOption("?")) {
                 return false;
+            }
+            if (cmd.hasOption("n")) {
+            	String n = cmd.getOptionValue("n");
+            	try {
+            		numRequests = Integer.parseInt(n);
+            	}
+            	catch (NumberFormatException ex) {
+            		numRequests = 100;
+            		System.err.println("Invalid number of requests: '" + n +
+            							"' using default: " + numRequests);
+            	}
             }
             if (cmd.hasOption("a")) {
             	String a = cmd.getOptionValue("a");
@@ -232,7 +249,6 @@ public class TestClient  extends IoHandlerAdapter
     public void start()
     {
     	// pre-configure the message factory instance
-    	DhcpMessageFactory.setType(DhcpMessageFactory.Type.STATELESS_CLIENT);
     	
         log.debug("Creating a datagram connector");
         IoConnector connector = new NioDatagramConnector();
@@ -308,7 +324,7 @@ public class TestClient  extends IoHandlerAdapter
     private List<DhcpMessage> buildRequestMessages()
     {
     	List<DhcpMessage> msgs = new ArrayList<DhcpMessage>();   	
-        for (int id=0; id<100; id++) {
+        for (int id=0; id<numRequests; id++) {
             DhcpMessage msg = 
             	new DhcpMessage(null, new InetSocketAddress(serverAddr, serverPort));
             	
@@ -326,11 +342,11 @@ public class TestClient  extends IoHandlerAdapter
             ClientIdOption clientIdOption = ClientIdOption.Factory.newInstance();
             clientIdOption.setOpaqueData(opaque);
             
-            msg.setOption(new DhcpClientIdOption(clientIdOption));
+            msg.putDhcpOption(new DhcpClientIdOption(clientIdOption));
             
             ElapsedTimeOption elapsedTimeOption = ElapsedTimeOption.Factory.newInstance();
             elapsedTimeOption.setUnsignedShort(id+1000);
-            msg.setOption(new DhcpElapsedTimeOption(elapsedTimeOption));
+            msg.putDhcpOption(new DhcpElapsedTimeOption(elapsedTimeOption));
 
             UserClassOption userClassOption = UserClassOption.Factory.newInstance();
             // wrap it with the DhcpOption subclass to get at
@@ -338,7 +354,7 @@ public class TestClient  extends IoHandlerAdapter
             DhcpUserClassOption dhcpUserClassOption = 
                 new DhcpUserClassOption(userClassOption);
             dhcpUserClassOption.addOpaqueData("FilterUserClass");
-            msg.setOption(dhcpUserClassOption);
+            msg.putDhcpOption(dhcpUserClassOption);
 
             msgs.add(msg);
         }

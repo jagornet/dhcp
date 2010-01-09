@@ -1,3 +1,28 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file TestDhcpDomainSearchListOption.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.option;
 
 import java.nio.ByteBuffer;
@@ -7,11 +32,22 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class TestDhcpDomainSearchListOption.
+ */
 public class TestDhcpDomainSearchListOption extends TestCase
 {
+	
+	/** The domain1. */
 	String domain1;
+	
+	/** The domain2. */
 	String domain2;
 	
+    /* (non-Javadoc)
+     * @see junit.framework.TestCase#setUp()
+     */
     @Override
 	protected void setUp() throws Exception
 	{
@@ -20,11 +56,19 @@ public class TestDhcpDomainSearchListOption extends TestCase
 		domain2 = "ipv6universe.com.";	// 0Cipv6universe03com00 12+3+3 = 18
 	}
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
 
+	/**
+	 * Test encode.
+	 * 
+	 * @throws Exception the exception
+	 */
 	public void testEncode() throws Exception
     {
         DhcpDomainSearchListOption dslo = new DhcpDomainSearchListOption();
@@ -58,6 +102,11 @@ public class TestDhcpDomainSearchListOption extends TestCase
         assertEquals((byte)0, bb.get());
     }
 
+    /**
+     * Test decode.
+     * 
+     * @throws Exception the exception
+     */
     public void testDecode() throws Exception
     {
         // just 34 bytes, because we start decoding
@@ -82,5 +131,16 @@ public class TestDhcpDomainSearchListOption extends TestCase
         List<String> domainNames = dslo.getDomainNameListOption().getDomainNameList();
         assertEquals(domain1, domainNames.get(0)); 
         assertEquals(domain2, domainNames.get(1)); 
+    }
+    
+    /**
+     * Test to string.
+     */
+    public void testToString()
+    {
+        DhcpDomainSearchListOption dslo = new DhcpDomainSearchListOption();
+        dslo.addDomainName(domain1);
+        dslo.addDomainName(domain2);
+        System.out.println(dslo);
     }
 }

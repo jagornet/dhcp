@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.server.net;
 
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServer;
@@ -36,7 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 
 /**
  * Title: WorkProcessor
@@ -49,9 +51,6 @@ public class WorkProcessor implements Runnable
 {
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(WorkProcessor.class);
-
-    /** The default thread pool size. */
-    private static int DEFAULT_POOL_SIZE = 100;  
     
     /** The thread pool. */
     private TrackingThreadPool threadPool;
@@ -67,9 +66,10 @@ public class WorkProcessor implements Runnable
     public WorkProcessor(NetDhcpServer netDhcpServer)
     {
         this.netDhcpServer = netDhcpServer;
-        int maxPoolSize = DhcpServerConfiguration.getIntPolicy("mcast.server.poolSize", 
-        										 				DEFAULT_POOL_SIZE);
-        threadPool = new TrackingThreadPool(DEFAULT_POOL_SIZE, 
+        //TODO need another policy for ucast.server
+        int maxPoolSize = DhcpServerPolicies.globalPolicyAsInt(Property.MCAST_SERVER_POOL_SIZE);
+        //TODO different value for corePoolSize (first param)?
+        threadPool = new TrackingThreadPool(maxPoolSize, 
                                             maxPoolSize,
                                             0,
                                             TimeUnit.SECONDS,
@@ -98,17 +98,19 @@ public class WorkProcessor implements Runnable
                 log.info("Waiting for work...");
                 DhcpMessage message = netDhcpServer.getWorkQueue().take();
                 if (message != null) {
-                    log.info("Have work message, creating handler...");
-                    Runnable handler = new DhcpHandlerThread(message, netDhcpServer);
-                    if (handler != null) {
-                        log.info("Message handler: " + handler.getClass());
-	                    if (log.isDebugEnabled())
-	                        log.debug("Sending to pool: " + message.toStringWithOptions());
-	                    else if (log.isInfoEnabled())
-	                        log.info("Sending to pool: " + message.toString());
+                    try {
+                        Runnable handler = new DhcpHandlerThread(message, netDhcpServer);
+	                    if (log.isDebugEnabled()) {
+	                        log.debug("Executing handler via threadPool for message: " + 
+	                        		message.toStringWithOptions());
+	                    }
+	                    else if (log.isInfoEnabled()) {
+	                        log.info("Executing handler via threadPool for message: " + 
+	                        		message.toString());
+	                    }
 	                    threadPool.execute(handler);
                     }
-                    else {
+                    catch (RejectedExecutionException ex) {
                     	log.warn("Message dropped: " + message.toString());
                     }
                 }

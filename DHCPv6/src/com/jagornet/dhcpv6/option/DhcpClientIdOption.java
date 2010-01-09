@@ -43,10 +43,14 @@ public class DhcpClientIdOption extends BaseOpaqueDataOption
 	
 	public DhcpClientIdOption(ClientIdOption clientIdOption)
 	{
-		if (clientIdOption != null)
+		if (clientIdOption != null) {
 			this.opaqueDataOption = clientIdOption;
-		else
+		}
+		else {
 			this.opaqueDataOption = ClientIdOption.Factory.newInstance();
+            // create an OpaqueData element to actually hold the data
+            this.opaqueDataOption.addNewOpaqueData();
+		}
 		
 	}
 	

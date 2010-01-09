@@ -3,7 +3,9 @@ package com.jagornet.dhcpv6.message;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -41,13 +43,13 @@ public class TestDhcpMessage extends TestCase
         // MUST include server id in reply
         ServerIdOption serverId = ServerIdOption.Factory.newInstance();     // 4 bytes (code + len)
         serverId.setOpaqueData(opaque);
-        dhcpMessage.setOption(new DhcpServerIdOption(serverId));
+        dhcpMessage.putDhcpOption(new DhcpServerIdOption(serverId));
 
         DhcpDnsServersOption dnsServers = new DhcpDnsServersOption();	// 4 bytes
         dnsServers.getIpAddressListOption().addIpAddress(DNS1);		// 16 bytes
         dnsServers.getIpAddressListOption().addIpAddress(DNS2);		// 16 bytes
         dnsServers.getIpAddressListOption().addIpAddress(DNS3);		// 16 bytes
-        dhcpMessage.setOption(dnsServers);
+        dhcpMessage.putDhcpOption(dnsServers);
         return dhcpMessage;
     }
     
@@ -116,7 +118,7 @@ public class TestDhcpMessage extends TestCase
         assertEquals(CLIENT_ADDR.getAddress(), dhcpMessage.getRemoteAddress().getAddress());
         assertEquals(DhcpConstants.INFO_REQUEST, dhcpMessage.getMessageType());
         assertEquals(Long.parseLong("FFFFFF", 16), dhcpMessage.getTransactionId());
-        Map<Integer, DhcpOption> options = dhcpMessage.getDhcpOptions();
+        Map<Integer, DhcpOption> options = dhcpMessage.getDhcpOptionMap();
         assertNotNull(options);
         DhcpClientIdOption clientId = 
             (DhcpClientIdOption)options.get(DhcpConstants.OPTION_CLIENTID);
@@ -148,5 +150,56 @@ public class TestDhcpMessage extends TestCase
         assertNotNull(dhcpMessage);
         assertEquals(len, dhcpMessage.getLength());
         checkMockClientRequest(dhcpMessage);
+    }
+    
+    public  void testEquals() throws Exception
+    {
+    	DhcpMessage msg1 = 
+    		new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
+    	msg1.setTransactionId(12345);
+    	msg1.setMessageType((short)1);
+    	DhcpClientIdOption c1 = new DhcpClientIdOption();
+    	c1.getOpaqueDataOptionType().getOpaqueData().setHexValue(
+    			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
+    	msg1.putDhcpOption(c1);
+
+    	DhcpMessage msg2 = 
+    		new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
+    	msg2.setTransactionId(12345);
+    	msg2.setMessageType((short)1);
+    	DhcpClientIdOption c2 = new DhcpClientIdOption();
+    	c2.getOpaqueDataOptionType().getOpaqueData().setHexValue(
+    			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
+    	msg2.putDhcpOption(c2);
+    	
+    	assertEquals(msg1, msg2);
+    }
+    
+    public void testSet() throws Exception
+    {
+    	DhcpMessage msg1 = 
+    		new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
+    	msg1.setTransactionId(12345);
+    	msg1.setMessageType((short)1);
+    	DhcpClientIdOption c1 = new DhcpClientIdOption();
+    	c1.getOpaqueDataOptionType().getOpaqueData().setHexValue(
+    			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
+    	msg1.putDhcpOption(c1);
+//    	System.out.println("msg1.hash=" + msg1.hashCode());
+
+    	DhcpMessage msg2 = 
+    		new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
+    	msg2.setTransactionId(12345);
+    	msg2.setMessageType((short)1);
+    	DhcpClientIdOption c2 = new DhcpClientIdOption();
+    	c2.getOpaqueDataOptionType().getOpaqueData().setHexValue(
+    			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
+    	msg2.putDhcpOption(c2);
+//    	System.out.println("msg2.hash=" + msg2.hashCode());
+    	
+    	Set<DhcpMessage> s = new HashSet<DhcpMessage>();
+    	s.add(msg1);
+    	
+    	assertTrue(s.contains(msg2));
     }
 }

@@ -28,9 +28,8 @@ package com.jagornet.dhcpv6.option;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.ClientFqdnOption;
 
 /**
@@ -68,14 +67,14 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+        ByteBuffer buf = super.encodeCodeAndLength();
         ClientFqdnOption clientFqdnOption = (ClientFqdnOption)domainNameOption;
-        iobuf.put((byte)clientFqdnOption.getFlags());
+        buf.put((byte)clientFqdnOption.getFlags());
         String domainName = clientFqdnOption.getDomainName();
         if (domainName != null) {
-            encodeDomainName(iobuf, domainName);
+            encodeDomainName(buf, domainName);
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
     
     /* (non-Javadoc)
@@ -83,14 +82,13 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            if (iobuf.position() < eof) {
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            if (buf.position() < eof) {
                 ClientFqdnOption clientFqdnOption = (ClientFqdnOption)domainNameOption;
-                clientFqdnOption.setFlags(iobuf.getUnsigned());
-                String domain = decodeDomainName(iobuf, eof);
+                clientFqdnOption.setFlags(Util.getUnsignedByte(buf));
+                String domain = decodeDomainName(buf, eof);
                 clientFqdnOption.setDomainName(domain);
             }
     	}
@@ -103,19 +101,17 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
     {
         return ((ClientFqdnOption)domainNameOption).getCode();
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        sb.append("Flags=");
-        ClientFqdnOption clientFqdnOption = (ClientFqdnOption)domainNameOption;
-        sb.append(clientFqdnOption.getFlags());
-        sb.append(" ");
-        sb.append(super.toString());
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(((ClientFqdnOption)domainNameOption).toString());
         return sb.toString();
     }
 }

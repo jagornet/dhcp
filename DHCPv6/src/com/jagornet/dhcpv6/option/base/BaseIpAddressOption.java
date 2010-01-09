@@ -30,10 +30,10 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IpAddressOptionType;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.OptionExpression;
@@ -80,13 +80,13 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+    	ByteBuffer buf = super.encodeCodeAndLength();
         String ipAddress = ipAddressOption.getIpAddress();
         if (ipAddress != null) {
             InetAddress inet6Addr = Inet6Address.getByName(ipAddress);
-            iobuf.put(inet6Addr.getAddress());
+            buf.put(inet6Addr.getAddress());
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -94,15 +94,19 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            // it has to be hex from the wire, right?
-            byte b[] = new byte[16];
-            iobuf.get(b);
-            InetAddress inetAddr = InetAddress.getByAddress(b);
-            ipAddressOption.setIpAddress(inetAddr.getHostAddress());
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+    		ipAddressOption.setIpAddress(decodeIpAddress(buf));
         }
+    }
+    
+    public static String decodeIpAddress(ByteBuffer buf) throws IOException
+    {
+        // it has to be hex from the wire, right?
+        byte b[] = new byte[16];
+        buf.get(b);
+        InetAddress inetAddr = InetAddress.getByAddress(b);
+        return inetAddr.getHostAddress();
     }
 
     /* (non-Javadoc)
@@ -161,15 +165,11 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
      */
     public String toString()
     {
-        if (this == null)
-            return null;
-        
-        StringBuilder sb = new StringBuilder(this.getName());
-        sb.append(": ");
-        String ipAddress = ipAddressOption.getIpAddress();
-        if (ipAddress != null) {
-            sb.append(ipAddress);
-        }            
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(ipAddressOption.toString());
         return sb.toString();
     }
 

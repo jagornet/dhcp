@@ -51,11 +51,14 @@ public class DhcpInterfaceIdOption extends BaseOpaqueDataOption
      */
     public DhcpInterfaceIdOption(InterfaceIdOption interfaceIdOption)
     {
-        super();
-        if (interfaceIdOption != null)
+        if (interfaceIdOption != null) {
             this.opaqueDataOption = interfaceIdOption;
-        else
+        }
+        else {
             this.opaqueDataOption = InterfaceIdOption.Factory.newInstance();
+            // create an OpaqueData element to actually hold the data
+            this.opaqueDataOption.addNewOpaqueData();
+        }
     }
 
     /* (non-Javadoc)

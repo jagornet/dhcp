@@ -29,12 +29,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.option.generic.GenericOpaqueDataOption;
 import com.jagornet.dhcpv6.option.generic.GenericOptionFactory;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.GenericOptionsType;
 import com.jagornet.dhcpv6.xml.OptionDefType;
 import com.jagornet.dhcpv6.xml.VendorInfoOption;
@@ -98,8 +97,8 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
-        iobuf.putInt((int)vendorInfoOption.getEnterpriseNumber());
+        ByteBuffer buf = super.encodeCodeAndLength();
+        buf.putInt((int)vendorInfoOption.getEnterpriseNumber());
         GenericOptionsType suboptList = vendorInfoOption.getSuboptionList();
         if (suboptList != null) {
         	List<OptionDefType> subopts = suboptList.getOptionDefList();
@@ -107,12 +106,12 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
 	            for (OptionDefType subopt : subopts) {
 	            	DhcpOption genericOption = GenericOptionFactory.getDhcpOption(subopt);
 	            	if (genericOption != null) {
-	            		iobuf.put(genericOption.encode());
+	            		buf.put(genericOption.encode());
 	            	}
 	            }
 	        }
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -120,17 +119,16 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            if (iobuf.position() < eof) {
-                vendorInfoOption.setEnterpriseNumber(iobuf.getUnsignedInt());
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            if (buf.position() < eof) {
+                vendorInfoOption.setEnterpriseNumber(Util.getUnsignedInt(buf));
             	GenericOptionsType suboptList = vendorInfoOption.addNewSuboptionList();
-                while (iobuf.position() < eof) {
-                	int code = iobuf.getUnsignedShort();
+                while (buf.position() < eof) {
+                	int code = Util.getUnsignedShort(buf);
                 	GenericOpaqueDataOption subopt = new GenericOpaqueDataOption(code, null);
-                	subopt.decode(iobuf.buf());
+                	subopt.decode(buf);
                 	OptionDefType optionDef = suboptList.addNewOptionDef();
                 	optionDef.setOpaqueDataOption(subopt.getOpaqueDataOptionType());
                 }
@@ -172,26 +170,11 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        sb.append("Enterprise Number=");
-        sb.append(vendorInfoOption.getEnterpriseNumber());
-        sb.append(" ");
-        GenericOptionsType suboptList = vendorInfoOption.getSuboptionList();
-        if (suboptList != null) {
-        	List<OptionDefType> subopts = suboptList.getOptionDefList();
-	        if ((subopts != null) && !subopts.isEmpty()) {
-	            sb.append("Suboptions: ");
-	            for (OptionDefType subopt : subopts) {
-	            	DhcpOption genericOption = GenericOptionFactory.getDhcpOption(subopt);
-	            	if (genericOption != null) {
-		            	sb.append(genericOption.toString());
-	            	}
-	            	sb.append(",");
-	            }
-	            sb.setLength(sb.length()-1);
-	        }
-        }
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(vendorInfoOption.toString());
         return sb.toString();
     }
 }

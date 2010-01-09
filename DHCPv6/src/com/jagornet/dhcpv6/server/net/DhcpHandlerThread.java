@@ -78,15 +78,15 @@ public class DhcpHandlerThread implements Runnable
     	
        	DhcpServerSocket dhcpServerSocket = netDhcpServer.getDhcpServerSocket(local);
        	if (dhcpServerSocket != null) {       		
-	        DhcpMessage replyMessage = DhcpMessageHandler.handleMessage(
-	        			dhcpServerSocket.getLocalAddress().getAddress(),
-	        			requestMessage);
+            DhcpMessage replyMessage = DhcpMessageHandler.handleMessage(
+            			dhcpServerSocket.getLocalAddress().getAddress(),
+            			requestMessage);
 	        if (replyMessage != null) {
 	            log.info("Sending DHCP reply message");
 	            dhcpServerSocket.sendMessage(replyMessage);
 	        }
 	        else {
-	            log.warn("Null DHCP reply message returned from processor");
+	            log.warn("Null DHCP reply message returned from handler");
 	        }
        	}
        	else {

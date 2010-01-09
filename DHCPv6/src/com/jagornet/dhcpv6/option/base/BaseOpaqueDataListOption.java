@@ -29,12 +29,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OpaqueDataListOptionType;
 import com.jagornet.dhcpv6.xml.Operator;
@@ -116,29 +116,27 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+        ByteBuffer buf = super.encodeCodeAndLength();
         List<OpaqueData> opaqueList = opaqueDataListOption.getOpaqueDataList();
         if ((opaqueList != null) && !opaqueList.isEmpty()) {
             for (OpaqueData opaque : opaqueList) {
-                OpaqueDataUtil.encode(iobuf, opaque);
+                OpaqueDataUtil.encode(buf, opaque);
             }
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
      */
-	@SuppressWarnings("unused")
-    public void decode(ByteBuffer buf) throws IOException
+	public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-    		int eof = iobuf.position() + len;
-            while (iobuf.position() < eof) {
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+    		int eof = buf.position() + len;
+            while (buf.position() < eof) {
 				OpaqueData opaque = opaqueDataListOption.addNewOpaqueData();
-                OpaqueDataUtil.decode(opaque, iobuf);
+                OpaqueDataUtil.decode(opaque, buf);
             }
         }
     }
@@ -232,25 +230,17 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
             opaque.setHexValue(opaqueData);
         }
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        if (opaqueDataListOption == null)
-            return null;
-        
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        List<OpaqueData> opaqueList = opaqueDataListOption.getOpaqueDataList();
-        if ((opaqueList != null) && !opaqueList.isEmpty()) {
-            for (OpaqueData opaque : opaqueList) {
-                sb.append(OpaqueDataUtil.toString(opaque));
-                sb.append(",");
-            }
-            sb.setLength(sb.length()-1);
-        }
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(opaqueDataListOption.toString());
         return sb.toString();
     }
 

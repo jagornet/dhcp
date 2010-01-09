@@ -1,3 +1,28 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file TestDhcpUserClassOption.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.option;
 
 import java.nio.ByteBuffer;
@@ -8,8 +33,18 @@ import junit.framework.TestCase;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class TestDhcpUserClassOption.
+ */
 public class TestDhcpUserClassOption extends TestCase
 {
+    
+    /**
+     * Test encode.
+     * 
+     * @throws Exception the exception
+     */
     public void testEncode() throws Exception
     {
         DhcpUserClassOption duco = new DhcpUserClassOption();
@@ -25,6 +60,11 @@ public class TestDhcpUserClassOption extends TestCase
         assertEquals((short)11, bb.getShort());
     }
 
+    /**
+     * Test decode.
+     * 
+     * @throws Exception the exception
+     */
     public void testDecode() throws Exception
     {
         // just 28 bytes, because we start decoding
@@ -44,5 +84,16 @@ public class TestDhcpUserClassOption extends TestCase
         assertEquals(2, userClasses.size());
         assertEquals("UserClass 1", userClasses.get(0).getAsciiValue());
         assertEquals("UserClass 2", userClasses.get(1).getAsciiValue());
+    }
+    
+    /**
+     * Test to string.
+     */
+    public void testToString()
+    {
+        DhcpUserClassOption duco = new DhcpUserClassOption();
+        duco.addOpaqueData("UserClass 1");   // len = 2 + 11
+        duco.addOpaqueData("UserClass 2");   // len = 2 + 11
+        System.out.println(duco);
     }
 }

@@ -1,3 +1,28 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file TestDhcpDnsServersOption.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.option;
 
 import java.net.InetAddress;
@@ -8,11 +33,22 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class TestDhcpDnsServersOption.
+ */
 public class TestDhcpDnsServersOption extends TestCase
 {
+	
+	/** The dns1. */
 	InetAddress dns1 = null;
+	
+	/** The dns2. */
 	InetAddress dns2 = null;
 	
+    /* (non-Javadoc)
+     * @see junit.framework.TestCase#setUp()
+     */
     @Override
 	protected void setUp() throws Exception
 	{
@@ -21,11 +57,19 @@ public class TestDhcpDnsServersOption extends TestCase
 		dns2 = InetAddress.getByName("2001:db8::2");
 	}
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
 
+	/**
+	 * Test encode.
+	 * 
+	 * @throws Exception the exception
+	 */
 	public void testEncode() throws Exception
     {
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
@@ -45,6 +89,11 @@ public class TestDhcpDnsServersOption extends TestCase
         assertEquals(dns2, InetAddress.getByAddress(buf));
     }
 
+    /**
+     * Test decode.
+     * 
+     * @throws Exception the exception
+     */
     public void testDecode() throws Exception
     {
         // just 34 bytes, because we start decoding
@@ -63,5 +112,16 @@ public class TestDhcpDnsServersOption extends TestCase
                      InetAddress.getByName((String)dnsServers.get(0)));
         assertEquals(dns2, 
                      InetAddress.getByName((String)dnsServers.get(1)));
+    }
+    
+    /**
+     * Test to string.
+     */
+    public void testToString()
+    {
+        DhcpDnsServersOption dso = new DhcpDnsServersOption();
+        dso.addServer(dns1);    // 16 bytes
+        dso.addServer(dns2);    // 16 bytes
+    	System.out.println(dso);
     }
 }

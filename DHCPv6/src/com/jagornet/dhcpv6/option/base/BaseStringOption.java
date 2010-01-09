@@ -28,11 +28,11 @@ package com.jagornet.dhcpv6.option.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
 import com.jagornet.dhcpv6.xml.Operator;
@@ -81,12 +81,12 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+        ByteBuffer buf = super.encodeCodeAndLength();
         String stringValue = stringOption.getString();
         if (stringValue != null) {
-            iobuf.put(stringValue.getBytes());
+            buf.put(stringValue.getBytes());
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -94,11 +94,10 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
             byte b[] = new byte[len];
-            iobuf.get(b);
+            buf.get(b);
             stringOption.setString(new String(b));
         }
     }
@@ -186,15 +185,11 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
      */
     public String toString()
     {
-        if (this == null)
-            return null;
-        
-        StringBuilder sb = new StringBuilder(this.getName());
-        sb.append(": ");
-        String stringValue = stringOption.getString();
-        if (stringValue != null) {
-            sb.append(stringValue);
-        }            
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(stringOption.toString());
         return sb.toString();
     }
 

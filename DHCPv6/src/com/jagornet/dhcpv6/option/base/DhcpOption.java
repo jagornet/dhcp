@@ -25,7 +25,6 @@
  */
 package com.jagornet.dhcpv6.option.base;
 
-import com.jagornet.dhcpv6.message.DhcpMessage;
 
 /**
  * Title: DhcpOption
@@ -34,21 +33,7 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
  * @author A. Gregory Rabil
  */
 public interface DhcpOption extends Encodable, Decodable
-{
-	/**
-	 * Sets the dhcp message which contains this DhcpOption.
-	 * 
-	 * @param dhcpMessage the DhcpMessage containing this option
-	 */
-	public void setDhcpMessage(DhcpMessage dhcpMessage);
-	
-	/**
-	 * Gets the DhcpMessage which contains this DhcpOption.
-	 * 
-	 * @return the DhcpMessage containing this option
-	 */
-	public DhcpMessage getDhcpMessage();
-	
+{	
     /**
 	 * Gets the option code.  Java int for unsigned short.
 	 * 

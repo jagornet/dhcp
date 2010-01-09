@@ -1,0 +1,256 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file TestDhcpIaNaOption.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+package com.jagornet.dhcpv6.option;
+
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+
+import junit.framework.TestCase;
+
+import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
+import com.jagornet.dhcpv6.server.DhcpV6Server;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.util.Util;
+import com.jagornet.dhcpv6.xml.ConfigOptionsType;
+import com.jagornet.dhcpv6.xml.DnsServersOption;
+import com.jagornet.dhcpv6.xml.DomainSearchListOption;
+import com.jagornet.dhcpv6.xml.IaAddrOption;
+import com.jagornet.dhcpv6.xml.IaAddrOptionListType;
+import com.jagornet.dhcpv6.xml.IaNaOption;
+import com.jagornet.dhcpv6.xml.PoliciesType;
+import com.jagornet.dhcpv6.xml.Policy;
+
+// TODO: Auto-generated Javadoc
+/**
+ * The Class TestDhcpIaNaOption.
+ */
+public class TestDhcpIaNaOption extends TestCase
+{
+	
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	public void setUp() throws Exception
+	{
+		String configFilename = "conf/" + DhcpV6Server.DEFAULT_CONFIG_FILENAME;
+		DhcpServerConfiguration.configFilename = configFilename;
+		DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
+		PoliciesType policies = PoliciesType.Factory.newInstance();
+		Policy pcy = policies.addNewPolicy();
+		pcy.setName("sendRequestedOptionsOnly");
+		pcy.setValue("false");
+		config.getDhcpV6ServerConfig().setPolicies(policies);
+	}
+	
+	/**
+	 * Test encode.
+	 * 
+	 * @throws Exception the exception
+	 */
+	public void testEncode() throws Exception
+	{
+		int len = 4;	// code + len
+		DhcpIaNaOption din = new DhcpIaNaOption();
+		IaNaOption ino = din.getIaNaOption();
+		ino.setIaId(0xdebb1e);
+		ino.setT1(10000);
+		ino.setT2(20000);
+		len += 12;
+		
+		IaAddrOptionListType aol = ino.addNewIaAddrOptionList();
+		IaAddrOption ao1 = aol.addNewIaAddrOption();
+		ao1.setIpv6Address("3ffe::1");
+		ao1.setPreferredLifetime(11000);
+		ao1.setValidLifetime(12000);
+		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
+		ConfigOptionsType ao1ConfigOptions = ao1.addNewAddrConfigOptions();
+		DnsServersOption ao1dns = ao1ConfigOptions.addNewDnsServersOption();
+		ao1dns.getIpAddressList().add("3ffe::1:1");
+		ao1dns.getIpAddressList().add("3ffe::1:2");
+		ao1.setAddrConfigOptions(ao1ConfigOptions);
+		len += 4 + 16 + 16;
+		
+		IaAddrOption ao2 = aol.addNewIaAddrOption();
+		ao2.setIpv6Address("3ffe::2");
+		ao2.setPreferredLifetime(21000);
+		ao2.setValidLifetime(22000);
+		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
+		ConfigOptionsType ao2ConfigOptions = ao2.addNewAddrConfigOptions();
+		DnsServersOption ao2dns = ao2ConfigOptions.addNewDnsServersOption();
+		ao2dns.getIpAddressList().add("3ffe::2:1");
+		ao2dns.getIpAddressList().add("3ffe::2:2");
+		ao2.setAddrConfigOptions(ao2ConfigOptions);
+		len += 4 + 16 + 16;
+		
+		ConfigOptionsType inoConfigOptions = ino.addNewAddrConfigOptions();
+		DomainSearchListOption dslo = inoConfigOptions.addNewDomainSearchListOption();
+		dslo.addDomainName("foo.com.");
+		dslo.addDomainName("bar.com.");
+		len += 4 + 9 + 9;
+		
+		ByteBuffer buf = din.encode();
+        assertEquals(len, buf.capacity());
+        assertEquals(len, buf.limit());
+        assertEquals(0, buf.position());
+
+        assertEquals((int)DhcpConstants.OPTION_IA_NA, Util.getUnsignedShort(buf));
+        assertEquals((int)len-4, Util.getUnsignedShort(buf));   // length
+        
+        assertEquals((long)0xdebb1e, Util.getUnsignedInt(buf));
+        assertEquals((long)10000, Util.getUnsignedInt(buf));
+        assertEquals((long)20000, Util.getUnsignedInt(buf));
+        
+        assertEquals((int)DhcpConstants.OPTION_IAADDR, Util.getUnsignedShort(buf));
+        assertEquals((int)60, Util.getUnsignedShort(buf));
+        
+        byte[] ia = new byte[16];
+        buf.get(ia);
+        assertEquals(InetAddress.getByName("3ffe::1"), InetAddress.getByAddress(ia));
+        assertEquals((long)11000, Util.getUnsignedInt(buf));
+        assertEquals((long)12000, Util.getUnsignedInt(buf));
+        assertEquals((int)DhcpConstants.OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
+        assertEquals((int)32, Util.getUnsignedShort(buf));
+        buf.get(ia);
+        assertEquals(InetAddress.getByName("3ffe::1:1"), InetAddress.getByAddress(ia));
+        buf.get(ia);
+        assertEquals(InetAddress.getByName("3ffe::1:2"), InetAddress.getByAddress(ia));
+
+        assertEquals((int)DhcpConstants.OPTION_IAADDR, Util.getUnsignedShort(buf));
+        assertEquals((int)60, Util.getUnsignedShort(buf));
+        
+        buf.get(ia);
+        assertEquals(InetAddress.getByName("3ffe::2"), InetAddress.getByAddress(ia));
+        assertEquals((long)21000, Util.getUnsignedInt(buf));
+        assertEquals((long)22000, Util.getUnsignedInt(buf));
+        assertEquals((int)DhcpConstants.OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
+        assertEquals((int)32, Util.getUnsignedShort(buf));
+        buf.get(ia);
+        assertEquals(InetAddress.getByName("3ffe::2:1"), InetAddress.getByAddress(ia));
+        buf.get(ia);
+        assertEquals(InetAddress.getByName("3ffe::2:2"), InetAddress.getByAddress(ia));
+
+        assertEquals((int)DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, Util.getUnsignedShort(buf));
+        assertEquals((int)18, Util.getUnsignedShort(buf));
+        assertEquals("foo.com.", BaseDomainNameOption.decodeDomainName(buf, buf.position()+9));
+        assertEquals("bar.com.", BaseDomainNameOption.decodeDomainName(buf, buf.position()+9));
+	}
+	
+	/**
+	 * Test decode.
+	 * 
+	 * @throws Exception the exception
+	 */
+	public void testDecode() throws Exception
+	{
+        // just 164 bytes, because we start decoding
+        // _after_ the option code itself
+        ByteBuffer bb = ByteBuffer.allocate(164);
+
+        bb.putShort((short)162);
+		
+		bb.putInt((int)0xdebb1e);
+		bb.putInt((int)10000);
+		bb.putInt((int)20000);
+		
+		bb.putShort((short)DhcpConstants.OPTION_IAADDR);
+		bb.putShort((short)60);
+		bb.put(InetAddress.getByName("3ffe::1").getAddress());
+		bb.putInt((int)11000);
+		bb.putInt((int)12000);
+		bb.putShort((short)DhcpConstants.OPTION_DNS_SERVERS);
+		bb.putShort((short)32);
+		bb.put(InetAddress.getByName("3ffe::1:1").getAddress());
+		bb.put(InetAddress.getByName("3ffe::1:2").getAddress());
+		
+		bb.putShort((short)DhcpConstants.OPTION_IAADDR);
+		bb.putShort((short)60);
+		bb.put(InetAddress.getByName("3ffe::2").getAddress());
+		bb.putInt((int)21000);
+		bb.putInt((int)22000);
+		bb.putShort((short)DhcpConstants.OPTION_DNS_SERVERS);
+		bb.putShort((short)32);
+		bb.put(InetAddress.getByName("3ffe::2:1").getAddress());
+		bb.put(InetAddress.getByName("3ffe::2:2").getAddress());
+		
+		bb.putShort((short)DhcpConstants.OPTION_DOMAIN_SEARCH_LIST);
+		bb.putShort((short)18);
+		BaseDomainNameOption.encodeDomainName(bb, "foo.com.");
+		BaseDomainNameOption.encodeDomainName(bb, "bar.com.");
+		bb.flip();
+		
+		DhcpIaNaOption dhcpIaNaOption = new DhcpIaNaOption();
+		dhcpIaNaOption.decode(bb);
+		assertEquals((int)162, dhcpIaNaOption.getDecodedLength());
+	}
+	
+	/**
+	 * Test to string.
+	 */
+	public void testToString()
+	{
+		int len = 4;	// code + len
+		DhcpIaNaOption din = new DhcpIaNaOption();
+		IaNaOption ino = din.getIaNaOption();
+		ino.setIaId(0xdebb1e);
+		ino.setT1(10000);
+		ino.setT2(20000);
+		len += 12;
+		
+		IaAddrOptionListType aol = ino.addNewIaAddrOptionList();
+		IaAddrOption ao1 = aol.addNewIaAddrOption();
+		ao1.setIpv6Address("3ffe::1");
+		ao1.setPreferredLifetime(11000);
+		ao1.setValidLifetime(12000);
+		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
+		ConfigOptionsType ao1ConfigOptions = ao1.addNewAddrConfigOptions();
+		DnsServersOption ao1dns = ao1ConfigOptions.addNewDnsServersOption();
+		ao1dns.getIpAddressList().add("3ffe::1:1");
+		ao1dns.getIpAddressList().add("3ffe::1:2");
+		ao1.setAddrConfigOptions(ao1ConfigOptions);
+		len += 4 + 16 + 16;
+		
+		IaAddrOption ao2 = aol.addNewIaAddrOption();
+		ao2.setIpv6Address("3ffe::2");
+		ao2.setPreferredLifetime(21000);
+		ao2.setValidLifetime(22000);
+		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
+		ConfigOptionsType ao2ConfigOptions = ao2.addNewAddrConfigOptions();
+		DnsServersOption ao2dns = ao2ConfigOptions.addNewDnsServersOption();
+		ao2dns.getIpAddressList().add("3ffe::2:1");
+		ao2dns.getIpAddressList().add("3ffe::2:2");
+		ao2.setAddrConfigOptions(ao2ConfigOptions);
+		len += 4 + 16 + 16;
+		
+		ConfigOptionsType inoConfigOptions = ino.addNewAddrConfigOptions();
+		DomainSearchListOption dslo = inoConfigOptions.addNewDomainSearchListOption();
+		dslo.addDomainName("foo.com.");
+		dslo.addDomainName("bar.com.");
+		len += 4 + 9 + 9;
+		
+		System.out.println(din);
+	}
+}

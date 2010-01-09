@@ -26,7 +26,6 @@
 package com.jagornet.dhcpv6.server.net;
 
 import java.net.InetSocketAddress;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -35,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.option.base.DhcpOption;
 
 /**
  * The Class NetDhcpServer.
@@ -52,9 +50,6 @@ public abstract class NetDhcpServer implements Runnable
 	 *  that it can be located by the DhcpHandlerThread thread */
 	protected Map<InetSocketAddress, DhcpServerSocket> dhcpSocketMap =
     	new HashMap<InetSocketAddress, DhcpServerSocket>();
-
-    /** The default queue size. */
-	protected static int DEFAULT_QUEUE_SIZE = 10000; 
     
     /** The work queue. The queue is shared by all the DhcpServerSockets 
      *  running in this NetDhcpServer instance. */
@@ -101,11 +96,11 @@ public abstract class NetDhcpServer implements Runnable
     public void queueMessage(DhcpMessage msg)
     {
     	if (msg != null) {
-	        if (log.isInfoEnabled()) {
-	            StringBuffer sb = new StringBuffer("Received DHCP ");
-	            sb.append(msg.toString());
-	            log.info(sb.toString());
-	            debugOptions(msg);
+	        if (log.isDebugEnabled()) {
+	        	log.debug(msg.toStringWithOptions());
+	        }
+	        else if (log.isInfoEnabled()) {
+	        	log.info(msg.toString());
 	        }
 	        if (workQueue != null) {
 		        log.info("Queueing message...");
@@ -123,24 +118,6 @@ public abstract class NetDhcpServer implements Runnable
     	else {
     		log.error("Failed to queue message: message is null");
     	}
-    }
-
-    /**
-     * Print out the options contained in a DHCPMessage to the
-     * logger.
-     * 
-     * @param msg the DhcpMessage to print to the log
-     */
-    public static void debugOptions(DhcpMessage msg)
-    {
-        if (log.isDebugEnabled()) {
-            Collection<DhcpOption> options = msg.getOptions();
-            if (options != null) {
-                for (DhcpOption option : options) {
-                    log.debug(option.toString());
-                }
-            }
-        }
     }
 	
 }
