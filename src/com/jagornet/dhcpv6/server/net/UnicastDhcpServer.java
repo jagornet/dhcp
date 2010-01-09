@@ -34,7 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 
 /**
  * This is a simple, multi-threaded DHCPv6 server that uses
@@ -61,8 +62,7 @@ public class UnicastDhcpServer extends NetDhcpServer
      */
     public UnicastDhcpServer(List<InetAddress> addrs, int port) throws Exception
     {
-    	int queueSize = DhcpServerConfiguration.getIntPolicy("ucast.server.queueSize",
-    														  DEFAULT_QUEUE_SIZE);
+    	int queueSize = DhcpServerPolicies.globalPolicyAsInt(Property.UCAST_SERVER_QUEUE_SIZE);
     	workQueue = new LinkedBlockingQueue<DhcpMessage>(queueSize);
     	try {
     		for (InetAddress addr : addrs) {

@@ -59,9 +59,9 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.Version;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
-import com.jagornet.dhcpv6.server.net.MulticastDhcpServer;
-import com.jagornet.dhcpv6.server.net.UnicastDhcpServer;
-import com.jagornet.dhcpv6.server.nio.NioDhcpServer;
+import com.jagornet.dhcpv6.server.netty.NettyDhcpServer;
+import com.jagornet.dhcpv6.server.request.binding.BindingManager;
+import com.jagornet.dhcpv6.server.request.binding.BindingManagerInterface;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
@@ -103,7 +103,10 @@ public class DhcpV6Server
     
     /** The unicast server thread. */
     protected Thread ucastThread;
-
+    
+    protected DhcpServerConfiguration serverConfig = null;
+    protected BindingManagerInterface bindingManager = null;
+    
     /**
      * Instantiates the DHCPv6 server.
      * 
@@ -149,8 +152,18 @@ public class DhcpV6Server
                 }
             });
     	
-        DhcpServerConfiguration.init(configFilename);
-
+        DhcpServerConfiguration.configFilename = configFilename;
+        serverConfig = DhcpServerConfiguration.getInstance();
+        if (serverConfig == null) {
+        	throw new IllegalStateException("Failed to initialize server configuration from file: " +
+        			configFilename);
+        }
+        
+        bindingManager = BindingManager.getInstance();
+        if (bindingManager == null) {
+        	log.warn("No BindingManager available.  Continuing in STATELESS mode only.");
+        }
+        
         registerLog4jInJmx();
 
         System.out.println("Port number: " + portNumber);
@@ -161,9 +174,9 @@ public class DhcpV6Server
         if (mcastNetIfs != null) {
         	// this will fail on Windows, so maybe we should not even try?
         	System.out.println("Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray()));
-        	MulticastDhcpServer mcastServer = new MulticastDhcpServer(mcastNetIfs, portNumber);
-	        mcastThread = new Thread(mcastServer, "mcast.server");
-	        mcastThread.start();
+//        	MulticastDhcpServer mcastServer = new MulticastDhcpServer(mcastNetIfs, portNumber);
+//	        mcastThread = new Thread(mcastServer, "mcast.server");
+//	        mcastThread.start();
         }
         else {
         	System.out.println("Multicast interfaces: none");
@@ -174,19 +187,21 @@ public class DhcpV6Server
         	ucastAddrs = getAllIPv6Addrs();
         }
         System.out.println("Unicast addresses: " + Arrays.toString(ucastAddrs.toArray()));
-        if (DhcpConstants.IS_WINDOWS) {
-        	// On Windows, we must use the DatatgramSocket server
-        	// because NIO IPv6 DatagramChannels will not be available
-        	// until Vista/Windows2008 with Java 7.
-	        UnicastDhcpServer ucastServer = new UnicastDhcpServer(ucastAddrs, portNumber);
-	        ucastThread = new Thread(ucastServer, "ucast.server");
-	        ucastThread.start();
-        }
-        else {
-        	// Run the NIO IPv6 DatagramChannel server, which is based on Apache MINA.
-	        NioDhcpServer ucastServer = new NioDhcpServer(ucastAddrs, portNumber);
-	        ucastServer.start();
-        }
+//        if (DhcpConstants.IS_WINDOWS) {
+//        	// On Windows, we must use the DatatgramSocket server
+//        	// because NIO IPv6 DatagramChannels will not be available
+//        	// until Vista/Windows2008 with Java 7.
+//	        UnicastDhcpServer ucastServer = new UnicastDhcpServer(ucastAddrs, portNumber);
+//	        ucastThread = new Thread(ucastServer, "ucast.server");
+//	        ucastThread.start();
+//        }
+//        else {
+//        	// Run the NIO IPv6 DatagramChannel server, which is based on Apache MINA.
+//	        NioDhcpServer ucastServer = new NioDhcpServer(ucastAddrs, portNumber);
+//        	ucastServer.start();
+        	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber);
+        	nettyServer.start();
+//        }
     }
     
 	/**
@@ -463,7 +478,7 @@ public class DhcpV6Server
 	}
     
     /**
-     * Load server configuration.
+     * Load server configuration.  For use by the GUI.
      * 
      * @param filename the configuration filename
      * 
@@ -477,7 +492,7 @@ public class DhcpV6Server
     }
     
     /**
-     * Save server configuration.
+     * Save server configuration.  For use by the GUI.
      * 
      * @param config DhcpV6ServerConfig XML document object
      * @param filename the configuration filename
@@ -490,13 +505,13 @@ public class DhcpV6Server
     }
 
     /**
-     * Static method to get the server configuration.
+     * Static method to get the server configuration.  For use by the GUI.
      * 
      * @return the DhcpV6ServerConfig XML document object
      */
     public static DhcpV6ServerConfig getDhcpServerConfig()
     {
-        return DhcpServerConfiguration.getConfig();
+        return DhcpServerConfiguration.getInstance().getDhcpV6ServerConfig();
     }
         
     /**

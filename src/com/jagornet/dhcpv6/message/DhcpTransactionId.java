@@ -27,7 +27,7 @@ package com.jagornet.dhcpv6.message;
 
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * Title: DhcpTransactionId
@@ -47,18 +47,18 @@ public class DhcpTransactionId
      */
     public static ByteBuffer encode(int xId)
     {
-        IoBuffer iobuf = IoBuffer.allocate(3);
+    	ByteBuffer buf = ByteBuffer.allocate(3);
 /*
         //byte i0 = (byte)(xId >>> 24);         // r_shift out the last three bytes
         byte i1 = (byte)((xId << 8) >>> 24);  // l_shift first byte out of int, then unsigned r_shift back to one byte
         byte i2 = (byte)((xId << 16) >>> 24); // l_shift first 2 bytes out of int, then unsigned r_shift back to one byte
         byte i3 = (byte)((xId << 24) >>> 24); // l_shift first 3 bytes out of int, then unsigned r_shift back to one byte
-        iobuf.put(i1);
-        iobuf.put(i2);
-        iobuf.put(i3);
+        buf.put(i1);
+        buf.put(i2);
+        buf.put(i3);
 */
-        iobuf.putMediumInt(xId);
-        return iobuf.flip().buf();
+        Util.putMediumInt(buf, xId);
+        return (ByteBuffer) buf.flip();
     }
 
     /**
@@ -70,7 +70,6 @@ public class DhcpTransactionId
      */
     public static int decode(ByteBuffer buf)
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	return iobuf.getUnsignedMediumInt();
+    	return Util.getUnsignedMediumInt(buf);
     }
 }

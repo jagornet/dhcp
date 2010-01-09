@@ -34,6 +34,7 @@ import java.net.SocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
@@ -75,5 +76,15 @@ public class DhcpUnicastSocket extends DhcpServerSocket
     	log.debug("Binding to local datagram socket: " + saddr);
 		sock = new DatagramSocket(saddr);
 		localAddress = new InetSocketAddress(sock.getInetAddress(), port);
+	}
+	
+	@Override
+	public DhcpMessage receiveMessage()
+	{
+		DhcpMessage msg = super.receiveMessage();
+		if (msg != null) {
+			msg.setUnicast(true);
+		}
+		return msg;
 	}
 }

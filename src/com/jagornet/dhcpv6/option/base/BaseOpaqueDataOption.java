@@ -28,11 +28,9 @@ package com.jagornet.dhcpv6.option.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
-import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 
@@ -62,10 +60,14 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
     public BaseOpaqueDataOption(OpaqueDataOptionType opaqueDataOption)
     {
         super();
-        if (opaqueDataOption != null)
+        if (opaqueDataOption != null) {
             this.opaqueDataOption = opaqueDataOption;
-        else
+        }
+        else {
             this.opaqueDataOption = OpaqueDataOptionType.Factory.newInstance();
+            // create an OpaqueData element to actually hold the data
+            this.opaqueDataOption.addNewOpaqueData();
+        }
     }
 
     /**
@@ -99,9 +101,9 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
-        OpaqueDataUtil.encodeDataOnly(iobuf, opaqueDataOption.getOpaqueData());
-        return iobuf.flip().buf();
+        ByteBuffer buf = super.encodeCodeAndLength();
+        OpaqueDataUtil.encodeDataOnly(buf, opaqueDataOption.getOpaqueData());
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -109,13 +111,13 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf); 
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            while (iobuf.position() < eof) {
-            	OpaqueData opaque = opaqueDataOption.addNewOpaqueData();
-                OpaqueDataUtil.decodeDataOnly(opaque, iobuf, len);
+    	int len = super.decodeLength(buf); 
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            while (buf.position() < eof) {
+//            	OpaqueData opaque = opaqueDataOption.addNewOpaqueData();
+//                OpaqueDataUtil.decodeDataOnly(opaque, buf, len);
+            	OpaqueDataUtil.decodeDataOnly(opaqueDataOption.getOpaqueData(), buf, len);
             }
         }
     }
@@ -141,10 +143,10 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
     @Override
     public boolean equals(Object obj)
     {
-        if (obj instanceof OpaqueDataOptionType) {
-        	OpaqueDataOptionType that = (OpaqueDataOptionType) obj;
-            return OpaqueDataUtil.equals(opaqueDataOption.getOpaqueData(), 
-                                         that.getOpaqueData());
+        if (obj instanceof  BaseOpaqueDataOption) {
+        	BaseOpaqueDataOption that = (BaseOpaqueDataOption) obj;
+            return OpaqueDataUtil.equals(this.getOpaqueDataOptionType().getOpaqueData(), 
+                                         that.getOpaqueDataOptionType().getOpaqueData());
         }
         return false;
     }
@@ -154,9 +156,11 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(this.getName());
-        sb.append(": ");
-        sb.append(OpaqueDataUtil.toString(opaqueDataOption.getOpaqueData()));
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(opaqueDataOption.toString());
         return sb.toString();
     }
 }

@@ -29,11 +29,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
@@ -99,14 +99,14 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+        ByteBuffer buf = super.encodeCodeAndLength();
         List<Integer> ushorts = uShortListOption.getUnsignedShortList();
         if ((ushorts != null) && !ushorts.isEmpty()) {
             for (int ushort : ushorts) {
-                iobuf.putShort((short)ushort);
+                buf.putShort((short)ushort);
             }
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
     
     /* (non-Javadoc)
@@ -114,12 +114,11 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
             for (int i=0; i<len/2; i++) {
-                if (iobuf.hasRemaining()) {
-                	uShortListOption.addUnsignedShort(iobuf.getUnsignedShort());
+                if (buf.hasRemaining()) {
+                	uShortListOption.addUnsignedShort(Util.getUnsignedShort(buf));
                 }
             }
         }
@@ -171,22 +170,17 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
         
         return false;
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        List<Integer> ushorts = uShortListOption.getUnsignedShortList();
-        if ((ushorts != null) && !ushorts.isEmpty()) {
-            for (Integer ushort : ushorts) {
-                sb.append(ushort);
-                sb.append(",");
-            }
-            sb.setLength(sb.length()-1);
-        }
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(uShortListOption.toString());
         return sb.toString();
     }
     

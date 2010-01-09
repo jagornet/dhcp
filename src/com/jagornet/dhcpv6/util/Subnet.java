@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author A. Gregory Rabil
  */
-public class Subnet
+public class Subnet implements Comparable<Subnet>
 {
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(Subnet.class);
@@ -175,23 +175,27 @@ public class Subnet
         }
         return rc;
     }
-    
-    /**
-     * Override the standard Object.equals() method to
-     * satisfy the comparator used when loading the configuration
-     * 
-     * @param that the that
-     * 
-     * @return true, if equals
-     */
-    @Override
-    public boolean equals(Object that)
-    {
-        if (that != null) {
-            if ( this.subnetAddress.equals(((Subnet)that).subnetAddress) &&
-                 (this.prefixLength == ((Subnet)that).prefixLength) )
-                return true;
+
+	public int compareTo(Subnet that)
+	{
+        BigInteger thisAddr = new BigInteger(this.getSubnetAddress().getAddress());
+        BigInteger thatAddr = new BigInteger(that.getSubnetAddress().getAddress());
+        if (thisAddr.equals(thatAddr)) {
+        	Integer thisPrefix = this.getPrefixLength();
+        	Integer thatPrefix = that.getPrefixLength();
+            // if we have two subnets with the same starting address
+            // then the _smaller_ subnet is the one with the _larger_
+            // prefix length, which logically places the more specific
+            // subnet _before_ the less specific subnet in the map
+            // this allows us to work from "inside-out"?
+        	// must negate the comparison to make bigger smaller
+        	return -1 * thisPrefix.compareTo(thatPrefix);
         }
-        return false;
-    }
+        else {
+            // subnet addresses are different, so return
+            // the standard compare for the address
+            return thisAddr.compareTo(thatAddr);
+        }
+	}    
+    
 }

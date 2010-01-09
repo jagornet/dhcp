@@ -4,7 +4,7 @@
 	<policies>
 		<policy>
 			<name>sendRequestedOptionsOnly</name>
-			<value>true</value>
+			<value>false</value>
 		</policy>
 	</policies>
 
@@ -14,7 +14,7 @@
 		</opaqueData>
 	</serverIdOption>
 
-	<options>
+	<msgConfigOptions>
 		<dnsServersOption>
 			<ipAddress>3ffe::0001</ipAddress>
 			<ipAddress>3ffe::0002</ipAddress>
@@ -25,7 +25,7 @@
 			<domainName>bar.com.</domainName>
 			<domainName>yuk.com.</domainName>
 		</domainSearchListOption>
-	</options>
+	</msgConfigOptions>
 
 	<filters>
 	  <filter>
@@ -41,11 +41,11 @@
 				</optionExpression>
 			</filterExpression>
 		</filterExpressions>
-		<options>
+		<msgConfigOptions>
 			<domainListOption>
 				<domainName>filter.com.</domainName>
 			</domainListOption>
-		</options>
+		</msgConfigOptions>
 	  </filter>
 	</filters>
 	
@@ -53,47 +53,47 @@
 		<link>
 			<name>Client Link 1</name>
 			<address>2001:DB8:1::/48</address>
-			<options>
+			<iaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:1::1</ipAddress>
 				</dnsServersOption>
-			</options>
+			</iaConfigOptions>
 		</link>
 		<link>
 			<name>Client Link 2</name>
 			<address>2001:DB8:2::/48</address>
-			<options>
+			<iaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:2::1</ipAddress>
 				</dnsServersOption>
-			</options>
+			</iaConfigOptions>
 		</link>
 		<link>
 			<name>Client Link 3</name>
 			<address>2001:DB8:3::/48</address>
-			<options>
+			<iaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:3::1</ipAddress>
 				</dnsServersOption>
-			</options>
+			</iaConfigOptions>
 		</link>
 		<link>
 			<name>Client Link 4</name>
 			<address>2001:DB8:4::/48</address>
-			<options>
+			<iaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:4::1</ipAddress>
 				</dnsServersOption>
-			</options>
+			</iaConfigOptions>
 		</link>
 		<link>
 			<name>Client Link 5</name>
 			<address>2001:DB8:5::/48</address>
-			<options>
+			<iaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:5::1</ipAddress>
 				</dnsServersOption>
-			</options>
+			</iaConfigOptions>
 		</link>
 	</links>
 

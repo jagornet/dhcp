@@ -26,12 +26,12 @@
 package com.jagornet.dhcpv6.option.base;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * Title: BaseDhcpOption
@@ -44,39 +44,35 @@ public abstract class BaseDhcpOption implements DhcpOption
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseDhcpOption.class);
 
-	/** The dhcp message which contains this option. */
-	protected DhcpMessage dhcpMessage;
+	/** The dhcp message or option which contains this option. */
+	//why? protected DhcpOptionable dhcpOptionable;
 	
 	/** The option name. */
 	protected String name;
+	
+	/*why?
+    public DhcpOptionable getDhcpOptionable() {
+		return dhcpOptionable;
+	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#setDhcpMessage(com.jagornet.dhcpv6.message.DhcpMessage)
-	 */
-	public void setDhcpMessage(DhcpMessage dhcpMessage) {
-		this.dhcpMessage = dhcpMessage;
+	public void setDhcpOptionable(DhcpOptionable dhcpOptionable) {
+		this.dhcpOptionable = dhcpOptionable;
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#getDhcpMessage()
-	 */
-	public DhcpMessage getDhcpMessage() {
-		return dhcpMessage;
-	}
-	
-    /**
+	*/
+
+	/**
      * Encode the DHCP option code and length fields of any DHCP option.
      * 
-     * @return the IoBuffer containing the encoded code and length fields
+     * @return the ByteBuffer containing the encoded code and length fields
      * 
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    protected IoBuffer encodeCodeAndLength() throws IOException
+    protected ByteBuffer encodeCodeAndLength() throws IOException
 	{
-		IoBuffer iobuf = IoBuffer.allocate(2 + 2 + getLength());
-		iobuf.putShort((short)getCode());
-		iobuf.putShort((short)getLength());
-		return iobuf;
+		ByteBuffer buf = ByteBuffer.allocate(2 + 2 + getLength());
+		buf.putShort((short)getCode());
+		buf.putShort((short)getLength());
+		return buf;
 	}
 
     /**
@@ -84,20 +80,20 @@ public abstract class BaseDhcpOption implements DhcpOption
      * DhcpOptionFactory to build the option based on the code, then the code is already
      * decoded, so this method is invoked by the concrete class to decode the length.
      * 
-     * @param iobuf the IoBuffer containing the opaqueData to be decoded
+     * @param buf the ByteBuffer containing the opaqueData to be decoded
      * 
      * @return the length of the option, or zero if there is no opaqueData for the option
      * 
      * @throws IOException Signals that an I/O exception has occurred.
      */
-	protected int decodeLength(IoBuffer iobuf) throws IOException
+	protected int decodeLength(ByteBuffer buf) throws IOException
 	{
-        if ((iobuf != null) && iobuf.hasRemaining()) {
+        if ((buf != null) && buf.hasRemaining()) {
             // already have the code, so length is next
-            int len = iobuf.getUnsignedShort();
+            int len = Util.getUnsignedShort(buf);
             if (log.isDebugEnabled())
                 log.debug(getName() + " reports length=" + len +
-                          ":  bytes remaining in buffer=" + iobuf.remaining());
+                          ":  bytes remaining in buffer=" + buf.remaining());
             return len;
         }
         return 0;

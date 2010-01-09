@@ -38,9 +38,9 @@ public class TestDhcpRelayMessage extends TestCase
         // comes from the client, i.e. peer address, so use that as the source
         DhcpRelayOption relayOption = new DhcpRelayOption();
         // the client's request is contained within the relay option
-        relayOption.setRelayMessage(dhcpMessage);
+        relayOption.setDhcpMessage(dhcpMessage);
         // add the relay message option to the relay message
-        relayMessage.setOption(relayOption);
+        relayMessage.putDhcpOption(relayOption);
         
         return relayMessage;
     }
@@ -98,9 +98,9 @@ public class TestDhcpRelayMessage extends TestCase
         // logically, the encapsulated relay message comes from relay 1, so
         // use that as the source address of the message in the relay option
         DhcpRelayOption relayOption2 = new DhcpRelayOption();
-        relayOption2.setRelayMessage(relayMessage);
+        relayOption2.setDhcpMessage(relayMessage);
         
-        relayMessage2.setOption(relayOption2);
+        relayMessage2.putDhcpOption(relayOption2);
         
         ByteBuffer bb = relayMessage2.encode();
         assertNotNull(bb);
@@ -150,9 +150,9 @@ public class TestDhcpRelayMessage extends TestCase
                      relayMessage.getLinkAddress());
         assertEquals(TestDhcpMessage.CLIENT_ADDR.getAddress(), 
                      relayMessage.getPeerAddress());
-        assertNotNull(relayMessage.getDhcpOptions());
+        assertNotNull(relayMessage.getDhcpOptionMap());
         assertNotNull(relayMessage.getRelayOption());
-        TestDhcpMessage.checkMockClientRequest(relayMessage.getRelayOption().getRelayMessage());        
+        TestDhcpMessage.checkMockClientRequest(relayMessage.getRelayOption().getDhcpMessage());        
     }
     
     public void testDecode() throws Exception
@@ -189,10 +189,10 @@ public class TestDhcpRelayMessage extends TestCase
                      relayMessage.getLinkAddress());
         assertEquals(RELAY1_ADDR.getAddress(), 
                      relayMessage.getPeerAddress());
-        assertNotNull(relayMessage.getDhcpOptions());
+        assertNotNull(relayMessage.getDhcpOptionMap());
         assertNotNull(relayMessage.getRelayOption());
 
         checkMockRelayFoward((DhcpRelayMessage)
-                             relayMessage.getRelayOption().getRelayMessage());
+                             relayMessage.getRelayOption().getDhcpMessage());
     }
 }

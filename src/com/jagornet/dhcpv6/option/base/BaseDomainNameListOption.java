@@ -29,11 +29,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.DomainNameListOptionType;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.OptionExpression;
@@ -84,14 +84,14 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 
 	public ByteBuffer encode() throws IOException
     {
-    	IoBuffer iobuf = super.encodeCodeAndLength();
+    	ByteBuffer buf = super.encodeCodeAndLength();
         List<String> domainNames = domainNameListOption.getDomainNameList();
         if (domainNames != null) {
             for (String domain : domainNames) {
-                BaseDomainNameOption.encodeDomainName(iobuf, domain);
+                BaseDomainNameOption.encodeDomainName(buf, domain);
             }
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -99,12 +99,11 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf); 
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            while (iobuf.position() < eof) {
-                String domain = BaseDomainNameOption.decodeDomainName(iobuf, eof);
+    	int len = super.decodeLength(buf); 
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            while (buf.position() < eof) {
+                String domain = BaseDomainNameOption.decodeDomainName(buf, eof);
                 domainNameListOption.addDomainName(domain);
             }
         }
@@ -165,22 +164,11 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
      */
     public String toString()
     {
-        if (this == null)
-            return null;
-        
-        StringBuilder sb = new StringBuilder(this.getName());
-        sb.append(": ");
-        List<String> domainNames = domainNameListOption.getDomainNameList();
-        if (domainNames != null) {
-            for (String domain : domainNames) {
-                // there is trailing null label domain as per RFC 1035 sec 3.1
-                if (domain.length() > 0) {
-                    sb.append(domain);
-                    sb.append(",");
-                }
-            }
-            sb.setLength(sb.length()-1);
-        }
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(domainNameListOption.toString());
         return sb.toString();
     }
     

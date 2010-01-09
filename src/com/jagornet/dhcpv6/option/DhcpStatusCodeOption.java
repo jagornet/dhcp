@@ -28,9 +28,8 @@ package com.jagornet.dhcpv6.option;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.StatusCodeOption;
 
@@ -102,13 +101,13 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
-        iobuf.putShort((short)statusCodeOption.getStatusCode());
+        ByteBuffer buf = super.encodeCodeAndLength();
+        buf.putShort((short)statusCodeOption.getStatusCode());
         String msg = statusCodeOption.getMessage();
         if (msg != null) {
-        	iobuf.put(msg.getBytes());
+        	buf.put(msg.getBytes());
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -116,16 +115,15 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            if (iobuf.position() < eof) {
-	            statusCodeOption.setStatusCode(iobuf.getUnsignedShort());
-	            if (iobuf.position() < eof) {
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            if (buf.position() < eof) {
+	            statusCodeOption.setStatusCode(Util.getUnsignedShort(buf));
+	            if (buf.position() < eof) {
 	            	if (len > 2) {
 		                byte[] data = new byte[len-2];  // minus 2 for the status code
-		                iobuf.get(data);
+		                buf.get(data);
 		                statusCodeOption.setMessage(new String(data));
 	            	}
 	            }
@@ -189,12 +187,11 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        sb.append("code=");
-        sb.append(statusCodeOption.getStatusCode());
-        sb.append(" message=");
-        sb.append(statusCodeOption.getMessage());
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(statusCodeOption.toString());
         return sb.toString();
     }
     

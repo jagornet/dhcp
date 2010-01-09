@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC
+   "-//SPRING//DTD BEAN//EN"
+   "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    
+    <property name="driverClassName">    
+<!--       
+      <value>org.apache.derby.jdbc.EmbeddedDriver</value>
+-->	 
+	  <value>org.apache.derby.jdbc.ClientDriver</value>
+    </property>
+    
+    <property name="url">
+<!--
+	  <value>jdbc:derby:jagornet-dhcpv6</value>
+-->	 
+	  <value>jdbc:derby://localhost:1527/jagornet-dhcpv6</value>
+    </property>
+    
+    <property name="username">
+      <value>sa</value>
+    </property>
+    <property name="password">
+      <value>derby</value>
+    </property>
+
+  </bean>
+  
+  <bean id="identityAssocDAO" class="com.jagornet.dhcpv6.db.JdbcIdentityAssocDAO" autowire="byType"/>
+  <bean id="iaAddressDAO" class="com.jagornet.dhcpv6.db.JdbcIaAddressDAO" autowire="byType"/>
+  <bean id="dhcpOptionDAO" class="com.jagornet.dhcpv6.db.JdbcDhcpOptionDAO" autowire="byType"/>
+
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource">
+      <ref local="dataSource"/>
+    </property>
+  </bean>
+
+  <!--
+    Note use of "inner bean" for target property.
+    This ensures that there is only one instance of this
+    bean in the factory, allowing us to use autowire
+    by type if necessary.
+  -->
+  <bean id="iaManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    
+    <property name="transactionManager">
+      <ref local="transactionManager"/>
+    </property>
+    
+    <property name="target">
+      <bean class="com.jagornet.dhcpv6.db.JdbcIaManager">
+        <property name="dataSource">
+          <ref local="dataSource"/>
+        </property>
+        <property name="iaDao">
+          <ref local="identityAssocDAO"/>
+        </property>
+        <property name="iaAddrDao">
+          <ref local="iaAddressDAO"/>
+        </property>
+        <property name="dhcpOptDao">
+          <ref local="dhcpOptionDAO"/>
+        </property>
+      </bean>
+    </property>
+
+    <property name="transactionAttributes">
+      <props>
+        <prop key="*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+
+  </bean>
+
+</beans>

@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.message.DhcpRelayMessage;
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
@@ -47,10 +45,15 @@ public class DhcpRelayOption extends BaseDhcpOption
     /** The NAME. */
     protected static String NAME = "Relay Message";
     
-    // a verbatim copy of the contained DhcpMessage, which may itself be
-    // a DhcpRelayMessage, thus containing yet another DhcpRelayOption
-    /** The relay message. */
-    protected DhcpMessage relayMessage;
+    // the DhcpRelayMessage which contains
+    // this DhcpRelayOption
+    protected DhcpRelayMessage relayMessage;
+    
+    // the DhcpMessage contained in this relay option, 
+    // which may itself be a DhcpRelayMessage, 
+    // thus containing yet another DhcpRelayOption
+    /** The dhcp message being relayed. */
+    protected DhcpMessage dhcpMessage;
     
     /**
      * Instantiates a new dhcp relay option.
@@ -58,14 +61,14 @@ public class DhcpRelayOption extends BaseDhcpOption
     public DhcpRelayOption()
     {
     }
-
+    
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
     {
         // the length of this option is the length of the contained message
-        return relayMessage.getLength();
+        return dhcpMessage.getLength();
     }
 
     /* (non-Javadoc)
@@ -73,9 +76,9 @@ public class DhcpRelayOption extends BaseDhcpOption
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
-        iobuf.put(relayMessage.encode());
-        return iobuf.flip().buf();
+        ByteBuffer buf = super.encodeCodeAndLength();
+        buf.put(dhcpMessage.encode());
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -83,65 +86,49 @@ public class DhcpRelayOption extends BaseDhcpOption
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int p = iobuf.position();
-            short msgtype = iobuf.getUnsigned();
-            // if we're decoding a DhcpRelayOption, then the
-            // DhcpMessage which contains this relay option
-            // had better be a DhcpRelayMessage
-            DhcpRelayMessage thisDhcpRelayMessage =
-            	(DhcpRelayMessage) dhcpMessage;
-            
-            // since the linkAddr of the relay message is the interface
-            // on which the relay itself received the message to be forwarded
-            // we can assume that address is logically a server port
-            InetSocketAddress relayMsgLocalAddr = 
-            	new InetSocketAddress(thisDhcpRelayMessage.getLinkAddress(),
-            			DhcpConstants.SERVER_PORT);
-            // the peerAddr of the relay message is the source address of
-            // the message which it received and is forwarding, thus the
-            // peerAddress is either another relay or the client itself,
-            // so we don't really know what port to logically set for the
-            // inner message's remote port
-            InetSocketAddress relayMsgRemoteAddr =
-            	new InetSocketAddress(thisDhcpRelayMessage.getPeerAddress(), 0);
-            DhcpMessage msg =
-            	DhcpMessage.getDhcpMessageFactory().getDhcpMessage(msgtype, 
-										                		relayMsgLocalAddr, 
-										                		relayMsgRemoteAddr);
-            if (msg != null) {
-                // reset buffer position so DhcpMessage decoder will 
-                // read it and set the message type - we only read it 
-                // ourselves so that we could use it for the factory.
-                iobuf.position(p); 
-                msg.decode(iobuf.buf());
-                // now that it is decoded, we can set
-                // the reference to it for this option
-                relayMessage = msg;
-            }
-        }
+    	super.decodeLength(buf);
+        // since the linkAddr of the relay message is the interface
+        // on which the relay itself received the message to be forwarded
+        // we can assume that address is logically a server port
+        InetSocketAddress relayMsgLocalAddr = 
+        	new InetSocketAddress(relayMessage.getLinkAddress(),
+        			DhcpConstants.SERVER_PORT);
+        // the peerAddr of the relay message is the source address of
+        // the message which it received and is forwarding, thus the
+        // peerAddress is either another relay or the client itself,
+        // so we don't really know what port to logically set for the
+        // inner message's remote port
+        InetSocketAddress relayMsgRemoteAddr =
+        	new InetSocketAddress(relayMessage.getPeerAddress(), 0);
+        dhcpMessage = DhcpMessage.decode(buf, relayMsgLocalAddr, relayMsgRemoteAddr);
+    }
+
+    public DhcpRelayMessage getRelayMessage() {
+		return relayMessage;
+	}
+
+	public void setRelayMessage(DhcpRelayMessage relayMessage) {
+		this.relayMessage = relayMessage;
+	}
+
+	/**
+     * Gets the dhcp message.
+     * 
+     * @return the dhcp message
+     */
+    public DhcpMessage getDhcpMessage()
+    {
+        return dhcpMessage;
     }
 
     /**
-     * Gets the relay message.
+     * Sets the dhcp message.
      * 
-     * @return the relay message
+     * @param dhcpMessage the new dhcp message
      */
-    public DhcpMessage getRelayMessage()
+    public void setDhcpMessage(DhcpMessage relayMessage)
     {
-        return relayMessage;
-    }
-
-    /**
-     * Sets the relay message.
-     * 
-     * @param relayMessage the new relay message
-     */
-    public void setRelayMessage(DhcpMessage relayMessage)
-    {
-        this.relayMessage = relayMessage;
+        this.dhcpMessage = relayMessage;
     }
 
     /* (non-Javadoc)
@@ -165,12 +152,12 @@ public class DhcpRelayOption extends BaseDhcpOption
      */
     public String toString()
     {
-        if (relayMessage == null)
+        if (dhcpMessage == null)
             return null;
         
         StringBuilder sb = new StringBuilder(NAME);
         sb.append(": ");
-        sb.append(relayMessage.toString());
+        sb.append(dhcpMessage.toString());
         return sb.toString();
     }
 }

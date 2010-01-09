@@ -29,9 +29,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.mina.core.buffer.IoBuffer;
-
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataListOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.VendorClassOption;
@@ -71,36 +70,34 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+        ByteBuffer buf = super.encodeCodeAndLength();
         VendorClassOption vendorClassOption = 
         	(VendorClassOption)opaqueDataListOption;
-        iobuf.putInt((int)vendorClassOption.getEnterpriseNumber());
+        buf.putInt((int)vendorClassOption.getEnterpriseNumber());
         List<OpaqueData> vendorClasses = vendorClassOption.getOpaqueDataList();
         if ((vendorClasses != null) && !vendorClasses.isEmpty()) {
             for (OpaqueData opaque : vendorClasses) {
-                OpaqueDataUtil.encode(iobuf, opaque);
+                OpaqueDataUtil.encode(buf, opaque);
             }
         }
-        return iobuf.flip().buf();        
+        return (ByteBuffer) buf.flip();        
     }
 
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
      */
-	@SuppressWarnings("unused")
-    public void decode(ByteBuffer buf) throws IOException
+	public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            if (iobuf.position() < eof) {
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            if (buf.position() < eof) {
                 VendorClassOption vendorClassOption = 
                 	(VendorClassOption)opaqueDataListOption;
-                vendorClassOption.setEnterpriseNumber(iobuf.getUnsignedInt());
-                while (iobuf.position() < eof) {
+                vendorClassOption.setEnterpriseNumber(Util.getUnsignedInt(buf));
+                while (buf.position() < eof) {
     				OpaqueData opaque = opaqueDataListOption.addNewOpaqueData();
-                    OpaqueDataUtil.decode(opaque, iobuf);
+                    OpaqueDataUtil.decode(opaque, buf);
                 }
             }
         }
@@ -126,20 +123,17 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
     {
         return ((VendorClassOption)opaqueDataListOption).getCode();
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(": ");
-        sb.append("Enterprise Number=");
-        VendorClassOption vendorClassOption = 
-        	(VendorClassOption)opaqueDataListOption;
-        sb.append(vendorClassOption.getEnterpriseNumber());
-        sb.append(" ");
-        sb.append(super.toString());
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(((VendorClassOption)opaqueDataListOption).toString());
         return sb.toString();
     }
 }

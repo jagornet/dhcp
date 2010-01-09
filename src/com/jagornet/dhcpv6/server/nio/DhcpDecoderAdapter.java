@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * Title: DhcpDecoderAdapter 
@@ -65,7 +66,7 @@ public class DhcpDecoderAdapter extends ProtocolDecoderAdapter
 	        if (dhcpMessage != null) {
 	            if (log.isDebugEnabled())
 	                log.debug("Writing decoded message from: " +
-	                		DhcpMessage.socketAddressAsString(remote));
+	                		Util.socketAddressAsString(remote));
 	            out.write(dhcpMessage);
 	        }
 	        else {

@@ -32,11 +32,11 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IpAddressListOptionType;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.OptionExpression;
@@ -85,15 +85,15 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+    	ByteBuffer buf = super.encodeCodeAndLength();
         List<String> serverIps = ipAddressListOption.getIpAddressList();
         if (serverIps != null) {
             for (String ip : serverIps) {
                 InetAddress inet6Addr = Inet6Address.getByName(ip);
-                iobuf.put(inet6Addr.getAddress());
+                buf.put(inet6Addr.getAddress());
             }
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -101,14 +101,13 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf); 
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            while (iobuf.position() < eof) {
+    	int len = super.decodeLength(buf); 
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            while (buf.position() < eof) {
                 // it has to be hex from the wire, right?
                 byte b[] = new byte[16];
-                iobuf.get(b);
+                buf.get(b);
                 this.addServer(b);
             }
         }
@@ -191,25 +190,17 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
         
         return false;
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        if (this == null)
-            return null;
-        
-        StringBuilder sb = new StringBuilder(this.getName());
-        sb.append(": ");
-        List<String> serverIps = ipAddressListOption.getIpAddressList();
-        if (serverIps != null) {
-            for (String ip : serverIps) {
-                sb.append(ip);
-                sb.append(",");
-            }
-            sb.setLength(sb.length()-1);
-        }
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(ipAddressListOption.toString());
         return sb.toString();
     }
 }

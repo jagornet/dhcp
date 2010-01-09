@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * Title: DhcpEncoderAdapter 
@@ -61,8 +62,8 @@ public class DhcpEncoderAdapter extends ProtocolEncoderAdapter
 	            DhcpMessage dhcpMessage = (DhcpMessage) message;
 	            ByteBuffer buf = dhcpMessage.encode();
 	            if (log.isDebugEnabled())
-	                log.debug("Writing encoded message for: " + 
-	                		DhcpMessage.socketAddressAsString(dhcpMessage.getRemoteAddress()));
+	                log.debug("Writing " + buf.limit() + " bytes for: " + 
+	                		Util.socketAddressAsString(dhcpMessage.getRemoteAddress()));
 	            out.write(IoBuffer.wrap(buf));
 	        }
 	        else {

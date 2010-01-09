@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
+	
+	<policies>
+		<policy>
+			<name>sendRequestedOptionsOnly</name>
+			<value>false</value>
+		</policy>
+	</policies>
+
+	<serverIdOption>
+		<opaqueData>
+			<hexValue>abcdef0123456789</hexValue>
+		</opaqueData>
+	</serverIdOption>
+
+	<msgConfigOptions>
+		<dnsServersOption>
+			<ipAddress>3ffe::0001</ipAddress>
+			<ipAddress>3ffe::0002</ipAddress>
+			<ipAddress>3ffe::0003</ipAddress>
+		</dnsServersOption>
+		<domainSearchListOption>
+			<domainName>foo.com.</domainName>
+			<domainName>bar.com.</domainName>
+			<domainName>yuk.com.</domainName>
+		</domainSearchListOption>
+	</msgConfigOptions>
+
+	<filters>
+	  <filter>
+		<name>UserClass Filter Group 1</name>
+		<filterExpressions>
+			<filterExpression>
+				<optionExpression code="15">
+					<opaqueOption>
+						<opaqueData>
+							<asciiValue>FilterUserClass</asciiValue>
+						</opaqueData>
+					</opaqueOption>
+				</optionExpression>
+			</filterExpression>
+		</filterExpressions>
+		<msgConfigOptions>
+			<domainListOption>
+				<domainName>filter.com.</domainName>
+			</domainListOption>
+		</msgConfigOptions>
+	  </filter>
+	</filters>
+	
+	<links>
+		<link>
+			<name>Client Link 1</name>
+			<interface>en0</interface>
+			<!--
+			<address>fe80::/10</address>
+			-->
+			<iaConfigOptions>
+				<dnsServersOption>
+					<ipAddress>fd00:9a60:deb1::1</ipAddress>
+				</dnsServersOption>
+			</iaConfigOptions>
+			<policies>
+				<policy>
+					<name>preferredLifetime</name>
+					<value>600</value>
+				</policy>
+				<policy>
+					<name>validLifetime</name>
+					<value>600</value>
+				</policy>
+			</policies>
+			<linkFilters>
+			  	<linkFilter>
+					<name>Support Reconfigure</name>
+					<filterExpressions>
+						<filterExpression>
+							<optionExpression code="20">
+							</optionExpression>
+						</filterExpression>
+					</filterExpressions>
+					<pools>
+						<pool>
+							<iaType>non-temporary</iaType>
+							<range>fd00:9a60:deb1::10a-fd00:9a60:deb1::1ff</range>
+							<addrConfigOptions>
+								<sipServerAddressesOption>
+									<ipAddress>fd00:9a60:deb1::2</ipAddress>
+								</sipServerAddressesOption>
+							</addrConfigOptions>
+						</pool>
+					</pools>
+			  	</linkFilter>
+			</linkFilters>
+			<pools>
+				<pool>
+					<iaType>non-temporary</iaType>
+					<range>fd00:9a60:deb1::0a-fd00:9a60:deb1::ff</range>
+					<addrConfigOptions>
+						<sipServerAddressesOption>
+							<ipAddress>fd00:9a60:deb1::2</ipAddress>
+						</sipServerAddressesOption>
+					</addrConfigOptions>
+				</pool>
+			</pools>
+		</link>
+	</links>
+
+</dhc:dhcpV6ServerConfig>

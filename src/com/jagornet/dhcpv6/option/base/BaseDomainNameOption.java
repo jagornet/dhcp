@@ -28,10 +28,10 @@ package com.jagornet.dhcpv6.option.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.DomainNameOptionType;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.OptionExpression;
@@ -78,21 +78,21 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
      */
     public ByteBuffer encode() throws IOException
     {
-        IoBuffer iobuf = super.encodeCodeAndLength();
+        ByteBuffer buf = super.encodeCodeAndLength();
         String domainName = domainNameOption.getDomainName();
         if (domainName != null) {
-            encodeDomainName(iobuf, domainName);
+            encodeDomainName(buf, domainName);
         }
-        return iobuf.flip().buf();
+        return (ByteBuffer) buf.flip();
     }
     
     /**
      * Encode domain name.
      * 
-     * @param iobuf the iobuf
+     * @param buf the buf
      * @param domain the domain
      */
-    public static void encodeDomainName(IoBuffer iobuf, String domain)
+    public static void encodeDomainName(ByteBuffer buf, String domain)
     {
         // we split the human-readable string representing the
         // fully-qualified domain name along the dots, which
@@ -105,10 +105,10 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
                 // the two high order bits set to zero (which means each
                 // label is limited to 63 bytes) followed by length number
                 // of bytes (i.e. octets) which make up the name
-                iobuf.put((byte)label.length());
-                iobuf.put(label.getBytes());
+                buf.put((byte)label.length());
+                buf.put(label.getBytes());
             }
-            iobuf.put((byte)0);    // terminate with zero-length "root" label
+            buf.put((byte)0);    // terminate with zero-length "root" label
         }
     }
 
@@ -117,11 +117,10 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-    	int len = super.decodeLength(iobuf);
-    	if ((len > 0) && (len <= iobuf.remaining())) {
-            int eof = iobuf.position() + len;
-            String domain = decodeDomainName(iobuf, eof);
+    	int len = super.decodeLength(buf);
+    	if ((len > 0) && (len <= buf.remaining())) {
+            int eof = buf.position() + len;
+            String domain = decodeDomainName(buf, eof);
             domainNameOption.setDomainName(domain);
         }
     }
@@ -129,20 +128,20 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
     /**
      * Decode domain name.
      * 
-     * @param iobuf the iobuf
+     * @param buf the buf
      * @param eof the eof
      * 
      * @return the string
      */
-    public static String decodeDomainName(IoBuffer iobuf, int eof)
+    public static String decodeDomainName(ByteBuffer buf, int eof)
     {
         StringBuilder domain = new StringBuilder();
-        while (iobuf.position() < eof) {
-            short l = iobuf.getUnsigned();  // length byte as short
+        while (buf.position() < eof) {
+            short l = Util.getUnsignedByte(buf);  // length byte as short
             if (l == 0)
                 break;      // terminating null "root" label
             byte b[] = new byte[l];
-            iobuf.get(b);      // get next label
+            buf.get(b);      // get next label
             domain.append(new String(b));
             domain.append(".");     // build the FQDN by appending labels
         }
@@ -231,15 +230,11 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
      */
     public String toString()
     {
-        if (this == null)
-            return null;
-        
-        StringBuilder sb = new StringBuilder(this.getName());
-        sb.append(": ");
-        String domainName = domainNameOption.getDomainName();
-        if (domainName != null) {
-            sb.append(domainName);
-        }            
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(domainNameOption.toString());
         return sb.toString();
     }
 

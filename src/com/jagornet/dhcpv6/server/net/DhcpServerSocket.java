@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * The Class DhcpServerSocket.
@@ -125,9 +126,11 @@ public abstract class DhcpServerSocket implements Runnable
 	            InetSocketAddress remoteAddress =
 	                (InetSocketAddress)packet.getSocketAddress();
 	            if (remoteAddress != null) {
-	                log.info("Received datagram from: " + 
-	                		DhcpMessage.socketAddressAsString(remoteAddress));
-	                ByteBuffer bb = ByteBuffer.wrap(packet.getData());
+	                log.info("Received datagram on: " +
+	                		Util.socketAddressAsString(localAddress) +
+	                		" from: " + 
+	                		Util.socketAddressAsString(remoteAddress));
+	                ByteBuffer bb = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
 	                try {
 	                	return DhcpMessage.decode(bb, localAddress, remoteAddress);
 	                }
@@ -159,14 +162,19 @@ public abstract class DhcpServerSocket implements Runnable
     {
     	try {
 			if (outMessage != null) {
-			    if (log.isDebugEnabled())
+			    if (log.isDebugEnabled()) {
 			        log.debug("Sending message: " + outMessage.toStringWithOptions());
+			    }
+			    else if (log.isInfoEnabled()) {
+			        log.debug("Sending message: " + outMessage.toString());
+			    }
 			    ByteBuffer buf = outMessage.encode();
 			    DatagramPacket dp = new DatagramPacket(buf.array(), buf.limit());
 			    InetSocketAddress remoteAddr = outMessage.getRemoteAddress();
 			    dp.setSocketAddress(remoteAddr);
 			    sock.send(dp);
-			    log.info("Sent datagram to: " + DhcpMessage.socketAddressAsString(remoteAddr));
+			    log.info("Sent datagram to: " + Util.socketAddressAsString(remoteAddr) +
+			    		" length=" + dp.getLength());
 			}
 			else {
 				log.error("Attempted to send null message");

@@ -11,7 +11,9 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="serverIdOption" type="serverIdOption"/>
-				<xs:element name="options" type="configOptionsType"/>
+				<xs:element name="msgConfigOptions" type="configOptionsType"/>
+				<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
 				<xs:element name="policies" type="policiesType" minOccurs="0"/>
 				<xs:element name="filters" type="filtersType" minOccurs="0"/>
 				<xs:element name="links" type="linksType" minOccurs="0"/>
@@ -25,7 +27,8 @@
 				The configuration options are options that have registered codes with
 				IANA and are defined by RFC's.  This list includes only those options
 				that can be configured for the DHCPv6 server to provide to clients.
-				Other options are defined below for use in forming filters (see below).
+				Other options, that is options sent from the client to the server,
+				are defined below for use in forming client filter expressions.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
@@ -91,11 +94,36 @@
 		<xs:sequence>
 			<xs:element name="name" type="name"/>
 			<xs:element name="filterExpressions" type="filterExpressionsType"/>
-			<xs:element name="options" type="configOptionsType"/>
+			<xs:element name="msgConfigOptions" type="configOptionsType"/>
+			<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
+	<xs:complexType name="linkFiltersType">
+		<xs:sequence>
+			<xs:element name="linkFilter" type="linkFilter" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="linkFilter">
+		<xs:annotation>
+			<xs:documentation>
+				A link filter is simply a filter which allows for pools.  It
+				is distinguished from a standard filter which can be at the
+				global or pool level, and therefore can't have pools.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="filter">
+				<xs:sequence>
+					<xs:element name="pools" type="poolsType" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
 	<xs:complexType name="linksType">
 		<xs:sequence>
 			<xs:element name="link" type="link" maxOccurs="unbounded"/>
@@ -117,13 +145,21 @@
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="name"/>
-			<xs:element name="address" type="xs:string"/>
+			<xs:choice>
+				<!-- the link is identified by a local interface -->
+				<xs:element name="interface" type="xs:string"/>
+				<!-- OR the link is identified by a remote link address (prefix/len) -->
+				<xs:element name="address" type="xs:string"/>
+			</xs:choice>
 			<!-- allow serverIdOption override at the link level? -->
 			<xs:element name="serverIdOption" type="serverIdOption" minOccurs="0"/>
-			<xs:element name="options" type="configOptionsType"/>
+			<xs:element name="msgConfigOptions" type="configOptionsType"/>
+			<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
-			<xs:element name="filters" type="filtersType" minOccurs="0"/>
+			<xs:element name="linkFilters" type="linkFiltersType" minOccurs="0"/>
 			<xs:element name="pools" type="poolsType" minOccurs="0"/>
+			<xs:element name="bindings" type="bindingsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -146,18 +182,18 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="type" type="poolType"/>
+			<xs:element name="iaType" type="iaType"/>
 			<xs:element name="range" type="range"/>
-			<xs:element name="options" type="configOptionsType"/>
+			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:simpleType name="poolType">
+	<xs:simpleType name="iaType">
 		<xs:annotation>
 			<xs:documentation>
-				The type of pool, which can be one of the following values
+				The type of identity association (IA), which can be one of the following values
 					non-temporary:	addresses available for IA_NA requests from clients
 					temporary:		addresses available for IA_TA requests from clients
 					prefix:			prefixes available for IA_PD requests from requesting routers
@@ -170,6 +206,38 @@
 		</xs:restriction>
 	</xs:simpleType>
 
+	<xs:complexType name="bindingsType">
+		<xs:sequence>
+			<xs:element name="binding" type="binding" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="binding">
+		<xs:annotation>
+			<xs:documentation>
+				A binding is used to define a specific configuration mapping for a 
+				particular client or Identity Association (IA).  A client binding
+				requires only the clientIdOption, IA bindings require the clientIdOption
+				as well as the iaId.  A binding is somewhat similar to host, reserved, 
+				or manual assignments in DHCPv4.  That is, for any given client/IA, we can 
+				define a static set of configuration parameters for that client/IA on a 
+				given link.  The configuration parameters can include IP addresses and 
+				client/IA specific options.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="clientIdOption" type="clientIdOption"/>
+			<xs:choice>
+				<xs:element name="iaNaOption" type="iaNaOption" minOccurs="0"/>
+				<xs:element name="iaTaOption" type="iaTaOption" minOccurs="0"/>
+				<xs:element name="iaPdOption" type="iaPdOption" minOccurs="0"/>
+			</xs:choice>	
+			<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
 	<xs:simpleType name="range">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
@@ -391,7 +459,9 @@
 			<xs:element name="iaId" type="iaId"/>
 			<xs:element name="t1" type="xs:unsignedInt"/>
 			<xs:element name="t2" type="xs:unsignedInt"/>
-			<xs:element name="iaNaOptions" type="genericOptionsType"/>
+			<xs:element name="iaConfigOptions" type="configOptionsType"/>
+			<xs:element name="addrConfigOptions" type="configOptionsType"/>
+			<xs:element name="iaAddrOptionList" type="iaAddrOptionListType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="3"/>
 	</xs:complexType>
@@ -399,7 +469,9 @@
 	<xs:complexType name="iaTaOption">
 		<xs:sequence>
 			<xs:element name="iaId" type="iaId"/>
-			<xs:element name="iaTaOptions" type="genericOptionsType"/>
+			<xs:element name="iaConfigOptions" type="configOptionsType"/>
+			<xs:element name="addrConfigOptions" type="configOptionsType"/>
+			<xs:element name="iaAddrOptionList" type="iaAddrOptionListType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="4"/>
 	</xs:complexType>
@@ -409,9 +481,15 @@
 			<xs:element name="ipv6Address" type="ipAddress"/>
 			<xs:element name="preferredLifetime" type="xs:unsignedInt"/>
 			<xs:element name="validLifetime" type="xs:unsignedInt"/>
-			<xs:element name="iaAddrOptions" type="configOptionsType"/>
+			<xs:element name="addrConfigOptions" type="configOptionsType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="5"/>
+	</xs:complexType>
+	
+	<xs:complexType name="iaAddrOptionListType">
+		<xs:sequence>
+			<xs:element name="iaAddrOption" type="iaAddrOption" maxOccurs="unbounded"/>
+		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="optionRequestOption">
@@ -438,11 +516,30 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<!-- Relay Message option=9, unassigned=10, Authentication option=11 -->
+	<xs:complexType name="relayMessageOption">
+		<xs:complexContent>
+			<xs:extension base="opaqueDataOptionType">
+				<xs:attribute name="code" type="code" fixed="9"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<!-- option code 10 is unassigned -->
+	
+	<xs:complexType name="authenticationOption">
+		<xs:sequence>
+			<xs:element name="protocol" type="xs:unsignedByte"/>
+			<xs:element name="algorithm" type="xs:unsignedByte"/>
+			<xs:element name="rdm" type="xs:unsignedByte"/>
+			<xs:element name="replayDetection" type="xs:unsignedLong"/>
+			<xs:element name="authInfo" type="opaqueData"/>
+		</xs:sequence>
+		<xs:attribute name="code" type="code" fixed="11"/>
+	</xs:complexType>
 
 	<xs:complexType name="serverUnicastOption">
 		<xs:complexContent>
-			<xs:extension base="stringOptionType">
+			<xs:extension base="ipAddressOptionType">
 				<xs:attribute name="code" type="code" fixed="12"/>
 			</xs:extension>
 		</xs:complexContent>
@@ -544,7 +641,8 @@
 			<xs:element name="iaId" type="iaId"/>
 			<xs:element name="t1" type="xs:unsignedInt"/>
 			<xs:element name="t2" type="xs:unsignedInt"/>
-			<xs:element name="iaPdOptions" type="genericOptionsType"/>
+			<xs:element name="configOptions" type="configOptionsType"/>
+			<xs:element name="iaPrefixOptionList" type="iaPrefixOptionListType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="25"/>
 	</xs:complexType>
@@ -555,9 +653,15 @@
 			<xs:element name="ipv6Prefix" type="ipAddress"/>
 			<xs:element name="preferredLifetime" type="xs:unsignedInt"/>
 			<xs:element name="validLifetime" type="xs:unsignedInt"/>
-			<xs:element name="iaPrefixOptions" type="configOptionsType"/>
+			<xs:element name="configOptions" type="configOptionsType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="26"/>
+	</xs:complexType>
+	
+	<xs:complexType name="iaPrefixOptionListType">
+		<xs:sequence>
+			<xs:element name="iaPrefixOption" type="iaPrefixOption" maxOccurs="unbounded"/>
+		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="nisServersOption">

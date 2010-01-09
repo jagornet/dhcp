@@ -27,13 +27,20 @@ package com.jagornet.dhcpv6.option;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
-import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.util.Util;
+import com.jagornet.dhcpv6.xml.ConfigOptionsType;
+import com.jagornet.dhcpv6.xml.IaAddrOption;
+import com.jagornet.dhcpv6.xml.IaTaOption;
 
 /**
  * The Class DhcpIaTaOption.
@@ -42,21 +49,36 @@ public class DhcpIaTaOption extends BaseDhcpOption
 {	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaTaOption.class);
+	
+	/** The ia na option, which contains any configured options for the ia na */
+	private IaTaOption iaTaOption;
+    
+	/** The dhcp options sent by the client inside this ia na option,
+	 *  _NOT_ including any requested ia addr options. */
+	protected Map<Integer, DhcpOption> clientDhcpOptions = 
+    	new HashMap<Integer, DhcpOption>();
+	/** The ia addr options sent by the client, if any */
+	private List<DhcpIaAddrOption> iaAddrOptions = new ArrayList<DhcpIaAddrOption>();
+
+	public DhcpIaTaOption()
+	{
+		this(null);
+	}
+	
+	public DhcpIaTaOption(IaTaOption iaTaOption)
+	{
+		if (iaTaOption != null)
+			this.iaTaOption = iaTaOption;
+		else
+			this.iaTaOption = IaTaOption.Factory.newInstance();
+	}
 
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()
     {
-        return DhcpConstants.OPTION_IA_TA;
-    }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.BaseDhcpOption#getName()
-     */
-    public String getName()
-    {
-        return "IA_TA";
+        return iaTaOption.getCode();
     }
 
     /* (non-Javadoc)
@@ -64,8 +86,16 @@ public class DhcpIaTaOption extends BaseDhcpOption
      */
     public int getLength()
     {
-        // TODO Auto-generated method stub
-        return 0;
+    	int len = 4;	// iaId
+        // encode the configured options, so get the length of configured options
+        ConfigOptionsType configOptions = iaTaOption.getIaConfigOptions();
+        if (configOptions != null) {
+        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
+        	if (dhcpConfigOptions != null) {
+        		len += dhcpConfigOptions.getLength();
+        	}
+        }
+        return len;
     }
 
     /* (non-Javadoc)
@@ -73,8 +103,33 @@ public class DhcpIaTaOption extends BaseDhcpOption
      */
     public ByteBuffer encode() throws IOException
     {
-        // TODO Auto-generated method stub
-        return null;
+        ByteBuffer buf = super.encodeCodeAndLength();
+        buf.putInt((int)iaTaOption.getIaId());
+        // encode the ia addrs configured for this ia na
+        List<IaAddrOption> iaAddrOptions = iaTaOption.getIaAddrOptionList().getIaAddrOptionList();
+        if (iaAddrOptions != null) {
+        	for (IaAddrOption iaAddrOption : iaAddrOptions) {
+				DhcpIaAddrOption dhcpIaAddrOption = new DhcpIaAddrOption(iaAddrOption);
+				if (dhcpIaAddrOption != null) {
+					ByteBuffer _buf = dhcpIaAddrOption.encode();
+					if (_buf != null) {
+						buf.put(_buf);
+					}
+				}
+			}
+        }
+        // encode the options configured for this ia na
+        ConfigOptionsType configOptions = iaTaOption.getIaConfigOptions();
+        if (configOptions != null) {
+        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
+        	if (dhcpConfigOptions != null) {
+        		ByteBuffer _buf = dhcpConfigOptions.encode();
+        		if (_buf != null) {
+        			buf.put(_buf);
+        		}
+        	}
+        }
+        return (ByteBuffer) buf.flip();
     }
 
     /* (non-Javadoc)
@@ -82,21 +137,52 @@ public class DhcpIaTaOption extends BaseDhcpOption
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	IoBuffer iobuf = IoBuffer.wrap(buf);
-        if ((iobuf != null) && iobuf.hasRemaining()) {
+        if ((buf != null) && buf.hasRemaining()) {
             // already have the code, so length is next
-            int len = iobuf.getUnsignedShort();
+            int len = Util.getUnsignedShort(buf);
             if (log.isDebugEnabled())
                 log.debug("IA_TA option reports length=" + len +
-                          ":  bytes remaining in buffer=" + iobuf.remaining());
-            int eof = iobuf.position() + len;
-            if (iobuf.position() < eof) {
-                // we don't really decode the option, because
-                // this message will be thrown away as per RFC3736
-                // but we'll "eat" the option to complete the decode
-                iobuf.get(new byte[len]);
+                          ":  bytes remaining in buffer=" + buf.remaining());
+            int eof = buf.position() + len;
+            if (buf.position() < eof) {
+            	iaTaOption.setIaId(Util.getUnsignedInt(buf));
+            	if (buf.position() < eof) {
+    				decodeOptions(buf);
+            	}
             }
         }
     }
-
+    
+    /**
+     * Decode any options sent by the client inside this IA_TA.  Mostly, we are
+     * concerned with any IA_ADDR options that the client may have included as
+     * a hint to which address(es) it may want.  RFC 3315 does not specify if
+     * a client can actually provide any options other than IA_ADDR options in
+     * inside the IA_TA, but it does not say that the client cannot do so, and
+     * the IA_TA option definition supports any type of sub-options.
+     * 
+     * @param buf	ByteBuffer positioned at the start of the options in the packet
+     * @throws IOException
+     */    
+    protected void decodeOptions(ByteBuffer buf) 
+	    throws IOException
+	{
+		while (buf.hasRemaining()) {
+		    int code = Util.getUnsignedShort(buf);
+		    log.debug("Option code=" + code);
+		    DhcpOption option = DhcpOptionFactory.getDhcpOption(code);
+		    if (option != null) {
+		        option.decode(buf);
+		        if (option instanceof DhcpIaAddrOption) {
+		        	iaAddrOptions.add((DhcpIaAddrOption)option);
+		        }
+		        else {
+		        	clientDhcpOptions.put(option.getCode(), option);
+		        }
+		    }
+		    else {
+		        break;  // no more options, or one is malformed, so we're done
+		    }
+		}
+	}
 }
