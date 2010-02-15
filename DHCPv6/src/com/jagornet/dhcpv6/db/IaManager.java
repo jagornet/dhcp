@@ -28,36 +28,26 @@ package com.jagornet.dhcpv6.db;
 import java.net.InetAddress;
 import java.util.Collection;
 
-// TODO: Auto-generated Javadoc
 /**
  * Interface for handling the client bindings for the server.
  * 
  * The following definition of a binding is copied from
  * RFC 3315 section 4.2:
  * 
- * A binding (or, client binding) is a
- * group of server data records containing
- * the information the server has about
- * the addresses in an IA or configuration
- * information explicitly assigned to the
- * client.  Configuration information that
- * has been returned to a client through a
- * policy - for example, the information
- * returned to all clients on the same
- * link - does not require a binding.  A
- * binding containing information about
- * an IA is indexed by the tuple <DUID,
- * IA-type, IAID> (where IA-type is the
- * type of address in the IA; for example,
- * temporary).  A binding containing
- * configuration information for a client
+ * A binding (or, client binding) is a group of server data records containing
+ * the information the server has about the addresses in an IA or configuration
+ * information explicitly assigned to the client.  Configuration information that
+ * has been returned to a client through a policy - for example, the information
+ * returned to all clients on the same link - does not require a binding.  A
+ * binding containing information about an IA is indexed by the tuple <DUID,
+ * IA-type, IAID> (where IA-type is the type of address in the IA; for example,
+ * temporary).  A binding containing configuration information for a client
  * is indexed by <DUID>.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 public interface IaManager
 {
-	
 	/**
 	 * Creates the ia.
 	 * 
@@ -73,8 +63,8 @@ public interface IaManager
 	 * @param updateAddrs the update addrs
 	 * @param delAddrs the del addrs
 	 */
-	public void updateIA(IdentityAssoc ia, Collection<IaAddress> addAddrs,
-			Collection<IaAddress> updateAddrs, Collection<IaAddress> delAddrs);
+	public void updateIA(IdentityAssoc ia, Collection<? extends IaAddress> addAddrs,
+			Collection<? extends IaAddress> updateAddrs, Collection<? extends IaAddress> delAddrs);
 	
 	/**
 	 * Delete ia.
@@ -116,4 +106,18 @@ public interface IaManager
 	 * @param iaAddr the ia addr
 	 */
 	public void deleteIaAddr(IaAddress iaAddr);
+	
+	/**
+	 * Update ia prefix.
+	 * 
+	 * @param iaPrefix the ia prefix
+	 */
+	public void updateIaPrefix(IaPrefix iaPrefix);
+	
+	/**
+	 * Delete ia prefix.
+	 * 
+	 * @param iaPrefix the ia prefix
+	 */
+	public void deleteIaPrefix(IaPrefix iaPrefix);
 }

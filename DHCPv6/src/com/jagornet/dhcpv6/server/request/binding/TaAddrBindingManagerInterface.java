@@ -28,14 +28,13 @@ package com.jagornet.dhcpv6.server.request.binding;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.option.DhcpIaTaOption;
 import com.jagornet.dhcpv6.xml.Link;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Interface BindingManagerInterface.
+ * The Interface TaAddrBindingManagerInterface.
  */
-public interface BindingManagerInterface
+public interface TaAddrBindingManagerInterface
 {
 	
 	/**
@@ -43,27 +42,27 @@ public interface BindingManagerInterface
 	 * 
 	 * @param clientLink the client link
 	 * @param clientIdOption the client id option
-	 * @param iaNaOption the ia na option
+	 * @param iaTaOption the ia na option
 	 * @param requestMsg the request msg
 	 * 
 	 * @return the binding
 	 */
 	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaNaOption iaNaOption, DhcpMessage requestMsg);
+			DhcpIaTaOption iaTaOption, DhcpMessage requestMsg);
 	
 	/**
 	 * Creates the solicit binding.
 	 * 
 	 * @param clientLink the client link
 	 * @param clientIdOption the client id option
-	 * @param iaNaOption the ia na option
+	 * @param iaTaOption the ia na option
 	 * @param requestMsg the request msg
 	 * @param rapidCommit the rapid commit
 	 * 
 	 * @return the binding
 	 */
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaNaOption iaNaOption, DhcpMessage requestMsg, boolean rapidCommit);
+			DhcpIaTaOption iaTaOption, DhcpMessage requestMsg, boolean rapidCommit);
 
 	/**
 	 * Update binding.
@@ -71,14 +70,14 @@ public interface BindingManagerInterface
 	 * @param binding the binding
 	 * @param clientLink the client link
 	 * @param clientIdOption the client id option
-	 * @param iaNaOption the ia na option
+	 * @param iaTaOption the ia na option
 	 * @param requestMsg the request msg
 	 * @param state the state
 	 * 
 	 * @return the binding
 	 */
 	public Binding updateBinding(Binding binding, Link clientLink, 
-			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
+			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
 			DhcpMessage requestMsg, byte state);
 
 	/**

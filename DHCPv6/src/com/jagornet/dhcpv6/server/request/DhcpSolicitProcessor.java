@@ -35,9 +35,14 @@ import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.option.DhcpIaPdOption;
+import com.jagornet.dhcpv6.option.DhcpIaTaOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.Link;
 
@@ -126,33 +131,113 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 		boolean haveBinding = false;
 		boolean rapidCommit = isRapidCommit(requestMsg, clientLink.getLink());
 		DhcpClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
+		
 		List<DhcpIaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
-    	if (iaNaOptions != null) {
-    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
-    			log.info("Processing IA_NA Solicit: " + dhcpIaNaOption.toString());
-				Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
-						clientIdOption, dhcpIaNaOption, requestMsg);
-				if (binding == null) {
-					// no current binding for this IA_NA, create a new one
-					binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
-							clientIdOption, dhcpIaNaOption, requestMsg, rapidCommit);
-				}
-				else {
-					binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-							clientIdOption, dhcpIaNaOption, requestMsg, rapidCommit ? 
-									IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
-				}
-				if (binding != null) {
-					haveBinding = true;
-					// have a good binding, put it in the reply with options
-					addBindingToReply(clientLink.getLink(), binding);
-				}
-				else {
-					// something went wrong, report NoAddrsAvail status for IA_NA
-    				addIaNaOptionStatusToReply(dhcpIaNaOption, 
-    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
-				}
-			}
+    	if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
+    		NaAddrBindingManagerInterface bindingMgr = dhcpServerConfig.getNaAddrBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
+	    			log.info("Processing IA_NA Solicit: " + dhcpIaNaOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaNaOption, requestMsg);
+					if (binding == null) {
+						// no current binding for this IA_NA, create a new one
+						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
+								clientIdOption, dhcpIaNaOption, requestMsg, rapidCommit);
+					}
+					else {
+						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+								clientIdOption, dhcpIaNaOption, requestMsg, rapidCommit ? 
+										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
+					}
+					if (binding != null) {
+						haveBinding = true;
+						// have a good binding, put it in the reply with options
+						addBindingToReply(clientLink.getLink(), binding);
+					}
+					else {
+						// something went wrong, report NoAddrsAvail status for IA_NA
+	    				addIaNaOptionStatusToReply(dhcpIaNaOption, 
+	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+					}
+	    		}
+    		}
+    		else {
+    			log.error("Unable to process IA_NA Solicit:" +
+    					" No NaAddrBindingManager available");
+    		}
+    	}
+		
+		List<DhcpIaTaOption> iaTaOptions = requestMsg.getIaTaOptions();
+    	if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
+    		TaAddrBindingManagerInterface bindingMgr = dhcpServerConfig.getTaAddrBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaTaOption dhcpIaTaOption : iaTaOptions) {
+	    			log.info("Processing IA_TA Solicit: " + dhcpIaTaOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaTaOption, requestMsg);
+					if (binding == null) {
+						// no current binding for this IA_TA, create a new one
+						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
+								clientIdOption, dhcpIaTaOption, requestMsg, rapidCommit);
+					}
+					else {
+						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+								clientIdOption, dhcpIaTaOption, requestMsg, rapidCommit ? 
+										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
+					}
+					if (binding != null) {
+						haveBinding = true;
+						// have a good binding, put it in the reply with options
+						addBindingToReply(clientLink.getLink(), binding);
+					}
+					else {
+						// something went wrong, report NoAddrsAvail status for IA_TA
+	    				addIaTaOptionStatusToReply(dhcpIaTaOption, 
+	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+					}
+	    		}
+    		}
+    		else {
+    			log.error("Unable to process IA_TA Solicit:" +
+    					" No TaAddrBindingManager available");
+    		}
+    	}
+		
+		List<DhcpIaPdOption> iaPdOptions = requestMsg.getIaPdOptions();
+    	if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
+    		PrefixBindingManagerInterface bindingMgr = dhcpServerConfig.getPrefixBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
+	    			log.info("Processing IA_PD Solicit: " + dhcpIaPdOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaPdOption, requestMsg);
+					if (binding == null) {
+						// no current binding for this IA_PD, create a new one
+						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
+								clientIdOption, dhcpIaPdOption, requestMsg, rapidCommit);
+					}
+					else {
+						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+								clientIdOption, dhcpIaPdOption, requestMsg, rapidCommit ? 
+										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
+					}
+					if (binding != null) {
+						haveBinding = true;
+						// have a good binding, put it in the reply with options
+						addBindingToReply(clientLink.getLink(), binding);
+					}
+					else {
+						// something went wrong, report NoAddrsAvail status for IA_PD
+	    				addIaPdOptionStatusToReply(dhcpIaPdOption, 
+	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+					}
+	    		}
+    		}
+    		else {
+    			log.error("Unable to process IA_PD Solicit:" +
+    					" No PrefixBindingManager available");
+    		}
     	}
     	
     	if (sendReply) {

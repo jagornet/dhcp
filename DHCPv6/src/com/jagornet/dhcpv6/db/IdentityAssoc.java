@@ -28,11 +28,10 @@ package com.jagornet.dhcpv6.db;
 import java.util.Arrays;
 import java.util.Collection;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class IdentityAssoc.
+ * The IdentityAssoc POJO class for the IDENTITYASSOC database table.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 
 public class IdentityAssoc
@@ -72,7 +71,7 @@ public class IdentityAssoc
 	/** The state. */
 	protected byte state;
 	
-	/** The ia addresses. */
+	/** The ia addresses/prefixes. */
 	protected Collection<? extends IaAddress> iaAddresses;
 	
 	/** The dhcp options. */
@@ -173,9 +172,8 @@ public class IdentityAssoc
 	 * 
 	 * @return the ia addresses
 	 */
-	@SuppressWarnings("unchecked")
-	public Collection<IaAddress> getIaAddresses() {
-		return (Collection<IaAddress>)iaAddresses;
+	public Collection<? extends IaAddress> getIaAddresses() {
+		return iaAddresses;
 	}
 	
 	/**

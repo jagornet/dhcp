@@ -528,10 +528,32 @@ public class DhcpMessage implements DhcpOptionable
 	public List<DhcpIaTaOption> getIaTaOptions() {
 		return iaTaOptions;
 	}
+    
+    public void setIaTaOptions(List<DhcpIaTaOption> iaTaOptions) {
+    	this.iaTaOptions = iaTaOptions;
+    }
+    
+    public void addIaTaOption(DhcpIaTaOption iaTaOption) {
+    	if (iaTaOptions == null) {
+    		iaTaOptions = new ArrayList<DhcpIaTaOption>();
+    	}
+    	iaTaOptions.add(iaTaOption);
+    }
 
 	public List<DhcpIaPdOption> getIaPdOptions() {
 		return iaPdOptions;
 	}
+    
+    public void setIaPdOptions(List<DhcpIaPdOption> iaPdOptions) {
+    	this.iaPdOptions = iaPdOptions;
+    }
+    
+    public void addIaPdOption(DhcpIaPdOption iaPdOption) {
+    	if (iaPdOptions == null) {
+    		iaPdOptions = new ArrayList<DhcpIaPdOption>();
+    	}
+    	iaPdOptions.add(iaPdOption);
+    }
 	
 
 	private DhcpClientIdOption dhcpClientIdOption;

@@ -121,26 +121,6 @@ public class DhcpIaNaOption extends BaseDhcpOption implements DhcpOptionable
      */
     public int getLength()
     {
-/*
-    	int len = 4 + 4 + 4;	// iaId + t1 + t2
-        // encode the configured options, so get the length of configured options
-        ConfigOptionsType configOptions = iaNaOption.getIaConfigOptions();
-        if (configOptions != null) {
-        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
-        	if (dhcpConfigOptions != null) {
-        		len += dhcpConfigOptions.getLength();
-        	}
-        }
-        // the configured IaAddr options are in a separate list, so count them up
-        List<IaAddrOption> iaAddrs = iaNaOption.getIaAddrOptionList().getIaAddrOptionList();
-        if (iaAddrs != null) {
-        	for (IaAddrOption iaAddr : iaAddrs) {
-            	DhcpIaAddrOption dhcpIaAddr = new DhcpIaAddrOption(iaAddr);
-            	len += 2 + 2 + dhcpIaAddr.getLength();
-			}
-        }
-        return len;
-*/
     	return getDecodedLength();
     }
 
@@ -171,32 +151,7 @@ public class DhcpIaNaOption extends BaseDhcpOption implements DhcpOptionable
         buf.putInt((int)iaNaOption.getIaId());
         buf.putInt((int)iaNaOption.getT1());
         buf.putInt((int)iaNaOption.getT2());
-/*
-        // encode the ia addrs configured for this ia na
-        List<IaAddrOption> iaAddrOptions = iaNaOption.getIaAddrOptionList().getIaAddrOptionList();
-        if (iaAddrOptions != null) {
-        	for (IaAddrOption iaAddrOption : iaAddrOptions) {
-				DhcpIaAddrOption dhcpIaAddrOption = new DhcpIaAddrOption(iaAddrOption);
-				if (dhcpIaAddrOption != null) {
-					ByteBuffer _buf = dhcpIaAddrOption.encode();
-					if (_buf != null) {
-						buf.put(_buf);
-					}
-				}
-			}
-        }
-        // encode the options configured for this ia na
-        ConfigOptionsType configOptions = iaNaOption.getConfigOptions();
-        if (configOptions != null) {
-        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
-        	if (dhcpConfigOptions != null) {
-        		ByteBuffer _buf = dhcpConfigOptions.encode();
-        		if (_buf != null) {
-        			buf.put(_buf);
-        		}
-        	}
-        }
-*/
+
         if (iaAddrOptions != null) {
         	for (DhcpIaAddrOption iaAddrOption : iaAddrOptions) {
 				ByteBuffer _buf = iaAddrOption.encode();

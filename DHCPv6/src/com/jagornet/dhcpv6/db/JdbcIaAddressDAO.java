@@ -44,11 +44,10 @@ import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class JdbcIaAddressDAO.
+ * The JdbcIaAddressDAO implementation class for the IaAddressDAO interface.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressDAO 
 {

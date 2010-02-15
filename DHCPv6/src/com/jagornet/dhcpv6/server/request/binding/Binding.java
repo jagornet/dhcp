@@ -80,13 +80,18 @@ public class Binding extends IdentityAssoc
 	}
 
 	/**
-	 * Gets the binding addresses.
+	 * Gets the binding objects.
 	 * 
-	 * @return the binding addresses
+	 * @return the binding objects
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<BindingAddress> getBindingAddresses() {
-		return (Collection<BindingAddress>)iaAddresses;
+	public Collection<BindingObject> getBindingObjects() {
+		return (Collection<BindingObject>)iaAddresses;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setBindingObjects(Collection<BindingObject> bindingObjs) {
+		this.setIaAddresses((Collection<? extends IaAddress>) bindingObjs);
 	}
 	
 	/**

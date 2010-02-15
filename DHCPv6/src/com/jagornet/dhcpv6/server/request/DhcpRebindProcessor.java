@@ -35,9 +35,14 @@ import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.option.DhcpIaPdOption;
+import com.jagornet.dhcpv6.option.DhcpIaTaOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 // TODO: Auto-generated Javadoc
@@ -127,40 +132,134 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 		boolean sendReply = true;
 		boolean haveBinding = false;
 		DhcpClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
+		
 		List<DhcpIaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
-    	if (iaNaOptions != null) {
-    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
-    			log.info("Processing IA_NA Rebind: " + dhcpIaNaOption.toString());
-				Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
-						clientIdOption, dhcpIaNaOption, requestMsg);
-				if (binding != null) {
-					haveBinding = true;
-					// zero out the lifetimes of any invalid addresses
-					if(!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
-						replyMsg.addIaNaOption(dhcpIaNaOption);
-					}
-					else {
-						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-								clientIdOption, dhcpIaNaOption, requestMsg, IdentityAssoc.COMMITTED);
-						if (binding != null) {
-							addBindingToReply(clientLink.getLink(), binding);
+    	if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
+    		NaAddrBindingManagerInterface bindingMgr = dhcpServerConfig.getNaAddrBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
+	    			log.info("Processing IA_NA Rebind: " + dhcpIaNaOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaNaOption, requestMsg);
+					if (binding != null) {
+						haveBinding = true;
+						// zero out the lifetimes of any invalid addresses
+						if(!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
+							replyMsg.addIaNaOption(dhcpIaNaOption);
 						}
 						else {
-							haveBinding = false;
-							addIaNaOptionStatusToReply(dhcpIaNaOption,
-		    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+									clientIdOption, dhcpIaNaOption, requestMsg, IdentityAssoc.COMMITTED);
+							if (binding != null) {
+								addBindingToReply(clientLink.getLink(), binding);
+							}
+							else {
+								haveBinding = false;
+								addIaNaOptionStatusToReply(dhcpIaNaOption,
+			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+							}
+						}
+					}
+					else {
+						if (DhcpServerPolicies.effectivePolicyAsBoolean(clientLink.getLink(), 
+								Property.VERIFY_UNKNOWN_REBIND)) {
+							// zero out the lifetimes of any invalid addresses
+							allIaAddrsOnLink(dhcpIaNaOption, clientLink);
+							replyMsg.addIaNaOption(dhcpIaNaOption);
 						}
 					}
 				}
-				else {
-					if (DhcpServerPolicies.effectivePolicyAsBoolean(clientLink.getLink(), 
-							Property.VERIFY_UNKNOWN_REBIND)) {
+    		}
+    		else {
+    			log.error("Unable to process IA_NA Rebind:" +
+    					" No NaAddrBindingManager available");
+    		}
+    	}
+		
+		List<DhcpIaTaOption> iaTaOptions = requestMsg.getIaTaOptions();
+    	if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
+    		TaAddrBindingManagerInterface bindingMgr = dhcpServerConfig.getTaAddrBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaTaOption dhcpIaTaOption : iaTaOptions) {
+	    			log.info("Processing IA_TA Rebind: " + dhcpIaTaOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaTaOption, requestMsg);
+					if (binding != null) {
+						haveBinding = true;
 						// zero out the lifetimes of any invalid addresses
-						allIaAddrsOnLink(dhcpIaNaOption, clientLink);
-						replyMsg.addIaNaOption(dhcpIaNaOption);
+						if(!allIaAddrsOnLink(dhcpIaTaOption, clientLink)) {
+							replyMsg.addIaTaOption(dhcpIaTaOption);
+						}
+						else {
+							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+									clientIdOption, dhcpIaTaOption, requestMsg, IdentityAssoc.COMMITTED);
+							if (binding != null) {
+								addBindingToReply(clientLink.getLink(), binding);
+							}
+							else {
+								haveBinding = false;
+								addIaTaOptionStatusToReply(dhcpIaTaOption,
+			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+							}
+						}
+					}
+					else {
+						if (DhcpServerPolicies.effectivePolicyAsBoolean(clientLink.getLink(), 
+								Property.VERIFY_UNKNOWN_REBIND)) {
+							// zero out the lifetimes of any invalid addresses
+							allIaAddrsOnLink(dhcpIaTaOption, clientLink);
+							replyMsg.addIaTaOption(dhcpIaTaOption);
+						}
 					}
 				}
-			}
+    		}
+    		else {
+    			log.error("Unable to process IA_TA Rebind:" +
+    					" No TaAddrBindingManager available");
+    		}
+    	}
+		
+		List<DhcpIaPdOption> iaPdOptions = requestMsg.getIaPdOptions();
+    	if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
+    		PrefixBindingManagerInterface bindingMgr = dhcpServerConfig.getPrefixBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
+	    			log.info("Processing IA_PD Rebind: " + dhcpIaPdOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaPdOption, requestMsg);
+					if (binding != null) {
+						haveBinding = true;
+						// zero out the lifetimes of any invalid addresses
+						if(!allIaPrefixesOnLink(dhcpIaPdOption, clientLink)) {
+							replyMsg.addIaPdOption(dhcpIaPdOption);
+						}
+						else {
+							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+									clientIdOption, dhcpIaPdOption, requestMsg, IdentityAssoc.COMMITTED);
+							if (binding != null) {
+								addBindingToReply(clientLink.getLink(), binding);
+							}
+							else {
+								haveBinding = false;
+								addIaPdOptionStatusToReply(dhcpIaPdOption,
+			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+							}
+						}
+					}
+					else {
+						if (DhcpServerPolicies.effectivePolicyAsBoolean(clientLink.getLink(), 
+								Property.VERIFY_UNKNOWN_REBIND)) {
+							// zero out the lifetimes of any invalid addresses
+							allIaPrefixesOnLink(dhcpIaPdOption, clientLink);
+							replyMsg.addIaPdOption(dhcpIaPdOption);
+						}
+					}
+				}
+    		}
+    		else {
+    			log.error("Unable to process IA_PD Rebind:" +
+    					" No PrefixBindingManager available");
+    		}
     	}
 
 	    if (!haveBinding && 

@@ -32,64 +32,37 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Properties;
 
+import com.jagornet.dhcpv6.xml.AddressPool;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.PoliciesType;
 import com.jagornet.dhcpv6.xml.Policy;
-import com.jagornet.dhcpv6.xml.Pool;
+import com.jagornet.dhcpv6.xml.PrefixPool;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpServerPolicies.
  */
 public class DhcpServerPolicies
 {
-	
 	/**
-	 * The Enum Property.
+	 * The Property enum.
 	 */
 	public enum Property {
-		
-		/** The MCAS t_ serve r_ queu e_ size. */
 		MCAST_SERVER_QUEUE_SIZE ("mcast.server.queueSize", "10000"),
-		
-		/** The MCAS t_ serve r_ poo l_ size. */
 		MCAST_SERVER_POOL_SIZE ("mcast.server.poolSize", "100"),
-		
-		/** The UCAS t_ serve r_ queu e_ size. */
 		UCAST_SERVER_QUEUE_SIZE ("ucast.server.queueSize", "10000"),
-		
-		/** The DHC p_ processo r_ recen t_ messag e_ timer. */
 		DHCP_PROCESSOR_RECENT_MESSAGE_TIMER("dhcp.processor.recentMessageTimer", "5000"),
-		
-		/** The BINDIN g_ manage r_ reape r_ startu p_ delay. */
 		BINDING_MANAGER_REAPER_STARTUP_DELAY("binding.manager.reaper.startupDelay", "10000"),
-		
-		/** The BINDIN g_ manage r_ reape r_ ru n_ period. */
 		BINDING_MANAGER_REAPER_RUN_PERIOD("binding.manager.reaper.runPeriod", "60000"),
-		
-		/** The BINDIN g_ manage r_ delet e_ ol d_ bindings. */
 		BINDING_MANAGER_DELETE_OLD_BINDINGS("binding.manager.deleteOldBindings", "false"),
-		
-		/** The SEN d_ requeste d_ option s_ only. */
 		SEND_REQUESTED_OPTIONS_ONLY("sendRequestedOptionsOnly", "false"),
-		
-		/** The SUPPOR t_ rapi d_ commit. */
 		SUPPORT_RAPID_COMMIT("supportRapidCommit", "false"),
-		
-		/** The VERIF y_ unknow n_ rebind. */
 		VERIFY_UNKNOWN_REBIND("verifyUnknownRebind", "false"),
-		
-		/** The PREFERRE d_ lifetime. */
 		PREFERRED_LIFETIME("preferredLifetime", "3600"),
-		
-		/** The VALI d_ lifetime. */
 		VALID_LIFETIME("validLifetime", "3600"),
-		
-		/** The I a_ n a_ t1. */
 		IA_NA_T1("iaNaT1", "0.5"),
-		
-		/** The I a_ n a_ t2. */
 		IA_NA_T2("iaNaT2", "0.8"),
+		IA_PD_T1("iaPdT1", "0.5"),
+		IA_PD_T2("iaPdT2", "0.8"),
 		;
 		
 	    /** The key. */
@@ -133,7 +106,7 @@ public class DhcpServerPolicies
 		}
 	}
 	
-	/** The SERVE r_ properties. */
+	/** The SERVER properties. */
 	protected static Properties SERVER_PROPERTIES = new Properties(DEFAULT_PROPERTIES);
 	
 	/**
@@ -188,76 +161,52 @@ public class DhcpServerPolicies
     	}
     	return SERVER_PROPERTIES.getProperty(prop.key());
     }
-	
-//    public static String globalPolicy(String name, String defaultValue)
-//    {
-//    	String policy = 
-//    		getPolicy(DhcpServerConfiguration.getInstance().getDhcpV6ServerConfig().getPolicies(), name);
-//    	if (policy != null) {
-//    		return policy;
-//    	}
-//    	return defaultValue;
-//    }
-    
+	    
     /**
- * Global policy as boolean.
- * 
- * @param prop the prop
- * 
- * @return true, if successful
- */
-public static boolean globalPolicyAsBoolean(Property prop)
+	 * Global policy as boolean.
+	 * 
+	 * @param prop the prop
+	 * 
+	 * @return true, if successful
+	 */
+	public static boolean globalPolicyAsBoolean(Property prop)
     {
     	return Boolean.parseBoolean(globalPolicy(prop));
     }
- 
-//    public static boolean globalPolicyAsBoolean(String name, boolean defaultValue)
-//    {
-//    	return Boolean.parseBoolean(globalPolicy(name, Boolean.toString(defaultValue)));
-//    }
     
     /**
- * Global policy as int.
- * 
- * @param prop the prop
- * 
- * @return the int
- */
-public static int globalPolicyAsInt(Property prop)
+	 * Global policy as int.
+	 * 
+	 * @param prop the prop
+	 * 
+	 * @return the int
+	 */
+	public static int globalPolicyAsInt(Property prop)
     {
     	return Integer.parseInt(globalPolicy(prop));
     }
     
-//    public static int globalPolicyAsInt(String name, int defaultValue)
-//    {
-//    	return Integer.parseInt(globalPolicy(name, Integer.toString(defaultValue)));
-//    }
-    
     /**
- * Global policy as long.
- * 
- * @param prop the prop
- * 
- * @return the long
- */
-public static long globalPolicyAsLong(Property prop)
+	 * Global policy as long.
+	 * 
+	 * @param prop the prop
+	 * 
+	 * @return the long
+	 */
+	public static long globalPolicyAsLong(Property prop)
     {
     	return Long.parseLong(globalPolicy(prop));
     }
     
-//    public static long globalPolicyAsLong(String name, long defaultValue)
-//    {
-//    	return Long.parseLong(globalPolicy(name, Long.toString(defaultValue)));
-//    }
     
     /**
- * Global policy as float.
- * 
- * @param prop the prop
- * 
- * @return the float
- */
-public static float globalPolicyAsFloat(Property prop)
+	 * Global policy as float.
+	 * 
+	 * @param prop the prop
+	 * 
+	 * @return the float
+	 */
+	public static float globalPolicyAsFloat(Property prop)
     {
     	return Float.parseFloat(globalPolicy(prop));
     }
@@ -279,78 +228,54 @@ public static float globalPolicyAsFloat(Property prop)
     	return globalPolicy(prop);
     }
     
-//    public static String effectivePolicy(Link link, String name, String defaultValue)
-//    {
-//    	String policy = getPolicy(link.getPolicies(), name);
-//    	if (policy != null) {
-//    		return policy;
-//    	}
-//    	return globalPolicy(name, defaultValue);
-//    }
-    
     /**
- * Effective policy as boolean.
- * 
- * @param link the link
- * @param prop the prop
- * 
- * @return true, if successful
- */
-public static boolean effectivePolicyAsBoolean(Link link, Property prop)
+	 * Effective policy as boolean.
+	 * 
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return true, if successful
+	 */
+	public static boolean effectivePolicyAsBoolean(Link link, Property prop)
     {
     	return Boolean.parseBoolean(effectivePolicy(link, prop));
     }
     
-//    public static boolean effectivePolicyAsBoolean(Link link, String name, boolean defaultValue)
-//    {
-//    	return Boolean.parseBoolean(effectivePolicy(link, name, Boolean.toString(defaultValue)));
-//    }
-    
     /**
- * Effective policy as int.
- * 
- * @param link the link
- * @param prop the prop
- * 
- * @return the int
- */
-public static int effectivePolicyAsInt(Link link, Property prop)
+	 * Effective policy as int.
+	 * 
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the int
+	 */
+	public static int effectivePolicyAsInt(Link link, Property prop)
     {
     	return Integer.parseInt(effectivePolicy(link, prop));
     }
     
-//    public static int effectivePolicyAsInt(Link link, String name, int defaultValue)
-//    {
-//    	return Integer.parseInt(effectivePolicy(link, name, Integer.toString(defaultValue)));
-//    }
-    
     /**
- * Effective policy as long.
- * 
- * @param link the link
- * @param prop the prop
- * 
- * @return the long
- */
-public static long effectivePolicyAsLong(Link link, Property prop)
+	 * Effective policy as long.
+	 * 
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the long
+	 */
+	public static long effectivePolicyAsLong(Link link, Property prop)
     {
     	return Long.parseLong(effectivePolicy(link, prop));
     }
     
-//    public static long effectivePolicyAsLong(Link link, String name, long defaultValue)
-//    {
-//    	return Long.parseLong(effectivePolicy(link, name, Long.toString(defaultValue)));
-//    }
-    
     /**
- * Effective policy as float.
- * 
- * @param link the link
- * @param prop the prop
- * 
- * @return the float
- */
-public static float effectivePolicyAsFloat(Link link, Property prop)
+	 * Effective policy as float.
+	 * 
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the float
+	 */
+	public static float effectivePolicyAsFloat(Link link, Property prop)
     {
     	return Float.parseFloat(effectivePolicy(link, prop));
     }
@@ -364,7 +289,7 @@ public static float effectivePolicyAsFloat(Link link, Property prop)
      * 
      * @return the string
      */
-    public static String effectivePolicy(Pool pool, Link link, Property prop)
+    public static String effectivePolicy(AddressPool pool, Link link, Property prop)
     {
     	String policy = getPolicy(pool.getPolicies(), prop.key());
     	if (policy != null) {
@@ -377,86 +302,136 @@ public static float effectivePolicyAsFloat(Link link, Property prop)
     	return globalPolicy(prop);
     }
     
-//    public static String effectivePolicy(Pool pool, Link link, String name, String defaultValue)
-//    {
-//    	String policy = getPolicy(pool.getPolicies(), name);
-//    	if (policy != null) {
-//    		return policy;
-//    	}
-//    	policy = getPolicy(link.getPolicies(), name);
-//    	if (policy != null) {
-//    		return policy;
-//    	}
-//    	return globalPolicy(name, defaultValue);
-//    }
-    
     /**
- * Effective policy as boolean.
- * 
- * @param pool the pool
- * @param link the link
- * @param prop the prop
- * 
- * @return true, if successful
- */
-public static boolean effectivePolicyAsBoolean(Pool pool, Link link, Property prop)
+	 * Effective policy as boolean.
+	 * 
+	 * @param pool the pool
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return true, if successful
+	 */
+	public static boolean effectivePolicyAsBoolean(AddressPool pool, Link link, Property prop)
     {
     	return Boolean.parseBoolean(effectivePolicy(pool, link, prop));
     }
     
-//    public static boolean effectivePolicyAsBoolean(Pool pool, Link link, String name, boolean defaultValue)
-//    {
-//    	return Boolean.parseBoolean(effectivePolicy(pool, link, name, Boolean.toString(defaultValue)));
-//    }
-    
     /**
- * Effective policy as int.
- * 
- * @param pool the pool
- * @param link the link
- * @param prop the prop
- * 
- * @return the int
- */
-public static int effectivePolicyAsInt(Pool pool, Link link, Property prop)
+	 * Effective policy as int.
+	 * 
+	 * @param pool the pool
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the int
+	 */
+	public static int effectivePolicyAsInt(AddressPool pool, Link link, Property prop)
     {
     	return Integer.parseInt(effectivePolicy(pool, link, prop));
     }
     
-//    public static int effectivePolicyAsInt(Pool pool, Link link, String name, int defaultValue)
-//    {
-//    	return Integer.parseInt(effectivePolicy(pool, link, name, Integer.toString(defaultValue)));
-//    }
-    
     /**
- * Effective policy as long.
- * 
- * @param pool the pool
- * @param link the link
- * @param prop the prop
- * 
- * @return the long
- */
-public static long effectivePolicyAsLong(Pool pool, Link link, Property prop)
+	 * Effective policy as long.
+	 * 
+	 * @param pool the pool
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the long
+	 */
+	public static long effectivePolicyAsLong(AddressPool pool, Link link, Property prop)
     {
     	return Long.parseLong(effectivePolicy(pool, link, prop));
     }
     
-//    public static long effectivePolicyAsLong(Pool pool, Link link, String name, long defaultValue)
-//    {
-//    	return Long.parseLong(effectivePolicy(pool, link, name, Long.toString(defaultValue)));
-//    }
+    /**
+	 * Effective policy as float.
+	 * 
+	 * @param pool the pool
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the float
+	 */
+	public static float effectivePolicyAsFloat(AddressPool pool, Link link, Property prop)
+    {
+    	return Float.parseFloat(effectivePolicy(pool, link, prop));
+    }
     
     /**
- * Effective policy as float.
- * 
- * @param pool the pool
- * @param link the link
- * @param prop the prop
- * 
- * @return the float
- */
-public static float effectivePolicyAsFloat(Pool pool, Link link, Property prop)
+     * Effective policy.
+     * 
+     * @param pool the pool
+     * @param link the link
+     * @param prop the prop
+     * 
+     * @return the string
+     */
+    public static String effectivePolicy(PrefixPool pool, Link link, Property prop)
+    {
+    	String policy = getPolicy(pool.getPolicies(), prop.key());
+    	if (policy != null) {
+    		return policy;
+    	}
+    	policy = getPolicy(link.getPolicies(), prop.key());
+    	if (policy != null) {
+    		return policy;
+    	}
+    	return globalPolicy(prop);
+    }
+    
+    /**
+	 * Effective policy as boolean.
+	 * 
+	 * @param pool the pool
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return true, if successful
+	 */
+	public static boolean effectivePolicyAsBoolean(PrefixPool pool, Link link, Property prop)
+    {
+    	return Boolean.parseBoolean(effectivePolicy(pool, link, prop));
+    }
+    
+    /**
+	 * Effective policy as int.
+	 * 
+	 * @param pool the pool
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the int
+	 */
+	public static int effectivePolicyAsInt(PrefixPool pool, Link link, Property prop)
+    {
+    	return Integer.parseInt(effectivePolicy(pool, link, prop));
+    }
+    
+    /**
+	 * Effective policy as long.
+	 * 
+	 * @param pool the pool
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the long
+	 */
+	public static long effectivePolicyAsLong(PrefixPool pool, Link link, Property prop)
+    {
+    	return Long.parseLong(effectivePolicy(pool, link, prop));
+    }
+    
+    /**
+	 * Effective policy as float.
+	 * 
+	 * @param pool the pool
+	 * @param link the link
+	 * @param prop the prop
+	 * 
+	 * @return the float
+	 */
+	public static float effectivePolicyAsFloat(PrefixPool pool, Link link, Property prop)
     {
     	return Float.parseFloat(effectivePolicy(pool, link, prop));
     }

@@ -26,50 +26,47 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.BitSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-// TODO: Auto-generated Javadoc
 /**
  * The Class FreeList.
  */
 public class FreeList
-{
-	
-	/** The log. */
-	private static Logger log = LoggerFactory.getLogger(FreeList.class);
-	
+{	
 	/** The start. */
 	protected BigInteger start;
 	
 	/** The end. */
 	protected BigInteger end;
 
-	/** The map of ranges, which are keyed by an index into a logical list of ranges, each offset by the maximum size of an integer. For example: key=0, value=BitSet for range of addresses from start to start+2147483647 key=1, value=BitSet for range of addresses from start+2147483648 to 4294967295 key=2, value=BitSet for range of addresses from start+4294967296 to 6442450943 ... */
+	/** 
+	 * The map of ranges, which are keyed by an index into a logical list of ranges, 
+	 * each offset by the maximum size of an integer. For example: 
+	 * key=0, value=BitSet for range of values from start to start+2147483647 
+	 * key=1, value=BitSet for range of values from start+2147483648 to 4294967295 
+	 * key=2, value=BitSet for range of values from start+4294967296 to 6442450943 
+	 * ... 
+	 */
 	protected SortedMap<BigInteger, BitSet> bitsetRanges;
 	
 	/**
 	 * Instantiates a new free list.
 	 * 
-	 * @param rangeStart the range start
-	 * @param rangeEnd the range end
+	 * @param start the range start
+	 * @param end the range end
 	 */
-	public FreeList(InetAddress rangeStart, InetAddress rangeEnd)
+	public FreeList(BigInteger start, BigInteger end)
 	{
-		start = new BigInteger(rangeStart.getAddress());
-		end = new BigInteger(rangeEnd.getAddress());
+		this.start = start;
+		this.end = end;
 		if (end.compareTo(start) > 0) {
 			bitsetRanges = new TreeMap<BigInteger, BitSet>();
 			bitsetRanges.put(BigInteger.ZERO, new BitSet());	// create one to start
 		}
 		else {
-			throw new IllegalStateException("Invalid Pool: end address <= start address");
+			throw new IllegalStateException("Failed to create FreeList: end <= start");
 		}
 	}
 
@@ -109,12 +106,11 @@ public class FreeList
 	/**
 	 * Sets the.
 	 * 
-	 * @param ip the ip
+	 * @param bi the bi
 	 * @param used the used
 	 */
-	private synchronized void set(InetAddress ip, boolean used)
+	private void set(BigInteger bi, boolean used)
 	{
-		BigInteger bi = new BigInteger(ip.getAddress());
 		BitSet bitset = getBitSet(bi);
 		if (bitset != null) {
 			int ndx = getIndex(bi);
@@ -124,13 +120,13 @@ public class FreeList
 				bitset.clear(ndx);
 		}
 	}
-
+	
 	/**
 	 * Sets the used.
 	 * 
 	 * @param used the new used
 	 */
-	public void setUsed(InetAddress used)
+	public void setUsed(BigInteger used)
 	{
 		this.set(used, true);
 	}
@@ -140,10 +136,11 @@ public class FreeList
 	 * 
 	 * @param free the new free
 	 */
-	public void setFree(InetAddress free)
+	public void setFree(BigInteger free)
 	{
 		this.set(free, false);
 	}
+	
 	
 	/**
 	 * Checks if is used.
@@ -152,12 +149,11 @@ public class FreeList
 	 * 
 	 * @return true, if is used
 	 */
-	public boolean isUsed(InetAddress used)
+	public boolean isUsed(BigInteger used)
 	{
-		BigInteger bi = new BigInteger(used.getAddress());
-		BitSet bitset = getBitSet(bi);
+		BitSet bitset = getBitSet(used);
 		if (bitset != null) {
-			return bitset.get(getIndex(bi));
+			return bitset.get(getIndex(used));
 		}
 		return false;
 	}
@@ -169,17 +165,17 @@ public class FreeList
 	 * 
 	 * @return true, if is free
 	 */
-	public boolean isFree(InetAddress free)
+	public boolean isFree(BigInteger free)
 	{
 		return !this.isUsed(free);
 	}
 	
 	/**
-	 * Gets the next free address.
+	 * Gets the next free.
 	 * 
-	 * @return the next free address
+	 * @return the next free
 	 */
-	public synchronized InetAddress getNextFreeAddress()
+	public synchronized BigInteger getNextFree()
 	{
 		BitSet bitset = null;
 		int clearBit = -1;
@@ -201,20 +197,11 @@ public class FreeList
 			bitset.set(clearBit);
 			bitsetRanges.put(mapIndex, new BitSet());
 		}
-		BigInteger nextAddr = 	
+		BigInteger next = 	
 			start.add(
 					mapIndex.multiply(
 							BigInteger.valueOf(Integer.MAX_VALUE)).add(
 									BigInteger.valueOf(clearBit)));
-		try {
-			return InetAddress.getByAddress(nextAddr.toByteArray());
-		}
-		catch (UnknownHostException ex) {
-			// we sure don't expect this to ever happen, but
-			// if so, it seems we should clear the bit
-			bitset.clear(clearBit);
-			log.error("Failed to get next free address: " + ex);
-		}
-		return null;
+		return next;
 	}
 }

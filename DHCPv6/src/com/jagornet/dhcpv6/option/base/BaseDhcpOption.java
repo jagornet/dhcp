@@ -43,22 +43,9 @@ public abstract class BaseDhcpOption implements DhcpOption
 {	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseDhcpOption.class);
-
-	/** The dhcp message or option which contains this option. */
-	//why? protected DhcpOptionable dhcpOptionable;
 	
 	/** The option name. */
 	protected String name;
-	
-	/*why?
-    public DhcpOptionable getDhcpOptionable() {
-		return dhcpOptionable;
-	}
-
-	public void setDhcpOptionable(DhcpOptionable dhcpOptionable) {
-		this.dhcpOptionable = dhcpOptionable;
-	}
-	*/
 
 	/**
      * Encode the DHCP option code and length fields of any DHCP option.

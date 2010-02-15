@@ -36,11 +36,10 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class JdbcIdentityAssocDAO.
+ * The JdbcIdentityAssocDAO implementation class for the IdentityAssocDAO interface.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements IdentityAssocDAO 
 {

@@ -52,15 +52,15 @@
 	<links>
 		<link>
 			<name>Client Link 1</name>
-			<interface>en0</interface>
+			<interface>en1</interface>
 			<!--
 			<address>fe80::/10</address>
 			-->
-			<iaConfigOptions>
+			<iaNaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>fd00:9a60:deb1::1</ipAddress>
 				</dnsServersOption>
-			</iaConfigOptions>
+			</iaNaConfigOptions>
 			<policies>
 				<policy>
 					<name>preferredLifetime</name>
@@ -80,7 +80,7 @@
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>
-					<pools>
+					<naAddrPools>
 						<pool>
 							<iaType>non-temporary</iaType>
 							<range>fd00:9a60:deb1::10a-fd00:9a60:deb1::1ff</range>
@@ -90,10 +90,10 @@
 								</sipServerAddressesOption>
 							</addrConfigOptions>
 						</pool>
-					</pools>
+					</naAddrPools>
 			  	</linkFilter>
 			</linkFilters>
-			<pools>
+			<naAddrPools>
 				<pool>
 					<iaType>non-temporary</iaType>
 					<range>fd00:9a60:deb1::0a-fd00:9a60:deb1::ff</range>
@@ -103,7 +103,7 @@
 						</sipServerAddressesOption>
 					</addrConfigOptions>
 				</pool>
-			</pools>
+			</naAddrPools>
 		</link>
 	</links>
 

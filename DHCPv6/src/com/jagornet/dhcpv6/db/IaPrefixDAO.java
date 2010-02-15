@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file IaAddressDAO.java is part of DHCPv6.
+ *   This file IaPrefixDAO.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -33,26 +33,26 @@ import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Subnet;
 
 /**
- * The Interface IaAddressDAO.
+ * The Interface IaPrefixDAO.
  * 
  * @author A. Gregory Rabil
  */
-public interface IaAddressDAO
+public interface IaPrefixDAO
 {
 	
 	/**
 	 * Creates the.
 	 * 
-	 * @param iaAddr the ia addr
+	 * @param iaPrefix the ia prefix
 	 */
-	public void create(IaAddress iaAddr);
+	public void create(IaPrefix iaPrefix);
 	
 	/**
 	 * Update.
 	 * 
-	 * @param iaAddr the ia addr
+	 * @param iaPrefix the ia prefix
 	 */
-	public void update(IaAddress iaAddr);
+	public void update(IaPrefix iaPrefix);
 	
 	/**
 	 * Gets the by id.
@@ -61,7 +61,7 @@ public interface IaAddressDAO
 	 * 
 	 * @return the by id
 	 */
-	public IaAddress getById(Long id);
+	public IaPrefix getById(Long id);
 	
 	/**
 	 * Gets the by inet address.
@@ -70,7 +70,7 @@ public interface IaAddressDAO
 	 * 
 	 * @return the by inet address
 	 */
-	public IaAddress getByInetAddress(InetAddress inetAddr);
+	public IaPrefix getByInetAddress(InetAddress inetAddr);
 	
 	/**
 	 * Delete by id.
@@ -98,18 +98,18 @@ public interface IaAddressDAO
 	 * 
 	 * @param identityAssocId the identity assoc id
 	 * 
-	 * @return the list< ia address>
+	 * @return the list< ia prefix>
 	 */
-	public List<IaAddress> findAllByIdentityAssocId(long identityAssocId);
+	public List<IaPrefix> findAllByIdentityAssocId(long identityAssocId);
 	
 	/**
 	 * Find all by subnet.
 	 * 
 	 * @param subnet the subnet
 	 * 
-	 * @return the list< ia address>
+	 * @return the list< ia prefix>
 	 */
-	public List<IaAddress> findAllBySubnet(Subnet subnet);
+	public List<IaPrefix> findAllBySubnet(Subnet subnet);
 	
 	/**
 	 * Find all by range.
@@ -117,16 +117,16 @@ public interface IaAddressDAO
 	 * @param startAddr the start addr
 	 * @param endAddr the end addr
 	 * 
-	 * @return the list< ia address>
+	 * @return the list< ia prefix>
 	 */
-	public List<IaAddress> findAllByRange(InetAddress startAddr, InetAddress endAddr);
+	public List<IaPrefix> findAllByRange(InetAddress startAddr, InetAddress endAddr);
 	
 	/**
 	 * Find all older than.
 	 * 
 	 * @param date the date
 	 * 
-	 * @return the list< ia address>
+	 * @return the list< ia prefix>
 	 */
-	public List<IaAddress> findAllOlderThan(Date date);
+	public List<IaPrefix> findAllOlderThan(Date date);
 }

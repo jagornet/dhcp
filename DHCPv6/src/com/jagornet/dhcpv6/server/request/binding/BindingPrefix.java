@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file BindingAddress.java is part of DHCPv6.
+ *   This file BindingPrefix.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -27,31 +27,31 @@ package com.jagornet.dhcpv6.server.request.binding;
 
 import org.springframework.beans.BeanUtils;
 
-import com.jagornet.dhcpv6.db.IaAddress;
+import com.jagornet.dhcpv6.db.IaPrefix;
 
 // TODO: Auto-generated Javadoc
 /**
  * The Class BindingAddress.
  */
-public class BindingAddress extends IaAddress implements BindingObject
+public class BindingPrefix extends IaPrefix implements BindingObject
 {
 	
-	/** The orig ia addr. */
-	private IaAddress origIaAddr;
+	/** The orig ia prefix. */
+	private IaPrefix origIaPrefix;
 	
 	/** The binding pool. */
-	private AddressBindingPool bindingPool;
+	private PrefixBindingPool bindingPool;
 	
 	/**
 	 * Instantiates a new binding address.
 	 * 
-	 * @param iaAddr the ia addr
+	 * @param iaPrefix the ia addr
 	 * @param bindingPool the binding pool
 	 */
-	public BindingAddress(IaAddress iaAddr, AddressBindingPool bindingPool)
+	public BindingPrefix(IaPrefix iaPrefix, PrefixBindingPool bindingPool)
 	{
-		this.origIaAddr = iaAddr;	// save a reference to the original IaAddress
-		BeanUtils.copyProperties(iaAddr, this);
+		this.origIaPrefix = iaPrefix;	// save a reference to the original IaPrefix
+		BeanUtils.copyProperties(iaPrefix, this);
 		this.bindingPool = bindingPool;
 	}
 	
@@ -69,7 +69,7 @@ public class BindingAddress extends IaAddress implements BindingObject
 	 * 
 	 * @param bindingPool the new binding pool
 	 */
-	public void setBindingPool(AddressBindingPool bindingPool) {
+	public void setBindingPool(PrefixBindingPool bindingPool) {
 		this.bindingPool = bindingPool;
 	}
 	
@@ -79,6 +79,6 @@ public class BindingAddress extends IaAddress implements BindingObject
 	 * @return true, if successful
 	 */
 	public boolean hasChanged() {
-		return !this.equals(origIaAddr);
+		return !this.equals(origIaPrefix);
 	}
 }

@@ -29,11 +29,10 @@ import java.net.InetAddress;
 import java.util.Collection;
 import java.util.Date;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class IaAddress.
+ * The IaAddress POJO class for the IAADDRESS database table.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 
 public class IaAddress

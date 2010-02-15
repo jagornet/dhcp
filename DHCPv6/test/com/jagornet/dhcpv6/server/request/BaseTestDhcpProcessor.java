@@ -41,8 +41,7 @@ import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.option.DhcpSipServerAddressesOption;
 import com.jagornet.dhcpv6.option.DhcpStatusCodeOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
-import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
-import com.jagornet.dhcpv6.server.request.binding.BindingManager;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
@@ -56,15 +55,8 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
  */
 public class BaseTestDhcpProcessor extends BaseDbTestCase
 {
-	
-	/** The Constant TEST_CONFIGFILE. */
-	protected static final String TEST_CONFIGFILE = "test/dhcpv6server-sample.xml";
-
-	/** The config. */
-	protected DhcpServerConfiguration config;
-	
 	/** The manager. */
-	protected BindingManager manager;
+	protected NaAddrBindingManagerInterface manager;
 	
 	/** The client id option. */
 	protected DhcpClientIdOption clientIdOption;
@@ -75,11 +67,7 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		DhcpServerConfiguration.configFilename = TEST_CONFIGFILE;
-		config = DhcpServerConfiguration.getInstance();
-		// use our test context for the BindingManager
-		BindingManager.setContext(ctx);
-		manager = BindingManager.getInstance();
+		manager = (NaAddrBindingManagerInterface) ctx.getBean("naAddrBindingManager");
 		OpaqueData opaque = OpaqueData.Factory.newInstance();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });

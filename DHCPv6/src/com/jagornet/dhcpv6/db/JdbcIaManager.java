@@ -41,15 +41,14 @@ import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
 import com.jagornet.dhcpv6.util.Util;
 
-// TODO: Auto-generated Javadoc
-// although this is a Manager and not a DAO, we'll extend SimpleJdbcDaoSupport
-// to provide easy use of SimpleJdbcTemplate with less configuration in context.xml
 /**
- * The Class JdbcIaManager.
+ * The JdbcIaManager implementation class for the IaManager interface.
+ * This is the main database access class for handling client bindings.
+ * 
+ * @author A. Gregory Rabil
  */
 public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
-{
-	
+{	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(JdbcIaManager.class);
 
@@ -59,13 +58,16 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	/** The ia addr dao. */
 	protected IaAddressDAO iaAddrDao;
 	
+	/** The ia prefix dao. */
+	protected IaPrefixDAO iaPrefixDao;
+	
 	/** The dhcp opt dao. */
 	protected DhcpOptionDAO dhcpOptDao;
 
 	/**
 	 * Create an IdentityAssoc object, including any contained
-	 * IpAddresses and DhcpOptions, as well as any DhcpOptions
-	 * contained in the IpAddresses themselves.
+	 * IaAddresses, IaPrefixes and DhcpOptions, as well as any DhcpOptions
+	 * contained in the IaAddresses or IaPrefixes themselves.
 	 * 
 	 * @param ia the ia
 	 */
@@ -74,15 +76,21 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		if (ia != null) {
 			log.debug("Creating: " + ia.toString());
 			iaDao.create(ia);	// sets the id
-			Collection<? extends IaAddress> ips = ia.getIaAddresses();
-			if (ips != null) {
-				for (IaAddress ip : ips) {
-					ip.setIdentityAssocId(ia.getId());
-					iaAddrDao.create(ip);	//sets the id
-					Collection<DhcpOption> opts = ip.getDhcpOptions();
+			Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
+			if (iaAddrs != null) {
+				for (IaAddress iaAddr : iaAddrs) {
+					iaAddr.setIdentityAssocId(ia.getId());
+					if (ia.getIatype() == IdentityAssoc.PD_TYPE)
+						iaPrefixDao.create((IaPrefix)iaAddr);
+					else
+						iaAddrDao.create(iaAddr);	//sets the id
+					Collection<DhcpOption> opts = iaAddr.getDhcpOptions();
 					if (opts != null) {
 						for (DhcpOption opt : opts) {
-							opt.setIpAddressId(ip.getId());
+							if (ia.getIatype() == IdentityAssoc.PD_TYPE)
+								opt.setIaPrefixId(iaAddr.getId());
+							else
+								opt.setIaAddressId(iaAddr.getId());
 							dhcpOptDao.create(opt);
 						}
 					}
@@ -101,23 +109,32 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#updateIA(com.jagornet.dhcpv6.db.IdentityAssoc, java.util.Collection, java.util.Collection, java.util.Collection)
 	 */
-	public void updateIA(IdentityAssoc ia, Collection<IaAddress> addAddrs,
-			Collection<IaAddress> updateAddrs, Collection<IaAddress> delAddrs)
+	public void updateIA(IdentityAssoc ia, Collection<? extends IaAddress> addAddrs,
+			Collection<? extends IaAddress> updateAddrs, Collection<? extends IaAddress> delAddrs)
 	{
 		iaDao.update(ia);
 		if (addAddrs != null) {
 			for (IaAddress addAddr : addAddrs) {
-				iaAddrDao.create(addAddr);
+				if (ia.getIatype() == IdentityAssoc.PD_TYPE)
+					iaPrefixDao.create((IaPrefix)addAddr);
+				else
+					iaAddrDao.create(addAddr);
 			}
 		}
 		if (updateAddrs != null) {
 			for (IaAddress updateAddr : updateAddrs) {
-				iaAddrDao.update(updateAddr);
+				if (ia.getIatype() == IdentityAssoc.PD_TYPE)
+					iaPrefixDao.update((IaPrefix)updateAddr);
+				else
+					iaAddrDao.update(updateAddr);
 			}
 		}
 		if (delAddrs != null) {
 			for (IaAddress delAddr : delAddrs) {
-				iaAddrDao.deleteById(delAddr.getId());
+				if (ia.getIatype() == IdentityAssoc.PD_TYPE)
+					iaPrefixDao.deleteById(delAddr.getId());
+				else
+					iaAddrDao.deleteById(delAddr.getId());
 			}
 		}
 	}
@@ -125,9 +142,9 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	/**
 	 * Delete an IdentityAssoc object, and allow the database
 	 * constraints (cascade delete) to care of deleting any
-	 * contained IpAddresses and DhcpOptions, and further
+	 * contained IaAddresses, IaPrefixes and DhcpOptions, and further
 	 * cascading to delete any DhcpOptions contained in the
-	 * IpAddresses themselves.
+	 * IaAddresses or IaPrefixes themselves.
 	 * 
 	 * @param ia the ia
 	 */
@@ -137,17 +154,17 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 			log.debug("Deleting: " + ia.toString());
 			// just delete the IdentityAssoc object, and allow the
 			// database constraints (cascade delete) take care of
-			// deleting any associated IpAddress or DhcpOption objects,
+			// deleting any associated IaAddress, IaPrefix or DhcpOption objects,
 			// further cascading to delete any DhcpOption objects
-			// for any IpAddress objects which are deleted
+			// for any IaAddress or IaPrefix objects which are deleted
 			iaDao.deleteById(ia.getId());
 		}
 	}
 
 	/**
 	 * Locate an IdentityAssoc object by the key tuple duid-iaid-iatype.
-	 * Populate any contained IpAddresses and DhcpOptions, as well as
-	 * any DhcpOptions contained in the IpAddresses themselves.
+	 * Populate any contained IaAddresses, IaPrefixes and DhcpOptions, as well as
+	 * any DhcpOptions contained in the IaAddresses or IaPrefixes themselves.
 	 * 
 	 * @param duid the duid
 	 * @param iatype the iatype
@@ -159,15 +176,23 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	{
 		IdentityAssoc ia = iaDao.getByKey(duid, iatype, iaid);
 		if (ia != null) {
-			List<IaAddress> ips = iaAddrDao.findAllByIdentityAssocId(ia.getId());
-			if (ips != null) {
-				for (IaAddress ip : ips) {
-					List<DhcpOption> opts = dhcpOptDao.findAllByIaAddressId(ip.getId());
+			List<? extends IaAddress> iaAddrs = null;
+			if (ia.getIatype() == IdentityAssoc.PD_TYPE)
+				iaAddrs = iaPrefixDao.findAllByIdentityAssocId(ia.getId());
+			else
+				iaAddrs = iaAddrDao.findAllByIdentityAssocId(ia.getId());
+			if (iaAddrs != null) {
+				for (IaAddress iaAddr : iaAddrs) {
+					List<DhcpOption> opts = null;
+					if (ia.getIatype() == IdentityAssoc.PD_TYPE)
+						opts = dhcpOptDao.findAllByIaPrefixId(iaAddr.getId());
+					else
+						opts = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());
 					if (opts != null) {
-						ip.setDhcpOptions(new ArrayList<DhcpOption>(opts));
+						iaAddr.setDhcpOptions(new ArrayList<DhcpOption>(opts));
 					}
 				}
-				ia.setIaAddresses(new ArrayList<IaAddress>(ips));
+				ia.setIaAddresses(new ArrayList<IaAddress>(iaAddrs));
 			}
 			List<DhcpOption> opts = dhcpOptDao.findAllByIdentityAssocId(ia.getId());
 			if (opts != null) {
@@ -185,9 +210,9 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		IdentityAssoc ia = null;
 		if (inetAddr != null) {
 			try {
-				IaAddress ipAddr = iaAddrDao.getByInetAddress(inetAddr);
-				if (ipAddr != null) {
-					ia = iaDao.getById(ipAddr.getIdentityAssocId());
+				IaAddress iaAddr = iaAddrDao.getByInetAddress(inetAddr);
+				if (iaAddr != null) {
+					ia = iaDao.getById(iaAddr.getIdentityAssocId());
 				}
 			}
 			catch (EmptyResultDataAccessException ex) {
@@ -213,6 +238,24 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	{
 		iaAddrDao.deleteById(iaAddr.getId());
 		deleteExpiredIA(iaAddr.getIdentityAssocId());
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#updateIaPrefix(com.jagornet.dhcpv6.db.IaPrefix)
+	 */
+	public void updateIaPrefix(IaPrefix iaPrefix)
+	{
+		iaPrefixDao.update(iaPrefix);
+		expireIA(iaPrefix.getIdentityAssocId());
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#deleteIaPrefix(com.jagornet.dhcpv6.db.IaPrefix)
+	 */
+	public void deleteIaPrefix(IaPrefix iaPrefix)
+	{
+		iaPrefixDao.deleteById(iaPrefix.getId());
+		deleteExpiredIA(iaPrefix.getIdentityAssocId());
 	}
 
 	/**
@@ -319,6 +362,24 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	 */
 	public void setIaAddrDao(IaAddressDAO iaAddrDao) {
 		this.iaAddrDao = iaAddrDao;
+	}
+
+	/**
+	 * Gets the ia prefix dao.
+	 * 
+	 * @return the ia prefix dao
+	 */
+	public IaPrefixDAO getIaPrefixDao() {
+		return iaPrefixDao;
+	}
+
+	/**
+	 * Sets the ia prefix dao.
+	 * 
+	 * @param iaAddrDao the new ia prefix dao
+	 */
+	public void setIaPrefixDao(IaPrefixDAO iaPrefixDao) {
+		this.iaPrefixDao = iaPrefixDao;
 	}
 
 	/**

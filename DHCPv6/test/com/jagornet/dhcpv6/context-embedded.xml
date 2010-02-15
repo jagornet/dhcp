@@ -24,12 +24,26 @@
     </property>
 
   </bean>
+
+  <bean id="naAddrBindingManager" 
+  		class="com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager"
+  		autowire="byType" 
+  		init-method="init" />
+  <bean id="taAddrBindingManager" 
+  		class="com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager"
+  		autowire="byType" 
+  		init-method="init" />
+  <bean id="prefixBindingManager" 
+  		class="com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager"
+  		autowire="byType" 
+  		init-method="init"/>
   
   <bean id="identityAssocDAO" class="com.jagornet.dhcpv6.db.JdbcIdentityAssocDAO" autowire="byType"/>
   <bean id="iaAddressDAO" class="com.jagornet.dhcpv6.db.JdbcIaAddressDAO" autowire="byType"/>
+  <bean id="iaPrefixDAO" class="com.jagornet.dhcpv6.db.JdbcIaPrefixDAO" autowire="byType"/>
   <bean id="dhcpOptionDAO" class="com.jagornet.dhcpv6.db.JdbcDhcpOptionDAO" autowire="byType"/>
 
-  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource">
       <ref local="dataSource"/>
     </property>
@@ -57,6 +71,9 @@
         </property>
         <property name="iaAddrDao">
           <ref local="iaAddressDAO"/>
+        </property>
+        <property name="iaPrefixDao">
+          <ref local="iaPrefixDAO"/>
         </property>
         <property name="dhcpOptDao">
           <ref local="dhcpOptionDAO"/>

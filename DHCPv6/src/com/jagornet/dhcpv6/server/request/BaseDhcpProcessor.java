@@ -42,6 +42,9 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpIaAddrOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.option.DhcpIaPdOption;
+import com.jagornet.dhcpv6.option.DhcpIaPrefixOption;
+import com.jagornet.dhcpv6.option.DhcpIaTaOption;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.option.DhcpStatusCodeOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
@@ -49,18 +52,21 @@ import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcpv6.server.request.binding.AddressBindingPool;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
-import com.jagornet.dhcpv6.server.request.binding.BindingAddress;
-import com.jagornet.dhcpv6.server.request.binding.BindingManager;
-import com.jagornet.dhcpv6.server.request.binding.BindingManagerInterface;
-import com.jagornet.dhcpv6.server.request.binding.BindingPool;
+import com.jagornet.dhcpv6.server.request.binding.BindingObject;
+import com.jagornet.dhcpv6.server.request.binding.BindingPrefix;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingPool;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.AddressPool;
 import com.jagornet.dhcpv6.xml.IaAddrOption;
 import com.jagornet.dhcpv6.xml.IaNaOption;
+import com.jagornet.dhcpv6.xml.IaPdOption;
+import com.jagornet.dhcpv6.xml.IaPrefixOption;
+import com.jagornet.dhcpv6.xml.IaTaOption;
 import com.jagornet.dhcpv6.xml.Link;
-import com.jagornet.dhcpv6.xml.Pool;
+import com.jagornet.dhcpv6.xml.PrefixPool;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: BaseDhcpRequestProcessor
  * Description: The base class for processing client messages.
@@ -70,7 +76,6 @@ import com.jagornet.dhcpv6.xml.Pool;
 
 public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 {
-	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseDhcpProcessor.class);
 
@@ -101,9 +106,6 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     
     /** The recent msg pruner. */
     protected static Timer recentMsgPruner = new Timer("RecentMsgPruner");
-    
-    /** The binding mgr. */
-    protected static BindingManagerInterface bindingMgr = BindingManager.getInstance();
     
     /**
      * Construct an BaseDhcpRequest processor.  Since this class is
@@ -137,57 +139,97 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     }
     
     /**
-     * Populate ia options.
+     * Populate ia na options.
      * 
      * @param iaNaOption the ia na option
      */
-    protected void populateIaOptions(DhcpIaNaOption iaNaOption)
+    protected void populateIaNaOptions(DhcpIaNaOption iaNaOption)
     {
-    	iaNaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaOptions(requestMsg));
+    	iaNaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaNaOptions(requestMsg));
+    }
+    protected void populateIaTaOptions(DhcpIaTaOption iaTaOption)
+    {
+    	iaTaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaTaOptions(requestMsg));
+    }
+    protected void populateIaPdOptions(DhcpIaPdOption iaPdOption)
+    {
+    	iaPdOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaPdOptions(requestMsg));
     }
 
     /**
-     * Populate ia options.
+     * Populate ia na options.
      * 
      * @param iaNaOption the ia na option
      * @param link the link
      */
-    protected void populateIaOptions(DhcpIaNaOption iaNaOption, Link link)
+    protected void populateIaNaOptions(DhcpIaNaOption iaNaOption, Link link)
     {
-    	iaNaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaOptions(requestMsg, link));
+    	iaNaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaNaOptions(requestMsg, link));
+    }
+    protected void populateIaTaOptions(DhcpIaTaOption iaTaOption, Link link)
+    {
+    	iaTaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaTaOptions(requestMsg, link));
+    }
+    protected void populateIaPdOptions(DhcpIaPdOption iaPdOption, Link link)
+    {
+    	iaPdOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaPdOptions(requestMsg, link));
     }
     
     /**
-     * Populate addr options.
+     * Populate na addr options.
      * 
      * @param iaAddrOption the ia addr option
      */
-    protected void populateAddrOptions(DhcpIaAddrOption iaAddrOption)
+    protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption)
     {
-    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveAddrOptions(requestMsg));
+    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg));
+    }
+    protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption)
+    {
+    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg));
+    }
+    protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption)
+    {
+    	iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg));
     }
     
     /**
-     * Populate addr options.
+     * Populate na addr options.
      * 
      * @param iaAddrOption the ia addr option
      * @param link the link
      */
-    protected void populateAddrOptions(DhcpIaAddrOption iaAddrOption, Link link)
+    protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link)
     {
-    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveAddrOptions(requestMsg, link));
+    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg, link));
+    }
+    protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link)
+    {
+    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg, link));
+    }
+    protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, Link link)
+    {
+    	iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg, link));
     }
 	
     /**
-     * Populate addr options.
+     * Populate na addr options.
      * 
      * @param iaAddrOption the ia addr option
      * @param link the link
      * @param pool the pool
      */
-    protected void populateAddrOptions(DhcpIaAddrOption iaAddrOption, Link link, Pool pool)
+    protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link, AddressPool pool)
     {
-	    iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveAddrOptions(requestMsg, link, pool));
+	    iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg, link, pool));
+    }    
+    protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link, AddressPool pool)
+    {
+	    iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg, link, pool));
+    }    
+    protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, Link link, PrefixPool pool)
+    {
+	    iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg, link, pool));
     }    
 
     /**
@@ -250,7 +292,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     /**
      * Pre process.
      * 
-     * @return true, if successful
+     * @return true if processing should continue
      */
     public boolean preProcess()
     {        
@@ -290,14 +332,14 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     /**
      * Process.
      * 
-     * @return true, if successful
+     * @return true if a reply should be sent
      */
     public abstract boolean process();
     
     /**
      * Post process.
      * 
-     * @return true, if successful
+     * @return true if a reply should be sent
      */
     public boolean postProcess()
     {
@@ -358,6 +400,23 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		replyMsg.addIaNaOption(replyIaNaOption);
 	}
 	
+	protected void addIaTaOptionStatusToReply(DhcpIaTaOption iaTaOption, int statusCode)
+	{
+		DhcpIaTaOption replyIaTaOption = new DhcpIaTaOption(iaTaOption.getIaTaOption());
+		DhcpStatusCodeOption status = new DhcpStatusCodeOption();
+		status.getStatusCodeOption().setStatusCode(statusCode);
+		replyIaTaOption.putDhcpOption(status);
+		replyMsg.addIaTaOption(replyIaTaOption);
+	}
+	protected void addIaPdOptionStatusToReply(DhcpIaPdOption iaPdOption, int statusCode)
+	{
+		DhcpIaPdOption replyIaPdOption = new DhcpIaPdOption(iaPdOption.getIaPdOption());
+		DhcpStatusCodeOption status = new DhcpStatusCodeOption();
+		status.getStatusCodeOption().setStatusCode(statusCode);
+		replyIaPdOption.putDhcpOption(status);
+		replyMsg.addIaPdOption(replyIaPdOption);
+	}
+	
 	/**
 	 * Adds the binding to reply.
 	 * 
@@ -368,6 +427,12 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	{
 		if (binding.getIatype() == Binding.NA_TYPE) {
 			addNaBindingToReply(clientLink, binding);
+		}
+		else if (binding.getIatype() == Binding.TA_TYPE) {
+			addTaBindingToReply(clientLink, binding);
+		}
+		else if (binding.getIatype() == Binding.PD_TYPE) {
+			addPdBindingToReply(clientLink, binding);
 		}
 	}
 	
@@ -382,18 +447,21 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		DhcpIaNaOption dhcpIaNaOption = new DhcpIaNaOption();
 		IaNaOption iaNaOption = dhcpIaNaOption.getIaNaOption(); 
 		iaNaOption.setIaId(binding.getIaid());
-		
-		long minPreferredLifetime = 0xffffffff;
-		Collection<BindingAddress> bindingAddrs = binding.getBindingAddresses();
-		if ((bindingAddrs != null) && !bindingAddrs.isEmpty()) {
+
+		long minPreferredLifetime = 0;
+		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+			minPreferredLifetime = 0xffffffff;
 			List<DhcpIaAddrOption> dhcpIaAddrOptions = new ArrayList<DhcpIaAddrOption>(); 
-			for (BindingAddress bindingAddr : bindingAddrs) {
+			for (BindingObject bindingObj : bindingObjs) {
 				DhcpIaAddrOption dhcpIaAddrOption = new DhcpIaAddrOption();
 				IaAddrOption iaAddrOption = dhcpIaAddrOption.getIaAddrOption();
-				InetAddress inetAddr = bindingAddr.getIpAddress();
+				InetAddress inetAddr = bindingObj.getIpAddress();
 				if (inetAddr != null) {
 					iaAddrOption.setIpv6Address(inetAddr.getHostAddress());
-					BindingPool bp = bindingAddr.getBindingPool();
+					// must be an AddresBindingPool for IaNa binding
+					AddressBindingPool bp = 
+						(AddressBindingPool) bindingObj.getBindingPool();
 					if (bp != null) {
 						long preferred = bp.getPreferredLifetime();
 						if ((minPreferredLifetime == 0xffffffff) ||
@@ -402,12 +470,12 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 						}
 						iaAddrOption.setPreferredLifetime(preferred);
 						iaAddrOption.setValidLifetime(bp.getValidLifetime());
-						populateAddrOptions(dhcpIaAddrOption, clientLink, bp.getPool());
+						populateNaAddrOptions(dhcpIaAddrOption, clientLink, bp.getAddressPool());
 						dhcpIaAddrOptions.add(dhcpIaAddrOption);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
 						//     policy to allow real-time expiration?
-//						bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+	//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
 					}
 					else {
 						log.error("Null binding pool in binding: " + binding.toString());
@@ -423,10 +491,108 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		setIaNaT1(clientLink, iaNaOption, minPreferredLifetime);
 		setIaNaT2(clientLink, iaNaOption, minPreferredLifetime);
 		
-		populateIaOptions(dhcpIaNaOption, clientLink);
+		populateIaNaOptions(dhcpIaNaOption, clientLink);
 		replyMsg.addIaNaOption(dhcpIaNaOption);
 	}
-
+	
+	protected void addTaBindingToReply(Link clientLink, Binding binding)
+	{
+		DhcpIaTaOption dhcpIaTaOption = new DhcpIaTaOption();
+		IaTaOption iaTaOption = dhcpIaTaOption.getIaTaOption(); 
+		iaTaOption.setIaId(binding.getIaid());
+		
+		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+			List<DhcpIaAddrOption> dhcpIaAddrOptions = new ArrayList<DhcpIaAddrOption>(); 
+			for (BindingObject bindingObj : bindingObjs) {
+				DhcpIaAddrOption dhcpIaAddrOption = new DhcpIaAddrOption();
+				IaAddrOption iaAddrOption = dhcpIaAddrOption.getIaAddrOption();
+				InetAddress inetAddr = bindingObj.getIpAddress();
+				if (inetAddr != null) {
+					iaAddrOption.setIpv6Address(inetAddr.getHostAddress());
+					// must be an AddresBindingPool for IaNa binding
+					AddressBindingPool bp = 
+						(AddressBindingPool) bindingObj.getBindingPool();
+					if (bp != null) {
+						iaAddrOption.setPreferredLifetime(bp.getPreferredLifetime());
+						iaAddrOption.setValidLifetime(bp.getValidLifetime());
+						populateTaAddrOptions(dhcpIaAddrOption, clientLink, bp.getAddressPool());
+						dhcpIaAddrOptions.add(dhcpIaAddrOption);
+						//TODO when do actually start the timer?  currently, two get
+						//     created - one during advertise, one during reply
+						//     policy to allow real-time expiration?
+	//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+					}
+					else {
+						log.error("Null binding pool in binding: " + binding.toString());
+					}
+				}
+				else {
+					log.error("Null address in binding: " + binding.toString());
+				}
+			}
+			dhcpIaTaOption.setIaAddrOptions(dhcpIaAddrOptions);
+		}
+		
+		populateIaTaOptions(dhcpIaTaOption, clientLink);
+		replyMsg.addIaTaOption(dhcpIaTaOption);
+	}
+	
+	protected void addPdBindingToReply(Link clientLink, Binding binding)
+	{
+		DhcpIaPdOption dhcpIaPdOption = new DhcpIaPdOption();
+		IaPdOption iaPdOption = dhcpIaPdOption.getIaPdOption(); 
+		iaPdOption.setIaId(binding.getIaid());
+		
+		long minPreferredLifetime = 0;
+		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+			minPreferredLifetime = 0xffffffff;
+			List<DhcpIaPrefixOption> dhcpIaPrefixOptions = new ArrayList<DhcpIaPrefixOption>(); 
+			for (BindingObject bindingObj : bindingObjs) {
+				// must be a Binding Prefix for IaPd binding
+				BindingPrefix bindingPrefix = (BindingPrefix) bindingObj;
+				DhcpIaPrefixOption dhcpIaPrefixOption = new DhcpIaPrefixOption();
+				IaPrefixOption iaPrefixOption = dhcpIaPrefixOption.getIaPrefixOption();
+				InetAddress inetAddr = bindingObj.getIpAddress();
+				if (inetAddr != null) {
+					iaPrefixOption.setIpv6Prefix(inetAddr.getHostAddress());
+					iaPrefixOption.setPrefixLength(bindingPrefix.getPrefixLength());
+					// must be an PrefixBindingPool for IaPd binding
+					PrefixBindingPool bp = 
+						(PrefixBindingPool) bindingPrefix.getBindingPool();
+					if (bp != null) {
+						long preferred = bp.getPreferredLifetime();
+						if ((minPreferredLifetime == 0xffffffff) ||
+								(preferred < minPreferredLifetime))  {
+							minPreferredLifetime = preferred; 
+						}
+						iaPrefixOption.setPreferredLifetime(preferred);
+						iaPrefixOption.setValidLifetime(bp.getValidLifetime());
+						populatePrefixOptions(dhcpIaPrefixOption, clientLink, bp.getPrefixPool());
+						dhcpIaPrefixOptions.add(dhcpIaPrefixOption);
+						//TODO when do actually start the timer?  currently, two get
+						//     created - one during advertise, one during reply
+						//     policy to allow real-time expiration?
+	//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+					}
+					else {
+						log.error("Null binding pool in binding: " + binding.toString());
+					}
+				}
+				else {
+					log.error("Null address in binding: " + binding.toString());
+				}
+			}
+		}
+		
+		setIaPdT1(clientLink, iaPdOption, minPreferredLifetime);
+		setIaPdT2(clientLink, iaPdOption, minPreferredLifetime);
+		
+		populateIaPdOptions(dhcpIaPdOption, clientLink);
+		replyMsg.addIaPdOption(dhcpIaPdOption);
+	}
+	
 /*
 	   The server selects the T1 and T2 times to allow the client to extend
 	   the lifetimes of any addresses in the IA_NA before the lifetimes
@@ -440,17 +606,18 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	   client, the server sets T1 and T2 to 0.
 */
 	/**
- * Sets the ia na t1.
- * 
- * @param clientLink the client link
- * @param iaNaOption the ia na option
- * @param minPreferredLifetime the min preferred lifetime
- */
-private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
-			long minPreferredLifetime) {
+	 * Sets the ia na t1.
+	 * 
+	 * @param clientLink the client link
+	 * @param iaNaOption the ia na option
+	 * @param minPreferredLifetime the min preferred lifetime
+	 */
+	private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
+			long minPreferredLifetime)
+	{
 		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink, Property.IA_NA_T1);
 		if (t1 > 1) {
-			log.debug("Setting T1 to configured number of seconds: " + t1);
+			log.debug("Setting IA_NA T1 to configured number of seconds: " + t1);
 			// if T1 is greater than one, then treat it as an
 			// absolute value which specifies the number of seconds
 			iaNaOption.setT1((long)t1);
@@ -460,18 +627,18 @@ private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
 			// then treat is as a percentage of the minimum preferred lifetime
 			// unless the minimum preferred lifetime is infinity (0xffffffff)
 			if (minPreferredLifetime == 0xffffffff) {
-				log.debug("Setting T1 to minPreferredLifetime of infinity: " +
+				log.debug("Setting IA_NA T1 to minPreferredLifetime of infinity: " +
 						minPreferredLifetime);
 				iaNaOption.setT1(minPreferredLifetime);
 			} 
 			else {
 				 if (t1 >= 0) {	// zero means let the client decide
-					 log.debug("Setting T1 to configured ratio=" + t1 +
+					 log.debug("Setting IA_NA T1 to configured ratio=" + t1 +
 							 " of minPreferredLifetime=" + minPreferredLifetime);
 					 iaNaOption.setT1((long)(t1 * minPreferredLifetime));
 				 }
 				 else {
-					 log.debug("Setting T1 to standard ratio=0.5" + 
+					 log.debug("Setting IA_NA T1 to standard ratio=0.5" + 
 							 " of minPreferredLifetime=" + minPreferredLifetime);
 					 iaNaOption.setT1((long)(0.5f * minPreferredLifetime));
 				 }
@@ -487,10 +654,11 @@ private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
 	private void setIaNaT2(Link clientLink, IaNaOption iaNaOption,
-			long minPreferredLifetime) {
+			long minPreferredLifetime)
+	{
 		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink, Property.IA_NA_T2);
 		if (t2 > 1) {
-			log.debug("Setting T2 to configured number of seconds: " + t2);
+			log.debug("Setting IA_NA T2 to configured number of seconds: " + t2);
 			iaNaOption.setT2((long)t2);
 		}
 		else {
@@ -498,18 +666,18 @@ private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
 			// then treat is as a percentage of the minimum preferred lifetime
 			// unless the minimum preferred lifetime is infinity (0xffffffff)
 			if (minPreferredLifetime == 0xffffffff) {
-				log.debug("Setting T2 to minPreferredLifetime of infinity: " +
+				log.debug("Setting IA_NA T2 to minPreferredLifetime of infinity: " +
 						minPreferredLifetime);
 				iaNaOption.setT2(minPreferredLifetime);
 			} 
 			else {
 				 if (t2 >= 0) {	// zero means let the client decide
-					 log.debug("Setting T2 to configured ratio=" + t2 +
+					 log.debug("Setting IA_NA T2 to configured ratio=" + t2 +
 							 " of minPreferredLifetime=" + minPreferredLifetime);
 					 iaNaOption.setT2((long)(t2 * minPreferredLifetime));
 				 }
 				 else {
-					 log.debug("Setting T2 to standard ratio=0.8" + 
+					 log.debug("Setting IA_NA T2 to standard ratio=0.8" + 
 							 " of minPreferredLifetime=" + minPreferredLifetime);
 					 iaNaOption.setT2((long)(0.8f * minPreferredLifetime));
 				 }
@@ -517,9 +685,95 @@ private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
 		}
 		// ensure that T2 >= T1
 		if (iaNaOption.getT2() < iaNaOption.getT1()) {
-			log.warn("T2(" + iaNaOption.getT2() + ")" +
-					" < T1(" + iaNaOption.getT1() + "): setting T2=T1");
+			log.warn("IA_NA T2(" + iaNaOption.getT2() + ")" +
+					" < IA_NA T1(" + iaNaOption.getT1() + "): setting T2=T1");
 			iaNaOption.setT2(iaNaOption.getT1());
+		}
+	}
+
+	/**
+	 * Sets the ia pd t1.
+	 * 
+	 * @param clientLink the client link
+	 * @param iaPdOption the ia na option
+	 * @param minPreferredLifetime the min preferred lifetime
+	 */
+	private void setIaPdT1(Link clientLink, IaPdOption iaPdOption,
+			long minPreferredLifetime)
+	{
+		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink, Property.IA_PD_T1);
+		if (t1 > 1) {
+			log.debug("Setting IA_PD T1 to configured number of seconds: " + t1);
+			// if T1 is greater than one, then treat it as an
+			// absolute value which specifies the number of seconds
+			iaPdOption.setT1((long)t1);
+		}
+		else {
+			// if T1 is less than one and greater than or equal to zero,
+			// then treat is as a percentage of the minimum preferred lifetime
+			// unless the minimum preferred lifetime is infinity (0xffffffff)
+			if (minPreferredLifetime == 0xffffffff) {
+				log.debug("Setting IA_PD T1 to minPreferredLifetime of infinity: " +
+						minPreferredLifetime);
+				iaPdOption.setT1(minPreferredLifetime);
+			} 
+			else {
+				 if (t1 >= 0) {	// zero means let the client decide
+					 log.debug("Setting IA_PD T1 to configured ratio=" + t1 +
+							 " of minPreferredLifetime=" + minPreferredLifetime);
+					 iaPdOption.setT1((long)(t1 * minPreferredLifetime));
+				 }
+				 else {
+					 log.debug("Setting IA_PD T1 to standard ratio=0.5" + 
+							 " of minPreferredLifetime=" + minPreferredLifetime);
+					 iaPdOption.setT1((long)(0.5f * minPreferredLifetime));
+				 }
+			}
+		}
+	}
+
+	/**
+	 * Sets the ia pd t2.
+	 * 
+	 * @param clientLink the client link
+	 * @param iaPdOption the ia pd option
+	 * @param minPreferredLifetime the min preferred lifetime
+	 */
+	private void setIaPdT2(Link clientLink, IaPdOption iaPdOption,
+			long minPreferredLifetime)
+	{
+		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink, Property.IA_PD_T2);
+		if (t2 > 1) {
+			log.debug("Setting IA_PD T2 to configured number of seconds: " + t2);
+			iaPdOption.setT2((long)t2);
+		}
+		else {
+			// if T2 is less than one and greater than or equal to zero,
+			// then treat is as a percentage of the minimum preferred lifetime
+			// unless the minimum preferred lifetime is infinity (0xffffffff)
+			if (minPreferredLifetime == 0xffffffff) {
+				log.debug("Setting IA_PD T2 to minPreferredLifetime of infinity: " +
+						minPreferredLifetime);
+				iaPdOption.setT2(minPreferredLifetime);
+			} 
+			else {
+				 if (t2 >= 0) {	// zero means let the client decide
+					 log.debug("Setting IA_PD T2 to configured ratio=" + t2 +
+							 " of minPreferredLifetime=" + minPreferredLifetime);
+					 iaPdOption.setT2((long)(t2 * minPreferredLifetime));
+				 }
+				 else {
+					 log.debug("Setting IA_PD T2 to standard ratio=0.8" + 
+							 " of minPreferredLifetime=" + minPreferredLifetime);
+					 iaPdOption.setT2((long)(0.8f * minPreferredLifetime));
+				 }
+			}
+		}
+		// ensure that T2 >= T1
+		if (iaPdOption.getT2() < iaPdOption.getT1()) {
+			log.warn(" IA_PD T2(" + iaPdOption.getT2() + ")" +
+					" <  IA_PD T1(" + iaPdOption.getT1() + "): setting T2=T1");
+			iaPdOption.setT2(iaPdOption.getT1());
 		}
 	}
 
@@ -546,7 +800,7 @@ private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
 						// address is within one of the pools configured for this
 						// local Link, which automatically makes this server
 						// "authoritative" (in ISC parlance) for this local net
-						Pool p = DhcpServerConfiguration.findPool(clientLink.getLink(),
+						AddressPool p = DhcpServerConfiguration.findNaAddrPool(clientLink.getLink(),
 									iaAddrOpt.getInetAddress());
 						if (p == null) {
 							onLink = false;
@@ -566,7 +820,73 @@ private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
 		}
 		return onLink;
 	}
-    
+	
+	protected boolean allIaAddrsOnLink(DhcpIaTaOption dhcpIaTaOption, DhcpLink clientLink)
+	{
+		boolean onLink = true;	// assume all IPs are on link
+		if (dhcpIaTaOption != null) {
+			List<DhcpIaAddrOption> iaAddrOpts = dhcpIaTaOption.getIaAddrOptions();
+			if (iaAddrOpts != null) {
+				for (DhcpIaAddrOption iaAddrOpt : iaAddrOpts) {
+					if (clientLink.getSubnet().getSubnetAddress().isLinkLocalAddress()) {
+						// if the Link address is link-local, then check if the
+						// address is within one of the pools configured for this
+						// local Link, which automatically makes this server
+						// "authoritative" (in ISC parlance) for this local net
+						AddressPool p = DhcpServerConfiguration.findTaAddrPool(clientLink.getLink(),
+									iaAddrOpt.getInetAddress());
+						if (p == null) {
+							onLink = false;
+						}
+					}
+					else {
+						if (!clientLink.getSubnet().contains(iaAddrOpt.getInetAddress())) {
+							log.info("Setting zero(0) lifetimes for off link address: " +
+									iaAddrOpt.getInetAddress().getHostAddress());
+							iaAddrOpt.getIaAddrOption().setPreferredLifetime(0);
+							iaAddrOpt.getIaAddrOption().setValidLifetime(0);
+							onLink = false;
+						}
+					}
+				}
+			}
+		}
+		return onLink;
+	}
+	
+	protected boolean allIaPrefixesOnLink(DhcpIaPdOption dhcpIaPdOption, DhcpLink clientLink)
+	{
+		boolean onLink = true;	// assume all IPs are on link
+		if (dhcpIaPdOption != null) {
+			List<DhcpIaPrefixOption> iaPrefixOpts = dhcpIaPdOption.getIaPrefixOptions();
+			if (iaPrefixOpts != null) {
+				for (DhcpIaPrefixOption iaPrefixOpt : iaPrefixOpts) {
+					if (clientLink.getSubnet().getSubnetAddress().isLinkLocalAddress()) {
+						// if the Link address is link-local, then check if the
+						// address is within one of the pools configured for this
+						// local Link, which automatically makes this server
+						// "authoritative" (in ISC parlance) for this local net
+						PrefixPool p = DhcpServerConfiguration.findPrefixPool(clientLink.getLink(),
+									iaPrefixOpt.getInetAddress());
+						if (p == null) {
+							onLink = false;
+						}
+					}
+					else {
+						if (!clientLink.getSubnet().contains(iaPrefixOpt.getInetAddress())) {
+							log.info("Setting zero(0) lifetimes for off link address: " +
+									iaPrefixOpt.getInetAddress().getHostAddress());
+							iaPrefixOpt.getIaPrefixOption().setPreferredLifetime(0);
+							iaPrefixOpt.getIaPrefixOption().setValidLifetime(0);
+							onLink = false;
+						}
+					}
+				}
+			}
+		}
+		return onLink;
+	}
+	
     /**
      * The Class RecentMsgTimerTask.
      */

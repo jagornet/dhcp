@@ -35,9 +35,16 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.option.DhcpIaPdOption;
+import com.jagornet.dhcpv6.option.DhcpIaTaOption;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
 import com.jagornet.dhcpv6.server.request.binding.BindingAddress;
+import com.jagornet.dhcpv6.server.request.binding.BindingObject;
+import com.jagornet.dhcpv6.server.request.binding.BindingPrefix;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 // TODO: Auto-generated Javadoc
@@ -160,25 +167,89 @@ public class DhcpDeclineProcessor extends BaseDhcpProcessor
 
     	boolean sendReply = true;
 		DhcpClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
+		
 		List<DhcpIaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
-    	if (iaNaOptions != null) {
-    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
-    			log.info("Processing IA_NA Decline: " + dhcpIaNaOption.toString());
-				Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
-						clientIdOption, dhcpIaNaOption, requestMsg);
-				if (binding != null) {
-					Collection<BindingAddress> bindingAddrs = binding.getBindingAddresses();
-					if ((bindingAddrs != null) && !bindingAddrs.isEmpty()) {
-						for (BindingAddress bindingAddr : bindingAddrs) {
-							bindingMgr.declineIaAddress(bindingAddr);
+    	if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
+    		NaAddrBindingManagerInterface bindingMgr = dhcpServerConfig.getNaAddrBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
+	    			log.info("Processing IA_NA Decline: " + dhcpIaNaOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaNaOption, requestMsg);
+					if (binding != null) {
+						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+							for (BindingObject bindingObj : bindingObjs) {
+								bindingMgr.declineIaAddress((BindingAddress)bindingObj);
+							}
 						}
 					}
+					else {
+						addIaNaOptionStatusToReply(dhcpIaNaOption,
+								DhcpConstants.STATUS_CODE_NOBINDING);
+					}
 				}
-				else {
-					addIaNaOptionStatusToReply(dhcpIaNaOption,
-							DhcpConstants.STATUS_CODE_NOBINDING);
+    		}
+    		else {
+    			log.error("Unable to process IA_NA Decline:" +
+    					" No NaAddrBindingManager available");
+    		}
+    	}
+		
+		List<DhcpIaTaOption> iaTaOptions = requestMsg.getIaTaOptions();
+    	if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
+    		TaAddrBindingManagerInterface bindingMgr = dhcpServerConfig.getTaAddrBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaTaOption dhcpIaTaOption : iaTaOptions) {
+	    			log.info("Processing IA_TA Decline: " + dhcpIaTaOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaTaOption, requestMsg);
+					if (binding != null) {
+						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+							for (BindingObject bindingObj : bindingObjs) {
+								bindingMgr.declineIaAddress((BindingAddress)bindingObj);
+							}
+						}
+					}
+					else {
+						addIaTaOptionStatusToReply(dhcpIaTaOption,
+								DhcpConstants.STATUS_CODE_NOBINDING);
+					}
 				}
-			}
+    		}
+    		else {
+    			log.error("Unable to process IA_TA Decline:" +
+    					" No TaAddrBindingManager available");
+    		}
+    	}
+		
+		List<DhcpIaPdOption> iaPdOptions = requestMsg.getIaPdOptions();
+    	if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
+    		PrefixBindingManagerInterface bindingMgr = dhcpServerConfig.getPrefixBindingMgr();
+    		if (bindingMgr != null) {
+	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
+	    			log.info("Processing IA_PD Decline: " + dhcpIaPdOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+							clientIdOption, dhcpIaPdOption, requestMsg);
+					if (binding != null) {
+						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+							for (BindingObject bindingObj : bindingObjs) {
+								bindingMgr.declineIaPrefix((BindingPrefix)bindingObj);
+							}
+						}
+					}
+					else {
+						addIaPdOptionStatusToReply(dhcpIaPdOption,
+								DhcpConstants.STATUS_CODE_NOBINDING);
+					}
+				}
+    		}
+    		else {
+    			log.error("Unable to process IA_PD Decline:" +
+    					" No PrefixBindingManager available");
+    		}
     	}
     	
     	if (sendReply) {

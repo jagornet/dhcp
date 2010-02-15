@@ -27,11 +27,10 @@ package com.jagornet.dhcpv6.db;
 
 import java.util.List;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface IdentityAssocDAO.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 public interface IdentityAssocDAO 
 {
