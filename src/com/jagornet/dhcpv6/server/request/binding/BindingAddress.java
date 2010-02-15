@@ -33,14 +33,14 @@ import com.jagornet.dhcpv6.db.IaAddress;
 /**
  * The Class BindingAddress.
  */
-public class BindingAddress extends IaAddress
+public class BindingAddress extends IaAddress implements BindingObject
 {
 	
 	/** The orig ia addr. */
 	private IaAddress origIaAddr;
 	
 	/** The binding pool. */
-	private BindingPool bindingPool;
+	private AddressBindingPool bindingPool;
 	
 	/**
 	 * Instantiates a new binding address.
@@ -48,7 +48,7 @@ public class BindingAddress extends IaAddress
 	 * @param iaAddr the ia addr
 	 * @param bindingPool the binding pool
 	 */
-	public BindingAddress(IaAddress iaAddr, BindingPool bindingPool)
+	public BindingAddress(IaAddress iaAddr, AddressBindingPool bindingPool)
 	{
 		this.origIaAddr = iaAddr;	// save a reference to the original IaAddress
 		BeanUtils.copyProperties(iaAddr, this);
@@ -69,7 +69,7 @@ public class BindingAddress extends IaAddress
 	 * 
 	 * @param bindingPool the new binding pool
 	 */
-	public void setBindingPool(BindingPool bindingPool) {
+	public void setBindingPool(AddressBindingPool bindingPool) {
 		this.bindingPool = bindingPool;
 	}
 	

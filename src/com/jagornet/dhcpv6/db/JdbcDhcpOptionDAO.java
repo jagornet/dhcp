@@ -36,11 +36,10 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class JdbcDhcpOptionDAO.
+ * The JdbcDhcpOptionDAO implementation class for DhcpOptionDAO interface.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptionDAO 
 {
@@ -54,15 +53,24 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
                     							.usingGeneratedKeyColumns("id");
 		
 		Long iaId = option.getIdentityAssocId();
-		Long ipId = option.getIpAddressId();
+		Long iaAddrId = option.getIaAddressId();
+		Long iaPrefixId = option.getIaPrefixId();
 		
-		if ((iaId == null) && (ipId == null)) {
+		if ((iaId == null) && (iaAddrId == null) && (iaPrefixId == null)) {
 			throw new IllegalStateException(
-					"DhcpOption must reference either an IdentityAssoc or an IpAddress");
+					"DhcpOption must reference either an IdentityAssoc, an IaAddress");
 		}
-		if ((iaId != null) && (ipId != null)) {
+		if ((iaId != null) && (iaAddrId != null)) {
 			throw new IllegalStateException(
-					"DhcpOption cannot reference both an IdentityAssoc and an IpAddress");
+					"DhcpOption cannot reference both an IdentityAssoc and an IaAddress");
+		}
+		if ((iaId != null) && (iaPrefixId != null)) {
+			throw new IllegalStateException(
+					"DhcpOption cannot reference both an IdentityAssoc and an IaPrefix");
+		}
+		if ((iaAddrId != null) && (iaPrefixId != null)) {
+			throw new IllegalStateException(
+					"DhcpOption cannot reference both an IaAddress and an IaPrefix");
 		}
 		
         Map<String, Object> parameters = new HashMap<String, Object>(3);
@@ -73,9 +81,13 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
         	parameters.put("identityassoc_id", iaId);
         	insertOption.usingColumns("code", "value", "identityassoc_id");
         }
-        else if (ipId != null) {
-        	parameters.put("iaaddress_id", ipId);
+        else if (iaAddrId != null) {
+        	parameters.put("iaaddress_id", iaAddrId);
         	insertOption.usingColumns("code", "value", "iaaddress_id");
+        }
+        else if (iaPrefixId != null) {
+        	parameters.put("iaprefix_id", iaAddrId);
+        	insertOption.usingColumns("code", "value", "iaprefix_id");
         }
 //        Number newId = insertOption.executeAndReturnKey(parameters);
 //        option.setId(newId.longValue());
@@ -125,6 +137,16 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
                 new OptionRowMapper(), iaAddressId);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#findAllByIaPrefixId(long)
+	 */
+	public List<DhcpOption> findAllByIaPrefixId(long iaPrefixId)
+	{
+        return getSimpleJdbcTemplate().query(
+                "select * from dhcpoption where iaprefix_id = ? order by code", 
+                new OptionRowMapper(), iaPrefixId);
+	}
+
     /**
      * The Class OptionRowMapper.
      */
@@ -140,7 +162,8 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
         	option.setCode(rs.getInt("code"));
         	option.setValue(rs.getBytes("value"));
         	option.setIdentityAssocId(rs.getLong("identityassoc_id"));
-        	option.setIpAddressId(rs.getLong("iaaddress_id"));
+        	option.setIaAddressId(rs.getLong("iaaddress_id"));
+        	option.setIaPrefixId(rs.getLong("iaprefix_id"));
             return option;
         }
     }

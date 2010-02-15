@@ -32,9 +32,10 @@ import java.util.List;
 import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Subnet;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface IaAddressDAO.
+ * 
+ * @author A. Gregory Rabil
  */
 public interface IaAddressDAO
 {

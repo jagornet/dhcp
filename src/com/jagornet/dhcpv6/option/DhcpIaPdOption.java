@@ -55,9 +55,9 @@ public class DhcpIaPdOption extends BaseDhcpOption
     
 	/** The dhcp options sent by the client inside this ia na option,
 	 *  _NOT_ including any requested ia addr options. */
-	protected Map<Integer, DhcpOption> clientDhcpOptions = 
-    	new HashMap<Integer, DhcpOption>();
-	/** The ia prefix options sent by the client, if any */
+	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
+	
+	/** The ia prefix options */
 	private List<DhcpIaPrefixOption> iaPrefixOptions = new ArrayList<DhcpIaPrefixOption>();
 
 	public DhcpIaPdOption()
@@ -71,6 +71,42 @@ public class DhcpIaPdOption extends BaseDhcpOption
 			this.iaPdOption = iaPdOption;
 		else
 			this.iaPdOption = IaPdOption.Factory.newInstance();
+	}
+	
+    public IaPdOption getIaPdOption() {
+		return iaPdOption;
+	}
+
+	public void setIaPdOption(IaPdOption iaPdOption) {
+		this.iaPdOption = iaPdOption;
+	}
+
+	public Map<Integer, DhcpOption> getDhcpOptionMap() {
+		return dhcpOptions;
+	}
+
+	public void setDhcpOptionMap(Map<Integer, DhcpOption> dhcpOptions) {
+		this.dhcpOptions = dhcpOptions;
+	}
+
+	public void putAllDhcpOptions(Map<Integer, DhcpOption> dhcpOptions) {
+		this.dhcpOptions.putAll(dhcpOptions);
+	}
+	
+	/**
+	 * Implement DhcpOptionable.
+	 */
+	public void putDhcpOption(DhcpOption dhcpOption)
+	{
+		dhcpOptions.put(dhcpOption.getCode(), dhcpOption);
+	}
+
+	public List<DhcpIaPrefixOption> getIaPrefixOptions() {
+		return iaPrefixOptions;
+	}
+
+	public void setIaPrefixOptions(List<DhcpIaPrefixOption> iaPrefixOptions) {
+		this.iaPrefixOptions = iaPrefixOptions;
 	}
 
     /* (non-Javadoc)
@@ -185,7 +221,7 @@ public class DhcpIaPdOption extends BaseDhcpOption
 		        	iaPrefixOptions.add((DhcpIaPrefixOption)option);
 		        }
 		        else {
-		        	clientDhcpOptions.put(option.getCode(), option);
+		        	dhcpOptions.put(option.getCode(), option);
 		        }
 		    }
 		    else {

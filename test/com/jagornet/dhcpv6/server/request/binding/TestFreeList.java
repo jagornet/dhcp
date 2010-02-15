@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.server.request.binding;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -65,8 +66,9 @@ public class TestFreeList extends TestCase
 		super.setUp();
 		System.out.println("TestCase: " + this.getName());
 		memorySizeDump();
-		prefix64List = new FreeList(InetAddress.getByName("3ffe::0"),
-				InetAddress.getByName("3ffe::ffff:ffff:ffff:ffff"));
+		prefix64List = new FreeList(
+				new BigInteger(InetAddress.getByName("3ffe::0").getAddress()),
+				new BigInteger(InetAddress.getByName("3ffe::ffff:ffff:ffff:ffff").getAddress()));
 		memorySizeDump();
 	}
 	
@@ -97,8 +99,8 @@ public class TestFreeList extends TestCase
 	public void testSetLowIp() throws Exception
 	{
 		InetAddress low = InetAddress.getByName("3ffe::1");
-		prefix64List.setUsed(low);
-		assertTrue(prefix64List.isUsed(low));
+		prefix64List.setUsed(new BigInteger(low.getAddress()));
+		assertTrue(prefix64List.isUsed(new BigInteger(low.getAddress())));
 	}
 
 	/**
@@ -109,8 +111,8 @@ public class TestFreeList extends TestCase
 	public void testSetMidIp() throws Exception
 	{
 		InetAddress mid = InetAddress.getByName("3ffe::ffff:ffff");
-		prefix64List.setUsed(mid);
-		assertTrue(prefix64List.isUsed(mid));
+		prefix64List.setUsed(new BigInteger(mid.getAddress()));
+		assertTrue(prefix64List.isUsed(new BigInteger(mid.getAddress())));
 	}
 	
 	/**
@@ -121,8 +123,8 @@ public class TestFreeList extends TestCase
 	public void testSetHighIp() throws Exception
 	{
 		InetAddress high = InetAddress.getByName("3ffe::ffff:ffff:ffff:ffff");
-		prefix64List.setUsed(high);
-		assertTrue(prefix64List.isUsed(high));
+		prefix64List.setUsed(new BigInteger(high.getAddress()));
+		assertTrue(prefix64List.isUsed(new BigInteger(high.getAddress())));
 	}
 	
 	/**
@@ -132,19 +134,19 @@ public class TestFreeList extends TestCase
 	 */
 	public void testGetNextFreeAddress() throws Exception
 	{
-		InetAddress ip = prefix64List.getNextFreeAddress();
+		InetAddress ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::0"), ip);
-		ip = prefix64List.getNextFreeAddress();
+		ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::1"), ip);
-		ip = prefix64List.getNextFreeAddress();
+		ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::2"), ip);
-		ip = prefix64List.getNextFreeAddress();
+		ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::3"), ip);
-		ip = prefix64List.getNextFreeAddress();
+		ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::4"), ip);
 	}
@@ -159,7 +161,7 @@ public class TestFreeList extends TestCase
 		memorySizeDump();
 		BigInteger bi = new BigInteger(InetAddress.getByName("3ffe::0").getAddress());
 		for (int i=0; i<1000000; i++) {	// 1M leases
-			InetAddress ip = prefix64List.getNextFreeAddress();
+			InetAddress ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
 			assertNotNull(ip);
 			assertEquals(InetAddress.getByAddress(bi.toByteArray()), ip);
 			bi = bi.add(BigInteger.ONE);
@@ -184,9 +186,15 @@ public class TestFreeList extends TestCase
 
 				public void run() {
 					for (int i=0; i<10000; i++) {	// 10K leases per thread
-						InetAddress ip = prefix64List.getNextFreeAddress();
-						assertNotNull(ip);
-						log.info("IP=" + ip.getHostAddress());
+						InetAddress ip = null;
+						try {
+							ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
+							assertNotNull(ip);
+							log.info("IP=" + ip.getHostAddress());
+						}
+						catch (UnknownHostException ex) {
+							fail(ex.getMessage());
+						}
 					}
 				}
 				

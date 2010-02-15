@@ -11,15 +11,57 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="serverIdOption" type="serverIdOption"/>
-				<xs:element name="msgConfigOptions" type="configOptionsType"/>
-				<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
-				<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
+				
+				<!-- global policies -->
 				<xs:element name="policies" type="policiesType" minOccurs="0"/>
+
+				<!-- msgConfigOptions are put at the message level of the reply -->
+				<xs:element name="msgConfigOptions" type="configOptionsType" minOccurs="0"/>
+	
+				<!-- iaNaConfigOptions are put into any IA_NA options in the reply message -->
+				<xs:element name="iaNaConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<!-- naAddrConfigOptions are put into any IA_ADDR options in any returned IA_NA options -->
+				<xs:element name="naAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+	
+				<!-- iaTaConfigOptions are put into any IA_TA options in the reply message -->
+				<xs:element name="iaTaConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<!-- taAddrConfigOptions are put into any IA_ADDR options in any returned IA_TA options -->
+				<xs:element name="taAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+	
+				<!-- iaPdConfigOptions are put into any IA_PD options in the reply message -->
+				<xs:element name="iaPdConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<!-- prefixConfigOptions are put into any IA_PREFIX options in any returned IA_PD options -->
+				<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+
+				<!-- global filters -->
 				<xs:element name="filters" type="filtersType" minOccurs="0"/>
+
+				<!-- client links supported by the server (must have at least one) -->
 				<xs:element name="links" type="linksType" minOccurs="0"/>
+
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+
+	<xs:complexType name="policiesType">
+		<xs:sequence>
+			<xs:element name="policy" type="policy" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="policy">
+		<xs:annotation>
+			<xs:documentation>
+				A generic policy type, which is simply a name-value pair.
+				Policies are used to configure implementation-specific
+				behavior within the DHCP server.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="name" type="name"/>
+			<xs:element name="value" type="value"/>
+		</xs:sequence>
+	</xs:complexType>
 
 	<xs:complexType name="configOptionsType">
 		<xs:annotation>
@@ -57,26 +99,6 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="policiesType">
-		<xs:sequence>
-			<xs:element name="policy" type="policy" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="policy">
-		<xs:annotation>
-			<xs:documentation>
-				A generic policy type, which is simply a name-value pair.
-				Policies are used to configure implementation-specific
-				behavior within the DHCP server.
-			</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="name" type="name"/>
-			<xs:element name="value" type="value"/>
-		</xs:sequence>
-	</xs:complexType>
-
 	<xs:complexType name="filtersType">
 		<xs:sequence>
 			<xs:element name="filter" type="filter" maxOccurs="unbounded"/>
@@ -93,11 +115,30 @@
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="name"/>
+			
 			<xs:element name="filterExpressions" type="filterExpressionsType"/>
-			<xs:element name="msgConfigOptions" type="configOptionsType"/>
-			<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
-			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			
+			<!-- policies applied to this filter -->
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+
+			<!-- msgConfigOptions are put at the message level of the reply -->
+			<xs:element name="msgConfigOptions" type="configOptionsType" minOccurs="0"/>
+
+			<!-- iaNaConfigOptions are put into any IA_NA options in the reply message -->
+			<xs:element name="iaNaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<!-- naAddrConfigOptions are put into any IA_ADDR options in any returned IA_NA options -->
+			<xs:element name="naAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+
+			<!-- iaTaConfigOptions are put into any IA_TA options in the reply message -->
+			<xs:element name="iaTaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<!-- taAddrConfigOptions are put into any IA_ADDR options in any returned IA_TA options -->
+			<xs:element name="taAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+
+			<!-- iaPdConfigOptions are put into any IA_PD options in the reply message -->
+			<xs:element name="iaPdConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<!-- prefixConfigOptions are put into any IA_PREFIX options in any returned IA_PD options -->
+			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+
 		</xs:sequence>
 	</xs:complexType>
 
@@ -118,7 +159,9 @@
 		<xs:complexContent>
 			<xs:extension base="filter">
 				<xs:sequence>
-					<xs:element name="pools" type="poolsType" minOccurs="0"/>
+					<xs:element name="naAddrPools" type="addressPoolsType" minOccurs="0"/>
+					<xs:element name="taAddrPools" type="addressPoolsType" minOccurs="0"/>
+					<xs:element name="prefixPools" type="prefixPoolsType" minOccurs="0"/>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -151,90 +194,111 @@
 				<!-- OR the link is identified by a remote link address (prefix/len) -->
 				<xs:element name="address" type="xs:string"/>
 			</xs:choice>
+			
 			<!-- allow serverIdOption override at the link level? -->
 			<xs:element name="serverIdOption" type="serverIdOption" minOccurs="0"/>
-			<xs:element name="msgConfigOptions" type="configOptionsType"/>
-			<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
-			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			
+			<!-- link level policies -->
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+
+			<!-- msgConfigOptions are put at the message level of the reply -->
+			<xs:element name="msgConfigOptions" type="configOptionsType"/>
+
+			<!-- iaNaConfigOptions are put into any IA_NA options in the reply message -->
+			<xs:element name="iaNaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<!-- naAddrConfigOptions are put into any IA_ADDR options in any returned IA_NA options -->
+			<xs:element name="naAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+
+			<!-- IA_NA address pools and static bindings -->			
+			<xs:element name="naAddrPools" type="addressPoolsType" minOccurs="0"/>
+			<xs:element name="naAddrBindings" type="addressBindingsType" minOccurs="0"/>
+
+			<!-- iaTaConfigOptions are put into any IA_TA options in the reply message -->
+			<xs:element name="iaTaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<!-- taAddrConfigOptions are put into any IA_ADDR options in any returned IA_TA options -->
+			<xs:element name="taAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+
+			<!-- IA_TA address pools and static bindings -->			
+			<xs:element name="taAddrPools" type="addressPoolsType" minOccurs="0"/>
+			<xs:element name="taAddrBindings" type="addressBindingsType" minOccurs="0"/>
+
+			<!-- iaPdConfigOptions are put into any IA_PD options in the reply message -->
+			<xs:element name="iaPdConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<!-- prefixConfigOptions are put into any IA_PREFIX options in any returned IA_PD options -->
+			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+			
+			<!-- IA_PD prefix pools and static bindings -->			
+			<xs:element name="prefixPools" type="prefixPoolsType" minOccurs="0"/>
+			<xs:element name="prefixBindings" type="prefixBindingsType" minOccurs="0"/>
+			
 			<xs:element name="linkFilters" type="linkFiltersType" minOccurs="0"/>
-			<xs:element name="pools" type="poolsType" minOccurs="0"/>
-			<xs:element name="bindings" type="bindingsType" minOccurs="0"/>
+
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="poolsType">
+	<xs:complexType name="addressPoolsType">
 		<xs:sequence>
-			<xs:element name="pool" type="pool" maxOccurs="unbounded"/>
+			<xs:element name="pool" type="addressPool" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="pool">
-		<xs:annotation>
-			<xs:documentation>
-				A pool is used to defined a pool of addresses or prefixes (for Prefix-Delegation)
-				and associated configuration parameters for those addresses or prefixes.  The type
-				element identifies the type of pool, which can be on of three values.
-					1. non-temporary:	addresses available for IA_NA requests from clients
-					2. temporary:		addresses available for IA_TA requests from clients
-					3. prefix:			prefixes available for IA_PD requests from requesting routers
-				The type of pool dictates the acceptable values for the range element.
-			</xs:documentation>
-		</xs:annotation>
+	<xs:complexType name="addressPool">
 		<xs:sequence>
-			<xs:element name="iaType" type="iaType"/>
 			<xs:element name="range" type="range"/>
-			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:simpleType name="iaType">
-		<xs:annotation>
-			<xs:documentation>
-				The type of identity association (IA), which can be one of the following values
-					non-temporary:	addresses available for IA_NA requests from clients
-					temporary:		addresses available for IA_TA requests from clients
-					prefix:			prefixes available for IA_PD requests from requesting routers
-			</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="non-temporary"/>
-			<xs:enumeration value="temporary"/>
-			<xs:enumeration value="prefix"/>
-		</xs:restriction>
-	</xs:simpleType>
-
-	<xs:complexType name="bindingsType">
+	<xs:complexType name="prefixPoolsType">
 		<xs:sequence>
-			<xs:element name="binding" type="binding" maxOccurs="unbounded"/>
+			<xs:element name="pool" type="prefixPool" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="binding">
-		<xs:annotation>
-			<xs:documentation>
-				A binding is used to define a specific configuration mapping for a 
-				particular client or Identity Association (IA).  A client binding
-				requires only the clientIdOption, IA bindings require the clientIdOption
-				as well as the iaId.  A binding is somewhat similar to host, reserved, 
-				or manual assignments in DHCPv4.  That is, for any given client/IA, we can 
-				define a static set of configuration parameters for that client/IA on a 
-				given link.  The configuration parameters can include IP addresses and 
-				client/IA specific options.
-			</xs:documentation>
-		</xs:annotation>
+	<xs:complexType name="prefixPool">
 		<xs:sequence>
-			<xs:element name="clientIdOption" type="clientIdOption"/>
-			<xs:choice>
-				<xs:element name="iaNaOption" type="iaNaOption" minOccurs="0"/>
-				<xs:element name="iaTaOption" type="iaTaOption" minOccurs="0"/>
-				<xs:element name="iaPdOption" type="iaPdOption" minOccurs="0"/>
-			</xs:choice>	
+			<xs:element name="range" type="range"/>
+			<xs:element name="prefixLength" type="length"/>
+			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="filters" type="filtersType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="addressBindingsType">
+		<xs:sequence>
+			<xs:element name="binding" type="addressBinding" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="addressBinding">
+		<xs:sequence>
+			<xs:element name="ipAddress" type="ipAddress"/>
+			<xs:element name="duid" type="opaqueData"/>
+			<xs:element name="iaid" type="iaId" minOccurs="0"/>
+			<xs:element name="policies" type="policiesType" minOccurs="0"/>
 			<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
 			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="prefixBindingsType">
+		<xs:sequence>
+			<xs:element name="binding" type="prefixBinding" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="prefixBinding">
+		<xs:sequence>
+			<xs:element name="prefix" type="ipAddress"/>
+			<xs:element name="prefixLength" type="length"/>
+			<xs:element name="duid" type="opaqueData"/>
+			<xs:element name="iaid" type="iaId" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+			<xs:element name="iaPdConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 	

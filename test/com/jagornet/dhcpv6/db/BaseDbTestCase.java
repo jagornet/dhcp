@@ -43,6 +43,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.xml.sax.InputSource;
 
+import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class BaseDbTestCase.
@@ -52,6 +57,9 @@ public class BaseDbTestCase extends DBTestCase
 	
 	/** The derby system home. */
 	public static String derbySystemHome = "/Users/agrabil/apache/db-derby-10.5.1.1-bin/system";
+
+	/** The config filename. */
+	public static String configFilename = "test/dhcpv6server-sample.xml";
 	
 	/** The context filename. */
 	public static String contextFilename = "com/jagornet/dhcpv6/context-embedded.xml";
@@ -59,12 +67,25 @@ public class BaseDbTestCase extends DBTestCase
 	/** The init data set. */
 	public static File initDataSet = new File("test/dbunit-jagornet-dhcpv6-empty.xml");
 
+	/** The config. */
+	protected static DhcpServerConfiguration config;
+	
 	/** The ctx. */
 	protected static ApplicationContext ctx;
+	
 	static
 	{
+		DhcpServerConfiguration.configFilename = configFilename;
+		config = DhcpServerConfiguration.getInstance();
 		System.setProperty("derby.system.home", derbySystemHome);
 		ctx = new ClassPathXmlApplicationContext(contextFilename);
+		
+		config.setNaAddrBindingMgr(
+				(NaAddrBindingManagerInterface) ctx.getBean("naAddrBindingManager"));
+		config.setTaAddrBindingMgr(
+				(TaAddrBindingManagerInterface) ctx.getBean("taAddrBindingManager"));
+		config.setPrefixBindingMgr(
+				(PrefixBindingManagerInterface) ctx.getBean("prefixBindingManager"));
 	}
 	
 	/* (non-Javadoc)

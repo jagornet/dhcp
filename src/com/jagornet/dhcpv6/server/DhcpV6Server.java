@@ -56,12 +56,15 @@ import org.apache.log4j.jmx.HierarchyDynamicMBean;
 import org.apache.log4j.spi.LoggerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jagornet.dhcpv6.Version;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.netty.NettyDhcpServer;
-import com.jagornet.dhcpv6.server.request.binding.BindingManager;
-import com.jagornet.dhcpv6.server.request.binding.BindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
@@ -82,6 +85,7 @@ public class DhcpV6Server
     /** The help formatter. */
     protected HelpFormatter formatter;
 
+    public static String appContextFilename = "com/jagornet/dhcpv6/context.xml";
     /** The default config filename. */
     public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.DHCPV6_HOME != null ? 
     	DhcpConstants.DHCPV6_HOME + "/conf/" + "dhcpv6server.xml" : "dhcpv6server.xml";
@@ -105,7 +109,7 @@ public class DhcpV6Server
     protected Thread ucastThread;
     
     protected DhcpServerConfiguration serverConfig = null;
-    protected BindingManagerInterface bindingManager = null;
+    protected ApplicationContext context = null;
     
     /**
      * Instantiates the DHCPv6 server.
@@ -159,10 +163,38 @@ public class DhcpV6Server
         			configFilename);
         }
         
-        bindingManager = BindingManager.getInstance();
-        if (bindingManager == null) {
-        	log.warn("No BindingManager available.  Continuing in STATELESS mode only.");
-        }
+		context = new ClassPathXmlApplicationContext(appContextFilename);
+		if (context == null) {
+			throw new IllegalStateException("Failed to initialize application context from file: " +
+        			appContextFilename);
+		}
+		
+		NaAddrBindingManagerInterface naAddrBindingMgr = 
+			(NaAddrBindingManagerInterface) context.getBean("naAddrBindingManager");
+		if (naAddrBindingMgr == null) {
+			log.warn("No NA Address Binding Manager available");
+		}
+		else {
+			serverConfig.setNaAddrBindingMgr(naAddrBindingMgr);
+		}
+		
+		TaAddrBindingManagerInterface taAddrBindingMgr = 
+			(TaAddrBindingManagerInterface) context.getBean("taAddrBindingManager");
+		if (taAddrBindingMgr == null) {
+			log.warn("No TA Address Binding Manager available");
+		}
+		else {
+			serverConfig.setTaAddrBindingMgr(taAddrBindingMgr);
+		}
+		
+		PrefixBindingManagerInterface prefixBindingMgr = 
+			(PrefixBindingManagerInterface) context.getBean("prefixBindingManager");
+		if (prefixBindingMgr == null) {
+			log.warn("No Prefix Binding Manager available");
+		}
+		else {
+			serverConfig.setPrefixBindingMgr(prefixBindingMgr);
+		}
         
         registerLog4jInJmx();
 

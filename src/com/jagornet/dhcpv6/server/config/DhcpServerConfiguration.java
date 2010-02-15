@@ -48,9 +48,14 @@ import com.jagornet.dhcpv6.option.DhcpConfigOptions;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.server.DhcpV6Server;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
 import com.jagornet.dhcpv6.server.request.binding.Range;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
+import com.jagornet.dhcpv6.xml.AddressPool;
+import com.jagornet.dhcpv6.xml.AddressPoolsType;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument;
 import com.jagornet.dhcpv6.xml.Filter;
 import com.jagornet.dhcpv6.xml.FilterExpression;
@@ -62,8 +67,8 @@ import com.jagornet.dhcpv6.xml.LinkFiltersType;
 import com.jagornet.dhcpv6.xml.LinksType;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OptionExpression;
-import com.jagornet.dhcpv6.xml.Pool;
-import com.jagornet.dhcpv6.xml.PoolsType;
+import com.jagornet.dhcpv6.xml.PrefixPool;
+import com.jagornet.dhcpv6.xml.PrefixPoolsType;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
@@ -79,6 +84,9 @@ public class DhcpServerConfiguration
 	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpServerConfiguration.class);
+    
+    /** The config filename. */
+    public static String configFilename = DhcpV6Server.DEFAULT_CONFIG_FILENAME;
 
 	/** The INSTANCE. */
 	private static DhcpServerConfiguration INSTANCE;
@@ -89,8 +97,9 @@ public class DhcpServerConfiguration
     /** The link map. */
     private SortedMap<Subnet, DhcpLink> linkMap;
     
-    /** The config filename. */
-    public static String configFilename = DhcpV6Server.DEFAULT_CONFIG_FILENAME;
+    private NaAddrBindingManagerInterface naAddrBindingMgr;
+    private TaAddrBindingManagerInterface taAddrBindingMgr;
+    private PrefixBindingManagerInterface prefixBindingMgr;
     
     /**
      * Gets the single instance of DhcpServerConfiguration.
@@ -231,7 +240,33 @@ public class DhcpServerConfiguration
         return linkMap;
     }
 
-    /**
+    
+    
+    public NaAddrBindingManagerInterface getNaAddrBindingMgr() {
+		return naAddrBindingMgr;
+	}
+
+	public void setNaAddrBindingMgr(NaAddrBindingManagerInterface naAddrBindingMgr) {
+		this.naAddrBindingMgr = naAddrBindingMgr;
+	}
+
+	public TaAddrBindingManagerInterface getTaAddrBindingMgr() {
+		return taAddrBindingMgr;
+	}
+
+	public void setTaAddrBindingMgr(TaAddrBindingManagerInterface taAddrBindingMgr) {
+		this.taAddrBindingMgr = taAddrBindingMgr;
+	}
+
+	public PrefixBindingManagerInterface getPrefixBindingMgr() {
+		return prefixBindingMgr;
+	}
+
+	public void setPrefixBindingMgr(PrefixBindingManagerInterface prefixBindingMgr) {
+		this.prefixBindingMgr = prefixBindingMgr;
+	}
+
+	/**
      * Find link for address.
      * 
      * @param inetAddr an InetAddress to find a Link for
@@ -305,33 +340,92 @@ public class DhcpServerConfiguration
      * 
      * @return the pool
      */
-    public static Pool findPool(Link link, InetAddress addr)
+    public static AddressPool findNaAddrPool(Link link, InetAddress addr)
     {
-    	Pool pool = null;
+    	AddressPool pool = null;
     	if (link != null) {
-			PoolsType poolsType = link.getPools();
-			if (poolsType != null) {
-				List<Pool> pools = poolsType.getPoolList();
-				if ((pools != null) && !pools.isEmpty()) {
-					for (Pool p : pools) {
-						try {
-							Range r = new Range(p.getRange());
-							if (r.contains(addr)) {
-								pool = p;
-							}
+			pool = findAddrPool(link.getNaAddrPools(), addr);
+			if (pool == null) {
+				pool = findAddrPool(link.getNaAddrPools(), addr);
+			}
+    	}
+    	return pool;
+    }
+    
+    public static AddressPool findTaAddrPool(Link link, InetAddress addr)
+    {
+    	AddressPool pool = null;
+    	if (link != null) {
+			pool = findAddrPool(link.getTaAddrPools(), addr);
+			if (pool == null) {
+				pool = findAddrPool(link.getTaAddrPools(), addr);
+			}
+    	}
+    	return pool;
+    }
+
+    public static AddressPool findAddrPool(AddressPoolsType poolsType, InetAddress addr)
+    {
+    	AddressPool pool = null;
+		if (poolsType != null) {
+			List<AddressPool> pools = poolsType.getPoolList();
+			if ((pools != null) && !pools.isEmpty()) {
+				for (AddressPool p : pools) {
+					try {
+						Range r = new Range(p.getRange());
+						if (r.contains(addr)) {
+							pool = p;
+							break;
 						}
-						catch (Exception ex) {
-							// this can't happen because the parsing of the
-							// pool Ranges is done at startup which would cause abort
-							log.error("Invalid Pool Range: " + p.getRange());
+					}
+					catch (Exception ex) {
+						// this can't happen because the parsing of the
+						// pool Ranges is done at startup which would cause abort
+						log.error("Invalid Pool Range: " + p.getRange());
 //TODO										throw ex;
-						}
 					}
 				}
 			}
-    		
+		}
+		return pool;
+    }
+    
+    public static PrefixPool findPrefixPool(Link link, InetAddress addr)
+    {
+    	PrefixPool pool = null;
+    	if (link != null) {
+			pool = findPrefixPool(link.getPrefixPools(), addr);
+			if (pool == null) {
+				pool = findPrefixPool(link.getPrefixPools(), addr);
+			}
     	}
     	return pool;
+    }
+
+    public static PrefixPool findPrefixPool(PrefixPoolsType poolsType, InetAddress addr)
+    {
+    	PrefixPool pool = null;
+		if (poolsType != null) {
+			List<PrefixPool> pools = poolsType.getPoolList();
+			if ((pools != null) && !pools.isEmpty()) {
+				for (PrefixPool p : pools) {
+					try {
+						Range r = new Range(p.getRange());
+						if (r.contains(addr)) {
+							pool = p;
+							break;
+						}
+					}
+					catch (Exception ex) {
+						// this can't happen because the parsing of the
+						// pool Ranges is done at startup which would cause abort
+						log.error("Invalid Pool Range: " + p.getRange());
+//TODO										throw ex;
+					}
+				}
+			}
+		}
+		return pool;
     }
     
     /**
@@ -440,24 +534,24 @@ public class DhcpServerConfiguration
     }
     
     /**
-     * Effective ia options.
+     * Effective ia na options.
      * 
      * @param requestMsg the request msg
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveIaOptions(DhcpMessage requestMsg)
+    public Map<Integer, DhcpOption> effectiveIaNaOptions(DhcpMessage requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
     	DhcpConfigOptions configOptions = 
-    		new DhcpConfigOptions(xmlServerConfig.getIaConfigOptions(),
+    		new DhcpConfigOptions(xmlServerConfig.getIaNaConfigOptions(),
     				requestMsg.getRequestedOptionCodes());
     	if (configOptions != null) {
     		optionMap.putAll(configOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredIaOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredIaNaOptions(requestMsg, xmlServerConfig.getFilters());
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -465,26 +559,26 @@ public class DhcpServerConfiguration
     }
 
     /**
-     * Effective ia options.
+     * Effective ia na options.
      * 
      * @param requestMsg the request msg
      * @param link the link
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveIaOptions(DhcpMessage requestMsg, Link link)
+    public Map<Integer, DhcpOption> effectiveIaNaOptions(DhcpMessage requestMsg, Link link)
     {
-    	Map<Integer, DhcpOption> optionMap = effectiveIaOptions(requestMsg);
+    	Map<Integer, DhcpOption> optionMap = effectiveIaNaOptions(requestMsg);
     	if (link != null) {
 	    	DhcpConfigOptions configOptions = 
-	    		new DhcpConfigOptions(link.getIaConfigOptions(),
+	    		new DhcpConfigOptions(link.getIaNaConfigOptions(),
 	    				requestMsg.getRequestedOptionCodes());
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
 	    	
 	    	Map<Integer, DhcpOption> filteredOptions = 
-	    		filteredIaOptions(requestMsg, link.getLinkFilters());
+	    		filteredIaNaOptions(requestMsg, link.getLinkFilters());
 	    	if (filteredOptions != null) {
 	    		optionMap.putAll(filteredOptions);
 	    	}
@@ -493,24 +587,24 @@ public class DhcpServerConfiguration
     }
     
     /**
-     * Effective addr options.
+     * Effective na addr options.
      * 
      * @param requestMsg the request msg
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveAddrOptions(DhcpMessage requestMsg)
+    public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpMessage requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
     	DhcpConfigOptions configOptions = 
-    		new DhcpConfigOptions(xmlServerConfig.getAddrConfigOptions(), 
+    		new DhcpConfigOptions(xmlServerConfig.getNaAddrConfigOptions(), 
     				requestMsg.getRequestedOptionCodes());
     	if (configOptions != null) {
     		optionMap.putAll(configOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredAddrOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredNaAddrOptions(requestMsg, xmlServerConfig.getFilters());
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -518,26 +612,26 @@ public class DhcpServerConfiguration
     }
 
     /**
-     * Effective addr options.
+     * Effective na addr options.
      * 
      * @param requestMsg the request msg
      * @param link the link
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveAddrOptions(DhcpMessage requestMsg, Link link)
+    public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpMessage requestMsg, Link link)
     {
-    	Map<Integer, DhcpOption> optionMap = effectiveIaOptions(requestMsg);
+    	Map<Integer, DhcpOption> optionMap = effectiveNaAddrOptions(requestMsg);
     	if (link != null) {
 	    	DhcpConfigOptions configOptions = 
-	    		new DhcpConfigOptions(link.getAddrConfigOptions(),
+	    		new DhcpConfigOptions(link.getNaAddrConfigOptions(),
 	    				requestMsg.getRequestedOptionCodes());
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
 	    	
 	    	Map<Integer, DhcpOption> filteredOptions = 
-	    		filteredAddrOptions(requestMsg, link.getLinkFilters());
+	    		filteredNaAddrOptions(requestMsg, link.getLinkFilters());
 	    	if (filteredOptions != null) {
 	    		optionMap.putAll(filteredOptions);
 	    	}
@@ -546,7 +640,7 @@ public class DhcpServerConfiguration
     }
 
     /**
-     * Effective addr options.
+     * Effective na addr options.
      * 
      * @param requestMsg the request msg
      * @param link the link
@@ -554,9 +648,10 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveAddrOptions(DhcpMessage requestMsg, Link link, Pool pool)
+    public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpMessage requestMsg, Link link, 
+    		AddressPool pool)
     {
-    	Map<Integer, DhcpOption> optionMap = effectiveAddrOptions(requestMsg, link);
+    	Map<Integer, DhcpOption> optionMap = effectiveNaAddrOptions(requestMsg, link);
     	if (pool != null) {
 	    	DhcpConfigOptions configOptions = 
 	    		new DhcpConfigOptions(pool.getAddrConfigOptions(),
@@ -566,7 +661,279 @@ public class DhcpServerConfiguration
 	    	}
 	    	
 	    	Map<Integer, DhcpOption> filteredOptions = 
-	    		filteredAddrOptions(requestMsg, pool.getFilters());
+	    		filteredNaAddrOptions(requestMsg, pool.getFilters());
+	    	if (filteredOptions != null) {
+	    		optionMap.putAll(filteredOptions);
+	    	}
+    	}
+    	return optionMap;
+    }
+    
+    /**
+     * Effective ia ta options.
+     * 
+     * @param requestMsg the request msg
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectiveIaTaOptions(DhcpMessage requestMsg)
+    {
+    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	DhcpConfigOptions configOptions = 
+    		new DhcpConfigOptions(xmlServerConfig.getIaTaConfigOptions(),
+    				requestMsg.getRequestedOptionCodes());
+    	if (configOptions != null) {
+    		optionMap.putAll(configOptions.getDhcpOptionMap());
+    	}
+    	
+    	Map<Integer, DhcpOption> filteredOptions = 
+    		filteredIaTaOptions(requestMsg, xmlServerConfig.getFilters());
+    	if (filteredOptions != null) {
+    		optionMap.putAll(filteredOptions);
+    	}
+    	return optionMap;
+    }
+
+    /**
+     * Effective ia ta options.
+     * 
+     * @param requestMsg the request msg
+     * @param link the link
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectiveIaTaOptions(DhcpMessage requestMsg, Link link)
+    {
+    	Map<Integer, DhcpOption> optionMap = effectiveIaTaOptions(requestMsg);
+    	if (link != null) {
+	    	DhcpConfigOptions configOptions = 
+	    		new DhcpConfigOptions(link.getIaTaConfigOptions(),
+	    				requestMsg.getRequestedOptionCodes());
+	    	if (configOptions != null) {
+	    		optionMap.putAll(configOptions.getDhcpOptionMap());
+	    	}
+	    	
+	    	Map<Integer, DhcpOption> filteredOptions = 
+	    		filteredIaTaOptions(requestMsg, link.getLinkFilters());
+	    	if (filteredOptions != null) {
+	    		optionMap.putAll(filteredOptions);
+	    	}
+    	}
+    	return optionMap;
+    }
+    
+    /**
+     * Effective ta addr options.
+     * 
+     * @param requestMsg the request msg
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpMessage requestMsg)
+    {
+    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	DhcpConfigOptions configOptions = 
+    		new DhcpConfigOptions(xmlServerConfig.getTaAddrConfigOptions(), 
+    				requestMsg.getRequestedOptionCodes());
+    	if (configOptions != null) {
+    		optionMap.putAll(configOptions.getDhcpOptionMap());
+    	}
+    	
+    	Map<Integer, DhcpOption> filteredOptions = 
+    		filteredNaAddrOptions(requestMsg, xmlServerConfig.getFilters());
+    	if (filteredOptions != null) {
+    		optionMap.putAll(filteredOptions);
+    	}
+    	return optionMap;
+    }
+
+    /**
+     * Effective ta addr options.
+     * 
+     * @param requestMsg the request msg
+     * @param link the link
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpMessage requestMsg, Link link)
+    {
+    	Map<Integer, DhcpOption> optionMap = effectiveTaAddrOptions(requestMsg);
+    	if (link != null) {
+	    	DhcpConfigOptions configOptions = 
+	    		new DhcpConfigOptions(link.getTaAddrConfigOptions(),
+	    				requestMsg.getRequestedOptionCodes());
+	    	if (configOptions != null) {
+	    		optionMap.putAll(configOptions.getDhcpOptionMap());
+	    	}
+	    	
+	    	Map<Integer, DhcpOption> filteredOptions = 
+	    		filteredTaAddrOptions(requestMsg, link.getLinkFilters());
+	    	if (filteredOptions != null) {
+	    		optionMap.putAll(filteredOptions);
+	    	}
+    	}
+    	return optionMap;
+    }
+
+    /**
+     * Effective ta addr options.
+     * 
+     * @param requestMsg the request msg
+     * @param link the link
+     * @param pool the pool
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpMessage requestMsg, Link link, 
+    		AddressPool pool)
+    {
+    	Map<Integer, DhcpOption> optionMap = effectiveNaAddrOptions(requestMsg, link);
+    	if (pool != null) {
+	    	DhcpConfigOptions configOptions = 
+	    		new DhcpConfigOptions(pool.getAddrConfigOptions(),
+	    				requestMsg.getRequestedOptionCodes());
+	    	if (configOptions != null) {
+	    		optionMap.putAll(configOptions.getDhcpOptionMap());
+	    	}
+	    	
+	    	Map<Integer, DhcpOption> filteredOptions = 
+	    		filteredTaAddrOptions(requestMsg, pool.getFilters());
+	    	if (filteredOptions != null) {
+	    		optionMap.putAll(filteredOptions);
+	    	}
+    	}
+    	return optionMap;
+    }
+    
+    /**
+     * Effective ia pd options.
+     * 
+     * @param requestMsg the request msg
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectiveIaPdOptions(DhcpMessage requestMsg)
+    {
+    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	DhcpConfigOptions configOptions = 
+    		new DhcpConfigOptions(xmlServerConfig.getIaPdConfigOptions(),
+    				requestMsg.getRequestedOptionCodes());
+    	if (configOptions != null) {
+    		optionMap.putAll(configOptions.getDhcpOptionMap());
+    	}
+    	
+    	Map<Integer, DhcpOption> filteredOptions = 
+    		filteredIaPdOptions(requestMsg, xmlServerConfig.getFilters());
+    	if (filteredOptions != null) {
+    		optionMap.putAll(filteredOptions);
+    	}
+    	return optionMap;
+    }
+
+    /**
+     * Effective ia pd options.
+     * 
+     * @param requestMsg the request msg
+     * @param link the link
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectiveIaPdOptions(DhcpMessage requestMsg, Link link)
+    {
+    	Map<Integer, DhcpOption> optionMap = effectiveIaPdOptions(requestMsg);
+    	if (link != null) {
+	    	DhcpConfigOptions configOptions = 
+	    		new DhcpConfigOptions(link.getIaPdConfigOptions(),
+	    				requestMsg.getRequestedOptionCodes());
+	    	if (configOptions != null) {
+	    		optionMap.putAll(configOptions.getDhcpOptionMap());
+	    	}
+	    	
+	    	Map<Integer, DhcpOption> filteredOptions = 
+	    		filteredIaPdOptions(requestMsg, link.getLinkFilters());
+	    	if (filteredOptions != null) {
+	    		optionMap.putAll(filteredOptions);
+	    	}
+    	}
+    	return optionMap;
+    }
+    
+    /**
+     * Effective prefix options.
+     * 
+     * @param requestMsg the request msg
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpMessage requestMsg)
+    {
+    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	DhcpConfigOptions configOptions = 
+    		new DhcpConfigOptions(xmlServerConfig.getPrefixConfigOptions(), 
+    				requestMsg.getRequestedOptionCodes());
+    	if (configOptions != null) {
+    		optionMap.putAll(configOptions.getDhcpOptionMap());
+    	}
+    	
+    	Map<Integer, DhcpOption> filteredOptions = 
+    		filteredPrefixOptions(requestMsg, xmlServerConfig.getFilters());
+    	if (filteredOptions != null) {
+    		optionMap.putAll(filteredOptions);
+    	}
+    	return optionMap;
+    }
+
+    /**
+     * Effective prefix options.
+     * 
+     * @param requestMsg the request msg
+     * @param link the link
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpMessage requestMsg, Link link)
+    {
+    	Map<Integer, DhcpOption> optionMap = effectivePrefixOptions(requestMsg);
+    	if (link != null) {
+	    	DhcpConfigOptions configOptions = 
+	    		new DhcpConfigOptions(link.getPrefixConfigOptions(),
+	    				requestMsg.getRequestedOptionCodes());
+	    	if (configOptions != null) {
+	    		optionMap.putAll(configOptions.getDhcpOptionMap());
+	    	}
+	    	
+	    	Map<Integer, DhcpOption> filteredOptions = 
+	    		filteredPrefixOptions(requestMsg, link.getLinkFilters());
+	    	if (filteredOptions != null) {
+	    		optionMap.putAll(filteredOptions);
+	    	}
+    	}
+    	return optionMap;
+    }
+
+    /**
+     * Effective prefix options.
+     * 
+     * @param requestMsg the request msg
+     * @param link the link
+     * @param pool the pool
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpMessage requestMsg, Link link, 
+    		PrefixPool pool)
+    {
+    	Map<Integer, DhcpOption> optionMap = effectivePrefixOptions(requestMsg, link);
+    	if (pool != null) {
+	    	DhcpConfigOptions configOptions = 
+	    		new DhcpConfigOptions(pool.getPrefixConfigOptions(),
+	    				requestMsg.getRequestedOptionCodes());
+	    	if (configOptions != null) {
+	    		optionMap.putAll(configOptions.getDhcpOptionMap());
+	    	}
+	    	
+	    	Map<Integer, DhcpOption> filteredOptions = 
+	    		filteredPrefixOptions(requestMsg, pool.getFilters());
 	    	if (filteredOptions != null) {
 	    		optionMap.putAll(filteredOptions);
 	    	}
@@ -638,50 +1005,50 @@ public class DhcpServerConfiguration
     }
     
     /**
-     * Filtered ia options.
+     * Filtered ia na options.
      * 
      * @param requestMsg the request msg
      * @param filtersType the filters type
      * 
      * @return the map< integer, dhcp option>
      */
-    protected Map<Integer, DhcpOption> filteredIaOptions(DhcpMessage requestMsg,
+    protected Map<Integer, DhcpOption> filteredIaNaOptions(DhcpMessage requestMsg,
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
     		List<Filter> filters = filtersType.getFilterList();
-    		return filteredIaOptions(requestMsg, filters);
+    		return filteredIaNaOptions(requestMsg, filters);
     	}
     	return null;
     }
 
     /**
-     * Filtered ia options.
+     * Filtered ia na options.
      * 
      * @param requestMsg the request msg
      * @param linkFiltersType the link filters type
      * 
      * @return the map< integer, dhcp option>
      */
-    protected Map<Integer, DhcpOption> filteredIaOptions(DhcpMessage requestMsg, 
+    protected Map<Integer, DhcpOption> filteredIaNaOptions(DhcpMessage requestMsg, 
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
     		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
-    		return filteredIaOptions(requestMsg, filters);
+    		return filteredIaNaOptions(requestMsg, filters);
     	}
     	return null;
     }
 
 	/**
-	 * Filtered ia options.
+	 * Filtered ia na options.
 	 * 
 	 * @param requestMsg the request msg
 	 * @param filters the filters
 	 * 
 	 * @return the map< integer, dhcp option>
 	 */
-	private Map<Integer, DhcpOption> filteredIaOptions(DhcpMessage requestMsg,
+	private Map<Integer, DhcpOption> filteredIaNaOptions(DhcpMessage requestMsg,
 			List<? extends Filter> filters)
 	{
 		if ((filters != null) && !filters.isEmpty()) {
@@ -689,7 +1056,7 @@ public class DhcpServerConfiguration
 		    	if (msgMatchesFilter(requestMsg, filter)) {
 		            log.info("Request matches filter: " + filter.getName());
 		        	DhcpConfigOptions filterConfigOptions = 
-		        		new DhcpConfigOptions(filter.getIaConfigOptions(),
+		        		new DhcpConfigOptions(filter.getIaNaConfigOptions(),
 		        				requestMsg.getRequestedOptionCodes());
 		        	if (filterConfigOptions != null) {
 		        		return filterConfigOptions.getDhcpOptionMap();
@@ -701,50 +1068,50 @@ public class DhcpServerConfiguration
 	}
 
     /**
-     * Filtered addr options.
+     * Filtered na addr options.
      * 
      * @param requestMsg the request msg
      * @param filtersType the filters type
      * 
      * @return the map< integer, dhcp option>
      */
-    protected Map<Integer, DhcpOption> filteredAddrOptions(DhcpMessage requestMsg, 
+    protected Map<Integer, DhcpOption> filteredNaAddrOptions(DhcpMessage requestMsg, 
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
     		List<Filter> filters = filtersType.getFilterList();
-    		return filteredAddrOptions(requestMsg, filters);
+    		return filteredNaAddrOptions(requestMsg, filters);
     	}
     	return null;
     }
 
     /**
-     * Filtered addr options.
+     * Filtered na addr options.
      * 
      * @param requestMsg the request msg
      * @param linkFiltersType the link filters type
      * 
      * @return the map< integer, dhcp option>
      */
-    protected Map<Integer, DhcpOption> filteredAddrOptions(DhcpMessage requestMsg, 
+    protected Map<Integer, DhcpOption> filteredNaAddrOptions(DhcpMessage requestMsg, 
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
     		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
-    		return filteredAddrOptions(requestMsg, filters);
+    		return filteredNaAddrOptions(requestMsg, filters);
     	}
     	return null;
     }
 
     /**
-     * Filtered addr options.
+     * Filtered na addr options.
      * 
      * @param requestMsg the request msg
      * @param filters the filters
      * 
      * @return the map< integer, dhcp option>
      */
-    private Map<Integer, DhcpOption> filteredAddrOptions(DhcpMessage requestMsg,
+    private Map<Integer, DhcpOption> filteredNaAddrOptions(DhcpMessage requestMsg,
     		List<? extends Filter> filters)
     {
 		if ((filters != null) && !filters.isEmpty()) {
@@ -752,7 +1119,259 @@ public class DhcpServerConfiguration
             	if (msgMatchesFilter(requestMsg, filter)) {
                     log.info("Request matches filter: " + filter.getName());
                 	DhcpConfigOptions filterConfigOptions = 
-                		new DhcpConfigOptions(filter.getAddrConfigOptions(),
+                		new DhcpConfigOptions(filter.getNaAddrConfigOptions(),
+                				requestMsg.getRequestedOptionCodes());
+                	if (filterConfigOptions != null) {
+                		return filterConfigOptions.getDhcpOptionMap();
+                	}
+            	}
+            }
+		}
+		return null;
+    }
+    
+    /**
+     * Filtered ia ta options.
+     * 
+     * @param requestMsg the request msg
+     * @param filtersType the filters type
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    protected Map<Integer, DhcpOption> filteredIaTaOptions(DhcpMessage requestMsg,
+    		FiltersType filtersType)
+    {
+    	if (filtersType != null) {
+    		List<Filter> filters = filtersType.getFilterList();
+    		return filteredIaTaOptions(requestMsg, filters);
+    	}
+    	return null;
+    }
+
+    /**
+     * Filtered ia ta options.
+     * 
+     * @param requestMsg the request msg
+     * @param linkFiltersType the link filters type
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    protected Map<Integer, DhcpOption> filteredIaTaOptions(DhcpMessage requestMsg, 
+    		LinkFiltersType linkFiltersType)
+    {
+    	if (linkFiltersType != null) {
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
+    		return filteredIaTaOptions(requestMsg, filters);
+    	}
+    	return null;
+    }
+
+	/**
+	 * Filtered ia ta options.
+	 * 
+	 * @param requestMsg the request msg
+	 * @param filters the filters
+	 * 
+	 * @return the map< integer, dhcp option>
+	 */
+	private Map<Integer, DhcpOption> filteredIaTaOptions(DhcpMessage requestMsg,
+			List<? extends Filter> filters)
+	{
+		if ((filters != null) && !filters.isEmpty()) {
+		    for (Filter filter : filters) {
+		    	if (msgMatchesFilter(requestMsg, filter)) {
+		            log.info("Request matches filter: " + filter.getName());
+		        	DhcpConfigOptions filterConfigOptions = 
+		        		new DhcpConfigOptions(filter.getIaTaConfigOptions(),
+		        				requestMsg.getRequestedOptionCodes());
+		        	if (filterConfigOptions != null) {
+		        		return filterConfigOptions.getDhcpOptionMap();
+		        	}
+		    	}
+		    }
+		}
+		return null;
+	}
+
+    /**
+     * Filtered ta addr options.
+     * 
+     * @param requestMsg the request msg
+     * @param filtersType the filters type
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    protected Map<Integer, DhcpOption> filteredTaAddrOptions(DhcpMessage requestMsg, 
+    		FiltersType filtersType)
+    {
+    	if (filtersType != null) {
+    		List<Filter> filters = filtersType.getFilterList();
+    		return filteredTaAddrOptions(requestMsg, filters);
+    	}
+    	return null;
+    }
+
+    /**
+     * Filtered ta addr options.
+     * 
+     * @param requestMsg the request msg
+     * @param linkFiltersType the link filters type
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    protected Map<Integer, DhcpOption> filteredTaAddrOptions(DhcpMessage requestMsg, 
+    		LinkFiltersType linkFiltersType)
+    {
+    	if (linkFiltersType != null) {
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
+    		return filteredTaAddrOptions(requestMsg, filters);
+    	}
+    	return null;
+    }
+
+    /**
+     * Filtered ta addr options.
+     * 
+     * @param requestMsg the request msg
+     * @param filters the filters
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    private Map<Integer, DhcpOption> filteredTaAddrOptions(DhcpMessage requestMsg,
+    		List<? extends Filter> filters)
+    {
+		if ((filters != null) && !filters.isEmpty()) {
+            for (Filter filter : filters) {
+            	if (msgMatchesFilter(requestMsg, filter)) {
+                    log.info("Request matches filter: " + filter.getName());
+                	DhcpConfigOptions filterConfigOptions = 
+                		new DhcpConfigOptions(filter.getTaAddrConfigOptions(),
+                				requestMsg.getRequestedOptionCodes());
+                	if (filterConfigOptions != null) {
+                		return filterConfigOptions.getDhcpOptionMap();
+                	}
+            	}
+            }
+		}
+		return null;
+    }
+    
+    /**
+     * Filtered ia pd options.
+     * 
+     * @param requestMsg the request msg
+     * @param filtersType the filters type
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    protected Map<Integer, DhcpOption> filteredIaPdOptions(DhcpMessage requestMsg,
+    		FiltersType filtersType)
+    {
+    	if (filtersType != null) {
+    		List<Filter> filters = filtersType.getFilterList();
+    		return filteredIaPdOptions(requestMsg, filters);
+    	}
+    	return null;
+    }
+
+    /**
+     * Filtered ia pd options.
+     * 
+     * @param requestMsg the request msg
+     * @param linkFiltersType the link filters type
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    protected Map<Integer, DhcpOption> filteredIaPdOptions(DhcpMessage requestMsg, 
+    		LinkFiltersType linkFiltersType)
+    {
+    	if (linkFiltersType != null) {
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
+    		return filteredIaPdOptions(requestMsg, filters);
+    	}
+    	return null;
+    }
+
+	/**
+	 * Filtered ia pd options.
+	 * 
+	 * @param requestMsg the request msg
+	 * @param filters the filters
+	 * 
+	 * @return the map< integer, dhcp option>
+	 */
+	private Map<Integer, DhcpOption> filteredIaPdOptions(DhcpMessage requestMsg,
+			List<? extends Filter> filters)
+	{
+		if ((filters != null) && !filters.isEmpty()) {
+		    for (Filter filter : filters) {
+		    	if (msgMatchesFilter(requestMsg, filter)) {
+		            log.info("Request matches filter: " + filter.getName());
+		        	DhcpConfigOptions filterConfigOptions = 
+		        		new DhcpConfigOptions(filter.getIaPdConfigOptions(),
+		        				requestMsg.getRequestedOptionCodes());
+		        	if (filterConfigOptions != null) {
+		        		return filterConfigOptions.getDhcpOptionMap();
+		        	}
+		    	}
+		    }
+		}
+		return null;
+	}
+
+    /**
+     * Filtered prefix options.
+     * 
+     * @param requestMsg the request msg
+     * @param filtersType the filters type
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    protected Map<Integer, DhcpOption> filteredPrefixOptions(DhcpMessage requestMsg, 
+    		FiltersType filtersType)
+    {
+    	if (filtersType != null) {
+    		List<Filter> filters = filtersType.getFilterList();
+    		return filteredPrefixOptions(requestMsg, filters);
+    	}
+    	return null;
+    }
+
+    /**
+     * Filtered prefix options.
+     * 
+     * @param requestMsg the request msg
+     * @param linkFiltersType the link filters type
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    protected Map<Integer, DhcpOption> filteredPrefixOptions(DhcpMessage requestMsg, 
+    		LinkFiltersType linkFiltersType)
+    {
+    	if (linkFiltersType != null) {
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
+    		return filteredPrefixOptions(requestMsg, filters);
+    	}
+    	return null;
+    }
+
+    /**
+     * Filtered prefix options.
+     * 
+     * @param requestMsg the request msg
+     * @param filters the filters
+     * 
+     * @return the map< integer, dhcp option>
+     */
+    private Map<Integer, DhcpOption> filteredPrefixOptions(DhcpMessage requestMsg,
+    		List<? extends Filter> filters)
+    {
+		if ((filters != null) && !filters.isEmpty()) {
+            for (Filter filter : filters) {
+            	if (msgMatchesFilter(requestMsg, filter)) {
+                    log.info("Request matches filter: " + filter.getName());
+                	DhcpConfigOptions filterConfigOptions = 
+                		new DhcpConfigOptions(filter.getPrefixConfigOptions(),
                 				requestMsg.getRequestedOptionCodes());
                 	if (filterConfigOptions != null) {
                 		return filterConfigOptions.getDhcpOptionMap();

@@ -53,11 +53,11 @@
 		<link>
 			<name>Client Link 1</name>
 			<address>2001:DB8:1::/48</address>
-			<iaConfigOptions>
+			<iaNaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:1::1</ipAddress>
 				</dnsServersOption>
-			</iaConfigOptions>
+			</iaNaConfigOptions>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Reconfigure</name>
@@ -67,7 +67,7 @@
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>
-					<pools>
+					<naAddrPools>
 						<pool>
 							<iaType>non-temporary</iaType>
 							<range>2001:DB8:1::10A-2001:DB8:1::1FF</range>
@@ -77,10 +77,10 @@
 								</sipServerAddressesOption>
 							</addrConfigOptions>
 						</pool>
-					</pools>
+					</naAddrPools>
 			  	</linkFilter>
 			</linkFilters>
-			<pools>
+			<naAddrPools>
 				<pool>
 					<iaType>non-temporary</iaType>
 					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
@@ -90,16 +90,16 @@
 						</sipServerAddressesOption>
 					</addrConfigOptions>
 				</pool>
-			</pools>
+			</naAddrPools>
 		</link>
 		<link>
 			<name>Client Link 2</name>
 			<address>2001:DB8:2::/48</address>
-			<iaConfigOptions>
+			<iaNaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:2::1</ipAddress>
 				</dnsServersOption>
-			</iaConfigOptions>
+			</iaNaConfigOptions>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Reconfigure</name>
@@ -109,7 +109,7 @@
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>
-					<pools>
+					<naAddrPools>
 						<pool>
 							<iaType>non-temporary</iaType>
 							<range>2001:DB8:2::10A-2001:DB8:2::1FF</range>
@@ -119,36 +119,36 @@
 								</sipServerAddressesOption>
 							</addrConfigOptions>
 						</pool>
-					</pools>
+					</naAddrPools>
 			  	</linkFilter>
 			</linkFilters>
 		</link>
 		<link>
 			<name>Client Link 3</name>
 			<address>2001:DB8:3::/48</address>
-			<iaConfigOptions>
+			<iaNaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:3::1</ipAddress>
 				</dnsServersOption>
-			</iaConfigOptions>
+			</iaNaConfigOptions>
 		</link>
 		<link>
 			<name>Client Link 4</name>
 			<address>2001:DB8:4::/48</address>
-			<iaConfigOptions>
+			<iaNaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:4::1</ipAddress>
 				</dnsServersOption>
-			</iaConfigOptions>
+			</iaNaConfigOptions>
 		</link>
 		<link>
 			<name>Client Link 5</name>
 			<address>2001:DB8:5::/48</address>
-			<iaConfigOptions>
+			<iaNaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:DB8:5::1</ipAddress>
 				</dnsServersOption>
-			</iaConfigOptions>
+			</iaNaConfigOptions>
 		</link>
 	</links>
 

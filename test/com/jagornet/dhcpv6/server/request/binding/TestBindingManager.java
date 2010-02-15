@@ -32,7 +32,6 @@ import com.jagornet.dhcpv6.db.BaseDbTestCase;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
-import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
 import com.jagornet.dhcpv6.xml.IaNaOption;
 import com.jagornet.dhcpv6.xml.OpaqueData;
@@ -43,15 +42,8 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
  */
 public class TestBindingManager extends BaseDbTestCase
 {
-	
-	/** The Constant TEST_CONFIGFILE. */
-	protected static final String TEST_CONFIGFILE = "test/dhcpv6server-sample.xml";
-
-	/** The config. */
-	private DhcpServerConfiguration config;
-	
 	/** The manager. */
-	private BindingManager manager;
+	private NaAddrBindingManagerInterface manager;
 	
 	/** The client id option. */
 	private DhcpClientIdOption clientIdOption;
@@ -62,11 +54,7 @@ public class TestBindingManager extends BaseDbTestCase
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		DhcpServerConfiguration.configFilename = TEST_CONFIGFILE;
-		config = DhcpServerConfiguration.getInstance();
-		// use our test context for the BindingManager
-		BindingManager.context = ctx;
-		manager = BindingManager.getInstance();
+		manager = (NaAddrBindingManagerInterface) ctx.getBean("naAddrBindingManager");
 		OpaqueData opaque = OpaqueData.Factory.newInstance();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });
@@ -127,12 +115,12 @@ public class TestBindingManager extends BaseDbTestCase
 		assertEquals(binding.getIaid(), binding2.getIaid());
 		assertEquals(binding.getIatype(), binding2.getIatype());
 		assertEquals(binding.getState(), binding2.getState());
-		assertEquals(binding.getBindingAddresses().size(), binding2.getBindingAddresses().size());
-		Iterator<BindingAddress> binding1Addrs = binding.getBindingAddresses().iterator();
-		Iterator<BindingAddress> binding2Addrs = binding2.getBindingAddresses().iterator();
+		assertEquals(binding.getBindingObjects().size(), binding2.getBindingObjects().size());
+		Iterator<BindingObject> binding1Addrs = binding.getBindingObjects().iterator();
+		Iterator<BindingObject> binding2Addrs = binding2.getBindingObjects().iterator();
 		while (binding1Addrs.hasNext()) {
-			BindingAddress ba1 = binding1Addrs.next();
-			BindingAddress ba2 = binding2Addrs.next();
+			BindingAddress ba1 = (BindingAddress) binding1Addrs.next();
+			BindingAddress ba2 = (BindingAddress) binding2Addrs.next();
 			assertEquals(ba1.getId(), ba2.getId());
 			assertEquals(ba1.getIpAddress(), ba2.getIpAddress());
 			assertEquals(ba1.getStartTime().getTime(), ba2.getStartTime().getTime());

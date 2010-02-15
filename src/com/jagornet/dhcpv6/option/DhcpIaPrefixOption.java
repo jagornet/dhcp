@@ -28,6 +28,7 @@ package com.jagornet.dhcpv6.option;
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,9 +54,8 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
 	/** The ia addr prefix, which contains any configured options for the ia prefix */
 	private IaPrefixOption iaPrefixOption;
     
-	/** The dhcp options sent by the client inside this ia prefix option */
-	protected Map<Integer, DhcpOption> clientDhcpOptions = 
-    	new HashMap<Integer, DhcpOption>();
+	/** The dhcp options inside this ia prefix option */
+	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 
 	public DhcpIaPrefixOption()
 	{
@@ -79,6 +79,32 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
 	{
 		if (iaPrefixOption != null)
 			this.iaPrefixOption = iaPrefixOption;
+	}
+
+	public Map<Integer, DhcpOption> getDhcpOptionMap() {
+		return dhcpOptions;
+	}
+
+	public void setDhcpOptionMap(Map<Integer, DhcpOption> dhcpOptions) {
+		this.dhcpOptions = dhcpOptions;
+	}
+
+	public void putAllDhcpOptions(Map<Integer, DhcpOption> dhcpOptions) {
+		this.dhcpOptions.putAll(dhcpOptions);
+	}
+	
+	public InetAddress getInetAddress()
+	{
+		InetAddress inetAddr = null;
+		if (iaPrefixOption != null) {
+			try {
+				inetAddr = InetAddress.getByName(iaPrefixOption.getIpv6Prefix());
+			}
+			catch (UnknownHostException ex) {
+				log.error("Invalid IP address: " + iaPrefixOption.getIpv6Prefix());
+			}
+		}
+		return inetAddr;
 	}
 	
     /* (non-Javadoc)
@@ -186,7 +212,7 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
             DhcpOption option = DhcpOptionFactory.getDhcpOption(code);
             if (option != null) {
                 option.decode(buf);
-                clientDhcpOptions.put(option.getCode(), option);
+                dhcpOptions.put(option.getCode(), option);
             }
             else {
                 break;  // no more options, or one is malformed, so we're done

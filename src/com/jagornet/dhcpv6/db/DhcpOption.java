@@ -25,18 +25,14 @@
  */
 package com.jagornet.dhcpv6.db;
 
-
-// TODO: Auto-generated Javadoc
 /**
- * TODO: RENAME this to just Option.java, and the corresponding DB table as well
- * because DhcpOption name conflicts with the interface in option.base package.
+ * The DhcpOption POJO class for the DHCPOPTION database table.
  * 
- * @author agrabil
+ * @author A. Gregory Rabil
  */
 
 public class DhcpOption
 {
-	
 	/** The id. */
 	protected Long id;	// the database-generated object ID
 
@@ -49,8 +45,11 @@ public class DhcpOption
 	/** The identity assoc id. */
 	protected Long identityAssocId;
 	
-	/** The ip address id. */
-	protected Long ipAddressId;
+	/** The ia address id. */
+	protected Long iaAddressId;
+	
+	/** The ia prefix id. */
+	protected Long iaPrefixId;
 
 	/**
 	 * Gets the id.
@@ -125,20 +124,28 @@ public class DhcpOption
 	}
 	
 	/**
-	 * Gets the ip address id.
+	 * Gets the ia address id.
 	 * 
-	 * @return the ip address id
+	 * @return the ia address id
 	 */
-	public Long getIpAddressId() {
-		return ipAddressId;
+	public Long getIaAddressId() {
+		return iaAddressId;
 	}
 	
 	/**
-	 * Sets the ip address id.
+	 * Sets the ia address id.
 	 * 
-	 * @param ipAddressId the new ip address id
+	 * @param iaAddressId the new ia address id
 	 */
-	public void setIpAddressId(Long ipAddressId) {
-		this.ipAddressId = ipAddressId;
+	public void setIaAddressId(Long iaAddressId) {
+		this.iaAddressId = iaAddressId;
+	}
+
+	public Long getIaPrefixId() {
+		return iaPrefixId;
+	}
+
+	public void setIaPrefixId(Long iaPrefixId) {
+		this.iaPrefixId = iaPrefixId;
 	}
 }

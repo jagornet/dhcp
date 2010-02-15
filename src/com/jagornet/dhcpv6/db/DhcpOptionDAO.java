@@ -27,9 +27,10 @@ package com.jagornet.dhcpv6.db;
 
 import java.util.List;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface DhcpOptionDAO.
+ * 
+ * @author A. Gregory Rabil
  */
 public interface DhcpOptionDAO
 {
@@ -69,9 +70,18 @@ public interface DhcpOptionDAO
 	/**
 	 * Find all by ia address id.
 	 * 
-	 * @param ipAddressId the ip address id
+	 * @param iaAddressId the ia address id
 	 * 
 	 * @return the list< dhcp option>
 	 */
-	public List<DhcpOption> findAllByIaAddressId(long ipAddressId);
+	public List<DhcpOption> findAllByIaAddressId(long iaAddressId);
+	
+	/**
+	 * Find all by ia prefix id.
+	 * 
+	 * @param iaPrefixId the ia prefix id
+	 * 
+	 * @return the list< dhcp option>
+	 */
+	public List<DhcpOption> findAllByIaPrefixId(long iaPrefixId);
 }
