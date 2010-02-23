@@ -25,8 +25,10 @@
  */
 package com.jagornet.dhcpv6.server.request;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.option.DhcpClientFqdnOption;
 import com.jagornet.dhcpv6.option.DhcpIaAddrOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
 import com.jagornet.dhcpv6.option.DhcpIaPdOption;
@@ -54,11 +57,15 @@ import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.binding.AddressBindingPool;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
+import com.jagornet.dhcpv6.server.request.binding.BindingAddress;
 import com.jagornet.dhcpv6.server.request.binding.BindingObject;
 import com.jagornet.dhcpv6.server.request.binding.BindingPrefix;
 import com.jagornet.dhcpv6.server.request.binding.PrefixBindingPool;
+import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.AddressPool;
+import com.jagornet.dhcpv6.xml.ClientFqdnOption;
+import com.jagornet.dhcpv6.xml.DomainNameOptionType;
 import com.jagornet.dhcpv6.xml.IaAddrOption;
 import com.jagornet.dhcpv6.xml.IaNaOption;
 import com.jagornet.dhcpv6.xml.IaPdOption;
@@ -99,6 +106,9 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     
     /** The configuration Link object for the client link. */
     protected DhcpLink clientLink;
+    
+    /** The list of Bindings for this request. */
+    protected List<Binding> bindings = new ArrayList<Binding>();
     
     /** The recent msgs. */
     protected static Set<DhcpMessage> recentMsgs = 
@@ -774,6 +784,119 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			log.warn(" IA_PD T2(" + iaPdOption.getT2() + ")" +
 					" <  IA_PD T1(" + iaPdOption.getT1() + "): setting T2=T1");
 			iaPdOption.setT2(iaPdOption.getT1());
+		}
+	}
+	
+	protected void processDdnsUpdates()
+	{
+		DhcpClientFqdnOption clientFqdnOption = 
+			(DhcpClientFqdnOption) requestMsg.getDhcpOption(DhcpConstants.OPTION_CLIENT_FQDN);
+		if (clientFqdnOption == null) {
+			//TODO allow name generation?
+			log.debug("No Client FQDN option in request.  Skipping DDNS update processing.");
+			return;
+		}
+
+		DhcpClientFqdnOption replyFqdnOption = 
+			new DhcpClientFqdnOption((ClientFqdnOption) clientFqdnOption.getDomainNameOption());
+		replyFqdnOption.setUpdateAaaaBit(false);
+		replyFqdnOption.setOverrideBit(false);
+		replyFqdnOption.setNoUpdateBit(false);
+		
+		DomainNameOptionType domainNameOption = clientFqdnOption.getDomainNameOption();
+		String fqdn = domainNameOption.getDomainName();
+		if ((fqdn == null) || (fqdn.length() <= 0)) {
+			log.error("Client FQDN option domain name is null/empty.  No DDNS udpates performed.");
+			replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+			replyMsg.putDhcpOption(replyFqdnOption);
+			return;
+		}
+		
+		String policy = DhcpServerPolicies.effectivePolicy(clientLink.getLink(), Property.DDNS_UPDATE);
+		log.info("Server configuration for ddns.update policy: " + policy);
+		if ((policy == null) || policy.equalsIgnoreCase("none")) {
+			log.info("Server configuration for ddns.update policy is null or 'none'." +
+					"  No DDNS updates performed.");
+			replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+			replyMsg.putDhcpOption(replyFqdnOption);
+			return;
+		}
+				
+		if (clientFqdnOption.getNoUpdateBit() && policy.equalsIgnoreCase("honorNoUpdate")) {
+			log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
+					"  No DDNS updates performed.");
+			replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+			replyMsg.putDhcpOption(replyFqdnOption);
+			//TODO: RFC 4704 Section 6.1
+			//		...the server SHOULD delete any RRs that it previously added 
+			//		via DNS updates for the client.
+			return;
+		}
+
+		boolean doForwardUpdate = true;
+		if (!clientFqdnOption.getUpdateAaaaBit() && policy.equalsIgnoreCase("honorNoAAAA")) {
+			log.info("Client FQDN NoAAAA flag set.  Server configured to honor request." +
+					"  No FORWARD DDNS updates performed.");
+			doForwardUpdate = false;
+		}
+		else {
+			replyFqdnOption.setUpdateAaaaBit(true);	// server will do update
+			if (!clientFqdnOption.getUpdateAaaaBit())
+				replyFqdnOption.setOverrideBit(true);	// tell client that we overrode request flag
+		}
+		
+		String domain = DhcpServerPolicies.effectivePolicy(clientLink.getLink(), Property.DDNS_DOMAIN); 
+		if ((domain != null) && !domain.isEmpty()) {
+			log.info("Server configuration for domain policy: " + domain);
+			// if there is a configured domain, then replace the domain provide by the client
+			int dot = fqdn.indexOf('.');
+			if (dot > 0) {
+				fqdn = fqdn.substring(0, dot+1) + domain;
+			}
+			else {
+				fqdn = fqdn + "." + domain;
+			}
+			domainNameOption.setDomainName(fqdn);
+			replyFqdnOption.setDomainNameOption(domainNameOption);
+		}
+		
+		replyMsg.putDhcpOption(replyFqdnOption);
+
+		for (Binding binding : bindings) {
+			if (binding.getState() == Binding.COMMITTED) {
+				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+				if (bindingObjs != null) {
+					for (BindingObject bindingObj : bindingObjs) {
+						DdnsUpdater ddns = 
+							new DdnsUpdater(clientLink.getLink(), (BindingAddress) bindingObj, fqdn, 
+								requestMsg.getDhcpClientIdOption().getDuid(), doForwardUpdate, false);
+						ddns.processUpdates();
+					}
+				}
+				try {
+					byte[] newVal = replyFqdnOption.encode().array();
+					// don't store the option code, start with length to
+					// simplify decoding when retrieving from database
+					newVal = Arrays.copyOfRange(newVal, 2, newVal.length);
+					com.jagornet.dhcpv6.db.DhcpOption dbOption = 
+						binding.getDhcpOption(DhcpConstants.OPTION_CLIENT_FQDN);
+					if (dbOption == null) {
+						dbOption = new com.jagornet.dhcpv6.db.DhcpOption();
+						dbOption.setCode(replyFqdnOption.getCode());
+						dbOption.setValue(newVal);
+						dhcpServerConfig.getIaMgr().addDhcpOption(binding, dbOption);
+					}
+					else {
+						if(!Arrays.equals(dbOption.getValue(), newVal)) {
+							dbOption.setValue(newVal);
+							dhcpServerConfig.getIaMgr().updateDhcpOption(dbOption);
+						}
+					}
+				} 
+				catch (IOException ex) {
+					log.error("Failed to update binding with Client FQDN Option", ex);
+				}
+			}
 		}
 	}
 

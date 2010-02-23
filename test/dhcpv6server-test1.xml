@@ -53,9 +53,7 @@
 		<link>
 			<name>Client Link 1</name>
 			<interface>en1</interface>
-			<!--
-			<address>fe80::/10</address>
-			-->
+			<address>fd00:9a60:deb1::/48</address>
 			<iaNaConfigOptions>
 				<dnsServersOption>
 					<ipAddress>fd00:9a60:deb1::1</ipAddress>
@@ -69,6 +67,34 @@
 				<policy>
 					<name>validLifetime</name>
 					<value>600</value>
+				</policy>
+				<policy>
+					<name>ddns.update</name>
+					<value>server</value>
+				</policy>
+				<policy>
+					<name>ddns.domain</name>
+					<value>ddns.test.jagornet.com.</value>
+				</policy>
+				<policy>
+					<name>ddns.server</name>
+					<value>192.168.0.6</value>
+				</policy>
+				<policy>
+					<name>ddns.tsig.keyName</name>
+					<value>macbook-ubuntu.</value>
+				</policy>
+				<policy>
+					<name>ddns.tsig.algorithm</name>
+					<value>hmac-sha256.</value>
+				</policy>
+				<policy>
+					<name>ddns.tsig.keyData</name>
+					<value>3BE05CzQLXTm5ouGljhJeQ==</value>
+				</policy>
+				<policy>
+					<name>ddns.reverse.zone.bitLength</name>
+					<value>48</value>
 				</policy>
 			</policies>
 			<linkFilters>

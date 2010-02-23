@@ -61,4 +61,17 @@ public class DhcpClientIdOption extends BaseOpaqueDataOption
     {
         return ((ClientIdOption)opaqueDataOption).getCode();
     }
+    
+    /**
+     * Convenience method to get the DUID bytes.
+     */
+    public byte[] getDuid()
+    {
+		if ((this.getOpaqueDataOptionType() != null) &&
+				(this.getOpaqueDataOptionType().getOpaqueData() != null)) {
+			return this.getOpaqueDataOptionType().getOpaqueData().getHexValue();
+		}
+		return null;
+	}
+    
 }

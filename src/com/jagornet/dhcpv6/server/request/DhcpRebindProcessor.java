@@ -130,7 +130,6 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 //		   T1/T2 times.
 
 		boolean sendReply = true;
-		boolean haveBinding = false;
 		DhcpClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
 		
 		List<DhcpIaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
@@ -142,7 +141,6 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 							clientIdOption, dhcpIaNaOption, requestMsg);
 					if (binding != null) {
-						haveBinding = true;
 						// zero out the lifetimes of any invalid addresses
 						if(!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
 							replyMsg.addIaNaOption(dhcpIaNaOption);
@@ -152,9 +150,9 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 									clientIdOption, dhcpIaNaOption, requestMsg, IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink.getLink(), binding);
+								bindings.add(binding);
 							}
 							else {
-								haveBinding = false;
 								addIaNaOptionStatusToReply(dhcpIaNaOption,
 			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 							}
@@ -185,7 +183,6 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 							clientIdOption, dhcpIaTaOption, requestMsg);
 					if (binding != null) {
-						haveBinding = true;
 						// zero out the lifetimes of any invalid addresses
 						if(!allIaAddrsOnLink(dhcpIaTaOption, clientLink)) {
 							replyMsg.addIaTaOption(dhcpIaTaOption);
@@ -195,9 +192,9 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 									clientIdOption, dhcpIaTaOption, requestMsg, IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink.getLink(), binding);
+								bindings.add(binding);
 							}
 							else {
-								haveBinding = false;
 								addIaTaOptionStatusToReply(dhcpIaTaOption,
 			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 							}
@@ -228,7 +225,6 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 							clientIdOption, dhcpIaPdOption, requestMsg);
 					if (binding != null) {
-						haveBinding = true;
 						// zero out the lifetimes of any invalid addresses
 						if(!allIaPrefixesOnLink(dhcpIaPdOption, clientLink)) {
 							replyMsg.addIaPdOption(dhcpIaPdOption);
@@ -238,9 +234,9 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 									clientIdOption, dhcpIaPdOption, requestMsg, IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink.getLink(), binding);
+								bindings.add(binding);
 							}
 							else {
-								haveBinding = false;
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
 			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 							}
@@ -262,7 +258,7 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
     		}
     	}
 
-	    if (!haveBinding && 
+	    if (bindings.isEmpty() && 
 	    		!DhcpServerPolicies.effectivePolicyAsBoolean(clientLink.getLink(), 
 	    				Property.VERIFY_UNKNOWN_REBIND)) {
 			sendReply = false;
@@ -270,9 +266,10 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 
 	    if (sendReply) {
             replyMsg.setMessageType(DhcpConstants.REPLY);
-            if (haveBinding) {
+            if (!bindings.isEmpty()) {
             	populateReplyMsgOptions(clientLink.getLink());
-            }
+    			processDdnsUpdates();
+           }
 	    }
 		return sendReply;    	
     }

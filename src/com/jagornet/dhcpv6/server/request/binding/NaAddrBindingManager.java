@@ -43,7 +43,7 @@ public class NaAddrBindingManager
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
 			DhcpMessage requestMsg) {
 		
-		byte[] duid = getDuid(clientIdOption);
+		byte[] duid = clientIdOption.getDuid();;
 		long iaid = iaNaOption.getIaNaOption().getIaId();
 		
 		return super.findCurrentBinding(clientLink, duid, IdentityAssoc.NA_TYPE, 
@@ -55,7 +55,7 @@ public class NaAddrBindingManager
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
 			DhcpMessage requestMsg, boolean rapidCommit) {
 		
-		byte[] duid = getDuid(clientIdOption);
+		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaNaOption.getIaNaOption().getIaId();
 		
 		List<InetAddress> requestAddrs = getInetAddrs(iaNaOption);
@@ -69,7 +69,7 @@ public class NaAddrBindingManager
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
 			DhcpMessage requestMsg, byte state) {
 		
-		byte[] duid = getDuid(clientIdOption);
+		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaNaOption.getIaNaOption().getIaId();
 		
 		List<InetAddress> requestAddrs = getInetAddrs(iaNaOption);

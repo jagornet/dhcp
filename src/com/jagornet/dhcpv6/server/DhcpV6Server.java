@@ -60,6 +60,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jagornet.dhcpv6.Version;
+import com.jagornet.dhcpv6.db.IaManager;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.netty.NettyDhcpServer;
 import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
@@ -163,11 +164,15 @@ public class DhcpV6Server
         			configFilename);
         }
         
+        log.info("Loading application context file: " + appContextFilename);
 		context = new ClassPathXmlApplicationContext(appContextFilename);
 		if (context == null) {
 			throw new IllegalStateException("Failed to initialize application context from file: " +
         			appContextFilename);
 		}
+		log.info("Application context loaded.");
+		
+		log.info("Loading managers from context...");
 		
 		NaAddrBindingManagerInterface naAddrBindingMgr = 
 			(NaAddrBindingManagerInterface) context.getBean("naAddrBindingManager");
@@ -196,6 +201,16 @@ public class DhcpV6Server
 			serverConfig.setPrefixBindingMgr(prefixBindingMgr);
 		}
         
+		IaManager iaMgr = (IaManager) context.getBean("iaManager");
+		if (iaMgr == null) {
+			log.warn("No IA Manager available");
+		}
+		else {
+			serverConfig.setIaMgr(iaMgr);
+		}
+		
+		log.info("Managers loaded.");
+		
         registerLog4jInJmx();
 
         System.out.println("Port number: " + portNumber);
