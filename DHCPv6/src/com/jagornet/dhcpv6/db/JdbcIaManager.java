@@ -160,6 +160,31 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 			iaDao.deleteById(ia.getId());
 		}
 	}
+	
+	public void addDhcpOption(IdentityAssoc ia, DhcpOption option)
+	{
+		// ensure the DhcpOption references this IA, and nothing else
+		option.setIdentityAssocId(ia.getId());
+		option.setIaAddressId(null);
+		option.setIaPrefixId(null);
+		
+		dhcpOptDao.create(option);
+	}
+	
+	public void updateDhcpOption(DhcpOption option)
+	{
+		dhcpOptDao.update(option);
+	}
+	
+	public void deleteDhcpOption(DhcpOption option)
+	{
+		dhcpOptDao.deleteById(option.getId());
+	}
+	
+	public IdentityAssoc getIA(long id)
+	{
+		return iaDao.getById(id);
+	}
 
 	/**
 	 * Locate an IdentityAssoc object by the key tuple duid-iaid-iatype.

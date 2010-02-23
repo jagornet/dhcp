@@ -101,6 +101,76 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
     {
         return ((ClientFqdnOption)domainNameOption).getCode();
     }
+    
+    /**
+     * Get the S bit.
+     * @return
+     */
+    public boolean getUpdateAaaaBit()
+    {
+    	short sbit = (short) (((ClientFqdnOption)domainNameOption).getFlags() & 0x01);
+    	return (sbit > 0);
+    }
+    /**
+     * Set the S bit.
+     * @param bit
+     */
+    public void setUpdateAaaaBit(boolean bit)
+    {
+    	ClientFqdnOption me = (ClientFqdnOption)domainNameOption;
+    	if (bit)
+    		me.setFlags((short) (me.getFlags() | 0x01));
+    	else
+    		me.setFlags((short) (me.getFlags() & 0x06));
+    }
+    
+    /**
+     * Get the O bit.
+     * @return
+     */
+    public boolean getOverrideBit()
+    {
+    	short obit = (short) (((ClientFqdnOption)domainNameOption).getFlags() & 0x02);
+    	return (obit > 0);
+    }
+    /**
+     * Set the O bit.
+     * @param bit
+     */
+    public void setOverrideBit(boolean bit)
+    {
+    	ClientFqdnOption me = (ClientFqdnOption)domainNameOption;
+    	if (bit)
+    		me.setFlags((short) (me.getFlags() | 0x02));
+    	else
+    		me.setFlags((short) (me.getFlags() & 0x05));
+    }
+    
+    /**
+     * Get the N bit.
+     * @return
+     */
+    public boolean getNoUpdateBit()
+    {
+    	short nbit = (short) (((ClientFqdnOption)domainNameOption).getFlags() & 0x04);
+    	return (nbit == 1);
+    }
+    /**
+     * Set the N bit.  If set to true, will also set the S bit to 0.
+     * @param bit
+     */
+    public void setNoUpdateBit(boolean bit)
+    {
+    	ClientFqdnOption me = (ClientFqdnOption)domainNameOption;
+    	if (bit) {
+    		me.setFlags((short) (me.getFlags() | 0x04));
+    		// If the "N" bit is 1, the "S" bit MUST be 0.
+    		setUpdateAaaaBit(false);
+    	}
+    	else {
+    		me.setFlags((short) (me.getFlags() & 0x03));
+    	}
+    }
 
     /* (non-Javadoc)
      * @see java.lang.Object#toString()

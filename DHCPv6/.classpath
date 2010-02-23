@@ -26,5 +26,6 @@
 	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/dbunit-2.4.7.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-codec-1.4/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="/Users/agrabil/jboss/netty-3.1.5.GA/jar/netty-3.1.5.GA.jar"/>
+	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/dnsjava-2.0.8/dnsjava-2.0.8.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

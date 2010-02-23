@@ -128,7 +128,6 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 //		   option with the client's DUID.
 
 		boolean sendReply = true;
-		boolean haveBinding = false;
 		boolean rapidCommit = isRapidCommit(requestMsg, clientLink.getLink());
 		DhcpClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
 		
@@ -151,9 +150,9 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
 					}
 					if (binding != null) {
-						haveBinding = true;
 						// have a good binding, put it in the reply with options
 						addBindingToReply(clientLink.getLink(), binding);
+						bindings.add(binding);
 					}
 					else {
 						// something went wrong, report NoAddrsAvail status for IA_NA
@@ -187,9 +186,9 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
 					}
 					if (binding != null) {
-						haveBinding = true;
 						// have a good binding, put it in the reply with options
 						addBindingToReply(clientLink.getLink(), binding);
+						bindings.add(binding);
 					}
 					else {
 						// something went wrong, report NoAddrsAvail status for IA_TA
@@ -223,9 +222,9 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
 					}
 					if (binding != null) {
-						haveBinding = true;
 						// have a good binding, put it in the reply with options
 						addBindingToReply(clientLink.getLink(), binding);
+						bindings.add(binding);
 					}
 					else {
 						// something went wrong, report NoAddrsAvail status for IA_PD
@@ -247,8 +246,9 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     		else {
     	        replyMsg.setMessageType(DhcpConstants.ADVERTISE);
     		}
-    		if (haveBinding) {
+    		if (!bindings.isEmpty()) {
     			populateReplyMsgOptions(clientLink.getLink());
+    			processDdnsUpdates();
     		}
     	}    	
 		return sendReply;

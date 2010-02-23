@@ -49,7 +49,6 @@ import com.jagornet.dhcpv6.db.IaPrefixDAO;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.db.IdentityAssocDAO;
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.Subnet;
@@ -285,7 +284,6 @@ public abstract class BaseBindingManager
 				binding.setState(IdentityAssoc.COMMITTED);
 				for (BindingObject bindingObj : bindingObjs) {
 					bindingObj.setState(IaAddress.COMMITTED);
-					//TODO ddns update
 				}
 			}
 			else {
@@ -571,23 +569,6 @@ public abstract class BaseBindingManager
 		bindingObj.setPreferredEndTime(new Date(pEndTime));
 		long vEndTime = now.getTime() + valid;
 		bindingObj.setValidEndTime(new Date(vEndTime));
-	}
-
-    /**
-     * Gets the duid.
-     * 
-     * @param clientIdOption the client id option
-     * 
-     * @return the duid
-     */
-    protected byte[] getDuid(DhcpClientIdOption clientIdOption)
-    {
-		if ((clientIdOption != null) &&
-				(clientIdOption.getOpaqueDataOptionType() != null) &&
-				(clientIdOption.getOpaqueDataOptionType().getOpaqueData() != null)) {
-			return clientIdOption.getOpaqueDataOptionType().getOpaqueData().getHexValue();
-		}
-		return null;
 	}
 
 	public IaManager getIaMgr() {

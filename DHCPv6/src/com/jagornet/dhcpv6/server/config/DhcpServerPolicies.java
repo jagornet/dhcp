@@ -63,6 +63,27 @@ public class DhcpServerPolicies
 		IA_NA_T2("iaNaT2", "0.8"),
 		IA_PD_T1("iaPdT1", "0.5"),
 		IA_PD_T2("iaPdT2", "0.8"),
+		DDNS_UPDATE("ddns.update", "none"),	// acceptable values: none, server, client, etc...
+		DDNS_SYNCHRONIZE("ddns.synchronize", "false"),
+		DDNS_DOMAIN("ddns.domain", ""),
+		DDNS_TTL("ddns.ttl", "0.3"),	// 1/3 of the lifetime
+		DDNS_SERVER("ddns.server", ""),
+		DDNS_TSIG_KEYNAME("ddns.tsig.keyName", ""),
+		DDNS_TSIG_ALGORITHM("ddns.tsig.algorithm", ""),
+		DDNS_TSIG_KEYDATA("ddns.tsig.keyData", ""),
+		DDNS_FORWARD_ZONE_NAME("ddns.forward.zone.name", ""),
+		DDNS_FORWARD_ZONE_TTL("ddns.forward.zone.ttl", "0.3"),
+		DDNS_FORWARD_ZONE_SERVER("ddns.forward.zone.server", ""),
+		DDNS_FORWARD_ZONE_TSIG_KEYNAME("ddns.forward.zone.tsig.keyName", ""),
+		DDNS_FORWARD_ZONE_TSIG_ALGORITHM("ddns.forward.zone.tsig.algorithm", ""),
+		DDNS_FORWARD_ZONE_TSIG_KEYDATA("ddns.forward.zone.tsig.keyData", ""),
+		DDNS_REVERSE_ZONE_NAME("ddns.reverse.zone.name", ""),
+		DDNS_REVERSE_ZONE_BITLENGTH("ddns.reverse.zone.bitLength", "64"),
+		DDNS_REVERSE_ZONE_TTL("ddns.reverse.zone.ttl", "0.3"),
+		DDNS_REVERSE_ZONE_SERVER("ddns.reverse.zone.server", ""),
+		DDNS_REVERSE_ZONE_TSIG_KEYNAME("ddns.reverse.zone.tsig.keyName", ""),
+		DDNS_REVERSE_ZONE_TSIG_ALGORITHM("ddns.reverse.zone.tsig.algorithm", ""),
+		DDNS_REVERSE_ZONE_TSIG_KEYDATA("ddns.reverse.zone.tsig.keyData", ""),
 		;
 		
 	    /** The key. */

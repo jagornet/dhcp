@@ -43,7 +43,7 @@ public class TaAddrBindingManager
 			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
 			DhcpMessage requestMsg) {
 		
-		byte[] duid = getDuid(clientIdOption);
+		byte[] duid = clientIdOption.getDuid();;
 		long iaid = iaTaOption.getIaTaOption().getIaId();
 		
 		return super.findCurrentBinding(clientLink, duid, IdentityAssoc.TA_TYPE, 
@@ -55,7 +55,7 @@ public class TaAddrBindingManager
 			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
 			DhcpMessage requestMsg, boolean rapidCommit) {
 		
-		byte[] duid = getDuid(clientIdOption);
+		byte[] duid = clientIdOption.getDuid();;
 		long iaid = iaTaOption.getIaTaOption().getIaId();
 		
 		List<InetAddress> requestAddrs = getInetAddrs(iaTaOption);
@@ -69,7 +69,7 @@ public class TaAddrBindingManager
 			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
 			DhcpMessage requestMsg, byte state) {
 		
-		byte[] duid = getDuid(clientIdOption);
+		byte[] duid = clientIdOption.getDuid();;
 		long iaid = iaTaOption.getIaTaOption().getIaId();
 		
 		List<InetAddress> requestAddrs = getInetAddrs(iaTaOption);

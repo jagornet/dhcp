@@ -74,6 +74,30 @@ public interface IaManager
 	public void deleteIA(IdentityAssoc ia);
 	
 	/**
+	 * Add dhcp option.
+	 * 
+	 * @param ia the ia
+	 * @param option the option
+	 */
+	public void addDhcpOption(IdentityAssoc ia, DhcpOption option);
+	
+	/**
+	 * Update dhcp option.
+	 * 
+	 * @param option the option
+	 */
+	public void updateDhcpOption(DhcpOption option);
+		
+	/**
+	 * Delete dhcp option.
+	 * 
+	 * @param option the option
+	 */
+	public void deleteDhcpOption(DhcpOption option);
+	
+	public IdentityAssoc getIA(long id);
+	
+	/**
 	 * Find ia.
 	 * 
 	 * @param duid the duid

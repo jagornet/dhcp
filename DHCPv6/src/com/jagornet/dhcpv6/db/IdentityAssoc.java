@@ -186,6 +186,23 @@ public class IdentityAssoc
 	}
 	
 	/**
+	 * Get a specific DHCP option.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public DhcpOption getDhcpOption(int code)
+	{
+		if (dhcpOptions != null) {
+			for (DhcpOption dhcpOption : dhcpOptions) {
+				if (dhcpOption.getCode() == code)
+					return dhcpOption;
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Gets the dhcp options.
 	 * 
 	 * @return the dhcp options

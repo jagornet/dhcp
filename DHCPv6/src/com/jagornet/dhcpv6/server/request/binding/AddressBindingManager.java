@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -36,15 +37,21 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.db.DhcpOption;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.option.DhcpClientFqdnOption;
+import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.AddressBinding;
 import com.jagornet.dhcpv6.xml.AddressBindingsType;
 import com.jagornet.dhcpv6.xml.AddressPool;
 import com.jagornet.dhcpv6.xml.AddressPoolsType;
+import com.jagornet.dhcpv6.xml.DomainNameOptionType;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
@@ -210,10 +217,70 @@ public abstract class AddressBindingManager extends BaseBindingManager
 			}
 		}
     }
+    
+    protected void ddnsDelete(IaAddress iaAddr)
+    {
+    	DhcpClientFqdnOption clientFqdnOption = null;
+    	try {
+	    	long identityAssocId = iaAddr.getIdentityAssocId();
+	    	IdentityAssoc ia = iaMgr.getIA(identityAssocId);
+	    	if (ia != null) {
+	    		List<DhcpOption> opts = optDao.findAllByIdentityAssocId(identityAssocId);
+	    		if (opts != null) {
+	    			for (DhcpOption opt : opts) {
+	    				if (opt.getCode() == DhcpConstants.OPTION_CLIENT_FQDN) {
+	    					clientFqdnOption = new DhcpClientFqdnOption();
+	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
+	    					break;
+	    				}
+	    			}
+	    		}
+	    		if (clientFqdnOption != null) {
+					DomainNameOptionType domainNameOption = 
+						clientFqdnOption.getDomainNameOption();
+					if (domainNameOption != null) {
+						String fqdn = domainNameOption.getDomainName();
+						if ((fqdn != null) && !fqdn.isEmpty()) {
+				        	DhcpLink link = serverConfig.findLinkForAddress(iaAddr.getIpAddress());
+				        	if (link != null) {
+				        		BindingAddress bindingAddr =
+				        			buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+								DdnsUpdater ddns =
+									new DdnsUpdater(link.getLink(), bindingAddr, fqdn,
+											ia.getDuid(), clientFqdnOption.getUpdateAaaaBit(), true);
+								ddns.processUpdates();
+				        	}
+				        	else {
+				        		log.error("Failed to find link for binding address: " + 
+				        				iaAddr.getIpAddress());
+				        	}
+						}
+						else {
+							log.error("FQDN is null or empty.  No DDNS deletes performed.");
+						}
+					}
+					else {
+						log.error("Domain name option type null in Client FQDN." +
+								"  No DDNS deletes performed.");
+					}
+	    		}
+	    		else {
+	    			log.warn("No Client FQDN option in current binding.  No DDNS deletes performed.");
+	    		}
+	    	}
+	    	else {
+	    		log.error("Failed to get IdentityAssoc id=" + identityAssocId);
+	    	}
+    	}
+    	catch (Exception ex) {
+    		log.error("Failed to perform DDNS delete", ex);
+    	}
+    }
 	
 	public void releaseIaAddress(IaAddress iaAddr)
 	{
 		try {
+			ddnsDelete(iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
 				iaMgr.deleteIaAddr(iaAddr);
@@ -226,7 +293,6 @@ public abstract class AddressBindingManager extends BaseBindingManager
 				iaMgr.updateIaAddr(iaAddr);
 			}
 			freeAddress(iaAddr.getIpAddress());
-			//TODO: ddns update release
 		}
 		catch (Exception ex) {
 			log.error("Failed to release address", ex);
@@ -236,6 +302,7 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	public void declineIaAddress(IaAddress iaAddr)
 	{
 		try {
+			ddnsDelete(iaAddr);
 			iaAddr.setStartTime(null);
 			iaAddr.setPreferredEndTime(null);
 			iaAddr.setValidEndTime(null);
@@ -255,6 +322,7 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	public void expireIaAddress(IaAddress iaAddr)
 	{
 		try {
+			ddnsDelete(iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
 				log.debug("Deleting expired address: " + iaAddr.getIpAddress());
@@ -332,7 +400,10 @@ public abstract class AddressBindingManager extends BaseBindingManager
 		InetAddress inetAddr = iaAddr.getIpAddress();
 		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
 		if (bp != null) {
-			bp.setUsed(inetAddr);	// TODO check if this is necessary
+			// TODO determine if we need to set the IP as used in the
+			// BindingPool.  Note that this method is also called when
+			// releasing addresses.
+//			bp.setUsed(inetAddr);
 			// TODO store the configured options in the persisted binding?
 			// ipAddr.setDhcpOptions(bp.getDhcpOptions());
 			return new BindingAddress(iaAddr, (AddressBindingPool)bp);

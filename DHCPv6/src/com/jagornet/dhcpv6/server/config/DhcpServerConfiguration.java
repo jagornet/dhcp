@@ -42,6 +42,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.db.IaManager;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.option.DhcpConfigOptions;
@@ -100,6 +101,7 @@ public class DhcpServerConfiguration
     private NaAddrBindingManagerInterface naAddrBindingMgr;
     private TaAddrBindingManagerInterface taAddrBindingMgr;
     private PrefixBindingManagerInterface prefixBindingMgr;
+    private IaManager iaMgr;
     
     /**
      * Gets the single instance of DhcpServerConfiguration.
@@ -239,8 +241,6 @@ public class DhcpServerConfiguration
     {
         return linkMap;
     }
-
-    
     
     public NaAddrBindingManagerInterface getNaAddrBindingMgr() {
 		return naAddrBindingMgr;
@@ -266,6 +266,15 @@ public class DhcpServerConfiguration
 		this.prefixBindingMgr = prefixBindingMgr;
 	}
 
+	public IaManager getIaMgr() {
+		return iaMgr;
+	}
+
+	public void setIaMgr(IaManager iaMgr) {
+		this.iaMgr = iaMgr;
+	}
+
+	
 	/**
      * Find link for address.
      * 
@@ -275,18 +284,54 @@ public class DhcpServerConfiguration
      */
     public DhcpLink findLinkForAddress(InetAddress inetAddr)
     {
-        DhcpLink link = null;
+        DhcpLink dhcpLink = null;
         if ((linkMap != null) && !linkMap.isEmpty()) {
-            Subnet s = new Subnet(inetAddr, 128);
-            SortedMap<Subnet, DhcpLink> subMap = linkMap.headMap(s);
-            if ((subMap != null) && !subMap.isEmpty()) {
-                s = subMap.lastKey();
-                if (s.contains(inetAddr)) {
-                    link = subMap.get(s);
-                }
-            }
+//            Subnet s = new Subnet(inetAddr, 128);
+//            SortedMap<Subnet, DhcpLink> subMap = linkMap.headMap(s);
+//            if ((subMap != null) && !subMap.isEmpty()) {
+//                s = subMap.lastKey();
+//                if (s.contains(inetAddr)) {
+//                    dhcpLink = subMap.get(s);
+//                }
+//            }
+        	for (DhcpLink link : linkMap.values()) {
+        		AddressPoolsType addrPoolType = link.getLink().getNaAddrPools();
+        		if (addrPoolType != null) {
+        			List<AddressPool> addrPools = addrPoolType.getPoolList();
+        			if (addrPools != null) {
+        				for (AddressPool addrPool : addrPools) {
+        					try {
+	        					Range range = new Range(addrPool.getRange());
+	        					if (range.contains(inetAddr)) {
+	        						return link;
+	        					}
+        					}
+        					catch (Exception ex) {
+        						log.error("Invalid AddressPool range: " + addrPool.getRange());
+        					}
+        				}
+        			}
+        		}
+        		addrPoolType = link.getLink().getTaAddrPools();
+        		if (addrPoolType != null) {
+        			List<AddressPool> addrPools = addrPoolType.getPoolList();
+        			if (addrPools != null) {
+        				for (AddressPool addrPool : addrPools) {
+        					try {
+	        					Range range = new Range(addrPool.getRange());
+	        					if (range.contains(inetAddr)) {
+	        						return link;
+	        					}
+        					}
+        					catch (Exception ex) {
+        						log.error("Invalid AddressPool range: " + addrPool.getRange());
+        					}
+        				}
+        			}
+        		}
+        	}
         }
-        return link;
+        return dhcpLink;
     }
 
     /**

@@ -148,7 +148,6 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 //		   containing status code NoAddrsAvail.
 
 		boolean sendReply = true;
-		boolean haveBinding = false;
 		DhcpClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
 		
 		List<DhcpIaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
@@ -165,14 +164,13 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 						Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 								clientIdOption, dhcpIaNaOption, requestMsg);
 						if (binding != null) {
-							haveBinding = true;
 							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
 									clientIdOption, dhcpIaNaOption, requestMsg, IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink.getLink(), binding);
+								bindings.add(binding);
 							}
 							else {
-								haveBinding = false;
 								addIaNaOptionStatusToReply(dhcpIaNaOption,
 			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 							}
@@ -206,14 +204,13 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 						Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 								clientIdOption, dhcpIaTaOption, requestMsg);
 						if (binding != null) {
-							haveBinding = true;
 							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
 									clientIdOption, dhcpIaTaOption, requestMsg, IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink.getLink(), binding);
+								bindings.add(binding);
 							}
 							else {
-								haveBinding = false;
 								addIaTaOptionStatusToReply(dhcpIaTaOption,
 			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 							}
@@ -247,14 +244,13 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 						Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 								clientIdOption, dhcpIaPdOption, requestMsg);
 						if (binding != null) {
-							haveBinding = true;
 							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
 									clientIdOption, dhcpIaPdOption, requestMsg, IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink.getLink(), binding);
+								bindings.add(binding);
 							}
 							else {
-								haveBinding = false;
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
 			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 							}
@@ -276,8 +272,9 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
     	
     	if (sendReply) {
             replyMsg.setMessageType(DhcpConstants.REPLY);
-            if (haveBinding) {
+            if (!bindings.isEmpty()) {
             	populateReplyMsgOptions(clientLink.getLink());
+    			processDdnsUpdates();
             }
     	}
 		return sendReply;    	

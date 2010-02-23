@@ -76,7 +76,7 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
         Map<String, Object> parameters = new HashMap<String, Object>(3);
         parameters.put("code", option.getCode());
         parameters.put("value", option.getValue());
-        // TODO: verify that the option points to one or the other, not both
+        // TODO: verify that the option has only one foreign key
         if (iaId != null) {
         	parameters.put("identityassoc_id", iaId);
         	insertOption.usingColumns("code", "value", "identityassoc_id");
@@ -92,6 +92,16 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
 //        Number newId = insertOption.executeAndReturnKey(parameters);
 //        option.setId(newId.longValue());
         insertOption.execute(parameters);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#update(com.jagornet.dhcpv6.db.DhcpOption)
+	 */
+	public void update(DhcpOption option)
+	{
+		getSimpleJdbcTemplate().update(
+				"update dhcpoption set value=? where id=?",
+				new Object[] { option.getValue(), option.getId() });
 	}
 
 	/* (non-Javadoc)

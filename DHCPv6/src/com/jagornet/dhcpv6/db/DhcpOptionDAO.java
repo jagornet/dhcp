@@ -43,6 +43,13 @@ public interface DhcpOptionDAO
 	public void create(DhcpOption option);
 	
 	/**
+	 * Update.
+	 * 
+	 * @param option the option
+	 */
+	public void update(DhcpOption option);
+	
+	/**
 	 * Delete by id.
 	 * 
 	 * @param id the id
