@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.NisPlusServersOption;
  */
 public class DhcpNisPlusServersOption extends BaseIpAddressListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp nis plus servers option.
+	 */
 	public DhcpNisPlusServersOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp nis plus servers option.
+	 * 
+	 * @param nisPlusServersOption the nis plus servers option
+	 */
 	public DhcpNisPlusServersOption(NisPlusServersOption nisPlusServersOption)
 	{
 		if (nisPlusServersOption != null)

@@ -34,7 +34,6 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpInfoRequestProcessor
  * Description: The main class for processing INFO_REQUEST messages.

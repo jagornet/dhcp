@@ -36,6 +36,7 @@ import com.jagornet.dhcpv6.xml.InterfaceIdOption;
  */
 public class DhcpInterfaceIdOption extends BaseOpaqueDataOption
 { 
+    
     /**
      * Instantiates a new dhcp interface id option.
      */

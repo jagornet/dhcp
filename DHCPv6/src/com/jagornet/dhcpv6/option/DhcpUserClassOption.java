@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.UserClassOption;
  */
 public class DhcpUserClassOption extends BaseOpaqueDataListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp user class option.
+	 */
 	public DhcpUserClassOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp user class option.
+	 * 
+	 * @param userClassOption the user class option
+	 */
 	public DhcpUserClassOption(UserClassOption userClassOption)
 	{
 		if (userClassOption != null)

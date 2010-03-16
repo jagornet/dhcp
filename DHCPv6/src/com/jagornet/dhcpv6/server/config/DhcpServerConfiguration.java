@@ -49,10 +49,10 @@ import com.jagornet.dhcpv6.option.DhcpConfigOptions;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.server.DhcpV6Server;
-import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
-import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.Range;
-import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AddressPool;
@@ -73,7 +73,6 @@ import com.jagornet.dhcpv6.xml.PrefixPoolsType;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpServerConfiguration
  * Description: The class representing the DHCPv6 server configuration.
@@ -98,9 +97,9 @@ public class DhcpServerConfiguration
     /** The link map. */
     private SortedMap<Subnet, DhcpLink> linkMap;
     
-    private NaAddrBindingManagerInterface naAddrBindingMgr;
-    private TaAddrBindingManagerInterface taAddrBindingMgr;
-    private PrefixBindingManagerInterface prefixBindingMgr;
+    private NaAddrBindingManager naAddrBindingMgr;
+    private TaAddrBindingManager taAddrBindingMgr;
+    private PrefixBindingManager prefixBindingMgr;
     private IaManager iaMgr;
     
     /**
@@ -242,27 +241,27 @@ public class DhcpServerConfiguration
         return linkMap;
     }
     
-    public NaAddrBindingManagerInterface getNaAddrBindingMgr() {
+    public NaAddrBindingManager getNaAddrBindingMgr() {
 		return naAddrBindingMgr;
 	}
 
-	public void setNaAddrBindingMgr(NaAddrBindingManagerInterface naAddrBindingMgr) {
+	public void setNaAddrBindingMgr(NaAddrBindingManager naAddrBindingMgr) {
 		this.naAddrBindingMgr = naAddrBindingMgr;
 	}
 
-	public TaAddrBindingManagerInterface getTaAddrBindingMgr() {
+	public TaAddrBindingManager getTaAddrBindingMgr() {
 		return taAddrBindingMgr;
 	}
 
-	public void setTaAddrBindingMgr(TaAddrBindingManagerInterface taAddrBindingMgr) {
+	public void setTaAddrBindingMgr(TaAddrBindingManager taAddrBindingMgr) {
 		this.taAddrBindingMgr = taAddrBindingMgr;
 	}
 
-	public PrefixBindingManagerInterface getPrefixBindingMgr() {
+	public PrefixBindingManager getPrefixBindingMgr() {
 		return prefixBindingMgr;
 	}
 
-	public void setPrefixBindingMgr(PrefixBindingManagerInterface prefixBindingMgr) {
+	public void setPrefixBindingMgr(PrefixBindingManager prefixBindingMgr) {
 		this.prefixBindingMgr = prefixBindingMgr;
 	}
 
@@ -337,8 +336,8 @@ public class DhcpServerConfiguration
     /**
      * Find dhcp link.
      * 
-     * @param local the local
-     * @param remote the remote
+     * @param local the local address
+     * @param remote the remote address
      * 
      * @return the dhcp link
      */
@@ -346,35 +345,56 @@ public class DhcpServerConfiguration
     {
         DhcpLink link = null;
         if ((linkMap != null) && !linkMap.isEmpty()) {
-        	if (local.isLinkLocalAddress() && remote.isLinkLocalAddress()) {
-        		// if the local and remote addresses are link-local, then
-        		// we received the request directly from the client on the
-        		// local address, which will be the IPv6 link-local address
-        		// of the interface where the packet was received, and that
-        		// link-local address will be a key in the linkMap
-        		log.debug("Looking for local Link by address: " + local);
+        	if (local.isLinkLocalAddress()) {
+        		// if the local address is link-local, then the request
+        		// was received directly from the client on the interface
+        		// with that link-local address, which is the linkMap key
+        		log.debug("Looking for Link by link local address: " + local);
 	            Subnet s = new Subnet(local, 128);
         		link = linkMap.get(s);
         	}
+        	else if (!remote.isLinkLocalAddress()) { 
+        		// if the remote (client) address is not link-local, then the client
+        		// already has an address, so use that address to search the linkMap
+        		log.debug("Looking for Link by remote global address: " + remote);
+        		link = findLink(remote);
+        	}
         	else {
-        		// either we didn't receive this packet on the link-local address
-        		// or if we did, then the packet was not sent from link-local, so
-        		// we only need the remote address to search the linkMap
-        		log.debug("Looking for remote Link by address: " + remote);
-	            Subnet s = new Subnet(remote, 128);
-	            SortedMap<Subnet, DhcpLink> subMap = linkMap.headMap(s);
-	            if ((subMap != null) && !subMap.isEmpty()) {
-	                s = subMap.lastKey();
-	                if (s.contains(remote)) {
-	                    link = subMap.get(s);
-	                }
-	            }
+        		// if the local address is not link-local, and the remote
+        		// address is link-local, then this message was relayed and
+        		// the local address is the client link address
+        		log.debug("Looking for Link by address: " + local);
+        		link = findLink(local);
         	}
         }
         else {
         	log.error("linkMap is null or empty");
         }
         return link;
+    }
+    
+    private DhcpLink findLink(InetAddress addr)
+    {
+        Subnet s = new Subnet(addr, 128);
+        // find links less than the given address
+        SortedMap<Subnet, DhcpLink> subMap = linkMap.headMap(s);
+        if ((subMap != null) && !subMap.isEmpty()) {
+        	// the last one in the sub map should contain the address
+            Subnet k = subMap.lastKey();
+            if (k.contains(addr)) {
+                return subMap.get(k);
+            }
+        }
+        // find links greater or equal to given address
+        subMap = linkMap.tailMap(s);
+        if ((subMap != null) && !subMap.isEmpty()) {
+        	// the first one in the sub map should contain the address
+            Subnet k = subMap.firstKey();
+            if (k.contains(addr)) {
+                return subMap.get(k);
+            }
+        }
+        return null;
     }
     
     /**
@@ -487,10 +507,10 @@ public class DhcpServerConfiguration
     	DhcpV6ServerConfig config = null;
     	FileInputStream fis = null;
     	try {
-	        log.info("Loading server configuration: " + filename);
+	        log.info("Loading server configuration file: " + filename);
 	        fis = new FileInputStream(filename);
 	        config = DhcpV6ServerConfigDocument.Factory.parse(fis).getDhcpV6ServerConfig();
-	        log.info("Server configuration loaded.");
+	        log.info("Server configuration file loaded.");
     	}
     	finally {
     		if (fis != null) {
@@ -512,12 +532,12 @@ public class DhcpServerConfiguration
     {
     	FileOutputStream fos = null;
     	try {
-	        log.info("Saving server configuration: " + filename);
+	        log.info("Saving server configuration file: " + filename);
 	        fos = new FileOutputStream(filename);
 	        DhcpV6ServerConfigDocument doc = DhcpV6ServerConfigDocument.Factory.newInstance();
 	        doc.setDhcpV6ServerConfig(config);
 	        doc.save(fos, new XmlOptions().setSavePrettyPrint().setSavePrettyPrintIndent(4));
-	        log.info("Server configuration saved.");
+	        log.info("Server configuration file saved.");
     	}
     	finally {
     		if (fos != null) {

@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.ReconfigureMessageOption;
  */
 public class DhcpReconfigureMessageOption extends BaseUnsignedByteOption
 {
+	
+	/**
+	 * Instantiates a new dhcp reconfigure message option.
+	 */
 	public DhcpReconfigureMessageOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp reconfigure message option.
+	 * 
+	 * @param reconfigureMessageOption the reconfigure message option
+	 */
 	public DhcpReconfigureMessageOption(ReconfigureMessageOption reconfigureMessageOption)
 	{
 		if (reconfigureMessageOption != null)

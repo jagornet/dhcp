@@ -12,8 +12,8 @@ DHCPV6_OPTS="$@"
 if [ -n "$JAVA_HOME" ] ; then
   JAVA="$JAVA_HOME/bin/java"
 else
-  if [ -x java ] ; then
-    JAVA=java
+  if [ -x /usr/bin/java ] ; then
+    JAVA=/usr/bin/java
   else
     echo "Error - Java not found.  Please set JAVA_HOME environment variable."
     exit 1
@@ -109,7 +109,9 @@ start() {
 		echo "$NAME already running."
 	else
 		echo "Starting $NAME..."
-		$JAVA $JAVA_OPTS -Ddhcpv6.home="$DHCPV6_HOME" $DHCPV6_MAIN $DHCPV6_OPTS > "$DHCPV6_HOME/log/dhcpv6server.out" & 
+		$JAVA $JAVA_OPTS -Ddhcpv6.home="$DHCPV6_HOME" \
+                         -Dderby.system.home="$DHCPV6_HOME/db/derby" \
+                         $DHCPV6_MAIN $DHCPV6_OPTS > "$DHCPV6_HOME/log/dhcpv6server.out" & 
 		echo "$!" > $DHCPV6_PID
 		sleep 5
 		isRunning

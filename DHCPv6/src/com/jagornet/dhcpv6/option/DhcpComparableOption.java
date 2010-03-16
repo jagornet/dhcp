@@ -36,6 +36,7 @@ import com.jagornet.dhcpv6.xml.OptionExpression;
  */
 public interface DhcpComparableOption
 {
+    
     /**
      * Test if this DHCP option matches an OptionExpression.
      * 

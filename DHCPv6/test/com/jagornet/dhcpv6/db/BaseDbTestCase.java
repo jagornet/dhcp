@@ -44,9 +44,9 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.xml.sax.InputSource;
 
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
-import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
-import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
-import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -54,15 +54,11 @@ import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
  */
 public class BaseDbTestCase extends DBTestCase
 {
-	
-	/** The derby system home. */
-	public static String derbySystemHome = "/Users/agrabil/apache/db-derby-10.5.1.1-bin/system";
-
 	/** The config filename. */
 	public static String configFilename = "test/dhcpv6server-sample.xml";
 	
 	/** The context filename. */
-	public static String contextFilename = "com/jagornet/dhcpv6/context-embedded.xml";
+	public static String contextFilename = "com/jagornet/dhcpv6/context.xml";
 	
 	/** The init data set. */
 	public static File initDataSet = new File("test/dbunit-jagornet-dhcpv6-empty.xml");
@@ -77,15 +73,14 @@ public class BaseDbTestCase extends DBTestCase
 	{
 		DhcpServerConfiguration.configFilename = configFilename;
 		config = DhcpServerConfiguration.getInstance();
-		System.setProperty("derby.system.home", derbySystemHome);
 		ctx = new ClassPathXmlApplicationContext(contextFilename);
 		
 		config.setNaAddrBindingMgr(
-				(NaAddrBindingManagerInterface) ctx.getBean("naAddrBindingManager"));
+				(NaAddrBindingManager) ctx.getBean("naAddrBindingManager"));
 		config.setTaAddrBindingMgr(
-				(TaAddrBindingManagerInterface) ctx.getBean("taAddrBindingManager"));
+				(TaAddrBindingManager) ctx.getBean("taAddrBindingManager"));
 		config.setPrefixBindingMgr(
-				(PrefixBindingManagerInterface) ctx.getBean("prefixBindingManager"));
+				(PrefixBindingManager) ctx.getBean("prefixBindingManager"));
 	}
 	
 	/* (non-Javadoc)

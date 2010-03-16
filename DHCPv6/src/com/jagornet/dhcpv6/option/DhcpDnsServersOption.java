@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.DnsServersOption;
  */
 public class DhcpDnsServersOption extends BaseIpAddressListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp dns servers option.
+	 */
 	public DhcpDnsServersOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp dns servers option.
+	 * 
+	 * @param dnsServersOption the dns servers option
+	 */
 	public DhcpDnsServersOption(DnsServersOption dnsServersOption)
 	{
 		if (dnsServersOption != null)

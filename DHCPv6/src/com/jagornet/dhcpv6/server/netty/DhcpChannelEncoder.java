@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpChannelEncoder
  * Description: The protocol encoder used by the NETTY-based DHCP server

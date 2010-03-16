@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.SubscriberIdOption;
  */
 public class DhcpSubscriberIdOption extends BaseOpaqueDataOption
 {
+	
+	/**
+	 * Instantiates a new dhcp subscriber id option.
+	 */
 	public DhcpSubscriberIdOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp subscriber id option.
+	 * 
+	 * @param subscriberIdOption the subscriber id option
+	 */
 	public DhcpSubscriberIdOption(SubscriberIdOption subscriberIdOption)
 	{
 		if (subscriberIdOption != null) {

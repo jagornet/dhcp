@@ -40,29 +40,38 @@ import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaTaOption;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpIaTaOption.
  */
 public class DhcpIaTaOption extends BaseDhcpOption
 {	
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaTaOption.class);
 	
-	/** The ia ta option, which contains any configured options for the ia ta */
+	/** The ia ta option, which contains any configured options for the ia ta. */
 	private IaTaOption iaTaOption;
     
-	/** The dhcp options inside this ia ta option,
-	 *  _NOT_ including any ia addr options. */
+	/** The dhcp options inside this ia ta option, _NOT_ including any ia addr options. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 	
-	/** The ia addr options  */
+	/** The ia addr options. */
 	private List<DhcpIaAddrOption> iaAddrOptions = new ArrayList<DhcpIaAddrOption>();
 
+	/**
+	 * Instantiates a new dhcp ia ta option.
+	 */
 	public DhcpIaTaOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp ia ta option.
+	 * 
+	 * @param iaTaOption the ia ta option
+	 */
 	public DhcpIaTaOption(IaTaOption iaTaOption)
 	{
 		if (iaTaOption != null)
@@ -71,38 +80,75 @@ public class DhcpIaTaOption extends BaseDhcpOption
 			this.iaTaOption = IaTaOption.Factory.newInstance();
 	}
 	
+    /**
+     * Gets the ia ta option.
+     * 
+     * @return the ia ta option
+     */
     public IaTaOption getIaTaOption() {
 		return iaTaOption;
 	}
 
+	/**
+	 * Sets the ia ta option.
+	 * 
+	 * @param iaTaOption the new ia ta option
+	 */
 	public void setIaTaOption(IaTaOption iaTaOption) {
 		this.iaTaOption = iaTaOption;
 	}
 
+	/**
+	 * Gets the dhcp option map.
+	 * 
+	 * @return the dhcp option map
+	 */
 	public Map<Integer, DhcpOption> getDhcpOptionMap() {
 		return dhcpOptions;
 	}
 
+	/**
+	 * Sets the dhcp option map.
+	 * 
+	 * @param dhcpOptions the dhcp options
+	 */
 	public void setDhcpOptionMap(Map<Integer, DhcpOption> dhcpOptions) {
 		this.dhcpOptions = dhcpOptions;
 	}
 
+	/**
+	 * Put all dhcp options.
+	 * 
+	 * @param dhcpOptions the dhcp options
+	 */
 	public void putAllDhcpOptions(Map<Integer, DhcpOption> dhcpOptions) {
 		this.dhcpOptions.putAll(dhcpOptions);
 	}
 	
 	/**
 	 * Implement DhcpOptionable.
+	 * 
+	 * @param dhcpOption the dhcp option
 	 */
 	public void putDhcpOption(DhcpOption dhcpOption)
 	{
 		dhcpOptions.put(dhcpOption.getCode(), dhcpOption);
 	}
 
+	/**
+	 * Gets the ia addr options.
+	 * 
+	 * @return the ia addr options
+	 */
 	public List<DhcpIaAddrOption> getIaAddrOptions() {
 		return iaAddrOptions;
 	}
 
+	/**
+	 * Sets the ia addr options.
+	 * 
+	 * @param iaAddrOptions the new ia addr options
+	 */
 	public void setIaAddrOptions(List<DhcpIaAddrOption> iaAddrOptions) {
 		this.iaAddrOptions = iaAddrOptions;
 	}
@@ -123,6 +169,11 @@ public class DhcpIaTaOption extends BaseDhcpOption
     	return getDecodedLength();
     }
 
+    /**
+     * Gets the decoded length.
+     * 
+     * @return the decoded length
+     */
     public int getDecodedLength()
     {
     	int len = 4;	// iaId
@@ -197,8 +248,10 @@ public class DhcpIaTaOption extends BaseDhcpOption
      * inside the IA_NA, but it does not say that the client cannot do so, and
      * the IA_NA option definition supports any type of sub-options.
      * 
-     * @param buf	ByteBuffer positioned at the start of the options in the packet
-     * @throws IOException
+     * @param buf ByteBuffer positioned at the start of the options in the packet
+     * @param eof the eof
+     * 
+     * @throws IOException Signals that an I/O exception has occurred.
      */    
     protected void decodeOptions(ByteBuffer buf, int eof) 
 	    throws IOException

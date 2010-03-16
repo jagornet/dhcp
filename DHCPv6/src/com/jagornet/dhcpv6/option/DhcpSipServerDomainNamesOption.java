@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
  */
 public class DhcpSipServerDomainNamesOption extends BaseDomainNameListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp sip server domain names option.
+	 */
 	public DhcpSipServerDomainNamesOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp sip server domain names option.
+	 * 
+	 * @param sipServerDomainNamesOption the sip server domain names option
+	 */
 	public DhcpSipServerDomainNamesOption(SipServerDomainNamesOption sipServerDomainNamesOption)
 	{
 		if (sipServerDomainNamesOption != null)

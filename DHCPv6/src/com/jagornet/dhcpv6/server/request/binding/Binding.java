@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.server.request.binding;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.BeanUtils;
@@ -35,7 +36,6 @@ import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.Link;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Binding.
  */
@@ -84,14 +84,41 @@ public class Binding extends IdentityAssoc
 	 * 
 	 * @return the binding objects
 	 */
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	public Collection<BindingObject> getBindingObjects() {
-		return (Collection<BindingObject>)iaAddresses;
+//		return (Collection<BindingObject>)iaAddresses;
+		// Manually convert from IaAddresses to BindingObjects
+		// which is safe because *this* Binding holds either
+		// BindingAddresses or BindingPrefixes, both of which
+		// extend from IaAddress and implement BindingObject
+		if (iaAddresses != null) {
+			Collection<BindingObject> bindingObjs = new ArrayList<BindingObject>();
+			for (IaAddress iaAddr : iaAddresses) {
+				if (iaAddr instanceof BindingObject) {
+					bindingObjs.add((BindingObject)iaAddr);
+				}
+			}
+			return bindingObjs;
+		}
+		return null;
 	}
 	
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	public void setBindingObjects(Collection<BindingObject> bindingObjs) {
-		this.setIaAddresses((Collection<? extends IaAddress>) bindingObjs);
+//		this.setIaAddresses((Collection<? extends IaAddress>) bindingObjs);
+		// Manually convert from BindingObjects to IaAddresses
+		// which is safe because *this* Binding holds either
+		// BindingAddresses or BindingPrefixes, both of which
+		// extend from IaAddress and implement BindingObject
+		if (bindingObjs != null) {
+			Collection<IaAddress> iaAddrs = new ArrayList<IaAddress>();
+			for (BindingObject bindingObj : bindingObjs) {
+				if (bindingObj instanceof IaAddress) {
+					iaAddrs.add((IaAddress)bindingObj);
+				}
+			}
+			this.setIaAddresses(iaAddrs);
+		}
 	}
 	
 	/**

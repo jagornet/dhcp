@@ -27,13 +27,11 @@ package com.jagornet.dhcpv6.server.request;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface DhcpMessageProcessor.
  */
 public interface DhcpMessageProcessor
 {
-	//TODO: consider exposing preProcess and postProcess methods?
 	/**
 	 * Process message.
 	 * 

@@ -36,6 +36,10 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  */
 public class DhcpReconfigureAcceptOption extends BaseEmptyOption
 {
+	
+	/**
+	 * Instantiates a new dhcp reconfigure accept option.
+	 */
 	public DhcpReconfigureAcceptOption()
 	{
 		super();

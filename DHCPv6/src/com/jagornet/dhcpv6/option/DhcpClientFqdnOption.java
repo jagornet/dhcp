@@ -40,11 +40,20 @@ import com.jagornet.dhcpv6.xml.ClientFqdnOption;
  */
 public class DhcpClientFqdnOption extends BaseDomainNameOption
 {
+	
+	/**
+	 * Instantiates a new dhcp client fqdn option.
+	 */
 	public DhcpClientFqdnOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp client fqdn option.
+	 * 
+	 * @param clientFqdnOption the client fqdn option
+	 */
 	public DhcpClientFqdnOption(ClientFqdnOption clientFqdnOption)
 	{
 		if (clientFqdnOption != null)
@@ -104,16 +113,19 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
     
     /**
      * Get the S bit.
-     * @return
+     * 
+     * @return the update aaaa bit
      */
     public boolean getUpdateAaaaBit()
     {
     	short sbit = (short) (((ClientFqdnOption)domainNameOption).getFlags() & 0x01);
     	return (sbit > 0);
     }
+    
     /**
      * Set the S bit.
-     * @param bit
+     * 
+     * @param bit the bit
      */
     public void setUpdateAaaaBit(boolean bit)
     {
@@ -126,16 +138,19 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
     
     /**
      * Get the O bit.
-     * @return
+     * 
+     * @return the override bit
      */
     public boolean getOverrideBit()
     {
     	short obit = (short) (((ClientFqdnOption)domainNameOption).getFlags() & 0x02);
     	return (obit > 0);
     }
+    
     /**
      * Set the O bit.
-     * @param bit
+     * 
+     * @param bit the bit
      */
     public void setOverrideBit(boolean bit)
     {
@@ -148,16 +163,19 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
     
     /**
      * Get the N bit.
-     * @return
+     * 
+     * @return the no update bit
      */
     public boolean getNoUpdateBit()
     {
     	short nbit = (short) (((ClientFqdnOption)domainNameOption).getFlags() & 0x04);
     	return (nbit == 1);
     }
+    
     /**
      * Set the N bit.  If set to true, will also set the S bit to 0.
-     * @param bit
+     * 
+     * @param bit the bit
      */
     public void setNoUpdateBit(boolean bit)
     {

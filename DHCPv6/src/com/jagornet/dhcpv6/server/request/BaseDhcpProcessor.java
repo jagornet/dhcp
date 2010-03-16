@@ -119,12 +119,12 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     
     /**
      * Construct an BaseDhcpRequest processor.  Since this class is
-     * abstract, this constructor is provided for implementing classes.
+     * abstract, this constructor is protected for implementing classes.
      * 
      * @param requestMsg the DhcpMessage received from the client
      * @param clientLinkAddress the client link address
      */
-    public BaseDhcpProcessor(DhcpMessage requestMsg, InetAddress clientLinkAddress)
+    protected BaseDhcpProcessor(DhcpMessage requestMsg, InetAddress clientLinkAddress)
     {
         this.requestMsg = requestMsg;
         this.clientLinkAddress = clientLinkAddress;

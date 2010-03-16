@@ -43,7 +43,7 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
 public class TestBindingManager extends BaseDbTestCase
 {
 	/** The manager. */
-	private NaAddrBindingManagerInterface manager;
+	private NaAddrBindingManager manager;
 	
 	/** The client id option. */
 	private DhcpClientIdOption clientIdOption;
@@ -54,7 +54,7 @@ public class TestBindingManager extends BaseDbTestCase
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (NaAddrBindingManagerInterface) ctx.getBean("naAddrBindingManager");
+		manager = (NaAddrBindingManager) ctx.getBean("naAddrBindingManager");
 		OpaqueData opaque = OpaqueData.Factory.newInstance();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });

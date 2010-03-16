@@ -43,25 +43,35 @@ import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.ConfigOptionsType;
 import com.jagornet.dhcpv6.xml.IaPrefixOption;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpIaPrefixOption.
  */
 public class DhcpIaPrefixOption extends BaseDhcpOption
 {	
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaPrefixOption.class);
 	
-	/** The ia addr prefix, which contains any configured options for the ia prefix */
+	/** The ia addr prefix, which contains any configured options for the ia prefix. */
 	private IaPrefixOption iaPrefixOption;
     
-	/** The dhcp options inside this ia prefix option */
+	/** The dhcp options inside this ia prefix option. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 
+	/**
+	 * Instantiates a new dhcp ia prefix option.
+	 */
 	public DhcpIaPrefixOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp ia prefix option.
+	 * 
+	 * @param iaPrefixOption the ia prefix option
+	 */
 	public DhcpIaPrefixOption(IaPrefixOption iaPrefixOption)
 	{
 		if (iaPrefixOption != null)
@@ -70,29 +80,59 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
 			this.iaPrefixOption = IaPrefixOption.Factory.newInstance();
 	}
 
+	/**
+	 * Gets the ia prefix option.
+	 * 
+	 * @return the ia prefix option
+	 */
 	public IaPrefixOption getIaPrefixOption()
 	{
 		return iaPrefixOption;
 	}
 	
+	/**
+	 * Sets the ia prefix option.
+	 * 
+	 * @param iaPrefixOption the new ia prefix option
+	 */
 	public void setIaPrefixOption(IaPrefixOption iaPrefixOption)
 	{
 		if (iaPrefixOption != null)
 			this.iaPrefixOption = iaPrefixOption;
 	}
 
+	/**
+	 * Gets the dhcp option map.
+	 * 
+	 * @return the dhcp option map
+	 */
 	public Map<Integer, DhcpOption> getDhcpOptionMap() {
 		return dhcpOptions;
 	}
 
+	/**
+	 * Sets the dhcp option map.
+	 * 
+	 * @param dhcpOptions the dhcp options
+	 */
 	public void setDhcpOptionMap(Map<Integer, DhcpOption> dhcpOptions) {
 		this.dhcpOptions = dhcpOptions;
 	}
 
+	/**
+	 * Put all dhcp options.
+	 * 
+	 * @param dhcpOptions the dhcp options
+	 */
 	public void putAllDhcpOptions(Map<Integer, DhcpOption> dhcpOptions) {
 		this.dhcpOptions.putAll(dhcpOptions);
 	}
 	
+	/**
+	 * Gets the inet address.
+	 * 
+	 * @return the inet address
+	 */
 	public InetAddress getInetAddress()
 	{
 		InetAddress inetAddr = null;
@@ -199,9 +239,11 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
      * but it does not say that the client cannot do so, and the IA_PREFIX option
      * definition itself supports sub-options, thus we check for any when decoding.
      * 
-     * @param buf	ByteBuffer positioned at the start of the options in the packet
-     * @return	a Map of DhcpOptions keyed by the option code
-     * @throws IOException
+     * @param buf ByteBuffer positioned at the start of the options in the packet
+     * 
+     * @return a Map of DhcpOptions keyed by the option code
+     * 
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     protected void decodeOptions(ByteBuffer buf) 
             throws IOException

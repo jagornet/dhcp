@@ -42,6 +42,7 @@ import java.util.List;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.sql.DataSource;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -60,12 +61,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jagornet.dhcpv6.Version;
+import com.jagornet.dhcpv6.db.DbSchemaManager;
 import com.jagornet.dhcpv6.db.IaManager;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.netty.NettyDhcpServer;
-import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
-import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
-import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
@@ -85,14 +87,16 @@ public class DhcpV6Server
     
     /** The help formatter. */
     protected HelpFormatter formatter;
-
-    public static String appContextFilename = "com/jagornet/dhcpv6/context.xml";
+    
     /** The default config filename. */
     public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.DHCPV6_HOME != null ? 
-    	DhcpConstants.DHCPV6_HOME + "/conf/" + "dhcpv6server.xml" : "dhcpv6server.xml";
-    
+    	(DhcpConstants.DHCPV6_HOME + "/conf/dhcpv6server.xml") : "conf/dhcpv6server.xml";
+	
     /** The configuration filename. */
     protected String configFilename = DEFAULT_CONFIG_FILENAME;
+
+    /** The application context filename. */
+    public static String appContextFilename = "com/jagornet/dhcpv6/context.xml";
     
     /** The server port number. */
     protected int portNumber = DhcpConstants.SERVER_PORT;
@@ -160,45 +164,73 @@ public class DhcpV6Server
         DhcpServerConfiguration.configFilename = configFilename;
         serverConfig = DhcpServerConfiguration.getInstance();
         if (serverConfig == null) {
-        	throw new IllegalStateException("Failed to initialize server configuration from file: " +
+        	throw new IllegalStateException("Failed to initialize server configuration file: " +
         			configFilename);
         }
         
-        log.info("Loading application context file: " + appContextFilename);
+        log.info("Loading application context: " + appContextFilename);
 		context = new ClassPathXmlApplicationContext(appContextFilename);
 		if (context == null) {
-			throw new IllegalStateException("Failed to initialize application context from file: " +
+			throw new IllegalStateException("Failed to initialize application context: " +
         			appContextFilename);
 		}
 		log.info("Application context loaded.");
 		
+		DataSource dataSource = (DataSource) context.getBean("dataSource");
+		if (dataSource == null) {
+			throw new IllegalStateException("Failed to initialize DataSource");
+		}
+		
+		DbSchemaManager.validateSchema(dataSource);
+		
 		log.info("Loading managers from context...");
 		
-		NaAddrBindingManagerInterface naAddrBindingMgr = 
-			(NaAddrBindingManagerInterface) context.getBean("naAddrBindingManager");
-		if (naAddrBindingMgr == null) {
+		NaAddrBindingManager naAddrBindingMgr = 
+			(NaAddrBindingManager) context.getBean("naAddrBindingManager");
+		if (naAddrBindingMgr != null) {
+			try {
+				log.info("Initializing NA Address Binding Manager");
+				naAddrBindingMgr.init();
+				serverConfig.setNaAddrBindingMgr(naAddrBindingMgr);
+			}
+			catch (Exception ex) {
+				log.error("Failed initialize NA Address Binding Manager", ex);
+			}
+		}
+		else {
 			log.warn("No NA Address Binding Manager available");
 		}
-		else {
-			serverConfig.setNaAddrBindingMgr(naAddrBindingMgr);
-		}
 		
-		TaAddrBindingManagerInterface taAddrBindingMgr = 
-			(TaAddrBindingManagerInterface) context.getBean("taAddrBindingManager");
-		if (taAddrBindingMgr == null) {
+		TaAddrBindingManager taAddrBindingMgr = 
+			(TaAddrBindingManager) context.getBean("taAddrBindingManager");
+		if (taAddrBindingMgr != null) {
+			try {
+				log.info("Initializing TA Address Binding Manager");
+				taAddrBindingMgr.init();
+				serverConfig.setTaAddrBindingMgr(taAddrBindingMgr);
+			}
+			catch (Exception ex) {
+				log.error("Failed initialize TA Address Binding Manager", ex);
+			}
+		}
+		else {
 			log.warn("No TA Address Binding Manager available");
 		}
-		else {
-			serverConfig.setTaAddrBindingMgr(taAddrBindingMgr);
-		}
 		
-		PrefixBindingManagerInterface prefixBindingMgr = 
-			(PrefixBindingManagerInterface) context.getBean("prefixBindingManager");
-		if (prefixBindingMgr == null) {
-			log.warn("No Prefix Binding Manager available");
+		PrefixBindingManager prefixBindingMgr = 
+			(PrefixBindingManager) context.getBean("prefixBindingManager");
+		if (prefixBindingMgr != null) {
+			try {
+				log.info("Initializing Prefix Binding Manager");
+				prefixBindingMgr.init();
+				serverConfig.setPrefixBindingMgr(prefixBindingMgr);
+			}
+			catch (Exception ex) {
+				log.error("Failed initialize Prefix Binding Manager", ex);
+			}
 		}
 		else {
-			serverConfig.setPrefixBindingMgr(prefixBindingMgr);
+			log.warn("No Prefix Binding Manager available");
 		}
         
 		IaManager iaMgr = (IaManager) context.getBean("iaManager");
@@ -221,9 +253,6 @@ public class DhcpV6Server
         if (mcastNetIfs != null) {
         	// this will fail on Windows, so maybe we should not even try?
         	System.out.println("Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray()));
-//        	MulticastDhcpServer mcastServer = new MulticastDhcpServer(mcastNetIfs, portNumber);
-//	        mcastThread = new Thread(mcastServer, "mcast.server");
-//	        mcastThread.start();
         }
         else {
         	System.out.println("Multicast interfaces: none");
@@ -234,21 +263,9 @@ public class DhcpV6Server
         	ucastAddrs = getAllIPv6Addrs();
         }
         System.out.println("Unicast addresses: " + Arrays.toString(ucastAddrs.toArray()));
-//        if (DhcpConstants.IS_WINDOWS) {
-//        	// On Windows, we must use the DatatgramSocket server
-//        	// because NIO IPv6 DatagramChannels will not be available
-//        	// until Vista/Windows2008 with Java 7.
-//	        UnicastDhcpServer ucastServer = new UnicastDhcpServer(ucastAddrs, portNumber);
-//	        ucastThread = new Thread(ucastServer, "ucast.server");
-//	        ucastThread.start();
-//        }
-//        else {
-//        	// Run the NIO IPv6 DatagramChannel server, which is based on Apache MINA.
-//	        NioDhcpServer ucastServer = new NioDhcpServer(ucastAddrs, portNumber);
-//        	ucastServer.start();
-        	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber);
-        	nettyServer.start();
-//        }
+        
+    	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber);
+    	nettyServer.start();
     }
     
 	/**

@@ -13,6 +13,7 @@
   	<property name="dist" location="dist"/>
   	<property name="conf" location="conf"/>
   	<property name="bin" location="bin"/>
+	<property name="db" location="db"/>
   	<property file="build.properties"/>
 	
 	<echoproperties/>
@@ -49,6 +50,10 @@
 	    		<filelist files="${build}/xmltypes.jar"/>
 	    	</classpath>
 	    </javac>
+  		<!-- Copy the context.xml file to classes so it gets put into the jar -->
+  		<copy todir="${classes}">
+  			<fileset dir="${src}" includes="**/context.xml"/>
+  		</copy>
   	</target>
 	
 	<target name="jar" depends="compile"
@@ -59,12 +64,12 @@
 	    	<!-- Add the manifest inline to the jar when it is created -->
 			<manifest>
 		        <attribute name="Main-Class" value="com.jagornet.dhcpv6.Version"/>
-		    	<attribute name="Specification-Title" value="Jagornet DHCPv6 Community Edition"/>
+		    	<attribute name="Specification-Title" value="${title}"/>
 				<attribute name="Specification-Version" value="${version}"/>
-				<attribute name="Specification-Vendor" value="Jagornet Technologies"/>
-				<attribute name="Implementation-Title" value="Jagornet DHCPv6 Community Edition"/>
+				<attribute name="Specification-Vendor" value="${vendor}"/>
+				<attribute name="Implementation-Title" value="${title}"/>
 				<attribute name="Implementation-Version" value="${version}"/> 
-				<attribute name="Implementation-Vendor" value="Jagornet Technologies"/>
+				<attribute name="Implementation-Vendor" value="${vendor}"/>
 			</manifest>
 		</jar>	    	
 	</target>		
@@ -101,6 +106,11 @@
 	    <mkdir dir="${dist}/bin"/>    
 	    <copy todir="${dist}/bin">
 	    	<fileset dir="${bin}"/>
+	    </copy>
+  		
+	    <mkdir dir="${dist}/db"/>    
+	    <copy todir="${dist}/db">
+	    	<fileset dir="${db}"/>
 	    </copy>
 	    
 	    <mkdir dir="${dist}/log"/>

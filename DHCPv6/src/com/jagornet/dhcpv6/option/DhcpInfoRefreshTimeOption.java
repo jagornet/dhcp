@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.InfoRefreshTimeOption;
  */
 public class DhcpInfoRefreshTimeOption extends BaseUnsignedIntOption
 {
+	
+	/**
+	 * Instantiates a new dhcp info refresh time option.
+	 */
 	public DhcpInfoRefreshTimeOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp info refresh time option.
+	 * 
+	 * @param infoRefreshTimeOption the info refresh time option
+	 */
 	public DhcpInfoRefreshTimeOption(InfoRefreshTimeOption infoRefreshTimeOption)
 	{
 		if (infoRefreshTimeOption != null)

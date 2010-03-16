@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file BindingManager.java is part of DHCPv6.
+ *   This file BaseBindingManager.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,9 +56,9 @@ import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class BindingManager.
+ * The Class BaseBindingManager.  Abstract base class for all three
+ * types of binding managers - NA address, TA address, and prefix.
  */
 public abstract class BaseBindingManager
 {
@@ -88,10 +88,12 @@ public abstract class BaseBindingManager
 
 	/** The reaper. */
 	protected Timer reaper;
-    
-	/** no arg constructor */
-	public BaseBindingManager() { }
 	
+	/**
+	 * Initialize the manager.  Read the configuration and build
+	 * the pool map and static bindings.
+	 * @throws Exception
+	 */
 	public void init() throws Exception
 	{
 		initPoolMap();
@@ -99,7 +101,9 @@ public abstract class BaseBindingManager
 	}
     
     /**
-     * Inits the pool map.
+     * Initialize the pool map.  Read through the link map from the server's
+     * configuration and build the pool map keyed by link address with a
+     * value of the list of (na/ta address or prefix) bindings for the link.
      * 
      * @throws Exception the exception
      */
@@ -127,6 +131,15 @@ public abstract class BaseBindingManager
 		}
     }
 
+
+    /**
+     * Build the list of BindingPools for the given Link.  The BindingPools
+     * are either AddressBindingPools (NA and TA) or PrefixBindingPools.
+     * 
+     * @param link the configured Link
+     * @return the list of BindingPools for the link
+     * @throws Exception
+     */
     protected abstract List<? extends BindingPool> buildBindingPools(Link link) throws Exception;
     
 	
@@ -315,14 +328,20 @@ public abstract class BaseBindingManager
 	protected Binding updateBinding(Binding binding, Link clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessage requestMsg, byte state)
 	{
+		Collection<? extends IaAddress> addIaAddresses = null;
+		Collection<? extends IaAddress> updateIaAddresses = null;
+		Collection<? extends IaAddress> delIaAddresses = null;	// not used currently
+		
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			log.info("Updating times for existing binding addresses");
 			// current binding has addresses, so update times
 			setBindingObjsTimes(bindingObjs);
+			// the existing IaAddress binding objects will be updated
+			updateIaAddresses = binding.getIaAddresses();
 		}
 		else {
-			log.info("Existing binding has no addresses, allocating new address(es)");
+			log.info("Existing binding has no on-link addresses, allocating new address(es)");
 			// current binding has no addresses, add new one(s)
 			List<InetAddress> inetAddrs = 
 				getInetAddrs(clientLink, duid, iatype, iaid, requestAddrs, requestMsg);
@@ -332,13 +351,15 @@ public abstract class BaseBindingManager
 			}
 			bindingObjs = buildBindingObjects(clientLink, inetAddrs, requestMsg);
 			binding.setBindingObjects(bindingObjs);
+			// these new IaAddress binding objects will be added
+			addIaAddresses = binding.getIaAddresses();
 		}
 		binding.setState(state);
 		for (BindingObject bindingObj : bindingObjs) {
 			bindingObj.setState(state);
 		}
 		try {
-			iaMgr.updateIA(binding, null, binding.getIaAddresses(), null);
+			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses);
 			return binding;	// if we get here, it worked
 		}
 		catch (Exception ex) {

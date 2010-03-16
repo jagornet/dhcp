@@ -49,67 +49,85 @@ import java.util.Collection;
 public interface IaManager
 {
 	/**
-	 * Creates the ia.
+	 * Create an IdentityAssoc object, including any contained
+	 * IaAddresses, IaPrefixes and DhcpOptions, as well as any DhcpOptions
+	 * contained in the IaAddresses or IaPrefixes themselves.
 	 * 
-	 * @param ia the ia
+	 * @param ia the IdentityAssoc to create
 	 */
 	public void createIA(IdentityAssoc ia);
 	
 	/**
-	 * Update ia.
+	 * Update an IdentityAssoc object, including any contained
+	 * IaAddresses, IaPrefixes and DhcpOptions, as well as any DhcpOptions
+	 * contained in the IaAddresses or IaPrefixes themselves.
 	 * 
-	 * @param ia the ia
-	 * @param addAddrs the add addrs
-	 * @param updateAddrs the update addrs
-	 * @param delAddrs the del addrs
+	 * @param ia the IdentityAssoc to update
+	 * @param addAddrs the IaAddresses/IaPrefixes to add to the IdentityAssoc
+	 * @param updateAddrs the IaAddresses/IaPrefixes to update in the IdentityAssoc
+	 * @param delAddrs the IaAddresses/IaPrefixes to delete from the IdentityAssoc
 	 */
 	public void updateIA(IdentityAssoc ia, Collection<? extends IaAddress> addAddrs,
 			Collection<? extends IaAddress> updateAddrs, Collection<? extends IaAddress> delAddrs);
 	
 	/**
-	 * Delete ia.
+	 * Delete an IdentityAssoc object, and allow the database
+	 * constraints (cascade delete) to care of deleting any
+	 * contained IaAddresses, IaPrefixes and DhcpOptions, and further
+	 * cascading to delete any DhcpOptions contained in the
+	 * IaAddresses or IaPrefixes themselves.
 	 * 
-	 * @param ia the ia
+	 * @param ia the IdentityAssoc to delete
 	 */
 	public void deleteIA(IdentityAssoc ia);
 	
 	/**
-	 * Add dhcp option.
+	 * Add dhcp option to an existing IdentityAssoc.
 	 * 
-	 * @param ia the ia
-	 * @param option the option
+	 * @param ia the IdentityAssoc
+	 * @param option the DhcpOption to add
 	 */
 	public void addDhcpOption(IdentityAssoc ia, DhcpOption option);
 	
 	/**
 	 * Update dhcp option.
 	 * 
-	 * @param option the option
+	 * @param option the DhcpOption to update
 	 */
 	public void updateDhcpOption(DhcpOption option);
 		
 	/**
 	 * Delete dhcp option.
 	 * 
-	 * @param option the option
+	 * @param option the DhcpOption to delete
 	 */
 	public void deleteDhcpOption(DhcpOption option);
 	
+	/**
+	 * Get an IdentityAssoc by id.
+	 * 
+	 * @param id the ID of the IdentityAssoc to get
+	 * @return the IdentityAssoc for the given ID
+	 */
 	public IdentityAssoc getIA(long id);
 	
 	/**
-	 * Find ia.
+	 * Locate an IdentityAssoc object by the key tuple duid-iaid-iatype.
+	 * Populate any contained IaAddresses, IaPrefixes and DhcpOptions, as well as
+	 * any DhcpOptions contained in the IaAddresses or IaPrefixes themselves.
 	 * 
 	 * @param duid the duid
 	 * @param iatype the iatype
 	 * @param iaid the iaid
 	 * 
-	 * @return the identity assoc
+	 * @return a fully-populated IdentityAssoc, or null if not found
 	 */
 	public IdentityAssoc findIA(byte[] duid, byte iatype, long iaid);
 	
 	/**
-	 * Find ia.
+	 * Find an IdentityAssoc for the given IPv6 address.  That is,
+	 * locate the IaAddress or IaPrefix for the address, and then
+	 * locate the IdentityAssoc that contains that address object.
 	 * 
 	 * @param inetAddr the inet addr
 	 * 
@@ -118,30 +136,30 @@ public interface IaManager
 	public IdentityAssoc findIA(InetAddress inetAddr);
 	
 	/**
-	 * Update ia addr.
+	 * Update an IaAddress.
 	 * 
-	 * @param iaAddr the ia addr
+	 * @param iaAddr the IaAddress to update
 	 */
 	public void updateIaAddr(IaAddress iaAddr);
 	
 	/**
-	 * Delete ia addr.
+	 * Delete an IaAddress.
 	 * 
-	 * @param iaAddr the ia addr
+	 * @param iaAddr the IaAddress to delete
 	 */
 	public void deleteIaAddr(IaAddress iaAddr);
 	
 	/**
-	 * Update ia prefix.
+	 * Update an IaPrefix.
 	 * 
-	 * @param iaPrefix the ia prefix
+	 * @param iaPrefix the IaPrefix to update
 	 */
 	public void updateIaPrefix(IaPrefix iaPrefix);
 	
 	/**
-	 * Delete ia prefix.
+	 * Update an IaPrefix.
 	 * 
-	 * @param iaPrefix the ia prefix
+	 * @param iaPrefix the IaPrefix to delete
 	 */
 	public void deleteIaPrefix(IaPrefix iaPrefix);
 }

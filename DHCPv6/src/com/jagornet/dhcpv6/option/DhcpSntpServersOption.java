@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.SntpServersOption;
  */
 public class DhcpSntpServersOption extends BaseIpAddressListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp sntp servers option.
+	 */
 	public DhcpSntpServersOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp sntp servers option.
+	 * 
+	 * @param sntpServersOption the sntp servers option
+	 */
 	public DhcpSntpServersOption(SntpServersOption sntpServersOption)
 	{
 		if (sntpServersOption != null)

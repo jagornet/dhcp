@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.DomainSearchListOption;
  */
 public class DhcpDomainSearchListOption extends BaseDomainNameListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp domain search list option.
+	 */
 	public DhcpDomainSearchListOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp domain search list option.
+	 * 
+	 * @param domainSearchListOption the domain search list option
+	 */
 	public DhcpDomainSearchListOption(DomainSearchListOption domainSearchListOption)
 	{
 		if (domainSearchListOption != null)

@@ -43,11 +43,20 @@ import com.jagornet.dhcpv6.xml.VendorClassOption;
  */
 public class DhcpVendorClassOption extends BaseOpaqueDataListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp vendor class option.
+	 */
 	public DhcpVendorClassOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp vendor class option.
+	 * 
+	 * @param vendorClassOption the vendor class option
+	 */
 	public DhcpVendorClassOption(VendorClassOption vendorClassOption)
 	{
 		if (vendorClassOption != null)

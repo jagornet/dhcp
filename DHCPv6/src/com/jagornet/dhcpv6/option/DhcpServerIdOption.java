@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.ServerIdOption;
  */
 public class DhcpServerIdOption extends BaseOpaqueDataOption
 {
+	
+	/**
+	 * Instantiates a new dhcp server id option.
+	 */
 	public DhcpServerIdOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp server id option.
+	 * 
+	 * @param serverIdOption the server id option
+	 */
 	public DhcpServerIdOption(ServerIdOption serverIdOption)
 	{
 		if (serverIdOption != null) {

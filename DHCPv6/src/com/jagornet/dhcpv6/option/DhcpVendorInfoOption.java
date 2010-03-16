@@ -46,6 +46,7 @@ import com.jagornet.dhcpv6.xml.VendorInfoOption;
  */
 public class DhcpVendorInfoOption extends BaseDhcpOption
 {
+    
     /** The vendor info option. */
     private VendorInfoOption vendorInfoOption;
 

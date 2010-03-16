@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.SipServerAddressesOption;
  */
 public class DhcpSipServerAddressesOption extends BaseIpAddressListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp sip server addresses option.
+	 */
 	public DhcpSipServerAddressesOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp sip server addresses option.
+	 * 
+	 * @param sipServerAddressesOption the sip server addresses option
+	 */
 	public DhcpSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
 	{
 		if (sipServerAddressesOption != null)

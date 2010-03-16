@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.server.request.DhcpMessageHandler;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpChannelHandler
  * Description: The handler used by the NETTY-based DHCP server

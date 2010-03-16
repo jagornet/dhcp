@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.NisPlusDomainNameOption;
  */
 public class DhcpNisPlusDomainNameOption extends BaseDomainNameOption
 {
+	
+	/**
+	 * Instantiates a new dhcp nis plus domain name option.
+	 */
 	public DhcpNisPlusDomainNameOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp nis plus domain name option.
+	 * 
+	 * @param nisPlusDomainNameOption the nis plus domain name option
+	 */
 	public DhcpNisPlusDomainNameOption(NisPlusDomainNameOption nisPlusDomainNameOption)
 	{
 		if (nisPlusDomainNameOption != null)

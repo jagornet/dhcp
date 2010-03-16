@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.EchoRequestOption;
  */
 public class DhcpEchoRequestOption extends BaseUnsignedShortListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp echo request option.
+	 */
 	public DhcpEchoRequestOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp echo request option.
+	 * 
+	 * @param echoRequestOption the echo request option
+	 */
 	public DhcpEchoRequestOption(EchoRequestOption echoRequestOption)
 	{
 		if (echoRequestOption != null)

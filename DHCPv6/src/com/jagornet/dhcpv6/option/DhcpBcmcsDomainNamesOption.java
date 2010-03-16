@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.BcmcsDomainNamesOption;
  */
 public class DhcpBcmcsDomainNamesOption extends BaseDomainNameListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp bcmcs domain names option.
+	 */
 	public DhcpBcmcsDomainNamesOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp bcmcs domain names option.
+	 * 
+	 * @param bcmcsDomainNamesOption the bcmcs domain names option
+	 */
 	public DhcpBcmcsDomainNamesOption(BcmcsDomainNamesOption bcmcsDomainNamesOption)
 	{
 		if (bcmcsDomainNamesOption != null)

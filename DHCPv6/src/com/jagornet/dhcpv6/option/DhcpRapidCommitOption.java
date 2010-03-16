@@ -36,6 +36,10 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  */
 public class DhcpRapidCommitOption extends BaseEmptyOption
 {
+	
+	/**
+	 * Instantiates a new dhcp rapid commit option.
+	 */
 	public DhcpRapidCommitOption()
 	{
 		super();
