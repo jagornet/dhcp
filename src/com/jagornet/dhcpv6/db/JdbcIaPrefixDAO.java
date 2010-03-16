@@ -334,9 +334,10 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
         	iaPrefix.setId(rs.getLong("id"));
         	try {
 				iaPrefix.setIpAddress(InetAddress.getByAddress(rs.getBytes("prefixaddress")));
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			}
+        	catch (UnknownHostException e) {
+				// re-throw as SQLException
+				throw new SQLException("Unable to map ipaddress", e);
 			}
 			iaPrefix.setPrefixLength(rs.getShort("prefixlength"));
 			iaPrefix.setStartTime(rs.getTimestamp("starttime", Util.GMT_CALENDAR));

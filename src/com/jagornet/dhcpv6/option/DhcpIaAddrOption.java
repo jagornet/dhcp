@@ -39,29 +39,38 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
-import com.jagornet.dhcpv6.option.base.DhcpOptionable;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaAddrOption;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpIaAddrOption.
  */
-public class DhcpIaAddrOption extends BaseDhcpOption implements DhcpOptionable
+public class DhcpIaAddrOption extends BaseDhcpOption
 {	
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaAddrOption.class);
 	
-	/** The ia addr option */
+	/** The ia addr option. */
 	private IaAddrOption iaAddrOption;
     
-	/** The dhcp options inside this ia addr option */
+	/** The dhcp options inside this ia addr option. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 
+	/**
+	 * Instantiates a new dhcp ia addr option.
+	 */
 	public DhcpIaAddrOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp ia addr option.
+	 * 
+	 * @param iaAddrOption the ia addr option
+	 */
 	public DhcpIaAddrOption(IaAddrOption iaAddrOption)
 	{
 		if (iaAddrOption != null)
@@ -70,37 +79,69 @@ public class DhcpIaAddrOption extends BaseDhcpOption implements DhcpOptionable
 			this.iaAddrOption = IaAddrOption.Factory.newInstance();
 	}
 
+	/**
+	 * Gets the ia addr option.
+	 * 
+	 * @return the ia addr option
+	 */
 	public IaAddrOption getIaAddrOption()
 	{
 		return iaAddrOption;
 	}
 	
+	/**
+	 * Sets the ia addr option.
+	 * 
+	 * @param iaAddrOption the new ia addr option
+	 */
 	public void setIaAddrOption(IaAddrOption iaAddrOption)
 	{
 		if (iaAddrOption != null)
 			this.iaAddrOption = iaAddrOption;
 	}
 
+	/**
+	 * Gets the dhcp option map.
+	 * 
+	 * @return the dhcp option map
+	 */
 	public Map<Integer, DhcpOption> getDhcpOptionMap() {
 		return dhcpOptions;
 	}
 
+	/**
+	 * Sets the dhcp option map.
+	 * 
+	 * @param dhcpOptions the dhcp options
+	 */
 	public void setDhcpOptionMap(Map<Integer, DhcpOption> dhcpOptions) {
 		this.dhcpOptions = dhcpOptions;
 	}
 
+	/**
+	 * Put all dhcp options.
+	 * 
+	 * @param dhcpOptions the dhcp options
+	 */
 	public void putAllDhcpOptions(Map<Integer, DhcpOption> dhcpOptions) {
 		this.dhcpOptions.putAll(dhcpOptions);
 	}
 	
 	/**
 	 * Implement DhcpOptionable.
+	 * 
+	 * @param dhcpOption the dhcp option
 	 */
 	public void putDhcpOption(DhcpOption dhcpOption)
 	{
 		dhcpOptions.put(dhcpOption.getCode(), dhcpOption);
 	}
 	
+	/**
+	 * Gets the inet address.
+	 * 
+	 * @return the inet address
+	 */
 	public InetAddress getInetAddress()
 	{
 		InetAddress inetAddr = null;
@@ -143,6 +184,11 @@ public class DhcpIaAddrOption extends BaseDhcpOption implements DhcpOptionable
     	return getDecodedLength();
     }
     
+    /**
+     * Gets the decoded length.
+     * 
+     * @return the decoded length
+     */
     public int getDecodedLength()
     {
         int len = 24;	// ipAddr(16) + preferred(4) + valid(4)
@@ -232,9 +278,12 @@ public class DhcpIaAddrOption extends BaseDhcpOption implements DhcpOptionable
      * which contained options originally provided by the server, and the client is
      * requesting that those same options be renewed along with the address(es).
      * 
-     * @param buf	ByteBuffer positioned at the start of the options in the packet
-     * @return	a Map of DhcpOptions keyed by the option code
-     * @throws IOException
+     * @param buf ByteBuffer positioned at the start of the options in the packet
+     * @param eof the eof
+     * 
+     * @return a Map of DhcpOptions keyed by the option code
+     * 
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     protected void decodeOptions(ByteBuffer buf, int eof) 
             throws IOException

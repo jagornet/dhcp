@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.OptionRequestOption;
  */
 public class DhcpOptionRequestOption extends BaseUnsignedShortListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp option request option.
+	 */
 	public DhcpOptionRequestOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp option request option.
+	 * 
+	 * @param optionRequestOption the option request option
+	 */
 	public DhcpOptionRequestOption(OptionRequestOption optionRequestOption)
 	{
 		if (optionRequestOption != null)

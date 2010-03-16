@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.NewTzdbTimezoneOption;
  */
 public class DhcpNewTzdbTimezoneOption extends BaseStringOption
 {
+	
+	/**
+	 * Instantiates a new dhcp new tzdb timezone option.
+	 */
 	public DhcpNewTzdbTimezoneOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp new tzdb timezone option.
+	 * 
+	 * @param newTzdbTimezoneOption the new tzdb timezone option
+	 */
 	public DhcpNewTzdbTimezoneOption(NewTzdbTimezoneOption newTzdbTimezoneOption)
 	{
 		if (newTzdbTimezoneOption != null)

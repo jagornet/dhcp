@@ -7,25 +7,17 @@
 	<classpathentry kind="lib" path="lib/commons-cli-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jsr173_1.0_api.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="lib/mina-core-2.0.0-M5.jar"/>
-	<classpathentry kind="lib" path="lib/mina-integration-beans-2.0.0-M5.jar"/>
-	<classpathentry kind="lib" path="lib/mina-integration-jmx-2.0.0-M5.jar"/>
-	<classpathentry kind="lib" path="lib/mina-integration-ognl-2.0.0-M5.jar"/>
-	<classpathentry kind="lib" path="lib/ognl-2.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/wrapper.jar"/>
 	<classpathentry kind="lib" path="lib/xbean.jar"/>
 	<classpathentry kind="lib" path="build/xmltypes.jar"/>
-	<classpathentry kind="lib" path="lib/javassist-3.7.ga.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/db-derby-10.5.1.1-bin/lib/derbyclient.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/spring-framework-2.5.6.SEC01/dist/spring.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/google/guice-2.0/guice-2.0.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/db-derby-10.5.1.1-bin/lib/derby.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/dbunit-2.4.7.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/apache/commons-codec-1.4/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/jboss/netty-3.1.5.GA/jar/netty-3.1.5.GA.jar"/>
-	<classpathentry kind="lib" path="/Users/agrabil/sourceforge/dnsjava-2.0.8/dnsjava-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/dnsjava-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/netty-3.1.5.GA.jar"/>
+	<classpathentry kind="lib" path="lib/dbunit-2.4.7.jar"/>
+	<classpathentry kind="lib" path="lib/spring.jar"/>
+	<classpathentry kind="lib" path="lib/derby-10.5.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/derbyclient-10.5.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

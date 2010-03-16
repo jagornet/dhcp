@@ -42,11 +42,13 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  */
 public class DhcpRelayOption extends BaseDhcpOption
 {    
+    
     /** The NAME. */
     protected static String NAME = "Relay Message";
     
     // the DhcpRelayMessage which contains
     // this DhcpRelayOption
+    /** The relay message. */
     protected DhcpRelayMessage relayMessage;
     
     // the DhcpMessage contained in this relay option, 
@@ -103,19 +105,29 @@ public class DhcpRelayOption extends BaseDhcpOption
         dhcpMessage = DhcpMessage.decode(buf, relayMsgLocalAddr, relayMsgRemoteAddr);
     }
 
+    /**
+     * Gets the relay message.
+     * 
+     * @return the relay message
+     */
     public DhcpRelayMessage getRelayMessage() {
 		return relayMessage;
 	}
 
+	/**
+	 * Sets the relay message.
+	 * 
+	 * @param relayMessage the new relay message
+	 */
 	public void setRelayMessage(DhcpRelayMessage relayMessage) {
 		this.relayMessage = relayMessage;
 	}
 
 	/**
-     * Gets the dhcp message.
-     * 
-     * @return the dhcp message
-     */
+	 * Gets the dhcp message.
+	 * 
+	 * @return the dhcp message
+	 */
     public DhcpMessage getDhcpMessage()
     {
         return dhcpMessage;
@@ -124,7 +136,7 @@ public class DhcpRelayOption extends BaseDhcpOption
     /**
      * Sets the dhcp message.
      * 
-     * @param dhcpMessage the new dhcp message
+     * @param relayMessage the relay message
      */
     public void setDhcpMessage(DhcpMessage relayMessage)
     {

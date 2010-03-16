@@ -47,6 +47,7 @@ import com.jagornet.dhcpv6.xml.OptionExpression;
  */
 public class OpaqueDataUtil
 {	
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(OpaqueDataUtil.class);
     

@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.PanaAgentAddressesOption;
  */
 public class DhcpPanaAgentAddressesOption extends BaseIpAddressListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp pana agent addresses option.
+	 */
 	public DhcpPanaAgentAddressesOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp pana agent addresses option.
+	 * 
+	 * @param panaAgentAddressesOption the pana agent addresses option
+	 */
 	public DhcpPanaAgentAddressesOption(PanaAgentAddressesOption panaAgentAddressesOption)
 	{
 		if (panaAgentAddressesOption != null)

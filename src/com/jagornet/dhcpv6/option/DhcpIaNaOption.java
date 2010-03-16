@@ -37,33 +37,41 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
-import com.jagornet.dhcpv6.option.base.DhcpOptionable;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaNaOption;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpIaNaOption.
  */
-public class DhcpIaNaOption extends BaseDhcpOption implements DhcpOptionable
+public class DhcpIaNaOption extends BaseDhcpOption
 {	
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaNaOption.class);
 	
-	/** The ia na option */
+	/** The ia na option. */
 	private IaNaOption iaNaOption;
     
-	/** The dhcp options inside this ia na option,
-	 *  _NOT_ including any ia addr options. */
+	/** The dhcp options inside this ia na option, _NOT_ including any ia addr options. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 	
-	/** The ia addr options  */
+	/** The ia addr options. */
 	private List<DhcpIaAddrOption> iaAddrOptions = new ArrayList<DhcpIaAddrOption>();
 
+	/**
+	 * Instantiates a new dhcp ia na option.
+	 */
 	public DhcpIaNaOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp ia na option.
+	 * 
+	 * @param iaNaOption the ia na option
+	 */
 	public DhcpIaNaOption(IaNaOption iaNaOption)
 	{
 		if (iaNaOption != null)
@@ -72,38 +80,75 @@ public class DhcpIaNaOption extends BaseDhcpOption implements DhcpOptionable
 			this.iaNaOption = IaNaOption.Factory.newInstance();
 	}
 	
+    /**
+     * Gets the ia na option.
+     * 
+     * @return the ia na option
+     */
     public IaNaOption getIaNaOption() {
 		return iaNaOption;
 	}
 
+	/**
+	 * Sets the ia na option.
+	 * 
+	 * @param iaNaOption the new ia na option
+	 */
 	public void setIaNaOption(IaNaOption iaNaOption) {
 		this.iaNaOption = iaNaOption;
 	}
 
+	/**
+	 * Gets the dhcp option map.
+	 * 
+	 * @return the dhcp option map
+	 */
 	public Map<Integer, DhcpOption> getDhcpOptionMap() {
 		return dhcpOptions;
 	}
 
+	/**
+	 * Sets the dhcp option map.
+	 * 
+	 * @param dhcpOptions the dhcp options
+	 */
 	public void setDhcpOptionMap(Map<Integer, DhcpOption> dhcpOptions) {
 		this.dhcpOptions = dhcpOptions;
 	}
 
+	/**
+	 * Put all dhcp options.
+	 * 
+	 * @param dhcpOptions the dhcp options
+	 */
 	public void putAllDhcpOptions(Map<Integer, DhcpOption> dhcpOptions) {
 		this.dhcpOptions.putAll(dhcpOptions);
 	}
 	
 	/**
 	 * Implement DhcpOptionable.
+	 * 
+	 * @param dhcpOption the dhcp option
 	 */
 	public void putDhcpOption(DhcpOption dhcpOption)
 	{
 		dhcpOptions.put(dhcpOption.getCode(), dhcpOption);
 	}
 
+	/**
+	 * Gets the ia addr options.
+	 * 
+	 * @return the ia addr options
+	 */
 	public List<DhcpIaAddrOption> getIaAddrOptions() {
 		return iaAddrOptions;
 	}
 
+	/**
+	 * Sets the ia addr options.
+	 * 
+	 * @param iaAddrOptions the new ia addr options
+	 */
 	public void setIaAddrOptions(List<DhcpIaAddrOption> iaAddrOptions) {
 		this.iaAddrOptions = iaAddrOptions;
 	}
@@ -124,6 +169,11 @@ public class DhcpIaNaOption extends BaseDhcpOption implements DhcpOptionable
     	return getDecodedLength();
     }
 
+    /**
+     * Gets the decoded length.
+     * 
+     * @return the decoded length
+     */
     public int getDecodedLength()
     {
     	int len = 4 + 4 + 4;	// iaId + t1 + t2
@@ -206,8 +256,10 @@ public class DhcpIaNaOption extends BaseDhcpOption implements DhcpOptionable
      * inside the IA_NA, but it does not say that the client cannot do so, and
      * the IA_NA option definition supports any type of sub-options.
      * 
-     * @param buf	ByteBuffer positioned at the start of the options in the packet
-     * @throws IOException
+     * @param buf ByteBuffer positioned at the start of the options in the packet
+     * @param eof the eof
+     * 
+     * @throws IOException Signals that an I/O exception has occurred.
      */    
     protected void decodeOptions(ByteBuffer buf, int eof) 
 	    throws IOException

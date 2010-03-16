@@ -35,7 +35,6 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpConfirmProcessor
  * Description: The main class for processing CONFIRM messages.

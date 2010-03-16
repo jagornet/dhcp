@@ -42,11 +42,20 @@ import com.jagornet.dhcpv6.xml.RemoteIdOption;
  */
 public class DhcpRemoteIdOption extends BaseOpaqueDataOption
 {
+	
+	/**
+	 * Instantiates a new dhcp remote id option.
+	 */
 	public DhcpRemoteIdOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp remote id option.
+	 * 
+	 * @param remoteIdOption the remote id option
+	 */
 	public DhcpRemoteIdOption(RemoteIdOption remoteIdOption)
 	{
 		if (remoteIdOption != null) {

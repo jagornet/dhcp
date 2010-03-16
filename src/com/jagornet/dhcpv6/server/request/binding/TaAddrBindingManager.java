@@ -1,94 +1,102 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file TaAddrBindingManager.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.server.request.binding;
 
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.jagornet.dhcpv6.db.IdentityAssoc;
+import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpIaAddrOption;
 import com.jagornet.dhcpv6.option.DhcpIaTaOption;
-import com.jagornet.dhcpv6.xml.AddressBindingsType;
-import com.jagornet.dhcpv6.xml.AddressPoolsType;
 import com.jagornet.dhcpv6.xml.Link;
-import com.jagornet.dhcpv6.xml.LinkFilter;
 
-public class TaAddrBindingManager 
-		extends AddressBindingManager 
-		implements TaAddrBindingManagerInterface
+/**
+ * The Interface TaAddrBindingManager.
+ */
+public interface TaAddrBindingManager
 {
-	public TaAddrBindingManager() throws Exception
-	{
-		super();
-	}
+	/**
+	 * Initialize the manager.
+	 * 
+	 * @throws Exception
+	 */
+	public void init() throws Exception;
 	
-	@Override
-	protected AddressBindingsType getAddressBindingsType(Link link) {
-		return link.getTaAddrBindings();
-	}
-
-	@Override
-	protected AddressPoolsType getAddressPoolsType(LinkFilter linkFilter) {
-		return linkFilter.getTaAddrPools();
-	}
-
-	@Override
-	protected AddressPoolsType getAddressPoolsType(Link link) {
-		return link.getTaAddrPools();
-	}
-
-	@Override
-	public Binding findCurrentBinding(Link clientLink,
-			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
-			DhcpMessage requestMsg) {
-		
-		byte[] duid = clientIdOption.getDuid();;
-		long iaid = iaTaOption.getIaTaOption().getIaId();
-		
-		return super.findCurrentBinding(clientLink, duid, IdentityAssoc.TA_TYPE, 
-				iaid, requestMsg);
-	}
-
-	@Override
-	public Binding createSolicitBinding(Link clientLink,
-			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
-			DhcpMessage requestMsg, boolean rapidCommit) {
-		
-		byte[] duid = clientIdOption.getDuid();;
-		long iaid = iaTaOption.getIaTaOption().getIaId();
-		
-		List<InetAddress> requestAddrs = getInetAddrs(iaTaOption);
-		
-		return super.createSolicitBinding(clientLink, duid, IdentityAssoc.TA_TYPE, 
-				iaid, requestAddrs, requestMsg, rapidCommit);
-	}
-
-	@Override
-	public Binding updateBinding(Binding binding, Link clientLink,
-			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
-			DhcpMessage requestMsg, byte state) {
-		
-		byte[] duid = clientIdOption.getDuid();;
-		long iaid = iaTaOption.getIaTaOption().getIaId();
-		
-		List<InetAddress> requestAddrs = getInetAddrs(iaTaOption);
-		
-		return super.updateBinding(binding, clientLink, duid, IdentityAssoc.TA_TYPE,
-				iaid, requestAddrs, requestMsg, state);
-	}
+	/**
+	 * Find current binding.
+	 * 
+	 * @param clientLink the client link
+	 * @param clientIdOption the client id option
+	 * @param iaTaOption the ia na option
+	 * @param requestMsg the request msg
+	 * 
+	 * @return the binding
+	 */
+	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
+			DhcpIaTaOption iaTaOption, DhcpMessage requestMsg);
 	
-	private List<InetAddress> getInetAddrs(DhcpIaTaOption iaTaOption)
-	{
-		List<InetAddress> inetAddrs = null;
-		List<DhcpIaAddrOption> iaAddrs = iaTaOption.getIaAddrOptions();
-		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
-			inetAddrs = new ArrayList<InetAddress>();
-			for (DhcpIaAddrOption iaAddr : iaAddrs) {
-				InetAddress inetAddr = iaAddr.getInetAddress();
-				inetAddrs.add(inetAddr);
-			}
-		}
-		return inetAddrs;
-	}
+	/**
+	 * Creates the solicit binding.
+	 * 
+	 * @param clientLink the client link
+	 * @param clientIdOption the client id option
+	 * @param iaTaOption the ia na option
+	 * @param requestMsg the request msg
+	 * @param rapidCommit the rapid commit
+	 * 
+	 * @return the binding
+	 */
+	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
+			DhcpIaTaOption iaTaOption, DhcpMessage requestMsg, boolean rapidCommit);
+
+	/**
+	 * Update binding.
+	 * 
+	 * @param binding the binding
+	 * @param clientLink the client link
+	 * @param clientIdOption the client id option
+	 * @param iaTaOption the ia na option
+	 * @param requestMsg the request msg
+	 * @param state the state
+	 * 
+	 * @return the binding
+	 */
+	public Binding updateBinding(Binding binding, Link clientLink, 
+			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
+			DhcpMessage requestMsg, byte state);
+
+	/**
+	 * Release ia address.
+	 * 
+	 * @param iaAddr the ia addr
+	 */
+	public void releaseIaAddress(IaAddress iaAddr);
+	
+	/**
+	 * Decline ia address.
+	 * 
+	 * @param iaAddr the ia addr
+	 */
+	public void declineIaAddress(IaAddress iaAddr);
 }

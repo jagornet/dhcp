@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.BcmcsAddressesOption;
  */
 public class DhcpBcmcsAddressesOption extends BaseIpAddressListOption
 {
+	
+	/**
+	 * Instantiates a new dhcp bcmcs addresses option.
+	 */
 	public DhcpBcmcsAddressesOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp bcmcs addresses option.
+	 * 
+	 * @param bcmcsAddressesOption the bcmcs addresses option
+	 */
 	public DhcpBcmcsAddressesOption(BcmcsAddressesOption bcmcsAddressesOption)
 	{
 		if (bcmcsAddressesOption != null)

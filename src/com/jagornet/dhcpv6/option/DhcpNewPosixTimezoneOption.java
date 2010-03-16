@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.NewPosixTimezoneOption;
  */
 public class DhcpNewPosixTimezoneOption extends BaseStringOption
 {
+	
+	/**
+	 * Instantiates a new dhcp new posix timezone option.
+	 */
 	public DhcpNewPosixTimezoneOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp new posix timezone option.
+	 * 
+	 * @param newPosixTimezoneOption the new posix timezone option
+	 */
 	public DhcpNewPosixTimezoneOption(NewPosixTimezoneOption newPosixTimezoneOption)
 	{
 		if (newPosixTimezoneOption != null)

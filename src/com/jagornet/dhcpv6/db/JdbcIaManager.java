@@ -49,6 +49,7 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 {	
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(JdbcIaManager.class);
 
@@ -64,12 +65,8 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	/** The dhcp opt dao. */
 	protected DhcpOptionDAO dhcpOptDao;
 
-	/**
-	 * Create an IdentityAssoc object, including any contained
-	 * IaAddresses, IaPrefixes and DhcpOptions, as well as any DhcpOptions
-	 * contained in the IaAddresses or IaPrefixes themselves.
-	 * 
-	 * @param ia the ia
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#createIA(com.jagornet.dhcpv6.db.IdentityAssoc)
 	 */
 	public void createIA(IdentityAssoc ia)
 	{
@@ -115,6 +112,8 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		iaDao.update(ia);
 		if (addAddrs != null) {
 			for (IaAddress addAddr : addAddrs) {
+				// ensure the address points to the given IA
+				addAddr.setIdentityAssocId(ia.getId());
 				if (ia.getIatype() == IdentityAssoc.PD_TYPE)
 					iaPrefixDao.create((IaPrefix)addAddr);
 				else
@@ -123,6 +122,8 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		}
 		if (updateAddrs != null) {
 			for (IaAddress updateAddr : updateAddrs) {
+				// ensure the address points to the given IA
+				updateAddr.setIdentityAssocId(ia.getId());
 				if (ia.getIatype() == IdentityAssoc.PD_TYPE)
 					iaPrefixDao.update((IaPrefix)updateAddr);
 				else
@@ -139,14 +140,8 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		}
 	}
 
-	/**
-	 * Delete an IdentityAssoc object, and allow the database
-	 * constraints (cascade delete) to care of deleting any
-	 * contained IaAddresses, IaPrefixes and DhcpOptions, and further
-	 * cascading to delete any DhcpOptions contained in the
-	 * IaAddresses or IaPrefixes themselves.
-	 * 
-	 * @param ia the ia
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#deleteIA(com.jagornet.dhcpv6.db.IdentityAssoc)
 	 */
 	public void deleteIA(IdentityAssoc ia)
 	{
@@ -161,6 +156,9 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#addDhcpOption(com.jagornet.dhcpv6.db.IdentityAssoc, com.jagornet.dhcpv6.db.DhcpOption)
+	 */
 	public void addDhcpOption(IdentityAssoc ia, DhcpOption option)
 	{
 		// ensure the DhcpOption references this IA, and nothing else
@@ -171,31 +169,32 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		dhcpOptDao.create(option);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#updateDhcpOption(com.jagornet.dhcpv6.db.DhcpOption)
+	 */
 	public void updateDhcpOption(DhcpOption option)
 	{
 		dhcpOptDao.update(option);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#deleteDhcpOption(com.jagornet.dhcpv6.db.DhcpOption)
+	 */
 	public void deleteDhcpOption(DhcpOption option)
 	{
 		dhcpOptDao.deleteById(option.getId());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#getIA(long)
+	 */
 	public IdentityAssoc getIA(long id)
 	{
 		return iaDao.getById(id);
 	}
 
-	/**
-	 * Locate an IdentityAssoc object by the key tuple duid-iaid-iatype.
-	 * Populate any contained IaAddresses, IaPrefixes and DhcpOptions, as well as
-	 * any DhcpOptions contained in the IaAddresses or IaPrefixes themselves.
-	 * 
-	 * @param duid the duid
-	 * @param iatype the iatype
-	 * @param iaid the iaid
-	 * 
-	 * @return a fully-populated IdentityAssoc, or null if not found
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findIA(byte[], byte, long)
 	 */
 	public IdentityAssoc findIA(byte[] duid, byte iatype, long iaid)
 	{
@@ -401,7 +400,7 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	/**
 	 * Sets the ia prefix dao.
 	 * 
-	 * @param iaAddrDao the new ia prefix dao
+	 * @param iaPrefixDao the ia prefix dao
 	 */
 	public void setIaPrefixDao(IaPrefixDAO iaPrefixDao) {
 		this.iaPrefixDao = iaPrefixDao;

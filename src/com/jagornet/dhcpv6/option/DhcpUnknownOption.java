@@ -36,14 +36,23 @@ import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
  */
 public class DhcpUnknownOption extends BaseOpaqueDataOption
 {
-	/** The option code for this unknown option */
+	
+	/** The option code for this unknown option. */
 	protected int code;
 	
+	/**
+	 * Instantiates a new dhcp unknown option.
+	 */
 	public DhcpUnknownOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp unknown option.
+	 * 
+	 * @param unknownOption the unknown option
+	 */
 	public DhcpUnknownOption(OpaqueDataOptionType unknownOption)
 	{
 		super(unknownOption);	
@@ -57,6 +66,11 @@ public class DhcpUnknownOption extends BaseOpaqueDataOption
         return code;
     }
     
+    /**
+     * Sets the code.
+     * 
+     * @param code the new code
+     */
     public void setCode(int code)
     {
     	this.code = code;

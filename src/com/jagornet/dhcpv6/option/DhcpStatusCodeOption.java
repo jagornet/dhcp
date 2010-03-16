@@ -41,6 +41,7 @@ import com.jagornet.dhcpv6.xml.StatusCodeOption;
  */
 public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparableOption
 {
+    
     /** The status code option. */
     private StatusCodeOption statusCodeOption;
     

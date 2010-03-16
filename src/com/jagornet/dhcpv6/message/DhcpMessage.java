@@ -47,7 +47,6 @@ import com.jagornet.dhcpv6.option.DhcpOptionRequestOption;
 import com.jagornet.dhcpv6.option.DhcpRelayOption;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
-import com.jagornet.dhcpv6.option.base.DhcpOptionable;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
@@ -107,7 +106,7 @@ import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
  * @author A. Gregory Rabil
  */
 
-public class DhcpMessage implements DhcpOptionable
+public class DhcpMessage
 {
     private static Logger log = LoggerFactory.getLogger(DhcpMessage.class);
     

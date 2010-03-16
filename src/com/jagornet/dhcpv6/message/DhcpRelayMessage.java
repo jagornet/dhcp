@@ -40,7 +40,6 @@ import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpRelayMessage
  * Description:Object that represents a DHCPv6 relay message as defined in

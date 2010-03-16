@@ -52,14 +52,12 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
-// TODO: Auto-generated Javadoc
 /**
  * This is a JBoss Netty based DHCPv6 server that uses
  * Java NIO DatagramChannels for receiving unicast messages.
- * 
- * Note: Java 7 should support MulticastChannels, and then
- * this class can be refactored to support both unicast and
- * multicast packets.
+ * It uses OIO (java.net) DatagramSockets for receiving
+ * multicast messages.  Java 7 is required to support
+ * MulticastChannels.
  * 
  * @author A. Gregory Rabil
  */
@@ -69,27 +67,27 @@ public class NettyDhcpServer
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(NettyDhcpServer.class);
 	
-	/** The addrs. */
-	private List<InetAddress> addrs;		// unicast socket addresses
+	/** The unicast socket addresses */
+	private List<InetAddress> addrs;
 	
-	/** The net ifs. */
-	private List<NetworkInterface> netIfs;	// multicast socket interfaces
+	/** The mulitcast network interfaces */
+	private List<NetworkInterface> netIfs;
 	
-	/** The port. */
+	/** The DHCPv6 server port. */
 	private int port;
 	
-    /** The bootstrap. */
+    /** The collection of channels this server listens on. */
     protected Collection<DatagramChannel> channels = new ArrayList<DatagramChannel>();
     
-    /** The executor service. */
-    protected ExecutorService executorService;
+    /** The executor service thread pool for processing requests. */
+    protected ExecutorService executorService = Executors.newCachedThreadPool();
     
     /**
-     * Instantiates a new unicast dhcp server.
+     * Create a NettyDhcpServer.
      * 
-     * @param port the port
-     * @param addrs the addrs
-     * @param netIfs the net ifs
+     * @param port the port to listen on
+     * @param addrs the addresses to listen on for unicast traffic
+     * @param netIfs the network interfaces to listen on for multicast traffic
      * 
      * @throws Exception the exception
      */
@@ -102,91 +100,105 @@ public class NettyDhcpServer
     }
     
     /**
-     * Start the unicast server.
+     * Start the server.
      * 
      * @throws Exception the exception
      */
     public void start() throws Exception
     {
         try {
-        	executorService = Executors.newCachedThreadPool();
         	InternalLoggerFactory.setDefaultFactory(new Log4JLoggerFactory());
         	
-        	for (InetAddress addr : addrs) {
-
-        		ChannelPipeline pipeline = Channels.pipeline();
-	            pipeline.addLast("logger", new LoggingHandler());
-	            pipeline.addLast("decoder", new DhcpChannelDecoder());
-	            pipeline.addLast("encoder", new DhcpChannelEncoder());
-	            pipeline.addLast("executor", new ExecutionHandler(
-	            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
-	            pipeline.addLast("handler", new DhcpChannelHandler());
-        		
-	            DatagramChannelFactory factory =
-	                new NioDatagramChannelFactory(executorService);
-
-	            // create an unbound channel
-	            DatagramChannel channel = factory.newChannel(pipeline);
-	            channel.getConfig().setReuseAddress(true);
-	            
-	            SocketAddress sockAddr = new InetSocketAddress(addr, port); 
-	            log.info("Binding datagram channel on IPv6 socket address: " + sockAddr);
-	            channel.bind(sockAddr);
-	            channels.add(channel);
+        	// Use NioDatagramChannels for unicast addresses
+        	if (addrs != null) {
+	        	for (InetAddress addr : addrs) {
+	
+	        		ChannelPipeline pipeline = Channels.pipeline();
+		            pipeline.addLast("logger", new LoggingHandler());
+		            pipeline.addLast("decoder", 
+		            		new DhcpChannelDecoder(new InetSocketAddress(addr, port)));
+		            pipeline.addLast("encoder", new DhcpChannelEncoder());
+		            pipeline.addLast("executor", new ExecutionHandler(
+		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
+		            pipeline.addLast("handler", new DhcpChannelHandler());
+	        		
+		            DatagramChannelFactory factory =
+		                new NioDatagramChannelFactory(executorService);
+	
+		            // create an unbound channel
+		            DatagramChannel channel = factory.newChannel(pipeline);
+		            channel.getConfig().setReuseAddress(true);
+		            
+		            SocketAddress sockAddr = new InetSocketAddress(addr, port); 
+		            log.info("Binding datagram channel on IPv6 socket address: " + sockAddr);
+		            channel.bind(sockAddr);
+		            channels.add(channel);
+	        	}
         	}
         	
-        	for (NetworkInterface netIf : netIfs) {
-        		
-	            ChannelPipeline pipeline = Channels.pipeline();
-	            pipeline.addLast("logger", new LoggingHandler());
-	            pipeline.addLast("decoder", new DhcpChannelDecoder());
-	            pipeline.addLast("encoder", new DhcpChannelEncoder());
-	            pipeline.addLast("executor", new ExecutionHandler(
-	            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
-	            pipeline.addLast("handler", new DhcpChannelHandler());
-
-	            DatagramChannelFactory factory =
-	                new OioDatagramChannelFactory(executorService);
-
-	            // create an unbound channel
-	            DatagramChannel channel = factory.newChannel(pipeline);	            
-
-	            InetAddress v6Addr = Util.netIfIPv6LinkLocalAddress(netIf);
-	            
-	            // must be bound in order to join multicast group
-	            SocketAddress sockAddr = new InetSocketAddress(v6Addr, port); 
-	            log.info("Binding multicast channel on IPv6 socket address: " + sockAddr);
-	            channel.bind(sockAddr);
-	            
-	            InetSocketAddress relayGroup = 
-	            	new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS, port);
-	            log.info("Joining multicast group: " + relayGroup +
-	            		" on interface: " + netIf.getName());
-	            channel.joinGroup(relayGroup, netIf);
-	            InetSocketAddress serverGroup = 
-	            	new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS, port); 
-	            log.info("Joining multicast group: " + serverGroup +
-	            		" on interface: " + netIf.getName());
-	            channel.joinGroup(serverGroup, netIf);
-	            channels.add(channel);
+        	// Use OioDatagramChannels for multicast interfaces
+        	if (netIfs != null) {
+	        	for (NetworkInterface netIf : netIfs) {
+	        		
+	        		InetAddress addr = Util.netIfIPv6LinkLocalAddress(netIf);
+	        		
+		            ChannelPipeline pipeline = Channels.pipeline();
+		            pipeline.addLast("logger", new LoggingHandler());
+		            pipeline.addLast("decoder", 
+		            		new DhcpChannelDecoder(new InetSocketAddress(addr, port)));
+		            pipeline.addLast("encoder", new DhcpChannelEncoder());
+		            pipeline.addLast("executor", new ExecutionHandler(
+		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
+		            pipeline.addLast("handler", new DhcpChannelHandler());
+	
+		            DatagramChannelFactory factory =
+		                new OioDatagramChannelFactory(executorService);
+	
+		            // create an unbound channel
+		            DatagramChannel channel = factory.newChannel(pipeline);	            
+	
+		            
+		            // must be bound in order to join multicast group
+		            SocketAddress sockAddr = new InetSocketAddress(port);
+		            log.info("Binding multicast channel on IPv6 socket address: " + sockAddr);
+		            channel.bind(sockAddr);
+		            
+		            InetSocketAddress relayGroup = 
+		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS, port);
+		            log.info("Joining multicast group: " + relayGroup +
+		            		" on interface: " + netIf.getName());
+		            channel.joinGroup(relayGroup, netIf);
+		            InetSocketAddress serverGroup = 
+		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS, port); 
+		            log.info("Joining multicast group: " + serverGroup +
+		            		" on interface: " + netIf.getName());
+		            channel.joinGroup(serverGroup, netIf);
+		            channels.add(channel);
+	        	}
         	}
         }
         catch (Exception ex) {
             log.error("Failed to initialize server: " + ex, ex);
             throw ex;
         }
+
+    	Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+            	  shutdown();
+                }
+            });
     }
     
-    // TODO: Support calling this shutdown method somehow
-    //       see - http://java.sun.com/j2se/1.4.2/docs/guide/lang/hook-design.html
     /**
      * Shutdown.
      */
-    protected void shutdown()
+    public void shutdown()
     {
+    	log.info("Closing channels");
 		for (DatagramChannel channel : channels) {
 			channel.close();
 		}
-        executorService.shutdown();        
+		log.info("Executor shutdown");
+        executorService.shutdown();     
     }
 }

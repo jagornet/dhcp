@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.PreferenceOption;
  */
 public class DhcpPreferenceOption extends BaseUnsignedByteOption
 {
+	
+	/**
+	 * Instantiates a new dhcp preference option.
+	 */
 	public DhcpPreferenceOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp preference option.
+	 * 
+	 * @param preferenceOption the preference option
+	 */
 	public DhcpPreferenceOption(PreferenceOption preferenceOption)
 	{
 		if (preferenceOption != null)

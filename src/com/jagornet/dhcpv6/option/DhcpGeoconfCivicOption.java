@@ -42,6 +42,7 @@ import com.jagornet.dhcpv6.xml.GeoconfCivicOption;
  */
 public class DhcpGeoconfCivicOption extends BaseDhcpOption
 {
+    
     /** The geoconf civic option. */
     private GeoconfCivicOption geoconfCivicOption;
     

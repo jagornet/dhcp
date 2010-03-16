@@ -20,36 +20,67 @@ import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.xml.ConfigOptionsType;
 
+/**
+ * The Class DhcpConfigOptions.
+ */
 public class DhcpConfigOptions
 {
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpConfigOptions.class);
 	
 	// regular expression for matching option getter methods
+	/** The get option pattern. */
 	protected static Pattern getOptionPattern = Pattern.compile("get.*Option");
+	
+	/** The IMPL. */
 	protected static String IMPL = "Impl";
+	
+	/** The GE t_ code. */
 	protected static String GET_CODE = "getCode";
+	
+	/** The GE t_ length. */
 	protected static String GET_LENGTH = "getLength";
+	
+	/** The OPTIO n_ pk g_ prefix. */
 	protected static String OPTION_PKG_PREFIX = "com.jagornet.dhcpv6.option.Dhcp";
+	
+	/** The XM l_ pkg. */
 	protected static String XML_PKG = "com.jagornet.dhcpv6.xml.";
     
     /** The requested option codes. */
     protected List<Integer> requestedOptionCodes;
 
+	/** The config options. */
 	protected ConfigOptionsType configOptions;
 	
+	/** The option map. */
 	protected Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
 	
+	/**
+	 * Instantiates a new dhcp config options.
+	 */
 	public DhcpConfigOptions()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp config options.
+	 * 
+	 * @param configOptions the config options
+	 */
 	public DhcpConfigOptions(ConfigOptionsType configOptions)
 	{
 		this(configOptions, null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp config options.
+	 * 
+	 * @param configOptions the config options
+	 * @param requestedOptionCodes the requested option codes
+	 */
 	public DhcpConfigOptions(ConfigOptionsType configOptions, List<Integer> requestedOptionCodes)
 	{
 		if (configOptions != null) 
@@ -64,6 +95,11 @@ public class DhcpConfigOptions
 		initDhcpOptionMap();
 	}
     
+    /**
+     * Inits the dhcp option map.
+     * 
+     * @return the map< integer, dhcp option>
+     */
     public Map<Integer, DhcpOption> initDhcpOptionMap()
     {
 		Method[] methods = configOptions.getClass().getMethods();
@@ -78,22 +114,47 @@ public class DhcpConfigOptions
 		return optionMap;
     }
 
+	/**
+	 * Gets the config options.
+	 * 
+	 * @return the config options
+	 */
 	public ConfigOptionsType getConfigOptions() {
 		return configOptions;
 	}
 
+	/**
+	 * Sets the config options.
+	 * 
+	 * @param configOptions the new config options
+	 */
 	public void setConfigOptions(ConfigOptionsType configOptions) {
 		this.configOptions = configOptions;
 	}
 	
+	/**
+	 * Gets the requested option codes.
+	 * 
+	 * @return the requested option codes
+	 */
 	public List<Integer> getRequestedOptionCodes() {
 		return requestedOptionCodes;
 	}
 
+	/**
+	 * Sets the requested option codes.
+	 * 
+	 * @param requestedOptionCodes the new requested option codes
+	 */
 	public void setRequestedOptionCodes(List<Integer> requestedOptionCodes) {
 		this.requestedOptionCodes = requestedOptionCodes;
 	}
 	
+	/**
+	 * Gets the dhcp option map.
+	 * 
+	 * @return the dhcp option map
+	 */
 	public Map<Integer, DhcpOption> getDhcpOptionMap()
 	{
 		return optionMap;
@@ -127,6 +188,11 @@ public class DhcpConfigOptions
     	return true;
     }
     
+	/**
+	 * Gets the length.
+	 * 
+	 * @return the length
+	 */
 	public int getLength()
 	{
 		int len = 0;
@@ -148,6 +214,13 @@ public class DhcpConfigOptions
 		return len;
 	}
 
+    /**
+     * Encode.
+     * 
+     * @return the byte buffer
+     * 
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = ByteBuffer.allocate(getLength());
@@ -184,12 +257,26 @@ public class DhcpConfigOptions
 	}
 */
     
-    private boolean isOptionGetter(Method method)
+    /**
+ * Checks if is option getter.
+ * 
+ * @param method the method
+ * 
+ * @return true, if is option getter
+ */
+private boolean isOptionGetter(Method method)
     {
 		Matcher matcher = getOptionPattern.matcher(method.getName());
 		return matcher.matches();
     }
 
+    /**
+     * Builds the dhcp option.
+     * 
+     * @param method the method
+     * 
+     * @return the dhcp option
+     */
     private DhcpOption buildDhcpOption(Method method)
     {
     	DhcpOption dhcpOpt = null;
@@ -206,6 +293,15 @@ public class DhcpConfigOptions
 		return dhcpOpt;
     }
     
+    /**
+     * Builds the dhcp option.
+     * 
+     * @param obj the obj
+     * 
+     * @return the dhcp option
+     * 
+     * @throws Exception the exception
+     */
     private DhcpOption buildDhcpOption(Object obj) throws Exception
     {
     	DhcpOption dhcpOpt = null;

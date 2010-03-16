@@ -29,7 +29,6 @@ import org.springframework.beans.BeanUtils;
 
 import com.jagornet.dhcpv6.db.IaAddress;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class BindingAddress.
  */

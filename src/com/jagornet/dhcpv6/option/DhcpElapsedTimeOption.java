@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.ElapsedTimeOption;
  */
 public class DhcpElapsedTimeOption extends BaseUnsignedShortOption
 {
+	
+	/**
+	 * Instantiates a new dhcp elapsed time option.
+	 */
 	public DhcpElapsedTimeOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp elapsed time option.
+	 * 
+	 * @param elapsedTimeOption the elapsed time option
+	 */
 	public DhcpElapsedTimeOption(ElapsedTimeOption elapsedTimeOption)
 	{
 		if (elapsedTimeOption != null)

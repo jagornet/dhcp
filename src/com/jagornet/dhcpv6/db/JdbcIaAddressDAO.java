@@ -328,9 +328,10 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
         	iaAddr.setId(rs.getLong("id"));
         	try {
 				iaAddr.setIpAddress(InetAddress.getByAddress(rs.getBytes("ipaddress")));
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} 
+        	catch (UnknownHostException e) {
+        		// re-throw as SQLException
+				throw new SQLException("Unable to map ipaddress", e);
 			}
 			iaAddr.setStartTime(rs.getTimestamp("starttime", Util.GMT_CALENDAR));
 			iaAddr.setPreferredEndTime(rs.getTimestamp("preferredendtime", Util.GMT_CALENDAR));

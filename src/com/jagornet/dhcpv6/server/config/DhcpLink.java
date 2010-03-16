@@ -28,7 +28,6 @@ package com.jagornet.dhcpv6.server.config;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.xml.Link;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpLink.
  */

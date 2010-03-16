@@ -56,7 +56,6 @@ import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class BindingManager.
  */
@@ -82,6 +81,17 @@ public abstract class AddressBindingManager extends BaseBindingManager
     protected abstract AddressPoolsType getAddressPoolsType(LinkFilter linkFilter);
     protected abstract AddressPoolsType getAddressPoolsType(Link link);
     
+    /**
+     * Build the list of AddressBindingPools from the list of configured AddressPools
+     * for the given configuration Link container object. The list of AddressBindingPools
+     * starts with the filtered AddressPools followed by non-filtered AddressPools.
+     * 
+     * @param link the configuration Link object
+     * 
+     * @return the list of AddressBindingPools (<? extends BindingPool>)
+     * 
+     * @throws Exception if any problem occurs
+     */
     protected List<? extends BindingPool> buildBindingPools(Link link) throws Exception
     {
 		List<AddressBindingPool> bindingPools = new ArrayList<AddressBindingPool>();
@@ -102,11 +112,11 @@ public abstract class AddressBindingManager extends BaseBindingManager
 		    				}
 		    			}
 		    			else {
-		    				log.error("PoolList is null for PoolsType:\n" + poolsType);
+		    				log.error("PoolList is null for PoolsType: " + poolsType);
 		    			}
 					}
 					else {
-						log.warn("PoolsType is null for LinkFilter:\n" + linkFilter);
+						log.info("PoolsType is null for LinkFilter: " + linkFilter.getName());
 					}
 				}
 			}
@@ -122,22 +132,26 @@ public abstract class AddressBindingManager extends BaseBindingManager
 				}
 			}
 			else {
-				log.error("PoolList is null for PoolsType:\n" + poolsType);
+				log.error("PoolList is null for PoolsType: " + poolsType);
 			}
 		}
 		else {
-			log.warn("PoolsType is null for Link:\n" + link);
+			log.info("PoolsType is null for Link: " + link.getName());
 		}
-		
-		reconcilePools(bindingPools);
+
+//TODO this is very dangerous if the server is managing
+//	    both NA and TA address pools because we'd delete
+//	    all the addresses in pools of the other type
+//		reconcilePools(bindingPools);
 		
 		return bindingPools;
     }
     
     /**
-     * Reconcile pools.
+     * Reconcile pools.  Delete any IaAddress objects not contained
+     * within the given list of AddressBindingPools.
      * 
-     * @param bindingPools the binding pools
+     * @param bindingPools the list of AddressBindingPools
      */
     protected void reconcilePools(List<AddressBindingPool> bindingPools)
     {
@@ -337,7 +351,6 @@ public abstract class AddressBindingManager extends BaseBindingManager
 				iaMgr.updateIaAddr(iaAddr);
 			}
 			freeAddress(iaAddr.getIpAddress());
-			//TODO: ddns update release
 		}
 		catch (Exception ex) {
 			log.error("Failed to expire address", ex);

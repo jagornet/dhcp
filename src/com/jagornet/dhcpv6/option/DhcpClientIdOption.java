@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.ClientIdOption;
  */
 public class DhcpClientIdOption extends BaseOpaqueDataOption
 {
+	
+	/**
+	 * Instantiates a new dhcp client id option.
+	 */
 	public DhcpClientIdOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp client id option.
+	 * 
+	 * @param clientIdOption the client id option
+	 */
 	public DhcpClientIdOption(ClientIdOption clientIdOption)
 	{
 		if (clientIdOption != null) {
@@ -64,6 +73,8 @@ public class DhcpClientIdOption extends BaseOpaqueDataOption
     
     /**
      * Convenience method to get the DUID bytes.
+     * 
+     * @return the duid
      */
     public byte[] getDuid()
     {

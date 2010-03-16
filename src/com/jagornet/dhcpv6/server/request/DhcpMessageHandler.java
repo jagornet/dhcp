@@ -35,7 +35,6 @@ import com.jagornet.dhcpv6.message.DhcpRelayMessage;
 import com.jagornet.dhcpv6.option.DhcpRelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpMessageHandler
  * Description: The main DHCP message handler class.
@@ -74,7 +73,7 @@ public class DhcpMessageHandler
 	 * 
 	 * @return a Reply or Relay-Reply message
 	 */
-	//TODO this is the magic method where the nio and net implementations come together
+	//NOTE: this is the magic method where the nio and net implementations come together
     public static DhcpMessage handleMessage(InetAddress localAddress, DhcpMessage dhcpMessage)
     {
 		DhcpMessage replyMessage = null;

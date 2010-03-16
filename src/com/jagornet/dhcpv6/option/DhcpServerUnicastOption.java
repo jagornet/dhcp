@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.ServerUnicastOption;
  */
 public class DhcpServerUnicastOption extends BaseIpAddressOption
 {
+	
+	/**
+	 * Instantiates a new dhcp server unicast option.
+	 */
 	public DhcpServerUnicastOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp server unicast option.
+	 * 
+	 * @param serverUnicastOption the server unicast option
+	 */
 	public DhcpServerUnicastOption(ServerUnicastOption serverUnicastOption)
 	{
 		if (serverUnicastOption != null)

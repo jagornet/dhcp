@@ -27,10 +27,9 @@ package com.jagornet.dhcpv6.option;
 
 import java.util.Arrays;
 
-import org.apache.commons.codec.binary.Hex;
-
 import junit.framework.TestCase;
 
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 
 // TODO: Auto-generated Javadoc
@@ -49,8 +48,8 @@ public class TestOpaqueDataUtil extends TestCase
 	{
 		String hex1 = "ABCDEF0123456789";
 		String hex2 = "abcdef0123456789";
-		byte b1[] = Hex.decodeHex(hex1.toCharArray());
-		byte b2[] = Hex.decodeHex(hex2.toCharArray());
+		byte b1[] = Util.fromHexString(hex1);
+		byte b2[] = Util.fromHexString(hex2);
 		assertTrue(Arrays.equals(b1, b2));
 	}
 	
@@ -62,9 +61,9 @@ public class TestOpaqueDataUtil extends TestCase
 	public void testEquals() throws Exception
 	{
 		OpaqueData od1 = OpaqueData.Factory.newInstance();
-		od1.setHexValue(Hex.decodeHex("ABCDEF0123456789".toCharArray()));
+		od1.setHexValue(Util.fromHexString("ABCDEF0123456789"));
 		OpaqueData od2 = OpaqueData.Factory.newInstance();
-		od2.setHexValue(Hex.decodeHex("abcdef0123456789".toCharArray()));
+		od2.setHexValue(Util.fromHexString("abcdef0123456789"));
 		assertTrue(OpaqueDataUtil.equals(od1, od2));
 	}
 	

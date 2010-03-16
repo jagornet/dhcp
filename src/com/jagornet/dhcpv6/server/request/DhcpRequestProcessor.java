@@ -39,12 +39,11 @@ import com.jagornet.dhcpv6.option.DhcpIaPdOption;
 import com.jagornet.dhcpv6.option.DhcpIaTaOption;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
-import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
-import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerInterface;
-import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpRequestProcessor
  * Description: The main class for processing REQUEST messages.
@@ -152,7 +151,7 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 		
 		List<DhcpIaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
     	if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
-    		NaAddrBindingManagerInterface bindingMgr = dhcpServerConfig.getNaAddrBindingMgr();
+    		NaAddrBindingManager bindingMgr = dhcpServerConfig.getNaAddrBindingMgr();
     		if (bindingMgr != null) {
 	    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
 	    			log.info("Processing IA_NA Request: " + dhcpIaNaOption.toString());
@@ -192,7 +191,7 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 		
 		List<DhcpIaTaOption> iaTaOptions = requestMsg.getIaTaOptions();
     	if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
-    		TaAddrBindingManagerInterface bindingMgr = dhcpServerConfig.getTaAddrBindingMgr();
+    		TaAddrBindingManager bindingMgr = dhcpServerConfig.getTaAddrBindingMgr();
     		if (bindingMgr != null) {
 	    		for (DhcpIaTaOption dhcpIaTaOption : iaTaOptions) {
 	    			log.info("Processing IA_TA Request: " + dhcpIaTaOption.toString());
@@ -232,7 +231,7 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 		
 		List<DhcpIaPdOption> iaPdOptions = requestMsg.getIaPdOptions();
     	if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
-    		PrefixBindingManagerInterface bindingMgr = dhcpServerConfig.getPrefixBindingMgr();
+    		PrefixBindingManager bindingMgr = dhcpServerConfig.getPrefixBindingMgr();
     		if (bindingMgr != null) {
 	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
 	    			log.info("Processing IA_PD Request: " + dhcpIaPdOption.toString());

@@ -25,16 +25,14 @@
  */
 package com.jagornet.dhcpv6.client;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -43,18 +41,18 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.service.IoConnector;
-import org.apache.mina.core.service.IoHandlerAdapter;
-import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.ProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolEncoder;
-import org.apache.mina.filter.logging.LoggingFilter;
-import org.apache.mina.transport.socket.nio.NioDatagramConnector;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineCoverage;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.socket.DatagramChannel;
+import org.jboss.netty.channel.socket.DatagramChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
+import org.jboss.netty.channel.socket.oio.OioDatagramChannelFactory;
+import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +60,8 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpElapsedTimeOption;
 import com.jagornet.dhcpv6.option.DhcpUserClassOption;
-import com.jagornet.dhcpv6.server.nio.DhcpDecoderAdapter;
-import com.jagornet.dhcpv6.server.nio.DhcpEncoderAdapter;
+import com.jagornet.dhcpv6.server.netty.DhcpChannelDecoder;
+import com.jagornet.dhcpv6.server.netty.DhcpChannelEncoder;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
 import com.jagornet.dhcpv6.xml.ElapsedTimeOption;
@@ -71,12 +69,13 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.UserClassOption;
 
 /**
- * A test client that just sends messages to a DHCPv6 server
+ * A test client that sends INFO_REQUEST messages to a DHCPv6 server
  * via either unicast or multicast.
  * 
  * @author A. Gregory Rabil
  */
-public class TestClient  extends IoHandlerAdapter
+@ChannelPipelineCoverage("all")
+public class TestClient extends SimpleChannelUpstreamHandler
 {
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(TestClient.class);
@@ -123,10 +122,8 @@ public class TestClient  extends IoHandlerAdapter
         }
         
         try {
-			if (mcastNetIf == null) 
-				start();
-			else
-				startMcast();
+			start();
+
 		} 
         catch (Exception ex) {
 			ex.printStackTrace();
@@ -145,7 +142,7 @@ public class TestClient  extends IoHandlerAdapter
 		
         Option addrOption = new Option("a", "address", true,
         								"Address of DHCPv6 Server" +
-        								" [" + serverAddr.getHostAddress() + "]");
+        								" [" + serverAddr.getHostAddress() + "]");		
         options.addOption(addrOption);
 
         Option mcastOption = new Option("m", "multicast", true,
@@ -244,76 +241,49 @@ public class TestClient  extends IoHandlerAdapter
     }
     
     /**
-     * Start.
+     * Start sending DHCPv6 INFORM_REQUESTs.
      */
     public void start()
     {
-    	// pre-configure the message factory instance
+    	DatagramChannelFactory factory = null;
+    	if (mcastNetIf != null) {
+    		factory = new OioDatagramChannelFactory(Executors.newCachedThreadPool());
+    		serverAddr = DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS;
+    	}
+    	else {
+    		factory = new NioDatagramChannelFactory(Executors.newCachedThreadPool());
+    	}
     	
-        log.debug("Creating a datagram connector");
-        IoConnector connector = new NioDatagramConnector();
-
-        log.debug("Setting the handler");
-        connector.setHandler(this);
-
-        DefaultIoFilterChainBuilder chain = connector.getFilterChain();  
-        chain.addLast("logger", new LoggingFilter());
-
-        ProtocolEncoder encoder = new DhcpEncoderAdapter();
-        ProtocolDecoder decoder = new DhcpDecoderAdapter();
-        chain.addLast("codec", new ProtocolCodecFilter(encoder, decoder));
-        
-        log.debug("About to connect to the server...");
-        ConnectFuture connFuture = 
-            connector.connect(new InetSocketAddress(serverAddr, serverPort));
-
-        log.debug("About to wait.");
-        connFuture.awaitUninterruptibly();
-
-        log.debug("Adding a future listener.");
-        connFuture.addListener(new IoFutureListener<ConnectFuture>() {
-            public void operationComplete(ConnectFuture future) {
-                if (future.isConnected()) {
-                    log.debug("...connected");
-                    IoSession session = future.getSession();
-                    List<DhcpMessage> msgs = buildRequestMessages();
-                    for (DhcpMessage msg : msgs) {
-                        // write the message, the codec will convert it
-                        // to wire format... well, hopefully it will!
-                        session.write(msg);							
-					}
-                    System.exit(0);
-                } else {
-                    log.error("Not connected...exiting");
-                }
-            }
-        });
-    }
-    
-    /**
-     * Start mcast.
-     * 
-     * @throws IOException Signals that an I/O exception has occurred.
-     * @throws SocketException the socket exception
-     */
-    public void startMcast() throws IOException, SocketException
-    {
-    	MulticastSocket msock = 
-    		new MulticastSocket(new InetSocketAddress(clientPort));
-    	msock.setNetworkInterface(mcastNetIf);
+    	InetSocketAddress server = new InetSocketAddress(serverAddr, serverPort);
+    	InetSocketAddress client = new InetSocketAddress(clientPort);
     	
-    	// override any serverAddr to be the All_Servers_and_Relays multicast address
-		serverAddr = InetAddress.getByName("FF02::1:2");
-    	
-		List<DhcpMessage> msgs = buildRequestMessages();
-		for (DhcpMessage msg : msgs) {
-			byte[] buf = msg.encode().array();
-			DatagramPacket packet = new DatagramPacket(buf, buf.length);
-			packet.setAddress(msg.getRemoteAddress().getAddress());
-			packet.setPort(msg.getRemoteAddress().getPort());
-			msock.send(packet);	
+        List<DhcpMessage> msgs = buildRequestMessages();
+        for (DhcpMessage msg : msgs) {
+        	
+    		ChannelPipeline pipeline = Channels.pipeline();
+            pipeline.addLast("logger", new LoggingHandler());
+            pipeline.addLast("encoder", new DhcpChannelEncoder());
+            pipeline.addLast("decoder", new DhcpChannelDecoder(client));
+            pipeline.addLast("handler", this);
+        	
+            DatagramChannel channel = null;
+        	if (mcastNetIf != null) {
+                channel = factory.newChannel(pipeline);
+        		channel.getConfig().setNetworkInterface(mcastNetIf);
+        	}
+        	else {
+                channel = factory.newChannel(pipeline);
+        	}
+        	channel.bind(client);
+            // write the message, the codec will convert it
+            // to wire format... well, hopefully it will!
+            channel.write(msg, server);
+        	if (!channel.getCloseFuture().awaitUninterruptibly(2000)) {
+        		log.warn("DHCPv6 info-request timed out.");
+        		channel.close().awaitUninterruptibly();
+        	}
 		}
-		System.exit(0);
+    	factory.releaseExternalResources();
     }
 
     /**
@@ -361,65 +331,41 @@ public class TestClient  extends IoHandlerAdapter
         return msgs;
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.mina.core.service.IoHandlerAdapter#exceptionCaught(org.apache.mina.core.session.IoSession, java.lang.Throwable)
-     */
-    @Override
-    public void exceptionCaught(IoSession session, Throwable cause)
-            throws Exception {
-        cause.printStackTrace();
-    }
 
-    /* (non-Javadoc)
-     * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession, java.lang.Object)
-     */
-    @Override
-    public void messageReceived(IoSession session, Object message)
-            throws Exception {
-        log.debug("Session recv...");
+	/*
+	 * (non-Javadoc)
+	 * @see org.jboss.netty.channel.SimpleChannelHandler#messageReceived(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.MessageEvent)
+	 */
+	@Override
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception
+    {
+    	Object message = e.getMessage();
+        if (message instanceof DhcpMessage) {
+            
+            DhcpMessage dhcpMessage = (DhcpMessage) message;
+            if (log.isDebugEnabled())
+            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
+            else
+            	log.info("Received: " + dhcpMessage.toString());
+            
+//            SocketAddress remoteAddress = e.getRemoteAddress();
+//            InetAddress localAddr = ((InetSocketAddress)e.getChannel().getLocalAddress()).getAddress();
+            e.getChannel().close();
+        }
+        else {
+            // Note: in theory, we can't get here, because the
+            // codec would have thrown an exception beforehand
+            log.error("Received unknown message object: " + message.getClass());
+        }
     }
-
-    /* (non-Javadoc)
-     * @see org.apache.mina.core.service.IoHandlerAdapter#messageSent(org.apache.mina.core.session.IoSession, java.lang.Object)
-     */
-    @Override
-    public void messageSent(IoSession session, Object message) throws Exception {
-        log.debug("Message sent...");
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.mina.core.service.IoHandlerAdapter#sessionClosed(org.apache.mina.core.session.IoSession)
-     */
-    @Override
-    public void sessionClosed(IoSession session) throws Exception {
-        log.debug("Session closed...");
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.mina.core.service.IoHandlerAdapter#sessionCreated(org.apache.mina.core.session.IoSession)
-     */
-    @Override
-    public void sessionCreated(IoSession session) throws Exception {
-        log.debug("Session created...");
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.mina.core.service.IoHandlerAdapter#sessionIdle(org.apache.mina.core.session.IoSession, org.apache.mina.core.session.IdleStatus)
-     */
-    @Override
-    public void sessionIdle(IoSession session, IdleStatus status)
-            throws Exception {
-        log.debug("Session idle...");
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.mina.core.service.IoHandlerAdapter#sessionOpened(org.apache.mina.core.session.IoSession)
-     */
-    @Override
-    public void sessionOpened(IoSession session) throws Exception {
-        log.debug("Session opened...");
-    }
-
+	 
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
+	{
+    	log.error("Exception caught: ", e.getCause());
+    	e.getChannel().close();
+	}
+    
     /**
      * The main method.
      * 

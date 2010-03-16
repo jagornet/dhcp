@@ -42,6 +42,7 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
  */
 public class DhcpAuthenticationOption extends BaseDhcpOption
 {
+    
     /** The authentication option. */
     private AuthenticationOption authenticationOption;
     

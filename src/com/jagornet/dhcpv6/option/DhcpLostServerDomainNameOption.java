@@ -36,11 +36,20 @@ import com.jagornet.dhcpv6.xml.LostServerDomainNameOption;
  */
 public class DhcpLostServerDomainNameOption extends BaseDomainNameOption
 {
+	
+	/**
+	 * Instantiates a new dhcp lost server domain name option.
+	 */
 	public DhcpLostServerDomainNameOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new dhcp lost server domain name option.
+	 * 
+	 * @param lostServerDomainNameOption the lost server domain name option
+	 */
 	public DhcpLostServerDomainNameOption(LostServerDomainNameOption lostServerDomainNameOption)
 	{
 		if (lostServerDomainNameOption != null)

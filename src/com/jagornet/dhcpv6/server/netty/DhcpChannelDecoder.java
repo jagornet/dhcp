@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
 
-// TODO: Auto-generated Javadoc
 /**
  * Title: DhcpChannelDecoder
  * Description: The protocol decoder used by the NETTY-based DHCP server
@@ -54,8 +53,17 @@ public class DhcpChannelDecoder extends OneToOneDecoder
     /** The log. */
     private static Logger log = LoggerFactory.getLogger(DhcpChannelDecoder.class);
 
+    /** The local socket address. */
+    private InetSocketAddress localSocketAddress = null;
+    
     /** The remote socket address. */
     private InetSocketAddress remoteSocketAddress = null;
+    
+    public DhcpChannelDecoder(InetSocketAddress localSocketAddress)
+    {
+    	this.localSocketAddress = localSocketAddress;
+    }
+    
     /*
      * Decodes a received ChannelBuffer into a DhcpMessage.
      * (non-Javadoc)
@@ -68,7 +76,7 @@ public class DhcpChannelDecoder extends OneToOneDecoder
             ChannelBuffer buf = (ChannelBuffer) msg;
             DhcpMessage dhcpMessage = 
             	DhcpMessage.decode(buf.toByteBuffer(),
-            			(InetSocketAddress)channel.getLocalAddress(),
+            			localSocketAddress,
             			remoteSocketAddress);
             return dhcpMessage;
         }

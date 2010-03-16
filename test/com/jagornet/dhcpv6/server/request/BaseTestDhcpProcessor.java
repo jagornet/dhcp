@@ -41,7 +41,7 @@ import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.option.DhcpSipServerAddressesOption;
 import com.jagornet.dhcpv6.option.DhcpStatusCodeOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
-import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerInterface;
+import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
@@ -56,7 +56,7 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
 public class BaseTestDhcpProcessor extends BaseDbTestCase
 {
 	/** The manager. */
-	protected NaAddrBindingManagerInterface manager;
+	protected NaAddrBindingManager manager;
 	
 	/** The client id option. */
 	protected DhcpClientIdOption clientIdOption;
@@ -67,7 +67,7 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (NaAddrBindingManagerInterface) ctx.getBean("naAddrBindingManager");
+		manager = (NaAddrBindingManager) ctx.getBean("naAddrBindingManager");
 		OpaqueData opaque = OpaqueData.Factory.newInstance();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });
