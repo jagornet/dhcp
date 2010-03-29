@@ -1,3 +1,28 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file DdnsUpdater.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.server.request.ddns;
 
 import java.net.InetAddress;
@@ -13,35 +38,90 @@ import com.jagornet.dhcpv6.server.request.binding.AddressBindingPool;
 import com.jagornet.dhcpv6.server.request.binding.BindingAddress;
 import com.jagornet.dhcpv6.xml.Link;
 
+/**
+ * The Class DdnsUpdater.
+ * 
+ * @author A. Gregory Rabil
+ */
 public class DdnsUpdater implements Runnable
 {
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DdnsUpdater.class);
 
+	/** The executor. */
 	private static ExecutorService executor = Executors.newCachedThreadPool();
 	
+	/** The sync. */
 	private boolean sync;
+	
+	/** The fwd zone. */
 	private String fwdZone;
+	
+	/** The fwd ttl. */
 	private long fwdTtl;
+	
+	/** The fwd server. */
 	private String fwdServer;
+	
+	/** The fwd tsig key name. */
 	private String fwdTsigKeyName;
+	
+	/** The fwd tsig algorithm. */
 	private String fwdTsigAlgorithm;
+	
+	/** The fwd tsig key data. */
 	private String fwdTsigKeyData;
+	
+	/** The rev zone. */
 	private String revZone;
+	
+	/** The rev zone bit length. */
 	private int revZoneBitLength;
+	
+	/** The rev ttl. */
 	private long revTtl;
+	
+	/** The rev server. */
 	private String revServer;
+	
+	/** The rev tsig key name. */
 	private String revTsigKeyName;
+	
+	/** The rev tsig algorithm. */
 	private String revTsigAlgorithm;
+	
+	/** The rev tsig key data. */
 	private String revTsigKeyData;
 	
+	/** The client link. */
 	private Link clientLink;
+	
+	/** The binding addr. */
 	private BindingAddress bindingAddr;
+	
+	/** The fqdn. */
 	private String fqdn;
+	
+	/** The duid. */
 	private byte[] duid;
+	
+	/** The do forward update. */
 	private boolean doForwardUpdate;
+	
+	/** The is delete. */
 	private boolean isDelete;
 	
+	/**
+	 * Instantiates a new ddns updater.
+	 * 
+	 * @param clientLink the client link
+	 * @param bindingAddr the binding addr
+	 * @param fqdn the fqdn
+	 * @param duid the duid
+	 * @param doForwardUpdate the do forward update
+	 * @param isDelete the is delete
+	 */
 	public DdnsUpdater(Link clientLink, BindingAddress bindingAddr, String fqdn, 
 			byte[] duid, boolean doForwardUpdate, boolean isDelete)
 	{
@@ -53,6 +133,9 @@ public class DdnsUpdater implements Runnable
 		this.isDelete = isDelete;
 	}
 	
+	/**
+	 * Process updates.
+	 */
 	public void processUpdates()
 	{
 		if (sync) {
@@ -63,6 +146,9 @@ public class DdnsUpdater implements Runnable
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		setupPolicies((AddressBindingPool) bindingAddr.getBindingPool());						
@@ -99,6 +185,11 @@ public class DdnsUpdater implements Runnable
 		}				
 	}
 	
+	/**
+	 * Sets the up policies.
+	 * 
+	 * @param addrBindingPool the new up policies
+	 */
 	private void setupPolicies(AddressBindingPool addrBindingPool)
 	{
 		sync = DhcpServerPolicies.effectivePolicyAsBoolean(clientLink, Property.DDNS_SYNCHRONIZE);

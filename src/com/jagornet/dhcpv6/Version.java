@@ -34,6 +34,15 @@ public class Version
 	
 	public static String getVersion()
 	{
-		return Package.getPackage("com.jagornet.dhcpv6").toString(); 
+		Package pkg = Package.getPackage("com.jagornet.dhcpv6"); 
+		StringBuilder sb = new StringBuilder();
+		sb.append(pkg.getImplementationTitle());
+		sb.append(' ');
+		sb.append(pkg.getImplementationVersion());
+		sb.append('\n');
+		sb.append("Copyright ");
+		sb.append(pkg.getImplementationVendor());
+		sb.append(" 2009-2010.  All Rights Reserved.");
+		return sb.toString();
 	}
 }

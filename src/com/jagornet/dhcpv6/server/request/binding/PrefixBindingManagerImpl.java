@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -43,6 +44,7 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPrefixOption;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.xml.Link;
@@ -55,15 +57,21 @@ import com.jagornet.dhcpv6.xml.PrefixPoolsType;
 
 /**
  * The Class PrefixBindingManager.
+ * 
+ * @author A. Gregory Rabil
  */
 public class PrefixBindingManagerImpl 
 		extends BaseBindingManager 
 		implements PrefixBindingManager
 {
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(PrefixBindingManagerImpl.class);
     
-	public PrefixBindingManagerImpl() throws Exception
+	/**
+	 * Instantiates a new prefix binding manager impl.
+	 */
+	public PrefixBindingManagerImpl()
 	{
 		super();
 
@@ -77,7 +85,20 @@ public class PrefixBindingManagerImpl
 		reaper.schedule(new ReaperTimerTask(), reaperStartupDelay, reaperRunPeriod);
 	}
     
-    protected List<? extends BindingPool> buildBindingPools(Link link) throws Exception
+    
+    /**
+     * Build the list of PrefixBindingPools from the list of configured PrefixPools
+     * for the given configuration Link container object. The list of PrefixBindingPools
+     * starts with the filtered PrefixPools followed by non-filtered PrefixPools.
+     * 
+     * @param link the configuration Link object
+     * 
+     * @return the list of PrefixBindingPools (<? extends BindingPool>)
+     * 
+     * @throws DhcpServerConfigException if there is a problem parsing a configured range
+     */
+    protected List<? extends BindingPool> buildBindingPools(Link link) 
+    		throws DhcpServerConfigException
     {
 		List<PrefixBindingPool> bindingPools = new ArrayList<PrefixBindingPool>();
 		// Put the filtered pools first in the list of pools on this link
@@ -130,9 +151,10 @@ public class PrefixBindingManagerImpl
     }
     
     /**
-     * Reconcile pools.
+     * Reconcile pools.  Delete any IaAddress objects not contained
+     * within the given list of PrefixBindingPools.
      * 
-     * @param bindingPools the binding pools
+     * @param bindingPools the list of PrefixBindingPools
      */
     protected void reconcilePools(List<PrefixBindingPool> bindingPools)
     {
@@ -147,33 +169,34 @@ public class PrefixBindingManagerImpl
     }
     
     /**
-     * Inits the binding pool.
+     * Builds a binding pool from an PrefixPool using the given link.
      * 
-     * @param pool the pool
+     * @param pool the PrefixPool to wrap as an PrefixBindingPool
      * @param link the link
      * 
      * @return the binding pool
      * 
-     * @throws Exception the exception
+     * @throws DhcpServerConfigException if there is a problem parsing the configured range
      */
-    protected PrefixBindingPool buildBindingPool(PrefixPool pool, Link link) throws Exception
+    protected PrefixBindingPool buildBindingPool(PrefixPool pool, Link link) 
+    		throws DhcpServerConfigException
     {
     	return buildBindingPool(pool, link, null);
     }
 
     /**
-     * Inits the binding pool.
+     * Builds a binding pool from an PrefixPool using the given link and filter.
      * 
-     * @param pool the pool
+     * @param pool the AddressPool to wrap as an PrefixBindingPool
      * @param link the link
      * @param linkFilter the link filter
      * 
      * @return the binding pool
      * 
-     * @throws Exception the exception
+     * @throws DhcpServerConfigException if there is a problem parsing the configured range
      */
     protected PrefixBindingPool buildBindingPool(PrefixPool pool, Link link, 
-    		LinkFilter linkFilter) throws Exception
+    		LinkFilter linkFilter) throws DhcpServerConfigException
     {
 		PrefixBindingPool bp = new PrefixBindingPool(pool);
 		long pLifetime = 
@@ -196,22 +219,34 @@ public class PrefixBindingManagerImpl
     	return bp;
     }
     
-    protected void initBindings(Link link) throws Exception
+    /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.server.request.binding.BaseBindingManager#initBindings(com.jagornet.dhcpv6.xml.Link)
+     */
+    protected void initBindings(Link link) throws DhcpServerConfigException
     {
-		PrefixBindingsType bindingsType = link.getPrefixBindings();
-		if (bindingsType != null) {
-			List<PrefixBinding> staticBindings = 
-				bindingsType.getBindingList();
-			if (staticBindings != null) {
-				for (PrefixBinding staticBinding : staticBindings) {
-//TODO								reconcileStaticBinding(staticBinding);
-					setIpAsUsed(link, 
-							InetAddress.getByName(staticBinding.getPrefix()));
+    	try {
+			PrefixBindingsType bindingsType = link.getPrefixBindings();
+			if (bindingsType != null) {
+				List<PrefixBinding> staticBindings = 
+					bindingsType.getBindingList();
+				if (staticBindings != null) {
+					for (PrefixBinding staticBinding : staticBindings) {
+	//TODO								reconcileStaticBinding(staticBinding);
+						setIpAsUsed(link, 
+								InetAddress.getByName(staticBinding.getPrefix()));
+					}
 				}
 			}
-		}
+    	}
+    	catch (UnknownHostException ex) {
+    		log.error("Invalid static binding address", ex);
+    		throw new DhcpServerConfigException("Invalid static binding address", ex);
+    	}
     }
     
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessage)
+	 */
 	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaPdOption iaPdOption, DhcpMessage requestMsg)
 	{
@@ -223,6 +258,9 @@ public class PrefixBindingManagerImpl
 		
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessage, boolean)
+	 */
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaPdOption iaPdOption, DhcpMessage requestMsg, boolean rapidCommit)
 	{	
@@ -235,6 +273,9 @@ public class PrefixBindingManagerImpl
 				iaid, requestAddrs, requestMsg, rapidCommit);		
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessage, byte)
+	 */
 	public Binding updateBinding(Binding binding, Link clientLink, 
 			DhcpClientIdOption clientIdOption, DhcpIaPdOption iaPdOption,
 			DhcpMessage requestMsg, byte state)
@@ -248,6 +289,9 @@ public class PrefixBindingManagerImpl
 				iaid, requestAddrs, requestMsg, state);		
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#releaseIaPrefix(com.jagornet.dhcpv6.db.IaPrefix)
+	 */
 	public void releaseIaPrefix(IaPrefix iaPrefix)
 	{
 		try {
@@ -269,6 +313,9 @@ public class PrefixBindingManagerImpl
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#declineIaPrefix(com.jagornet.dhcpv6.db.IaPrefix)
+	 */
 	public void declineIaPrefix(IaPrefix iaPrefix)
 	{
 		try {
@@ -285,6 +332,7 @@ public class PrefixBindingManagerImpl
 	
 	/**
 	 * Callback from the ExpireTimerTask started when the lease was granted.
+	 * NOT CURRENTLY USED
 	 * 
 	 * @param iaPrefix the ia prefix
 	 */
@@ -313,6 +361,7 @@ public class PrefixBindingManagerImpl
 	
 	/**
 	 * Callback from the RepearTimerTask started when the BindingManager initialized.
+	 * Find any expired prefixes as of now, and expire them already.
 	 */
 	public void expirePrefixes()
 	{
@@ -324,6 +373,13 @@ public class PrefixBindingManagerImpl
 		}
 	}
 	
+	/**
+	 * Extract the list of IP addresses from within the given IA_PD option.
+	 * 
+	 * @param iaNaOption the IA_PD option
+	 * 
+	 * @return the list of InetAddresses for the IPs in the IA_PD option
+	 */
 	private List<InetAddress> getInetAddrs(DhcpIaPdOption iaPdOption)
 	{
 		List<InetAddress> inetAddrs = null;

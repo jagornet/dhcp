@@ -29,19 +29,23 @@ import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.xml.Link;
 
 /**
- * The Interface NaAddrBindingManager.
+ * The Interface NaAddrBindingManager.  The interface for IA_NA type
+ * addresses, for use by the DhcpXXXProcessor classes.
+ * 
+ * @author A. Gregory Rabil
  */
 public interface NaAddrBindingManager
 {
 	/**
 	 * Initialize the manager.
 	 * 
-	 * @throws Exception
+	 * @throws DhcpServerConfigException
 	 */
-	public void init() throws Exception;
+	public void init() throws DhcpServerConfigException;
 	
 	/**
 	 * Find current binding.

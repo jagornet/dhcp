@@ -26,12 +26,16 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
 
 /**
  * The Class Range.
+ * 
+ * @author A. Gregory Rabil
  */
 public class Range
 {
@@ -46,10 +50,13 @@ public class Range
 	 * Instantiates a new range.
 	 * 
 	 * @param range the range
+	 * @throws UnknownHostException 
+	 * @throws NumberFormatException 
 	 * 
-	 * @throws Exception the exception
+	 * @throws NumberFormatException, UnknownHostException, DhcpServerConfigException
 	 */
-	public Range(String range) throws Exception
+	public Range(String range) 
+			throws NumberFormatException, UnknownHostException, DhcpServerConfigException
 	{
 		// assume the range is in preferred CIDR notation
 		String[] cidr = range.split("/");
@@ -66,10 +73,9 @@ public class Range
 				endAddress = InetAddress.getByName(cidr[1]);
 			}
 			else {
-				throw new IllegalStateException("Failed to parse range: " + range);
+				throw new DhcpServerConfigException("Failed to parse range: " + range);
 			}
 		}
-		
 	}
 	
 	/**

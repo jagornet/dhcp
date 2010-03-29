@@ -1,5 +1,31 @@
+/*
+ * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file ReverseDdnsUpdate.java is part of DHCPv6.
+ *
+ *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   DHCPv6 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.server.request.ddns;
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 import org.slf4j.Logger;
@@ -10,20 +36,39 @@ import org.xbill.DNS.Name;
 import org.xbill.DNS.PTRRecord;
 import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Resolver;
+import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Update;
 
+/**
+ * The Class ReverseDdnsUpdate.
+ * 
+ * @author A. Gregory Rabil
+ */
 public class ReverseDdnsUpdate extends DdnsUpdate 
 {
+	
+	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(ReverseDdnsUpdate.class);
 
+	/** The rev zone bit length. */
 	protected int revZoneBitLength = 64;	// default
 	
-	public ReverseDdnsUpdate(String fqdn, InetAddress inetAddr, byte[] duid) throws Exception
+	/**
+	 * Instantiates a new reverse ddns update.
+	 * 
+	 * @param fqdn the fqdn
+	 * @param inetAddr the inet addr
+	 * @param duid the duid
+	 */
+	public ReverseDdnsUpdate(String fqdn, InetAddress inetAddr, byte[] duid)
 	{
 		super(fqdn, inetAddr, duid);
 	}
 	
-	public void sendAdd() throws Exception
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.server.request.ddns.DdnsUpdate#sendAdd()
+	 */
+	public void sendAdd() throws TextParseException, IOException
 	{
 		Resolver res = createResolver();
 
@@ -52,7 +97,10 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		}
 	}
 	
-	public void sendDelete() throws Exception
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.server.request.ddns.DdnsUpdate#sendDelete()
+	 */
+	public void sendDelete() throws TextParseException, IOException
 	{
 		Resolver res = createResolver();
 
@@ -80,6 +128,11 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		}
 	}
 	
+	/**
+	 * Builds the reverse ip string.
+	 * 
+	 * @return the string
+	 */
 	private String buildReverseIpString()
 	{
 		String[] flds = inetAddr.getHostAddress().split(":");
@@ -108,7 +161,16 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		return revIp.toString();
 	}
 	
-	private Name buildZoneName(String revIp) throws Exception
+	/**
+	 * Builds the zone name.
+	 * 
+	 * @param revIp the rev ip
+	 * 
+	 * @return the name
+	 * 
+	 * @throws TextParseException the text parse exception
+	 */
+	private Name buildZoneName(String revIp) throws TextParseException
 	{
 		Name _zone = null;
 		if (zone != null) {
@@ -121,10 +183,20 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		return _zone;
 	}
 
+	/**
+	 * Gets the rev zone bit length.
+	 * 
+	 * @return the rev zone bit length
+	 */
 	public int getRevZoneBitLength() {
 		return revZoneBitLength;
 	}
 
+	/**
+	 * Sets the rev zone bit length.
+	 * 
+	 * @param revZoneBitLength the new rev zone bit length
+	 */
 	public void setRevZoneBitLength(int revZoneBitLength) {
 		this.revZoneBitLength = revZoneBitLength;
 	}

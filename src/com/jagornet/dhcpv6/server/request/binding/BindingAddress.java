@@ -30,7 +30,10 @@ import org.springframework.beans.BeanUtils;
 import com.jagornet.dhcpv6.db.IaAddress;
 
 /**
- * The Class BindingAddress.
+ * The Class BindingAddress.  A wrapper for an IaAddress object with
+ * a reference to the configured binding pool for that address.
+ * 
+ * @author A. Gregory Rabil
  */
 public class BindingAddress extends IaAddress implements BindingObject
 {

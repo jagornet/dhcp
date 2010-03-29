@@ -27,14 +27,14 @@ package com.jagornet.dhcpv6.server.request.binding;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Timer;
-
-import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.db.IaAddress;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.LinkFilter;
@@ -78,25 +78,35 @@ public class PrefixBindingPool implements BindingPool
 	 * 
 	 * @param pool the pool
 	 * 
-	 * @throws Exception the exception
+	 * @throws DhcpServerConfigException if the PrefixPool definition is invalid
 	 */
-	public PrefixBindingPool(PrefixPool pool) throws Exception
+	public PrefixBindingPool(PrefixPool pool) throws DhcpServerConfigException
 	{
-		this.pool = pool;
-		allocPrefixLen = pool.getPrefixLength();
-		String[] cidr = pool.getRange().split("/");
-		if ((cidr == null) || (cidr.length != 2)) {
-			throw new DatatypeConfigurationException(
-					"Prefix pool must be specified in prefix/len notation");
-		}
-		subnet = new Subnet(cidr[0], cidr[1]);
-		if (allocPrefixLen <= subnet.getPrefixLength()) {
-			throw new DatatypeConfigurationException(
-					"Allocation prefix length must be greater than pool prefix length");			
-		}
-		int numPrefixes = (int) (Math.pow(2,(allocPrefixLen - subnet.getPrefixLength())) - 1);
-		freeList = new FreeList(BigInteger.ZERO, BigInteger.valueOf(numPrefixes));
-		reaper = new Timer(pool.getRange()+"_Reaper");
+		try {
+			this.pool = pool;
+			allocPrefixLen = pool.getPrefixLength();
+			String[] cidr = pool.getRange().split("/");
+			if ((cidr == null) || (cidr.length != 2)) {
+				throw new DhcpServerConfigException(
+						"Prefix pool must be specified in prefix/len notation");
+			}
+			subnet = new Subnet(cidr[0], cidr[1]);
+			if (allocPrefixLen <= subnet.getPrefixLength()) {
+				throw new DhcpServerConfigException(
+						"Allocation prefix length must be greater than pool prefix length");			
+			}
+			int numPrefixes = (int) (Math.pow(2,(allocPrefixLen - subnet.getPrefixLength())) - 1);
+			freeList = new FreeList(BigInteger.ZERO, BigInteger.valueOf(numPrefixes));
+			reaper = new Timer(pool.getRange()+"_Reaper");
+		} 
+		catch (NumberFormatException ex) {
+			log.error("Invalid PrefixPool definition", ex);
+			throw new DhcpServerConfigException("Invalid PrefixPool definition", ex);
+		} 
+		catch (UnknownHostException ex) {
+			log.error("Invalid PrefixPool definition", ex);
+			throw new DhcpServerConfigException("Invalid PrefixPool definition", ex);
+		}		
 	}
 	
 	public int getAllocPrefixLen()

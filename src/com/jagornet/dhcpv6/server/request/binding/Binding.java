@@ -37,7 +37,10 @@ import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.Link;
 
 /**
- * The Class Binding.
+ * The Class Binding.  A wrapper class for a database IdentityAssoc object
+ * with a reference to the associated configuration Link object.
+ * 
+ * @author A. Gregory Rabil
  */
 public class Binding extends IdentityAssoc
 {

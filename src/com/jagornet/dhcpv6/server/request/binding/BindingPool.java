@@ -4,6 +4,11 @@ import java.net.InetAddress;
 
 import com.jagornet.dhcpv6.xml.LinkFilter;
 
+/**
+ * Interface BindingPool.  Common interface for Address and Prefix BindingPools.
+ * 
+ * @author A. Gregory Rabil
+ */
 public interface BindingPool
 {
 	public InetAddress getNextAvailableAddress();
