@@ -29,19 +29,23 @@ import com.jagornet.dhcpv6.db.IaPrefix;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPdOption;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.xml.Link;
 
 /**
- * The Interface PrefixBindingManager.
+ * The Interface PrefixBindingManager.  The interface for IA_PD type
+ * prefixes, for use by the DhcpXXXProcessor classes.
+ * 
+ * @author A. Gregory Rabil
  */
 public interface PrefixBindingManager
 {
 	/**
 	 * Initialize the manager.
 	 * 
-	 * @throws Exception
+	 * @throws DhcpServerConfigException
 	 */
-	public void init() throws Exception;
+	public void init() throws DhcpServerConfigException;
 	
 	/**
 	 * Find current binding.

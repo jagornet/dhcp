@@ -50,6 +50,7 @@ import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.db.IdentityAssocDAO;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
@@ -59,6 +60,8 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
 /**
  * The Class BaseBindingManager.  Abstract base class for all three
  * types of binding managers - NA address, TA address, and prefix.
+ * 
+ * @author A. Gregory Rabil
  */
 public abstract class BaseBindingManager
 {
@@ -68,33 +71,34 @@ public abstract class BaseBindingManager
 	/** The server config. */
 	protected static DhcpServerConfiguration serverConfig = DhcpServerConfiguration.getInstance();
 
-    /** The ia mgr. */
+    /** The IdentityAssoc manager */
     protected IaManager iaMgr;
 	
-	/** The ia dao. */
+	/** The IdentityAssoc DAO */
 	protected IdentityAssocDAO iaDao;
 	
-	/** The ia addr dao. */
+	/** The IaAddress DAO */
 	protected IaAddressDAO iaAddrDao;
 	
-	/** The ia prefix dao. */
+	/** The IaPrefix DAO */
 	protected IaPrefixDAO iaPrefixDao;
 	
-	/** The opt dao. */
+	/** The DhcpOption DAO */
 	protected DhcpOptionDAO optDao;
 
-    /** The binding pool map. */
+    /** The map of binding binding pools for this manager.  The key is the link address
+     *  and the value is the list of configured BindingPools for the link. */
     protected Map<String, List<? extends BindingPool>> bindingPoolMap;
 
-	/** The reaper. */
+	/** The reaper thread for cleaning expired bindings. */
 	protected Timer reaper;
 	
 	/**
 	 * Initialize the manager.  Read the configuration and build
 	 * the pool map and static bindings.
-	 * @throws Exception
+	 * @throws DhcpServerConfigException
 	 */
-	public void init() throws Exception
+	public void init() throws DhcpServerConfigException
 	{
 		initPoolMap();
 		initStaticBindings();
@@ -105,11 +109,11 @@ public abstract class BaseBindingManager
      * configuration and build the pool map keyed by link address with a
      * value of the list of (na/ta address or prefix) bindings for the link.
      * 
-     * @throws Exception the exception
+     * @throws DhcpServerConfigException the exception
      */
-    protected void initPoolMap() throws Exception
+    protected void initPoolMap() throws DhcpServerConfigException
     {
-		try {
+//		try {
     		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
     		if ((linkMap != null) && !linkMap.isEmpty()) {
         		bindingPoolMap = new HashMap<String, List<? extends BindingPool>>();
@@ -124,11 +128,11 @@ public abstract class BaseBindingManager
     		else {
     			log.error("LinkMap is null for DhcpServerConfiguration");
     		}
-		}
-		catch (Exception ex) {
-			log.error("Failed to build poolMap", ex);
-			throw ex;
-		}
+//		}
+//		catch (Exception ex) {
+//			log.error("Failed to build poolMap", ex);
+//			throw ex;
+//		}
     }
 
 
@@ -138,19 +142,20 @@ public abstract class BaseBindingManager
      * 
      * @param link the configured Link
      * @return the list of BindingPools for the link
-     * @throws Exception
+     * @throws DhcpServerConfigException
      */
-    protected abstract List<? extends BindingPool> buildBindingPools(Link link) throws Exception;
+    protected abstract List<? extends BindingPool> buildBindingPools(Link link) 
+    		throws DhcpServerConfigException;
     
 	
     /**
-     * Inits the static bindings.
+     * Initialize the static bindings.
      * 
-     * @throws Exception the exception
+     * @throws DhcpServerConfigException the exception
      */
-    protected void initStaticBindings() throws Exception
+    protected void initStaticBindings() throws DhcpServerConfigException
     {
-		try {
+//		try {
     		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
     		if (linkMap != null) {
     			for (DhcpLink dhcpLink : linkMap.values()) {
@@ -158,22 +163,28 @@ public abstract class BaseBindingManager
     				initBindings(link);
     			}
     		}
-		}
-		catch (Exception ex) {
-			log.error("Failed to build staticBindings: " + ex);
-			throw ex;
-		}
+//		}
+//		catch (Exception ex) {
+//			log.error("Failed to build staticBindings: " + ex);
+//			throw ex;
+//		}
     }
     
-    protected abstract void initBindings(Link link) throws Exception;
+    /**
+     * Initialize the static bindings for the given Link.
+     * 
+     * @param link the Link
+     * @throws DhcpServerConfigException
+     */
+    protected abstract void initBindings(Link link) throws DhcpServerConfigException;
 
 
 	/**
-	 * Find binding pool.
+	 * Find binding pool for address in a message received on the given link.
 	 * 
-	 * @param link the link
-	 * @param inetAddr the inet addr
-	 * @param requestMsg the request msg
+	 * @param link the link on which the client message was received.
+	 * @param inetAddr the IP address referenced in the message
+	 * @param requestMsg the request message
 	 * 
 	 * @return the binding pool
 	 */
@@ -199,15 +210,15 @@ public abstract class BaseBindingManager
 	}
     
 	/**
-	 * Find binding pool.
+	 * Find binding pool for the given IP address.  Search through all
+	 * the pools on all links to find the IP's binding pool.
 	 * 
-	 * @param inetAddr the inet addr
+	 * @param inetAddr the IP address
 	 * 
 	 * @return the binding pool
 	 */
 	protected BindingPool findBindingPool(InetAddress inetAddr)
 	{
-		//TODO this kind of sucks - looping thru all pools, on all links
 		Collection<List<? extends BindingPool>> allPools = bindingPoolMap.values();
 		if ((allPools != null) && !allPools.isEmpty()) {
 			for (List<? extends BindingPool> bps : allPools) {
@@ -221,12 +232,10 @@ public abstract class BaseBindingManager
 	}
     
     /**
-     * Sets the ip as used.
+     * Sets an IP address as in-use in it's binding pool.
      * 
-     * @param link the link
-     * @param iaAddrOption the ia addr option
-     * 
-     * @throws Exception the exception
+     * @param link the link for the message
+     * @param inetAddr the IP address to set used
      */
     protected void setIpAsUsed(Link link, InetAddress inetAddr)
     {
@@ -241,9 +250,9 @@ public abstract class BaseBindingManager
     }
 	
 	/**
-	 * Free address.
+	 * Sets and IP address as free in it's binding pool.
 	 * 
-	 * @param inetAddr the inet addr
+	 * @param inetAddr the IP address to free
 	 */
 	protected void freeAddress(InetAddress inetAddr)
 	{
@@ -256,7 +265,17 @@ public abstract class BaseBindingManager
 					inetAddr.getHostAddress());
 		}
 	}
-        
+    
+	/**
+	 * Find the current binding, if any, for the given client identity association (IA).
+	 * 
+	 * @param clientLink the link for the client request message
+	 * @param duid the DUID of the client
+	 * @param iatype the IA type of the client request
+	 * @param iaid the IAID of the client request
+	 * @param requestMsg the client request message
+	 * @return the existing Binding for this client request
+	 */
 	protected Binding findCurrentBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
 			DhcpMessage requestMsg) 
 	{
@@ -283,6 +302,18 @@ public abstract class BaseBindingManager
 		return binding;
 	}
 
+	/**
+	 * Create a binding in response to a Solicit request for the given client IA.
+	 * 
+	 * @param clientLink the link for the client request message
+	 * @param duid the DUID of the client
+	 * @param iatype the IA type of the client request
+	 * @param iaid the IAID of the client request
+	 * @param requestAddrs the list of requested IP addresses, if any
+	 * @param requestMsg the client request message
+	 * @param rapidCommit flag to indicate if this binding should be committed
+	 * @return the created Binding
+	 */
 	protected Binding createSolicitBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessage requestMsg, boolean rapidCommit)
 	{
@@ -325,6 +356,22 @@ public abstract class BaseBindingManager
 		return binding;
 	}
 	
+	/**
+	 * Update an existing client binding.  Addresses in the current binding that are appropriate
+	 * for the client's link are simply updated with new lifetimes.  If no current bindings are
+	 * appropriate for the client link, new binding addresses will be created and added to the
+	 * existing binding, leaving any other addresses alone.
+	 * 
+	 * @param binding the existing client binding
+	 * @param clientLink the link for the client request message
+	 * @param duid the DUID of the client
+	 * @param iatype the IA type of the client request
+	 * @param iaid the IAID of the client request
+	 * @param requestAddrs the list of requested IP addresses, if any
+	 * @param requestMsg the client request message
+	 * @param state the new state for the binding
+	 * @return
+	 */
 	protected Binding updateBinding(Binding binding, Link clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessage requestMsg, byte state)
 	{
@@ -368,6 +415,17 @@ public abstract class BaseBindingManager
 		}
 	}
 
+	/**
+	 * Get list of IP addresses for the given client IA request.
+	 * 
+	 * @param clientLink the link for the client request message
+	 * @param duid the DUID of the client
+	 * @param iatype the IA type of the client request
+	 * @param iaid the IAID of the client request
+	 * @param requestAddrs the list of requested IP addresses, if any
+	 * @param requestMsg the client request message
+	 * @return
+	 */
 	protected List<InetAddress> getInetAddrs(Link clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessage requestMsg)
 	{
@@ -432,12 +490,12 @@ public abstract class BaseBindingManager
 	}
 	
 	/**
-	 * Checks if is my ia.
+	 * Checks if the duid-iatype-iaid tuple matches the given IA.
 	 * 
-	 * @param duid the duid
-	 * @param iatype the ia type
-	 * @param iaid the ia id
-	 * @param ia the ia
+	 * @param duid the DUID
+	 * @param iatype the IA type
+	 * @param iaid the IAID
+	 * @param ia the IA
 	 * 
 	 * @return true, if is my ia
 	 */
@@ -455,10 +513,10 @@ public abstract class BaseBindingManager
 	}
 	
 	/**
-	 * Gets the next free address.
+	 * Gets the next free address from the pool(s) configured for the client link.
 	 * 
 	 * @param clientLink the client link
-	 * @param requestMsg the request msg
+	 * @param requestMsg the request message
 	 * 
 	 * @return the next free address
 	 */
@@ -505,9 +563,9 @@ public abstract class BaseBindingManager
 	/**
 	 * Create a Binding given an IdentityAssoc loaded from the database.
 	 * 
-	 * @param ia the ia
+	 * @param ia the IA
 	 * @param clientLink the client link
-	 * @param requestMsg the request msg
+	 * @param requestMsg the request message
 	 * 
 	 * @return the binding
 	 */
@@ -515,13 +573,15 @@ public abstract class BaseBindingManager
 			Link clientLink, DhcpMessage requestMsg);
 
 	/**
-	 * Builds the binding.
+	 * Builds a new Binding.  Create a new IdentityAssoc from the given
+	 * tuple and wrap that IdentityAssoc in a Binding.
 	 * 
 	 * @param clientLink the client link
-	 * @param duid the duid
-	 * @param iaia the ia id
+	 * @param duid the DUID
+	 * @param iatype the IA type
+	 * @param iaia the IAID
 	 * 
-	 * @return the binding
+	 * @return the binding (a wrapped IdentityAssoc)
 	 */
 	private Binding buildBinding(Link clientLink, byte[] duid, byte iatype, long iaid)
 	{
@@ -533,13 +593,13 @@ public abstract class BaseBindingManager
 	}
 	
 	/**
-	 * Builds the binding object.
+	 * Builds the set of binding objects for the client request.
 	 * 
 	 * @param clientLink the client link
-	 * @param inetAddrs the inet addrs
-	 * @param requestMsg the request msg
+	 * @param inetAddrs the list of IP addresses for the client binding
+	 * @param requestMsg the request message
 	 * 
-	 * @return the set< binding object>
+	 * @return the set<binding object>
 	 */
 	private Set<BindingObject> buildBindingObjects(Link clientLink, 
 			List<InetAddress> inetAddrs, DhcpMessage requestMsg)
@@ -553,13 +613,22 @@ public abstract class BaseBindingManager
 		return bindingObjs;
 	}
 	
+	/**
+	 * Build the appropriate type of BindingObject.  This method is implemented by the
+	 * subclasses to create an NA/TA AddressBinding object or a PrefixBinding object.
+	 * 
+	 * @param inetAddr the IP address for this AddressBinding/PrefixBinding
+	 * @param clientLink the client link
+	 * @param requestMsg the request message
+	 * @return the binding object
+	 */
 	protected abstract BindingObject buildBindingObject(InetAddress inetAddr, 
 			Link clientLink, DhcpMessage requestMsg);
 
 	/**
-	 * Sets the binding objects times.
+	 * Sets the lifetimes of the given collection of binding objects.
 	 * 
-	 * @param bindingObjs the new binding objects times
+	 * @param bindingObjs the collection of binding objects to set lifetimes in
 	 */
 	protected void setBindingObjsTimes(Collection<BindingObject> bindingObjs) 
 	{
@@ -574,7 +643,7 @@ public abstract class BaseBindingManager
 	}
 
 	/**
-	 * Sets the binding object times.
+	 * Sets the lifetimes of the given binding object.
 	 * 
 	 * @param bindingObj the binding object
 	 * @param preferred the preferred lifetime in ms

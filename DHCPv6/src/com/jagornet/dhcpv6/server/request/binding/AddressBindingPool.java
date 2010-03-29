@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file BindingPool.java is part of DHCPv6.
+ *   This file AddressBindingPool.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -34,12 +34,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.db.IaAddress;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AddressPool;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 
 /**
- * The Class BindingPool.
+ * The Class AddressBindingPool.  A wrapper class for a configured AddressPool
+ * for handling runtime activity for that pool.
+ * 
+ * @author A. Gregory Rabil
  */
 public class AddressBindingPool implements BindingPool
 {
@@ -73,12 +77,22 @@ public class AddressBindingPool implements BindingPool
 	 * 
 	 * @param pool the pool
 	 * 
-	 * @throws Exception the exception
+	 * @throws DhcpServerConfigException if the AddressPool definition is invalid
 	 */
-	public AddressBindingPool(AddressPool pool) throws Exception
+	public AddressBindingPool(AddressPool pool) throws DhcpServerConfigException
 	{
 		this.pool = pool;
-		this.range = new Range(pool.getRange());
+		try {
+			this.range = new Range(pool.getRange());
+		} 
+		catch (NumberFormatException ex) {
+			log.error("Invalid AddressPool definition", ex);
+			throw new DhcpServerConfigException("Invalid AddressPool definition", ex);
+		} 
+		catch (UnknownHostException ex) {
+			log.error("Invalid AddressPool definition", ex);
+			throw new DhcpServerConfigException("Invalid AddressPool definition", ex);
+		}
 		freeList = 
 			new FreeList(new BigInteger(range.getStartAddress().getAddress()),
 					new BigInteger(range.getEndAddress().getAddress()));
@@ -96,7 +110,7 @@ public class AddressBindingPool implements BindingPool
 	}
 	
 	/**
-	 * Gets the next available address.
+	 * Gets the next available address in this address pool.
 	 * 
 	 * @return the next available address
 	 */
@@ -117,9 +131,9 @@ public class AddressBindingPool implements BindingPool
 	}
 	
 	/**
-	 * Sets the used.
+	 * Sets an IP address in this address pool as used.
 	 * 
-	 * @param addr the new used
+	 * @param addr the address to set used
 	 */
 	public void setUsed(InetAddress addr)
 	{
@@ -129,9 +143,9 @@ public class AddressBindingPool implements BindingPool
 	}
 	
 	/**
-	 * Sets the free.
+	 * Sets an IP address in this address pool as free.
 	 * 
-	 * @param addr the new free
+	 * @param addr the address to set free
 	 */
 	public void setFree(InetAddress addr)
 	{
@@ -153,9 +167,9 @@ public class AddressBindingPool implements BindingPool
 	}
 	
 	/**
-	 * Contains.
+	 * Test if the given address is contained within this address pool.
 	 * 
-	 * @param addr the addr
+	 * @param addr the address to test for containment in this address pool
 	 * 
 	 * @return true, if successful
 	 */

@@ -30,7 +30,8 @@ import org.springframework.beans.BeanUtils;
 import com.jagornet.dhcpv6.db.IaPrefix;
 
 /**
- * The Class BindingAddress.
+ * The Class BindingAddress.  A wrapper for an IaPrefix object with
+ * a reference to the configured binding pool for that prefix.
  */
 public class BindingPrefix extends IaPrefix implements BindingObject
 {

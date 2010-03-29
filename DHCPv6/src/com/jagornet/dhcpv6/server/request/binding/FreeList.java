@@ -32,6 +32,8 @@ import java.util.TreeMap;
 
 /**
  * The Class FreeList.
+ * 
+ * @author A. Gregory Rabil
  */
 public class FreeList
 {	

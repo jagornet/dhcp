@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file BindingManager.java is part of DHCPv6.
+ *   This file AddressBindingManager.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientFqdnOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
@@ -57,14 +59,17 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
 
 /**
- * The Class BindingManager.
+ * The Class AddressBindingManager.  Extends BaseBindingManager to
+ * add behavior specific to address bindings.
+ * 
+ * @author A. Gregory Rabil
  */
 public abstract class AddressBindingManager extends BaseBindingManager
 {
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(AddressBindingManager.class);
     
-	public AddressBindingManager() throws Exception
+	public AddressBindingManager()
 	{
 		super();
 
@@ -78,7 +83,22 @@ public abstract class AddressBindingManager extends BaseBindingManager
 		reaper.schedule(new ReaperTimerTask(), reaperStartupDelay, reaperRunPeriod);
 	}
     
+	/**
+	 * Fetch the AddressPoolsType XML object from the given LinkFilter XML object.
+	 * The subclasses fetch the address pools for either NA or TA addresses.
+	 * 
+	 * @param linkFilter the link filter
+	 * @return the AddressPoolsType for this link filter, or null if none
+	 */
     protected abstract AddressPoolsType getAddressPoolsType(LinkFilter linkFilter);
+    
+	/**
+	 * Fetch the AddressPoolsType XML object from the given Link XML object.
+	 * The subclasses fetch the address pools for either NA or TA addresses.
+	 * 
+	 * @param linkFilter the link
+	 * @return the AddressPoolsType for this link, or null if none
+	 */
     protected abstract AddressPoolsType getAddressPoolsType(Link link);
     
     /**
@@ -90,9 +110,10 @@ public abstract class AddressBindingManager extends BaseBindingManager
      * 
      * @return the list of AddressBindingPools (<? extends BindingPool>)
      * 
-     * @throws Exception if any problem occurs
+     * @throws DhcpServerConfigException if there is a problem parsing a configured range
      */
-    protected List<? extends BindingPool> buildBindingPools(Link link) throws Exception
+    protected List<? extends BindingPool> buildBindingPools(Link link) 
+    		throws DhcpServerConfigException
     {
 		List<AddressBindingPool> bindingPools = new ArrayList<AddressBindingPool>();
 		// Put the filtered pools first in the list of pools on this link
@@ -165,33 +186,34 @@ public abstract class AddressBindingManager extends BaseBindingManager
     }
     
     /**
-     * Inits the binding pool.
+     * Builds a binding pool from an AddressPool using the given link.
      * 
-     * @param pool the pool
+     * @param pool the AddressPool to wrap as an AddressBindingPool
      * @param link the link
      * 
      * @return the binding pool
      * 
-     * @throws Exception the exception
+     * @throws DhcpServerConfigException if there is a problem parsing the configured range
      */
-    protected AddressBindingPool buildBindingPool(AddressPool pool, Link link) throws Exception
+    protected AddressBindingPool buildBindingPool(AddressPool pool, Link link) 
+    		throws DhcpServerConfigException
     {
     	return buildBindingPool(pool, link, null);
     }
 
     /**
-     * Inits the binding pool.
+     * Builds a binding pool from an AddressPool using the given link and filter.
      * 
-     * @param pool the pool
+     * @param pool the AddressPool to wrap as an AddressBindingPool
      * @param link the link
      * @param linkFilter the link filter
      * 
      * @return the binding pool
      * 
-     * @throws Exception the exception
+     * @throws DhcpServerConfigException if there is a problem parsing the configured range
      */
     protected AddressBindingPool buildBindingPool(AddressPool pool, Link link, 
-    		LinkFilter linkFilter) throws Exception
+    		LinkFilter linkFilter) throws DhcpServerConfigException
     {
 		AddressBindingPool bp = new AddressBindingPool(pool);
 		long pLifetime = 
@@ -214,24 +236,41 @@ public abstract class AddressBindingManager extends BaseBindingManager
     	return bp;
     }
     
+    /**
+     * Fetch the AddressBindings from the given XML Link object.
+     * 
+     * @param link
+     * @return
+     */
     protected abstract AddressBindingsType getAddressBindingsType(Link link);
     
-    protected void initBindings(Link link) throws Exception
+    protected void initBindings(Link link) throws DhcpServerConfigException
     {
-		AddressBindingsType bindingsType = getAddressBindingsType(link);
-		if (bindingsType != null) {
-			List<AddressBinding> staticBindings = 
-				bindingsType.getBindingList();
-			if (staticBindings != null) {
-				for (AddressBinding staticBinding : staticBindings) {
-//TODO								reconcileStaticBinding(staticBinding);
-					setIpAsUsed(link, 
-							InetAddress.getByName(staticBinding.getIpAddress()));
+    	try {
+			AddressBindingsType bindingsType = getAddressBindingsType(link);
+			if (bindingsType != null) {
+				List<AddressBinding> staticBindings = 
+					bindingsType.getBindingList();
+				if (staticBindings != null) {
+					for (AddressBinding staticBinding : staticBindings) {
+	//TODO								reconcileStaticBinding(staticBinding);
+						setIpAsUsed(link, 
+								InetAddress.getByName(staticBinding.getIpAddress()));
+					}
 				}
 			}
-		}
+    	}
+    	catch (UnknownHostException ex) {
+    		log.error("Invalid static binding address", ex);
+    		throw new DhcpServerConfigException("Invalid statid binding address", ex);
+    	}
     }
     
+    /**
+     * Perform the DDNS delete processing when a lease is released or expired.
+     * 
+     * @param iaAddr the released or expired IaAddress 
+     */
     protected void ddnsDelete(IaAddress iaAddr)
     {
     	DhcpClientFqdnOption clientFqdnOption = null;
@@ -291,6 +330,13 @@ public abstract class AddressBindingManager extends BaseBindingManager
     	}
     }
 	
+    /**
+     * Release an IaAddress.  If policy dictates, the address will be deleted,
+     * otherwise the state will be marked as released instead.  In either case,
+     * a DDNS delete will be issued for the address binding.
+     * 
+     * @param iaAddr the IaAddress to be released
+     */
 	public void releaseIaAddress(IaAddress iaAddr)
 	{
 		try {
@@ -313,6 +359,13 @@ public abstract class AddressBindingManager extends BaseBindingManager
 		}
 	}
 	
+	/**
+	 * Decline an IaAddress.  This is done when the client declines an address.
+	 * Perform a DDNS delete just in case it was already registered, then mark
+	 * the address as declined (unavailable).
+	 * 
+	 * @param iaAddr the declined IaAddress.
+	 */
 	public void declineIaAddress(IaAddress iaAddr)
 	{
 		try {
@@ -330,6 +383,7 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	
 	/**
 	 * Callback from the ExpireTimerTask started when the lease was granted.
+	 * NOT CURRENTLY USED
 	 * 
 	 * @param iaAddr the ia addr
 	 */
@@ -358,7 +412,8 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	}
 	
 	/**
-	 * Callback from the RepearTimerTask started when the BindingManager initialized.
+	 * Callback from the ReaperTimerTask started when the BindingManager initialized.
+	 * Find any expired addresses as of now, and expire them already.
 	 */
 	public void expireAddresses()
 	{
