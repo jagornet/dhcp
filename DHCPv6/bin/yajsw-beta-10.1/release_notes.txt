@@ -1,0 +1,7 @@
+yajsw-beta-10.1
+
+    * Bug: Windows: JVM crashed when getting process environment
+    * Bug: ServiceManagerServer: minor bugs.
+    * Bug: Linux genConfig: NullPointerException getting classpath from environment
+    * Bug: Linux: Classpath File not found
+    * Change: Network Install: can use yajsw zip from sourceforge
