@@ -1,0 +1,192 @@
+#********************************************************************
+# Java Executable Properties
+#********************************************************************
+# Java Application
+wrapper.java.command=java
+
+# or define conditions for YAJSW searching for a JVM
+# currently only valid for windows
+#wrapper.java.command.minVersion=1.5
+#wrapper.java.command.maxVersion=1.6
+#wrapper.java.command.jreOnly=true
+#wrapper.java.command.jdkOnly=true
+#wrapper.java.command.preferJre=true
+#wrapper.java.command.preferJdk=true
+#wrapper.java.command.javaw=true
+
+# copy java.exe to <tmp>/java_<customProcName>_nnnn.exe
+#wrapper.java.customProcName=
+
+#********************************************************************
+# working directory
+#********************************************************************
+wrapper.working.dir=
+
+# Java Main class.  
+# YAJSW: default is "org.rzo.yajsw.app.WrapperJVMMain" 
+# DO NOT SET THIS PROPERTY UNLESS YOU HAVE YOUR OWN IMPLEMENTATION
+# wrapper.java.mainclass=
+
+#********************************************************************
+# Application Properties
+# One of the following properties MUST be defined
+#********************************************************************
+
+# Java Application main class
+wrapper.java.app.mainclass=
+
+# or jar file
+#wrapper.java.jar=
+
+# or groovy script file
+#wrapper.groovy=
+
+#or an executable
+#wrapper.image=
+
+# Process priority: LOW, BELOW_NORMAL, NORMAL, ABOVE_NORMAL, HIGH
+#wrapper.priority
+
+# CPU affinity of the process. this is a bit-array representing the cpus
+#wrapper.affinity=
+
+#********************************************************************
+# Application Console Properties
+#********************************************************************
+#wrapper.console.visible=false
+
+#********************************************************************
+# Application Account
+#********************************************************************
+wrapper.app.account=
+#wrapper.app.password=
+
+#********************************************************************
+# Java/Groovy Application Properties
+#********************************************************************
+
+# Java Classpath (include wrapper.jar)  Add class path elements as
+#  needed starting from 1
+# YAJSW: all libs required by YAJSW are in the manifest of the wrapper.jar -> only classpath of your application is required
+#wrapper.java.classpath.1=
+
+# Java Library Path
+# YAJSW: required dll are encapsulated in jar files -> only library path of your application required
+# wrapper.java.library.path.1=../lib
+
+# Java Additional Parameters
+#wrapper.java.additional.1=
+
+# Initial Java Heap Size (in MB)
+# YAJSW: currently not implemented -> use for example wrapper.java.additional.<n>=-Xmx
+#wrapper.java.initmemory=3
+#wrapper.java.initmemory.realtive=10
+
+# Maximum Java Heap Size (in MB)
+# YAJSW: currently not implemented -> use for example wrapper.java.additional.<n>=-Xmx
+#wrapper.java.maxmemory=64
+#wrapper.java.maxmemory.realtive=30
+
+# Application parameters.  Add parameters as needed starting from 1
+# YAJSW: to specify the main class please use wrapper.java.app.mainclass=
+# wrapper.app.parameter.1=<YourMainClass>
+
+
+
+#********************************************************************
+# Wrapper Logging Properties
+#********************************************************************
+# Format of output for the console.  (See docs for formats)
+# YAJSW: currently not implemented -> can be implemented by configuration of java logging
+# wrapper.console.format=PM
+
+# Log Level for console output.  (See docs for log levels)
+# YAJSW: currently not implemented -> can be implemented by configuration of java logging
+wrapper.console.loglevel=INFO
+
+# Log file to use for wrapper output logging.
+# YAJSW: currently not implemented -> can be implemented by configuration of java logging
+#wrapper.logfile=${wrapper.working.dir}/logs/wrapper.log
+
+# Format of output for the log file.  (See docs for formats)
+# YAJSW: currently not implemented -> can be implemented by configuration of java logging
+#wrapper.logfile.format=LPTM
+
+# Log Level for log file output.  (See docs for log levels)
+# YAJSW: currently not implemented -> can be implemented by configuration of java logging
+#wrapper.logfile.loglevel=INFO
+
+# Maximum size that the log file will be allowed to grow to before
+#  the log is rolled. Size is specified in bytes.  The default value
+#  of 0, disables log rolling.  May abbreviate with the 'k' (kb) or
+#  'm' (mb) suffix.  For example: 10m = 10 megabytes.
+# YAJSW: currently not implemented -> can be implemented by configuration of java logging
+#wrapper.logfile.maxsize=10m
+
+# Maximum number of rolled log files which will be allowed before old
+#  files are deleted.  The default value of 0 implies no limit.
+# YAJSW: currently not implemented -> can be implemented by configuration of java logging
+#wrapper.logfile.maxfiles=10
+
+#********************************************************************
+# Wrapper Windows Console Properties
+#********************************************************************
+# Title to use when running as a console
+wrapper.console.title=yajsw
+
+#********************************************************************
+# Wrapper Windows Service and Posix Daemon Properties
+#********************************************************************
+# WARNING - Do not modify any of these properties when an application
+#  using this configuration file has been installed as a service.
+#  Please uninstall the service before modifying this section.  The
+#  service can then be reinstalled.
+
+# Name of the service
+wrapper.ntservice.name=yajsw
+
+# Display name of the service
+wrapper.ntservice.displayname=yajsw
+
+# Description of the service
+wrapper.ntservice.description=yajsw
+
+# Service dependencies.  Add dependencies as needed starting from 1
+# wrapper.ntservice.dependency.1=
+
+# Mode in which the service is installed.  AUTO_START or DEMAND_START
+# YAJSW: currently not implemented -> defaults to MANUAL
+# wrapper.ntservice.starttype=AUTO_START
+
+# Allow the service to interact with the desktop.
+# YAJSW: currently not implemented -> defaults to false
+# wrapper.ntservice.interactive=false
+
+#********************************************************************
+# Wrapper System Tray Properties
+#********************************************************************
+# enable system tray
+wrapper.tray = true
+
+# tray icon file to use
+#wrapper.tray.icon=
+
+#********************************************************************
+# Exit Code Properties
+# Restart on non zero exit code
+#********************************************************************
+wrapper.on_exit.0=SHUTDOWN
+wrapper.on_exit.default=RESTART
+
+#********************************************************************
+# Trigger actions on console output
+#********************************************************************
+# On Exception show message in system tray
+wrapper.filter.trigger.0=Exception
+wrapper.filter.script.0=scripts/trayMessage.gv
+wrapper.filter.script.0.args=Exception
+
+#********************************************************************
+# genConfig: Further generated Properties
+#********************************************************************
+placeHolderSoGenPropsComeHere=
