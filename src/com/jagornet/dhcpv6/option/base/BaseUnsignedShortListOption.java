@@ -39,8 +39,8 @@ import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
 
 /**
- * <p>Title: BaseUnsignedShortListOption </p>
- * <p>Description: </p>.
+ * Title: BaseUnsignedShortListOption
+ * Description: The abstract base class for unsigned short list DHCP options.
  * 
  * @author A. Gregory Rabil
  */

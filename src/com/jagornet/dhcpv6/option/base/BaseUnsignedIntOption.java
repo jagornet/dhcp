@@ -40,8 +40,8 @@ import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.UnsignedIntOptionType;
 
 /**
- * <p>Title: BaseUnsignedIntOption </p>
- * <p>Description: </p>.
+ * Title: BaseUnsignedIntOption
+ * Description: The abstract base class for unsigned integer DHCP options.
  * 
  * @author A. Gregory Rabil
  */

@@ -43,9 +43,10 @@ import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.ConfigOptionsType;
 import com.jagornet.dhcpv6.xml.IaPrefixOption;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpIaPrefixOption.
+ * 
+ * @author A. Gregory Rabil
  */
 public class DhcpIaPrefixOption extends BaseDhcpOption
 {	

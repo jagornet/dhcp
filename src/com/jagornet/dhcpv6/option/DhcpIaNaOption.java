@@ -40,9 +40,10 @@ import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaNaOption;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpIaNaOption.
+ * 
+ * @author A. Gregory Rabil
  */
 public class DhcpIaNaOption extends BaseDhcpOption
 {	

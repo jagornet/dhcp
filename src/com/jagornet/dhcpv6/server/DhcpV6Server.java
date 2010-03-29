@@ -55,6 +55,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.jmx.HierarchyDynamicMBean;
 import org.apache.log4j.spi.LoggerRepository;
+import org.apache.xmlbeans.XmlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -120,10 +121,8 @@ public class DhcpV6Server
      * Instantiates the DHCPv6 server.
      * 
      * @param args the command line argument array
-     * 
-     * @throws Exception the exception
      */
-    public DhcpV6Server(String[] args) throws Exception
+    public DhcpV6Server(String[] args)
     {
         options = new Options();
         parser = new BasicParser();
@@ -245,24 +244,31 @@ public class DhcpV6Server
 		
         registerLog4jInJmx();
 
-        System.out.println("Port number: " + portNumber);
+        String msg = "Port number: " + portNumber;
+        System.out.println(msg);
+        log.info(msg);
         
         // for now, the mcast interfaces MUST be listed at
         // startup to get the mcast behavior at all... but
         // we COULD default to use all IPv6 interfaces 
         if (mcastNetIfs != null) {
-        	// this will fail on Windows, so maybe we should not even try?
-        	System.out.println("Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray()));
+        	msg = "Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
+        	System.out.println(msg);
+        	log.info(msg);
         }
         else {
-        	System.out.println("Multicast interfaces: none");
+        	msg = "Multicast interfaces: none";
+        	System.out.println(msg);
+        	log.info(msg);
         }
         
         // by default, all IPv6 addresses are selected for unicast
         if (ucastAddrs == null) {
         	ucastAddrs = getAllIPv6Addrs();
         }
-        System.out.println("Unicast addresses: " + Arrays.toString(ucastAddrs.toArray()));
+        msg = "Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
+        System.out.println(msg);
+        log.info(msg);
         
     	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber);
     	nettyServer.start();
@@ -447,35 +453,30 @@ public class DhcpV6Server
 	 * 
 	 * @return the list NetworkInterfaces
 	 */
-	private List<NetworkInterface> getAllIPv6NetIfs()
+	private List<NetworkInterface> getAllIPv6NetIfs() throws SocketException
 	{
 		List<NetworkInterface> netIfs = new ArrayList<NetworkInterface>();
-		try {
-	        Enumeration<NetworkInterface> localInterfaces =
-	        	NetworkInterface.getNetworkInterfaces();
-	        if (localInterfaces != null) {
-		        while (localInterfaces.hasMoreElements()) {
-		        	NetworkInterface netIf = localInterfaces.nextElement();
-		        	// for multicast, the loopback interface is excluded
-		        	if (netIf.supportsMulticast() && !netIf.isLoopback()) {
-		            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
-		            	while (ifAddrs.hasMoreElements()) {
-		            		InetAddress ip = ifAddrs.nextElement();
-		            		if (ip instanceof Inet6Address) {
-		            			netIfs.add(netIf);
-		            			break;	// out to next interface
-		            		}
-		            	}
-		        	}
-		        }
+        Enumeration<NetworkInterface> localInterfaces =
+        	NetworkInterface.getNetworkInterfaces();
+        if (localInterfaces != null) {
+	        while (localInterfaces.hasMoreElements()) {
+	        	NetworkInterface netIf = localInterfaces.nextElement();
+	        	// for multicast, the loopback interface is excluded
+	        	if (netIf.supportsMulticast() && !netIf.isLoopback()) {
+	            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
+	            	while (ifAddrs.hasMoreElements()) {
+	            		InetAddress ip = ifAddrs.nextElement();
+	            		if (ip instanceof Inet6Address) {
+	            			netIfs.add(netIf);
+	            			break;	// out to next interface
+	            		}
+	            	}
+	        	}
 	        }
-	        else {
-	        	log.error("No network interfaces found!");
-	        }
-		}
-		catch (IOException ex) {
-			log.error("Failed to get multicast IPv6 network interfaces: " + ex);
-		}
+        }
+        else {
+        	log.error("No network interfaces found!");
+        }
         return netIfs;
 	}
 	
@@ -548,9 +549,9 @@ public class DhcpV6Server
      * 
      * @return DhcpV6ServerConfig XML document object
      * 
-     * @throws Exception the exception
+     * @throws XmlException, IOException
      */
-    public static DhcpV6ServerConfig loadConfig(String filename) throws Exception
+    public static DhcpV6ServerConfig loadConfig(String filename) throws XmlException, IOException
     {
         return DhcpServerConfiguration.loadConfig(filename);
     }
@@ -561,9 +562,9 @@ public class DhcpV6Server
      * @param config DhcpV6ServerConfig XML document object
      * @param filename the configuration filename
      * 
-     * @throws Exception the exception
+     * @throws IOException the exception
      */
-    public static void saveConfig(DhcpV6ServerConfig config, String filename) throws Exception
+    public static void saveConfig(DhcpV6ServerConfig config, String filename) throws IOException
     {
         DhcpServerConfiguration.saveConfig(config, filename);
     }

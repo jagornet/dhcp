@@ -27,9 +27,11 @@ package com.jagornet.dhcpv6.db;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,8 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
  * The Class DbSchemaManager.
+ * 
+ * @author A. Gregory Rabil
  */
 public class DbSchemaManager
 {    
@@ -60,9 +64,10 @@ public class DbSchemaManager
 	 * 
 	 * @param dataSource the data source
 	 * 
-	 * @throws Exception the exception
+	 * @throws SQLException if there is a problem with the database
+	 * @throws IOExcpetion if there is a problem reading the schema file
 	 */
-	public static void validateSchema(DataSource dataSource) throws Exception
+	public static void validateSchema(DataSource dataSource) throws SQLException, IOException
 	{
         List<String> tableNames = new ArrayList<String>();
 
@@ -108,9 +113,10 @@ public class DbSchemaManager
 	 * 
 	 * @param dataSource the data source
 	 * 
-	 * @throws Exception the exception
+	 * @throws SQLException if there is a problem with the database
+	 * @throws IOExcpetion if there is a problem reading the schema file
 	 */
-	public static void createSchema(DataSource dataSource) throws Exception
+	public static void createSchema(DataSource dataSource) throws SQLException, IOException
 	{
     	JdbcTemplate jdbc = new JdbcTemplate(dataSource);
     	StringBuilder schema = new StringBuilder();

@@ -83,6 +83,7 @@ import com.jagornet.dhcpv6.xml.PrefixPool;
 
 public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 {
+	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseDhcpProcessor.class);
 
@@ -157,10 +158,22 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
     	iaNaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaNaOptions(requestMsg));
     }
+    
+    /**
+     * Populate ia ta options.
+     * 
+     * @param iaTaOption the ia ta option
+     */
     protected void populateIaTaOptions(DhcpIaTaOption iaTaOption)
     {
     	iaTaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaTaOptions(requestMsg));
     }
+    
+    /**
+     * Populate ia pd options.
+     * 
+     * @param iaPdOption the ia pd option
+     */
     protected void populateIaPdOptions(DhcpIaPdOption iaPdOption)
     {
     	iaPdOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaPdOptions(requestMsg));
@@ -176,10 +189,24 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
     	iaNaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaNaOptions(requestMsg, link));
     }
+    
+    /**
+     * Populate ia ta options.
+     * 
+     * @param iaTaOption the ia ta option
+     * @param link the link
+     */
     protected void populateIaTaOptions(DhcpIaTaOption iaTaOption, Link link)
     {
     	iaTaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaTaOptions(requestMsg, link));
     }
+    
+    /**
+     * Populate ia pd options.
+     * 
+     * @param iaPdOption the ia pd option
+     * @param link the link
+     */
     protected void populateIaPdOptions(DhcpIaPdOption iaPdOption, Link link)
     {
     	iaPdOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaPdOptions(requestMsg, link));
@@ -194,10 +221,22 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
     	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg));
     }
+    
+    /**
+     * Populate ta addr options.
+     * 
+     * @param iaAddrOption the ia addr option
+     */
     protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption)
     {
     	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg));
     }
+    
+    /**
+     * Populate prefix options.
+     * 
+     * @param iaPrefixOption the ia prefix option
+     */
     protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption)
     {
     	iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg));
@@ -213,10 +252,24 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
     	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg, link));
     }
+    
+    /**
+     * Populate ta addr options.
+     * 
+     * @param iaAddrOption the ia addr option
+     * @param link the link
+     */
     protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link)
     {
     	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg, link));
     }
+    
+    /**
+     * Populate prefix options.
+     * 
+     * @param iaPrefixOption the ia prefix option
+     * @param link the link
+     */
     protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, Link link)
     {
     	iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg, link));
@@ -233,10 +286,26 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
 	    iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg, link, pool));
     }    
+    
+    /**
+     * Populate ta addr options.
+     * 
+     * @param iaAddrOption the ia addr option
+     * @param link the link
+     * @param pool the pool
+     */
     protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link, AddressPool pool)
     {
 	    iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg, link, pool));
     }    
+    
+    /**
+     * Populate prefix options.
+     * 
+     * @param iaPrefixOption the ia prefix option
+     * @param link the link
+     * @param pool the pool
+     */
     protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, Link link, PrefixPool pool)
     {
 	    iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg, link, pool));
@@ -410,6 +479,12 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		replyMsg.addIaNaOption(replyIaNaOption);
 	}
 	
+	/**
+	 * Adds the ia ta option status to reply.
+	 * 
+	 * @param iaTaOption the ia ta option
+	 * @param statusCode the status code
+	 */
 	protected void addIaTaOptionStatusToReply(DhcpIaTaOption iaTaOption, int statusCode)
 	{
 		DhcpIaTaOption replyIaTaOption = new DhcpIaTaOption(iaTaOption.getIaTaOption());
@@ -418,6 +493,13 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		replyIaTaOption.putDhcpOption(status);
 		replyMsg.addIaTaOption(replyIaTaOption);
 	}
+	
+	/**
+	 * Adds the ia pd option status to reply.
+	 * 
+	 * @param iaPdOption the ia pd option
+	 * @param statusCode the status code
+	 */
 	protected void addIaPdOptionStatusToReply(DhcpIaPdOption iaPdOption, int statusCode)
 	{
 		DhcpIaPdOption replyIaPdOption = new DhcpIaPdOption(iaPdOption.getIaPdOption());
@@ -505,6 +587,12 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		replyMsg.addIaNaOption(dhcpIaNaOption);
 	}
 	
+	/**
+	 * Adds the ta binding to reply.
+	 * 
+	 * @param clientLink the client link
+	 * @param binding the binding
+	 */
 	protected void addTaBindingToReply(Link clientLink, Binding binding)
 	{
 		DhcpIaTaOption dhcpIaTaOption = new DhcpIaTaOption();
@@ -548,6 +636,12 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		replyMsg.addIaTaOption(dhcpIaTaOption);
 	}
 	
+	/**
+	 * Adds the pd binding to reply.
+	 * 
+	 * @param clientLink the client link
+	 * @param binding the binding
+	 */
 	protected void addPdBindingToReply(Link clientLink, Binding binding)
 	{
 		DhcpIaPdOption dhcpIaPdOption = new DhcpIaPdOption();
@@ -787,6 +881,9 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		}
 	}
 	
+	/**
+	 * Process ddns updates.
+	 */
 	protected void processDdnsUpdates()
 	{
 		DhcpClientFqdnOption clientFqdnOption = 
@@ -944,6 +1041,14 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		return onLink;
 	}
 	
+	/**
+	 * All ia addrs on link.
+	 * 
+	 * @param dhcpIaTaOption the dhcp ia ta option
+	 * @param clientLink the client link
+	 * 
+	 * @return true, if successful
+	 */
 	protected boolean allIaAddrsOnLink(DhcpIaTaOption dhcpIaTaOption, DhcpLink clientLink)
 	{
 		boolean onLink = true;	// assume all IPs are on link
@@ -977,6 +1082,14 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		return onLink;
 	}
 	
+	/**
+	 * All ia prefixes on link.
+	 * 
+	 * @param dhcpIaPdOption the dhcp ia pd option
+	 * @param clientLink the client link
+	 * 
+	 * @return true, if successful
+	 */
 	protected boolean allIaPrefixesOnLink(DhcpIaPdOption dhcpIaPdOption, DhcpLink clientLink)
 	{
 		boolean onLink = true;	// assume all IPs are on link

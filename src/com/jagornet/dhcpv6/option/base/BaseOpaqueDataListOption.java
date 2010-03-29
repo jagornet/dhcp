@@ -41,8 +41,8 @@ import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 
 /**
- * <p>Title: BaseOpaqueDataListOption </p>
- * <p>Description: </p>.
+ * Title: BaseOpaqueDataListOption
+ * Description: The abstract base class for opaque opaqueDataList DHCP options.
  * 
  * @author A. Gregory Rabil
  */
