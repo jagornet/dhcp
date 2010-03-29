@@ -14,6 +14,7 @@
   	<property name="conf" location="conf"/>
   	<property name="bin" location="bin"/>
 	<property name="db" location="db"/>
+	<property name="yajsw" location="bin/yajsw-beta-10.1"/>
   	<property file="build.properties"/>
 	
 	<echoproperties/>
@@ -44,7 +45,7 @@
   	<target name="compile" depends="init,schema"
         description="compile the source">
     	<!-- Compile the java code from ${src} into ${classes} -->
-	    <javac srcdir="${src}" destdir="${classes}" target="1.6">
+	    <javac srcdir="${src}" destdir="${classes}" target="1.6" debug="true">
 	    	<classpath>
 	        	<filelist files="${dependent.jars}"/>
 	    		<filelist files="${build}/xmltypes.jar"/>
@@ -90,7 +91,7 @@
 	    <!-- Copy all the dependent jars into the distribution library folder -->
 	    <copy todir="${dist}/lib" flatten="true">
 	    	<filelist dir="${build}" files="${product}.jar xmltypes.jar"/>
-	    	<filelist files="${dependent.jars} ${wrapper.dll}"/>
+	    	<filelist files="${dependent.jars}"/>
 	    </copy>
 	    
   		<mkdir dir="${dist}/docs"/>
@@ -108,6 +109,11 @@
 	    	<fileset dir="${bin}"/>
 	    </copy>
   		
+  		<mkdir dir="${dist}/bin/yajsw-beta-10.1"/>
+  		<copy todir="${dist}/bin/yajsw-beta-10.1">
+  			<fileset dir="${yajsw}"/>
+  		</copy>
+  		
 	    <mkdir dir="${dist}/db"/>    
 	    <copy todir="${dist}/db">
 	    	<fileset dir="${db}"/>
@@ -117,18 +123,11 @@
 	
 		<tar destfile="${dist}/${product}.tar">
 		  	<tarfileset dir="${dist}" prefix="${product}" mode="755">
-			    <include name="bin/*"/>
-			    <exclude name="bin/*.bat"/>
-			    <exclude name="**/wrapper.*"/>
-			    <exclude name="*.tar"/>
-			    <exclude name="*.gz"/>
-			    <exclude name="*.zip"/>
+			    <include name="bin/dhcpv6"/>
 		  	</tarfileset>
 		  	<tarfileset dir="${dist}" prefix="${product}">
 			    <include name="**/*"/>
-			    <exclude name="bin/*"/>
-			    <exclude name="bin/*.bat"/>
-			    <exclude name="**/wrapper.*"/>
+			    <exclude name="bin/**/*"/>
 			    <exclude name="*.tar"/>
 			    <exclude name="*.gz"/>
 			    <exclude name="*.zip"/>
@@ -139,7 +138,8 @@
 	
 		<zip destfile="${dist}/${product}.zip">
 			<zipfileset dir="${dist}" prefix="${product}">
-				<exclude name="bin/dhcpv6*"/>
+			    <include name="**/*"/>
+				<exclude name="bin/dhcpv6"/>
 				<exclude name="*.tar"/>
 			    <exclude name="*.gz"/>
 			    <exclude name="*.zip"/>

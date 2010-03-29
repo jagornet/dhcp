@@ -30,14 +30,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,9 +124,9 @@ public class DhcpServerConfiguration
     /**
      * Private constructor suppresses generation of a (public) default constructor.
      * 
-     * @throws Exception the exception
+     * @throws DhcpServerConfigException the exception
      */
-    private DhcpServerConfiguration() throws Exception
+    private DhcpServerConfiguration() throws DhcpServerConfigException, XmlException, IOException
     {
     	xmlServerConfig = loadConfig(configFilename);
     	if (xmlServerConfig != null) {
@@ -141,9 +142,9 @@ public class DhcpServerConfiguration
     /**
      * Initialize the server id.
      * 
-     * @throws Exception the exception
+     * @throws IOException the exception
      */
-    protected void initServerId() throws Exception
+    protected void initServerId() throws IOException
     {
     	ServerIdOption serverId = xmlServerConfig.getServerIdOption();
     	if (serverId != null) {
@@ -165,27 +166,31 @@ public class DhcpServerConfiguration
     /**
      * Initialize the link map.
      * 
-     * @throws Exception the exception
+     * @throws DhcpServerConfigException the exception
      */
-    protected void initLinkMap() throws Exception
+    protected void initLinkMap() throws DhcpServerConfigException
     {
-        try {
-        	LinksType linksType = xmlServerConfig.getLinks();
-        	if (linksType != null) {
-	        	List<Link> links = linksType.getLinkList();
-	            if ((links != null) && !links.isEmpty()) {
-	                linkMap = new TreeMap<Subnet, DhcpLink>();
-	                for (Link link : links) {
-	                	String ifname = link.getInterface();
-	                	if (ifname != null) {
+    	LinksType linksType = xmlServerConfig.getLinks();
+    	if (linksType != null) {
+        	List<Link> links = linksType.getLinkList();
+            if ((links != null) && !links.isEmpty()) {
+                linkMap = new TreeMap<Subnet, DhcpLink>();
+                for (Link link : links) {
+                	String ifname = link.getInterface();
+                	if (ifname != null) {
+                		try {
 	                		NetworkInterface netIf = NetworkInterface.getByName(ifname);
 	                		if (netIf == null) {
-	                			throw new DatatypeConfigurationException(
+	                			throw new DhcpServerConfigException(
 	                					"Network interface not found: " + ifname);
 	                		}
 	                		if (!netIf.supportsMulticast()) {
-	                			throw new DatatypeConfigurationException(
+	                			throw new DhcpServerConfigException(
 	                					"Network interface does not support multicast: " + ifname);
+	                		}
+	                		if (!netIf.getInetAddresses().hasMoreElements()) {
+	                			throw new DhcpServerConfigException(
+	                					"Network interface has no configured addresses: " + ifname);
 	                		}
 	                		// set this link's address to the IPv6 link-local address of the interface
 	                		// when a packet is received on the link-local address, we use it
@@ -193,32 +198,42 @@ public class DhcpServerConfiguration
 	                		link.setAddress(
 	                				Util.netIfIPv6LinkLocalAddress(netIf).getHostAddress()
 	                				+ "/128");	// subnet of one
-	                	}
-	                    String addr = link.getAddress();
-	                    if (addr != null) {
-	                        String[] s = addr.split("/");
-	                        if ((s != null) && (s.length == 2)) {
-	                            Subnet subnet = new Subnet(s[0], s[1]);
-	                            linkMap.put(subnet, new DhcpLink(subnet, link));
-	                        }
-	                        else {
-	                        	throw new DatatypeConfigurationException(
-	                        			"Unsupported Link address=" + addr +
-	                        			": expected prefix/prefixlen format");
-	                        }
-	                    }
-                        else {
-                        	throw new DatatypeConfigurationException(
-                        			"Link must specify an interface or address element");
+                		}
+                		catch (SocketException ex) {
+                			throw new DhcpServerConfigException(
+                					"Invalid network interface: " + ifname, ex);
+                		}
+                	}
+                    String addr = link.getAddress();
+                    if (addr != null) {
+                        String[] s = addr.split("/");
+                        if ((s != null) && (s.length == 2)) {
+                            try {
+								Subnet subnet = new Subnet(s[0], s[1]);
+								linkMap.put(subnet, new DhcpLink(subnet, link));
+							} 
+                            catch (NumberFormatException ex) {
+                            	throw new DhcpServerConfigException(
+                            			"Invalid link address" + addr, ex);
+							} 
+                            catch (UnknownHostException ex) {
+                            	throw new DhcpServerConfigException(
+                            			"Invalid link address" + addr, ex);
+							}
                         }
-	                }
-	        	}
+                        else {
+                        	throw new DhcpServerConfigException(
+                        			"Unsupported Link address=" + addr +
+                        			": expected prefix/prefixlen format");
+                        }
+                    }
+                    else {
+                    	throw new DhcpServerConfigException(
+                    			"Link must specify an interface or address element");
+                    }
+                }
         	}
-        }
-        catch (Exception ex) {
-            log.error("Failed to build linkMap: " + ex);
-            throw ex;
-        }
+    	}
     }
     
     /**
@@ -500,9 +515,9 @@ public class DhcpServerConfiguration
      * 
      * @return the loaded DhcpV6ServerConfig
      * 
-     * @throws Exception the exception
+     * @throws XmlException, IOException
      */
-    public static DhcpV6ServerConfig loadConfig(String filename) throws Exception
+    public static DhcpV6ServerConfig loadConfig(String filename) throws XmlException, IOException
     {
     	DhcpV6ServerConfig config = null;
     	FileInputStream fis = null;
@@ -526,9 +541,9 @@ public class DhcpServerConfiguration
      * @param config the DhcpV6ServerConfig to save
      * @param filename the full path and filename for the configuration
      * 
-     * @throws Exception the exception
+     * @throws IOException the exception
      */
-    public static void saveConfig(DhcpV6ServerConfig config, String filename) throws Exception
+    public static void saveConfig(DhcpV6ServerConfig config, String filename) throws IOException
     {
     	FileOutputStream fos = null;
     	try {

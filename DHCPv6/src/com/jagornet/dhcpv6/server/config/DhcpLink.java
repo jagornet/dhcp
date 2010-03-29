@@ -29,7 +29,10 @@ import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.xml.Link;
 
 /**
- * The Class DhcpLink.
+ * The Class DhcpLink.  A wrapper class for the configured XML Link object
+ * and the logical Subnet which represents that Link.
+ * 
+ * @author A. Gregory Rabil
  */
 public class DhcpLink
 {

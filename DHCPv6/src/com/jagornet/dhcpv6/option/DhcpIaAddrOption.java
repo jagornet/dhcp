@@ -42,9 +42,10 @@ import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaAddrOption;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DhcpIaAddrOption.
+ * 
+ * @author A. Gregory Rabil
  */
 public class DhcpIaAddrOption extends BaseDhcpOption
 {	

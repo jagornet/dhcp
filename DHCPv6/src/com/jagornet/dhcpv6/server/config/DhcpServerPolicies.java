@@ -25,7 +25,6 @@
  */
 package com.jagornet.dhcpv6.server.config;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -40,6 +39,15 @@ import com.jagornet.dhcpv6.xml.PrefixPool;
 
 /**
  * The Class DhcpServerPolicies.
+ * Description: The class representing the DHCPv6 server policies.  Policy defaults
+ * are defined herein by the Property enum.  These defaults can be overridden by loading
+ * a standard Java properties file.  At runtime, the value of any given property is taken
+ * from the server's XML configuration file via the <policy> element with the corresponding
+ * name.  Some policies are supported only globally, e.g. queueSize, whereas others may be
+ * defined at various "levels" of the DHCP server's XML configuration, e.g. preferredLifetime,
+ * which will allow for lower-level overrides of global or other hierarchical policy values.
+ * 
+ * @author A. Gregory Rabil
  */
 public class DhcpServerPolicies
 {
@@ -135,18 +143,14 @@ public class DhcpServerPolicies
 	 * 
 	 * @param propertiesFilename the properties filename
 	 * 
-	 * @throws Exception the exception
+	 * @throws IOException the exception
 	 */
-	public static void loadPropertiesFile(String propertiesFilename) throws Exception
+	public static void loadPropertiesFile(String propertiesFilename) throws IOException
 	{
 		Reader reader = null; 
 		try {
 			reader = new FileReader(propertiesFilename);
 			SERVER_PROPERTIES.load(reader);
-		} catch (FileNotFoundException ex) {
-			throw ex;
-		} catch (IOException ex) {
-			throw ex;
 		}
 		finally {
 			if (reader != null) {

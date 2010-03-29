@@ -88,11 +88,9 @@ public class NettyDhcpServer
      * @param port the port to listen on
      * @param addrs the addresses to listen on for unicast traffic
      * @param netIfs the network interfaces to listen on for multicast traffic
-     * 
-     * @throws Exception the exception
      */
     public NettyDhcpServer(List<InetAddress> addrs, 
-    						List<NetworkInterface> netIfs, int port) throws Exception
+    						List<NetworkInterface> netIfs, int port)
     {
     	this.addrs = addrs;
     	this.netIfs = netIfs;
@@ -122,8 +120,13 @@ public class NettyDhcpServer
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
 		            pipeline.addLast("handler", new DhcpChannelHandler());
 	        		
-		            DatagramChannelFactory factory =
-		                new NioDatagramChannelFactory(executorService);
+		            DatagramChannelFactory factory = null;
+		            if (DhcpConstants.IS_WINDOWS) {
+		            	factory = new OioDatagramChannelFactory(executorService);
+		            }
+		            else {
+		                factory = new NioDatagramChannelFactory(executorService);
+		            }
 	
 		            // create an unbound channel
 		            DatagramChannel channel = factory.newChannel(pipeline);
@@ -155,8 +158,7 @@ public class NettyDhcpServer
 		                new OioDatagramChannelFactory(executorService);
 	
 		            // create an unbound channel
-		            DatagramChannel channel = factory.newChannel(pipeline);	            
-	
+		            DatagramChannel channel = factory.newChannel(pipeline);
 		            
 		            // must be bound in order to join multicast group
 		            SocketAddress sockAddr = new InetSocketAddress(port);
