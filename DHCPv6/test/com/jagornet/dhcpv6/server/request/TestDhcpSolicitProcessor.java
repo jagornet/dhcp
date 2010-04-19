@@ -45,7 +45,7 @@ public class TestDhcpSolicitProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testSolicit() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
 		DhcpSolicitProcessor processor = 
@@ -69,7 +69,7 @@ public class TestDhcpSolicitProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testSolicitRequestOffLinkAddress() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"),
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr,
 													"2001:DB8:2::1");
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
@@ -94,7 +94,7 @@ public class TestDhcpSolicitProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testSolicitReconfigureAccept() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 		
 		DhcpReconfigureAcceptOption reconfigAcceptOption = new DhcpReconfigureAcceptOption();

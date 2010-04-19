@@ -80,7 +80,10 @@ public class DhcpClientIdOption extends BaseOpaqueDataOption
     {
 		if ((this.getOpaqueDataOptionType() != null) &&
 				(this.getOpaqueDataOptionType().getOpaqueData() != null)) {
-			return this.getOpaqueDataOptionType().getOpaqueData().getHexValue();
+			if (this.getOpaqueDataOptionType().getOpaqueData().getHexValue() != null)
+				return this.getOpaqueDataOptionType().getOpaqueData().getHexValue();
+			else
+				return this.getOpaqueDataOptionType().getOpaqueData().getAsciiValue().getBytes();
 		}
 		return null;
 	}

@@ -31,6 +31,8 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ConfigOptionsType;
 import com.jagornet.dhcpv6.xml.PreferenceOption;
@@ -49,11 +51,17 @@ public class TestDhcpConfigOptions extends TestCase
 	 */
 	public void testSetMessageOptions() throws Exception
 	{
-		DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions();
-		ConfigOptionsType configOptions = dhcpConfigOptions.getConfigOptions();
+		// override the default, which is false
+		DhcpServerPolicies.setProperty(Property.SEND_REQUESTED_OPTIONS_ONLY.key(), "true");
+		
+		ConfigOptionsType configOptions = ConfigOptionsType.Factory.newInstance();
 		PreferenceOption preferenceOption = PreferenceOption.Factory.newInstance();
 		preferenceOption.setUnsignedByte((short)10);
+		
 		configOptions.setPreferenceOption(preferenceOption);
+
+		// wrap the ConfigOptions XML object inside a DhcpConfigOptions object
+		DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
 		
 		InetSocketAddress local = new InetSocketAddress(0);
 		InetSocketAddress remote = new InetSocketAddress(0);
@@ -63,12 +71,12 @@ public class TestDhcpConfigOptions extends TestCase
 		
 		DhcpPreferenceOption dhcpPreferenceOpt = 
 			(DhcpPreferenceOption) dhcpMsg.getDhcpOption(DhcpConstants.OPTION_PREFERENCE);
-		// we won't find it the first time because
-		// the default is to sendRequestedOptionsOnly
+		// we won't find it the first time because sendRequestedOptionsOnly = true;
 		assertNull(dhcpPreferenceOpt);
 		
 		// now set the requested option, and test again
-		dhcpConfigOptions.setRequestedOptionCodes(Arrays.asList(DhcpConstants.OPTION_PREFERENCE));
+		dhcpConfigOptions = 
+			new DhcpConfigOptions(configOptions, Arrays.asList(DhcpConstants.OPTION_PREFERENCE));
 		dhcpMsg.setDhcpOptionMap(dhcpConfigOptions.getDhcpOptionMap());
 		dhcpPreferenceOpt = (DhcpPreferenceOption) dhcpMsg.getDhcpOption(DhcpConstants.OPTION_PREFERENCE);
 		assertNotNull(dhcpPreferenceOpt);

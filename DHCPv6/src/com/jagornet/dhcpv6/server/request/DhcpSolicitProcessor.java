@@ -90,7 +90,12 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     		return false;
     	}
     	
-    	if (requestMsg.getDhcpClientIdOption() == null) {
+    	DhcpClientIdOption dhcpClientId = requestMsg.getDhcpClientIdOption();
+    	if ((dhcpClientId == null) || 
+    			(dhcpClientId.getOpaqueDataOptionType() == null) ||
+    			(dhcpClientId.getOpaqueDataOptionType().getOpaqueData() == null) ||
+    			((dhcpClientId.getOpaqueDataOptionType().getOpaqueData().getAsciiValue() == null) &&
+    					(dhcpClientId.getOpaqueDataOptionType().getOpaqueData().getHexValue() == null))) {
     		log.warn("Ignoring Solicit message: " +
     				"ClientId option is null");
     		return false;
@@ -263,8 +268,9 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 	 */
 	private boolean isRapidCommit(DhcpMessage requestMsg, Link clientLink)
 	{
-		if (DhcpServerPolicies.effectivePolicyAsBoolean(clientLink, Property.SUPPORT_RAPID_COMMIT)
-				&& requestMsg.hasOption(DhcpConstants.OPTION_RAPID_COMMIT)) {
+		if (requestMsg.hasOption(DhcpConstants.OPTION_RAPID_COMMIT) && 
+				DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg, clientLink, 
+						Property.SUPPORT_RAPID_COMMIT)) {
 			return true;
 		}
 		return false;

@@ -103,12 +103,15 @@ public class DhcpConfigOptions
     public Map<Integer, DhcpOption> initDhcpOptionMap()
     {
 		Method[] methods = configOptions.getClass().getMethods();
-		for (Method method : methods) {
-			// for each option getter: e.g. getPreferenceOption
-			if (isOptionGetter(method)) {
-				DhcpOption dhcpOption = buildDhcpOption(method);
-				if (dhcpOption != null)
-					optionMap.put(dhcpOption.getCode(), dhcpOption);
+		if (methods != null) {
+			optionMap.clear();
+			for (Method method : methods) {
+				// for each option getter: e.g. getPreferenceOption
+				if (isOptionGetter(method)) {
+					DhcpOption dhcpOption = buildDhcpOption(method);
+					if (dhcpOption != null)
+						optionMap.put(dhcpOption.getCode(), dhcpOption);
+				}
 			}
 		}
 		return optionMap;
@@ -130,6 +133,8 @@ public class DhcpConfigOptions
 	 */
 	public void setConfigOptions(ConfigOptionsType configOptions) {
 		this.configOptions = configOptions;
+		// reset the option map
+		initDhcpOptionMap();
 	}
 	
 	/**

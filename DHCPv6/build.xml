@@ -14,7 +14,7 @@
   	<property name="conf" location="conf"/>
   	<property name="bin" location="bin"/>
 	<property name="db" location="db"/>
-	<property name="yajsw" location="bin/yajsw-beta-10.1"/>
+	<property name="yajsw" location="bin/yajsw-beta-10.2"/>
   	<property file="build.properties"/>
 	
 	<echoproperties/>
@@ -109,8 +109,8 @@
 	    	<fileset dir="${bin}"/>
 	    </copy>
   		
-  		<mkdir dir="${dist}/bin/yajsw-beta-10.1"/>
-  		<copy todir="${dist}/bin/yajsw-beta-10.1">
+  		<mkdir dir="${dist}/bin/yajsw-beta-10.2"/>
+  		<copy todir="${dist}/bin/yajsw-beta-10.2">
   			<fileset dir="${yajsw}"/>
   		</copy>
   		

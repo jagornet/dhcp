@@ -1,0 +1,17 @@
+yajsw-beta-10.2
+
+    * Bug: genConfig: generating configuration file for "java -jar x.jar"
+    * Bug: Windows: when server is under high load: cannot stop wrapped process: isRunning() returns true although process is stopped
+    * Bug: sendMail.gv: add try/catch - thanks to jeff 303 for the patch
+    * !! Bug: since beta 10.1: Socket.ReuseAddress(true) in wrapper -> multiple wrappers use same port.
+    * Bug: Mac OS X: genConfig uses posix methods instead of BSD.
+    * Bug: Mac OS X: socket exception when restarting application. -> keep wrapper server socket bound on restart.
+    * Changed: removed counter in  WrapperManagerImpl. Now waiting until startup timeout.
+    * Changed: logging in WrapperManagerImpl if wrapper.debug=true
+    * Changed: extended JSW migration guide to include environment variables
+    * New: experimental - multicast discovery: service manager client can discover service manager servers and the port on which they are listening.
+    * New: sample configurations for activemq and jboss
+    * New: configuration property wrapper.java.debug.port -> sets the java -Xdebug ...  property and overrides timeouts to maximum value
+    * New: configuration property wrapper.jmx.user, wrapper.jmx.password -> sets the credentials for remote access to the wrapper jmx server
+    * New: included sample security profile file. Fine grained security profile can be generated using src\build\secmanager.
+    * New: wrapper.app.pre_main.script: script executed before the main method is invoked but after the WrapperManager has been configured and a connection has been established to the wrapper.

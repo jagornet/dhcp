@@ -188,10 +188,15 @@
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="name" type="name"/>
+			<!--  A Link must be identified by either:
+				  - An interface for "local" client links
+				  - An address for "remote" client links -->
 			<xs:choice>
-				<!-- the link is identified by a local interface -->
+				<!-- a "local" link is identified by the name of a local interface
+					 or an address bound to a local interface -->
 				<xs:element name="interface" type="xs:string"/>
-				<!-- OR the link is identified by a remote link address (prefix/len) -->
+				<!-- a "remote" link is identified by the prefix address (prefix/len) 
+					 of the remote link --> 
 				<xs:element name="address" type="xs:string"/>
 			</xs:choice>
 			

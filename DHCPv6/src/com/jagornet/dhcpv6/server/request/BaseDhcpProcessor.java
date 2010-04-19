@@ -909,7 +909,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			return;
 		}
 		
-		String policy = DhcpServerPolicies.effectivePolicy(clientLink.getLink(), Property.DDNS_UPDATE);
+		String policy = DhcpServerPolicies.effectivePolicy(requestMsg,
+				clientLink.getLink(), Property.DDNS_UPDATE);
 		log.info("Server configuration for ddns.update policy: " + policy);
 		if ((policy == null) || policy.equalsIgnoreCase("none")) {
 			log.info("Server configuration for ddns.update policy is null or 'none'." +
@@ -965,8 +966,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				if (bindingObjs != null) {
 					for (BindingObject bindingObj : bindingObjs) {
 						DdnsUpdater ddns = 
-							new DdnsUpdater(clientLink.getLink(), (BindingAddress) bindingObj, fqdn, 
-								requestMsg.getDhcpClientIdOption().getDuid(), doForwardUpdate, false);
+							new DdnsUpdater(requestMsg, clientLink.getLink(), 
+									(BindingAddress) bindingObj, fqdn, doForwardUpdate, false);
 						ddns.processUpdates();
 					}
 				}

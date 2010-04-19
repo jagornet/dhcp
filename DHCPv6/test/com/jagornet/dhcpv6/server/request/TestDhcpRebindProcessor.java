@@ -52,7 +52,7 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testSolicitAndRequestAndRebind() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
 		DhcpSolicitProcessor sProc = 
@@ -100,7 +100,7 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testRebindNoBinding() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.REBIND);
 		
 		DhcpRebindProcessor processor =
@@ -121,7 +121,7 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 	{
 		// override the default server policy
 		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "true");
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.REBIND);
 		DhcpIaAddrOption dhcpIaAddr = new DhcpIaAddrOption();
 		dhcpIaAddr.getIaAddrOption().setIpv6Address("2001:DB8:2::1");
@@ -166,7 +166,7 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testZeroLifetimes() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
 		DhcpSolicitProcessor sProc = 
@@ -206,7 +206,27 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
 		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
 		
-		checkReply(replyMsg, null, null, 0);
+//		checkReply(replyMsg, null, null, 0);
+		Collection<DhcpOption> dhcpOptions = replyMsg.getDhcpOptions();
+		assertNotNull(dhcpOptions);
+		assertEquals(2, dhcpOptions.size());
+		
+		DhcpClientIdOption _clientIdOption = 
+			(DhcpClientIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_CLIENTID);	
+		assertNotNull(_clientIdOption);
+		
+		DhcpServerIdOption _serverIdOption = 
+			(DhcpServerIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_SERVERID);	
+		assertNotNull(_serverIdOption);
+		
+		DhcpIaNaOption _iaNaOption = replyMsg.getIaNaOptions().get(0);
+		assertNotNull(_iaNaOption);
+
+		DhcpIaAddrOption _iaAddrOption = _iaNaOption.getIaAddrOptions().get(0);
+		assertNotNull(_iaAddrOption);
+		assertNotNull(_iaAddrOption.getInetAddress());
+		assertEquals(0, _iaAddrOption.getIaAddrOption().getPreferredLifetime());
+		assertEquals(0, _iaAddrOption.getIaAddrOption().getValidLifetime());
 	}
 
 }

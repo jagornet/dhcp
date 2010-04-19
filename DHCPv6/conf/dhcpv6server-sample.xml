@@ -120,7 +120,6 @@
 							addresses, will get an address from this pool with the
 							address level options provided -->
 						<pool>
-							<iaType>non-temporary</iaType>
 							<range>2001:DB8:1::10A-2001:DB8:1::1FF</range>
 							<addrConfigOptions>
 								<sipServerAddressesOption>
@@ -136,7 +135,6 @@
 					addresses, will get an address from this pool with the
 					address level options provided -->
 				<pool>
-					<iaType>non-temporary</iaType>
 					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
 					<addrConfigOptions>
 						<sipServerAddressesOption>
@@ -156,7 +154,6 @@
 			</iaNaConfigOptions>
 			<naAddrPools>
 				<pool>
-					<iaType>non-temporary</iaType>
 					<range>2001:DB8:2::0A-2001:DB8:2::FF</range>
 					<addrConfigOptions>
 						<sipServerAddressesOption>

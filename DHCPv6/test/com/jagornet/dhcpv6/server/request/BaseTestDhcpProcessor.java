@@ -61,6 +61,8 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 	/** The client id option. */
 	protected DhcpClientIdOption clientIdOption;
 	
+	protected InetAddress firstPoolAddr;
+	
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.BaseDbTestCase#setUp()
 	 */
@@ -68,12 +70,14 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 	protected void setUp() throws Exception {
 		super.setUp();
 		manager = (NaAddrBindingManager) ctx.getBean("naAddrBindingManager");
+		manager.init();
 		OpaqueData opaque = OpaqueData.Factory.newInstance();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });
 		ClientIdOption clientId = ClientIdOption.Factory.newInstance();
 		clientId.setOpaqueData(opaque);
 		clientIdOption = new DhcpClientIdOption(clientId);
+		firstPoolAddr = InetAddress.getByName("2001:DB8:1::a");
 	}
 	
 	/* (non-Javadoc)

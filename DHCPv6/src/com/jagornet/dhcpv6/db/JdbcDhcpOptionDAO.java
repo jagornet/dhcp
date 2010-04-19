@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
@@ -89,9 +89,21 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
         	parameters.put("iaprefix_id", iaAddrId);
         	insertOption.usingColumns("code", "value", "iaprefix_id");
         }
-//        Number newId = insertOption.executeAndReturnKey(parameters);
-//        option.setId(newId.longValue());
-        insertOption.execute(parameters);
+		/**
+		 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
+		 * "Formally, Derby does not support getGeneratedKeys since 
+		 * DatabaseMetaData.supportsGetGeneratedKeys() returns false. 
+		 * However, Statement.getGeneratedKeys() is partially implemented,
+		 * ... since it will only return a meaningful result when an single 
+		 * row insert is done with INSERT...VALUES"
+		 * 
+		 * Spring has thus provided a workaround as described here:
+		 * http://jira.springframework.org/browse/SPR-5306
+		 */
+        Number newId = insertOption.executeAndReturnKey(parameters);
+        if (newId != null) {
+        	option.setId(newId.longValue());
+        }
 	}
 	
 	/* (non-Javadoc)
@@ -160,11 +172,11 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
     /**
      * The Class OptionRowMapper.
      */
-    protected class OptionRowMapper implements ParameterizedRowMapper<DhcpOption> 
+    protected class OptionRowMapper implements RowMapper<DhcpOption> 
     {	
         
         /* (non-Javadoc)
-         * @see org.springframework.jdbc.core.simple.ParameterizedRowMapper#mapRow(java.sql.ResultSet, int)
+         * @see org.springframework.jdbc.core.simple.RowMapper#mapRow(java.sql.ResultSet, int)
          */
         public DhcpOption mapRow(ResultSet rs, int rowNum) throws SQLException {
         	DhcpOption option = new DhcpOption();

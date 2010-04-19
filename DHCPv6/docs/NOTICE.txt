@@ -1,10 +1,10 @@
 Jagornet DHCPv6
-Copyright 2009 Jagornet Technologies
+Copyright 2009-2010 Jagornet Technologies
 
 This product is licensed under the terms of the
 GNU General Public License Version 3 (GPL v3).
 Please see LICENSE.txt for terms and conditions.
 
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
+This product includes software developed under the
+terms of the Apache License Version 2.0.
 Please see APACHE-LICENSE.txt for additional terms and conditions.

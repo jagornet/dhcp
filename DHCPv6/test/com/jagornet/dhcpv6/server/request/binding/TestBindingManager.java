@@ -55,6 +55,7 @@ public class TestBindingManager extends BaseDbTestCase
 	protected void setUp() throws Exception {
 		super.setUp();
 		manager = (NaAddrBindingManager) ctx.getBean("naAddrBindingManager");
+		manager.init();
 		OpaqueData opaque = OpaqueData.Factory.newInstance();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });
@@ -82,7 +83,7 @@ public class TestBindingManager extends BaseDbTestCase
 		iaNa.setIaId(1);
 		iaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
 		iaNa.setT2(0);		
-		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
 		Binding binding = manager.findCurrentBinding(clientLink.getLink(), clientIdOption, 
 				dhcpIaNa, null);
@@ -100,7 +101,7 @@ public class TestBindingManager extends BaseDbTestCase
 		iaNa.setIaId(1);
 		iaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
 		iaNa.setT2(0);
-		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
 		Binding binding = manager.createSolicitBinding(clientLink.getLink(), clientIdOption, 
 				dhcpIaNa, null, false);

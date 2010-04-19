@@ -44,7 +44,7 @@ public class TestDhcpRequestProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testSolicitAndRequest() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
 		DhcpSolicitProcessor sProc = 
@@ -77,7 +77,7 @@ public class TestDhcpRequestProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testShouldMulticast() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.REQUEST);
 
 		DhcpSolicitProcessor sProc = 
@@ -110,7 +110,7 @@ public class TestDhcpRequestProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testRequestNotOnLink() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
 		DhcpSolicitProcessor sProc = 

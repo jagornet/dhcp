@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.db;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,9 +37,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Subnet;
@@ -63,14 +66,25 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 				" validendtime, state, identityassoc_id)" +
 				" values (?, ?, ?, ?, ?, ?)";
 		
-		getJdbcTemplate().update(insertQuery, 
-				new InsertIaPrefixPreparedStatementSetter(iaPrefix));
-		
-		// update will throw SQLException if it fails
-        IaPrefix newIaPrefix = getByInetAddress(iaPrefix.getIpAddress());
-        if (newIaPrefix != null) {
-        	iaPrefix.setId(newIaPrefix.getId());
-        }
+		/**
+		 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
+		 * "Formally, Derby does not support getGeneratedKeys since 
+		 * DatabaseMetaData.supportsGetGeneratedKeys() returns false. 
+		 * However, Statement.getGeneratedKeys() is partially implemented,
+		 * ... since it will only return a meaningful result when an single 
+		 * row insert is done with INSERT...VALUES"
+		 * 
+		 * Spring has thus provided a workaround as described here:
+		 * http://jira.springframework.org/browse/SPR-5306
+		 */
+		GeneratedKeyHolder newKey = new GeneratedKeyHolder();
+		getJdbcTemplate().update(
+				new InsertIaPrefixPreparedStatementCreator(insertQuery, iaPrefix), 
+				newKey);
+		Number newId = newKey.getKey();
+		if (newId != null) {
+			iaPrefix.setId(newId.longValue());
+		}
 	}
 
 	/* (non-Javadoc)
@@ -189,7 +203,6 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaPrefixDAO#findAllOlderThan(java.util.Date)
 	 */
-	@SuppressWarnings("unchecked")
 	public List<IaPrefix> findAllOlderThan(Date date)
 	{
         return getJdbcTemplate().query(
@@ -199,28 +212,43 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 	}
 	
 	/**
-	 * The Class InsertIaPrefixPreparedStatementSetter.
+	 * The Class InsertIaPrefixPreparedStatementCreator.
 	 */
-	protected class InsertIaPrefixPreparedStatementSetter implements PreparedStatementSetter
+	protected class InsertIaPrefixPreparedStatementCreator implements PreparedStatementCreator
 	{
+		/** The sql. */
+		private String sql;
 		
 		/** The ia prefix. */
 		private IaPrefix iaPrefix;
 		
 		/**
-		 * Instantiates a new insert ia prefix prepared statement setter.
-		 * 
+		 * Instantiates a new insert ia prefix prepared statement creator.
+		 *
+		 * @param sql the sql
 		 * @param iaPrefix the ia prefix
 		 */
-		public InsertIaPrefixPreparedStatementSetter(IaPrefix iaPrefix) {
+		public InsertIaPrefixPreparedStatementCreator(String sql, IaPrefix iaPrefix) {
+			this.sql = sql;
 			this.iaPrefix = iaPrefix;
 		}
 		
-		/* (non-Javadoc)
-		 * @see org.springframework.jdbc.core.PreparedStatementSetter#setValues(java.sql.PreparedStatement)
-		 */
 		@Override
-		public void setValues(PreparedStatement ps) throws SQLException {
+		public PreparedStatement createPreparedStatement(Connection conn)
+				throws SQLException
+		{
+			/**
+			 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
+			 * "Formally, Derby does not support getGeneratedKeys since 
+			 * DatabaseMetaData.supportsGetGeneratedKeys() returns false. 
+			 * However, Statement.getGeneratedKeys() is partially implemented,
+			 * ... since it will only return a meaningful result when an single 
+			 * row insert is done with INSERT...VALUES"
+			 * 
+			 * Spring has thus provided a workaround as described here:
+			 * http://jira.springframework.org/browse/SPR-5306
+			 */
+			PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 			ps.setBytes(1, iaPrefix.getIpAddress().getAddress());
 			ps.setInt(2, iaPrefix.getPrefixLength());
 			java.sql.Timestamp sts = new java.sql.Timestamp(iaPrefix.getStartTime().getTime());
@@ -231,6 +259,7 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 			ps.setTimestamp(5, vts, Util.GMT_CALENDAR);
 			ps.setByte(6, iaPrefix.getState());
 			ps.setLong(7, iaPrefix.getIdentityAssocId());
+			return ps;
 		}
 	}
 	
@@ -322,11 +351,11 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
     /**
      * The Class IaPrefixRowMapper.
      */
-    protected class IaPrefixRowMapper implements ParameterizedRowMapper<IaPrefix> 
+    protected class IaPrefixRowMapper implements RowMapper<IaPrefix> 
     {
     	
 	    /* (non-Javadoc)
-	     * @see org.springframework.jdbc.core.simple.ParameterizedRowMapper#mapRow(java.sql.ResultSet, int)
+	     * @see org.springframework.jdbc.core.simple.RowMapper#mapRow(java.sql.ResultSet, int)
 	     */
 	    @Override
         public IaPrefix mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import javax.sql.DataSource;
+
 import org.dbunit.DBTestCase;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.IDatabaseTester;
@@ -68,6 +70,8 @@ public class BaseDbTestCase extends DBTestCase
 	
 	/** The ctx. */
 	protected static ApplicationContext ctx;
+
+	private boolean schemaValidated;
 	
 	static
 	{
@@ -88,6 +92,10 @@ public class BaseDbTestCase extends DBTestCase
 	 */
 	@Override
 	protected void setUp() throws Exception {
+		if (!schemaValidated) {			
+			DbSchemaManager.validateSchema((DataSource) ctx.getBean("dataSource"));
+			schemaValidated = true;
+		}
 		super.setUp();
 	}
 
