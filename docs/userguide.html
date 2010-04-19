@@ -1,72 +1,49 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
   <title>Jagornet DHCPv6 User Guide</title>
 </head>
-
-
 <body>
-
-
-
-
-
-
-
-
-<h1><a class="mozTocH1" name="mozTocId725159"></a>Jagornet DHCPv6 User Guide</h1>
-
-
-
+<h1><a class="mozTocH1" name="mozTocId725159"></a>Jagornet DHCPv6 User
+Guide</h1>
 Welcome to Jagornet DHCPv6 Community Edition. This user guide provides
 information on installing and running the Jagornet DHCPv6 server.
 &nbsp;The sections of the guide are defined in the following Table of
 Contents.<br>
-
-
-
 <ol id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId725159">Jagornet DHCPv6 User Guide</a>
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
+  <li><a href="#mozTocId725159">Jagornet DHCPv6 User
+Guide</a>
     <ol>
       <li><a href="#mozTocId706912">Getting Started</a>
         <ol>
           <li><a href="#mozTocId249477">Installation</a></li>
-          <li><a href="#mozTocId544958">Running the Server</a>
+          <li><a href="#mozTocId544958">Running
+the Server</a>
             <ol>
-              <li><a href="#mozTocId830497">Startup Options</a></li>
+              <li><a href="#mozTocId830497">Startup
+Options</a></li>
             </ol>
           </li>
         </ol>
       </li>
       <li><a href="#mozTocId119809">Configuration</a>
         <ol>
+          <li><a href="#mozTocId827865">Server Policies</a></li>
           <li><a href="#mozTocId921358">DHCPv6 Options</a>
             <ol>
-              <li><a href="#mozTocId521070">Server Identifier Option</a></li>
+              <li><a href="#mozTocId521070">Server Identifier
+Option</a></li>
               <li><a href="#mozTocId144290">Configuration Options</a></li>
               <li><a href="#mozTocId999138">Generic Options</a>
                 <ol>
                   <li><a href="#mozTocId101942">Option Definition Type</a></li>
-                  <li><a href="#mozTocId668523">Opaque Data Option</a></li>
+                  <li><a href="#mozTocId668523">Opaque
+Data Option</a></li>
                 </ol>
               </li>
             </ol>
           </li>
-          <li><a href="#mozTocId79202">Server Policies</a></li>
           <li><a href="#mozTocId483343">Filters</a>
             <ol>
               <li><a href="#mozTocId629245">Filter Expressions</a>
@@ -87,400 +64,91 @@ Contents.<br>
               </li>
             </ol>
           </li>
-          <li><a href="#mozTocId882808">Pools</a></li>
+          <li><a href="#mozTocId882808">Pools</a>
+            <ol>
+              <li>
+                <ol>
+                  <li><a href="#mozTocId585504">Address Pools</a></li>
+                  <li><a href="#mozTocId405146">Prefix Pools</a></li>
+                </ol>
+              </li>
+            </ol>
+          </li>
         </ol>
       </li>
-      <li><a href="#mozTocId148908">Stateless DHCPv6 Operational Models</a>
+      <li><a href="#mozTocId148908">DHCPv6
+Operational Models</a>
         <ol>
-          <li><a href="#mozTocId260206">Operational model using a DHCPv6 Relay</a></li>
-          <li><a href="#mozTocId562035">Operational model without a DHCPv6 Relay</a></li>
-          <li><a href="#mozTocId476801">Platform Notes</a></li>
+          <li><a href="#mozTocId260206">Operational model
+using a DHCPv6 Relay</a></li>
+          <li><a href="#mozTocId562035">Operational model
+without a DHCPv6 Relay</a></li>
         </ol>
       </li>
       <li><a href="#mozTocId154139">Appendix</a>
         <ol>
+          <li><a href="#mozTocId414899">Binding Database</a></li>
           <li><a href="#mozTocId424719">Logging</a></li>
-          <li><a href="#mozTocId945976">Java Management Extensions</a></li>
+          <li><a href="#mozTocId945976">Java Management
+Extensions</a></li>
         </ol>
       </li>
     </ol>
   </li>
 </ol>
-
-
-
-
-
-
-
-
 <h2><a class="mozTocH2" name="mozTocId706912"></a>Getting Started</h2>
-
-
-
-
-
-
-
-
 <h3><a class="mozTocH3" name="mozTocId249477"></a>Installation</h3>
-
-
-
-
-
-
-
-
 <p>Java 6 runtime must be available on the host where the
 Jagornet DHCPv6
 server will be installed. The JAVA_HOME environment variable must be
 set to the home directory of your Java 6 JRE.</p>
-
-
-
-
-
-
-
-
 <ol>
-
-
-
-
-
-
-
-
   <li>Create the installation directory on the host system and
 expand the compressed installation file for your target platform.
-    
-    
-    
-    
-    
-    
-    
     <ul>
-
-
-
-
-
-
-
-
       <li>Linux/Unix/Mac
-        
-        
-        
-        
-        
-        
-        
         <ul>
-
-
-
-
-
-
-
-
           <li>Installation folder: <code>/opt/jagornet</code></li>
-
-
-
-
-
-
-
-
           <li>Compressed install file: <code>dhcpv6.tar.gz</code></li>
-
-
-
-
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
         </ul>
-
-
-
-
-
-
-
-
       </li>
-
-
-
-
-
-
-
-
       <li>Windows
-        
-        
-        
-        
-        
-        
-        
         <ul>
-
-
-
-
-
-
-
-
           <li>Installation folder: <code>C:\jagornet</code></li>
-
-
-
-
-
-
-
-
           <li>Compressed install file: <code>dhcpv6.zip</code></li>
-
-
-
-
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
         </ul>
-
-
-
-
-
-
-
-
       </li>
-
-
-
-
-
-
-
-
-    
-    
-    
-    
-    
-    
-    
     </ul>
-
-
-
-
-
-
-
-
   </li>
-
-
-
-
-
-
-
-
-  <li>
-After extracting the compressed files, a <code>dhcpv6</code>
+  <li>After extracting the compressed files, a <code>dhcpv6</code>
 directory will be
 created in the installation folder, with the following contents.
-    
-    
-    
-    
-    
-    
-    
     <ul>
-
-
-
-
-
-
-
-
       <li>Linux/Unix/Mac: <code>DHCPV6_HOME=/opt/jagornet/dhcpv6</code></li>
-
-
-
-
-
-
-
-
       <li>Windows: <code>DHCPV6_HOME=c:\jagornet\dhcpv6</code>
-        
-        
-        
-        
-        
-        
-        
         <ul>
-
-
-
-
-
-
-
-
           <li><code>DHCPV6_HOME/bin</code> -
 executable command line files. See the section on <a href="#run">Running
 the Server</a>.</li>
-
-
-
-
-
-
-
-
           <li><code>DHCPV6_HOME/conf</code> -
 configuration files. See the section on <a href="#config">Configuration</a>.</li>
-
-
-
-
-
-
-
-
+          <li><span style="font-family: monospace;">DHCPV6_HOME/db</span>
+- database directory.&nbsp; See the section on <a href="#Database">Binding
+Database</a>.<br>
+          </li>
           <li><code>DHCPV6_HOME/docs</code> -
 documentation files.</li>
-
-
-
-
-
-
-
-
           <li><code>DHCPV6_HOME/lib</code> - Java
 library files.</li>
-
-
-
-
-
-
-
-
           <li><code>DHCPV6_HOME/log</code> - server
 output files. &nbsp;See the section on <a href="#log">Logging</a>.</li>
-
-
-
-
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
         </ul>
-
-
-
-
-
-
-
-
       </li>
-
-
-
-
-
-
-
-
-    
-    
-    
-    
-    
-    
-    
     </ul>
-
-
-
-
-
-
-
-
   </li>
-
-
-
-
-
-
-
-
 </ol>
-
-
-
-
-
-
-
-
-<h3><a class="mozTocH3" name="mozTocId544958"></a><a name="run">Running the Server</a></h3>
-
-
-
-
-
-
-
-
+<h3><a class="mozTocH3" name="mozTocId544958"></a><a name="run">Running
+the Server</a></h3>
 <p>To start the Jagornet DHCPv6 Server, you must have superuser
 or administrator
 access rights on the host system because the server must bind to
@@ -491,327 +159,68 @@ instructed to bind to a different port number for testing purposes
 only. See
 the <a href="#startup">Startup Options</a> for more
 information.</p>
-
-
-
-
-
-
-
-
 <p>Open a command shell on the host system and run the script or
 command located
 in the <code>DHCPV6_HOME/bin</code> folder.</p>
-
-
-
-
-
-
-
-
 <ul>
-
-
-
-
-
-
-
-
   <li>Linux/Unix/Mac
-    
-    
-    
-    
-    
-    
-    
     <ul>
-
-
-
-
-
-
-
-
       <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 start</code>
 to start the server.</li>
-
-
-
-
-
-
-
-
       <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 stop</code>
 to stop the server.</li>
-
-
-
-
-
-
-
-
       <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 restart</code>
 to stop and start the server.</li>
-
-
-
-
-
-
-
-
       <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 status</code>
 to check if the server is running.</li>
-
-
-
-
-
-
-
-
-    
-    
-    
-    
-    
-    
-    
     </ul>
-
-
-
-
-
-
-
-
   </li>
-
-
-
-
-
-
-
-
   <li>Windows
-    
-    
-    
-    
-    
-    
-    
     <ul>
-
-
-
-
-
-
-
-
       <li><code>c:\jagornet\dhcpv6\bin\JagornetDhcpv6.bat</code>
 to run the server in the command window. Use Ctrl+C to stop.</li>
-
-
-
-
-
-
-
-
       <li><code>c:\jagornet\dhcpv6\bin\InstallJagornetDhcpv6.bat</code>
-to install the Jagornet DHCPv6 Server as a Windows Service.</li>
-
-
-
-
-
-
-
-
+to install the Jagornet DHCPv6 Server as a Windows Service. &nbsp;<span
+ style="font-style: italic;">On Windows 7 (and Server 2008) this must
+be "Run As Administrator"&nbsp;as described <a
+ href="http://www.vistaclues.com/run-a-batch-file-as-an-administrator/">here</a>.</span></li>
       <li><code>c:\jagornet\dhcpv6\bin\UninstallJagornetDhcpv6.bat</code>
-to remove the Jagornet DHCPv6 Server as a Windows Service.</li>
-
-
-
-
-
-
-
-
+to remove the Jagornet DHCPv6 Server as a Windows Service. &nbsp;<span
+ style="font-style: italic;">On Windows 7 (and Server 2008) this must
+be "Run As Administrator" as described <a
+ href="http://www.vistaclues.com/run-a-batch-file-as-an-administrator/">here</a>.</span></li>
       <li><code>c:\jagornet\dhcpv6\bin\StartJagornetDhcpv6.bat</code>
 to start the Jagornet DHCPv6 Server as a Windows Service. The server
 can also be started using the Windows Services Microsoft Management
 Console (MMC).</li>
-
-
-
-
-
-
-
-
       <li><code>c:\jagornet\dhcpv6\bin\StopJagornetDhcpv6.bat</code>
 to stop the Jagornet DHCPv6 Server as a Windows Service. The server can
 also be stopped using the Windows Services Microsoft Management Console
 (MMC).</li>
-
-
-
-
-
-
-
-
-    
-    
-    
-    
-    
-    
-    
     </ul>
-
-
-
-
-
-
-
-
   </li>
-
-
-
-
-
-
-
-
 </ul>
-
-
-
-
-
-
-
-
-<h4><a class="mozTocH4" name="mozTocId830497"></a><a name="startup">Startup Options</a></h4>
-
-
-
-
-
-
-
-
+<h4><a class="mozTocH4" name="mozTocId830497"></a><a name="startup">Startup
+Options</a></h4>
 By default, the Jagornet DHCPv6 Server listens for unicast traffic only
 by binding to port 547 on all IPv6 addresses available on the host
 system.
 The following startup otions are supported to change the default
 behavior:
 <ul>
-
-
-
-
-
-
-
-
   <li>Linux/Unix/Mac
-    
-    
-    
-    
-    
-    
-    
     <ul>
-
-
-
-
-
-
-
-
       <li><code>-c (config) configuration file</code>
 The server configuration file.</li>
-
-
-
-
-
-
-
-
       <li><code>-p (port) port number</code> The port
 number to listen on.</li>
-
-
-
-
-
-
-
-
       <li><code>-u (addresses) unicast addresses</code>
 A list of IPv6 addresses on the local host to bind to for unicast
 traffic. </li>
-
-
-
-
-
-
-
-
       <li><code>-m (interfaces) multicast interfaces</code>
 A list of interfaces on the local host that support IPv6 multicast.</li>
-
-
-
-
-
-
-
-
-    
-    
-    
-    
-    
-    
-    
     </ul>
-
-
-
-
-
-
-
-
   </li>
-
-
-
-
-
-
-
-
   <li>Windows - these options must be configured by editing the <code>c:\jagornet\dhcpv6\conf\wrapper.conf</code>
 file. Add startup options
 by adding <code>wrapper.app.parameter.#</code> lines in
@@ -819,1761 +228,995 @@ the appropriate section
 of the wrapper.conf file. Insert a new numbered parameter for each
 option and
 for each option argument.
-    
-    
-    
-    
-    
-    
-    
     <ul>
-
-
-
-
-
-
-
-
       <li><code>-c (config) configuration file</code>
 The server configuration file.</li>
-
-
-
-
-
-
-
-
       <li><code>-p (port) port number</code> The port
 number to listen on.</li>
-
-
-
-
-
-
-
-
       <li><code>-u (addresses) unicast addresses</code>
 A list of IPv6 addresses on the local host to bind to for unicast
 traffic. </li>
-
-
-
-
-
-
-
-
-      <li>Multicast is not supported on Windows</li>
-
-
-
-
-    
-    
-    
-    
+      <li><code>-m (interfaces) multicast interfaces</code>
+A list of interfaces on the local host that support IPv6 multicast.</li>
     </ul>
-
-
-
-
+    <ul>
+    </ul>
   </li>
-
-
-
-
 </ul>
-
-
-
-
 <h2><a class="mozTocH2" name="mozTocId119809"></a><a name="config">Configuration</a></h2>
-
-
-
-
-
-
-
-
 The Jagornet DHCPv6 server is configured via the <code>conf/dhcpv6server.xml</code>
 XML document. See the <a href="#startup">Startup Options</a>
 to change the name and location of the configuration file. The XML
-schema which defines all server configuration elements is available at <code>conf/dhcpv6server.xsd</code>.<br>
-
-
-
-
-
-
-
-
-
+schema which defines all server configuration elements is available at <code>conf/dhcpv6server.xsd</code>.&nbsp;
+The configuration file has this general hierarchical structure:<br>
+<ul>
+  <li>global policies and options</li>
+  <li>global filters</li>
+  <ul>
+    <li>filter policies and options</li>
+  </ul>
+  <li>links</li>
+  <ul>
+    <li>link policies and options</li>
+  </ul>
+  <ul>
+    <li>address/prefix pools</li>
+  </ul>
+  <ul>
+    <ul>
+      <li>pool policies and options</li>
+    </ul>
+  </ul>
+  <ul>
+    <ul>
+      <li>pool filters</li>
+      <ul>
+        <li>pool filters policies and options</li>
+      </ul>
+    </ul>
+  </ul>
+  <ul>
+    <li>link filters</li>
+  </ul>
+  <ul>
+    <ul>
+      <li>link filter policies and options</li>
+    </ul>
+  </ul>
+  <ul>
+    <ul>
+      <li>link filter address/prefix pools</li>
+    </ul>
+  </ul>
+  <ul>
+    <ul>
+      <ul>
+        <li>link filter pool policies and options</li>
+      </ul>
+    </ul>
+  </ul>
+</ul>
+Policies and options are defined below and follow the natural hiearchy
+rules.&nbsp; That is, policies and options defined at a higher level
+apply to all lower levels unless overriden by another level in the
+hierarchy, which then takes precedence to the further lower
+levels.&nbsp; Options and polices cannot be removed or set to null at
+any level, unless specifically stated otherwise.<br>
+<h3><a class="mozTocH3" name="mozTocId827865"></a>Server Policies</h3>
+Server polices are configured using the <code>polices</code>
+element. Each policy is
+specified with <code>name</code> and <code>value</code>
+elements.&nbsp; For example<br>
+<br>
+<span style="font-family: monospace;">&lt;policies&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;policy&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;name&gt;sendRequestedOptionsOnly&lt;/name&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;value&gt;true&lt;/value&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp; &lt;/policy&gt;</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">...</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&lt;/policies&gt;</span><br
+ style="font-family: monospace;">
+<br>
+The table below describes the policies available for the Jagornet
+DHCPv6 Server.&nbsp; The Hierachy Support column indicates which levels
+of the configuration hierarchy the policy is supported.&nbsp; For
+policies that are supported at 'all' levels, the lower level policy
+overrides the value of any matching higher level policy.<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Policy<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Default Value<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Hierarcy
+Support<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">dhcp.processor.recentMessageTimer<br>
+      </td>
+      <td style="vertical-align: top;">5000<br>
+      </td>
+      <td style="vertical-align: top;">Number of milliseconds to keep
+track of recent messages.&nbsp; Used to minimize replays of the same
+message to the server.&nbsp; That is, to help mitigate denial of
+service (DOS) attacts.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">binding.manager.reaper.startupDelay<br>
+      </td>
+      <td style="vertical-align: top;">10000<br>
+      </td>
+      <td style="vertical-align: top;">Number of milliseconds for
+background thread to wait before checking for expired leases at server
+startup.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">binding.manager.reaper.runPeriod<br>
+      </td>
+      <td style="vertical-align: top;">60000<br>
+      </td>
+      <td style="vertical-align: top;">Number of milliseconds for
+background thread to wait between checks for expired leases.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">binding.manager.deleteOldBindings<br>
+      </td>
+      <td style="vertical-align: top;">false<br>
+      </td>
+      <td style="vertical-align: top;">Flag to indicate if the server
+should delete bindings upon expiration, or keep the binding while
+marking it expired.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">sendRequestedOptionsOnly<br>
+      </td>
+      <td style="vertical-align: top;">false<br>
+      </td>
+      <td style="vertical-align: top;">Flag to indicate if the server
+should return only the options requested by a client in the Option
+Request Option (ORO) if available, or send all configured options.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">supportRapidCommit<br>
+      </td>
+      <td style="vertical-align: top;">false<br>
+      </td>
+      <td style="vertical-align: top;">Flag to indicate if the server
+should support clients requesting rapid commit of binding.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>filter<br>
+        </li>
+        <li>link</li>
+        <li>linkFilter</li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">verifyUnknownRebind<br>
+      </td>
+      <td style="vertical-align: top;">false<br>
+      </td>
+      <td style="vertical-align: top;">Flag to indicate if the server
+should attempt to verify that addresses in a client's request are
+appropriate for the client's link, even though that client is unknown
+to the server.&nbsp; See section 18.2.4 of RFC 3315.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>filter<br>
+        </li>
+        <li>link</li>
+        <li>linkFilter<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">preferredLifetime<br>
+      </td>
+      <td style="vertical-align: top;">3600<br>
+      </td>
+      <td style="vertical-align: top;">Number of seconds for the
+preferred lifetime of addresses/prefixes provided by the server to the
+client.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>link</li>
+        <li>pool<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">validLifetime<br>
+      </td>
+      <td style="vertical-align: top;">3600<br>
+      </td>
+      <td style="vertical-align: top;">Number of seconds for the valid
+lifetime of addresses/prefixes provided by the server to the client.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>link</li>
+        <li>pool<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">iaNaT1<br>
+      </td>
+      <td style="vertical-align: top;">0.5<br>
+      </td>
+      <td style="vertical-align: top;">Percentage of shortest preferred
+lifetime of the addresses in the IA_NA to set the IA_NA T1 (renew) time
+in server replies.</td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>link<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">iaNaT2<br>
+      </td>
+      <td style="vertical-align: top;">0.8<br>
+      </td>
+      <td style="vertical-align: top;">Percentage of shortest preferred
+lifetime of the addresses in the IA_NA to set the IA_NA T2 (rebind)
+time in server replies.</td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>link<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">iaPdT1<br>
+      </td>
+      <td style="vertical-align: top;">0.5<br>
+      </td>
+      <td style="vertical-align: top;">Percentage of shortest preferred
+lifetime of the prefixes in the IA_PD to set the IA_PD T1 (renew) time
+in server replies.</td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>link<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">iaPdT2<br>
+      </td>
+      <td style="vertical-align: top;">0.8<br>
+      </td>
+      <td style="vertical-align: top;">Percentage of shortest preferred
+lifetime of the addresses in the IA_PD to set the IA_PD T2 (rebind)
+time in server replies.</td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>link<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.update<br>
+      </td>
+      <td style="vertical-align: top;">none<br>
+      </td>
+      <td style="vertical-align: top;"> Support Dynamic DNS updates for
+clients which send the Client FQDN option.&nbsp; Available values are:<br>
+      <ul>
+        <li>none - no DDNS updates</li>
+        <li>honorNoUpdate - honor client FQDN NoUpdate flag<br>
+        </li>
+        <li>honorNoAAAA - honor client FQDN NoAAAA flag<br>
+        </li>
+      </ul>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>global</li>
+        <li>filter<br>
+        </li>
+        <li>link</li>
+        <li>linkFilter<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.synchronize<br>
+      </td>
+      <td style="vertical-align: top;">false<br>
+      </td>
+      <td style="vertical-align: top;">Flag to indicate if the server
+should sychronise DDNS updates with issuing of leases.&nbsp; That is,
+the DHCPv6 Reply message will not be sent to the client until the DDNS
+update completes.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.domain<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The domain to use for the client
+FQDN.&nbsp; If the Client FQDN option in an unqualified hostname, this
+domain will be appened to the hostname to form the FQDN for DDNS
+updates.&nbsp; If the Client FQDN contains a domain name, that domain
+name (everything after the first label, i.e. after the first dot ".")
+will be replaced by this configured domain name.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.ttl<br>
+      </td>
+      <td style="vertical-align: top;">0.3<br>
+      </td>
+      <td style="vertical-align: top;">Value for the TTL of DDNS
+updates.&nbsp; If the value is less than one(1), it is assumed to be a
+percentage of the valid lifetime in seconds.&nbsp; If the value is
+greater than or equal to one(1), it assumed to be an absolute number of
+seconds.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.server<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The IP address of the dynamic
+DNS server for sending DDNS updates.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.tsig.keyName<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The name of the TSIG key for
+signed DDNS updates.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.tsig.algorithm<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The algorithm name used for the
+TSIG key for signed DDNS updates.&nbsp; Currently supported value is
+'hmac-sha256.'<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.tsig.keyData<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The public key data of the TSIG
+key in base 64 encoding.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.forward.zone.name<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The name of the dynamic zone for
+forward DDNS updates.&nbsp; If not set, the zone will be assumed to be
+the ddns.domain, or if that is not set, then the portion of the client
+supplied FQDN which follows the first label.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.forward.zone.ttl<br>
+      </td>
+      <td style="vertical-align: top;">0.3<br>
+      </td>
+      <td style="vertical-align: top;">Value for the TTL of forward
+DDNS updates.&nbsp; If the value is less than one(1),
+it is assumed to be a percentage of the valid lifetime in
+seconds.&nbsp; If
+the value is greater than or equal to one(1), it assumed to be an
+absolute number of seconds.&nbsp; This policy is only necessary if the
+forward DDNS TTL is different from the 'ddns.ttl' policy value. </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.forward.zone.server<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The IP address of the dynamic
+DNS server for sending forward DDNS updates.&nbsp; This policy is only
+necessary if the forward DDNS server is different from the
+'ddns.server' policy value.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.forward.zone.tsig.keyName<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The name of the TSIG key for
+signed forward DDNS updates.&nbsp; This policy is only necessary if the
+forward DDNS key name is different from the 'ddns.tsig.keyName' policy
+value. </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.forward.zone.tsig.algorithm<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The algorithm name used for the
+TSIG key for signed forward DDNS updates.&nbsp; This policy is only
+necessary if the forward DDNS algorithm is different from the
+'ddns.tsig.algorithm' policy value.&nbsp; Currently supported value is
+'hmac-sha256.' </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.forward.zone.tsig.keyData<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The public key data of the TSIG
+key in base 64 encoding for signed reverse DDNS updates.&nbsp; This
+policy is only necessary if the forward DDNS key data is different from
+the 'ddns.tsig.keyData' policy value. </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.reverse.zone.name<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The name of the dynamic zone for
+reverse DDNS updates.&nbsp; If not set, the
+zone will be assumed to be the ip6.arpa domain&nbsp; corresponding to
+the subnet based on the 'ddns.reverse.zone.bitLength' policy below. </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.reverse.zone.bitLength<br>
+      </td>
+      <td style="vertical-align: top;">64<br>
+      </td>
+      <td style="vertical-align: top;">The number of bit representing
+the subnet for calculating the reverse zone name.<br>
+      </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.reverse.zone.ttl<br>
+      </td>
+      <td style="vertical-align: top;">0.3<br>
+      </td>
+      <td style="vertical-align: top;">Value for the TTL of reverse
+DDNS updates.&nbsp; If the value is less than one(1),
+it is assumed to be a percentage of the valid lifetime in
+seconds.&nbsp; If
+the value is greater than or equal to one(1), it assumed to be an
+absolute number of seconds.&nbsp; This policy is only necessary if the
+reverse DDNS TTL is different from the 'ddns.ttl' policy value. </td>
+      <td style="vertical-align: top;">
+      <ul>
+        <li>all<br>
+        </li>
+      </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.reverse.zone.server<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The IP address of the dynamic
+DNS server for sending reverse DDNS
+updates.&nbsp; This policy is only necessary if the reverse DDNS server
+is
+different from the 'ddns.server' policy value. </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.reverse.zone.tsig.keyName<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The name of the TSIG key for
+signed reverse DDNS updates.&nbsp; This policy is only necessary if the
+reverse DDNS key name is different from the 'ddns.tsig.keyName' policy
+value. </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.reverse.zone.tsig.algorithm<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The algorithm name used for the
+TSIG key for signed reverse DDNS updates.&nbsp; This policy is only
+necessary if the reverse DDNS algorithm is different from the
+'ddns.tsig.algorithm' policy value.&nbsp; Currently supported value is
+'hmac-sha256.' </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ddns.reverse.zone.tsig.keyData<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;">The public key data of the TSIG
+key in base 64 encoding for signed reverse DDNS updates.&nbsp; This
+policy is only necessary if the reverse DDNS key data is different from
+the 'ddns.tsig.keyData' policy value. </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
 <h3><a class="mozTocH3" name="mozTocId921358"></a>DHCPv6 Options</h3>
-
-
-
-
-
-
-
-
 DHCPv6 options are configured using the <code>options</code>
 element. Each option is
 specified by an element with a name of the option, for example <code>dnsServersOption</code>.
 The Jagornet DHCPv6 server supports all options defined in RFC 3315, as
 well as
 other DHCPv6 options defined in additional RFCs.<br>
-
-
-<h4><a class="mozTocH4" name="mozTocId521070"></a>Server Identifier Option</h4>
-
-
-<p>The Server Identifier Option is required by the DHCPv6 protocol for the server to include in reply packets. &nbsp;The <span style="font-family: monospace;">serverIdOption</span> <span style="font-style: italic;">must</span> be specified in the <span style="font-family: monospace;">conf/dhcpv6server.xml</span> file. &nbsp;The default <span style="font-family: monospace;">conf/dhcpv6server.xml</span> file supplied with the Jagornet DHCPv6 server specifies an empty server identifier option as follows:</p>
-
-
+<h4><a class="mozTocH4" name="mozTocId521070"></a>Server Identifier
+Option</h4>
+<p>The Server Identifier Option is required by the DHCPv6 protocol for
+the server to include in reply packets. &nbsp;The <span
+ style="font-family: monospace;">serverIdOption</span> <span
+ style="font-style: italic;">must</span> be specified in the <span
+ style="font-family: monospace;">conf/dhcpv6server.xml</span> file.
+&nbsp;The default <span style="font-family: monospace;">conf/dhcpv6server.xml</span>
+file supplied with the Jagornet DHCPv6 server specifies an empty server
+identifier option as follows:</p>
 <pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>	&lt;serverIdOption/&gt;<br>    <br>&lt;/dhc:dhcpV6ServerConfig&gt;</pre>
-
-
 <p>Using this default configuration, a&nbsp;DUID-LLT, as
 defined by section 9.2 of RFC 3315, will be automatically generated by
-the Jagornet DHCPv6 server upon initial startup. This will cause the <span style="font-family: monospace;">conf/dhcpv6server.xml</span> file to be rewritten with the generated <span style="font-family: monospace;">serverIdOption</span>, for example:</p>
-
-
+the Jagornet DHCPv6 server upon initial startup. This will cause the <span
+ style="font-family: monospace;">conf/dhcpv6server.xml</span> file to
+be rewritten with the generated <span style="font-family: monospace;">serverIdOption</span>,
+for example:</p>
 <pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>    &lt;serverIdOption&gt;<br>        &lt;opaqueData&gt;<br>            &lt;hexValue&gt;0001000149EFC509001E52C94D49&lt;/hexValue&gt;<br>        &lt;/opaqueData&gt;<br>    &lt;/serverIdOption&gt;<br><br>&lt;/dhc:dhcpV6ServerConfig&gt;<br></pre>
-
-<p>This is the recommended way to create a server identifier. &nbsp;Optionally, the serverIdOption can be specified using an <a href="#opaquedata">opaque data</a> option type, for example:</p>
-
+<p>This is the recommended way to create a server identifier.
+&nbsp;Optionally, the serverIdOption can be specified using an <a
+ href="#opaquedata">opaque data</a> option type, for example:</p>
 <pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>    &lt;serverIdOption&gt;<br>        &lt;opaqueData&gt;<br>            &lt;asciiValue&gt;Jagornet-DHCPv6&lt;/asciiValue&gt;<br>        &lt;/opaqueData&gt;<br>    &lt;/serverIdOption&gt;<br><br>&lt;/dhc:dhcpV6ServerConfig&gt;<br></pre>
-
 <p></p>
-
 <h4><a class="mozTocH4" name="mozTocId144290"></a>Configuration Options</h4>
-
-
-
-
-
-
-
-
-<table style="text-align: left;" summary="Configuration Options" border="1" cellpadding="3">
-
-
-
-
-
-
-
-
+Configuration Options are those options that can be configured for the
+server to return to clients in reply messages.&nbsp; For example, most
+network clients will need to know the address of one or more Doman Name
+System (DNS) servers.&nbsp; Options can be returned at three distinct
+"levels" within the returned DHCPv6 reply packet.<br>
+<ol>
+  <li><span style="font-family: monospace;">msgConfigOptions</span> -
+Message configuration options will be returned to the client at the
+outermost layer of the DHCPv6 packet.&nbsp; For Info-Request messages,
+only message configuation options are returned to the client.<br>
+  </li>
+  <li><span style="font-family: monospace;">iaNaConfigOptions/iaTaConfigOptions/iaPdConfigOptions</span>
+- Identity association configuration options will be returned to the
+client inside the Identity Association (IA) option within the reply
+message.&nbsp; Separate configuration options elements are available
+for each type of IA option, including IA_NA, IA_TA, and IA_PD options.</li>
+  <li><span style="font-family: monospace;">naAddrConfigOptions/taAddrConfigOptions/prefixConfigOptions</span>
+- Address configuration options will be&nbsp; returned to the client
+inside the address or prefix option within the IA option within the
+reply message.&nbsp; Separate configuration options elements are
+available for each of the associated IA option type.<br>
+  </li>
+</ol>
+<br>
+<table style="text-align: left;" summary="Configuration Options"
+ border="1" cellpadding="3">
   <tbody>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <th>Code</th>
-
-
-
-
-
-
-
-
       <th>Option element</th>
-
-
-
-
-
-
-
-
       <th>Syntax</th>
-
-
-
-
-
-
-
-
       <th>Reference</th>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>7</td>
-
-
-
-
-
-
-
-
       <td><code>preferenceOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;preferenceOption&gt;<br>  &lt;unsignedByte&gt;10&lt;/unsignedByte&gt;<br>&lt;/preferenceOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
-      <td>Section 22.8. of <a href="http://tools.ietf.org/html/rfc3315">RFC 3315</a></td>
-
-
-
-
-
-
-
-
+      <td>Section 22.8. of <a href="http://tools.ietf.org/html/rfc3315">RFC
+3315</a></td>
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>12</td>
-
-
-
-
-
-
-
-
       <td><code>serverUnicastOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;serverUnicastOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>&lt;/serverUnicastOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
-      <td>Section 22.12. of <a href="http://tools.ietf.org/html/rfc3315">RFC 3315</a></td>
-
-
-
-
-
-
-
-
+      <td>Section 22.12. of <a
+ href="http://tools.ietf.org/html/rfc3315">RFC 3315</a></td>
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>13</td>
-
-
-
-
-
-
-
-
       <td><code>statusCodeOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;statusCodeOption&gt;<br>  &lt;code&gt;5&lt;/code&gt;<br>  &lt;message&gt;UseMulticast&lt;/message&gt;<br>&lt;/statusCodeOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
-      <td>Section 22.13. of <a href="http://tools.ietf.org/html/rfc3315">RFC 3315</a></td>
-
-
-
-
-
-
-
-
+      <td>Section 22.13. of <a
+ href="http://tools.ietf.org/html/rfc3315">RFC 3315</a></td>
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>17</td>
-
-
-
-
-
-
-
-
       <td><code>vendorInfoOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;vendorInfoOption&gt;<br>  &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;<br>  &lt;subOptionList&gt;<br>    &lt;optionDef code="1" name="VendorSubopt1"&gt;<br>      &lt;stringOption&gt;<br>        &lt;string&gt;VendorSpecial&lt;/string&gt;<br>      &lt;/stringOption&gt;<br>    &lt;/optionDef&gt;<br>    &lt;optionDef code="2" name="VendorSubopt2"&gt;<br>      &lt;ipAddressOption&gt;<br>        &lt;ipAddress&gt;2001:db8::999&lt;/ipAddress&gt;<br>      &lt;/ipAddressOption&gt;<br>    &lt;/optionDef&gt;<br>  &lt;/subOptionList&gt;<br>&lt;/vendorInfoOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
-      <td>Section 22.16. of <a href="http://tools.ietf.org/html/rfc3315">RFC 3315</a></td>
-
-
-
-
-
-
-
-
+      <td>Section 22.16. of <a
+ href="http://tools.ietf.org/html/rfc3315">RFC 3315</a></td>
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>21</td>
-
-
-
-
-
-
-
-
       <td><code>sipServerDomainNamesOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;sipServerDomainNamesOption&gt;<br>  &lt;domainName&gt;sip.foo.com.&lt;/domainName&gt;<br>  &lt;domainName&gt;sip.bar.com.&lt;/domainName&gt;<br>&lt;/sipServerDomainNamesOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc3319">RFC
 3319</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>22</td>
-
-
-
-
-
-
-
-
       <td><code>sipServerAddressesOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;sipServerAddressesOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/sipServerAddressesOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc3319">RFC
 3319</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>23</td>
-
-
-
-
-
-
-
-
       <td><code>dnsServersOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;dnsServersOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/dnsServersOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc3646">RFC
 3646</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>24</td>
-
-
-
-
-
-
-
-
       <td><code>domainSearchListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;domainSearchListOption&gt;<br>  &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>  &lt;domainName&gt;bar.com.&lt;/domainName&gt;<br>&lt;/domainSearchListOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc3646">RFC
 3646</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>27</td>
-
-
-
-
-
-
-
-
       <td><code>nisServersOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;nisServersOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/nisServersOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc3898">RFC
 3898</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>28</td>
-
-
-
-
-
-
-
-
       <td><code>nisPlusServersOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;nisPlusServersOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/nisPlusServersOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc3898">RFC
 3898</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>29</td>
-
-
-
-
-
-
-
-
       <td><code>nisDomainNameOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;nisDomainNameOption&gt;<br>  &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>&lt;/nisDomainNameOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc3898">RFC
 3898</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>30</td>
-
-
-
-
-
-
-
-
       <td><code>nisPlusDomainNameOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;nisPlusDomainNameOption&gt;<br>  &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>&lt;/nisPlusDomainNameOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc3898">RFC
 3898</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>31</td>
-
-
-
-
-
-
-
-
       <td><code>sntpServersOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;sntpServersOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/sntpServersOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc4075">RFC
 4075</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>32</td>
-
-
-
-
-
-
-
-
       <td><code>infoRefreshTimeOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;infoRefreshTimeOption&gt;<br>  &lt;unsignedInt&gt;3600&lt;/unsignedInt&gt;<br>&lt;/infoRefreshTimeOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc4242">RFC
 4242</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>33</td>
-
-
-
-
-
-
-
-
       <td><code>bcmcsDomainNamesOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;bcmcsDomainNamesOption&gt;<br>  &lt;domainName&gt;bcmcs.foo.com.&lt;/domainName&gt;<br>  &lt;domainName&gt;bcmcs.bar.com.&lt;/domainName&gt;<br>&lt;/bcmcsDomainNamesOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc4280">RFC
 4280</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>34</td>
-
-
-
-
-
-
-
-
       <td><code>bcmcsAddressesOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;bcmcsAddressesOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/bcmcsAddressesOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc4280">RFC
 4280</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>36</td>
-
-
-
-
-
-
-
-
       <td><code>geoconfCivicOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;geoconfCivicOption&gt;<br>  &lt;what&gt;1&lt;/what&gt;<br>  &lt;countryCode&gt;US&lt;/countryCode&gt;<br>  &lt;civicAddressElement&gt;<br>    &lt;caType&gt;0&lt;/caType&gt;<br>    &lt;caValue&gt;de&lt;/caValue&gt;<br>  &lt;/civicAddressElement&gt; <br>  &lt;civicAddressElement&gt;<br>    &lt;caType&gt;128&lt;/caType&gt;<br>    &lt;caValue&gt;Latn&lt;/caValue&gt;<br>  &lt;/civicAddressElement&gt; <br>  &lt;civicAddressElement&gt;<br>    &lt;caType&gt;1&lt;/caType&gt;<br>    &lt;caValue&gt;Bayern&lt;/caValue&gt;<br>  &lt;/civicAddressElement&gt; <br>&lt;/geoconfCivicOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc4776">RFC
 4776</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>40</td>
-
-
-
-
-
-
-
-
       <td><code>panaAgentAddressesOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;panaAgentAddressesOption&gt;<br>  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>&lt;/panaAgentAddressesOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc5192">RFC
 5192</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>41</td>
-
-
-
-
-
-
-
-
       <td><code>newPosixTimezoneOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;newPosixTimezoneOption&gt;<br>  &lt;string&gt;EST5EDT4,M3.2.0/02:00,M11.1.0/02:00&lt;/string&gt;<br>&lt;/newPosixTimezoneOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc4833">RFC
 4833</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>42</td>
-
-
-
-
-
-
-
-
       <td><code>newTzdbTimezoneOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;newTzdbTimezoneOption&gt;<br>  &lt;string&gt;Europe/Zurich&lt;/string&gt;<br>&lt;/newTzdbTimezoneOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc4833">RFC
 4833</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td>51</td>
-
-
-
-
-
-
-
-
       <td><code>lostServerDomainNameOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;lostServerDomainNameOption&gt;<br>  &lt;domainName&gt;lost.foo.com.&lt;/domainName&gt;<br>&lt;/lostServerDomainNameOption&gt;<br></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
       <td><a href="http://tools.ietf.org/html/rfc5223">RFC
 5223</a></td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
   </tbody>
 </table>
-
-
-
-
-
-
-
 <br>
-
-
-
-
-
-
-
-
 <h4><a class="mozTocH4" name="mozTocId999138"></a>Generic Options</h4>
-
-
-
-
-
-
-
-
 <p>Generic options are used to define new option types for
 experimental or
 future options. Generic options are defined using the <code>optionDef</code>
@@ -2586,898 +1229,96 @@ when
 defining the <code>suboptionList</code> of the Vendor
 Information Option as
 shown in the table above.<span style="font-weight: bold;"></span></p>
-
-
-
-
-
-
-
-
 <h5><a class="mozTocH5" name="mozTocId101942"></a>Option Definition Type</h5>
-
-
-
-
-
-
-
-
 <p>The option defintion type predefines several option types for
 use in creating new, experimental, or vendor options.</p>
-
-
-
-
-
-
-
-
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-
-
-
-
-
-
-
-
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
   <tbody>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <th>Element</th>
-
-
-
-
-
-
-
-
       <th>Syntax</th>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>uByteOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;uByteOption&gt;<br>    &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;<br>  &lt;/uByteOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
-      <td><code>uShortOption</code>
-      </td>
-
-
-
-
-
-
-
-
+      <td><code>uShortOption</code> </td>
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;uShortOption&gt;<br>    &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;<br>  &lt;/uShortOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>uShortListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;uShortListOption&gt;<br>    &lt;unsignedShort&gt;1&lt;/unsignedShort&gt;<br>    &lt;unsignedShort&gt;9999&lt;/unsignedShort&gt;<br>    &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;<br>  &lt;/uShortListOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>uIntOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;uIntOption&gt;<br>    &lt;unsignedInt&gt;4294697295&lt;/unsignedInt&gt;<br>  &lt;/uIntOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>stringOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;stringOption&gt;<br>    &lt;string&gt;myOptionStringValue&lt;/string&gt;<br>  &lt;/stringOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>ipAddressOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;ipAddressOption&gt;<br>    &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>  &lt;/ipAddressOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>ipAddressListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;ipAddressListOption&gt;<br>    &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>    &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;<br>    &lt;ipAddress&gt;2001:db8::3&lt;/ipAddress&gt;<br>  &lt;/ipAddressListOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>domainNameOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br> &lt;domainNameOption&gt;<br> &lt;domainName&gt;my.foo.com.&lt;/domainName&gt;<br> &lt;/domainNameOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>domainNameListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;domainNameListOption&gt;<br>    &lt;domainName&gt;my.foo.com.&lt;/domainName&gt;<br>    &lt;domainName&gt;my.bar.com.&lt;/domainName&gt;<br>    &lt;domainName&gt;my.yuk.com.&lt;/domainName&gt;<br>  &lt;/domainNameListOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>opaqueDataOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;opaqueDataOption&gt;<br>    &lt;opaqueData&gt;<br>      &lt;hexValue&gt;0123456789abcdef&lt;/hexValue&gt;<br>    &lt;/opaqueData&gt;<br>  &lt;/opaqueDataOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>opaqueDataListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;optionDef code="99" name="MyOption"&gt;<br>  &lt;opaqueDataListOption&gt;<br>    &lt;opaqueData&gt;<br>      &lt;hexValue&gt;0123456789abcdef&lt;/hexValue&gt;<br>    &lt;/opaqueData&gt;<br>    &lt;opaqueData&gt;<br>      &lt;asciiValue&gt;HelloWorld&lt;/asciiValue&gt;<br>    &lt;/opaqueData&gt;<br>    &lt;opaqueData&gt;<br>      &lt;hexValue&gt;0a1b2c3d4e5f&lt;/hexValue&gt;<br>    &lt;/opaqueData&gt;<br>  &lt;/opaqueDataListOption&gt;<br>&lt;/optionDef&gt;</pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
   </tbody>
 </table>
-
-
-
-
-
-
-
-
 <br>
-
-
-
-
-
-<h5><a class="mozTocH5" name="mozTocId668523"></a><a name="opaquedata"></a>Opaque Data Option</h5>
-
-
-
-
-
+<h5><a class="mozTocH5" name="mozTocId668523"></a>Opaque
+Data Option</h5>
 <p>Opaque data options are those options which can contain opaque,
 binary data. &nbsp;Often, these options actually contain simple ASCII
-strings. &nbsp;Therefore, the <span style="font-family: monospace;">opaqueData</span> element contains either a <span style="font-family: monospace;">hexValue</span> element, which specifies the binary value as a hexadecimal string, or an <span style="font-family: monospace;">asciiValue</span> element, which specifies the ASCII string value.</p>
+strings. &nbsp;Therefore, the <span style="font-family: monospace;">opaqueData</span>
+element contains either a <span style="font-family: monospace;">hexValue</span>
+element, which specifies the binary value as a hexadecimal string, or
+an <span style="font-family: monospace;">asciiValue</span> element,
+which specifies the ASCII string value.</p>
 <p></p>
-<h3><a class="mozTocH3" name="mozTocId79202"></a>Server Policies</h3>
-
-
-
-
-
-
-
-
-Server polices are configured using the <code>polices</code>
-element. Each policy is
-specified with <code>name</code> and <code>value</code>
-elements. The currently
-supported polices include the following.<br>
-
-
-
-
-
-
-
-<br>
-
-
-
-
-
-
-
-
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-
-
-
-
-
-
-
-
-  <tbody>
-
-
-
-
-
-
-
-
-    <tr>
-
-
-
-
-
-
-
-
-      <th>Policy element</th>
-
-
-
-
-
-
-
-
-      <th>Sytnax</th>
-
-
-
-
-
-
-
-
-      <th>Description</th>
-
-
-
-
-
-
-
-
-    </tr>
-
-
-
-
-
-
-
-
-    <tr>
-
-
-
-
-
-
-
-
-      <td><code>sendRequestedOptionsOnly</code></td>
-
-
-
-
-
-
-
-
-      <td>
-      
-      
-      
-      
-      
-      
-      
-      <pre>&lt;policies&gt;<br>  &lt;policy&gt;<br>    &lt;name&gt;sendRequestedOptionsOnly&lt;/name&gt;<br>    &lt;value&gt;true&lt;/value&gt;<br>  &lt;/policy&gt;<br>&lt;/policies&gt;</pre>
-
-
-
-
-
-
-
-      </td>
-
-
-
-
-
-
-
-
-      <td>This
-policy controls the DHCPv6
-server's behavior with respect to client requests that include the
-Option
-Request Option (ORO). If this policy is <code>true</code>,
-the server will send only the options configured for server to send to
-the client which are also requested by the client in the ORO. The
-default value is <code>false</code>
-meaning the server will send all configured options to the client.</td>
-
-
-
-
-
-
-
-
-    </tr>
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
-  </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<p><br>
-</p>
 <h3><a class="mozTocH3" name="mozTocId483343"></a>Filters</h3>
-
-
-
-
-
-
-
 <p>Filters are used to classify DHCPv6 clients so
 that specific configuration options can be supplied to certain classes
 of clients. &nbsp;A typical use of filters is to define a vendor class
@@ -3487,2398 +1328,308 @@ also be used to abritrarily group clients according to any criteria
 which matches one or more options supplied by the client. &nbsp;Each
 filter definition includes a name, one or more filter expressions, a
 set of one or more configured options, and optional server policies.</p>
-
-
-
-
-
-
-
 <h4><a class="mozTocH4" name="mozTocId629245"></a>Filter Expressions</h4>
-
-
-
-
-
-
-
 <p>If more than one filter expression is defined in a
-filter, then the client request must match <span style="font-style: italic;">all</span> of the expressions. &nbsp;That is, multiple filter expressions are logically <span style="font-style: italic;">anded</span> together to form the match criteria. &nbsp;Each filter expression must contain at least one option or custom expression. &nbsp;</p>
-
-
-
-
-
-
-
+filter, then the client request must match <span
+ style="font-style: italic;">all</span> of the expressions. &nbsp;That
+is, multiple filter expressions are logically <span
+ style="font-style: italic;">anded</span> together to form the match
+criteria. &nbsp;Each filter expression must contain at least one option
+or custom expression. &nbsp;</p>
 <h5><a class="mozTocH5" name="mozTocId585566"></a>Option Expression</h5>
-
-
-
-
-
-
-
 <p>An option expression defines the criteria for
 matching all or part of an option provided in the client request using
-the generic option defintion, along with a value and operator, which forms the
-expression. &nbsp;The <span style="font-family: monospace;">optionExpression</span> element must specify the DHCPv6 option code in the <span style="font-family: monospace;">code</span> attribute, followed by the optional <span style="font-family: monospace;">name</span> attribute from the generic option defintion type above, and the required <span style="font-family: monospace;">operator</span> attribute, which defaults to 'equals'.</p>
-
-
-
-
-
-
-
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-
-
-
-
-
-
-
-
+the generic option defintion, along with a value and operator, which
+forms the
+expression. &nbsp;The <span style="font-family: monospace;">optionExpression</span>
+element must specify the DHCPv6 option code in the <span
+ style="font-family: monospace;">code</span> attribute, followed by the
+optional <span style="font-family: monospace;">name</span> attribute
+from the generic option defintion type above, and the required <span
+ style="font-family: monospace;">operator</span> attribute, which
+defaults to 'equals'.</p>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
   <tbody>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <th>Option type</th>
-
-
-
-
-
-
-
-
       <th>Available operators</th>
-
-
-
-
-
-
-
       <th>Example Syntax</th>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>uByteOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>lessThan</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>lessThanOrEqual</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>greaterThan</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>greaterThanOrEqual</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;<code>uByteOption</code>&gt;<br>        &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;<br>      &lt;/<code>uByteOption</code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
-      <td><code>uShortOption</code>
-      </td>
-
-
-
-
-
-
-
-
+      <td><code>uShortOption</code> </td>
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>lessThan</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>lessThanOrEqual</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>greaterThan</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>greaterThanOrEqual</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="lessThan"&gt;<br>      &lt;uShortOption&gt;<br>        &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;<br>      &lt;/uShortOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>uShortListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>contains</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;uShortListOption&gt;<br>        &lt;unsignedShort&gt;1&lt;/unsignedShort&gt;<br>        &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;<br>      &lt;/uShortListOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>uIntOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>lessThan</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>lessThanOrEqual</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>greaterThan</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>greaterThanOrEqual</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="greaterThan"&gt;<br>      &lt;uIntOption&gt;<br>        &lt;unsignedInt&gt;10000&lt;/unsignedInt&gt;<br>      &lt;/uIntOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>stringOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>startsWith</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>endsWith</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>contains</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>regExp</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="endsWith"&gt;<br>      &lt;stringOption&gt;<br>        &lt;string&gt;mySuffix&lt;/string&gt;<br>      &lt;/stringOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>ipAddressOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>startsWith</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>endsWith</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>contains</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>regExp</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;ipAddressOption&gt;<br>        &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>      &lt;/ipAddressOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>ipAddressListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>contains</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="contains"&gt;<br>      &lt;ipAddressListOption&gt;<br>        &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;<br>      &lt;/ipAddressListOption&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>domainNameOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>startsWith</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>endsWith</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>contains</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>regExp</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;<code>domainNameOption</code>&gt;<br>        &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>      &lt;/<code>domainNameOption</code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>domainNameListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>contains</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="contains"&gt;<br>      &lt;<code>domainNameListOption</code>&gt;<br>        &lt;domainName&gt;foo.com.&lt;/domainName&gt;<br>      &lt;/<code>domainNameListOption</code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>opaqueDataOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>startsWith</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>endsWith</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>contains</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>regExp</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="regExp"&gt;<br>      &lt;<code>opaqueDataOption&gt;<br>        &lt;opaqueData&gt;<br>          &lt;asciiValue&gt;myRegularExpression&lt;/asciiValue&gt;<br>        &lt;/opaqueData&gt;<br></code>      &lt;/<code>opaqueDataOption</code><code></code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
     <tr>
-
-
-
-
-
-
-
-
       <td><code>opaqueDataListOption</code></td>
-
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <ul>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>equals</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
         <li>
-          
-          
-          
-          
-          
-          
-          
           <pre>contains</pre>
-
-
-
-
-
-
-
         </li>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       </ul>
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
       <pre></pre>
-
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
       <td>
-      
-      
-      
-      
-      
-      
-      
       <pre>&lt;filterExpressions&gt;<br>  &lt;filterExpression&gt;<br>    &lt;optionExpression code="99" operator="equals"&gt;<br>      &lt;<code>opaqueDataOption&gt;<br>        &lt;opaqueData&gt;<br>          &lt;asciiValue&gt;opaqueAsciiData&lt;/asciiValue&gt;<br>        &lt;/opaqueData&gt;<br></code>      &lt;/<code>opaqueDataOption</code><code></code>&gt;<br>    &lt;/optionExpression&gt;<br>  &lt;/filterExpression&gt;<br>&lt;/filterExpressions&gt;</pre>
-
-
-
-
-
-
-
       </td>
-
-
-
-
-
-
-
-
     </tr>
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
   </tbody>
 </table>
-
-
-
-
-
-
-
 <h5><a class="mozTocH5" name="mozTocId505555"></a>Custom Expression</h5>
-
-
-
-
-
-
-
 <p><span style="font-style: italic;">Custom expressions are used to
 define filter expressions that cannot be configured using standard
 option expressions. &nbsp;Currently, Jagornet DHCPv6 Server Community
 Edition does not support custom expressions.</span></p>
-
-
-
-
-
-
-
 <h5><a class="mozTocH5" name="mozTocId154454"></a>Filters Example</h5>
-
-
-
-
-
-
-
 <p>For
 example, consider the following filter definition which matches clients
 which supply a specific user class option value and request the domain
-name option in the ORO. &nbsp;This filter is configured to provide a specific DNS domain name for
+name option in the ORO. &nbsp;This filter is configured to provide a
+specific DNS domain name for
 such clients.</p>
-
-
-
-
-
-
-
 <pre>&lt;filters&gt;<br><br>  &lt;filter&gt;<br>    &lt;name&gt;UserClass Filter Group 1&lt;/name&gt;<br><br>&nbsp;   &lt;filterExpressions&gt;<br>      &lt;filterExpression&gt;<br>        &lt;optionExpression code="6" operator="contains"&gt;<br>          &lt;uShortListOption&gt;<br>            &lt;unsignedShort&gt;15&lt;/unsignedShort&gt;<br>          &lt;/uShortListOption&gt;<br>        &lt;/optionExpression&gt;<br>        &lt;optionExpression code="15" operator="equals"&gt;<br>          &lt;opaqueOption&gt;<br>            &lt;opaqueData&gt;<br>              &lt;asciiValue&gt;FilterUserClass&lt;/asciiValue&gt;<br>            &lt;/opaqueData&gt;<br>          &lt;/opaqueOption&gt;<br>        &lt;/optionExpression&gt;<br>      &lt;/filterExpression&gt;<br>    &lt;/filterExpressions&gt;<br><br>    &lt;options&gt;<br>      &lt;domainListOption&gt;<br>        &lt;domainName&gt;filter.com.&lt;/domainName&gt;<br>      &lt;/domainListOption&gt;<br>    &lt;/options&gt;<br><br>  &lt;/filter&gt;<br><br>&lt;/filters&gt;<br></pre>
-
-
-
-
-
-
-
 <p>As
-another example, consider the following filter definition which matches clients
+another example, consider the following filter definition which matches
+clients
 which supply a vendor
 class option beginning with the specified ASCII value. &nbsp;This
 filter is configured to provide the vendor specific information option
 for such clients.</p>
-
-
-
-
-
-
-
-<pre>&lt;filters&gt;<br><br>  &lt;filter&gt;<br>    &lt;name&gt;VendorClass Filter Group 1&lt;/name&gt;<br><br>&nbsp;   &lt;filterExpressions&gt;<br>      &lt;filterExpression&gt;<br>        &lt;optionExpression code="16" operator="startsWith"&gt;<br>          &lt;opaqueOption&gt;<br>            &lt;opaqueData&gt;<br>              &lt;asciiValue&gt;VendorPrefix&lt;/asciiValue&gt;<br>            &lt;/opaqueData&gt;<br>          &lt;/opaqueOption&gt;<br>        &lt;/optionExpression&gt;<br>      &lt;/filterExpression&gt;<br>    &lt;/filterExpressions&gt;<br><br>    &lt;options&gt;<br>      &lt;vendorInfoOption&gt;<br>        &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;<br>        &lt;subOptionList&gt;<br>          &lt;optionDef code="1" name="VendorSubopt1"&gt;<br>            &lt;stringOption&gt;<br>              &lt;string&gt;VendorSpecial&lt;/string&gt;<br>            &lt;/stringOption&gt;<br>          &lt;/optionDef&gt;<br>          &lt;optionDef code="2" name="VendorSubopt2"&gt;<br>            &lt;ipAddressOption&gt;<br>              &lt;ipAddress&gt;2001:db8::999&lt;/ipAddress&gt;<br>            &lt;/ipAddressOption&gt;<br>          &lt;/optionDef&gt;<br>        &lt;/subOptionList&gt;<br>      &lt;/vendorInfoOption&gt;<br>&nbsp;   &lt;/options&gt;<br><br>  &lt;/filter&gt;<br><br>&lt;/filters&gt;<br><span style="font-weight: bold;"><br></span></pre>
-
-
-
-
-
-
-
+<pre>&lt;filters&gt;<br><br>  &lt;filter&gt;<br>    &lt;name&gt;VendorClass Filter Group 1&lt;/name&gt;<br><br>&nbsp;   &lt;filterExpressions&gt;<br>      &lt;filterExpression&gt;<br>        &lt;optionExpression code="16" operator="startsWith"&gt;<br>          &lt;opaqueOption&gt;<br>            &lt;opaqueData&gt;<br>              &lt;asciiValue&gt;VendorPrefix&lt;/asciiValue&gt;<br>            &lt;/opaqueData&gt;<br>          &lt;/opaqueOption&gt;<br>        &lt;/optionExpression&gt;<br>      &lt;/filterExpression&gt;<br>    &lt;/filterExpressions&gt;<br><br>    &lt;options&gt;<br>      &lt;vendorInfoOption&gt;<br>        &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;<br>        &lt;subOptionList&gt;<br>          &lt;optionDef code="1" name="VendorSubopt1"&gt;<br>            &lt;stringOption&gt;<br>              &lt;string&gt;VendorSpecial&lt;/string&gt;<br>            &lt;/stringOption&gt;<br>          &lt;/optionDef&gt;<br>          &lt;optionDef code="2" name="VendorSubopt2"&gt;<br>            &lt;ipAddressOption&gt;<br>              &lt;ipAddress&gt;2001:db8::999&lt;/ipAddress&gt;<br>            &lt;/ipAddressOption&gt;<br>          &lt;/optionDef&gt;<br>        &lt;/subOptionList&gt;<br>      &lt;/vendorInfoOption&gt;<br>&nbsp;   &lt;/options&gt;<br><br>  &lt;/filter&gt;<br><br>&lt;/filters&gt;<br><span
+ style="font-weight: bold;"><br></span></pre>
 <h3><a class="mozTocH3" name="mozTocId544949"></a>Links</h3>
-
-
-
-
-
-
-
 <p>Links are used to classify DHCPv6 clients by the IPv6 link from
 which the client request was sent. &nbsp;Specifically, a link is used
 to define configuration parameters for client on a specific link.
@@ -5893,117 +1644,179 @@ identified by the link-address of the Relay-Forward message. &nbsp;Each
 link definition consists of a name and address,&nbsp;a
 set of one or more configured options, optional server policies, and
 optional filters.</p>
-
-
-
-
-
-
-
 <h5><a class="mozTocH5" name="mozTocId819953"></a>Links Example</h5>
-
-
-
-
-
-
-
 <p>For example, consider the following link definitions which match
-clients on individual IPv6 links. &nbsp;Each link is configured to provide a specific&nbsp;DNS
+clients on individual IPv6 links. &nbsp;Each link is configured to
+provide a specific&nbsp;DNS
 server address for clients on that link.</p>
-
-
-
-
-
-
-
 <pre>	<br>&lt;links&gt;<br><br>  &lt;link&gt;<br>    &lt;name&gt;Client Link 1&lt;/name&gt;<br>    &lt;address&gt;2001:DB8:1::/48&lt;/address&gt;<br><br>    &lt;options&gt;<br>      &lt;dnsServersOption&gt;<br>        &lt;ipAddress&gt;2001:DB8:1::1&lt;/ipAddress&gt;<br>      &lt;/dnsServersOption&gt;<br>    &lt;/options&gt;<br><br>  &lt;/link&gt;<br><br>  &lt;link&gt;<br>    &lt;name&gt;Client Link 2&lt;/name&gt;<br>    &lt;address&gt;2001:DB8:2::/48&lt;/address&gt;<br><br>    &lt;options&gt;<br>      &lt;dnsServersOption&gt;<br>        &lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;<br>      &lt;/dnsServersOption&gt;<br>    &lt;/options&gt;<br><br>  &lt;/link&gt;<br><br>  &lt;link&gt;<br>    &lt;name&gt;Client Link 3&lt;/name&gt;<br>    &lt;address&gt;2001:DB8:3::/48&lt;/address&gt;<br><br>    &lt;options&gt;<br>      &lt;dnsServersOption&gt;<br>        &lt;ipAddress&gt;2001:DB8:3::1&lt;/ipAddress&gt;<br>      &lt;/dnsServersOption&gt;<br>    &lt;/options&gt;<br><br>  &lt;/link&gt;<br><br>&lt;/links&gt;<br><br></pre>
-
-
-
-
-
-
-
 <h3><a class="mozTocH3" name="mozTocId882808"></a>Pools</h3>
-
-
-
-
-
-
-
-<p><span style="font-style: italic;">Pools are used to define addresses and prefixes for allocation by a stateful DHCPv6 server. &nbsp;</span><span style="font-style: italic;">Pools
-are not supported by Jagornet DHCPv6 Server Community Edition, please
-see Jagornet DHCPv6 Professional Edition for stateful DHCPv6 server
-support.</span></p>
-
-
-
-
+Pools may be defined only within Links or Link Filters.&nbsp; The
+Jagornet DHCPv6 Server supports three types of pools.<br>
+<ol>
+  <li><span style="font-family: monospace;">naAddrPools</span> -
+Non-temporary address pools<br>
+  </li>
+  <li><span style="font-family: monospace;">taAddrPools</span> -
+Temporary address pools<br>
+  </li>
+  <li><span style="font-family: monospace;">prefixPools</span> - Prefix
+delegation pools</li>
+</ol>
+<h5><a class="mozTocH5" name="mozTocId585504"></a>Address Pools</h5>
+Non-temporary and temporary address pools are defined by the <span
+ style="font-family: monospace;">addressPool</span> type.&nbsp; The
+address pool must contain a <span style="font-family: monospace;">range</span>
+element to define the addresses available for allocation in the
+pool.&nbsp; The <span style="font-family: monospace;">range</span> is
+specified using the start and end address of a range of addresses, or a
+prefix and length. &nbsp;For example:<br>
+<br>
+<span style="font-family: monospace;">&lt;link&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;name&gt;Client Link 2&lt;/name&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;address&gt;2001:DB8:2::/48&lt;/address&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;iaNaConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;dnsServersOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/dnsServersOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/iaNaConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;naAddrPools&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;pool&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;range&gt;2001:DB8:2::0A-2001:DB8:2::FF&lt;/range&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;addrConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;sipServerAddressesOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;ipAddress&gt;2001:DB8:2::1:1&lt;/ipAddress&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/sipServerAddressesOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;/addrConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/pool&gt;<br>
+</span><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;pool&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;range&gt;2001:DB8:2:1::/64&lt;/range&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;addrConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;sipServerAddressesOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;ipAddress&gt;2001:DB8:2:1::1:1&lt;/ipAddress&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/sipServerAddressesOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;/addrConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/pool&gt;<br>
+</span><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/naAddrPools&gt;<br>
+&lt;/link&gt;<br>
+</span><br>
+<h5><a class="mozTocH5" name="mozTocId405146"></a>Prefix Pools</h5>
+Prefix delegation pools are defined by the <span
+ style="font-family: monospace;">prefixPool</span> type. &nbsp;The
+prefix pool must contain a <span style="font-family: monospace;">range</span>&nbsp;element
+to define the&nbsp;prefix available for delegation, and the <span
+ style="font-family: monospace;">prefixLength</span> element to define
+the size of the prefixes to allocate to requesting routers. &nbsp;For
+example:<br>
+<br>
+<span style="font-family: monospace;">&lt;link&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;name&gt;Prefix Delegation Link&lt;/name&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;address&gt;2001:DB8:1::/48&lt;/address&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;iaPdConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;dnsServersOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/dnsServersOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/iaPdConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;prefixPools&gt;<br>
+</span><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;pool&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;range&gt;2001:DB8:2::/48&lt;/range&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;prefixLength&gt;64&lt;/prefixLength&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;prefixConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;sipServerAddressesOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;ipAddress&gt;2001:DB8:2:1::1:1&lt;/ipAddress&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/sipServerAddressesOption&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;/prefixConfigOptions&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/pool&gt;<br>
+</span><span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;
+&lt;/prefixPools&gt;<br>
+&lt;/link&gt;<br>
+</span><br>
 <p><span style="font-style: italic;"></span></p>
-
-
-
-
-
-
-
-
-<h2><a class="mozTocH2" name="mozTocId148908"></a>Stateless DHCPv6 Operational Models</h2>
-
-
-
-
-
-
-
-
-Hosts which use stateless address autoconfiguration to obtain an IPv6
-address can use DHCPv6 to obtain other configuration parameters
-required for networking, such as a list of available DNS servers. The
-client sends an Information-Request message to the
+<h2><a class="mozTocH2" name="mozTocId148908"></a>DHCPv6
+Operational Models</h2>
+IPv6 capable hosts are notified via&nbsp;router advertisement (RA)
+flags when and how to use DHCPv6. &nbsp;These flags are defined in RFC
+4861 as follows:<br>
+<ol>
+  <li>Managed address configuration flag (M bit) - when set, it
+indicates that addresses are available via Dynamic Host Configuration
+Protocol [DHCPv6]. &nbsp;If the M flag is set, the O flag is redundant
+and can be ignored because DHCPv6 will return all available
+configuration information.</li>
+  <li>Other configuration flag (O bit) - when set, it indicates that
+other configuration information is available via DHCPv6. Examples of
+such information are DNS-related information or information on other
+servers within the network.</li>
+</ol>
+The operation of the host with respect to these flags can be summarized
+as follows:<br>
+<table style="text-align: left; width: 682px; height: 172px;" border="1"
+ cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td>Flag</td>
+      <td>M=1</td>
+      <td>M=0</td>
+    </tr>
+    <tr>
+      <td>O=1</td>
+      <td>DHCPv6 for address and configuration information</td>
+      <td>DHCPv6 for configuration information only</td>
+    </tr>
+    <tr>
+      <td>O=0</td>
+      <td>DHCPv6 for address and configuration information</td>
+      <td>No DHCPv6</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+A host which is configured to use DHCPv6 as described above will send
+Solicit messages for address assignment and configuration requests or
+Information-Request messages for configuration-only requests to the
 All_DHCP_Relay_Agents_and_Servers(FF02::1:2)
-link-scoped multicast IPv6 address to request the other configuration
-parameters that it requires. The Information-Request message is handled
+link-scoped multicast IPv6 address. The request message is handled
 either
 by a DHCPv6 server on the local link, or forwarded by a DHCPv6 relay
 agent to a DHCPv6 server on a separate network link. A DHCPv6 relay
 agent is available in most routers and layer 3 switches which support
 IPv6.<br>
-
-
-
-
-
-
-
-
-<h3><a class="mozTocH3" name="mozTocId260206"></a>Operational model using a DHCPv6 Relay</h3>
-
-
-
-
-
-
-
-
+<h3><a class="mozTocH3" name="mozTocId260206"></a>Operational model
+using a DHCPv6 Relay</h3>
 <p>Most IPv6 networks will involve one or more IPv6 capable
 routers. Most IPv6 capable routers include an implementation of a
 DHCPv6 relay agent. Please consult your router vendor's documentation
 for details on enabling the DHCPv6 relay agent.</p>
-
-
-
-
-
-
-
-
-<p>In this operational model, multicast Information-Request
+<p>In this operational model, multicast request
 messages sent by the
-stateless DHCPv6 clients are received by the DHCPv6 relay agent which
+DHCPv6 clients are received by the DHCPv6 relay agent which
 wraps
 the request in a Relay-Forward message. The DHCPv6 relay agent may send
 the
@@ -6021,211 +1834,72 @@ message
 and unicast the wrapped message to the DHCPv6 relay which forwarded the
 original client request. The relay agent will send the encapsulated
 Reply
-message to the stateless DHCPv6 client via unicast to the source
+message to the DHCPv6 client via unicast to the source
 address of
 the original client request.</p>
-
-
-
-
-
-
-
 <span style="font-family: monospace;"></span>
-<pre> -----------                  ----------                    -----------<br>|           |   Multicast    |          |     Unicast*     |           |<br>|           | -------------&gt; |          | ---------------&gt; |           |<br>| Stateless |  Info-Request  |  DHCPv6  |  Relay-Forward   | Stateless |<br>|  DHCPv6   |                |  Relay   |  (Info-Request)  |  DHCPv6   |<br>|  Client   |                | (Router) |                  |  Server   |<br>|           |    Unicast     |          |     Unicast      |           |<br>|           | &lt;------------- |          | &lt;--------------- |           |<br>|           |     Reply      |          |   Relay-Reply    |           |<br> -----------                  ----------      (Reply)       -----------<br></pre>
-
-
-
-
-
-
-
-<h3><a class="mozTocH3" name="mozTocId562035"></a>Operational model without a DHCPv6 Relay</h3>
-
-
-
-
-
-
-
-
+<pre> -----------                  ----------                    -----------<br>|           |   Multicast    |          |     Unicast*     |           |<br>|           | -------------&gt; |          | ---------------&gt; |           |<br>|           |    Request     |          |  Relay-Forward   |           |<br>|  DHCPv6   |                |  DHCPv6  |    (Request)     |  DHCPv6   |<br>|  Client   |                |  Relay   |                  |  Server   |<br>|           |    Unicast     | (Router) |     Unicast      |           |<br>|           | &lt;------------- |          | &lt;--------------- |           |<br>|           |     Reply      |          |   Relay-Reply    |           |<br> -----------                  ----------      (Reply)       -----------<br></pre>
+<h3><a class="mozTocH3" name="mozTocId562035"></a>Operational model
+without a DHCPv6 Relay</h3>
 <p>Some IPv6 networks may not involve any IPv6 routers or will
 otherwise not
 utilize a DHCPv6 relay agent.</p>
-
-
-
-
-
-
-
-
-<p>In this operational model, multicast Information-Request
-messages sent by the
-stateless DHCPv6 clients are received directly by one or more stateless
+<p>In this operational model, multicast request
+messages sent by the DHCPv6 clients are received directly by one or
+more
 DHCPv6
 servers which are configured on the same link as the clients. The
 DHCPv6
 server(s) will send the Reply message to the source address of the
 original client request.</p>
-
-
-
-
-
-
-
 <span style="font-family: monospace;"></span>
-<pre> -----------                  -----------<br>|           |   Multicast    |           |<br>|           | -------------&gt; |           |<br>| Stateless |  Info-Request  | Stateless |<br>|  DHCPv6   |                |  DHCPv6   |<br>|  Client   |                |  Server   |<br>|           |    Unicast     |           |<br>|           | &lt;------------- |           |<br>|           |     Reply      |           |<br> -----------                  -----------<br></pre>
-
-
-
-
-
-
-
-<h3><a class="mozTocH3" name="mozTocId476801"></a>Platform Notes</h3>
-
-
-
-
-
-
-
-
-<ul>
-
-
-
-
-  <li>Linux/Unix/Mac
-    
-    
-    
-    
-    
-    
-    
-    <ul>
-
-
-
-
-      <li>Support unicast mode for operational model with a relay
-agent.</li>
-
-
-
-
-      <li>Support mulicast mode for operational model without a
-relay agent.</li>
-
-
-
-
-    
-    
-    
-    
-    </ul>
-
-
-
-
-
-
-
-
-  </li>
-
-
-
-
-  <li>Windows
-    
-    
-    
-    
-    
-    
-    
-    <ul>
-
-
-
-
-      <li>Support unicast mode for operational model with a relay
-agent.</li>
-
-
-
-
-      <li>Mulicast mode not yet available.</li>
-
-
-
-
-    
-    
-    
-    
-    </ul>
-
-
-
-
-
-
-
-
-  </li>
-
-
-
-
-</ul>
-
-
-
-
-
-
-
-<h2><a class="mozTocH2" name="mozTocId154139"></a><span style="font-style: italic;"></span>Appendix</h2>
-
-
-
-
+<pre> -----------                  -----------<br>|           |   Multicast    |           |<br>|           | -------------&gt; |           |<br>|           |    Request     |           |<br>|  DHCPv6   |                |  DHCPv6   |<br>|  Client   |                |  Server   |<br>|           |    Unicast     |           |<br>|           | &lt;------------- |           |<br>|           |     Reply      |           |<br> -----------                  -----------<br></pre>
+<h2><a class="mozTocH2" name="mozTocId154139"></a><span
+ style="font-style: italic;"></span>Appendix</h2>
+<h3><a class="mozTocH3" name="mozTocId414899"></a><a name="Database"></a>Binding
+Database</h3>
+The Jagornet DHCPv6 server uses an embedded <a
+ href="http://db.apache.org/derby/">Apache Derby</a> database server
+for managing the binding database. &nbsp;The database schema file is
+located in the <span style="font-family: monospace;">db/jagornet-dhcpv6-schema.sql</span>
+file. &nbsp;At initial startup, the server will create the database in
+the <span style="font-family: monospace;">db/derby</span> directory
+using the schema. &nbsp;When the server is stopped, the <span
+ style="font-family: monospace;">db/derby</span> directory can be
+deleted (<span style="font-weight: bold;">do not delete</span> <span
+ style="font-family: monospace;">db/jagornet-dhcpv6-schema.sql</span>),
+and upon restart, the Jagornet DHCPv6 server will recreate the
+database. &nbsp;<span style="font-style: italic;">Please note that
+deleting the database should only be performed in test environments, or
+when a backup copy of the database is being restored.</span><br>
 <h3><a class="mozTocH4" name="mozTocId424719"></a><a name="log"></a>Logging</h3>
-
-
-
-
-<p>Logging for the Jagornet DHCPv6 server is performed using the <a href="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</a> logging service. &nbsp;The default Log4J configuration file is located in the <span style="font-family: monospace;">conf/log4j.properties</span>
+<p>Logging for the Jagornet DHCPv6 server is performed using the <a
+ href="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</a>
+logging service. &nbsp;The default Log4J configuration file is located
+in the <span style="font-family: monospace;">conf/log4j.properties</span>
 file. &nbsp;The server writes all intial startup messages to the
-standard output and error streams, which are redirected by the <span style="font-family: monospace;">bin/dhcpv6</span> script to the <span style="font-family: monospace;">log/dhcpv6server.out</span> file. &nbsp;After the server initialization, all messages are created via Log4J and configured by the <span style="font-family: monospace;">conf/log4j.properties</span> file. &nbsp;The default file outputs all server messages to the <span style="font-family: monospace;">log/dhcpv6server.log</span> rolling file. &nbsp;When the file reaches 10MB, it is "rolled" over to a new <span style="font-family: monospace;">log/dhcpv6server.log.#</span> file up to ten files of logging history. &nbsp;These settings are controlled by the <span style="font-family: monospace;">log4j.appender.Logfile</span> properties.</p>
-
-
-
-
-<h3><a class="mozTocH4" name="mozTocId945976"></a>Java Management Extensions</h3>
-
-
-
-
+standard output and error streams, which are redirected by the <span
+ style="font-family: monospace;">bin/dhcpv6</span> script to the <span
+ style="font-family: monospace;">log/dhcpv6server.out</span> file.
+&nbsp;After the server initialization, all messages are created via
+Log4J and configured by the <span style="font-family: monospace;">conf/log4j.properties</span>
+file. &nbsp;The default file outputs all server messages to the <span
+ style="font-family: monospace;">log/dhcpv6server.log</span> rolling
+file. &nbsp;When the file reaches 10MB, it is "rolled" over to a new <span
+ style="font-family: monospace;">log/dhcpv6server.log.#</span> file up
+to ten files of logging history. &nbsp;These settings are controlled by
+the <span style="font-family: monospace;">log4j.appender.Logfile</span>
+properties.</p>
+<h3><a class="mozTocH4" name="mozTocId945976"></a>Java Management
+Extensions</h3>
 <p>The
 Jagornet DHCPv6 Server supports Java Management Extensions (JMX) for
 dynamically configuring logging parameters and for monitoring server
-statistics. &nbsp;Support for JMX is available in Sun's JRE 6. &nbsp;For more
-information, please see the <a href="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html">Java SE Monitoring and Management Guide</a>.</p>
-
-
-
-
+statistics. &nbsp;Support for JMX is available in Sun's JRE 6.
+&nbsp;For more
+information, please see the <a
+ href="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html">Java
+SE Monitoring and Management Guide</a>.</p>
 <p></p>
-
-
-
-
 </body>
 </html>
