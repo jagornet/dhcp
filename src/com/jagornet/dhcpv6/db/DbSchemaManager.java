@@ -74,13 +74,14 @@ public class DbSchemaManager
         Connection conn = dataSource.getConnection();
 		DatabaseMetaData dbMetaData = conn.getMetaData();
 		
-		log.info("JDBC Connection Info: url=" + dbMetaData.getURL() +
+		log.info("JDBC Connection Info:\n" +
+				"url = " + dbMetaData.getURL() +
 				"\n" +
-				"database=" + dbMetaData.getDatabaseProductName() +
-				" v" + dbMetaData.getDatabaseProductVersion() +
+				"database = " + dbMetaData.getDatabaseProductName() +
+				" " + dbMetaData.getDatabaseProductVersion() +
 				"\n" +
-				"driver=" + dbMetaData.getDriverName() +
-				" v" + dbMetaData.getDriverVersion());
+				"driver = " + dbMetaData.getDriverName() +
+				" " + dbMetaData.getDriverVersion());
 		
         String[] types = { "TABLE" };
         ResultSet rs = dbMetaData.getTables(null, null, "%", types);

@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.db;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,9 +37,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Subnet;
@@ -62,14 +65,25 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 				" (ipaddress, starttime, preferredendtime, validendtime, state, identityassoc_id)" +
 				" values (?, ?, ?, ?, ?, ?)";
 		
-		getJdbcTemplate().update(insertQuery, 
-				new InsertIaAddrPreparedStatementSetter(iaAddr));
-		
-		// update will throw SQLException if it fails
-        IaAddress newIaAddr = getByInetAddress(iaAddr.getIpAddress());
-        if (newIaAddr != null) {
-        	iaAddr.setId(newIaAddr.getId());
-        }
+		/**
+		 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
+		 * "Formally, Derby does not support getGeneratedKeys since 
+		 * DatabaseMetaData.supportsGetGeneratedKeys() returns false. 
+		 * However, Statement.getGeneratedKeys() is partially implemented,
+		 * ... since it will only return a meaningful result when an single 
+		 * row insert is done with INSERT...VALUES"
+		 * 
+		 * Spring has thus provided a workaround as described here:
+		 * http://jira.springframework.org/browse/SPR-5306
+		 */
+		GeneratedKeyHolder newKey = new GeneratedKeyHolder();
+		getJdbcTemplate().update(
+				new InsertIaAddrPreparedStatementCreator(insertQuery, iaAddr), 
+				newKey);
+		Number newId = newKey.getKey();
+		if (newId != null) {
+			iaAddr.setId(newId.longValue());
+		}
 	}
 
 	/* (non-Javadoc)
@@ -185,20 +199,21 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findAllOlderThan(java.util.Date)
 	 */
-	@SuppressWarnings("unchecked")
 	public List<IaAddress> findAllOlderThan(Date date)
 	{
         return getJdbcTemplate().query(
                 "select * from iaaddress where validendtime < ? order by validendtime",
-                new GmtTimestampPreparedStatementCreator(date),
+                new GmtTimestampPreparedStatementSetter(date),
                 new IaAddrRowMapper());
 	}
 	
 	/**
-	 * The Class InsertIaAddrPreparedStatementSetter.
+	 * The Class InsertIaAddrPreparedStatementCreator.
 	 */
-	protected class InsertIaAddrPreparedStatementSetter implements PreparedStatementSetter
+	protected class InsertIaAddrPreparedStatementCreator implements PreparedStatementCreator
 	{
+		/** The sql. */
+		private String sql;
 		
 		/** The ia addr. */
 		private IaAddress iaAddr;
@@ -206,17 +221,30 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 		/**
 		 * Instantiates a new insert ia addr prepared statement setter.
 		 * 
+		 * @param sql the sql
 		 * @param iaAddr the ia addr
 		 */
-		public InsertIaAddrPreparedStatementSetter(IaAddress iaAddr) {
+		public InsertIaAddrPreparedStatementCreator(String sql, IaAddress iaAddr) {
+			this.sql = sql;
 			this.iaAddr = iaAddr;
 		}
 		
-		/* (non-Javadoc)
-		 * @see org.springframework.jdbc.core.PreparedStatementSetter#setValues(java.sql.PreparedStatement)
-		 */
 		@Override
-		public void setValues(PreparedStatement ps) throws SQLException {
+		public PreparedStatement createPreparedStatement(Connection conn)
+				throws SQLException
+		{
+			/**
+			 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
+			 * "Formally, Derby does not support getGeneratedKeys since 
+			 * DatabaseMetaData.supportsGetGeneratedKeys() returns false. 
+			 * However, Statement.getGeneratedKeys() is partially implemented,
+			 * ... since it will only return a meaningful result when an single 
+			 * row insert is done with INSERT...VALUES"
+			 * 
+			 * Spring has thus provided a workaround as described here:
+			 * http://jira.springframework.org/browse/SPR-5306
+			 */
+			PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 			ps.setBytes(1, iaAddr.getIpAddress().getAddress());
 			java.sql.Timestamp sts = new java.sql.Timestamp(iaAddr.getStartTime().getTime());
 			ps.setTimestamp(2, sts, Util.GMT_CALENDAR);
@@ -226,6 +254,7 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 			ps.setTimestamp(4, vts, Util.GMT_CALENDAR);
 			ps.setByte(5, iaAddr.getState());
 			ps.setLong(6, iaAddr.getIdentityAssocId());
+			return ps;
 		}
 	}
 	
@@ -285,20 +314,20 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	}
 	
 	/**
-	 * The Class GmtTimestampPreparedStatementCreator.
+	 * The Class GmtTimestampPreparedStatementSetter.
 	 */
-	protected class GmtTimestampPreparedStatementCreator implements PreparedStatementSetter
+	protected class GmtTimestampPreparedStatementSetter implements PreparedStatementSetter
 	{
 		
 		/** The date. */
 		private Date date;
 		
 		/**
-		 * Instantiates a new gmt timestamp prepared statement creator.
+		 * Instantiates a new gmt timestamp prepared statement setter.
 		 * 
 		 * @param date the date
 		 */
-		public GmtTimestampPreparedStatementCreator(Date date) {
+		public GmtTimestampPreparedStatementSetter(Date date) {
 			this.date = date;
 		}
 		
@@ -316,11 +345,11 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
     /**
      * The Class IaAddrRowMapper.
      */
-    protected class IaAddrRowMapper implements ParameterizedRowMapper<IaAddress> 
+    protected class IaAddrRowMapper implements RowMapper<IaAddress> 
     {
     	
 	    /* (non-Javadoc)
-	     * @see org.springframework.jdbc.core.simple.ParameterizedRowMapper#mapRow(java.sql.ResultSet, int)
+	     * @see org.springframework.jdbc.core.simple.RowMapper#mapRow(java.sql.ResultSet, int)
 	     */
 	    @Override
         public IaAddress mapRow(ResultSet rs, int rowNum) throws SQLException {

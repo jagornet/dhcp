@@ -408,6 +408,16 @@ public class DhcpV6Server
 				return getAllIPv6NetIfs();
 			}
 			NetworkInterface netIf = NetworkInterface.getByName(ifname);
+			if (netIf == null) {
+				// if not found by name, see if the name is actually an address
+				try {
+					InetAddress ipaddr = InetAddress.getByName(ifname);
+					netIf = NetworkInterface.getByInetAddress(ipaddr);
+				}
+				catch (UnknownHostException ex) {
+					// eat the exception in this case
+				}
+			}
 			if (netIf != null) {
 				if (netIf.isUp()) {
 		        	// for multicast, the loopback interface is excluded

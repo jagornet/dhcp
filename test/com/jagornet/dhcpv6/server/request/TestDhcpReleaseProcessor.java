@@ -25,8 +25,6 @@
  */
 package com.jagornet.dhcpv6.server.request;
 
-import java.net.InetAddress;
-
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
@@ -45,7 +43,7 @@ public class TestDhcpReleaseProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testSolicitAndRequestAndRelease() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
 		DhcpSolicitProcessor sProc = 
@@ -89,7 +87,7 @@ public class TestDhcpReleaseProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testReleaseNoBinding() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.RELEASE);
 		DhcpServerIdOption dhcpServerId = 
 			new DhcpServerIdOption(config.getDhcpV6ServerConfig().getServerIdOption());

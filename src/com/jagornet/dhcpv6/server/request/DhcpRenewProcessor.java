@@ -272,6 +272,9 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
             	populateReplyMsgOptions(clientLink.getLink());
     			processDdnsUpdates();
             }
+            else {
+            	log.warn("Reply message has no bindings");
+            }
     	}
     	return sendReply;    	
     }

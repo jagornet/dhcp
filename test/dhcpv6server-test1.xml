@@ -108,7 +108,6 @@
 					</filterExpressions>
 					<naAddrPools>
 						<pool>
-							<iaType>non-temporary</iaType>
 							<range>fd00:9a60:deb1::10a-fd00:9a60:deb1::1ff</range>
 							<addrConfigOptions>
 								<sipServerAddressesOption>
@@ -121,7 +120,6 @@
 			</linkFilters>
 			<naAddrPools>
 				<pool>
-					<iaType>non-temporary</iaType>
 					<range>fd00:9a60:deb1::0a-fd00:9a60:deb1::ff</range>
 					<addrConfigOptions>
 						<sipServerAddressesOption>

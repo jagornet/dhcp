@@ -31,7 +31,11 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.cli.BasicParser;
@@ -41,6 +45,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineCoverage;
@@ -59,17 +65,15 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpElapsedTimeOption;
+import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.option.DhcpRapidCommitOption;
 import com.jagornet.dhcpv6.option.DhcpUserClassOption;
 import com.jagornet.dhcpv6.server.netty.DhcpChannelDecoder;
 import com.jagornet.dhcpv6.server.netty.DhcpChannelEncoder;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.ClientIdOption;
-import com.jagornet.dhcpv6.xml.ElapsedTimeOption;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.UserClassOption;
 
 /**
- * A test client that sends INFO_REQUEST messages to a DHCPv6 server
+ * A test client that sends request messages to a DHCPv6 server
  * via either unicast or multicast.
  * 
  * @author A. Gregory Rabil
@@ -101,7 +105,20 @@ public class TestClient extends SimpleChannelUpstreamHandler
     /** The client port. */
     protected int clientPort = DhcpConstants.CLIENT_PORT;
     
+    protected boolean rapidCommit = false;
+    
     protected int numRequests = 100;
+    protected int requestsSent = 0;
+    protected int successCnt = 0;
+    protected long startTime = 0;
+    protected long endTime = 0;
+    
+    protected DatagramChannel channel = null;
+	
+	protected ExecutorService executor = Executors.newCachedThreadPool();
+    
+    protected Map<Integer, DhcpMessage> requestMap =
+    	Collections.synchronizedMap(new HashMap<Integer, DhcpMessage>());
 
     /**
      * Instantiates a new test client.
@@ -158,6 +175,10 @@ public class TestClient extends SimpleChannelUpstreamHandler
         							  "Server Port Number" +
         							  " [" + serverPort + "]");
         options.addOption(spOption);
+        
+        Option rOption = new Option("r", "rapidcommit", false,
+        							"Send rapid-commit Solicit requests");
+        options.addOption(rOption);
 
         Option helpOption = new Option("?", "help", false, "Show this help page.");
         
@@ -232,6 +253,9 @@ public class TestClient extends SimpleChannelUpstreamHandler
             							"' using default: " + serverPort);
             	}
             }
+            if (cmd.hasOption("r")) {
+            	rapidCommit = true;
+            }
         }
         catch (ParseException pe) {
             System.err.println("Command line option parsing failure: " + pe);
@@ -257,35 +281,90 @@ public class TestClient extends SimpleChannelUpstreamHandler
     	InetSocketAddress server = new InetSocketAddress(serverAddr, serverPort);
     	InetSocketAddress client = new InetSocketAddress(clientPort);
     	
-        List<DhcpMessage> msgs = buildRequestMessages();
-        for (DhcpMessage msg : msgs) {
-        	
-    		ChannelPipeline pipeline = Channels.pipeline();
-            pipeline.addLast("logger", new LoggingHandler());
-            pipeline.addLast("encoder", new DhcpChannelEncoder());
-            pipeline.addLast("decoder", new DhcpChannelDecoder(client));
-            pipeline.addLast("handler", this);
-        	
-            DatagramChannel channel = null;
-        	if (mcastNetIf != null) {
-                channel = factory.newChannel(pipeline);
-        		channel.getConfig().setNetworkInterface(mcastNetIf);
+		ChannelPipeline pipeline = Channels.pipeline();
+        pipeline.addLast("logger", new LoggingHandler());
+        pipeline.addLast("encoder", new DhcpChannelEncoder());
+        pipeline.addLast("decoder", new DhcpChannelDecoder(client));
+        pipeline.addLast("handler", this);
+    	
+    	if (mcastNetIf != null) {
+            channel = factory.newChannel(pipeline);
+    		channel.getConfig().setNetworkInterface(mcastNetIf);
+    	}
+    	else {
+            channel = factory.newChannel(pipeline);
+    	}
+    	channel.bind(client);
+
+    	List<DhcpMessage> requestMsgs = buildRequestMessages();
+    	
+    	for (DhcpMessage msg : requestMsgs) {
+    		executor.execute(new RequestSender(msg, server));
+    	}
+
+    	long ms = 0;
+		if (rapidCommit)
+			ms = requestMsgs.size()*200;
+		else
+			ms = requestMsgs.size()*20;
+
+    	synchronized (requestMap) {
+        	try {
+        		log.info("Waiting total of " + ms + " milliseconds for completion");
+        		requestMap.wait(ms);
         	}
-        	else {
-                channel = factory.newChannel(pipeline);
-        	}
-        	channel.bind(client);
-            // write the message, the codec will convert it
-            // to wire format... well, hopefully it will!
-            channel.write(msg, server);
-        	if (!channel.getCloseFuture().awaitUninterruptibly(2000)) {
-        		log.warn("DHCPv6 info-request timed out.");
-        		channel.close().awaitUninterruptibly();
+        	catch (InterruptedException ex) {
+        		log.error("Interrupted", ex);
         	}
 		}
-    	factory.releaseExternalResources();
+
+		log.info("Successfully processed " + successCnt +
+				" of " + requestsSent + " messages in " +
+				(endTime - startTime) + " milliseconds");
+
+    	log.info("Shutting down executor...");
+    	executor.shutdownNow();
+    	log.info("Closing channel...");
+    	channel.close();
+    	log.info("Done.");
+    	System.exit(0);
     }
 
+    class RequestSender implements Runnable, ChannelFutureListener
+    {
+    	DhcpMessage msg;
+    	InetSocketAddress server;
+    	
+    	public RequestSender(DhcpMessage msg, InetSocketAddress server)
+    	{
+    		this.msg = msg;
+    		this.server = server;
+    	}
+		@Override
+		public void run()
+		{
+			ChannelFuture future = channel.write(msg, server);
+			future.addListener(this);
+		}
+		
+		@Override
+		public void operationComplete(ChannelFuture future) throws Exception
+		{
+			int id = msg.getTransactionId();
+			if (future.isSuccess()) {
+				if (startTime == 0) {
+					startTime = System.currentTimeMillis();
+				}
+				requestsSent++;
+				log.info("Succesfully sent message id=" + id);
+				requestMap.put(id, msg);
+			}
+			else {
+				log.warn("Failed to send message id=" + msg.getTransactionId());
+			}
+		}
+    }
+    
     /**
      * Builds the request messages.
      * 
@@ -293,42 +372,40 @@ public class TestClient extends SimpleChannelUpstreamHandler
      */
     private List<DhcpMessage> buildRequestMessages()
     {
-    	List<DhcpMessage> msgs = new ArrayList<DhcpMessage>();   	
+    	List<DhcpMessage> requests = new ArrayList<DhcpMessage>();   	
         for (int id=0; id<numRequests; id++) {
             DhcpMessage msg = 
             	new DhcpMessage(null, new InetSocketAddress(serverAddr, serverPort));
-            	
-            msg.setMessageType(DhcpConstants.INFO_REQUEST);
+
             msg.setTransactionId(id);
-            byte[] clientIdBytes = { (byte)0xde,
-                                     (byte)0xbd,
-                                     (byte)0xeb,
-                                     (byte)0xde,
-                                     (byte)0xb0,
-                                     (byte)id };
-            OpaqueData opaque = OpaqueData.Factory.newInstance();
-            opaque.setHexValue(clientIdBytes);
-
-            ClientIdOption clientIdOption = ClientIdOption.Factory.newInstance();
-            clientIdOption.setOpaqueData(opaque);
+            String clientId = "clientid-" + id;
+            DhcpClientIdOption dhcpClientId = new DhcpClientIdOption();
+            dhcpClientId.getOpaqueDataOptionType().getOpaqueData().setAsciiValue(clientId);
             
-            msg.putDhcpOption(new DhcpClientIdOption(clientIdOption));
+            msg.putDhcpOption(dhcpClientId);
             
-            ElapsedTimeOption elapsedTimeOption = ElapsedTimeOption.Factory.newInstance();
-            elapsedTimeOption.setUnsignedShort(id+1000);
-            msg.putDhcpOption(new DhcpElapsedTimeOption(elapsedTimeOption));
+            DhcpElapsedTimeOption dhcpElapsedTime = new DhcpElapsedTimeOption();
+            dhcpElapsedTime.getUnsignedShortOption().setUnsignedShort(1);
+            msg.putDhcpOption(dhcpElapsedTime);
 
-            UserClassOption userClassOption = UserClassOption.Factory.newInstance();
-            // wrap it with the DhcpOption subclass to get at
-            // utility method for adding userclass string
-            DhcpUserClassOption dhcpUserClassOption = 
-                new DhcpUserClassOption(userClassOption);
-            dhcpUserClassOption.addOpaqueData("FilterUserClass");
-            msg.putDhcpOption(dhcpUserClassOption);
+            DhcpUserClassOption dhcpUserClass = new DhcpUserClassOption();
+            dhcpUserClass.addOpaqueData("FilterUserClass");
+            msg.putDhcpOption(dhcpUserClass);
 
-            msgs.add(msg);
+            if (rapidCommit) {
+            	msg.setMessageType(DhcpConstants.SOLICIT);
+                DhcpIaNaOption dhcpIaNa = new DhcpIaNaOption();
+                dhcpIaNa.getIaNaOption().setIaId(1);
+                msg.putDhcpOption(dhcpIaNa);
+                DhcpRapidCommitOption dhcpRapidCommit = new DhcpRapidCommitOption();
+                msg.putDhcpOption(dhcpRapidCommit);
+            }
+            else {
+                msg.setMessageType(DhcpConstants.INFO_REQUEST);
+            }            
+            requests.add(msg);
         }
-        return msgs;
+        return requests;
     }
 
 
@@ -348,9 +425,16 @@ public class TestClient extends SimpleChannelUpstreamHandler
             else
             	log.info("Received: " + dhcpMessage.toString());
             
-//            SocketAddress remoteAddress = e.getRemoteAddress();
-//            InetAddress localAddr = ((InetSocketAddress)e.getChannel().getLocalAddress()).getAddress();
-            e.getChannel().close();
+            DhcpMessage requestMsg = requestMap.remove(dhcpMessage.getTransactionId());
+            if (requestMsg != null) {
+            	successCnt++;
+            	endTime = System.currentTimeMillis();
+            	synchronized (requestMap) {
+            		if (requestMap.isEmpty()) {
+            			requestMap.notify();
+            		}
+            	}
+            }
         }
         else {
             // Note: in theory, we can't get here, because the

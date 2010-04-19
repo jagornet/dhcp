@@ -113,26 +113,20 @@ public abstract class BaseBindingManager
      */
     protected void initPoolMap() throws DhcpServerConfigException
     {
-//		try {
-    		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
-    		if ((linkMap != null) && !linkMap.isEmpty()) {
-        		bindingPoolMap = new HashMap<String, List<? extends BindingPool>>();
-    			for (DhcpLink dhcpLink : linkMap.values()) {
-    				Link link = dhcpLink.getLink();
-    				List<? extends BindingPool> bindingPools = buildBindingPools(link);
-					if ((bindingPools != null) && !bindingPools.isEmpty()) {
-						bindingPoolMap.put(link.getAddress(), bindingPools);
-					}
+		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
+		if ((linkMap != null) && !linkMap.isEmpty()) {
+    		bindingPoolMap = new HashMap<String, List<? extends BindingPool>>();
+			for (DhcpLink dhcpLink : linkMap.values()) {
+				Link link = dhcpLink.getLink();
+				List<? extends BindingPool> bindingPools = buildBindingPools(link);
+				if ((bindingPools != null) && !bindingPools.isEmpty()) {
+					bindingPoolMap.put(link.getAddress(), bindingPools);
 				}
-    		}
-    		else {
-    			log.error("LinkMap is null for DhcpServerConfiguration");
-    		}
-//		}
-//		catch (Exception ex) {
-//			log.error("Failed to build poolMap", ex);
-//			throw ex;
-//		}
+			}
+		}
+		else {
+			log.error("LinkMap is null for DhcpServerConfiguration");
+		}
     }
 
 
@@ -155,19 +149,13 @@ public abstract class BaseBindingManager
      */
     protected void initStaticBindings() throws DhcpServerConfigException
     {
-//		try {
-    		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
-    		if (linkMap != null) {
-    			for (DhcpLink dhcpLink : linkMap.values()) {
-    				Link link = dhcpLink.getLink();
-    				initBindings(link);
-    			}
-    		}
-//		}
-//		catch (Exception ex) {
-//			log.error("Failed to build staticBindings: " + ex);
-//			throw ex;
-//		}
+		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
+		if (linkMap != null) {
+			for (DhcpLink dhcpLink : linkMap.values()) {
+				Link link = dhcpLink.getLink();
+				initBindings(link);
+			}
+		}
     }
     
     /**

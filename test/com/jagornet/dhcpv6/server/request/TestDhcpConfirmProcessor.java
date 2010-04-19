@@ -25,8 +25,6 @@
  */
 package com.jagornet.dhcpv6.server.request;
 
-import java.net.InetAddress;
-
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
@@ -44,7 +42,7 @@ public class TestDhcpConfirmProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testSolicitAndRequestAndConfirm() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
 		DhcpSolicitProcessor sProc = 
@@ -90,7 +88,7 @@ public class TestDhcpConfirmProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testRequestNotOnLink() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.SOLICIT);
 
 		DhcpSolicitProcessor sProc = 
@@ -138,7 +136,7 @@ public class TestDhcpConfirmProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testConfirmNoAddrs() throws Exception
 	{
-		DhcpMessage requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:1::1"));
+		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.CONFIRM);
 		// null out the ServerId option for a confirm
 		requestMsg.getDhcpOptionMap().remove(DhcpConstants.OPTION_SERVERID);

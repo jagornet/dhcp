@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
@@ -58,12 +58,20 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
         parameters.put("iatype", ia.getIatype());
         parameters.put("iaid", ia.getIaid());
         parameters.put("state", ia.getState());
-//        Number newId = insertIa.executeAndReturnKey(parameters);
-//        ia.setId(newId.longValue());
-        insertIa.execute(parameters);
-        IdentityAssoc newIa = getByKey(ia.getDuid(), ia.getIatype(), ia.getIaid());
-        if (newIa != null) {
-        	ia.setId(newIa.getId());
+		/**
+		 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
+		 * "Formally, Derby does not support getGeneratedKeys since 
+		 * DatabaseMetaData.supportsGetGeneratedKeys() returns false. 
+		 * However, Statement.getGeneratedKeys() is partially implemented,
+		 * ... since it will only return a meaningful result when an single 
+		 * row insert is done with INSERT...VALUES"
+		 * 
+		 * Spring has thus provided a workaround as described here:
+		 * http://jira.springframework.org/browse/SPR-5306
+		 */
+        Number newId = insertIa.executeAndReturnKey(parameters);
+        if (newId != null) {
+        	ia.setId(newId.longValue());
         }
 	}
 
@@ -147,11 +155,11 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
     /**
      * The Class IaRowMapper.
      */
-    protected class IaRowMapper implements ParameterizedRowMapper<IdentityAssoc> 
+    protected class IaRowMapper implements RowMapper<IdentityAssoc> 
     {	
         
         /* (non-Javadoc)
-         * @see org.springframework.jdbc.core.simple.ParameterizedRowMapper#mapRow(java.sql.ResultSet, int)
+         * @see org.springframework.jdbc.core.simple.RowMapper#mapRow(java.sql.ResultSet, int)
          */
         public IdentityAssoc mapRow(ResultSet rs, int rowNum) throws SQLException {
         	IdentityAssoc ia = new IdentityAssoc();
