@@ -35,7 +35,7 @@
   		<!-- we set the schema attribute to the 'conf' directory, which will
   		 cause the XMLBeans schema compiler to compile any .xsd files in
   		 that directory, also including the .xsdconfig file -->
-    	<xmlbean javasource="1.5" schema="${conf}" destfile="${build}/xmltypes.jar">
+    	<xmlbean javasource="1.5" schema="${conf}" destfile="${lib}/xmltypes.jar">
     		<classpath>
         		<filelist files="${xmlbeans.jars}"/>
 	    	</classpath>
@@ -48,7 +48,7 @@
 	    <javac srcdir="${src}" destdir="${classes}" target="1.6" debug="true">
 	    	<classpath>
 	        	<filelist files="${dependent.jars}"/>
-	    		<filelist files="${build}/xmltypes.jar"/>
+	    		<filelist files="${lib}/xmltypes.jar"/>
 	    	</classpath>
 	    </javac>
   		<!-- Copy the context.xml file to classes so it gets put into the jar -->
@@ -90,7 +90,8 @@
 	    
 	    <!-- Copy all the dependent jars into the distribution library folder -->
 	    <copy todir="${dist}/lib" flatten="true">
-	    	<filelist dir="${build}" files="${product}.jar xmltypes.jar"/>
+	    	<filelist dir="${build}" files="${product}.jar"/>
+	    	<filelist dir="${lib}" files="xmltypes.jar"/>
 	    	<filelist files="${dependent.jars}"/>
 	    </copy>
 	    
