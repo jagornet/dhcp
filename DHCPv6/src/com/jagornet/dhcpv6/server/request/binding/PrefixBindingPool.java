@@ -129,14 +129,16 @@ public class PrefixBindingPool implements BindingPool
 		if (freeList != null) {
 			BigInteger start = new BigInteger(subnet.getSubnetAddress().getAddress());
 			BigInteger next = freeList.getNextFree();
-			//TODO: if there are no more free addresses, then find one
-			//		that has been released or has been expired
-			try {
-				BigInteger prefix = next.multiply(calculatePrefix());
-				return InetAddress.getByAddress(start.add(prefix).toByteArray());
-			}
-			catch (Exception ex) {
-				log.error("Unable to build IPv6 prefix from next free: " + ex);
+			if (next != null) {
+				//TODO: if there are no more free addresses, then find one
+				//		that has been released or has been expired
+				try {
+					BigInteger prefix = next.multiply(calculatePrefix());
+					return InetAddress.getByAddress(start.add(prefix).toByteArray());
+				}
+				catch (Exception ex) {
+					log.error("Unable to build IPv6 prefix from next free: " + ex);
+				}
 			}
 		}
 		return null;

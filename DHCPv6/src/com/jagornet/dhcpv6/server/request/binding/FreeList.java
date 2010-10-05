@@ -26,9 +26,9 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.List;
 
 /**
  * The Class FreeList.
@@ -44,14 +44,16 @@ public class FreeList
 	protected BigInteger end;
 
 	/** 
-	 * The map of ranges, which are keyed by an index into a logical list of ranges, 
+	 * The map of ranges, which are keyed by an index into a list of ranges, 
 	 * each offset by the maximum size of an integer. For example: 
-	 * key=0, value=BitSet for range of values from start to start+2147483647 
-	 * key=1, value=BitSet for range of values from start+2147483648 to 4294967295 
-	 * key=2, value=BitSet for range of values from start+4294967296 to 6442450943 
+	 * index=0, for range of values from start to start+2147483647 
+	 * index=1, for range of values from start+2147483648 to 4294967295 
+	 * index=2, for range of values from start+4294967296 to 6442450943 
 	 * ... 
 	 */
-	protected SortedMap<BigInteger, BitSet> bitsetRanges;
+	protected List<BitSet> bitsetRanges;
+	
+	protected int nextFreeIndex;
 	
 	/**
 	 * Instantiates a new free list.
@@ -63,44 +65,44 @@ public class FreeList
 	{
 		this.start = start;
 		this.end = end;
-		if (end.compareTo(start) > 0) {
-			bitsetRanges = new TreeMap<BigInteger, BitSet>();
-			bitsetRanges.put(BigInteger.ZERO, new BitSet());	// create one to start
+		if (end.compareTo(start) >= 0) {
+			bitsetRanges = new ArrayList<BitSet>();
+			bitsetRanges.add(new BitSet());	// create one to start
 		}
 		else {
-			throw new IllegalStateException("Failed to create FreeList: end <= start");
+			throw new IllegalStateException("Failed to create FreeList: end < start");
 		}
 	}
-
+	
+	public boolean isInList(BigInteger bi)
+	{
+		if ((bi.compareTo(start) >= 0) && (bi.compareTo(end) <= 0)) {
+			return true;
+		}
+		return false;
+	}
+	
+	
 	/**
-	 * Gets the bit set.
+	 * Gets the index into the list for the given BigInteger
 	 * 
 	 * @param bi the bi
 	 * 
-	 * @return the bit set
+	 * @return the index position in the list
 	 */
-	private BitSet getBitSet(BigInteger bi)
+	protected int getIndex(BigInteger bi)
 	{
-		BitSet bitset = null;
-		if ((bi.compareTo(start) >= 0) && (bi.compareTo(end) <= 0)) {
-			BigInteger biIndex = bi.subtract(start).divide(BigInteger.valueOf(Integer.MAX_VALUE));
-			bitset = bitsetRanges.get(biIndex);
-			if (bitset == null) {
-				bitset = new BitSet();
-				bitsetRanges.put(biIndex, bitset);
-			}
-		}
-		return bitset;
+		return bi.subtract(start).divide(BigInteger.valueOf(Integer.MAX_VALUE)).intValue();
 	}
 	
 	/**
-	 * Gets the index.
+	 * Gets the offset into the BitSet for the given BigInteger
 	 * 
 	 * @param bi the bi
 	 * 
-	 * @return the index
+	 * @return the offset
 	 */
-	private int getIndex(BigInteger bi)
+	protected int getOffset(BigInteger bi)
 	{
 		return bi.subtract(start).mod(BigInteger.valueOf(Integer.MAX_VALUE)).intValue();		
 	}
@@ -111,15 +113,30 @@ public class FreeList
 	 * @param bi the bi
 	 * @param used the used
 	 */
-	private void set(BigInteger bi, boolean used)
+	protected synchronized void set(BigInteger bi, boolean used)
 	{
-		BitSet bitset = getBitSet(bi);
-		if (bitset != null) {
+		if (isInList(bi)) {
+			int offset = getOffset(bi);
+			BitSet bitset = null;
 			int ndx = getIndex(bi);
-			if (used)
-				bitset.set(ndx);
-			else
-				bitset.clear(ndx);
+			if (ndx < bitsetRanges.size()) {
+				bitset = bitsetRanges.get(ndx);
+			}
+			else {
+				while (ndx >= bitsetRanges.size()) {
+					bitset = new BitSet();
+					bitsetRanges.add(bitset);
+				}
+			}
+			if (used) {
+				bitset.set(offset);
+			}
+			else {
+				bitset.clear(offset);
+				if (ndx < nextFreeIndex) {
+					nextFreeIndex = ndx;	// reset next free search index
+				}
+			}
 		}
 	}
 	
@@ -153,9 +170,14 @@ public class FreeList
 	 */
 	public boolean isUsed(BigInteger used)
 	{
-		BitSet bitset = getBitSet(used);
-		if (bitset != null) {
-			return bitset.get(getIndex(used));
+		if (isInList(used)) {
+			int ndx = getIndex(used);
+			if (ndx < bitsetRanges.size()) {
+				BitSet bitset = bitsetRanges.get(ndx);
+				if (bitset != null) {
+					return bitset.get(getOffset(used));
+				}
+			}
 		}
 		return false;
 	}
@@ -179,31 +201,46 @@ public class FreeList
 	 */
 	public synchronized BigInteger getNextFree()
 	{
-		BitSet bitset = null;
+		BigInteger next = start.add(BigInteger.valueOf(nextFreeIndex).
+										multiply(BigInteger.valueOf(Integer.MAX_VALUE)));
 		int clearBit = -1;
-		BigInteger mapIndex = BigInteger.ZERO;
-		for (BitSet bsRange : bitsetRanges.values()) {
-			clearBit = bsRange.nextClearBit(0);
-			if (clearBit >= 0) {
-				bsRange.set(clearBit);	// set it used
-				bitset = bsRange;
-				break;
+		BitSet bitset = bitsetRanges.get(nextFreeIndex);
+		clearBit = bitset.nextClearBit(0);
+		if (clearBit >= 0) {
+			next = next.add(BigInteger.valueOf(clearBit));
+			if (isInList(next)) {
+				bitset.set(clearBit);
+				return next;
 			}
-			// increment our index into the sorted map
-			mapIndex = mapIndex.add(BigInteger.ONE);
 		}
-		if (clearBit < 0) {
-			// assume nothing was free in the existing ranges, and allocate a new one
-			clearBit = 0;
-			bitset = new BitSet();
-			bitset.set(clearBit);
-			bitsetRanges.put(mapIndex, new BitSet());
+		else {
+			// no more available in the last BitSet, so the next available
+			// would be the first in the next BitSet, so add max offset
+			next = next.add(BigInteger.valueOf(Integer.MAX_VALUE));
+			if (isInList(next)) {
+				nextFreeIndex++;
+				bitset = new BitSet();
+				bitset.set(0);
+				bitsetRanges.add(nextFreeIndex, bitset);
+			}
 		}
-		BigInteger next = 	
-			start.add(
-					mapIndex.multiply(
-							BigInteger.valueOf(Integer.MAX_VALUE)).add(
-									BigInteger.valueOf(clearBit)));
-		return next;
+		return null;
+	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("FreeList:");
+		sb.append(" start=" + start);
+		sb.append(" end=" + end);
+		if ((bitsetRanges != null) && !bitsetRanges.isEmpty()) {
+			sb.append(" ranges:\n");
+			int i = 0;
+			for (BitSet bs : bitsetRanges) {
+				sb.append(" bitset[" + i + "].cardinality=" + bs.cardinality());
+				sb.append("\n");
+				i++;
+			}
+		}
+		return sb.toString();
 	}
 }

@@ -88,7 +88,7 @@ public class DhcpRelayOption extends BaseDhcpOption
      */
     public void decode(ByteBuffer buf) throws IOException
     {
-    	super.decodeLength(buf);
+    	int len = super.decodeLength(buf);
         // since the linkAddr of the relay message is the interface
         // on which the relay itself received the message to be forwarded
         // we can assume that address is logically a server port
@@ -102,7 +102,15 @@ public class DhcpRelayOption extends BaseDhcpOption
         // inner message's remote port
         InetSocketAddress relayMsgRemoteAddr =
         	new InetSocketAddress(relayMessage.getPeerAddress(), 0);
-        dhcpMessage = DhcpMessage.decode(buf, relayMsgLocalAddr, relayMsgRemoteAddr);
+        
+        // create a new buffer that will hold just this RelayOption
+        byte[] b = new byte[len];
+        buf.get(b);
+        ByteBuffer _buf = ByteBuffer.wrap(b);
+        // use the wrapped buffer which represents the contents of the message
+        // contained within this relay option, but not any more, i.e. not beyond
+        // what _this_ relay option reports its length to be
+        dhcpMessage = DhcpMessage.decode(_buf, relayMsgLocalAddr, relayMsgRemoteAddr);
     }
 
     /**
@@ -136,11 +144,11 @@ public class DhcpRelayOption extends BaseDhcpOption
     /**
      * Sets the dhcp message.
      * 
-     * @param relayMessage the relay message
+     * @param relayMessage the dhcp message
      */
-    public void setDhcpMessage(DhcpMessage relayMessage)
+    public void setDhcpMessage(DhcpMessage dhcpMessage)
     {
-        this.dhcpMessage = relayMessage;
+        this.dhcpMessage = dhcpMessage;
     }
 
     /* (non-Javadoc)

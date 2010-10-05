@@ -2,9 +2,9 @@ package com.jagornet.dhcpv6.server.request.binding;
 
 import java.net.InetAddress;
 
-import com.jagornet.dhcpv6.xml.PrefixPool;
-
 import junit.framework.TestCase;
+
+import com.jagornet.dhcpv6.xml.PrefixPool;
 
 public class TestPrefixBindingPool extends TestCase
 {

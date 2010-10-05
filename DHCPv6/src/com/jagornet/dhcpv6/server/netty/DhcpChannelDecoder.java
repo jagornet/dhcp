@@ -54,10 +54,10 @@ public class DhcpChannelDecoder extends OneToOneDecoder
     private static Logger log = LoggerFactory.getLogger(DhcpChannelDecoder.class);
 
     /** The local socket address. */
-    private InetSocketAddress localSocketAddress = null;
+    protected InetSocketAddress localSocketAddress = null;
     
     /** The remote socket address. */
-    private InetSocketAddress remoteSocketAddress = null;
+    protected InetSocketAddress remoteSocketAddress = null;
     
     public DhcpChannelDecoder(InetSocketAddress localSocketAddress)
     {

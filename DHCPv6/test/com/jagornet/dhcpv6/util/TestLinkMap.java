@@ -4,10 +4,10 @@ import java.net.InetAddress;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import junit.framework.TestCase;
+
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.xml.Link;
-
-import junit.framework.TestCase;
 
 public class TestLinkMap extends TestCase 
 {

@@ -200,15 +200,18 @@ public class DhcpRelayMessage extends DhcpMessage
                     if (log.isDebugEnabled())
                         log.debug("PeerAddress: " + peerAddr);
                     
-                    if (buf.hasRemaining()) {
-                        Map<Integer,DhcpOption> options = decodeOptions(buf);
-                        if ( (options != null) &&
-                             options.containsKey(DhcpConstants.OPTION_RELAY_MSG)) {
-                            setDhcpOptionMap(options);
-                            DhcpRelayOption relayOption = 
-                            	(DhcpRelayOption) options.get(DhcpConstants.OPTION_RELAY_MSG);
-                            relayOption.setRelayMessage(this);
+                    if (buf.hasRemaining()) {           
+                    	// the RelayMessage option MUST be first, and the decoding
+                    	// of that option will cause the decoding of the DhcpMessage
+                    	// contained within the RelayMessage option
+                    	DhcpRelayOption relayOption = decodeRelayOption(buf);
+                    	if (relayOption != null) {
                             setRelayOption(relayOption);
+                            // decode any other options that are at the same
+                            // "level" as this relay option - i.e. an InterfaceId option
+                            Map<Integer,DhcpOption> options = decodeOptions(buf);
+                            options.put(relayOption.getCode(), relayOption);
+                            setDhcpOptionMap(options);                            
                         }
                         else {
                             String errmsg = "Failed to decode relay message: no relay option found";
@@ -243,6 +246,21 @@ public class DhcpRelayMessage extends DhcpMessage
         if (log.isDebugEnabled()) {
             log.debug("DhcpRelayMessage decoded.");
         }
+    }
+    
+    protected DhcpRelayOption decodeRelayOption(ByteBuffer buf) throws IOException
+    {
+        int code = Util.getUnsignedShort(buf);
+        if (code == DhcpConstants.OPTION_RELAY_MSG) {
+        	DhcpRelayOption relayOption = new DhcpRelayOption();
+        	relayOption.setRelayMessage(this);
+        	relayOption.decode(buf);
+        	return relayOption;
+        }
+        else {
+        	log.error("Expecting Relay Message Option: optionCode=" + code);
+        }
+        return null;
     }
     
     /**

@@ -74,7 +74,10 @@ public class PrefixBindingManagerImpl
 	public PrefixBindingManagerImpl()
 	{
 		super();
-
+	}
+	
+	protected void startReaper()
+	{
 		//TODO: separate properties for address/prefix binding managers?
 		long reaperStartupDelay = 
 			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_REAPER_STARTUP_DELAY);

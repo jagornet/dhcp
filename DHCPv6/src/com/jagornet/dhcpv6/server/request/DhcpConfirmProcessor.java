@@ -79,6 +79,12 @@ public class DhcpConfirmProcessor extends BaseDhcpProcessor
     		return false;
     	}
     	
+    	// this check enforced by TAHI DHCP server tests
+    	if (requestMsg.isUnicast()) {
+    		log.warn("Ignoring unicast Confirm Message");
+    		return false;
+    	}
+    	
     	if (requestMsg.getDhcpClientIdOption() == null) {
     		log.warn("Ignoring Solicit message: " +
     				"ClientId option is null");
@@ -112,6 +118,7 @@ public class DhcpConfirmProcessor extends BaseDhcpProcessor
 //      NOT send a reply to the client.
 
 		boolean sendReply = false;
+		boolean allOnLink = true;
 		List<DhcpIaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
     	if (iaNaOptions != null) {
     		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
@@ -119,13 +126,16 @@ public class DhcpConfirmProcessor extends BaseDhcpProcessor
     			if ((dhcpIaNaOption.getIaAddrOptions() != null) &&
     					!dhcpIaNaOption.getIaAddrOptions().isEmpty()) {
 		    		if (!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
-		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
-		    					DhcpConstants.STATUS_CODE_NOTONLINK);
+// TAHI tests want the status at the message level
+// 		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
+//		    					DhcpConstants.STATUS_CODE_NOTONLINK);
+ 		    			allOnLink = false;
 		    			sendReply = true;
 		    		}
 		    		else {
-		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
-		    					DhcpConstants.STATUS_CODE_SUCCESS);
+// TAHI tests want the status at the message level
+//		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
+//		    					DhcpConstants.STATUS_CODE_SUCCESS);
 		    			sendReply = true;
 		    		}
     			}
@@ -133,6 +143,13 @@ public class DhcpConfirmProcessor extends BaseDhcpProcessor
     	}
     	
     	if (sendReply) {
+			// TAHI tests want the status at the message level
+    		if (allOnLink) {
+    			setReplyStatus(DhcpConstants.STATUS_CODE_SUCCESS);
+    		}
+    		else {
+    			setReplyStatus(DhcpConstants.STATUS_CODE_NOTONLINK);
+    		}
             replyMsg.setMessageType(DhcpConstants.REPLY);
     	}
 		return sendReply;    	

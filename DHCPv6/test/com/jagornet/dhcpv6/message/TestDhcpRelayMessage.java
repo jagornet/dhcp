@@ -6,8 +6,11 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
+import com.jagornet.dhcpv6.option.DhcpInterfaceIdOption;
 import com.jagornet.dhcpv6.option.DhcpRelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.InterfaceIdOption;
+import com.jagornet.dhcpv6.xml.OpaqueData;
 
 public class TestDhcpRelayMessage extends TestCase
 {
@@ -41,8 +44,18 @@ public class TestDhcpRelayMessage extends TestCase
         relayOption.setDhcpMessage(dhcpMessage);
         // add the relay message option to the relay message
         relayMessage.putDhcpOption(relayOption);
+        relayMessage.setRelayOption(relayOption);
         
         return relayMessage;
+    }
+    
+    public static DhcpInterfaceIdOption buildMockInterfaceIdOption()
+    {
+        InterfaceIdOption ifIdOption = InterfaceIdOption.Factory.newInstance();
+        OpaqueData opaque = OpaqueData.Factory.newInstance();
+        opaque.setHexValue(new byte[] { 0x01, 0x02, 0x03, 0x04 } );
+    	ifIdOption.setOpaqueData(opaque);
+    	return new DhcpInterfaceIdOption(ifIdOption);
     }
 
     public static void checkEncodedMockDhcpRelayMessage(ByteBuffer bb) throws Exception
