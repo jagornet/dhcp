@@ -90,6 +90,12 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     		return false;
     	}
     	
+    	// this check enforced by TAHI DHCP server tests
+    	if (requestMsg.isUnicast()) {
+    		log.warn("Ignoring unicast Solicit Message");
+    		return false;
+    	}
+    	
     	DhcpClientIdOption dhcpClientId = requestMsg.getDhcpClientIdOption();
     	if ((dhcpClientId == null) || 
     			(dhcpClientId.getOpaqueDataOptionType() == null) ||
@@ -160,8 +166,10 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					}
 					else {
 						// something went wrong, report NoAddrsAvail status for IA_NA
-	    				addIaNaOptionStatusToReply(dhcpIaNaOption, 
-	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+// TAHI tests want this status at the message level
+//	    				addIaNaOptionStatusToReply(dhcpIaNaOption, 
+//	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		    			setReplyStatus(DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 					}
 	    		}
     		}
@@ -196,8 +204,10 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					}
 					else {
 						// something went wrong, report NoAddrsAvail status for IA_TA
-	    				addIaTaOptionStatusToReply(dhcpIaTaOption, 
-	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+// TAHI tests want this status at the message level
+//	    				addIaTaOptionStatusToReply(dhcpIaTaOption, 
+//	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		    			setReplyStatus(DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 					}
 	    		}
     		}
@@ -232,8 +242,10 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					}
 					else {
 						// something went wrong, report NoAddrsAvail status for IA_PD
-	    				addIaPdOptionStatusToReply(dhcpIaPdOption, 
-	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+// TAHI tests want this status at the message level
+//	    				addIaPdOptionStatusToReply(dhcpIaPdOption, 
+//	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		    			setReplyStatus(DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 					}
 	    		}
     		}

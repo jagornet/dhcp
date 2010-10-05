@@ -177,8 +177,12 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 						else {
 							//TODO: what is the right thing to do here - we have
 							//		a request, but the solicit failed somehow?
+//							addIaNaOptionStatusToReply(dhcpIaNaOption,
+//		    						DhcpConstants.STATUS_CODE_NOBINDING);
+							// assume that if we have no binding, then there were
+							// no addresses available to be given out on solicit
 							addIaNaOptionStatusToReply(dhcpIaNaOption,
-		    						DhcpConstants.STATUS_CODE_NOBINDING);
+		    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 						}
 		    		}
 				}

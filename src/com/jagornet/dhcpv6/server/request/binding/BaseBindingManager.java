@@ -102,8 +102,9 @@ public abstract class BaseBindingManager
 	{
 		initPoolMap();
 		initStaticBindings();
+		startReaper();
 	}
-    
+	
     /**
      * Initialize the pool map.  Read through the link map from the server's
      * configuration and build the pool map keyed by link address with a
@@ -168,6 +169,11 @@ public abstract class BaseBindingManager
 
 
 	/**
+	 * Start a reaper thread to check for expired bindings.
+	 */
+	protected abstract void startReaper();
+
+	/**
 	 * Find binding pool for address in a message received on the given link.
 	 * 
 	 * @param link the link on which the client message was received.
@@ -181,6 +187,13 @@ public abstract class BaseBindingManager
 		List<? extends BindingPool> bps = bindingPoolMap.get(link.getAddress());
 		if ((bps != null) && !bps.isEmpty()) {
 			for (BindingPool bindingPool : bps) {
+//				if (log.isDebugEnabled()) {
+//					if (bindingPool instanceof AddressBindingPool) {
+//						AddressBindingPool abp = (AddressBindingPool) bindingPool;
+//						log.debug("AddressBindingPool: " + abp.toString());
+//						log.debug("FreeList: " + abp.freeListToString());
+//					}
+//				}
 				if (bindingPool.contains(inetAddr)) {
 					if ((requestMsg != null) && (bindingPool.getLinkFilter() != null)) {
 						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, 
@@ -312,25 +325,30 @@ public abstract class BaseBindingManager
 		if ((inetAddrs != null) && !inetAddrs.isEmpty()) {
 			binding = buildBinding(clientLink, duid, iatype, iaid);
 			Set<BindingObject> bindingObjs = buildBindingObjects(clientLink, inetAddrs, requestMsg);
-			if (rapidCommit) {
-				binding.setState(IdentityAssoc.COMMITTED);
-				for (BindingObject bindingObj : bindingObjs) {
-					bindingObj.setState(IaAddress.COMMITTED);
+			if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+				if (rapidCommit) {
+					binding.setState(IdentityAssoc.COMMITTED);
+					for (BindingObject bindingObj : bindingObjs) {
+						bindingObj.setState(IaAddress.COMMITTED);
+					}
+				}
+				else {
+					binding.setState(IdentityAssoc.ADVERTISED);
+					for (BindingObject bindingObj : bindingObjs) {
+						bindingObj.setState(IaAddress.ADVERTISED);
+					}
+				}
+				binding.setBindingObjects(bindingObjs);
+				try {
+					iaMgr.createIA(binding);
+				}
+				catch (Exception ex) {
+					log.error("Failed to create persistent binding", ex);
+					return null;
 				}
 			}
 			else {
-				binding.setState(IdentityAssoc.ADVERTISED);
-				for (BindingObject bindingObj : bindingObjs) {
-					bindingObj.setState(IaAddress.ADVERTISED);
-				}
-			}
-			binding.setBindingObjects(bindingObjs);
-			try {
-				iaMgr.createIA(binding);
-				return binding;
-			}
-			catch (Exception ex) {
-				log.error("Failed to create binding", ex);
+				log.error("Failed to build binding object(s)");
 				return null;
 			}
 		}
@@ -623,6 +641,9 @@ public abstract class BaseBindingManager
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			for (BindingObject bindingObj : bindingObjs) {
 				BindingPool bp = bindingObj.getBindingPool();
+				// TODO: is this the right place to do this?
+				// mark the address in use, just to be sure
+				bp.setUsed(bindingObj.getIpAddress());
 				setBindingObjectTimes(bindingObj, bp.getPreferredLifetimeMs(), bp.getValidLifetimeMs());
 				//TODO: if we store the options, and they have changed,
 				// 		then we must update those options here somehow

@@ -49,6 +49,9 @@ public class TestFreeList extends TestCase
 	/** The prefix64 list. */
 	private FreeList prefix64List;
 	
+	/** The smallPool list. */
+	private FreeList smallPool;
+	
 	/**
 	 * Instantiates a new test free list.
 	 * 
@@ -69,6 +72,9 @@ public class TestFreeList extends TestCase
 		prefix64List = new FreeList(
 				new BigInteger(InetAddress.getByName("3ffe::0").getAddress()),
 				new BigInteger(InetAddress.getByName("3ffe::ffff:ffff:ffff:ffff").getAddress()));
+		smallPool = new FreeList(
+				new BigInteger(InetAddress.getByName("3ffe::0").getAddress()),
+				new BigInteger(InetAddress.getByName("3ffe::2").getAddress()));
 		memorySizeDump();
 	}
 	
@@ -101,6 +107,7 @@ public class TestFreeList extends TestCase
 		InetAddress low = InetAddress.getByName("3ffe::1");
 		prefix64List.setUsed(new BigInteger(low.getAddress()));
 		assertTrue(prefix64List.isUsed(new BigInteger(low.getAddress())));
+		log.debug(prefix64List.toString());
 	}
 
 	/**
@@ -108,11 +115,25 @@ public class TestFreeList extends TestCase
 	 * 
 	 * @throws Exception the exception
 	 */
-	public void testSetMidIp() throws Exception
+	public void testSetMidIp1() throws Exception
+	{
+		InetAddress mid = InetAddress.getByName("3ffe::7fff:fffe");
+		prefix64List.setUsed(new BigInteger(mid.getAddress()));
+		assertTrue(prefix64List.isUsed(new BigInteger(mid.getAddress())));
+		log.debug(prefix64List.toString());
+	}
+
+	/**
+	 * Test set mid ip.
+	 * 
+	 * @throws Exception the exception
+	 */
+	public void testSetMidIp2() throws Exception
 	{
 		InetAddress mid = InetAddress.getByName("3ffe::ffff:ffff");
 		prefix64List.setUsed(new BigInteger(mid.getAddress()));
 		assertTrue(prefix64List.isUsed(new BigInteger(mid.getAddress())));
+		log.debug(prefix64List.toString());
 	}
 	
 	/**
@@ -125,6 +146,7 @@ public class TestFreeList extends TestCase
 		InetAddress high = InetAddress.getByName("3ffe::ffff:ffff:ffff:ffff");
 		prefix64List.setUsed(new BigInteger(high.getAddress()));
 		assertTrue(prefix64List.isUsed(new BigInteger(high.getAddress())));
+		log.debug(prefix64List.toString());
 	}
 	
 	/**
@@ -134,21 +156,17 @@ public class TestFreeList extends TestCase
 	 */
 	public void testGetNextFreeAddress() throws Exception
 	{
-		InetAddress ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
+		InetAddress ip = InetAddress.getByAddress(smallPool.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::0"), ip);
-		ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
+		ip = InetAddress.getByAddress(smallPool.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::1"), ip);
-		ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
+		ip = InetAddress.getByAddress(smallPool.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::2"), ip);
-		ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
-		assertNotNull(ip);
-		assertEquals(InetAddress.getByName("3ffe::3"), ip);
-		ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
-		assertNotNull(ip);
-		assertEquals(InetAddress.getByName("3ffe::4"), ip);
+		BigInteger bi = smallPool.getNextFree();
+		assertNull(bi);
 	}
 	
 	/**
@@ -170,6 +188,7 @@ public class TestFreeList extends TestCase
 				memorySizeDump();
 			}
 		}
+		log.debug(prefix64List.toString());
 	}
 	
 	/**
@@ -215,7 +234,11 @@ public class TestFreeList extends TestCase
 	{
 //		return new TestSuite(TestFreeList.class);
 		TestSuite suite = new TestSuite();
-		suite.addTest(new TestFreeList("testThreadedGetAddresses"));
+//		suite.addTest(new TestFreeList("testGetManyFreeAddresses"));
+		suite.addTest(new TestFreeList("testSetLowIp"));
+		suite.addTest(new TestFreeList("testSetMidIp1"));
+		suite.addTest(new TestFreeList("testSetMidIp2"));
+		suite.addTest(new TestFreeList("testSetHighIp"));
 		return suite;
 	}
 }

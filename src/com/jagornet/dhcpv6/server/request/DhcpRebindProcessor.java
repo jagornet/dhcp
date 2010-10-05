@@ -89,6 +89,12 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
     		return false;
     	}
     	
+    	// this check enforced by TAHI DHCP server tests
+    	if (requestMsg.isUnicast()) {
+    		log.warn("Ignoring unicast Rebind Message");
+    		return false;
+    	}
+    	
     	if (requestMsg.getDhcpClientIdOption() == null) {
     		log.warn("Ignoring Rebind message: " +
     				"ClientId option is null");

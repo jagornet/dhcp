@@ -444,8 +444,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     	if (requestMsg.isUnicast()) {
         	Map<Integer, DhcpOption> effectiveMsgOptions = 
     	      	dhcpServerConfig.effectiveMsgOptions(requestMsg, clientLink.getLink());
-        	if ((effectiveMsgOptions != null) &&
+        	if ((effectiveMsgOptions == null) ||
         			!effectiveMsgOptions.containsKey(DhcpConstants.OPTION_UNICAST)) {
+            	// if the server has not explicitly told the client to unicast,
+        		// then tell the client that it should send multicast packets
     			return true;
     		}
     	}
@@ -1024,10 +1026,17 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 						AddressPool p = DhcpServerConfiguration.findNaAddrPool(clientLink.getLink(),
 									iaAddrOpt.getInetAddress());
 						if (p == null) {
+							log.info("No local address pool found for requested IA_NA: " + 
+									iaAddrOpt.getInetAddress().getHostAddress() +
+									" - considered to be off link");
+							iaAddrOpt.getIaAddrOption().setPreferredLifetime(0);
+							iaAddrOpt.getIaAddrOption().setValidLifetime(0);
 							onLink = false;
 						}
 					}
 					else {
+						// it the Link address is remote, then check 
+						// if the address is valid for that link
 						if (!clientLink.getSubnet().contains(iaAddrOpt.getInetAddress())) {
 							log.info("Setting zero(0) lifetimes for off link address: " +
 									iaAddrOpt.getInetAddress().getHostAddress());

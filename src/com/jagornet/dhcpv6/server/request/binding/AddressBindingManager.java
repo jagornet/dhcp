@@ -72,7 +72,10 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	public AddressBindingManager()
 	{
 		super();
-
+	}
+    
+	protected void startReaper()
+	{
 		//TODO: separate properties for address/prefix binding managers?
 		long reaperStartupDelay = 
 			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_REAPER_STARTUP_DELAY);
@@ -82,7 +85,7 @@ public abstract class AddressBindingManager extends BaseBindingManager
 		reaper = new Timer("BindingReaper");
 		reaper.schedule(new ReaperTimerTask(), reaperStartupDelay, reaperRunPeriod);
 	}
-    
+	
 	/**
 	 * Fetch the AddressPoolsType XML object from the given LinkFilter XML object.
 	 * The subclasses fetch the address pools for either NA or TA addresses.
@@ -298,14 +301,20 @@ public abstract class AddressBindingManager extends BaseBindingManager
 				        	if (link != null) {
 				        		BindingAddress bindingAddr =
 				        			buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
-								DdnsUpdater ddns =
-									new DdnsUpdater(link.getLink(), bindingAddr, fqdn,
-											ia.getDuid(), clientFqdnOption.getUpdateAaaaBit(), true);
-								ddns.processUpdates();
+				        		if (bindingAddr != null) {
+									DdnsUpdater ddns =
+										new DdnsUpdater(link.getLink(), bindingAddr, fqdn,
+												ia.getDuid(), clientFqdnOption.getUpdateAaaaBit(), true);
+									ddns.processUpdates();
+				        		}
+				        		else {
+				        			log.error("Failed to find binding for address: " +
+				        					iaAddr.getIpAddress().getHostAddress());
+				        		}
 				        	}
 				        	else {
 				        		log.error("Failed to find link for binding address: " + 
-				        				iaAddr.getIpAddress());
+				        				iaAddr.getIpAddress().getHostAddress());
 				        	}
 						}
 						else {

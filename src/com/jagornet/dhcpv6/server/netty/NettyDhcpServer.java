@@ -114,7 +114,7 @@ public class NettyDhcpServer
 	        		ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
 		            pipeline.addLast("decoder", 
-		            		new DhcpChannelDecoder(new InetSocketAddress(addr, port)));
+		            		new DhcpUnicastChannelDecoder(new InetSocketAddress(addr, port)));
 		            pipeline.addLast("encoder", new DhcpChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));

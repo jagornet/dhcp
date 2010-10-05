@@ -395,6 +395,10 @@ public class DhcpServerConfiguration
         else {
         	log.error("linkMap is null or empty");
         }
+        if (link != null) {
+        	log.info("Found configured Link for client request: " + 
+        				link.getLink().getName());
+        }
         return link;
     }
     

@@ -118,13 +118,15 @@ public class AddressBindingPool implements BindingPool
 	{
 		if (freeList != null) {
 			BigInteger next = freeList.getNextFree();
-			//TODO: if there are no more free addresses, then find one
-			//		that has been released or has been expired
-			try {
-				return InetAddress.getByAddress(next.toByteArray());
-			}
-			catch (UnknownHostException ex) {
-				log.error("Unable to build IPv6 address from next free: " + ex);
+			if (next != null) {
+				//TODO: if there are no more free addresses, then find one
+				//		that has been released or has been expired
+				try {
+					return InetAddress.getByAddress(next.toByteArray());
+				}
+				catch (UnknownHostException ex) {
+					log.error("Unable to build IPv6 address from next free: " + ex);
+				}
 			}
 		}		
 		return null;
@@ -311,5 +313,10 @@ public class AddressBindingPool implements BindingPool
 	public String toString()
 	{
 		return range.getStartAddress() + "-" + range.getEndAddress();
+	}
+	
+	public String freeListToString()
+	{
+		return freeList.toString();
 	}
 }
