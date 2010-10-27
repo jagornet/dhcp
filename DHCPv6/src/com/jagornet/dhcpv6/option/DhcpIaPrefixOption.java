@@ -40,7 +40,6 @@ import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.ConfigOptionsType;
 import com.jagornet.dhcpv6.xml.IaPrefixOption;
 
 /**
@@ -161,15 +160,23 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
      */
     public int getLength()
     {
+    	return getDecodedLength();
+    }
+    
+    /**
+     * Gets the decoded length.
+     * 
+     * @return the decoded length
+     */
+    public int getDecodedLength()
+    {
         int len = 4 + 4 + 1 + 16;	// iaid + preferred + valid + prefix_len + prefix_addr
-        // encode the configured options, so get the length of configured options
-        ConfigOptionsType configOptions = iaPrefixOption.getConfigOptions();
-        if (configOptions != null) {
-        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
-        	if (dhcpConfigOptions != null) {
-        		len += dhcpConfigOptions.getLength();
-        	}
-        }
+    	if (dhcpOptions != null) {
+    		for(DhcpOption dhcpOption : dhcpOptions.values()) {
+    			// code(short) + len(short) + data_len
+    			len += 4 + dhcpOption.getLength();
+    		}
+    	}
         return len;
     }
 
@@ -187,16 +194,14 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
             InetAddress inet6Prefix = Inet6Address.getByName(ipPrefix);
             buf.put(inet6Prefix.getAddress());
             // encode the configured options
-	        ConfigOptionsType configOptions = iaPrefixOption.getConfigOptions();
-	        if (configOptions != null) {
-	        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
-	        	if (dhcpConfigOptions != null) {
-	        		ByteBuffer _buf = dhcpConfigOptions.encode();
-	        		if (_buf != null) {
-	        			buf.put(_buf);
-	        		}
-	        	}
-	        }
+            if (dhcpOptions != null) {
+            	for (DhcpOption dhcpOption : dhcpOptions.values()) {
+    				ByteBuffer _buf = dhcpOption.encode();
+    				if (_buf != null) {
+    					buf.put(_buf);
+    				}
+    			}
+            }
         }
         return (ByteBuffer) buf.flip();
     }

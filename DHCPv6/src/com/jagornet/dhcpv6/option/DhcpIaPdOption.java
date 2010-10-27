@@ -38,9 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.ConfigOptionsType;
 import com.jagornet.dhcpv6.xml.IaPdOption;
-import com.jagornet.dhcpv6.xml.IaPrefixOption;
 
 /**
  * The Class DhcpIaPdOption.
@@ -169,15 +167,29 @@ public class DhcpIaPdOption extends BaseDhcpOption
      */
     public int getLength()
     {
+    	return getDecodedLength();
+    }
+
+    /**
+     * Gets the decoded length.
+     * 
+     * @return the decoded length
+     */
+    public int getDecodedLength()
+    {
     	int len = 4 + 4 + 4;	// iaId + t1 + t2
-        // encode the configured options, so get the length of configured options
-        ConfigOptionsType configOptions = iaPdOption.getConfigOptions();
-        if (configOptions != null) {
-        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
-        	if (dhcpConfigOptions != null) {
-        		len += dhcpConfigOptions.getLength();
-        	}
-        }
+    	if (iaPrefixOptions != null) {
+    		for (DhcpIaPrefixOption iaPrefixOption : iaPrefixOptions) {
+    			// code(short) + len(short) + data_len
+				len += 4 + iaPrefixOption.getDecodedLength();
+			}
+    	}
+    	if (dhcpOptions != null) {
+    		for (DhcpOption dhcpOption : dhcpOptions.values()) {
+    			// code(short) + len(short) + data_len
+				len += 4 + dhcpOption.getLength();
+			}
+    	}
         return len;
     }
 
@@ -190,31 +202,25 @@ public class DhcpIaPdOption extends BaseDhcpOption
         buf.putInt((int)iaPdOption.getIaId());
         buf.putInt((int)iaPdOption.getT1());
         buf.putInt((int)iaPdOption.getT2());
-        // encode the ia addrs configured for this ia na
-        List<IaPrefixOption> iaPrefixOptions = iaPdOption.getIaPrefixOptionList().getIaPrefixOptionList();
+
         if (iaPrefixOptions != null) {
-        	for (IaPrefixOption iaPrefixOption : iaPrefixOptions) {
-				DhcpIaPrefixOption dhcpIaPrefixOption = new DhcpIaPrefixOption(iaPrefixOption);
-				if (dhcpIaPrefixOption != null) {
-					ByteBuffer _buf = dhcpIaPrefixOption.encode();
-					if (_buf != null) {
-						buf.put(_buf);
-					}
+        	for (DhcpIaPrefixOption iaPrefixOption : iaPrefixOptions) {
+				ByteBuffer _buf = iaPrefixOption.encode();
+				if (_buf != null) {
+					buf.put(_buf);
 				}
 			}
         }
-        // encode the options configured for this ia na
-        ConfigOptionsType configOptions = iaPdOption.getConfigOptions();
-        if (configOptions != null) {
-        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
-        	if (dhcpConfigOptions != null) {
-        		ByteBuffer _buf = dhcpConfigOptions.encode();
-        		if (_buf != null) {
-        			buf.put(_buf);
-        		}
-        	}
+        if (dhcpOptions != null) {
+        	for (DhcpOption dhcpOption : dhcpOptions.values()) {
+				ByteBuffer _buf = dhcpOption.encode();
+				if (_buf != null) {
+					buf.put(_buf);
+				}
+			}
         }
         return (ByteBuffer) buf.flip();
+
     }
 
     /* (non-Javadoc)
@@ -226,7 +232,7 @@ public class DhcpIaPdOption extends BaseDhcpOption
             // already have the code, so length is next
             int len = Util.getUnsignedShort(buf);
             if (log.isDebugEnabled())
-                log.debug("IA_NA option reports length=" + len +
+                log.debug("IA_PD option reports length=" + len +
                           ":  bytes remaining in buffer=" + buf.remaining());
             int eof = buf.position() + len;
             if (buf.position() < eof) {
@@ -245,12 +251,12 @@ public class DhcpIaPdOption extends BaseDhcpOption
     }
     
     /**
-     * Decode any options sent by the client inside this IA_NA.  Mostly, we are
-     * concerned with any IA_ADDR options that the client may have included as
+     * Decode any options sent by the client inside this IA_PD.  Mostly, we are
+     * concerned with any IA_PREFIX options that the client may have included as
      * a hint to which address(es) it may want.  RFC 3315 does not specify if
-     * a client can actually provide any options other than IA_ADDR options in
-     * inside the IA_NA, but it does not say that the client cannot do so, and
-     * the IA_NA option definition supports any type of sub-options.
+     * a client can actually provide any options other than IA_PREFIX options in
+     * inside the IA_PD, but it does not say that the client cannot do so, and
+     * the IA_PD option definition supports any type of sub-options.
      * 
      * @param buf ByteBuffer positioned at the start of the options in the packet
      * 

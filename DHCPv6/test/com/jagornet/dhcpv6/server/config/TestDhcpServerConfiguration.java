@@ -30,12 +30,15 @@ import java.util.SortedMap;
 
 import junit.framework.TestCase;
 
+import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument;
+import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.PoliciesType;
 import com.jagornet.dhcpv6.xml.Policy;
+import com.jagornet.dhcpv6.xml.ServerIdOption;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
 // TODO: Auto-generated Javadoc
@@ -53,15 +56,24 @@ public class TestDhcpServerConfiguration extends TestCase
 	public void testSaveAndLoadConfig() throws Exception
 	{
 		DhcpV6ServerConfig config = DhcpV6ServerConfigDocument.DhcpV6ServerConfig.Factory.newInstance();
+		
+		ServerIdOption serverId = ServerIdOption.Factory.newInstance();
+		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
+		serverId.setOpaqueData(duid);
+		config.setServerIdOption(serverId);
+		
 		Policy policy = Policy.Factory.newInstance();
 		policy.setName("sendRequestedOptionsOnly");
 		policy.setValue("true");
 		PoliciesType policies = PoliciesType.Factory.newInstance();
 		policies.setPolicyArray(new Policy[] { policy });
 		config.setPolicies(policies);
+		
 		DhcpServerConfiguration.saveConfig(config, "test/com/jagornet/dhcpv6/server/config/dhcpServerConfigTestSave.xml");
+		
 		config = DhcpServerConfiguration.loadConfig("test/com/jagornet/dhcpv6/server/config/dhcpServerConfigTestSave.xml");
 		assertNotNull(config);
+		assertNotNull(config.getServerIdOption());
 		assertNotNull(config.getPolicies().getPolicyList());
 		assertEquals(1, config.getPolicies().getPolicyList().size());
 		assertEquals("sendRequestedOptionsOnly", config.getPolicies().getPolicyList().get(0).getName());

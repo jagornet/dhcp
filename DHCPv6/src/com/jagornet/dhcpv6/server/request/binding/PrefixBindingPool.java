@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.db.IaAddress;
+import com.jagornet.dhcpv6.option.DhcpConfigOptions;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
@@ -67,6 +68,8 @@ public class PrefixBindingPool implements BindingPool
 	/** The pool. */
 	protected PrefixPool pool;
 	
+	protected DhcpConfigOptions prefixConfigOptions;
+	
 	/** The link filter. */
 	protected LinkFilter linkFilter;	// this LinkFilter containing this pool, if any
 	
@@ -98,6 +101,7 @@ public class PrefixBindingPool implements BindingPool
 			int numPrefixes = (int) (Math.pow(2,(allocPrefixLen - subnet.getPrefixLength())) - 1);
 			freeList = new FreeList(BigInteger.ZERO, BigInteger.valueOf(numPrefixes));
 			reaper = new Timer(pool.getRange()+"_Reaper");
+			prefixConfigOptions = new DhcpConfigOptions(pool.getPrefixConfigOptions());
 		} 
 		catch (NumberFormatException ex) {
 			log.error("Invalid PrefixPool definition", ex);
@@ -298,6 +302,14 @@ public class PrefixBindingPool implements BindingPool
 		this.linkFilter = linkFilter;
 	}
 	
+	public DhcpConfigOptions getPrefixConfigOptions() {
+		return prefixConfigOptions;
+	}
+
+	public void setPrefixConfigOptions(DhcpConfigOptions prefixConfigOptions) {
+		this.prefixConfigOptions = prefixConfigOptions;
+	}
+
 	public String toString()
 	{
 		return subnet.getSubnetAddress() + "/" + subnet.getPrefixLength();

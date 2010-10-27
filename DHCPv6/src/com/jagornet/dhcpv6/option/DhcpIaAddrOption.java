@@ -170,18 +170,6 @@ public class DhcpIaAddrOption extends BaseDhcpOption
      */
     public int getLength()
     {
-/*
-        int len = 24;	// ipAddr(16) + preferred(4) + valid(4)
-        // encode the configured options, so get the length of configured options
-        ConfigOptionsType configOptions = iaAddrOption.getAddrConfigOptions();
-        if (configOptions != null) {
-        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
-        	if (dhcpConfigOptions != null) {
-        		len += dhcpConfigOptions.getLength();
-        	}
-        }
-        return len;
-*/
     	return getDecodedLength();
     }
     
@@ -215,18 +203,6 @@ public class DhcpIaAddrOption extends BaseDhcpOption
             buf.putInt((int)iaAddrOption.getPreferredLifetime());
             buf.putInt((int)iaAddrOption.getValidLifetime());
             // encode the configured options
-/*
-	        ConfigOptionsType configOptions = iaAddrOption.getAddrConfigOptions();
-	        if (configOptions != null) {
-	        	DhcpConfigOptions dhcpConfigOptions = new DhcpConfigOptions(configOptions);
-	        	if (dhcpConfigOptions != null) {
-	        		ByteBuffer _buf = dhcpConfigOptions.encode();
-	        		if (_buf != null) {
-	        			buf.put(_buf);
-	        		}
-	        	}
-	        }
-*/
             if (dhcpOptions != null) {
             	for (DhcpOption dhcpOption : dhcpOptions.values()) {
     				ByteBuffer _buf = dhcpOption.encode();
@@ -235,7 +211,6 @@ public class DhcpIaAddrOption extends BaseDhcpOption
     				}
     			}
             }
-
         }
         return (ByteBuffer) buf.flip();
     }
