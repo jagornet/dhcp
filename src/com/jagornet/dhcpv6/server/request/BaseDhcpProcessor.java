@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,6 @@ import com.jagornet.dhcpv6.xml.IaNaOption;
 import com.jagornet.dhcpv6.xml.IaPdOption;
 import com.jagornet.dhcpv6.xml.IaPrefixOption;
 import com.jagornet.dhcpv6.xml.IaTaOption;
-import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.PrefixPool;
 
 /**
@@ -130,13 +130,35 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
         this.requestMsg = requestMsg;
         this.clientLinkAddress = clientLinkAddress;
     }
+
+    protected Map<Integer, DhcpOption> requestedOptions(Map<Integer, DhcpOption> optionMap,
+    		DhcpMessage requestMsg)
+	{
+    	if ((optionMap != null)  && !optionMap.isEmpty()) {
+    		List<Integer> requestedCodes = requestMsg.getRequestedOptionCodes();
+    		if ((requestedCodes != null) && !requestedCodes.isEmpty()) {
+    			Map<Integer, DhcpOption> _optionMap = new HashMap<Integer, DhcpOption>();
+    			for (Map.Entry<Integer, DhcpOption> option : optionMap.entrySet()) {
+					if (requestedCodes.contains(option.getKey())) {
+						_optionMap.put(option.getKey(), option.getValue());
+					}
+				}
+    			optionMap = _optionMap;
+    		}
+    	}
+    	return optionMap;
+	}
     
     /**
      * Populate reply msg options.
      */
     protected void populateReplyMsgOptions()
     {
-    	replyMsg.putAllDhcpOptions(dhcpServerConfig.effectiveMsgOptions(requestMsg));
+    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveMsgOptions(requestMsg);
+    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	replyMsg.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -144,9 +166,15 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * 
      * @param link the link
      */
-    protected void populateReplyMsgOptions(Link link)
+    protected void populateReplyMsgOptions(DhcpLink dhcpLink)
     {
-    	replyMsg.putAllDhcpOptions(dhcpServerConfig.effectiveMsgOptions(requestMsg, link));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectiveMsgOptions(requestMsg, dhcpLink);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
+    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	replyMsg.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -156,7 +184,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     protected void populateIaNaOptions(DhcpIaNaOption iaNaOption)
     {
-    	iaNaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaNaOptions(requestMsg));
+    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveIaNaOptions(requestMsg);
+    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaNaOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -166,7 +198,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     protected void populateIaTaOptions(DhcpIaTaOption iaTaOption)
     {
-    	iaTaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaTaOptions(requestMsg));
+    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveIaTaOptions(requestMsg);
+    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaTaOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -176,7 +212,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     protected void populateIaPdOptions(DhcpIaPdOption iaPdOption)
     {
-    	iaPdOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaPdOptions(requestMsg));
+    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveIaPdOptions(requestMsg);
+    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaPdOption.putAllDhcpOptions(optionMap);
     }
 
     /**
@@ -185,9 +225,15 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param iaNaOption the ia na option
      * @param link the link
      */
-    protected void populateIaNaOptions(DhcpIaNaOption iaNaOption, Link link)
+    protected void populateIaNaOptions(DhcpIaNaOption iaNaOption, DhcpLink dhcpLink)
     {
-    	iaNaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaNaOptions(requestMsg, link));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectiveIaNaOptions(requestMsg, dhcpLink);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
+    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaNaOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -196,9 +242,15 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param iaTaOption the ia ta option
      * @param link the link
      */
-    protected void populateIaTaOptions(DhcpIaTaOption iaTaOption, Link link)
+    protected void populateIaTaOptions(DhcpIaTaOption iaTaOption, DhcpLink dhcpLink)
     {
-    	iaTaOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaTaOptions(requestMsg, link));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectiveIaTaOptions(requestMsg, dhcpLink);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
+    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaTaOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -207,9 +259,15 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param iaPdOption the ia pd option
      * @param link the link
      */
-    protected void populateIaPdOptions(DhcpIaPdOption iaPdOption, Link link)
+    protected void populateIaPdOptions(DhcpIaPdOption iaPdOption, DhcpLink dhcpLink)
     {
-    	iaPdOption.putAllDhcpOptions(dhcpServerConfig.effectiveIaPdOptions(requestMsg, link));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectiveIaPdOptions(requestMsg, dhcpLink);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
+    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaPdOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -219,7 +277,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption)
     {
-    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg));
+    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveNaAddrOptions(requestMsg);
+    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaAddrOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -229,7 +291,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption)
     {
-    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg));
+    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveTaAddrOptions(requestMsg);
+    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaAddrOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -239,7 +305,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption)
     {
-    	iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg));
+    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectivePrefixOptions(requestMsg);
+    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaPrefixOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -248,9 +318,15 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param iaAddrOption the ia addr option
      * @param link the link
      */
-    protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link)
+    protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption, DhcpLink dhcpLink)
     {
-    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg, link));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectiveNaAddrOptions(requestMsg, dhcpLink);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
+    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaAddrOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -259,9 +335,15 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param iaAddrOption the ia addr option
      * @param link the link
      */
-    protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link)
+    protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, DhcpLink dhcpLink)
     {
-    	iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg, link));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectiveTaAddrOptions(requestMsg, dhcpLink);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
+    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaAddrOption.putAllDhcpOptions(optionMap);
     }
     
     /**
@@ -270,9 +352,15 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param iaPrefixOption the ia prefix option
      * @param link the link
      */
-    protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, Link link)
+    protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, DhcpLink dhcpLink)
     {
-    	iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg, link));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectivePrefixOptions(requestMsg, dhcpLink);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
+    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaPrefixOption.putAllDhcpOptions(optionMap);
     }
 	
     /**
@@ -282,9 +370,16 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param link the link
      * @param pool the pool
      */
-    protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link, AddressPool pool)
+    protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption, DhcpLink dhcpLink, 
+    		AddressBindingPool bindingPool)
     {
-	    iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveNaAddrOptions(requestMsg, link, pool));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectiveNaAddrOptions(requestMsg, dhcpLink, bindingPool);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool.getAddressPool(),
+    			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaAddrOption.putAllDhcpOptions(optionMap);
     }    
     
     /**
@@ -294,9 +389,16 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param link the link
      * @param pool the pool
      */
-    protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, Link link, AddressPool pool)
+    protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, DhcpLink dhcpLink, 
+    		AddressBindingPool bindingPool)
     {
-	    iaAddrOption.putAllDhcpOptions(dhcpServerConfig.effectiveTaAddrOptions(requestMsg, link, pool));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectiveTaAddrOptions(requestMsg, dhcpLink, bindingPool);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool.getAddressPool(),
+    			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+    	iaAddrOption.putAllDhcpOptions(optionMap);
     }    
     
     /**
@@ -306,9 +408,16 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param link the link
      * @param pool the pool
      */
-    protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, Link link, PrefixPool pool)
+    protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, DhcpLink dhcpLink, 
+    		PrefixBindingPool bindingPool)
     {
-	    iaPrefixOption.putAllDhcpOptions(dhcpServerConfig.effectivePrefixOptions(requestMsg, link, pool));
+    	Map<Integer, DhcpOption> optionMap = 
+    		dhcpServerConfig.effectivePrefixOptions(requestMsg, dhcpLink, bindingPool);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool.getPrefixPool(),
+    			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		optionMap = requestedOptions(optionMap, requestMsg);
+    	}
+	    iaPrefixOption.putAllDhcpOptions(optionMap);
     }    
 
     /**
@@ -321,12 +430,12 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     public DhcpMessage processMessage()
     {
-    	if (!preProcess()) {
-    		log.warn("Message dropped by preProcess");
-    		return null;
-    	}
-        
     	try {
+        	if (!preProcess()) {
+        		log.warn("Message dropped by preProcess");
+        		return null;
+        	}
+            
     		if (log.isDebugEnabled()) {
     			log.debug("Processing: " + requestMsg.toStringWithOptions());
     		}
@@ -375,18 +484,6 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     public boolean preProcess()
     {        
-    	synchronized (recentMsgs) {
-    		boolean isNew = recentMsgs.add(requestMsg);
-    		if (!isNew) {
-    			if (log.isDebugEnabled())
-    				log.debug("Dropping recent message");
-    			return false;	// don't process
-    		}
-    	}
-    	
-		if (log.isDebugEnabled())
-			log.debug("Processing new message");
-		
         // locate configuration for the client's link
 //        log.info("Client link address: " + clientLinkAddress.getHostAddress());
 //        clientLink = dhcpServerConfig.findLinkForAddress(clientLinkAddress);
@@ -400,6 +497,19 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
         			" remoteAddress=" + requestMsg.getRemoteAddress().getAddress());
         	return false;	// must configure link for server to reply
         }
+
+        synchronized (recentMsgs) {
+    		boolean isNew = recentMsgs.add(requestMsg);
+    		if (!isNew) {
+    			if (log.isDebugEnabled())
+    				log.debug("Dropping recent message");
+    			return false;	// don't process
+    		}
+    	}
+    	
+		if (log.isDebugEnabled())
+			log.debug("Processing new message");
+		
 		long timer = DhcpServerPolicies.effectivePolicyAsLong(clientLink.getLink(),
 				Property.DHCP_PROCESSOR_RECENT_MESSAGE_TIMER);
 		if (timer > 0) {
@@ -443,7 +553,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
     	if (requestMsg.isUnicast()) {
         	Map<Integer, DhcpOption> effectiveMsgOptions = 
-    	      	dhcpServerConfig.effectiveMsgOptions(requestMsg, clientLink.getLink());
+    	      	dhcpServerConfig.effectiveMsgOptions(requestMsg, clientLink);
         	if ((effectiveMsgOptions == null) ||
         			!effectiveMsgOptions.containsKey(DhcpConstants.OPTION_UNICAST)) {
             	// if the server has not explicitly told the client to unicast,
@@ -517,7 +627,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param clientLink the client link
 	 * @param binding the binding
 	 */
-	protected void addBindingToReply(Link clientLink, Binding binding)
+	protected void addBindingToReply(DhcpLink clientLink, Binding binding)
 	{
 		if (binding.getIatype() == Binding.NA_TYPE) {
 			addNaBindingToReply(clientLink, binding);
@@ -536,7 +646,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param clientLink the client link
 	 * @param binding the binding
 	 */
-	protected void addNaBindingToReply(Link clientLink, Binding binding)
+	protected void addNaBindingToReply(DhcpLink clientLink, Binding binding)
 	{
 		DhcpIaNaOption dhcpIaNaOption = new DhcpIaNaOption();
 		IaNaOption iaNaOption = dhcpIaNaOption.getIaNaOption(); 
@@ -554,17 +664,17 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				if (inetAddr != null) {
 					iaAddrOption.setIpv6Address(inetAddr.getHostAddress());
 					// must be an AddresBindingPool for IaNa binding
-					AddressBindingPool bp = 
+					AddressBindingPool bindingPool = 
 						(AddressBindingPool) bindingObj.getBindingPool();
-					if (bp != null) {
-						long preferred = bp.getPreferredLifetime();
+					if (bindingPool != null) {
+						long preferred = bindingPool.getPreferredLifetime();
 						if ((minPreferredLifetime == 0xffffffff) ||
 								(preferred < minPreferredLifetime))  {
 							minPreferredLifetime = preferred; 
 						}
 						iaAddrOption.setPreferredLifetime(preferred);
-						iaAddrOption.setValidLifetime(bp.getValidLifetime());
-						populateNaAddrOptions(dhcpIaAddrOption, clientLink, bp.getAddressPool());
+						iaAddrOption.setValidLifetime(bindingPool.getValidLifetime());
+						populateNaAddrOptions(dhcpIaAddrOption, clientLink, bindingPool);
 						dhcpIaAddrOptions.add(dhcpIaAddrOption);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
@@ -595,7 +705,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param clientLink the client link
 	 * @param binding the binding
 	 */
-	protected void addTaBindingToReply(Link clientLink, Binding binding)
+	protected void addTaBindingToReply(DhcpLink clientLink, Binding binding)
 	{
 		DhcpIaTaOption dhcpIaTaOption = new DhcpIaTaOption();
 		IaTaOption iaTaOption = dhcpIaTaOption.getIaTaOption(); 
@@ -611,12 +721,12 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				if (inetAddr != null) {
 					iaAddrOption.setIpv6Address(inetAddr.getHostAddress());
 					// must be an AddresBindingPool for IaNa binding
-					AddressBindingPool bp = 
+					AddressBindingPool bindingPool = 
 						(AddressBindingPool) bindingObj.getBindingPool();
-					if (bp != null) {
-						iaAddrOption.setPreferredLifetime(bp.getPreferredLifetime());
-						iaAddrOption.setValidLifetime(bp.getValidLifetime());
-						populateTaAddrOptions(dhcpIaAddrOption, clientLink, bp.getAddressPool());
+					if (bindingPool != null) {
+						iaAddrOption.setPreferredLifetime(bindingPool.getPreferredLifetime());
+						iaAddrOption.setValidLifetime(bindingPool.getValidLifetime());
+						populateTaAddrOptions(dhcpIaAddrOption, clientLink, bindingPool);
 						dhcpIaAddrOptions.add(dhcpIaAddrOption);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
@@ -644,7 +754,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param clientLink the client link
 	 * @param binding the binding
 	 */
-	protected void addPdBindingToReply(Link clientLink, Binding binding)
+	protected void addPdBindingToReply(DhcpLink clientLink, Binding binding)
 	{
 		DhcpIaPdOption dhcpIaPdOption = new DhcpIaPdOption();
 		IaPdOption iaPdOption = dhcpIaPdOption.getIaPdOption(); 
@@ -665,17 +775,17 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 					iaPrefixOption.setIpv6Prefix(inetAddr.getHostAddress());
 					iaPrefixOption.setPrefixLength(bindingPrefix.getPrefixLength());
 					// must be an PrefixBindingPool for IaPd binding
-					PrefixBindingPool bp = 
+					PrefixBindingPool bindingPool = 
 						(PrefixBindingPool) bindingPrefix.getBindingPool();
-					if (bp != null) {
-						long preferred = bp.getPreferredLifetime();
+					if (bindingPool != null) {
+						long preferred = bindingPool.getPreferredLifetime();
 						if ((minPreferredLifetime == 0xffffffff) ||
 								(preferred < minPreferredLifetime))  {
 							minPreferredLifetime = preferred; 
 						}
 						iaPrefixOption.setPreferredLifetime(preferred);
-						iaPrefixOption.setValidLifetime(bp.getValidLifetime());
-						populatePrefixOptions(dhcpIaPrefixOption, clientLink, bp.getPrefixPool());
+						iaPrefixOption.setValidLifetime(bindingPool.getValidLifetime());
+						populatePrefixOptions(dhcpIaPrefixOption, clientLink, bindingPool);
 						dhcpIaPrefixOptions.add(dhcpIaPrefixOption);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
@@ -718,10 +828,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param iaNaOption the ia na option
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
-	private void setIaNaT1(Link clientLink, IaNaOption iaNaOption,
+	private void setIaNaT1(DhcpLink clientLink, IaNaOption iaNaOption,
 			long minPreferredLifetime)
 	{
-		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink, Property.IA_NA_T1);
+		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_NA_T1);
 		if (t1 > 1) {
 			log.debug("Setting IA_NA T1 to configured number of seconds: " + t1);
 			// if T1 is greater than one, then treat it as an
@@ -759,10 +869,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param iaNaOption the ia na option
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
-	private void setIaNaT2(Link clientLink, IaNaOption iaNaOption,
+	private void setIaNaT2(DhcpLink clientLink, IaNaOption iaNaOption,
 			long minPreferredLifetime)
 	{
-		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink, Property.IA_NA_T2);
+		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_NA_T2);
 		if (t2 > 1) {
 			log.debug("Setting IA_NA T2 to configured number of seconds: " + t2);
 			iaNaOption.setT2((long)t2);
@@ -804,10 +914,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param iaPdOption the ia na option
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
-	private void setIaPdT1(Link clientLink, IaPdOption iaPdOption,
+	private void setIaPdT1(DhcpLink clientLink, IaPdOption iaPdOption,
 			long minPreferredLifetime)
 	{
-		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink, Property.IA_PD_T1);
+		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_PD_T1);
 		if (t1 > 1) {
 			log.debug("Setting IA_PD T1 to configured number of seconds: " + t1);
 			// if T1 is greater than one, then treat it as an
@@ -845,10 +955,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param iaPdOption the ia pd option
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
-	private void setIaPdT2(Link clientLink, IaPdOption iaPdOption,
+	private void setIaPdT2(DhcpLink clientLink, IaPdOption iaPdOption,
 			long minPreferredLifetime)
 	{
-		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink, Property.IA_PD_T2);
+		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_PD_T2);
 		if (t2 > 1) {
 			log.debug("Setting IA_PD T2 to configured number of seconds: " + t2);
 			iaPdOption.setT2((long)t2);

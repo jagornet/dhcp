@@ -89,7 +89,7 @@ public class DhcpInfoRequestProcessor extends BaseDhcpProcessor
              !dhcpServerIdOption.equals(requestedServerIdOption) ) {
             log.warn("Ignoring Info-Request message: " +
                      "Requested ServerId: " + requestedServerIdOption +
-                     "My ServerId: " + dhcpServerIdOption);
+                     " My ServerId: " + dhcpServerIdOption);
             return false;
         }
 
@@ -124,7 +124,7 @@ public class DhcpInfoRequestProcessor extends BaseDhcpProcessor
 //    	   configuration policies known to the server.
 
     	replyMsg.setMessageType(DhcpConstants.REPLY);
-    	populateReplyMsgOptions(clientLink.getLink());
+    	populateReplyMsgOptions(clientLink);
 
     	return true;
     }

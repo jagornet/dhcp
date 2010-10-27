@@ -161,7 +161,7 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					}
 					if (binding != null) {
 						// have a good binding, put it in the reply with options
-						addBindingToReply(clientLink.getLink(), binding);
+						addBindingToReply(clientLink, binding);
 						bindings.add(binding);
 					}
 					else {
@@ -199,7 +199,7 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					}
 					if (binding != null) {
 						// have a good binding, put it in the reply with options
-						addBindingToReply(clientLink.getLink(), binding);
+						addBindingToReply(clientLink, binding);
 						bindings.add(binding);
 					}
 					else {
@@ -237,7 +237,7 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					}
 					if (binding != null) {
 						// have a good binding, put it in the reply with options
-						addBindingToReply(clientLink.getLink(), binding);
+						addBindingToReply(clientLink, binding);
 						bindings.add(binding);
 					}
 					else {
@@ -263,7 +263,7 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     	        replyMsg.setMessageType(DhcpConstants.ADVERTISE);
     		}
     		if (!bindings.isEmpty()) {
-    			populateReplyMsgOptions(clientLink.getLink());
+    			populateReplyMsgOptions(clientLink);
     			processDdnsUpdates();
     		}
     	}    	

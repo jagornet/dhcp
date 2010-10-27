@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.server.config;
 
+import com.jagornet.dhcpv6.option.DhcpConfigOptions;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.xml.Link;
 
@@ -43,6 +44,14 @@ public class DhcpLink
 	/** The link. */
 	private Link link;
 	
+    private DhcpConfigOptions msgConfigOptions;
+    private DhcpConfigOptions iaNaConfigOptions;
+    private DhcpConfigOptions naAddrConfigOptions;
+    private DhcpConfigOptions iaTaConfigOptions;
+    private DhcpConfigOptions taAddrConfigOptions;
+    private DhcpConfigOptions iaPdConfigOptions;
+    private DhcpConfigOptions prefixConfigOptions;
+	
 	/**
 	 * Instantiates a new dhcp link.
 	 * 
@@ -53,6 +62,13 @@ public class DhcpLink
 	{
 		this.subnet = subnet;
 		this.link = link;
+		msgConfigOptions = new DhcpConfigOptions(link.getMsgConfigOptions());
+		iaNaConfigOptions = new DhcpConfigOptions(link.getIaNaConfigOptions());
+		naAddrConfigOptions = new DhcpConfigOptions(link.getNaAddrConfigOptions());
+		iaTaConfigOptions = new DhcpConfigOptions(link.getIaTaConfigOptions());
+		taAddrConfigOptions = new DhcpConfigOptions(link.getTaAddrConfigOptions());
+		iaPdConfigOptions = new DhcpConfigOptions(link.getIaPdConfigOptions());
+		prefixConfigOptions = new DhcpConfigOptions(link.getPrefixConfigOptions());
 	}
 
 	/**
@@ -89,6 +105,62 @@ public class DhcpLink
 	 */
 	public void setLink(Link link) {
 		this.link = link;
+	}
+
+	public DhcpConfigOptions getMsgConfigOptions() {
+		return msgConfigOptions;
+	}
+
+	public void setMsgConfigOptions(DhcpConfigOptions msgConfigOptions) {
+		this.msgConfigOptions = msgConfigOptions;
+	}
+
+	public DhcpConfigOptions getIaNaConfigOptions() {
+		return iaNaConfigOptions;
+	}
+
+	public void setIaNaConfigOptions(DhcpConfigOptions iaNaConfigOptions) {
+		this.iaNaConfigOptions = iaNaConfigOptions;
+	}
+
+	public DhcpConfigOptions getIaTaConfigOptions() {
+		return iaTaConfigOptions;
+	}
+
+	public void setIaTaConfigOptions(DhcpConfigOptions iaTaConfigOptions) {
+		this.iaTaConfigOptions = iaTaConfigOptions;
+	}
+
+	public DhcpConfigOptions getIaPdConfigOptions() {
+		return iaPdConfigOptions;
+	}
+
+	public void setIaPdConfigOptions(DhcpConfigOptions iaPdConfigOptions) {
+		this.iaPdConfigOptions = iaPdConfigOptions;
+	}
+
+	public DhcpConfigOptions getNaAddrConfigOptions() {
+		return naAddrConfigOptions;
+	}
+
+	public void setNaAddrConfigOptions(DhcpConfigOptions naAddrConfigOptions) {
+		this.naAddrConfigOptions = naAddrConfigOptions;
+	}
+
+	public DhcpConfigOptions getTaAddrConfigOptions() {
+		return taAddrConfigOptions;
+	}
+
+	public void setTaAddrConfigOptions(DhcpConfigOptions taAddrConfigOptions) {
+		this.taAddrConfigOptions = taAddrConfigOptions;
+	}
+
+	public DhcpConfigOptions getPrefixConfigOptions() {
+		return prefixConfigOptions;
+	}
+
+	public void setPrefixConfigOptions(DhcpConfigOptions prefixConfigOptions) {
+		this.prefixConfigOptions = prefixConfigOptions;
 	}
 	
 }

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
+
+	<serverIdOption>
+		<opaqueData>
+			<hexValue>abcdef0123456789</hexValue>
+		</opaqueData>
+	</serverIdOption>
 	
 	<policies>
 		<policy>
@@ -7,12 +13,6 @@
 			<value>true</value>
 		</policy>
 	</policies>
-
-	<serverIdOption>
-		<opaqueData>
-			<hexValue>abcdef0123456789</hexValue>
-		</opaqueData>
-	</serverIdOption>
 
 	<msgConfigOptions>
 		<dnsServersOption>
@@ -33,19 +33,19 @@
 		<filterExpressions>
 			<filterExpression>
 				<optionExpression code="15">
-					<opaqueOption>
+					<opaqueDataOption>
 						<opaqueData>
 							<asciiValue>FilterUserClass</asciiValue>
 						</opaqueData>
-					</opaqueOption>
+					</opaqueDataOption>
 				</optionExpression>
 			</filterExpression>
 		</filterExpressions>
-		<options>
-			<domainListOption>
+		<msgConfigOptions>
+			<domainSearchListOption>
 				<domainName>filter.com.</domainName>
-			</domainListOption>
-		</options>
+			</domainSearchListOption>
+		</msgConfigOptions>
 	  </filter>
 	</filters>
 	
