@@ -346,7 +346,6 @@ public class DhcpMessage
             log.debug("Option code=" + code);
             DhcpOption option = DhcpOptionFactory.getDhcpOption(code);
             if (option != null) {
-            	// TODO: see if this is needed or not
             	if ((option instanceof DhcpRelayOption) &&
             			(this instanceof DhcpRelayMessage)) {
             		DhcpRelayOption relayOption = (DhcpRelayOption) option;
