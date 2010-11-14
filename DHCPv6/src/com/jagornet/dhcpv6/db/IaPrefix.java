@@ -25,6 +25,10 @@
  */
 package com.jagornet.dhcpv6.db;
 
+import java.util.Collection;
+
+import com.jagornet.dhcpv6.util.Util;
+
 
 /**
  * The IaPrefix POJO class for the IAPREFIX database table.
@@ -70,5 +74,29 @@ public class IaPrefix extends IaAddress
 		return true;
 	}
 	
-	
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("\tIA_PREFIX: ");
+		sb.append(" ip=");
+		sb.append(this.getIpAddress().getHostAddress());
+		sb.append(" prefixLength=");
+		sb.append(this.getPrefixLength());
+		sb.append(" startTime=");
+		sb.append(this.getStartTime());
+		sb.append(" preferredEndTime=");
+		sb.append(this.getPreferredEndTime());
+		sb.append(" validEndTime=");
+		sb.append(this.getValidEndTime());
+		Collection<DhcpOption> opts = this.getDhcpOptions();
+		if (opts != null) {
+			for (DhcpOption dhcpOption : opts) {
+				sb.append(Util.LINE_SEPARATOR);
+				sb.append("\t\tIA_PREFIX Option: ");
+				sb.append(dhcpOption.toString());
+			}
+		}
+		return sb.toString();
+	}
 }

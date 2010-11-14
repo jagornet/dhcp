@@ -150,26 +150,7 @@ public class Binding extends IdentityAssoc
 		if (ips != null) {
 			for (IaAddress ipAddress : ips) {
 				sb.append(Util.LINE_SEPARATOR);
-				sb.append("\tIA_ADDR: ");
-				sb.append(" ip=");
-				sb.append(ipAddress.getIpAddress().getHostAddress());
-				sb.append(" startTime=");
-				sb.append(ipAddress.getStartTime());
-				sb.append(" preferredEndTime=");
-				sb.append(ipAddress.getPreferredEndTime());
-				sb.append(" validEndTime=");
-				sb.append(ipAddress.getValidEndTime());
-				Collection<DhcpOption> opts = ipAddress.getDhcpOptions();
-				if (opts != null) {
-					for (DhcpOption dhcpOption : opts) {
-						sb.append(Util.LINE_SEPARATOR);
-						sb.append("\t\tIA_ADDR Option: ");
-						sb.append(" code=");
-						sb.append(dhcpOption.getCode());
-						sb.append(" value=");
-						sb.append(Util.toHexString(dhcpOption.getValue()));
-					}
-				}
+				sb.append(ipAddress.toString());
 			}
 		}
 		Collection<DhcpOption> opts = this.getDhcpOptions();
@@ -177,10 +158,7 @@ public class Binding extends IdentityAssoc
 			for (DhcpOption dhcpOption : opts) {
 				sb.append(Util.LINE_SEPARATOR);
 				sb.append("\tIA Option: ");
-				sb.append(" code=");
-				sb.append(dhcpOption.getCode());
-				sb.append(" value=");
-				sb.append(Util.toHexString(dhcpOption.getValue()));
+				sb.append(dhcpOption.toString());
 			}
 		}
 		return sb.toString();

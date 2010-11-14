@@ -64,7 +64,7 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 		String insertQuery = "insert into iaprefix" +
 				" (prefixaddress, prefixlength, starttime, preferredendtime," +
 				" validendtime, state, identityassoc_id)" +
-				" values (?, ?, ?, ?, ?, ?)";
+				" values (?, ?, ?, ?, ?, ?, ?)";
 		
 		/**
 		 * Note: see https://issues.apache.org/jira/browse/DERBY-3609

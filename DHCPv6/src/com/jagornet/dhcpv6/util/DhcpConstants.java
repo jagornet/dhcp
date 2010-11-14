@@ -300,6 +300,9 @@ public class DhcpConstants
     
     /** The Constant STATUS_CODE_USEMULTICAST. */
     public static final int STATUS_CODE_USEMULTICAST = 5;
+    
+    /** The Constant STATUS_CODE_NOPREFIXAVAIL. */
+    public static final int STATUS_CODE_NOPREFIXAVAIL = 6;
 
     static {
 		try {

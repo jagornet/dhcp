@@ -268,4 +268,23 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
         }
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(iaPrefixOption.toString());
+        if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
+            sb.append(Util.LINE_SEPARATOR);
+        	sb.append("IA_PREFIX_DHCPOPTIONS");
+        	for (DhcpOption dhcpOption : dhcpOptions.values()) {
+				sb.append(dhcpOption.toString());
+			}
+        }
+        return sb.toString();
+    }
+
 }

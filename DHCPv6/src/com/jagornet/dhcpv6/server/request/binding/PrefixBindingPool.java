@@ -94,12 +94,13 @@ public class PrefixBindingPool implements BindingPool
 						"Prefix pool must be specified in prefix/len notation");
 			}
 			subnet = new Subnet(cidr[0], cidr[1]);
-			if (allocPrefixLen <= subnet.getPrefixLength()) {
+			if (allocPrefixLen < subnet.getPrefixLength()) {
 				throw new DhcpServerConfigException(
-						"Allocation prefix length must be greater than pool prefix length");			
+						"Allocation prefix length must be greater or equal to pool prefix length");			
 			}
-			int numPrefixes = (int) (Math.pow(2,(allocPrefixLen - subnet.getPrefixLength())) - 1);
-			freeList = new FreeList(BigInteger.ZERO, BigInteger.valueOf(numPrefixes));
+			int numPrefixes = (int) Math.pow(2,(allocPrefixLen - subnet.getPrefixLength()));
+			freeList = new FreeList(BigInteger.ZERO, 
+					BigInteger.valueOf(numPrefixes).subtract(BigInteger.ONE));
 			reaper = new Timer(pool.getRange()+"_Reaper");
 			prefixConfigOptions = new DhcpConfigOptions(pool.getPrefixConfigOptions());
 		} 

@@ -627,16 +627,30 @@ public class DhcpMessage
         StringBuffer sb = new StringBuffer(this.toString());
         if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
             sb.append(Util.LINE_SEPARATOR);
-        	sb.append("msgDhcpOptions");
+        	sb.append("MSG_DHCPOPTIONS");
         	for (DhcpOption dhcpOption : dhcpOptions.values()) {
 				sb.append(dhcpOption.toString());
 			}
         }
         if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
         	sb.append(Util.LINE_SEPARATOR);
-        	sb.append("iaNaOptions");
+        	sb.append("IA_NA_OPTIONS");
         	for (DhcpIaNaOption iaNaOption : iaNaOptions) {
         		sb.append(iaNaOption.toString());
+        	}
+        }
+        if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
+        	sb.append(Util.LINE_SEPARATOR);
+        	sb.append("IA_TA_OPTIONS");
+        	for (DhcpIaTaOption iaTaOption : iaTaOptions) {
+        		sb.append(iaTaOption.toString());
+        	}
+        }
+        if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
+        	sb.append(Util.LINE_SEPARATOR);
+        	sb.append("IA_PD_OPTIONS");
+        	for (DhcpIaPdOption iaPdOption : iaPdOptions) {
+        		sb.append(iaPdOption.toString());
         	}
         }
         return sb.toString();
