@@ -221,8 +221,12 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 						else {
 							//TODO: what is the right thing to do here - we have
 							//		a request, but the solicit failed somehow?
+//							addIaTaOptionStatusToReply(dhcpIaTaOption,
+//		    						DhcpConstants.STATUS_CODE_NOBINDING);
+							// assume that if we have no binding, then there were
+							// no addresses available to be given out on solicit
 							addIaTaOptionStatusToReply(dhcpIaTaOption,
-		    						DhcpConstants.STATUS_CODE_NOBINDING);
+		    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 						}
 		    		}
 				}
@@ -240,8 +244,9 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
 	    			log.info("Processing IA_PD Request: " + dhcpIaPdOption.toString());
 		    		if (!allIaPrefixesOnLink(dhcpIaPdOption, clientLink)) {
+		    			// for PD return NoPrefixAvail instead of NotOnLink
 		    			addIaPdOptionStatusToReply(dhcpIaPdOption,
-		    					DhcpConstants.STATUS_CODE_NOTONLINK);
+		    					DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
 		    		}
 		    		else {
 						Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
@@ -254,15 +259,20 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 								bindings.add(binding);
 							}
 							else {
+				    			// for PD return NoPrefixAvail instead of NotOnLink
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
 							}
 						}
 						else {
 							//TODO: what is the right thing to do here - we have
 							//		a request, but the solicit failed somehow?
+//							addIaPdOptionStatusToReply(dhcpIaPdOption,
+//		    						DhcpConstants.STATUS_CODE_NOBINDING);
+							// assume that if we have no binding, then there were
+							// no prefixes available to be given out on solicit
 							addIaPdOptionStatusToReply(dhcpIaPdOption,
-		    						DhcpConstants.STATUS_CODE_NOBINDING);
+		    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
 						}
 		    		}
 				}

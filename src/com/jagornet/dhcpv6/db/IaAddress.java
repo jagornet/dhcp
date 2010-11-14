@@ -29,6 +29,8 @@ import java.net.InetAddress;
 import java.util.Collection;
 import java.util.Date;
 
+import com.jagornet.dhcpv6.util.Util;
+
 /**
  * The IaAddress POJO class for the IAADDRESS database table.
  * 
@@ -289,5 +291,29 @@ public class IaAddress
 		} else if (!validEndTime.equals(other.validEndTime))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("\tIA_ADDR: ");
+		sb.append(" ip=");
+		sb.append(this.getIpAddress().getHostAddress());
+		sb.append(" startTime=");
+		sb.append(this.getStartTime());
+		sb.append(" preferredEndTime=");
+		sb.append(this.getPreferredEndTime());
+		sb.append(" validEndTime=");
+		sb.append(this.getValidEndTime());
+		Collection<DhcpOption> opts = this.getDhcpOptions();
+		if (opts != null) {
+			for (DhcpOption dhcpOption : opts) {
+				sb.append(Util.LINE_SEPARATOR);
+				sb.append("\t\tIA_ADDR Option: ");
+				sb.append(dhcpOption.toString());
+			}
+		}
+		return sb.toString();
 	}
 }

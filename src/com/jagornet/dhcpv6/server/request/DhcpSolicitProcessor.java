@@ -241,11 +241,11 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 						bindings.add(binding);
 					}
 					else {
-						// something went wrong, report NoAddrsAvail status for IA_PD
+						// something went wrong, report NoPrefixAvail status for IA_PD
 // TAHI tests want this status at the message level
 //	    				addIaPdOptionStatusToReply(dhcpIaPdOption, 
-//	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
-		    			setReplyStatus(DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+//	    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
+		    			setReplyStatus(DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
 					}
 	    		}
     		}

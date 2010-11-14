@@ -51,10 +51,10 @@ public class DhcpIaPdOption extends BaseDhcpOption
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaPdOption.class);
 	
-	/** The ia na option, which contains any configured options for the ia na. */
+	/** The ia pd option, which contains any configured options for the ia pd. */
 	private IaPdOption iaPdOption;
     
-	/** The dhcp options sent by the client inside this ia na option, _NOT_ including any requested ia addr options. */
+	/** The dhcp options sent by the client inside this ia pd option, _NOT_ including any requested ia prefix options. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 	
 	/** The ia prefix options. */
@@ -283,4 +283,32 @@ public class DhcpIaPdOption extends BaseDhcpOption
 		    }
 		}
 	}
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+        sb.append(super.getName());
+        sb.append(Util.LINE_SEPARATOR);
+        // use XmlObject implementation
+        sb.append(iaPdOption.toString());
+        if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
+            sb.append(Util.LINE_SEPARATOR);
+        	sb.append("IA_DHCPOPTIONS");
+        	for (DhcpOption dhcpOption : dhcpOptions.values()) {
+				sb.append(dhcpOption.toString());
+			}
+        }
+        if ((iaPrefixOptions != null) && !iaPrefixOptions.isEmpty()) {
+            sb.append(Util.LINE_SEPARATOR);
+        	sb.append("IA_PREFIXES");
+            sb.append(Util.LINE_SEPARATOR);
+        	for (DhcpIaPrefixOption iaPrefixOption : iaPrefixOptions) {
+				sb.append(iaPrefixOption.toString());
+			}
+        }
+        return sb.toString();
+    }
 }

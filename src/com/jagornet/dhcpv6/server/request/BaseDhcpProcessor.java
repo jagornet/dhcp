@@ -691,6 +691,9 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			}
 			dhcpIaNaOption.setIaAddrOptions(dhcpIaAddrOptions);
 		}
+		else {
+			log.error("No IA_NA bindings in binding object!");
+		}
 		
 		setIaNaT1(clientLink, iaNaOption, minPreferredLifetime);
 		setIaNaT2(clientLink, iaNaOption, minPreferredLifetime);
@@ -742,6 +745,9 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				}
 			}
 			dhcpIaTaOption.setIaAddrOptions(dhcpIaAddrOptions);
+		}
+		else {
+			log.error("No IA_TA bindings in binding object!");
 		}
 		
 		populateIaTaOptions(dhcpIaTaOption, clientLink);
@@ -800,6 +806,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 					log.error("Null address in binding: " + binding.toString());
 				}
 			}
+			dhcpIaPdOption.setIaPrefixOptions(dhcpIaPrefixOptions);
+		}
+		else {
+			log.error("No IA_PD bindings in binding object!");
 		}
 		
 		setIaPdT1(clientLink, iaPdOption, minPreferredLifetime);
@@ -1184,6 +1194,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 						AddressPool p = DhcpServerConfiguration.findTaAddrPool(clientLink.getLink(),
 									iaAddrOpt.getInetAddress());
 						if (p == null) {
+							log.info("No local address pool found for requested IA_TA: " + 
+									iaAddrOpt.getInetAddress().getHostAddress() +
+									" - considered to be off link");
+							iaAddrOpt.getIaAddrOption().setPreferredLifetime(0);
+							iaAddrOpt.getIaAddrOption().setValidLifetime(0);
 							onLink = false;
 						}
 					}
@@ -1225,12 +1240,17 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 						PrefixPool p = DhcpServerConfiguration.findPrefixPool(clientLink.getLink(),
 									iaPrefixOpt.getInetAddress());
 						if (p == null) {
+							log.info("No local prefix pool found for requested IA_PD: " + 
+									iaPrefixOpt.getInetAddress().getHostAddress() +
+									" - considered to be off link");
+							iaPrefixOpt.getIaPrefixOption().setPreferredLifetime(0);
+							iaPrefixOpt.getIaPrefixOption().setValidLifetime(0);
 							onLink = false;
 						}
 					}
 					else {
 						if (!clientLink.getSubnet().contains(iaPrefixOpt.getInetAddress())) {
-							log.info("Setting zero(0) lifetimes for off link address: " +
+							log.info("Setting zero(0) lifetimes for off link prefix: " +
 									iaPrefixOpt.getInetAddress().getHostAddress());
 							iaPrefixOpt.getIaPrefixOption().setPreferredLifetime(0);
 							iaPrefixOpt.getIaPrefixOption().setValidLifetime(0);
