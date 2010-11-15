@@ -124,44 +124,44 @@ public class TestDhcpIaNaOption extends TestCase
         assertEquals(len, buf.limit());
         assertEquals(0, buf.position());
 
-        assertEquals((int)DhcpConstants.OPTION_IA_NA, Util.getUnsignedShort(buf));
-        assertEquals((int)len-4, Util.getUnsignedShort(buf));   // length
+        assertEquals(DhcpConstants.OPTION_IA_NA, Util.getUnsignedShort(buf));
+        assertEquals(len-4, Util.getUnsignedShort(buf));   // length
         
         assertEquals((long)0xdebb1e, Util.getUnsignedInt(buf));
         assertEquals((long)10000, Util.getUnsignedInt(buf));
         assertEquals((long)20000, Util.getUnsignedInt(buf));
         
-        assertEquals((int)DhcpConstants.OPTION_IAADDR, Util.getUnsignedShort(buf));
-        assertEquals((int)60, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.OPTION_IAADDR, Util.getUnsignedShort(buf));
+        assertEquals(60, Util.getUnsignedShort(buf));
         
         byte[] ia = new byte[16];
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::1"), InetAddress.getByAddress(ia));
         assertEquals((long)11000, Util.getUnsignedInt(buf));
         assertEquals((long)12000, Util.getUnsignedInt(buf));
-        assertEquals((int)DhcpConstants.OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
-        assertEquals((int)32, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
+        assertEquals(32, Util.getUnsignedShort(buf));
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::1:1"), InetAddress.getByAddress(ia));
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::1:2"), InetAddress.getByAddress(ia));
 
-        assertEquals((int)DhcpConstants.OPTION_IAADDR, Util.getUnsignedShort(buf));
-        assertEquals((int)60, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.OPTION_IAADDR, Util.getUnsignedShort(buf));
+        assertEquals(60, Util.getUnsignedShort(buf));
         
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::2"), InetAddress.getByAddress(ia));
         assertEquals((long)21000, Util.getUnsignedInt(buf));
         assertEquals((long)22000, Util.getUnsignedInt(buf));
-        assertEquals((int)DhcpConstants.OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
-        assertEquals((int)32, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
+        assertEquals(32, Util.getUnsignedShort(buf));
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::2:1"), InetAddress.getByAddress(ia));
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::2:2"), InetAddress.getByAddress(ia));
 
-        assertEquals((int)DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, Util.getUnsignedShort(buf));
-        assertEquals((int)18, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, Util.getUnsignedShort(buf));
+        assertEquals(18, Util.getUnsignedShort(buf));
         assertEquals("foo.com.", BaseDomainNameOption.decodeDomainName(buf, buf.position()+9));
         assertEquals("bar.com.", BaseDomainNameOption.decodeDomainName(buf, buf.position()+9));
 	}
@@ -179,15 +179,15 @@ public class TestDhcpIaNaOption extends TestCase
 
         bb.putShort((short)162);
 		
-		bb.putInt((int)0xdebb1e);
-		bb.putInt((int)10000);
-		bb.putInt((int)20000);
+		bb.putInt(0xdebb1e);
+		bb.putInt(10000);
+		bb.putInt(20000);
 		
 		bb.putShort((short)DhcpConstants.OPTION_IAADDR);
 		bb.putShort((short)60);
 		bb.put(InetAddress.getByName("3ffe::1").getAddress());
-		bb.putInt((int)11000);
-		bb.putInt((int)12000);
+		bb.putInt(11000);
+		bb.putInt(12000);
 		bb.putShort((short)DhcpConstants.OPTION_DNS_SERVERS);
 		bb.putShort((short)32);
 		bb.put(InetAddress.getByName("3ffe::1:1").getAddress());
@@ -196,8 +196,8 @@ public class TestDhcpIaNaOption extends TestCase
 		bb.putShort((short)DhcpConstants.OPTION_IAADDR);
 		bb.putShort((short)60);
 		bb.put(InetAddress.getByName("3ffe::2").getAddress());
-		bb.putInt((int)21000);
-		bb.putInt((int)22000);
+		bb.putInt(21000);
+		bb.putInt(22000);
 		bb.putShort((short)DhcpConstants.OPTION_DNS_SERVERS);
 		bb.putShort((short)32);
 		bb.put(InetAddress.getByName("3ffe::2:1").getAddress());
@@ -211,7 +211,7 @@ public class TestDhcpIaNaOption extends TestCase
 		
 		DhcpIaNaOption dhcpIaNaOption = new DhcpIaNaOption();
 		dhcpIaNaOption.decode(bb);
-		assertEquals((int)162, dhcpIaNaOption.getDecodedLength());
+		assertEquals(162, dhcpIaNaOption.getDecodedLength());
 	}
 	
 	/**

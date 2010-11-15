@@ -62,6 +62,8 @@ public class TestDhcpDomainSearchListOption extends TestCase
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		domain1 = null;
+		domain2 = null;
 	}
 
 	/**

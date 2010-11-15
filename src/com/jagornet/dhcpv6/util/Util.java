@@ -59,7 +59,7 @@ public class Util
             StringBuffer str = new StringBuffer(binary.length * 2);
             for(int i=0; i < binary.length; i++) {
                 int v = (binary[i] << 24) >>> 24;
-                str.append((v < 0x10 ? "0" : "") + Integer.toHexString((int) v));
+                str.append((v < 0x10 ? "0" : "") + Integer.toHexString(v));
             }
             return str.toString();
         }
@@ -110,7 +110,7 @@ public class Util
      * @see org.apache.mina.core.buffer.IoBuffer.getUnsignedShort
      */
     public static final int getUnsignedShort(ByteBuffer buf) {
-        return (int) (buf.getShort() & 0xffff);
+        return (buf.getShort() & 0xffff);
     }
 
     /**
@@ -118,7 +118,7 @@ public class Util
      * @see org.apache.mina.core.buffer.IoBuffer.getUnsignedInt
      */
     public static final long getUnsignedInt(ByteBuffer buf) {
-        return (long) (buf.getInt() & 0xffffffffL);
+        return (buf.getInt() & 0xffffffffL);
     }
 
     /**

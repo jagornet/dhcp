@@ -106,7 +106,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
             int eof = buf.position() + len;
             while (buf.position() < eof) {
                 // it has to be hex from the wire, right?
-                byte b[] = new byte[16];
+                byte[] b = new byte[16];
                 buf.get(b);
                 this.addServer(b);
             }

@@ -240,7 +240,8 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 				}
 			}
 			catch (EmptyResultDataAccessException ex) {
-				log.debug("No IaAddress found for IP=" + inetAddr.getHostAddress());
+				log.debug("No IaAddress found for IP=" + inetAddr.getHostAddress() +
+						": " + ex);
 			}
 		}
 		return ia;

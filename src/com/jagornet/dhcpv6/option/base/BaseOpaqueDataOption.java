@@ -143,7 +143,13 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
     @Override
     public boolean equals(Object obj)
     {
-        if (obj instanceof  BaseOpaqueDataOption) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+        if (obj instanceof BaseOpaqueDataOption) {
         	BaseOpaqueDataOption that = (BaseOpaqueDataOption) obj;
             return OpaqueDataUtil.equals(this.getOpaqueDataOptionType().getOpaqueData(), 
                                          that.getOpaqueDataOptionType().getOpaqueData());

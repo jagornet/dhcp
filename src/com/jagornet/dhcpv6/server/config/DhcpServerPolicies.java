@@ -156,7 +156,7 @@ public class DhcpServerPolicies
 		}
 		finally {
 			if (reader != null) {
-				try { reader.close(); } catch (IOException ex) { }
+				reader.close();
 			}
 		}
 	}

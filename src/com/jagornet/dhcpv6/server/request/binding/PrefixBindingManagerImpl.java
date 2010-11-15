@@ -253,7 +253,7 @@ public class PrefixBindingManagerImpl
 	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaPdOption iaPdOption, DhcpMessage requestMsg)
 	{
-		byte[] duid = clientIdOption.getDuid();;
+		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaPdOption.getIaPdOption().getIaId();
 		
 		return super.findCurrentBinding(clientLink, duid, IdentityAssoc.PD_TYPE, 
@@ -267,7 +267,7 @@ public class PrefixBindingManagerImpl
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaPdOption iaPdOption, DhcpMessage requestMsg, boolean rapidCommit)
 	{	
-		byte[] duid = clientIdOption.getDuid();;
+		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaPdOption.getIaPdOption().getIaId();
 		
 		List<InetAddress> requestAddrs = getInetAddrs(iaPdOption);
@@ -283,7 +283,7 @@ public class PrefixBindingManagerImpl
 			DhcpClientIdOption clientIdOption, DhcpIaPdOption iaPdOption,
 			DhcpMessage requestMsg, byte state)
 	{
-		byte[] duid = clientIdOption.getDuid();;
+		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaPdOption.getIaPdOption().getIaId();
 		
 		List<InetAddress> requestAddrs = getInetAddrs(iaPdOption);

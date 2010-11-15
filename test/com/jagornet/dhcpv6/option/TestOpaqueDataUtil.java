@@ -48,8 +48,8 @@ public class TestOpaqueDataUtil extends TestCase
 	{
 		String hex1 = "ABCDEF0123456789";
 		String hex2 = "abcdef0123456789";
-		byte b1[] = Util.fromHexString(hex1);
-		byte b2[] = Util.fromHexString(hex2);
+		byte[] b1 = Util.fromHexString(hex1);
+		byte[] b2 = Util.fromHexString(hex2);
 		assertTrue(Arrays.equals(b1, b2));
 	}
 	

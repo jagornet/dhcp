@@ -96,7 +96,7 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
     {
     	int len = super.decodeLength(buf);
     	if ((len > 0) && (len <= buf.remaining())) {
-            byte b[] = new byte[len];
+            byte[] b = new byte[len];
             buf.get(b);
             stringOption.setString(new String(b));
         }

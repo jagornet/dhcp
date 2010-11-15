@@ -119,20 +119,33 @@ public class DbSchemaManager
 	 */
 	public static void createSchema(DataSource dataSource) throws SQLException, IOException
 	{
-    	JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-    	StringBuilder schema = new StringBuilder();
-    	BufferedReader br = new BufferedReader(new FileReader(SCHEMA_FILENAME));
-    	String line = br.readLine();
-    	while (line != null) {
-    		if (!line.startsWith("-- ")) {
-    			schema.append(line);
-    		}
-    		if (schema.toString().endsWith(";")) {
-    			schema.setLength(schema.length()-1);
-	        	jdbc.execute(schema.toString());
-	        	schema.setLength(0);
-    		}
-    		line = br.readLine();
-    	}
+		FileReader fr = null;
+		BufferedReader br = null;
+		try {
+	    	JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+	    	StringBuilder schema = new StringBuilder();
+	    	fr = new FileReader(SCHEMA_FILENAME);
+	    	br = new BufferedReader(fr);
+	    	String line = br.readLine();
+	    	while (line != null) {
+	    		if (!line.startsWith("-- ")) {
+	    			schema.append(line);
+	    		}
+	    		if (schema.toString().endsWith(";")) {
+	    			schema.setLength(schema.length()-1);
+		        	jdbc.execute(schema.toString());
+		        	schema.setLength(0);
+	    		}
+	    		line = br.readLine();
+	    	}
+		}
+		finally {
+			if (br != null) {
+				br.close();
+			}
+			if (fr != null) {
+				fr.close();
+			}
+		}
 	}
 }

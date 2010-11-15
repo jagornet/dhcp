@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
@@ -43,6 +45,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
  */
 public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptionDAO 
 {
+    private static Logger log = LoggerFactory.getLogger(JdbcDhcpOptionDAO.class);
+    
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#create(com.jagornet.dhcpv6.db.DhcpOption)
 	 */
@@ -135,6 +139,7 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
 		            new OptionRowMapper(), id);
 		}
 		catch (EmptyResultDataAccessException ex) {
+			log.warn("DhcpOption not found for ID=" + id + ": " + ex);
 			return null;
 		}
 	}

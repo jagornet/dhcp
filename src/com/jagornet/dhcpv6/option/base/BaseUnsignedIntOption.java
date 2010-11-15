@@ -175,7 +175,9 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
 	                        return true;
 	                    }
 	                }
-	                catch (NumberFormatException ex) { }
+	                catch (NumberFormatException ex) {
+	                	log.error("Invalid unsigned byte ASCII value for OpaqueData: " + ascii, ex);
+	                }
 	            }
 	            else {
 	                byte[] hex = opaque.getHexValue();

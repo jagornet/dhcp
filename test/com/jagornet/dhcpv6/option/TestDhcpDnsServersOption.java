@@ -53,7 +53,7 @@ public class TestDhcpDnsServersOption extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		dns1 = InetAddress.getByName("2001:db8::1");;
+		dns1 = InetAddress.getByName("2001:db8::1");
 		dns2 = InetAddress.getByName("2001:db8::2");
 	}
 
@@ -63,6 +63,8 @@ public class TestDhcpDnsServersOption extends TestCase
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		dns1 = null;
+		dns2 = null;
 	}
 
 	/**
@@ -109,9 +111,9 @@ public class TestDhcpDnsServersOption extends TestCase
         assertEquals(2, dso.getIpAddressListOption().getIpAddressList().size());
         List<String> dnsServers = dso.getIpAddressListOption().getIpAddressList();
         assertEquals(dns1, 
-                     InetAddress.getByName((String)dnsServers.get(0)));
+                     InetAddress.getByName(dnsServers.get(0)));
         assertEquals(dns2, 
-                     InetAddress.getByName((String)dnsServers.get(1)));
+                     InetAddress.getByName(dnsServers.get(1)));
     }
     
     /**

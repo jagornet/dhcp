@@ -141,13 +141,13 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
 				inetAddr = InetAddress.getByName(iaPrefixOption.getIpv6Prefix());
 			}
 			catch (UnknownHostException ex) {
-				log.error("Invalid IP address: " + iaPrefixOption.getIpv6Prefix());
+				log.error("Invalid IP address: " + iaPrefixOption.getIpv6Prefix() + ": " + ex);
 			}
 		}
 		return inetAddr;
 	}
 	
-    /* (non-Javadoc)
+    /* (non-Javadoc) 
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
      */
     public int getCode()

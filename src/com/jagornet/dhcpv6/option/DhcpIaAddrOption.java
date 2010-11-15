@@ -151,7 +151,7 @@ public class DhcpIaAddrOption extends BaseDhcpOption
 				inetAddr = InetAddress.getByName(iaAddrOption.getIpv6Address());
 			}
 			catch (UnknownHostException ex) {
-				log.error("Invalid IP address: " + iaAddrOption.getIpv6Address());
+				log.error("Invalid IP address: " + iaAddrOption.getIpv6Address() + ": " + ex);
 			}
 		}
 		return inetAddr;

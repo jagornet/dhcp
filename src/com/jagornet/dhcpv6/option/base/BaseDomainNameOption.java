@@ -140,10 +140,10 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
             short l = Util.getUnsignedByte(buf);  // length byte as short
             if (l == 0)
                 break;      // terminating null "root" label
-            byte b[] = new byte[l];
+            byte[] b = new byte[l];
             buf.get(b);      // get next label
             domain.append(new String(b));
-            domain.append(".");     // build the FQDN by appending labels
+            domain.append('.');     // build the FQDN by appending labels
         }
         return domain.toString();
     }

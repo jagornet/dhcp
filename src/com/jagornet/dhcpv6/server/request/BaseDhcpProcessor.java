@@ -470,7 +470,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     	finally {
 	        if (!postProcess()) {
 	    		log.warn("Message dropped by postProcess");
-	        	return null;
+	        	replyMsg = null;
 	        }
     	}
         

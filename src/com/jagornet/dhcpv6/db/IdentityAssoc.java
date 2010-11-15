@@ -246,6 +246,8 @@ public class IdentityAssoc
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		if (!(obj instanceof IdentityAssoc))
+			return false;
 		IdentityAssoc other = (IdentityAssoc) obj;
 		if (!Arrays.equals(duid, other.duid))
 			return false;

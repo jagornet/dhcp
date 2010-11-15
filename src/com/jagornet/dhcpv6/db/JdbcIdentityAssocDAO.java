@@ -31,10 +31,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * The JdbcIdentityAssocDAO implementation class for the IdentityAssocDAO interface.
@@ -43,6 +47,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
  */
 public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements IdentityAssocDAO 
 {
+    private static Logger log = LoggerFactory.getLogger(JdbcIaPrefixDAO.class);
 
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IdentityAssocDAO#create(com.jagornet.dhcpv6.db.IdentityAssoc)
@@ -114,6 +119,7 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 		            new IaRowMapper(), id);
 		}
 		catch (EmptyResultDataAccessException ex) {
+			log.warn("IdentityAssoc not found for ID=" + id + ": " + ex);
 			return null;
 		}
 	}
@@ -129,7 +135,8 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 	                new IaRowMapper(), duid, iatype, iaid);
 		}
 		catch (EmptyResultDataAccessException ex) {
-			// TODO: log message
+			log.warn("IdenityAssoc not found for DUID=" + Util.toHexString(duid) +
+					" IATYPE=" + iatype + " IAID=" + iaid + ": " + ex);
 			return null;
 		}
 	}

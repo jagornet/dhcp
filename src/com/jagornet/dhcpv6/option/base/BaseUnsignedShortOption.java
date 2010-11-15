@@ -175,7 +175,9 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
 	                        return true;
 	                    }
 	                }
-	                catch (NumberFormatException ex) { }
+	                catch (NumberFormatException ex) { 
+	                	log.error("Invalid unsigned short ASCII value for OpaqueData: " + ascii, ex);
+	                }
 	            }
 	            else {
 	                byte[] hex = opaque.getHexValue();

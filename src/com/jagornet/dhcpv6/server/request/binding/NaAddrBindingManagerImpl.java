@@ -92,7 +92,7 @@ public class NaAddrBindingManagerImpl
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
 			DhcpMessage requestMsg) {
 		
-		byte[] duid = clientIdOption.getDuid();;
+		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaNaOption.getIaNaOption().getIaId();
 		
 		return super.findCurrentBinding(clientLink, duid, IdentityAssoc.NA_TYPE, 
