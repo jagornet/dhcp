@@ -481,7 +481,7 @@ public class DhcpMessage
 
     public DhcpOption getDhcpOption(int optionCode)
     {
-        return (DhcpOption)dhcpOptions.get(optionCode);
+        return dhcpOptions.get(optionCode);
     }
     public void putDhcpOption(DhcpOption dhcpOption)
     {
@@ -611,7 +611,7 @@ public class DhcpMessage
         sb.append(DhcpConstants.getMessageString(getMessageType()));
         sb.append(" (xactId=");
         sb.append(getTransactionId());
-        sb.append(")");
+        sb.append(')');
         if ((this.messageType == DhcpConstants.ADVERTISE) ||
         		(this.messageType == DhcpConstants.REPLY) ||
         		(this.messageType == DhcpConstants.RECONFIGURE))
@@ -682,6 +682,13 @@ public class DhcpMessage
     
     @Override
     public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+
     	boolean rc = false;
     	if (obj instanceof DhcpMessage) {
     		DhcpMessage that = (DhcpMessage) obj;

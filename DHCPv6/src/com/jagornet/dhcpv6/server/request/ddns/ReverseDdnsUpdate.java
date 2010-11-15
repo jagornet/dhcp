@@ -155,7 +155,7 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		StringBuilder revIp = new StringBuilder();
 		for (int i=0; i<reversed.length(); i++) {
 			revIp.append(reversed.substring(i, i+1));
-			revIp.append(".");
+			revIp.append('.');
 		}
 		revIp.append("ip6.arpa.");
 		return revIp.toString();

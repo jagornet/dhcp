@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -54,6 +56,7 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressDAO 
 {
+    private static Logger log = LoggerFactory.getLogger(JdbcIaAddressDAO.class);
 
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#create(com.jagornet.dhcpv6.db.IaAddress)
@@ -114,6 +117,7 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 		            new IaAddrRowMapper(), id);
 		}
 		catch (EmptyResultDataAccessException ex) {
+			log.warn("IaAddress not found for ID=" + id + ": " + ex);
 			return null;
 		}
 	}

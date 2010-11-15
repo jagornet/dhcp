@@ -207,7 +207,7 @@ public class DhcpServerConfiguration
 	            					netIf = NetworkInterface.getByInetAddress(ipaddr);
 	            				}
 	            				catch (UnknownHostException ex) {
-	            					// eat the exception in this case
+	            					log.warn("Unknown interface: " + ifname + ": " + ex);
 	            				}
 	            			}
 	                		if (netIf == null) {
@@ -351,7 +351,8 @@ public class DhcpServerConfiguration
 	        					}
         					}
         					catch (Exception ex) {
-        						log.error("Invalid AddressPool range: " + addrPool.getRange());
+        						log.error("Invalid AddressPool range: " + addrPool.getRange() +
+        								": " + ex);
         					}
         				}
         			}
@@ -368,7 +369,8 @@ public class DhcpServerConfiguration
 	        					}
         					}
         					catch (Exception ex) {
-        						log.error("Invalid AddressPool range: " + addrPool.getRange());
+        						log.error("Invalid AddressPool range: " + addrPool.getRange() +
+        								": " + ex);
         					}
         				}
         			}
@@ -495,7 +497,7 @@ public class DhcpServerConfiguration
 					catch (Exception ex) {
 						// this can't happen because the parsing of the
 						// pool Ranges is done at startup which would cause abort
-						log.error("Invalid Pool Range: " + p.getRange());
+						log.error("Invalid Pool Range: " + p.getRange() + ": " + ex);
 //TODO										throw ex;
 					}
 				}
@@ -533,7 +535,7 @@ public class DhcpServerConfiguration
 					catch (Exception ex) {
 						// this can't happen because the parsing of the
 						// pool Ranges is done at startup which would cause abort
-						log.error("Invalid Pool Range: " + p.getRange());
+						log.error("Invalid Pool Range: " + p.getRange() + ": " + ex);
 //TODO										throw ex;
 					}
 				}
@@ -580,7 +582,7 @@ public class DhcpServerConfiguration
     	}
     	finally {
     		if (fis != null) {
-    			try { fis.close(); } catch (IOException ex) { }
+    			fis.close();
     		}
     	}
     	return config;
@@ -607,7 +609,7 @@ public class DhcpServerConfiguration
     	}
     	finally {
     		if (fos != null) {
-    			try { fos.close(); } catch (IOException ex) { }
+    			fos.close();
     		}
     	}
     }

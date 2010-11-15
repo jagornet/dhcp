@@ -207,7 +207,8 @@ public class TestClient extends SimpleChannelUpstreamHandler
             	catch (NumberFormatException ex) {
             		numRequests = 100;
             		System.err.println("Invalid number of requests: '" + n +
-            							"' using default: " + numRequests);
+            							"' using default: " + numRequests +
+            							" Exception=" + ex);
             	}
             }
             if (cmd.hasOption("a")) {
@@ -218,7 +219,8 @@ public class TestClient extends SimpleChannelUpstreamHandler
             	catch (UnknownHostException ex) {
             		serverAddr = DhcpConstants.LOCALHOST_V6;
             		System.err.println("Invalid address: '" + a +
-            							"' using default: " + serverAddr);
+            							"' using default: " + serverAddr +
+            							" Exception=" + ex);
             	}
             }
             if (cmd.hasOption("m")) {
@@ -239,7 +241,8 @@ public class TestClient extends SimpleChannelUpstreamHandler
             	catch (NumberFormatException ex) {
             		clientPort = DhcpConstants.CLIENT_PORT;
             		System.err.println("Invalid client port number: '" + p +
-            							"' using default: " + clientPort);
+            							"' using default: " + clientPort +
+            							" Exception=" + ex);
             	}
             }
             if (cmd.hasOption("sp")) {
@@ -250,7 +253,8 @@ public class TestClient extends SimpleChannelUpstreamHandler
             	catch (NumberFormatException ex) {
             		serverPort = DhcpConstants.SERVER_PORT;
             		System.err.println("Invalid server port number: '" + p +
-            							"' using default: " + serverPort);
+            							"' using default: " + serverPort +
+            							" Exception=" + ex);
             	}
             }
             if (cmd.hasOption("r")) {

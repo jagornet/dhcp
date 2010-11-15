@@ -217,7 +217,7 @@ public class TestFreeList extends TestCase
 					}
 				}
 				
-			});
+			}, "TestThread-"+i);
 			t.start();
 		}
 		while (testGroup.activeCount() > 0) {

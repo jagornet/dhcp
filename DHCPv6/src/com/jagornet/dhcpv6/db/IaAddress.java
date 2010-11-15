@@ -257,6 +257,8 @@ public class IaAddress
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		if (!(obj instanceof IaAddress))
+			return false;
 		IaAddress other = (IaAddress) obj;
 		if (id == null) {
 			if (other.id != null)

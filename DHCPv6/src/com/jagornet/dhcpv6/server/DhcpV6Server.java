@@ -349,7 +349,8 @@ public class DhcpV6Server
             	catch (NumberFormatException ex) {
             		portNumber = DhcpConstants.SERVER_PORT;
             		System.err.println("Invalid port number: '" + p +
-            							"' using default: " + portNumber);
+            							"' using default: " + portNumber +
+            							" Exception=" + ex);
             	}
             }
             if (cmd.hasOption("m")) {
@@ -415,7 +416,7 @@ public class DhcpV6Server
 					netIf = NetworkInterface.getByInetAddress(ipaddr);
 				}
 				catch (UnknownHostException ex) {
-					// eat the exception in this case
+					log.warn("Unknown interface: " + ifname + ": " + ex);
 				}
 			}
 			if (netIf != null) {

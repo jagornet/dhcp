@@ -103,7 +103,7 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
     public static String decodeIpAddress(ByteBuffer buf) throws IOException
     {
         // it has to be hex from the wire, right?
-        byte b[] = new byte[16];
+        byte[] b = new byte[16];
         buf.get(b);
         InetAddress inetAddr = InetAddress.getByAddress(b);
         return inetAddr.getHostAddress();

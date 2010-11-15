@@ -68,6 +68,8 @@ public class IaPrefix extends IaAddress
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		if (!(obj instanceof IaPrefix))
+			return false;
 		IaPrefix other = (IaPrefix) obj;
 		if (prefixLength != other.prefixLength)
 			return false;

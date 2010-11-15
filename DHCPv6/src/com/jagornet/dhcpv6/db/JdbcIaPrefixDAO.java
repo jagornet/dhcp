@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -54,6 +56,7 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO 
 {
+    private static Logger log = LoggerFactory.getLogger(JdbcIaPrefixDAO.class);
 
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaPrefixDAO#create(com.jagornet.dhcpv6.db.IaPrefix)
@@ -116,6 +119,7 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 		            new IaPrefixRowMapper(), id);
 		}
 		catch (EmptyResultDataAccessException ex) {
+			log.warn("IaPrefix not found for ID=" + id + ": " + ex);
 			return null;
 		}
 	}

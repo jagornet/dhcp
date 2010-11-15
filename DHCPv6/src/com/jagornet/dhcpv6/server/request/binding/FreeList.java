@@ -237,7 +237,7 @@ public class FreeList
 			int i = 0;
 			for (BitSet bs : bitsetRanges) {
 				sb.append(" bitset[" + i + "].cardinality=" + bs.cardinality());
-				sb.append("\n");
+				sb.append('\n');
 				i++;
 			}
 		}

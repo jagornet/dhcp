@@ -86,6 +86,9 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		manager = null;
+		clientIdOption = null;
+		firstPoolAddr = null;
 	}
 
 	/**

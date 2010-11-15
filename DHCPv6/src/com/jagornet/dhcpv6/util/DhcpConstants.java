@@ -46,6 +46,11 @@ package com.jagornet.dhcpv6.util;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jagornet.dhcpv6.db.JdbcIaPrefixDAO;
+
 /**
  * The Class DhcpConstants.
  * Defines standard DHCPv6 constants
@@ -54,6 +59,7 @@ import java.net.UnknownHostException;
  */
 public class DhcpConstants
 {
+    private static Logger log = LoggerFactory.getLogger(JdbcIaPrefixDAO.class);
 	
 	/** The DHCPv6 home. */
 	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
@@ -312,6 +318,8 @@ public class DhcpConstants
 			ALL_DHCP_RELAY_AGENTS_AND_SERVERS = InetAddress.getByName("FF02::1:2");
 			ALL_DHCP_SERVERS = InetAddress.getByName("FF05::1:3");
 		}
-		catch (UnknownHostException ex) { }
+		catch (UnknownHostException ex) { 
+			log.error("Failed to initialize IP constants: " + ex);
+		}
 	}
 }
