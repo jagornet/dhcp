@@ -47,7 +47,7 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements IdentityAssocDAO 
 {
-    private static Logger log = LoggerFactory.getLogger(JdbcIaPrefixDAO.class);
+    private static Logger log = LoggerFactory.getLogger(JdbcIdentityAssocDAO.class);
 
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IdentityAssocDAO#create(com.jagornet.dhcpv6.db.IdentityAssoc)
@@ -135,7 +135,8 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 	                new IaRowMapper(), duid, iatype, iaid);
 		}
 		catch (EmptyResultDataAccessException ex) {
-			log.warn("IdenityAssoc not found for DUID=" + Util.toHexString(duid) +
+			// trace level message, because this is expected to happen sometimes
+			log.trace("IdenityAssoc not found for DUID=" + Util.toHexString(duid) +
 					" IATYPE=" + iatype + " IAID=" + iaid + ": " + ex);
 			return null;
 		}

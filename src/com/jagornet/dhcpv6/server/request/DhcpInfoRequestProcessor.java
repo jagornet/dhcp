@@ -81,6 +81,12 @@ public class DhcpInfoRequestProcessor extends BaseDhcpProcessor
     	if (!super.preProcess()) {
     		return false;
     	}
+    	
+    	// this check enforced by TAHI DHCP server tests
+    	if (requestMsg.isUnicast()) {
+    		log.warn("Ignoring unicast InfoRequest Message");
+    		return false;
+    	}
 
     	// if the client provided a ServerID option, then it MUST
         // match our configured ServerID, otherwise ignore the request
