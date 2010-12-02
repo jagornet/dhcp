@@ -243,7 +243,7 @@ public class DhcpRebindProcessor extends BaseDhcpProcessor
 							}
 							else {
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
 							}
 						}
 					}

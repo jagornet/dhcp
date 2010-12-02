@@ -233,7 +233,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
     		PrefixBindingManager bindingMgr = dhcpServerConfig.getPrefixBindingMgr();
     		if (bindingMgr != null) {
 	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
-	    			log.info("Processing IA_TA Renew: " + dhcpIaPdOption.toString());
+	    			log.info("Processing IA_PD Renew: " + dhcpIaPdOption.toString());
 					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 							clientIdOption, dhcpIaPdOption, requestMsg);
 					if (binding != null) {
@@ -250,7 +250,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
 							}
 							else {
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
 							}
 						}
 					}

@@ -443,6 +443,11 @@ public abstract class BaseBindingManager
 				if (bp == null) {
 					log.warn("No BindingPool found for requested client address: " +
 							reqAddr.getHostAddress());
+					if (iatype == IdentityAssoc.PD_TYPE) {
+						// TAHI tests want NoPrefixAvail in this case
+						log.warn("Requested prefix is not available, returning");
+						return inetAddrs;
+					}
 					// if there is no pool for the requested address, then skip it
 					// because that address is either off-link or no longer valid
 					continue;
