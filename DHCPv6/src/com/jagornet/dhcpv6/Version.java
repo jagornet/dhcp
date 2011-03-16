@@ -42,7 +42,7 @@ public class Version
 		sb.append('\n');
 		sb.append("Copyright ");
 		sb.append(pkg.getImplementationVendor());
-		sb.append(" 2009-2010.  All Rights Reserved.");
+		sb.append(" 2009-2011.  All Rights Reserved.");
 		return sb.toString();
 	}
 }

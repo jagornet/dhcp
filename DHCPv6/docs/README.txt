@@ -1,9 +1,7 @@
-Welcome to Jagornet DHCPv6 Community Edition 
-============================================
-Jagornet DHCPv6 server is an implementation of a stateless Dynamic Host 
-Configuration Protocol for IPv6 (DHCPv6) server as defined by RFC 3736.  
-The server is designed for use in networks that utilize IPv6 Stateless 
-Address Autoconfiguration (SLAAC) as defined by RFC 2462.
+Welcome to Jagornet DHCPv6 Server Community Edition 
+====================================================
+Jagornet DHCPv6 server is an implementation of a Dynamic Host Configuration
+Protocol for IPv6 (DHCPv6) server as defined by RFC 3315.  
 
 Getting Started
 ===============

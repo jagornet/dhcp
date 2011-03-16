@@ -115,6 +115,9 @@
   			<fileset dir="${yajsw}"/>
   		</copy>
   		
+  		<replace file="${dist}/bin/yajsw-beta-10.2/conf/wrapper.conf" 
+  			token="@@JAGORNET-DHCPV6-JAR@@" value="${product}.jar"/>
+  		
 	    <mkdir dir="${dist}/db"/>    
 	    <copy todir="${dist}/db">
 	    	<fileset dir="${db}"/>

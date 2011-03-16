@@ -1,5 +1,5 @@
-Jagornet DHCPv6
-Copyright 2009-2010 Jagornet Technologies
+Jagornet DHCPv6 Server Community Edition
+Copyright 2009-2011 Jagornet Technologies, LLC
 
 This product is licensed under the terms of the
 GNU General Public License Version 3 (GPL v3).
