@@ -207,7 +207,7 @@
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
 
 			<!-- msgConfigOptions are put at the message level of the reply -->
-			<xs:element name="msgConfigOptions" type="configOptionsType"/>
+			<xs:element name="msgConfigOptions" type="configOptionsType" minOccurs="0"/>
 
 			<!-- iaNaConfigOptions are put into any IA_NA options in the reply message -->
 			<xs:element name="iaNaConfigOptions" type="configOptionsType" minOccurs="0"/>
@@ -425,6 +425,7 @@
 	
 	<xs:complexType name="optionDefType">
 		<xs:choice>
+			<xs:element name="nilOption" type="nilOptionType"/>
 			<xs:element name="uByteOption" type="unsignedByteOptionType"/>
 			<xs:element name="uShortOption" type="unsignedShortOptionType"/>
 			<xs:element name="uShortListOption" type="unsignedShortListOptionType"/>
@@ -440,6 +441,8 @@
 		<xs:attribute name="code" type="code"/>
 		<xs:attribute name="name" type="name" use="optional"/>
 	</xs:complexType>
+	
+	<xs:complexType name="nilOptionType"></xs:complexType>
 	
 	<xs:complexType name="unsignedByteOptionType">
 		<xs:sequence>
