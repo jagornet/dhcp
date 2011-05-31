@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
+
+	<serverIdOption>
+		<!-- ServerID is auto-generated -->
+		<opaqueData>
+			<hexValue>abcdef0123456789</hexValue>
+		</opaqueData>
+	</serverIdOption>
 	
 	<policies>
 		<!-- Global server level policies -->
@@ -8,13 +15,6 @@
 			<value>false</value>
 		</policy>
 	</policies>
-
-	<serverIdOption>
-		<!-- ServerID is auto-generated -->
-		<opaqueData>
-			<hexValue>abcdef0123456789</hexValue>
-		</opaqueData>
-	</serverIdOption>
 
 	<msgConfigOptions>
 		<!-- Global server level options to be put at the message level
@@ -37,21 +37,21 @@
 		<name>UserClass Filter Group 1</name>
 		<filterExpressions>
 			<filterExpression>
-				<optionExpression code="15">
-					<opaqueOption>
+				<optionExpression code="15" operator="equals">
+					<opaqueDataOption>
 						<opaqueData>
 							<asciiValue>FilterUserClass</asciiValue>
 						</opaqueData>
-					</opaqueOption>
+					</opaqueDataOption>
 				</optionExpression>
 			</filterExpression>
 		</filterExpressions>
 		<msgConfigOptions>
 			<!-- Clients that match the filter will receive this DomainListOption
 				 instead of the one defined globally -->
-			<domainListOption>
+			<domainSearchListOption>
 				<domainName>filter.com.</domainName>
-			</domainListOption>
+			</domainSearchListOption>
 		</msgConfigOptions>
 	  </filter>
 	</filters>
@@ -61,12 +61,6 @@
 		<link>
 			<name>Local Client Link (Multicast traffic)</name>
 			<interface>eth0</interface>
-			<address>2001:DB8:1::/48</address>
-			<iaNaConfigOptions>
-				<dnsServersOption>
-					<ipAddress>2001:DB8:1::1</ipAddress>
-				</dnsServersOption>
-			</iaNaConfigOptions>
 			<policies>
 				<!--  10 minute lease times for testing -->
 				<policy>
@@ -106,12 +100,31 @@
 					<value>48</value>
 				</policy>
 			</policies>
+			<iaNaConfigOptions>
+				<dnsServersOption>
+					<ipAddress>2001:DB8:1::1</ipAddress>
+				</dnsServersOption>
+			</iaNaConfigOptions>
+			<naAddrPools>
+				<!-- Clients that don't support Rapid Commit requesting non-temporary
+					addresses, will get an address from this pool with the
+					address level options provided -->
+				<pool>
+					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
+					<addrConfigOptions>
+						<sipServerAddressesOption>
+							<ipAddress>2001:DB8:1::1:1</ipAddress>
+						</sipServerAddressesOption>
+					</addrConfigOptions>
+				</pool>
+			</naAddrPools>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Rapid Commit</name>
 					<filterExpressions>
 						<filterExpression>
 							<optionExpression code="14">
+								<nilOption/>
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>
@@ -130,19 +143,6 @@
 					</naAddrPools>
 			  	</linkFilter>
 			</linkFilters>
-			<naAddrPools>
-				<!-- Clients that don't support Rapid Commit requesting non-temporary
-					addresses, will get an address from this pool with the
-					address level options provided -->
-				<pool>
-					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
-					<addrConfigOptions>
-						<sipServerAddressesOption>
-							<ipAddress>2001:DB8:1::1:1</ipAddress>
-						</sipServerAddressesOption>
-					</addrConfigOptions>
-				</pool>
-			</naAddrPools>
 		</link>
 		<link>
 			<name>Remote Client Link (Unicast/Multicast traffic)</name>
