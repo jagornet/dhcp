@@ -64,6 +64,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.jagornet.dhcpv6.Version;
 import com.jagornet.dhcpv6.db.DbSchemaManager;
 import com.jagornet.dhcpv6.db.IaManager;
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.netty.NettyDhcpServer;
 import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
@@ -283,7 +284,7 @@ public class DhcpV6Server
         Option configFileOption =
         	OptionBuilder.withLongOpt("configfile")
         	.withArgName("filename")
-        	.withDescription("Configuration File (default = $DHCPV6_HOME/conf/dhcpv6server.xml).")
+        	.withDescription("Configuration file (default = $DHCPV6_HOME/conf/dhcpv6server.xml).")
         	.hasArg()
         	.create("c");
         options.addOption(configFileOption);
@@ -316,8 +317,21 @@ public class DhcpV6Server
         	.create("u");
         				 
         options.addOption(ucastOption);
+        
+        Option testConfigFileOption =
+        	OptionBuilder.withLongOpt("test-configfile")
+        	.withArgName("filename")
+        	.withDescription("Test configuration file, then exit.")
+        	.hasArg()
+        	.create("tc");
+        options.addOption(testConfigFileOption);
 
-        Option versionOption = new Option("v", "version", false, "Show version information.");
+        Option listIfOption = new Option("li", "list-interfaces", false, 
+        		"Show detailed interface list, then exit.");
+        options.addOption(listIfOption);
+
+        Option versionOption = new Option("v", "version", false, 
+        		"Show version information, then exit.");
         options.addOption(versionOption);
         
         Option helpOption = new Option("?", "help", false, "Show this help page.");        
@@ -375,6 +389,30 @@ public class DhcpV6Server
             }
             if (cmd.hasOption("v")) {
             	System.err.println(Version.getVersion());
+            	System.exit(0);
+            }
+            if (cmd.hasOption("tc")) {
+            	try {
+            		String filename = cmd.getOptionValue("tc");
+            		System.err.println("Parsing server configuration file: " + filename);
+            		DhcpV6ServerConfig config = DhcpServerConfiguration.parseConfig(filename);
+            		if (config != null) {
+            			System.err.println("OK: " + filename + " is a valid DHCPv6 server configuration file.");
+            		}
+            	}
+            	catch (Exception ex) {
+            		System.err.println("ERROR: " + ex);
+            	}
+            	System.exit(0);
+            }
+            if (cmd.hasOption("li")) {
+    			Enumeration<NetworkInterface> netIfs = NetworkInterface.getNetworkInterfaces();
+    			if (netIfs != null) {
+    				while (netIfs.hasMoreElements()) {
+    					NetworkInterface ni = netIfs.nextElement();
+    					System.err.println(ni);
+    				}
+    			}
             	System.exit(0);
             }
         }
@@ -541,9 +579,9 @@ public class DhcpV6Server
     public static void main(String[] args)
     {
         try {
+            DhcpV6Server server = new DhcpV6Server(args);
             System.out.println("Starting Jagornet DHCPv6 Server: " + new Date());
             System.out.println(Version.getVersion());
-            DhcpV6Server server = new DhcpV6Server(args);
             server.start();
         }
         catch (Exception ex) {
@@ -560,9 +598,10 @@ public class DhcpV6Server
      * 
      * @return DhcpV6ServerConfig XML document object
      * 
-     * @throws XmlException, IOException
+     * @throws DhcpServerConfigException, XmlException, IOException
      */
-    public static DhcpV6ServerConfig loadConfig(String filename) throws XmlException, IOException
+    public static DhcpV6ServerConfig loadConfig(String filename) 
+    		throws DhcpServerConfigException, XmlException, IOException
     {
         return DhcpServerConfiguration.loadConfig(filename);
     }

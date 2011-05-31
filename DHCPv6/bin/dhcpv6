@@ -64,11 +64,9 @@ fi
 # so that the server can find the log4j.properties file
 DHCPV6_CLASSPATH="$DHCPV6_HOME/conf"
 
-# Loop through all the jars, and add them to the CLASSPATH
-for file in `find $DHCPV6_HOME/lib/ -name *.jar`
-do
-DHCPV6_CLASSPATH="$DHCPV6_CLASSPATH:$file"
-done
+# Add all .jar files in DHCPV6_HOME/lib/ to the CLASSPATH
+# This trick courtesy of http://www.rgagnon.com/javadetails/java-0587.html 
+DHCPV6_CLASSPATH="$DHCPV6_CLASSPATH:$DHCPV6_HOME/lib/*"
 
 CLASSPATH=$CLASSPATH:$DHCPV6_CLASSPATH; export CLASSPATH
 
@@ -151,6 +149,18 @@ status() {
 	fi
 }
 
+version() {
+	$JAVA $DHCPV6_MAIN -version
+}
+
+testconfigfile() {
+	$JAVA $DHCPV6_MAIN --test-configfile $DHCPV6_OPTS
+}
+
+listinterfaces() {
+	$JAVA $DHCPV6_MAIN --list-interfaces
+}
+
 testclient() {
 	echo "Running TestClient..."
 	$JAVA -Ddhcpv6.home="$DHCPV6_HOME" -Dlog4j.configuration="testclient_log4j.properties" $DHCPV6TESTCLIENT_MAIN $DHCPV6_OPTS 
@@ -172,11 +182,20 @@ case "$OP" in
 	status)
 		status
 		;;
+	version)
+		version
+		;;
+	test-configfile)
+		testconfigfile
+		;;
+	list-interfaces)
+		listinterfaces
+		;;
 	testclient)
 		testclient
 		;;
 	*)
-		echo "Usage: $0 { start | stop | restart | status | testclient }"
+		echo "Usage: $0 { start | stop | restart | status | version | test-configfile | list-interfaces | testclient }"
 		exit 1
 		;;
 esac

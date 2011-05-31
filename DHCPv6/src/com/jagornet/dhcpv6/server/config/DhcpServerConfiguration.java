@@ -552,13 +552,28 @@ public class DhcpServerConfiguration
      * @return the loaded DhcpV6ServerConfig
      * 
      * @throws XmlException, IOException
+     * @throws  
      */
-    public static DhcpV6ServerConfig loadConfig(String filename) throws XmlException, IOException
+    public static DhcpV6ServerConfig loadConfig(String filename) 
+    		throws DhcpServerConfigException, XmlException, IOException 
+    {
+        log.info("Loading server configuration file: " + filename);
+    	DhcpV6ServerConfig config = parseConfig(filename);
+    	if (config != null) {
+        	log.info("Server configuration file loaded.");
+    	}
+    	else {
+    		log.error("No server configuration loaded.");
+    	}
+    	return config;
+    }
+    
+    public static DhcpV6ServerConfig parseConfig(String filename) 
+    		throws DhcpServerConfigException, XmlException, IOException
     {
     	DhcpV6ServerConfig config = null;
     	FileInputStream fis = null;
     	try {
-	        log.info("Loading server configuration file: " + filename);
 	        fis = new FileInputStream(filename);
 	        config = DhcpV6ServerConfigDocument.Factory.parse(fis).getDhcpV6ServerConfig();
 	        
@@ -569,15 +584,14 @@ public class DhcpServerConfiguration
 	        // During validation, errors are added to the ArrayList
 	        boolean isValid = config.validate(validationOptions);
 	        if (!isValid) {
+	        	StringBuilder sb = new StringBuilder();
 	            Iterator<XmlValidationError> iter = validationErrors.iterator();
 	            while (iter.hasNext())
 	            {
-	                log.error("Configuration validation " + iter.next());
+	                sb.append(iter.next());
+	                sb.append('\n');
 	            }
-	            config = null;
-	        }
-	        else {
-	        	log.info("Server configuration file loaded.");
+	            throw new DhcpServerConfigException(sb.toString());
 	        }
     	}
     	finally {
