@@ -20,9 +20,9 @@
 		<!-- Global server level options to be put at the message level
 			 for reply messages sent to clients -->
 		<dnsServersOption>
-			<ipAddress>3ffe::0001</ipAddress>
-			<ipAddress>3ffe::0002</ipAddress>
-			<ipAddress>3ffe::0003</ipAddress>
+			<ipAddress>2001:DB8::1</ipAddress>
+			<ipAddress>2001:DB8::2</ipAddress>
+			<ipAddress>2001:DB8::3</ipAddress>
 		</dnsServersOption>
 		<domainSearchListOption>
 			<domainName>foo.com.</domainName>
