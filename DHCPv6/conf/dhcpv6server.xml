@@ -2,7 +2,7 @@
 <dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
     <serverIdOption>
         <opaqueData>
-            <hexValue>000100014BB2B742005056C00008</hexValue>
+            <hexValue/>
         </opaqueData>
     </serverIdOption>
 </dhc:dhcpV6ServerConfig>
