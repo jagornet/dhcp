@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.server.netty;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.DatagramChannel;
@@ -134,7 +136,12 @@ public class NettyDhcpServer
 		            
 		            SocketAddress sockAddr = new InetSocketAddress(addr, port); 
 		            log.info("Binding datagram channel on IPv6 socket address: " + sockAddr);
-		            channel.bind(sockAddr);
+		            ChannelFuture future = channel.bind(sockAddr);
+		            future.await();
+		            if (!future.isSuccess()) {
+		            	log.error("Failed to bind unicast channel: " + future.getCause());
+		            	throw new IOException(future.getCause());
+		            }
 		            channels.add(channel);
 	        	}
         	}
@@ -163,8 +170,12 @@ public class NettyDhcpServer
 		            // must be bound in order to join multicast group
 		            SocketAddress sockAddr = new InetSocketAddress(port);
 		            log.info("Binding multicast channel on IPv6 socket address: " + sockAddr);
-		            channel.bind(sockAddr);
-		            
+		            ChannelFuture future = channel.bind(sockAddr);
+		            future.await();
+		            if (!future.isSuccess()) {
+		            	log.error("Failed to bind multicast channel: " + future.getCause());
+		            	throw new IOException(future.getCause());
+		            }
 		            InetSocketAddress relayGroup = 
 		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS, port);
 		            log.info("Joining multicast group: " + relayGroup +
