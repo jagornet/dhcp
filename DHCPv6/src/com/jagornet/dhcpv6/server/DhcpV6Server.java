@@ -300,19 +300,19 @@ public class DhcpV6Server
         Option mcastOption =
         	OptionBuilder.withLongOpt("mcast")
         	.withArgName("interfaces")
-        	.withDescription("Multicast support (default = no multicast). " +
-        			"Optionally list specific interfaces,\n" +
-        			"leave empty to select all IPv6 interfaces.")
+        	.withDescription("Multicast support (default = none). " +
+        			"Use this option without arguments to instruct the server to bind to all " +
+        			"multicast-enabled IPv6 interfaces on the host.  Optionally, use arguments " +
+        			"to list specific interfaces, separated by spaces.")
         	.hasOptionalArgs()
         	.create("m");
-        				 
         options.addOption(mcastOption);
 
         Option ucastOption =
         	OptionBuilder.withLongOpt("ucast")
         	.withArgName("interfaces")
-        	.withDescription("Unicast support (default = wildcard address). " +
-        			"Optionally list specific addresses to bind to.")
+        	.withDescription("Unicast addresses (default = all IPv6 addresses). " +
+        			"Optionally list specific IPv6 addresses, separated by spaces.")
         	.hasOptionalArgs()
         	.create("u");
         				 
