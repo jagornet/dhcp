@@ -1,101 +1,114 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
   <title>Jagornet DHCPv6 User Guide</title>
 </head>
 <body>
-<h1><a class="mozTocH1" name="mozTocId725159"></a>Jagornet DHCPv6 User
-Guide</h1>
+<h1><a class="mozTocH1" name="mozTocId725159"></a>Jagornet DHCPv6
+Server User
+Guide v1.1<br>
+</h1>
 Welcome to Jagornet DHCPv6 Community Edition. This user guide provides
 information on installing and running the Jagornet DHCPv6 server.
 &nbsp;The sections of the guide are defined in the following Table of
 Contents.<br>
-<ol id="mozToc">
+<ul id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
-  <li><a href="#mozTocId725159">Jagornet DHCPv6 User
-Guide</a>
-    <ol>
+  <li><a href="#mozTocId725159">Jagornet DHCPv6
+Server User
+Guide v1.1 </a>
+    <ul>
       <li><a href="#mozTocId706912">Getting Started</a>
-        <ol>
+        <ul>
           <li><a href="#mozTocId249477">Installation</a></li>
           <li><a href="#mozTocId544958">Running
 the Server</a>
-            <ol>
+            <ul>
               <li><a href="#mozTocId830497">Startup
 Options</a></li>
-            </ol>
+              <li><a href="#mozTocId177760">Linux/Unix/Mac</a></li>
+              <li><a href="#mozTocId213739">Windows</a>
+                <ul>
+                  <li><a href="#mozTocId57643">Windows Service</a></li>
+                  <li><a href="#mozTocId333292">Command shell</a></li>
+                </ul>
+              </li>
+            </ul>
           </li>
-        </ol>
+        </ul>
       </li>
-      <li><a href="#mozTocId119809">Configuration</a>
-        <ol>
+      <li><a href="#mozTocId574215">Configuration</a>
+        <ul>
           <li><a href="#mozTocId827865">Server Policies</a></li>
           <li><a href="#mozTocId921358">DHCPv6 Options</a>
-            <ol>
+            <ul>
               <li><a href="#mozTocId521070">Server Identifier
 Option</a></li>
               <li><a href="#mozTocId144290">Configuration Options</a></li>
               <li><a href="#mozTocId999138">Generic Options</a>
-                <ol>
+                <ul>
                   <li><a href="#mozTocId101942">Option Definition Type</a></li>
                   <li><a href="#mozTocId668523">Opaque
 Data Option</a></li>
-                </ol>
+                </ul>
               </li>
-            </ol>
+            </ul>
           </li>
           <li><a href="#mozTocId483343">Filters</a>
-            <ol>
+            <ul>
               <li><a href="#mozTocId629245">Filter Expressions</a>
-                <ol>
+                <ul>
                   <li><a href="#mozTocId585566">Option Expression</a></li>
                   <li><a href="#mozTocId505555">Custom Expression</a></li>
                   <li><a href="#mozTocId154454">Filters Example</a></li>
-                </ol>
+                </ul>
               </li>
-            </ol>
+            </ul>
           </li>
           <li><a href="#mozTocId544949">Links</a>
-            <ol>
+            <ul>
               <li>
-                <ol>
+                <ul>
                   <li><a href="#mozTocId819953">Links Example</a></li>
-                </ol>
+                </ul>
               </li>
-            </ol>
+            </ul>
           </li>
           <li><a href="#mozTocId882808">Pools</a>
-            <ol>
+            <ul>
               <li>
-                <ol>
+                <ul>
                   <li><a href="#mozTocId585504">Address Pools</a></li>
                   <li><a href="#mozTocId405146">Prefix Pools</a></li>
-                </ol>
+                </ul>
               </li>
-            </ol>
+            </ul>
           </li>
-        </ol>
+        </ul>
       </li>
       <li><a href="#mozTocId148908">DHCPv6
 Operational Models</a>
-        <ol>
+        <ul>
           <li><a href="#mozTocId260206">Operational model
 using a DHCPv6 Relay</a></li>
           <li><a href="#mozTocId562035">Operational model
 without a DHCPv6 Relay</a></li>
-        </ol>
+        </ul>
       </li>
       <li><a href="#mozTocId154139">Appendix</a>
-        <ol>
-          <li><a href="#mozTocId414899">Binding Database</a></li>
+        <ul>
+          <li><a href="#mozTocId414899">Binding
+Database</a></li>
           <li><a href="#mozTocId424719">Logging</a></li>
           <li><a href="#mozTocId945976">Java Management
 Extensions</a></li>
-        </ol>
+        </ul>
       </li>
-    </ol>
+    </ul>
   </li>
-</ol>
+</ul>
 <h2><a class="mozTocH2" name="mozTocId706912"></a>Getting Started</h2>
 <h3><a class="mozTocH3" name="mozTocId249477"></a>Installation</h3>
 <p>Java 6 runtime must be available on the host where the
@@ -129,7 +142,8 @@ created in the installation folder, with the following contents.
         <ul>
           <li><code>DHCPV6_HOME/bin</code> -
 executable command line files. See the section on <a href="#run">Running
-the Server</a>.</li>
+the
+Server</a>.</li>
           <li><code>DHCPV6_HOME/conf</code> -
 configuration files. See the section on <a href="#config">Configuration</a>.</li>
           <li><span style="font-family: monospace;">DHCPV6_HOME/db</span>
@@ -158,97 +172,220 @@ be
 instructed to bind to a different port number for testing purposes
 only. See
 the <a href="#startup">Startup Options</a> for more
-information.</p>
-<p>Open a command shell on the host system and run the script or
-command located
-in the <code>DHCPV6_HOME/bin</code> folder.</p>
-<ul>
-  <li>Linux/Unix/Mac
-    <ul>
-      <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 start</code>
-to start the server.</li>
-      <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 stop</code>
-to stop the server.</li>
-      <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 restart</code>
-to stop and start the server.</li>
-      <li><code>/opt/jagornet/dhcpv6/bin/dhcpv6 status</code>
-to check if the server is running.</li>
-    </ul>
-  </li>
-  <li>Windows
-    <ul>
-      <li><code>c:\jagornet\dhcpv6\bin\JagornetDhcpv6.bat</code>
-to run the server in the command window. Use Ctrl+C to stop.</li>
-      <li><code>c:\jagornet\dhcpv6\bin\InstallJagornetDhcpv6.bat</code>
-to install the Jagornet DHCPv6 Server as a Windows Service. &nbsp;<span
- style="font-style: italic;">On Windows 7 (and Server 2008) this must
-be "Run As Administrator"&nbsp;as described <a
- href="http://www.vistaclues.com/run-a-batch-file-as-an-administrator/">here</a>.</span></li>
-      <li><code>c:\jagornet\dhcpv6\bin\UninstallJagornetDhcpv6.bat</code>
-to remove the Jagornet DHCPv6 Server as a Windows Service. &nbsp;<span
- style="font-style: italic;">On Windows 7 (and Server 2008) this must
-be "Run As Administrator" as described <a
- href="http://www.vistaclues.com/run-a-batch-file-as-an-administrator/">here</a>.</span></li>
-      <li><code>c:\jagornet\dhcpv6\bin\StartJagornetDhcpv6.bat</code>
-to start the Jagornet DHCPv6 Server as a Windows Service. The server
-can also be started using the Windows Services Microsoft Management
-Console (MMC).</li>
-      <li><code>c:\jagornet\dhcpv6\bin\StopJagornetDhcpv6.bat</code>
-to stop the Jagornet DHCPv6 Server as a Windows Service. The server can
-also be stopped using the Windows Services Microsoft Management Console
-(MMC).</li>
-    </ul>
-  </li>
-</ul>
+information.<br>
+</p>
 <h4><a class="mozTocH4" name="mozTocId830497"></a><a name="startup">Startup
 Options</a></h4>
-By default, the Jagornet DHCPv6 Server listens for unicast traffic only
-by binding to port 547 on all IPv6 addresses available on the host
-system.
-The following startup otions are supported to change the default
-behavior:
+The main Java class of the Jagornet DHCPv6 Server supports the
+following usage:<br>
+<br>
+<code>usage: com.jagornet.dhcpv6.server.DhcpV6Server [options]<br>
+Jagornet DHCPv6 Community Edition 1.1.0<br>
+Copyright Jagornet Technologies, LLC 2009-2011.&nbsp; All Rights
+Reserved.<br>
+&nbsp;
+-?,--help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Show
+this help page.<br>
+&nbsp; -c,--configfile
+&lt;filename&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Configuration file (default =<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+$DHCPV6_HOME/conf/dhcpv6server.xml).<br>
+&nbsp;
+-li,--list-interfaces&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Show
+detailed interface list, then exit.<br>
+&nbsp; -m,--mcast
+&lt;interfaces&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Multicast
+support (default = none). Use this<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+option
+without arguments to instruct the server to bind to all
+multicast-enabled<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+IPv6
+interfaces on the host.&nbsp; Optionally, use arguments to list
+specific<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+interfaces,
+separated by spaces.<br>
+&nbsp; -p,--port
+&lt;portnum&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Port
+Number (default = 547).<br>
+&nbsp; -tc,--test-configfile &lt;filename&gt;&nbsp; Test configuration
+file, then exit.<br>
+&nbsp; -u,--ucast
+&lt;interfaces&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Unicast
+addresses (default = all IPv6<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+addresses).
+Optionally list specific IPv6 addresses, separated by
+spaces.<br>
+&nbsp;
+-v,--version&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Show
+version information, then exit.<br>
+</code><span style="font-style: italic;"></span><br>
+<span style="font-style: italic;">Note that users should NOT directly
+invoke the main Java class, but are encouraged to use
+the wrapper scripts which ensure</span><span style="font-style: italic;">
+the proper environment, classpath and Java VM arguments.</span><span
+ style="font-style: italic;">&nbsp; See the following sections for
+Linux/Unix/Mac or Windows host systems.</span><br>
+<h4><a class="mozTocH4" name="mozTocId177760"></a>Linux/Unix/Mac</h4>
+The <code>$DHCPV6_HOME/bin/dhcpv6</code> script can be used to operate
+the server from a command shell.&nbsp; This script supports the
+following options:<br>
 <ul>
-  <li>Linux/Unix/Mac
-    <ul>
-      <li><code>-c (config) configuration file</code>
-The server configuration file.</li>
-      <li><code>-p (port) port number</code> The port
-number to listen on.</li>
-      <li><code>-u (addresses) unicast addresses</code>
-A list of IPv6 addresses on the local host to bind to for unicast
-traffic. </li>
-      <li><code>-m (interfaces) multicast interfaces</code>
-A list of interfaces on the local host that support IPv6 multicast.</li>
-    </ul>
+  <li><code>start [startup options]</code> - starts the server
+with any <a href="#startup">startup options</a> provided.</li>
+  <li><code>stop</code> - stops the server.</li>
+  <li><code>restart [startup options]</code> - stop and start the
+server.</li>
+  <li><code>status</code> - check if the server is running.</li>
+  <li><code>version</code> - display server version and exit.&nbsp; A
+convenience option which can be used instead of 'start -v' or 'start
+--version'.<br>
   </li>
-  <li>Windows - these options must be configured by editing the <code>c:\jagornet\dhcpv6\conf\wrapper.conf</code>
-file. Add startup options
+  <li><code>test-configfile &lt;configfile&gt;</code> - test server
+configuration file and exit.&nbsp; A convenience option instead of
+'start -tc &lt;filename&gt;' or 'start --test-configfile
+&lt;filename&gt;'.<br>
+  </li>
+  <li><code>list-interfaces</code> - list host interfaces and
+exit.&nbsp; A convenience method instead of 'start -li' or 'start
+--list-interfaces'.<br>
+  </li>
+</ul>
+Startup examples:<br>
+<ol>
+  <li>Display the server version and exit (any of the following):<br>
+  </li>
+  <ul>
+    <li>&gt; <code>$DHCPV6_HOME/bin/dhcpv6 version</code></li>
+    <li>&gt; <code>$DHCPV6_HOME/bin/dhcpv6 start -v</code></li>
+    <li>&gt; <code>$DHCPV6_HOME/bin/dhcpv6 start --version<br>
+      </code></li>
+  </ul>
+  <li>Start the server with the default options (no multicast):</li>
+  <ul>
+    <li>&gt; <code>$DHCPV6_HOME/bin/dhcpv6 start</code></li>
+  </ul>
+  <li>Start the server on a test port with support for multicast on all
+IPv6 multicast-enabled interfaces</li>
+  <ul>
+    <li>&gt; <code>$DHCPV6_HOME/bin/dhcpv6 start -p 10547 -m<br>
+      </code></li>
+  </ul>
+  <li>Start the server with an alternate configuration file, one
+specific unicast address, and two specific multicast interfaces:</li>
+  <ul>
+    <li>&gt; <code>$DHCPV6_HOME/bin/dhcpv6 start -c
+conf/my-dhcpv6server.xml -u 2001:db8::1 -m eth0 eth1<br>
+      </code></li>
+  </ul>
+</ol>
+<h4><a class="mozTocH4" name="mozTocId213739"></a>Windows</h4>
+<h5><a class="mozTocH5" name="mozTocId57643"></a>Windows Service</h5>
+Jagornet DHCPv6 Server can operate as a Microsoft Windows
+Service.&nbsp; <a href="#startup">S</a><a href="#startup">tartup
+options</a> <span style="font-style: italic;">must</span> be provided
+in <code>DHCPV6_HOME\bin\yajsw-beta-10.2\conf\wrapper.conf</code><code></code>.&nbsp;
+Add
+<a href="#startup">startup options</a>
 by adding <code>wrapper.app.parameter.#</code> lines in
 the appropriate section
 of the wrapper.conf file. Insert a new numbered parameter for each
 option and
-for each option argument.
-    <ul>
-      <li><code>-c (config) configuration file</code>
-The server configuration file.</li>
-      <li><code>-p (port) port number</code> The port
-number to listen on.</li>
-      <li><code>-u (addresses) unicast addresses</code>
-A list of IPv6 addresses on the local host to bind to for unicast
-traffic. </li>
-      <li><code>-m (interfaces) multicast interfaces</code>
-A list of interfaces on the local host that support IPv6 multicast.</li>
-    </ul>
-    <ul>
-    </ul>
-  </li>
+for each option argument.&nbsp; See the commented lines in the
+wrapper.conf file provided with the Jagornet DHCPv6 Server binary
+distribution for Windows.<br>
+<br>
+The following batch files are provided for operating the Jagornet
+DHCPv6 Server as a Windows Service.<br>
+<code></code>
+<ul>
+  <li><code>%DHCPV6_HOME%</code><code>\bin\JagornetDhcpv6.bat</code> -
+run the
+server in the command window. Use Ctrl+C to stop. </li>
+  <li><code>%DHCPV6_HOME%</code><code>\bin\InstallJagornetDhcpv6.bat</code>
+-
+install the Jagornet DHCPv6 Server as a Windows Service. &nbsp;<span
+ style="font-style: italic;">On Windows 7 / Server 2008 this must
+be "Run As Administrator".</span></li>
+  <li><code>%DHCPV6_HOME%</code><code>\bin\UninstallJagornetDhcpv6.bat</code>
+-
+remove the Jagornet DHCPv6 Server as a Windows Service. &nbsp;<span
+ style="font-style: italic;">On Windows 7 / Server 2008 this must
+be "Run As Administrator".</span></li>
+  <li><code>%DHCPV6_HOME%</code><code>\bin\StartJagornetDhcpv6.bat</code>
+-
+start the Jagornet DHCPv6 Server as a Windows Service. The server
+can also be started using the Microsoft Management
+Console (MMC). </li>
+  <li><code>%DHCPV6_HOME%</code><code>\bin\StopJagornetDhcpv6.bat</code>
+- stop
+the Jagornet DHCPv6 Server as a Windows Service. The server can
+also be stopped using the Microsoft Management Console
+(MMC).</li>
 </ul>
-<h2><a class="mozTocH2" name="mozTocId119809"></a><a name="config">Configuration</a></h2>
+<h5><a class="mozTocH5" name="mozTocId333292"></a>Command shell</h5>
+As an alternative to running Jagornet DHCPv6 Server as a Windows
+Service, the <code>%DHCPV6_HOME%\bin\dhcpv6.bat</code> batch file can
+be
+used to operate the
+server from a command shell.&nbsp; Provide any desired <a
+ href="#startup">startup options</a> on the command line.&nbsp; Enter
+&lt;Ctrl+C&gt; in the command shell window to stop the server.<br>
+<br>
+Startup examples:<br>
+<ol>
+  <li>Display the server version and exit (any of the following):<br>
+  </li>
+  <ul>
+    <li>&gt;&nbsp;<code>%DHCPV6_HOME%\bin\dhcpv6.bat</code><code>
+version</code></li>
+    <li>&gt;&nbsp;<code>%DHCPV6_HOME%\bin\dhcpv6.bat</code><code> start
+-v</code></li>
+    <li>&gt;&nbsp;<code>%DHCPV6_HOME%\bin\dhcpv6.bat</code><code> start
+--version</code></li>
+  </ul>
+  <li>Start the server with the default options (no multicast):</li>
+  <ul>
+    <li>&gt; <code>%DHCPV6_HOME%\bin\dhcpv6.bat start</code></li>
+  </ul>
+  <li>Start the server on a test port with support for multicast on all
+IPv6 multicast-enabled interfaces</li>
+  <ul>
+    <li>&gt; <code>%DHCPV6_HOME%\bin\dhcpv6.bat start -p 10547 -m<br>
+      </code></li>
+  </ul>
+  <li>Start the server with an alternate configuration file, one
+specific unicast address, and two specific multicast interfaces:</li>
+  <ul>
+    <li>&gt; <code>%DHCPV6_HOME%\bin\dhcpv6 start -c
+conf\my-dhcpv6server.xml -u 2001:db8::1 -m eth0 eth1</code></li>
+  </ul>
+</ol>
+<code>
+</code>
+<h2><a class="mozTocH2" name="mozTocId574215"></a><a name="config">Configuration</a></h2>
 The Jagornet DHCPv6 server is configured via the <code>conf/dhcpv6server.xml</code>
 XML document. See the <a href="#startup">Startup Options</a>
 to change the name and location of the configuration file. The XML
 schema which defines all server configuration elements is available at <code>conf/dhcpv6server.xsd</code>.&nbsp;
-The configuration file has this general hierarchical structure:<br>
+The
+configuration
+file
+has
+this
+general
+hierarchical
+structure:<br>
 <ul>
   <li>global policies and options</li>
   <li>global filters</li>
@@ -964,7 +1101,15 @@ the 'ddns.tsig.keyData' policy value. </td>
 DHCPv6 options are configured using the <code>options</code>
 element. Each option is
 specified by an element with a name of the option, for example <code>dnsServersOption</code>.
-The Jagornet DHCPv6 server supports all options defined in RFC 3315, as
+The
+Jagornet
+DHCPv6
+server
+supports
+all
+options
+defined
+in RFC 3315, as
 well as
 other DHCPv6 options defined in additional RFCs.<br>
 <h4><a class="mozTocH4" name="mozTocId521070"></a>Server Identifier
@@ -977,13 +1122,14 @@ the server to include in reply packets. &nbsp;The <span
 &nbsp;The default <span style="font-family: monospace;">conf/dhcpv6server.xml</span>
 file supplied with the Jagornet DHCPv6 server specifies an empty server
 identifier option as follows:</p>
-<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>	&lt;serverIdOption/&gt;<br>    <br>&lt;/dhc:dhcpV6ServerConfig&gt;</pre>
+<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>    &lt;serverIdOption&gt;<br>        &lt;opaqueData&gt;<br>            &lt;hexValue/&gt;<br>        &lt;/opaqueData&gt;<br>    &lt;/serverIdOption&gt;<br><br>&lt;/dhc:dhcpV6ServerConfig&gt;<br></pre>
 <p>Using this default configuration, a&nbsp;DUID-LLT, as
 defined by section 9.2 of RFC 3315, will be automatically generated by
 the Jagornet DHCPv6 server upon initial startup. This will cause the <span
  style="font-family: monospace;">conf/dhcpv6server.xml</span> file to
 be rewritten with the generated <span style="font-family: monospace;">serverIdOption</span>,
-for example:</p>
+for
+example:</p>
 <pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;<br><br>    &lt;serverIdOption&gt;<br>        &lt;opaqueData&gt;<br>            &lt;hexValue&gt;0001000149EFC509001E52C94D49&lt;/hexValue&gt;<br>        &lt;/opaqueData&gt;<br>    &lt;/serverIdOption&gt;<br><br>&lt;/dhc:dhcpV6ServerConfig&gt;<br></pre>
 <p>This is the recommended way to create a server identifier.
 &nbsp;Optionally, the serverIdOption can be specified using an <a
@@ -1721,8 +1867,16 @@ prefix and length. &nbsp;For example:<br>
 Prefix delegation pools are defined by the <span
  style="font-family: monospace;">prefixPool</span> type. &nbsp;The
 prefix pool must contain a <span style="font-family: monospace;">range</span>&nbsp;element
-to define the&nbsp;prefix available for delegation, and the <span
- style="font-family: monospace;">prefixLength</span> element to define
+to
+define
+the&nbsp;prefix
+available
+for
+delegation,
+and
+the
+<span style="font-family: monospace;">prefixLength</span>
+element to define
 the size of the prefixes to allocate to requesting routers. &nbsp;For
 example:<br>
 <br>
@@ -1838,7 +1992,7 @@ message to the DHCPv6 client via unicast to the source
 address of
 the original client request.</p>
 <span style="font-family: monospace;"></span>
-<pre> -----------                  ----------                    -----------<br>|           |   Multicast    |          |     Unicast*     |           |<br>|           | -------------&gt; |          | ---------------&gt; |           |<br>|           |    Request     |          |  Relay-Forward   |           |<br>|  DHCPv6   |                |  DHCPv6  |    (Request)     |  DHCPv6   |<br>|  Client   |                |  Relay   |                  |  Server   |<br>|           |    Unicast     | (Router) |     Unicast      |           |<br>|           | &lt;------------- |          | &lt;--------------- |           |<br>|           |     Reply      |          |   Relay-Reply    |           |<br> -----------                  ----------      (Reply)       -----------<br></pre>
+<pre> ----------                  ----------                     ----------<br>|          |   Multicast    |          | Unicast/Multicast |          |<br>|          | -------------&gt; |          | ----------------&gt; |          |<br>|          |    Request     |          |  Relay-Forward    |          |<br>|  DHCPv6  |                |  DHCPv6  |    (Request)      |  DHCPv6  |<br>|  Client  |                |  Relay   |                   |  Server  |<br>|          |    Unicast     | (Router) |      Unicast      |          |<br>|          | &lt;------------- |          | &lt;---------------- |          |<br>|          |     Reply      |          |   Relay-Reply     |          |<br> ----------                  ----------      (Reply)        ----------<br><br></pre>
 <h3><a class="mozTocH3" name="mozTocId562035"></a>Operational model
 without a DHCPv6 Relay</h3>
 <p>Some IPv6 networks may not involve any IPv6 routers or will
@@ -1853,7 +2007,7 @@ DHCPv6
 server(s) will send the Reply message to the source address of the
 original client request.</p>
 <span style="font-family: monospace;"></span>
-<pre> -----------                  -----------<br>|           |   Multicast    |           |<br>|           | -------------&gt; |           |<br>|           |    Request     |           |<br>|  DHCPv6   |                |  DHCPv6   |<br>|  Client   |                |  Server   |<br>|           |    Unicast     |           |<br>|           | &lt;------------- |           |<br>|           |     Reply      |           |<br> -----------                  -----------<br></pre>
+<pre> ----------                  ----------<br>|          |   Multicast    |          |<br>|          | -------------&gt; |          |<br>|          |    Request     |          |<br>|  DHCPv6  |                |  DHCPv6  |<br>|  Client  |                |  Server  |<br>|          |    Unicast     |          |<br>|          | &lt;------------- |          |<br>|          |     Reply      |          |<br> ----------                  ----------<br></pre>
 <h2><a class="mozTocH2" name="mozTocId154139"></a><span
  style="font-style: italic;"></span>Appendix</h2>
 <h3><a class="mozTocH3" name="mozTocId414899"></a><a name="Database"></a>Binding
@@ -1872,6 +2026,28 @@ and upon restart, the Jagornet DHCPv6 server will recreate the
 database. &nbsp;<span style="font-style: italic;">Please note that
 deleting the database should only be performed in test environments, or
 when a backup copy of the database is being restored.</span><br>
+<br>
+Beginning with Jagornet DHCPv6 v1.1, the server can be configured to
+use an embedded <a href="http://www.h2database.com/">H2</a> database
+as an alternative to Apache Derby.&nbsp; The database configuration is
+maintained in the <span style="font-family: monospace;">conf/jdbc.properties</span>
+file.&nbsp; The default configuration sets the <span
+ style="font-family: monospace;">jdbc.user, jdbc.password, jdbc.driver,
+and jdbc.url </span>properties for Derby.&nbsp; To switch to H2,
+simply comment out (insert a # at the line beginning) the default
+properties and uncomment the corresponding properties in the H2
+section.&nbsp; At initial startup, the server will create the database
+in
+the <span style="font-family: monospace;">db/h2</span> directory
+using the schema. &nbsp;When the server is stopped, the <span
+ style="font-family: monospace;">db/h2</span> directory can be
+deleted (<span style="font-weight: bold;">do not delete</span> <span
+ style="font-family: monospace;">db/jagornet-dhcpv6-schema.sql</span>),
+and upon restart, the Jagornet DHCPv6 server will recreate the
+database. &nbsp;<span style="font-style: italic;">Please note that
+deleting the database should only be performed in test environments, or
+when a backup copy of the database is being restored.</span><span
+ style="font-family: monospace;"><span style="font-family: monospace;"></span></span><br>
 <h3><a class="mozTocH4" name="mozTocId424719"></a><a name="log"></a>Logging</h3>
 <p>Logging for the Jagornet DHCPv6 server is performed using the <a
  href="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</a>
@@ -1899,7 +2075,11 @@ statistics. &nbsp;Support for JMX is available in Sun's JRE 6.
 &nbsp;For more
 information, please see the <a
  href="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html">Java
-SE Monitoring and Management Guide</a>.</p>
+SE
+Monitoring
+and
+Management
+Guide</a>.</p>
 <p></p>
 </body>
 </html>
