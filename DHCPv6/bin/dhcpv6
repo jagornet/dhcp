@@ -108,13 +108,14 @@ start() {
 	else
 		echo "Starting $NAME..."
 		$JAVA $JAVA_OPTS -Ddhcpv6.home="$DHCPV6_HOME" \
-                         -Dderby.system.home="$DHCPV6_HOME/db/derby" \
-                         $DHCPV6_MAIN $DHCPV6_OPTS > "$DHCPV6_HOME/log/dhcpv6server.out" & 
+						 $DHCPV6_MAIN $DHCPV6_OPTS & 
 		echo "$!" > $DHCPV6_PID
 		sleep 5
 		isRunning
 		if [ "$?" -eq "1" ]; then
 			echo "$NAME started."
+		else
+		   echo "Failed to start $NAME."
 		fi
 	fi
 }
@@ -122,19 +123,19 @@ start() {
 stop() {
 
 	isRunning
-	if [ "$?" -ne "1" ]; then
+	if [ "$?" -eq "0" ]; then
 		echo "$NAME is not running."
 	else
 		if [ -f "$DHCPV6_PID" ]; then
 		   echo "Stopping $NAME..."
-		   kill `cat $DHCPV6_PID` > /dev/null 2>&1
+		   kill `cat $DHCPV6_PID` 2>&1
 		   sleep 3
 		   isRunning
-		   if [ "$?" -ne "1" ]; then
+		   if [ "$?" -eq "0" ]; then
 			  echo "$NAME stopped."
-		   fi		   
-		   if [ $? -eq 0 ];then
 		      rm -f $DHCPV6_PID
+		   else
+		      echo "Failed to stop $NAME."
 		   fi
 		fi
 	fi
@@ -195,7 +196,7 @@ case "$OP" in
 		testclient
 		;;
 	*)
-		echo "Usage: $0 { start | stop | restart | status | version | test-configfile | list-interfaces | testclient }"
+		echo "Usage: $0 { start [options] |\n stop |\n restart [options] |\n status |\n version |\n test-configfile <configfile> |\n list-interfaces |\n testclient [options] }"
 		exit 1
 		;;
 esac
