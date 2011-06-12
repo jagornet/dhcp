@@ -1,3 +1,4 @@
+echo off
 if "%OS%"=="Windows_NT" @setlocal
 
 rem %~dp0 is expanded pathname of the current script under NT
@@ -20,4 +21,5 @@ echo.
 echo Warning: JAVA_HOME environment variable is not set.
 echo.
 
-"%_JAVACMD%" -cp "%DHCPV6_HOME%\conf;%DHCPV6_HOME%\lib\*" com.jagornet.dhcpv6.server.DhcpV6Server %*
+"%_JAVACMD%" -cp "%DHCPV6_HOME%\conf";"%DHCPV6_HOME%\lib\*" ^
+-Ddhcpv6.home="%DHCPV6_HOME%" com.jagornet.dhcpv6.server.DhcpV6Server %*
