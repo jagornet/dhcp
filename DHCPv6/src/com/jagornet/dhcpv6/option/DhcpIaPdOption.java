@@ -242,7 +242,7 @@ public class DhcpIaPdOption extends BaseDhcpOption
             		if (buf.position() < eof) {
             			iaPdOption.setT2(Util.getUnsignedInt(buf));
             			if (buf.position() < eof) {
-            				decodeOptions(buf);
+            				decodeOptions(buf, eof);
             			}
             		}
             	}
@@ -262,10 +262,10 @@ public class DhcpIaPdOption extends BaseDhcpOption
      * 
      * @throws IOException Signals that an I/O exception has occurred.
      */    
-    protected void decodeOptions(ByteBuffer buf) 
+    protected void decodeOptions(ByteBuffer buf, int eof) 
 	    throws IOException
 	{
-		while (buf.hasRemaining()) {
+		while (buf.position() < eof) {
 		    int code = Util.getUnsignedShort(buf);
 		    log.debug("Option code=" + code);
 		    DhcpOption option = DhcpOptionFactory.getDhcpOption(code);
