@@ -131,6 +131,7 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
                 	GenericOpaqueDataOption subopt = new GenericOpaqueDataOption(code, null);
                 	subopt.decode(buf);
                 	OptionDefType optionDef = suboptList.addNewOptionDef();
+                	optionDef.setCode(code);	// patch from Audrey Zhdanov 9/22/11
                 	optionDef.setOpaqueDataOption(subopt.getOpaqueDataOptionType());
                 }
             }
@@ -150,7 +151,8 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
 	            for (OptionDefType subopt : subopts) {
 	            	DhcpOption genericOption = GenericOptionFactory.getDhcpOption(subopt);
 	            	if (genericOption != null) {
-	            		len += genericOption.getLength();
+	            		// code + len of suboption + suboption itself
+	            		len += 2 + 2 + genericOption.getLength();	// patch from Audrey Zhdanov 9/22/11
 	            	}
 	            }
 	        }
