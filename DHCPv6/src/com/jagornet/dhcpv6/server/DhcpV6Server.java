@@ -28,6 +28,7 @@ package com.jagornet.dhcpv6.server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -66,10 +67,13 @@ import com.jagornet.dhcpv6.db.DbSchemaManager;
 import com.jagornet.dhcpv6.db.IaManager;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.netty.NettyDhcpServer;
 import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
@@ -114,6 +118,10 @@ public class DhcpV6Server
     
     /** The unicast server thread. */
     protected Thread ucastThread;
+    
+    protected int v4PortNumber = DhcpConstants.V4_SERVER_PORT;
+    protected NetworkInterface v4NetIf = null;
+    protected Thread v4Thread;
     
     protected DhcpServerConfiguration serverConfig = null;
     protected ApplicationContext context = null;
@@ -181,7 +189,8 @@ public class DhcpV6Server
 			throw new IllegalStateException("Failed to initialize DataSource");
 		}
 		
-		DbSchemaManager.validateSchema(dataSource);
+		int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DHCP_DATABASE_SCHEMA_VERSION);
+		DbSchemaManager.validateSchema(dataSource, schemaVersion);
 		
 		log.info("Loading managers from context...");
 		
@@ -232,8 +241,31 @@ public class DhcpV6Server
 		else {
 			log.warn("No Prefix Binding Manager available");
 		}
+		
+		V4AddrBindingManager v4AddrBindingMgr = 
+			(V4AddrBindingManager) context.getBean("v4AddrBindingManager");
+		if (v4AddrBindingMgr != null) {
+			try {
+				log.info("Initializing V4 Address Binding Manager");
+				v4AddrBindingMgr.init();
+				serverConfig.setV4AddrBindingMgr(v4AddrBindingMgr);
+			}
+			catch (Exception ex) {
+				log.error("Failed initialize V4 Address Binding Manager", ex);
+			}
+		}
+		else {
+			log.warn("No V4 Address Binding Manager available");
+		}
         
-		IaManager iaMgr = (IaManager) context.getBean("iaManager");
+		IaManager iaMgr;
+		if (schemaVersion <= 1) {
+			iaMgr = (IaManager) context.getBean("iaManager");
+		}
+		else {
+			iaMgr = (IaManager) context.getBean("leaseManager");
+		}
+		
 		if (iaMgr == null) {
 			log.warn("No IA Manager available");
 		}
@@ -253,12 +285,12 @@ public class DhcpV6Server
         // startup to get the mcast behavior at all... but
         // we COULD default to use all IPv6 interfaces 
         if (mcastNetIfs != null) {
-        	msg = "Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
+        	msg = "IPv6 Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
         	System.out.println(msg);
         	log.info(msg);
         }
         else {
-        	msg = "Multicast interfaces: none";
+        	msg = "IPv6 Multicast interfaces: none";
         	System.out.println(msg);
         	log.info(msg);
         }
@@ -267,11 +299,18 @@ public class DhcpV6Server
         if (ucastAddrs == null) {
         	ucastAddrs = getAllIPv6Addrs();
         }
-        msg = "Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
+        msg = "IPv6 Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
         System.out.println(msg);
         log.info(msg);
         
-    	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber);
+        if (v4NetIf != null) {
+        	msg = "IPv4 Interface: " + v4NetIf.toString();
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        
+    	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber, 
+    														v4NetIf, v4PortNumber);
     	nettyServer.start();
     }
     
@@ -310,7 +349,7 @@ public class DhcpV6Server
 
         Option ucastOption =
         	OptionBuilder.withLongOpt("ucast")
-        	.withArgName("interfaces")
+        	.withArgName("addresses")
         	.withDescription("Unicast addresses (default = all IPv6 addresses). " +
         			"Optionally list specific IPv6 addresses, separated by spaces.")
         	.hasOptionalArgs()
@@ -318,6 +357,23 @@ public class DhcpV6Server
         				 
         options.addOption(ucastOption);
         
+        Option v4Option = 
+        	OptionBuilder.withLongOpt("dhcpv4")
+        	.withArgName("interface")
+        	.withDescription("DHCPv4 support (default = none). " +
+        			"Use this option to enable DHCPv4 support on the specified interface.")
+        	.hasOptionalArgs()
+        	.create("4");
+        options.addOption(v4Option);
+        
+        Option v4PortOption =
+        	OptionBuilder.withLongOpt("v4port")
+        	.withArgName("v4portnum")
+        	.withDescription("DHCPv4 Port Number (default = 67).")
+        	.hasArg()
+        	.create("4p");
+        options.addOption(v4PortOption);
+
         Option testConfigFileOption =
         	OptionBuilder.withLongOpt("test-configfile")
         	.withArgName("filename")
@@ -386,6 +442,25 @@ public class DhcpV6Server
         		if ((ucastAddrs == null) || ucastAddrs.isEmpty()) {
         			return false;
         		}
+            }
+            if (cmd.hasOption("4")) {
+            	String v4if = cmd.getOptionValue("4");
+        		v4NetIf = getIPv4NetIf(v4if);
+        		if (v4NetIf == null) {
+        			return false;
+        		}
+            }
+            if (cmd.hasOption("4p")) {
+            	String p = cmd.getOptionValue("4p");
+            	try {
+            		v4PortNumber = Integer.parseInt(p);
+            	}
+            	catch (NumberFormatException ex) {
+            		v4PortNumber = DhcpConstants.V4_SERVER_PORT;
+            		System.err.println("Invalid port number: '" + p +
+            							"' using default: " + v4PortNumber +
+            							" Exception=" + ex);
+            	}
             }
             if (cmd.hasOption("v")) {
             	System.err.println(Version.getVersion());
@@ -569,6 +644,57 @@ public class DhcpV6Server
 			log.error("Failed to get IPv6 addresses: " + ex);
 		}
         return ipAddrs;
+	}
+	
+	private NetworkInterface getIPv4NetIf(String ifname) throws SocketException 
+	{
+		NetworkInterface netIf = NetworkInterface.getByName(ifname);
+		if (netIf == null) {
+			// if not found by name, see if the name is actually an address
+			try {
+				InetAddress ipaddr = InetAddress.getByName(ifname);
+				netIf = NetworkInterface.getByInetAddress(ipaddr);
+			}
+			catch (UnknownHostException ex) {
+				log.warn("Unknown interface: " + ifname + ": " + ex);
+			}
+		}
+		if (netIf != null) {
+			if (netIf.isUp()) {
+	        	// the loopback interface is excluded
+	        	if (!netIf.isLoopback()) {
+					boolean isV4 = false;
+					List<InterfaceAddress> ifAddrs =
+						netIf.getInterfaceAddresses();
+					for (InterfaceAddress ifAddr : ifAddrs) {
+						if (ifAddr.getAddress() instanceof Inet4Address) {
+							isV4 = true;
+							break;
+						}
+					}
+					if (!isV4) {
+						System.err.println("Interface is not configured for IPv4: " +
+											netIf.getDisplayName());
+						return null;
+					}
+				}
+				else {
+					System.err.println("Interface is loopback: " +
+									   netIf.getDisplayName());
+					return null;
+				}
+			}
+			else {
+				System.err.println("Interface is not up: " +
+									netIf.getDisplayName());
+				return null;
+			}
+		}
+		else {
+			System.err.println("Interface not found or inactive: " + ifname);
+			return null;
+		}
+		return netIf;
 	}
 	
     /**

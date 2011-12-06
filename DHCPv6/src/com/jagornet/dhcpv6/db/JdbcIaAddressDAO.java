@@ -62,12 +62,8 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#create(com.jagornet.dhcpv6.db.IaAddress)
 	 */
 
-	public void create(IaAddress iaAddr) 
+	public void create(final IaAddress iaAddr) 
 	{
-		String insertQuery = "insert into iaaddress" +
-				" (ipaddress, starttime, preferredendtime, validendtime, state, identityassoc_id)" +
-				" values (?, ?, ?, ?, ?, ?)";
-		
 		/**
 		 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
 		 * "Formally, Derby does not support getGeneratedKeys since 
@@ -81,7 +77,31 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 		 */
 		GeneratedKeyHolder newKey = new GeneratedKeyHolder();
 		getJdbcTemplate().update(
-				new InsertIaAddrPreparedStatementCreator(insertQuery, iaAddr), 
+				new PreparedStatementCreator() {					
+					@Override
+					public PreparedStatement createPreparedStatement(Connection conn)
+							throws SQLException
+					{
+						PreparedStatement ps = conn.prepareStatement("insert into iaaddress" +
+								" (ipaddress, starttime, preferredendtime, validendtime," +
+								" state, identityassoc_id)" +
+								" values (?, ?, ?, ?, ?, ?)", 
+								PreparedStatement.RETURN_GENERATED_KEYS);
+						ps.setBytes(1, iaAddr.getIpAddress().getAddress());
+						java.sql.Timestamp sts = 
+							new java.sql.Timestamp(iaAddr.getStartTime().getTime());
+						ps.setTimestamp(2, sts, Util.GMT_CALENDAR);
+						java.sql.Timestamp pts = 
+							new java.sql.Timestamp(iaAddr.getPreferredEndTime().getTime());
+						ps.setTimestamp(3, pts, Util.GMT_CALENDAR);
+						java.sql.Timestamp vts = 
+							new java.sql.Timestamp(iaAddr.getValidEndTime().getTime());
+						ps.setTimestamp(4, vts, Util.GMT_CALENDAR);
+						ps.setByte(5, iaAddr.getState());
+						ps.setLong(6, iaAddr.getIdentityAssocId());
+						return ps;
+					}
+				}, 
 				newKey);
 		Number newId = newKey.getKey();
 		if (newId != null) {
@@ -92,7 +112,7 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#update(com.jagornet.dhcpv6.db.IaAddress)
 	 */
-	public void update(IaAddress iaAddr)
+	public void update(final IaAddress iaAddr)
 	{
 		String updateQuery = "update iaaddress" +
 							" set ipaddress=?," +
@@ -103,7 +123,39 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 							" identityassoc_id=?" +
 							" where id=?";
 		getJdbcTemplate().update(updateQuery, 
-				new UpdateIaAddrPreparedStatementSetter(iaAddr));
+				new PreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setBytes(1, iaAddr.getIpAddress().getAddress());
+				Date start = iaAddr.getStartTime();
+				if (start != null) {
+					java.sql.Timestamp sts = new java.sql.Timestamp(start.getTime());
+					ps.setTimestamp(2, sts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(2, java.sql.Types.TIMESTAMP);
+				}
+				Date preferred = iaAddr.getPreferredEndTime();
+				if (preferred != null) {
+					java.sql.Timestamp pts = new java.sql.Timestamp(preferred.getTime());
+					ps.setTimestamp(3, pts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(3, java.sql.Types.TIMESTAMP);
+				}
+				Date valid = iaAddr.getValidEndTime();
+				if (valid != null) {
+					java.sql.Timestamp vts = new java.sql.Timestamp(valid.getTime());
+					ps.setTimestamp(4, vts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(4, java.sql.Types.TIMESTAMP);
+				}
+				ps.setByte(5, iaAddr.getState());
+				ps.setLong(6, iaAddr.getIdentityAssocId());
+				ps.setLong(7, iaAddr.getId());
+			}
+		});
 	}
 
 	/* (non-Javadoc)
@@ -173,11 +225,17 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findAllByIdentityAssocId(long)
 	 */
-	public List<IaAddress> findAllByIdentityAssocId(long identityAssocId)
+	public List<IaAddress> findAllByIdentityAssocId(final long identityAssocId)
 	{
-        return getSimpleJdbcTemplate().query(
-                "select * from iaaddress where identityassoc_id = ? order by ipaddress", 
-                new IaAddrRowMapper(), identityAssocId);
+        return getJdbcTemplate().query(
+                "select * from iaaddress where identityassoc_id = ? order by ipaddress",
+                new PreparedStatementSetter() {
+            		@Override
+            		public void setValues(PreparedStatement ps) throws SQLException {
+            			ps.setLong(1, identityAssocId);
+            		}
+            	},
+                new IaAddrRowMapper());
 	}
 
 	/* (non-Javadoc)
@@ -191,159 +249,91 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findAllByRange(java.net.InetAddress, java.net.InetAddress)
 	 */
-	public List<IaAddress> findAllByRange(InetAddress startAddr, InetAddress endAddr)
+	public List<IaAddress> findAllByRange(final InetAddress startAddr, final InetAddress endAddr)
 	{
-        return getSimpleJdbcTemplate().query(
-                "select * from iaaddress where ipaddress >= ? and ipaddress <= ? order by ipaddress", 
-                new IaAddrRowMapper(), 
-                startAddr.getAddress(), 
-                endAddr.getAddress());
+        return getJdbcTemplate().query(
+                "select * from iaaddress where ipaddress >= ? and ipaddress <= ? order by ipaddress",
+                new PreparedStatementSetter() {
+                	@Override
+                	public void setValues(PreparedStatement ps) throws SQLException {
+                		ps.setBytes(1, startAddr.getAddress());
+                		ps.setBytes(2, endAddr.getAddress());
+                	}
+                },
+                new IaAddrRowMapper());
 	}
 
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findAllOlderThan(java.util.Date)
+	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findAllOlderThanNow(java.util.Date)
 	 */
-	public List<IaAddress> findAllOlderThan(Date date)
+	public List<IaAddress> findAllOlderThanNow(final byte iatype)
 	{
         return getJdbcTemplate().query(
-                "select * from iaaddress where validendtime < ? order by validendtime",
-                new GmtTimestampPreparedStatementSetter(date),
+                "select * from iaaddress" +
+                " join identityassoc ia on identityassoc_id=ia.id" +
+                " where ia.iatype = ?" +
+                " and validendtime < ? order by validendtime",
+                new PreparedStatementSetter() {
+            		@Override
+            		public void setValues(PreparedStatement ps) throws SQLException {
+            			ps.setByte(1, iatype);
+            			java.sql.Timestamp ts = new java.sql.Timestamp(new Date().getTime());
+            			ps.setTimestamp(2, ts, Util.GMT_CALENDAR);
+            		}
+                },
+                new IaAddrRowMapper());
+	}
+
+	public List<IaAddress> findUnusedByRange(final InetAddress startAddr, final InetAddress endAddr)
+	{
+		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
+        return getJdbcTemplate().query(
+                "select * from iaaddress" +
+                " where ((state=" + IaAddress.ADVERTISED +
+                " and starttime <= ?)" +
+                " or (state=" + IaAddress.EXPIRED +
+                " or state=" + IaAddress.RELEASED + "))" +
+                " and ipaddress >= ? and ipaddress <= ?" +
+                " order by state, validendtime, ipaddress",
+                new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						java.sql.Timestamp ts = new java.sql.Timestamp(offerExpiration);
+						ps.setTimestamp(1, ts);
+						ps.setBytes(2, startAddr.getAddress());
+						ps.setBytes(3, endAddr.getAddress());
+					}                	
+                },
                 new IaAddrRowMapper());
 	}
 	
-	/**
-	 * The Class InsertIaAddrPreparedStatementCreator.
-	 */
-	protected class InsertIaAddrPreparedStatementCreator implements PreparedStatementCreator
+	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr)
 	{
-		/** The sql. */
-		private String sql;
-		
-		/** The ia addr. */
-		private IaAddress iaAddr;
-		
-		/**
-		 * Instantiates a new insert ia addr prepared statement setter.
-		 * 
-		 * @param sql the sql
-		 * @param iaAddr the ia addr
-		 */
-		public InsertIaAddrPreparedStatementCreator(String sql, IaAddress iaAddr) {
-			this.sql = sql;
-			this.iaAddr = iaAddr;
-		}
-		
-		@Override
-		public PreparedStatement createPreparedStatement(Connection conn)
-				throws SQLException
-		{
-			/**
-			 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
-			 * "Formally, Derby does not support getGeneratedKeys since 
-			 * DatabaseMetaData.supportsGetGeneratedKeys() returns false. 
-			 * However, Statement.getGeneratedKeys() is partially implemented,
-			 * ... since it will only return a meaningful result when an single 
-			 * row insert is done with INSERT...VALUES"
-			 * 
-			 * Spring has thus provided a workaround as described here:
-			 * http://jira.springframework.org/browse/SPR-5306
-			 */
-			PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-			ps.setBytes(1, iaAddr.getIpAddress().getAddress());
-			java.sql.Timestamp sts = new java.sql.Timestamp(iaAddr.getStartTime().getTime());
-			ps.setTimestamp(2, sts, Util.GMT_CALENDAR);
-			java.sql.Timestamp pts = new java.sql.Timestamp(iaAddr.getPreferredEndTime().getTime());
-			ps.setTimestamp(3, pts, Util.GMT_CALENDAR);
-			java.sql.Timestamp vts = new java.sql.Timestamp(iaAddr.getValidEndTime().getTime());
-			ps.setTimestamp(4, vts, Util.GMT_CALENDAR);
-			ps.setByte(5, iaAddr.getState());
-			ps.setLong(6, iaAddr.getIdentityAssocId());
-			return ps;
-		}
-	}
-	
-	/**
-	 * The Class UpdateIaAddrPreparedStatementSetter.
-	 */
-	protected class UpdateIaAddrPreparedStatementSetter implements PreparedStatementSetter
-	{
-		
-		/** The ia addr. */
-		private IaAddress iaAddr;
-		
-		/**
-		 * Instantiates a new update ia addr prepared statement setter.
-		 * 
-		 * @param iaAddr the ia addr
-		 */
-		public UpdateIaAddrPreparedStatementSetter(IaAddress iaAddr) {
-			this.iaAddr = iaAddr;
-		}		
-		
-		/* (non-Javadoc)
-		 * @see org.springframework.jdbc.core.PreparedStatementSetter#setValues(java.sql.PreparedStatement)
-		 */
-		@Override
-		public void setValues(PreparedStatement ps) throws SQLException {
-			ps.setBytes(1, iaAddr.getIpAddress().getAddress());
-			Date start = iaAddr.getStartTime();
-			if (start != null) {
-				java.sql.Timestamp sts = new java.sql.Timestamp(start.getTime());
-				ps.setTimestamp(2, sts, Util.GMT_CALENDAR);
-			}
-			else {
-				ps.setNull(2, java.sql.Types.TIMESTAMP);
-			}
-			Date preferred = iaAddr.getPreferredEndTime();
-			if (preferred != null) {
-				java.sql.Timestamp pts = new java.sql.Timestamp(preferred.getTime());
-				ps.setTimestamp(3, pts, Util.GMT_CALENDAR);
-			}
-			else {
-				ps.setNull(3, java.sql.Types.TIMESTAMP);
-			}
-			Date valid = iaAddr.getValidEndTime();
-			if (valid != null) {
-				java.sql.Timestamp vts = new java.sql.Timestamp(valid.getTime());
-				ps.setTimestamp(4, vts, Util.GMT_CALENDAR);
-			}
-			else {
-				ps.setNull(4, java.sql.Types.TIMESTAMP);
-			}
-			ps.setByte(5, iaAddr.getState());
-			ps.setLong(6, iaAddr.getIdentityAssocId());
-			ps.setLong(7, iaAddr.getId());
-		}
-		
-	}
-	
-	/**
-	 * The Class GmtTimestampPreparedStatementSetter.
-	 */
-	protected class GmtTimestampPreparedStatementSetter implements PreparedStatementSetter
-	{
-		
-		/** The date. */
-		private Date date;
-		
-		/**
-		 * Instantiates a new gmt timestamp prepared statement setter.
-		 * 
-		 * @param date the date
-		 */
-		public GmtTimestampPreparedStatementSetter(Date date) {
-			this.date = date;
-		}
-		
-		/* (non-Javadoc)
-		 * @see org.springframework.jdbc.core.PreparedStatementSetter#setValues(java.sql.PreparedStatement)
-		 */
-		@Override
-		public void setValues(PreparedStatement ps) throws SQLException {
-			java.sql.Timestamp ts = new java.sql.Timestamp(date.getTime());
-			ps.setTimestamp(1, ts, Util.GMT_CALENDAR);
-		}
-		
+        return getJdbcTemplate().query(
+                "select ipaddress from iaaddress" +
+                " where ipaddress >= ? and ipaddress <= ?" +
+                " order by ipaddress", 
+                new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setBytes(1, startAddr.getAddress());
+						ps.setBytes(2, endAddr.getAddress());
+					}                	
+                },
+                new RowMapper<InetAddress>() {
+                    @Override
+                    public InetAddress mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    	InetAddress inetAddr = null;
+                    	try {
+                			inetAddr = InetAddress.getByAddress(rs.getBytes("ipaddress"));
+                		} 
+                    	catch (UnknownHostException e) {
+                    		// re-throw as SQLException
+                			throw new SQLException("Unable to map ipaddress", e);
+                		}
+                        return inetAddr;
+                    }
+                });
 	}
 
     /**

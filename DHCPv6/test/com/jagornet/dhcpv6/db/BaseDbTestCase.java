@@ -63,7 +63,7 @@ public class BaseDbTestCase extends DBTestCase
 	public static String contextFilename = "com/jagornet/dhcpv6/context.xml";
 	
 	/** The init data set. */
-	public static File initDataSet = new File("test/dbunit-jagornet-dhcpv6-empty.xml");
+	public static File initDataSet = new File("test/dbunit-jagornet-dhcpv6-v2-empty.xml");
 
 	/** The config. */
 	protected static DhcpServerConfiguration config;
@@ -71,6 +71,8 @@ public class BaseDbTestCase extends DBTestCase
 	/** The ctx. */
 	protected static ApplicationContext ctx;
 
+	protected int schemaVersion = 1;
+	
 	private boolean schemaValidated;
 	
 	static
@@ -92,8 +94,8 @@ public class BaseDbTestCase extends DBTestCase
 	 */
 	@Override
 	protected void setUp() throws Exception {
-		if (!schemaValidated) {			
-			DbSchemaManager.validateSchema((DataSource) ctx.getBean("dataSource"));
+		if (!schemaValidated) {
+			DbSchemaManager.validateSchema((DataSource) ctx.getBean("dataSource"), schemaVersion);
 			schemaValidated = true;
 		}
 		super.setUp();

@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import com.jagornet.dhcpv6.db.IaPrefix;
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPdOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
@@ -58,7 +58,7 @@ public interface PrefixBindingManager
 	 * @return the binding
 	 */
 	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaPdOption iaPdOption, DhcpMessage requestMsg);
+			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg);
 	
 	/**
 	 * Creates the solicit binding.
@@ -72,7 +72,7 @@ public interface PrefixBindingManager
 	 * @return the binding
 	 */
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaPdOption iaPdOption, DhcpMessage requestMsg, boolean rapidCommit);
+			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg, boolean rapidCommit);
 
 	/**
 	 * Update binding.
@@ -88,7 +88,7 @@ public interface PrefixBindingManager
 	 */
 	public Binding updateBinding(Binding binding, Link clientLink, 
 			DhcpClientIdOption clientIdOption, DhcpIaPdOption iaPdOption,
-			DhcpMessage requestMsg, byte state);
+			DhcpMessageInterface requestMsg, byte state);
 
 	/**
 	 * Release ia prefix.

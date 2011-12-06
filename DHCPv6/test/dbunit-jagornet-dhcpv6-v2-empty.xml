@@ -1,0 +1,4 @@
+<!DOCTYPE dataset SYSTEM "test/dbunit-jagornet-dhcpv6-v2.dtd">
+<dataset>
+  <DHCPLEASE/>
+</dataset>

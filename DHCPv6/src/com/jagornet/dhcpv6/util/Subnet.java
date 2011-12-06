@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.util;
 
 import java.math.BigInteger;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -141,11 +142,18 @@ public class Subnet implements Comparable<Subnet>
     public InetAddress getEndAddress()
     {
         InetAddress endAddr = null;
+        int maxPrefix = 0;
+        if (subnetAddress instanceof Inet4Address) {
+        	maxPrefix = 32;
+        }
+        else {
+        	maxPrefix = 128;
+        }
         BigInteger start = new BigInteger(subnetAddress.getAddress());
         // turn on each bit that isn't masked by the prefix
         // note that bit zero(0) is the lowest order bit, so
         // this loop logically moves from right to left
-        for (int i=0; i<(128-prefixLength); i++) {
+        for (int i=0; i<(maxPrefix-prefixLength); i++) {
             start = start.setBit(i);
         }
         try {

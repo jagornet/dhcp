@@ -46,6 +46,8 @@ public abstract class BaseDhcpOption implements DhcpOption
 	
 	/** The option name. */
 	protected String name;
+	
+	protected boolean v4;
 
 	/**
      * Encode the DHCP option code and length fields of any DHCP option.
@@ -56,9 +58,17 @@ public abstract class BaseDhcpOption implements DhcpOption
      */
     protected ByteBuffer encodeCodeAndLength() throws IOException
 	{
-		ByteBuffer buf = ByteBuffer.allocate(2 + 2 + getLength());
-		buf.putShort((short)getCode());
-		buf.putShort((short)getLength());
+    	ByteBuffer buf = null;
+    	if (!v4) {
+			buf = ByteBuffer.allocate(2 + 2 + getLength());
+			buf.putShort((short)getCode());
+			buf.putShort((short)getLength());
+    	}
+    	else {
+    		buf = ByteBuffer.allocate(1 + 1 + getLength());
+			buf.put((byte)getCode());
+			buf.put((byte)getLength());
+    	}
 		return buf;
 	}
 
@@ -77,7 +87,13 @@ public abstract class BaseDhcpOption implements DhcpOption
 	{
         if ((buf != null) && buf.hasRemaining()) {
             // already have the code, so length is next
-            int len = Util.getUnsignedShort(buf);
+            int len = 0;
+            if (!v4) {
+            	len = Util.getUnsignedShort(buf);
+            }
+            else {
+            	len = Util.getUnsignedByte(buf);
+            }
             if (log.isDebugEnabled())
                 log.debug(getName() + " reports length=" + len +
                           ":  bytes remaining in buffer=" + buf.remaining());
@@ -105,4 +121,13 @@ public abstract class BaseDhcpOption implements DhcpOption
 		
 		return "Option-" + this.getCode(); 
 	}
+
+	public boolean isV4() {
+		return v4;
+	}
+
+	public void setV4(boolean v4) {
+		this.v4 = v4;
+	}
+	
 }

@@ -103,12 +103,6 @@ public class DhcpMessageHandler
      */
     private static DhcpRelayMessage handleRelayForward(DhcpRelayMessage relayMessage)
     {
-    	/**
-    	 * TODO: Verify that because we re-use the relay_forward message
-    	 * 		 for our relay_reply, then we will end up including any
-    	 * 		 Interface-ID option that was contained therein, as
-    	 * 		 required by RFC 3315 Section 22.18.
-    	 */
         InetAddress linkAddr = relayMessage.getLinkAddress();
 		log.info("Handling relay forward on link address: " + linkAddr.getHostAddress());
         DhcpRelayOption relayOption = relayMessage.getRelayOption();

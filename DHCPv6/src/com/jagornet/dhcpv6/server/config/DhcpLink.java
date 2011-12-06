@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.server.config;
 
 import com.jagornet.dhcpv6.option.DhcpConfigOptions;
+import com.jagornet.dhcpv6.option.v4.DhcpV4ConfigOptions;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.xml.Link;
 
@@ -51,6 +52,7 @@ public class DhcpLink
     private DhcpConfigOptions taAddrConfigOptions;
     private DhcpConfigOptions iaPdConfigOptions;
     private DhcpConfigOptions prefixConfigOptions;
+    private DhcpV4ConfigOptions v4ConfigOptions;
 	
 	/**
 	 * Instantiates a new dhcp link.
@@ -69,6 +71,7 @@ public class DhcpLink
 		taAddrConfigOptions = new DhcpConfigOptions(link.getTaAddrConfigOptions());
 		iaPdConfigOptions = new DhcpConfigOptions(link.getIaPdConfigOptions());
 		prefixConfigOptions = new DhcpConfigOptions(link.getPrefixConfigOptions());
+		v4ConfigOptions = new DhcpV4ConfigOptions(link.getV4ConfigOptions());
 	}
 
 	/**
@@ -161,6 +164,14 @@ public class DhcpLink
 
 	public void setPrefixConfigOptions(DhcpConfigOptions prefixConfigOptions) {
 		this.prefixConfigOptions = prefixConfigOptions;
+	}
+
+	public DhcpV4ConfigOptions getV4ConfigOptions() {
+		return v4ConfigOptions;
+	}
+
+	public void setV4ConfigOptions(DhcpV4ConfigOptions v4ConfigOptions) {
+		this.v4ConfigOptions = v4ConfigOptions;
 	}
 	
 }

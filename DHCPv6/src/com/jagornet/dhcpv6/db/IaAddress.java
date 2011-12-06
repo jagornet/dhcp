@@ -302,6 +302,8 @@ public class IaAddress
 		sb.append("\tIA_ADDR: ");
 		sb.append(" ip=");
 		sb.append(this.getIpAddress().getHostAddress());
+		sb.append(" state=");
+		sb.append(this.getState() + "(" + stateToString() + ")");
 		sb.append(" startTime=");
 		sb.append(this.getStartTime());
 		sb.append(" preferredEndTime=");
@@ -317,5 +319,31 @@ public class IaAddress
 			}
 		}
 		return sb.toString();
+	}
+	
+	public String stateToString()
+	{
+		String s = null;
+		switch (state) {
+			case ADVERTISED:
+				s = "Advertised";
+				break;
+			case COMMITTED:
+				s = "Committed";
+				break;
+			case EXPIRED:
+				s = "Expired";
+				break;
+			case RELEASED:
+				s = "Released";
+				break;
+			case DECLINED:
+				s = "Declined";
+				break;
+			default:
+				s = "Unknown";
+				break;
+		}
+		return s;
 	}
 }

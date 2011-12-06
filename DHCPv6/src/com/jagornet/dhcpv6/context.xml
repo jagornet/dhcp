@@ -37,6 +37,9 @@
 	<bean id="prefixBindingManager" 
   		  class="com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerImpl"
   		  autowire="byType"/>
+	<bean id="v4AddrBindingManager" 
+  		  class="com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManagerImpl"
+  		  autowire="byType"/>
   		
 	<bean id="identityAssocDAO" 
 		  class="com.jagornet.dhcpv6.db.JdbcIdentityAssocDAO" 
@@ -95,6 +98,14 @@
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
+		</property>
+
+	</bean>
+ 
+	<bean id="leaseManager" class="com.jagornet.dhcpv6.db.JdbcLeaseManager">
+    
+		<property name="dataSource">
+			<ref local="dataSource"/>
 		</property>
 
 	</bean>

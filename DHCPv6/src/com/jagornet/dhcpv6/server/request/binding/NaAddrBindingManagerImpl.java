@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaAddrOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
@@ -85,12 +85,12 @@ public class NaAddrBindingManagerImpl
 	}
 
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage)
+	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessageInterface)
 	 */
 	@Override
 	public Binding findCurrentBinding(Link clientLink,
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
-			DhcpMessage requestMsg) {
+			DhcpMessageInterface requestMsg) {
 		
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaNaOption.getIaNaOption().getIaId();
@@ -100,29 +100,29 @@ public class NaAddrBindingManagerImpl
 	}
 
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage, boolean)
+	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessageInterface, boolean)
 	 */
 	@Override
 	public Binding createSolicitBinding(Link clientLink,
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
-			DhcpMessage requestMsg, boolean rapidCommit) {
+			DhcpMessageInterface requestMsg, boolean rapidCommit) {
 		
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaNaOption.getIaNaOption().getIaId();
 		
 		List<InetAddress> requestAddrs = getInetAddrs(iaNaOption);
 		
-		return super.createSolicitBinding(clientLink, duid, IdentityAssoc.NA_TYPE, 
+		return super.createBinding(clientLink, duid, IdentityAssoc.NA_TYPE, 
 				iaid, requestAddrs, requestMsg, rapidCommit);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage, byte)
+	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessageInterface, byte)
 	 */
 	@Override
 	public Binding updateBinding(Binding binding, Link clientLink,
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
-			DhcpMessage requestMsg, byte state) {
+			DhcpMessageInterface requestMsg, byte state) {
 		
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaNaOption.getIaNaOption().getIaId();
@@ -152,5 +152,10 @@ public class NaAddrBindingManagerImpl
 			}
 		}
 		return inetAddrs;
+	}
+
+	@Override
+	protected byte getIaType() {
+		return IdentityAssoc.NA_TYPE;
 	}
 }

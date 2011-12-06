@@ -129,4 +129,8 @@ public interface IaPrefixDAO
 	 * @return the list< ia prefix>
 	 */
 	public List<IaPrefix> findAllOlderThan(Date date);
+	
+	public List<IaPrefix> findUnusedByRange(InetAddress startAddr, InetAddress endAddr);
+
+	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr);
 }

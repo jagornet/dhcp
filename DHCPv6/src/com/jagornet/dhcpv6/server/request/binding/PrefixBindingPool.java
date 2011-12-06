@@ -313,6 +313,6 @@ public class PrefixBindingPool implements BindingPool
 
 	public String toString()
 	{
-		return subnet.getSubnetAddress() + "/" + subnet.getPrefixLength();
+		return subnet.getSubnetAddress().getHostAddress() + "/" + subnet.getPrefixLength();
 	}
 }

@@ -30,10 +30,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.db.DhcpOption;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientFqdnOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
@@ -49,6 +46,7 @@ import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AddressBinding;
 import com.jagornet.dhcpv6.xml.AddressBindingsType;
 import com.jagornet.dhcpv6.xml.AddressPool;
@@ -64,7 +62,7 @@ import com.jagornet.dhcpv6.xml.LinkFiltersType;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class AddressBindingManager extends BaseBindingManager
+public abstract class AddressBindingManager extends BaseAddrBindingManager
 {
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(AddressBindingManager.class);
@@ -72,18 +70,6 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	public AddressBindingManager()
 	{
 		super();
-	}
-    
-	protected void startReaper()
-	{
-		//TODO: separate properties for address/prefix binding managers?
-		long reaperStartupDelay = 
-			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_REAPER_STARTUP_DELAY);
-		long reaperRunPeriod =
-			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_REAPER_RUN_PERIOD);
-
-		reaper = new Timer("BindingReaper");
-		reaper.schedule(new ReaperTimerTask(), reaperStartupDelay, reaperRunPeriod);
 	}
 	
 	/**
@@ -184,7 +170,7 @@ public abstract class AddressBindingManager extends BaseBindingManager
     		for (AddressBindingPool bp : bindingPools) {
 				ranges.add(bp.getRange());
 			}
-        	iaAddrDao.deleteNotInRanges(ranges);
+        	iaMgr.reconcileIaAddresses(ranges);
     	}
     }
     
@@ -227,13 +213,13 @@ public abstract class AddressBindingManager extends BaseBindingManager
 		bp.setValidLifetime(vLifetime);
 		bp.setLinkFilter(linkFilter);
 		
-		List<IaAddress> usedIps = iaAddrDao.findAllByRange(bp.getStartAddress(), bp.getEndAddress());
+		List<InetAddress> usedIps = iaMgr.findExistingIPs(bp.getStartAddress(), bp.getEndAddress());
 		if ((usedIps != null) && !usedIps.isEmpty()) {
-			for (IaAddress ip : usedIps) {
+			for (InetAddress ip : usedIps) {
 				//TODO: for the quickest startup?...
 				// set IP as used without checking if the binding has expired
 				// let the reaper thread deal with all binding cleanup activity
-				bp.setUsed(ip.getIpAddress());
+				bp.setUsed(ip);
 			}
 		}
     	return bp;
@@ -281,7 +267,7 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	    	long identityAssocId = iaAddr.getIdentityAssocId();
 	    	IdentityAssoc ia = iaMgr.getIA(identityAssocId);
 	    	if (ia != null) {
-	    		List<DhcpOption> opts = optDao.findAllByIdentityAssocId(identityAssocId);
+	    		List<DhcpOption> opts = iaMgr.findDhcpOptionsByIdentityAssocId(identityAssocId);
 	    		if (opts != null) {
 	    			for (DhcpOption opt : opts) {
 	    				if (opt.getCode() == DhcpConstants.OPTION_CLIENT_FQDN) {
@@ -339,101 +325,6 @@ public abstract class AddressBindingManager extends BaseBindingManager
     	}
     }
 	
-    /**
-     * Release an IaAddress.  If policy dictates, the address will be deleted,
-     * otherwise the state will be marked as released instead.  In either case,
-     * a DDNS delete will be issued for the address binding.
-     * 
-     * @param iaAddr the IaAddress to be released
-     */
-	public void releaseIaAddress(IaAddress iaAddr)
-	{
-		try {
-			ddnsDelete(iaAddr);
-			if (DhcpServerPolicies.globalPolicyAsBoolean(
-					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
-				iaMgr.deleteIaAddr(iaAddr);
-			}
-			else {
-				iaAddr.setStartTime(null);
-				iaAddr.setPreferredEndTime(null);
-				iaAddr.setValidEndTime(null);
-				iaAddr.setState(IaAddress.RELEASED);
-				iaMgr.updateIaAddr(iaAddr);
-			}
-			freeAddress(iaAddr.getIpAddress());
-		}
-		catch (Exception ex) {
-			log.error("Failed to release address", ex);
-		}
-	}
-	
-	/**
-	 * Decline an IaAddress.  This is done when the client declines an address.
-	 * Perform a DDNS delete just in case it was already registered, then mark
-	 * the address as declined (unavailable).
-	 * 
-	 * @param iaAddr the declined IaAddress.
-	 */
-	public void declineIaAddress(IaAddress iaAddr)
-	{
-		try {
-			ddnsDelete(iaAddr);
-			iaAddr.setStartTime(null);
-			iaAddr.setPreferredEndTime(null);
-			iaAddr.setValidEndTime(null);
-			iaAddr.setState(IaAddress.DECLINED);
-			iaMgr.updateIaAddr(iaAddr);
-		}
-		catch (Exception ex) {
-			log.error("Failed to decline address", ex);
-		}
-	}
-	
-	/**
-	 * Callback from the ExpireTimerTask started when the lease was granted.
-	 * NOT CURRENTLY USED
-	 * 
-	 * @param iaAddr the ia addr
-	 */
-	public void expireIaAddress(IaAddress iaAddr)
-	{
-		try {
-			ddnsDelete(iaAddr);
-			if (DhcpServerPolicies.globalPolicyAsBoolean(
-					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
-				log.debug("Deleting expired address: " + iaAddr.getIpAddress());
-				iaMgr.deleteIaAddr(iaAddr);
-			}
-			else {
-				iaAddr.setStartTime(null);
-				iaAddr.setPreferredEndTime(null);
-				iaAddr.setValidEndTime(null);
-				iaAddr.setState(IaAddress.EXPIRED);
-				log.debug("Updating expired address: " + iaAddr.getIpAddress());
-				iaMgr.updateIaAddr(iaAddr);
-			}
-			freeAddress(iaAddr.getIpAddress());
-		}
-		catch (Exception ex) {
-			log.error("Failed to expire address", ex);
-		}
-	}
-	
-	/**
-	 * Callback from the ReaperTimerTask started when the BindingManager initialized.
-	 * Find any expired addresses as of now, and expire them already.
-	 */
-	public void expireAddresses()
-	{
-		List<IaAddress> expiredAddrs = iaAddrDao.findAllOlderThan(new Date());
-		if ((expiredAddrs != null) && !expiredAddrs.isEmpty()) {
-			for (IaAddress iaAddress : expiredAddrs) {
-				expireIaAddress(iaAddress);
-			}
-		}
-	}
-	
 	/**
 	 * Create a Binding given an IdentityAssoc loaded from the database.
 	 * 
@@ -444,8 +335,13 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	 * @return the binding
 	 */
 	protected Binding buildBindingFromIa(IdentityAssoc ia, 
-			Link clientLink, DhcpMessage requestMsg)
+			Link clientLink, DhcpMessageInterface requestMsg)
 	{
+		if (log.isDebugEnabled())
+			log.debug("Building binding from IA: " +
+					" duid=" + Util.toHexString(ia.getDuid()) +
+					" iatype=" + ia.getIatype() +
+					" iaid=" + ia.getIaid());
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
 		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
@@ -458,6 +354,9 @@ public abstract class AddressBindingManager extends BaseBindingManager
 			}
 			// replace the collection of IaAddresses with BindingAddresses
 			binding.setIaAddresses(bindingAddrs);
+		}
+		else {
+			log.warn("IA has no addresses, binding is empty.");
 		}
 		return binding;
 	}
@@ -472,8 +371,10 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	 * @return the binding address
 	 */
 	private BindingAddress buildBindingAddrFromIaAddr(IaAddress iaAddr, 
-			Link clientLink, DhcpMessage requestMsg)
+			Link clientLink, DhcpMessageInterface requestMsg)
 	{
+		if (log.isDebugEnabled())
+			log.debug("Building BindingAddress from " + iaAddr.toString());
 		InetAddress inetAddr = iaAddr.getIpAddress();
 		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
 		if (bp != null) {
@@ -503,7 +404,7 @@ public abstract class AddressBindingManager extends BaseBindingManager
 	 * @return the binding address
 	 */
 	protected BindingObject buildBindingObject(InetAddress inetAddr, 
-			Link clientLink, DhcpMessage requestMsg)
+			Link clientLink, DhcpMessageInterface requestMsg)
 	{
 		AddressBindingPool bp = (AddressBindingPool) findBindingPool(clientLink, inetAddr, requestMsg);
 		if (bp != null) {
@@ -523,20 +424,5 @@ public abstract class AddressBindingManager extends BaseBindingManager
 		}
 		// MUST have a BindingPool, otherwise something's broke
 		return null;
-	}
-	
-	/**
-	 * The Class ReaperTimerTask.
-	 */
-	class ReaperTimerTask extends TimerTask
-	{		
-		/* (non-Javadoc)
-		 * @see java.util.TimerTask#run()
-		 */
-		@Override
-		public void run() {
-//			log.debug("Expiring addresses...");
-			expireAddresses();
-		}
 	}
 }

@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import com.jagornet.dhcpv6.db.IaAddress;
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaTaOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
@@ -58,7 +58,7 @@ public interface TaAddrBindingManager
 	 * @return the binding
 	 */
 	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaTaOption iaTaOption, DhcpMessage requestMsg);
+			DhcpIaTaOption iaTaOption, DhcpMessageInterface requestMsg);
 	
 	/**
 	 * Creates the solicit binding.
@@ -72,7 +72,7 @@ public interface TaAddrBindingManager
 	 * @return the binding
 	 */
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaTaOption iaTaOption, DhcpMessage requestMsg, boolean rapidCommit);
+			DhcpIaTaOption iaTaOption, DhcpMessageInterface requestMsg, boolean rapidCommit);
 
 	/**
 	 * Update binding.
@@ -88,7 +88,7 @@ public interface TaAddrBindingManager
 	 */
 	public Binding updateBinding(Binding binding, Link clientLink, 
 			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
-			DhcpMessage requestMsg, byte state);
+			DhcpMessageInterface requestMsg, byte state);
 
 	/**
 	 * Release ia address.

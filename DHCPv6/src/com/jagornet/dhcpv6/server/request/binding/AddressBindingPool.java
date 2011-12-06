@@ -324,7 +324,8 @@ public class AddressBindingPool implements BindingPool
 
 	public String toString()
 	{
-		return range.getStartAddress() + "-" + range.getEndAddress();
+		return range.getStartAddress().getHostAddress() + "-" + 
+				range.getEndAddress().getHostAddress();
 	}
 	
 	public String freeListToString()

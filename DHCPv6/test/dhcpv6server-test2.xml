@@ -1,43 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
-	
-	<policies>
-		<policy>
-			<name>supportRapidCommit</name>
-			<value>true</value>
-		</policy>
-	</policies>
-
-	<serverIdOption>
-		<opaqueData>
-			<hexValue>abcdef0123456789</hexValue>
-		</opaqueData>
-	</serverIdOption>
-
-	<msgConfigOptions>
-		<dnsServersOption>
-			<ipAddress>3ffe::0001</ipAddress>
-			<ipAddress>3ffe::0002</ipAddress>
-			<ipAddress>3ffe::0003</ipAddress>
-		</dnsServersOption>
-		<domainSearchListOption>
-			<domainName>foo.com.</domainName>
-			<domainName>bar.com.</domainName>
-			<domainName>yuk.com.</domainName>
-		</domainSearchListOption>
-	</msgConfigOptions>
-	
-	<links>
-		<link>
+    <serverIdOption>
+        <opaqueData>
+            <hexValue>abcdef0123456789</hexValue>
+        </opaqueData>
+    </serverIdOption>
+    <v4ServerIdOption>
+        <ipAddress>192.168.200.1</ipAddress>
+    </v4ServerIdOption>
+    <policies>
+        <policy>
+            <name>supportRapidCommit</name>
+            <value>true</value>
+        </policy>
+    </policies>
+    <msgConfigOptions>
+        <dnsServersOption>
+            <ipAddress>3ffe::0001</ipAddress>
+            <ipAddress>3ffe::0002</ipAddress>
+            <ipAddress>3ffe::0003</ipAddress>
+        </dnsServersOption>
+        <domainSearchListOption>
+            <domainName>foo.com.</domainName>
+            <domainName>bar.com.</domainName>
+            <domainName>yuk.com.</domainName>
+        </domainSearchListOption>
+    </msgConfigOptions>
+    <links>
+        <!--<link>
 			<name>Client Link 1</name>
 			<interface>en1</interface>
-			<address>fd00:9a60:deb1::/48</address>
 			<naAddrPools>
 				<pool>
 					<range>fd00:9a60:deb1::0000:000a-fd00:9a60:deb1::ffff:ffff</range>
 				</pool>
 			</naAddrPools>
-		</link>
-	</links>
-
+		</link>-->
+        <link>
+            <name>V4 Client Link 1</name>
+            <address>192.168.0.1/24</address>
+            <v4AddrPools>
+                <pool>
+                    <range>192.168.0.100-192.168.0.199</range>
+                </pool>
+            </v4AddrPools>
+        </link>
+    </links>
 </dhc:dhcpV6ServerConfig>

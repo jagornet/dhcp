@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.base;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -89,8 +90,14 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
         List<String> serverIps = ipAddressListOption.getIpAddressList();
         if (serverIps != null) {
             for (String ip : serverIps) {
-                InetAddress inet6Addr = Inet6Address.getByName(ip);
-                buf.put(inet6Addr.getAddress());
+            	InetAddress inetAddr = null;
+            	if (!super.isV4()) {
+            		inetAddr = Inet6Address.getByName(ip);
+            	}
+            	else {
+            		inetAddr = Inet4Address.getByName(ip);
+            	}
+                buf.put(inetAddr.getAddress());
             }
         }
         return (ByteBuffer) buf.flip();
@@ -106,7 +113,13 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
             int eof = buf.position() + len;
             while (buf.position() < eof) {
                 // it has to be hex from the wire, right?
-                byte[] b = new byte[16];
+            	byte[] b;
+            	if (!super.isV4()) {
+            		b = new byte[16];
+            	}
+            	else {
+            		b = new byte[4];
+            	}
                 buf.get(b);
                 this.addServer(b);
             }
@@ -121,7 +134,12 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
         int len = 0;
         List<String> serverIps = ipAddressListOption.getIpAddressList();
         if (serverIps != null) {
-            len += serverIps.size() * 16;   // each IPv6 address is 16 bytes
+        	if (!super.isV4()) {
+        		len += serverIps.size() * 16;   // each IPv6 address is 16 bytes
+        	}
+        	else {
+        		len += serverIps.size() * 4;	// each IPv4 address is 4 bytes
+        	}
         }
         return len;
     }

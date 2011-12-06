@@ -26,12 +26,14 @@
 package com.jagornet.dhcpv6.server.netty;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,6 +53,7 @@ import org.jboss.netty.logging.Log4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
@@ -78,6 +81,10 @@ public class NettyDhcpServer
 	/** The DHCPv6 server port. */
 	private int port;
 	
+	private NetworkInterface v4NetIf;
+	
+	private int v4Port;
+	
     /** The collection of channels this server listens on. */
     protected Collection<DatagramChannel> channels = new ArrayList<DatagramChannel>();
     
@@ -92,11 +99,14 @@ public class NettyDhcpServer
      * @param netIfs the network interfaces to listen on for multicast traffic
      */
     public NettyDhcpServer(List<InetAddress> addrs, 
-    						List<NetworkInterface> netIfs, int port)
+    						List<NetworkInterface> netIfs, int port,
+    						NetworkInterface v4NetIf, int v4Port)
     {
     	this.addrs = addrs;
     	this.netIfs = netIfs;
     	this.port = port;
+    	this.v4NetIf = v4NetIf;
+    	this.v4Port = v4Port;
     }
     
     /**
@@ -113,10 +123,10 @@ public class NettyDhcpServer
         	if (addrs != null) {
 	        	for (InetAddress addr : addrs) {
 	
+		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
-		            pipeline.addLast("decoder", 
-		            		new DhcpUnicastChannelDecoder(new InetSocketAddress(addr, port)));
+		            pipeline.addLast("decoder", new DhcpUnicastChannelDecoder(sockAddr));
 		            pipeline.addLast("encoder", new DhcpChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
@@ -134,7 +144,6 @@ public class NettyDhcpServer
 		            DatagramChannel channel = factory.newChannel(pipeline);
 		            channel.getConfig().setReuseAddress(true);
 		            
-		            SocketAddress sockAddr = new InetSocketAddress(addr, port); 
 		            log.info("Binding datagram channel on IPv6 socket address: " + sockAddr);
 		            ChannelFuture future = channel.bind(sockAddr);
 		            future.await();
@@ -189,6 +198,49 @@ public class NettyDhcpServer
 		            channels.add(channel);
 	        	}
         	}
+        	
+        	// Use NioDatagramChannels for v4 interface
+        	if (v4NetIf != null) {
+        		boolean foundV4Addr = false;
+        		// get the first v4 address on the interface and bind to it
+        		Enumeration<InetAddress> addrs = v4NetIf.getInetAddresses();
+        		while (addrs.hasMoreElements()) {
+        			InetAddress addr = addrs.nextElement();
+        			if (addr instanceof Inet4Address) {	
+		        		foundV4Addr = true;
+			            InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
+        				ChannelPipeline pipeline = Channels.pipeline();
+			            pipeline.addLast("logger", new LoggingHandler());
+			            pipeline.addLast("decoder", new DhcpV4ChannelDecoder(sockAddr));
+			            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
+			            pipeline.addLast("executor", new ExecutionHandler(
+			            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
+			            pipeline.addLast("handler", new DhcpV4ChannelHandler());
+		        		
+			            DatagramChannelFactory factory = new NioDatagramChannelFactory(executorService);
+		
+			            // create an unbound channel
+			            DatagramChannel channel = factory.newChannel(pipeline);
+			            channel.getConfig().setReuseAddress(true);
+			            
+			            log.info("Binding datagram channel on IPv4 socket address: " + sockAddr);
+			            ChannelFuture future = channel.bind(sockAddr);
+			            future.await();
+			            if (!future.isSuccess()) {
+			            	log.error("Failed to bind IPv4 channel: " + future.getCause());
+			            	throw new IOException(future.getCause());
+			            }
+			            channels.add(channel);
+			            break; 	// no need to continue looking at IPs on the interface
+        			}
+        		}
+        		if (!foundV4Addr) {
+        			String msg = "No IPv4 addresses found on interface: " + v4NetIf;
+        			log.error(msg);
+        			throw new DhcpServerConfigException(msg);
+        		}
+        	}
+        	
         }
         catch (Exception ex) {
             log.error("Failed to initialize server: " + ex, ex);

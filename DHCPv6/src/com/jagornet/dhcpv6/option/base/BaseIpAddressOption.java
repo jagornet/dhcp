@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.base;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -83,8 +84,14 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
     	ByteBuffer buf = super.encodeCodeAndLength();
         String ipAddress = ipAddressOption.getIpAddress();
         if (ipAddress != null) {
-            InetAddress inet6Addr = Inet6Address.getByName(ipAddress);
-            buf.put(inet6Addr.getAddress());
+        	InetAddress inetAddr = null;
+        	if (!super.isV4()) {
+        		inetAddr = Inet6Address.getByName(ipAddress);
+        	}
+        	else {
+        		inetAddr = Inet4Address.getByName(ipAddress);
+        	}
+            buf.put(inetAddr.getAddress());
         }
         return (ByteBuffer) buf.flip();
     }
@@ -96,7 +103,12 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
     {
     	int len = super.decodeLength(buf);
     	if ((len > 0) && (len <= buf.remaining())) {
-    		ipAddressOption.setIpAddress(decodeIpAddress(buf));
+    		if (!super.isV4()) {
+    			ipAddressOption.setIpAddress(decodeIpAddress(buf));
+    		}
+    		else {
+    			ipAddressOption.setIpAddress(decodeIpV4Address(buf));
+    		}
         }
     }
     
@@ -108,13 +120,25 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
         InetAddress inetAddr = InetAddress.getByAddress(b);
         return inetAddr.getHostAddress();
     }
+    
+    public static String decodeIpV4Address(ByteBuffer buf) throws IOException
+    {
+        // it has to be hex from the wire, right?
+        byte[] b = new byte[4];
+        buf.get(b);
+        InetAddress inetAddr = InetAddress.getByAddress(b);
+        return inetAddr.getHostAddress();
+    }
 
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
     {
-        return 16;		// 128-bit IPv6 address
+    	if (!super.isV4())
+    		return 16;		// 128-bit IPv6 address
+    	else
+    		return 4;		// 32-bit IPv4 address
     }
 
     /* (non-Javadoc)

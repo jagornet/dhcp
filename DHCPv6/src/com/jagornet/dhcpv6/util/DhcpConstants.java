@@ -49,8 +49,6 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.db.JdbcIaPrefixDAO;
-
 /**
  * The Class DhcpConstants.
  * Defines standard DHCPv6 constants
@@ -59,13 +57,15 @@ import com.jagornet.dhcpv6.db.JdbcIaPrefixDAO;
  */
 public class DhcpConstants
 {
-    private static Logger log = LoggerFactory.getLogger(JdbcIaPrefixDAO.class);
+    private static Logger log = LoggerFactory.getLogger(DhcpConstants.class);
 	
 	/** The DHCPv6 home. */
 	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
 
 	public static boolean IS_WINDOWS =
 		System.getProperty("os.name", "").startsWith("Windows") ? true : false;
+	
+	public static InetAddress ZEROADDR = null;
 	
     /** IPv4 Addresses. */
     public static InetAddress LOCALHOST = null;
@@ -317,9 +317,53 @@ public class DhcpConstants
             BROADCAST = InetAddress.getByName("255.255.255.255");
 			ALL_DHCP_RELAY_AGENTS_AND_SERVERS = InetAddress.getByName("FF02::1:2");
 			ALL_DHCP_SERVERS = InetAddress.getByName("FF05::1:3");
+			ZEROADDR = InetAddress.getByName("0.0.0.0");
 		}
 		catch (UnknownHostException ex) { 
 			log.error("Failed to initialize IP constants: " + ex);
 		}
 	}
+    
+    // V4 Constants
+	public static final int V4_CLIENT_PORT = 68;
+	public static final int V4_SERVER_PORT = 67;
+
+	public static final int OP_REQUEST = 1;
+    public static final int OP_REPLY = 2;
+    
+    public static final int V4OPTION_SUBNET_MASK = 1;
+    public static final int V4OPTION_TIME_OFFSET = 2;
+    public static final int V4OPTION_ROUTERS = 3;
+    public static final int V4OPTION_TIME_SERVERS = 4;
+    public static final int V4OPTION_DOMAIN_SERVERS = 6;
+    public static final int V4OPTION_HOSTNAME = 12;
+    public static final int V4OPTION_DOMAIN_NAME = 15;
+    public static final int V4OPTION_VENDOR_INFO = 43;
+    public static final int V4OPTION_REQUESTED_IP = 50;
+    public static final int V4OPTION_LEASE_TIME = 51;
+    public static final int V4OPTION_MESSAGE_TYPE = 53;
+    public static final int V4OPTION_SERVERID = 54;
+    public static final int V4OPTION_PARAM_REQUEST_LIST = 55;
+    public static final int V4OPTION_VENDOR_CLASS = 60;
+    public static final int V4OPTION_EOF = 255;
+
+    public static final int V4MESSAGE_TYPE_DISCOVER = 1;
+    public static final int V4MESSAGE_TYPE_OFFER = 2;
+    public static final int V4MESSAGE_TYPE_REQUEST = 3;
+    public static final int V4MESSAGE_TYPE_DECLINE = 4;
+    public static final int V4MESSAGE_TYPE_ACK = 5;
+    public static final int V4MESSAGE_TYPE_NACK = 6;
+    public static final int V4MESSAGE_TYPE_RELEASE = 7;
+    public static final int V4MESSAGE_TYPE_INFORM = 8;
+    
+    public static final String[] V4MESSAGE_STRING = { "Unknown",
+											        "Discover",
+											        "Offer",
+											        "Request",
+											        "Decline",
+											        "Ack",
+											        "Nack",
+											        "Release",
+											        "Inform" };
+
 }

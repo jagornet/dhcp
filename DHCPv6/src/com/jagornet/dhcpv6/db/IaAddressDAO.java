@@ -26,7 +26,6 @@
 package com.jagornet.dhcpv6.db;
 
 import java.net.InetAddress;
-import java.util.Date;
 import java.util.List;
 
 import com.jagornet.dhcpv6.server.request.binding.Range;
@@ -122,11 +121,15 @@ public interface IaAddressDAO
 	public List<IaAddress> findAllByRange(InetAddress startAddr, InetAddress endAddr);
 	
 	/**
-	 * Find all older than.
+	 * Find all older than now.
 	 * 
-	 * @param date the date
+	 * @param iatype the ia type
 	 * 
 	 * @return the list< ia address>
 	 */
-	public List<IaAddress> findAllOlderThan(Date date);
+	public List<IaAddress> findAllOlderThanNow(byte iatype);
+	
+	public List<IaAddress> findUnusedByRange(InetAddress startAddr, InetAddress endAddr);
+
+	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr);
 }

@@ -37,18 +37,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Timer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.db.DhcpOptionDAO;
 import com.jagornet.dhcpv6.db.IaAddress;
-import com.jagornet.dhcpv6.db.IaAddressDAO;
 import com.jagornet.dhcpv6.db.IaManager;
-import com.jagornet.dhcpv6.db.IaPrefixDAO;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.db.IdentityAssocDAO;
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
@@ -73,18 +70,6 @@ public abstract class BaseBindingManager
 
     /** The IdentityAssoc manager */
     protected IaManager iaMgr;
-	
-	/** The IdentityAssoc DAO */
-	protected IdentityAssocDAO iaDao;
-	
-	/** The IaAddress DAO */
-	protected IaAddressDAO iaAddrDao;
-	
-	/** The IaPrefix DAO */
-	protected IaPrefixDAO iaPrefixDao;
-	
-	/** The DhcpOption DAO */
-	protected DhcpOptionDAO optDao;
 
     /** The map of binding binding pools for this manager.  The key is the link address
      *  and the value is the list of configured BindingPools for the link. */
@@ -92,6 +77,9 @@ public abstract class BaseBindingManager
 
 	/** The reaper thread for cleaning expired bindings. */
 	protected Timer reaper;
+	
+	// the ReentrantLock class is better than synchronized
+	private final ReentrantLock lock = new ReentrantLock();
 	
 	/**
 	 * Initialize the manager.  Read the configuration and build
@@ -182,7 +170,8 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the binding pool
 	 */
-	protected BindingPool findBindingPool(Link link, InetAddress inetAddr, DhcpMessage requestMsg)
+	protected BindingPool findBindingPool(Link link, InetAddress inetAddr, 
+			DhcpMessageInterface requestMsg)
 	{
 		List<? extends BindingPool> bps = bindingPoolMap.get(link.getAddress());
 		if ((bps != null) && !bps.isEmpty()) {
@@ -278,7 +267,7 @@ public abstract class BaseBindingManager
 	 * @return the existing Binding for this client request
 	 */
 	protected Binding findCurrentBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
-			DhcpMessage requestMsg) 
+			DhcpMessageInterface requestMsg) 
 	{
 		Binding binding = null;
 		try {
@@ -290,11 +279,10 @@ public abstract class BaseBindingManager
 				log.info("Found current binding: " + binding.toString());
 			}
 			else {
-				if (log.isDebugEnabled())
-					log.debug("No current binding found for IA: " +
-							" duid=" + Util.toHexString(duid) +
-							" iatype=" + iatype +
-							" iaid=" + iaid);
+				log.info("No current binding found for IA: " +
+						" duid=" + Util.toHexString(duid) +
+						" iatype=" + iatype +
+						" iaid=" + iaid);
 			}
 		}
 		catch (Exception ex) {
@@ -304,7 +292,7 @@ public abstract class BaseBindingManager
 	}
 
 	/**
-	 * Create a binding in response to a Solicit request for the given client IA.
+	 * Create a binding in response to a Solicit/Discover request for the given client IA.
 	 * 
 	 * @param clientLink the link for the client request message
 	 * @param duid the DUID of the client
@@ -315,8 +303,8 @@ public abstract class BaseBindingManager
 	 * @param rapidCommit flag to indicate if this binding should be committed
 	 * @return the created Binding
 	 */
-	protected Binding createSolicitBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
-			List<InetAddress> requestAddrs, DhcpMessage requestMsg, boolean rapidCommit)
+	protected Binding createBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
+			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, boolean rapidCommit)
 	{
 		Binding binding = null;
 		
@@ -353,11 +341,12 @@ public abstract class BaseBindingManager
 			}
 		}
 		
+		String bindingType = (iatype == IdentityAssoc.V4_TYPE) ? "discover" : "solicit";
 		if (binding != null) {
-			log.info("Created solicit binding: " + binding.toString());
+			log.info("Created " + bindingType + " binding: " + binding.toString());
 		}
 		else {
-			log.warn("Failed to created solicit binding");
+			log.warn("Failed to create " + bindingType + " binding");
 		}
 		return binding;
 	}
@@ -379,7 +368,7 @@ public abstract class BaseBindingManager
 	 * @return
 	 */
 	protected Binding updateBinding(Binding binding, Link clientLink, byte[] duid, byte iatype, long iaid,
-			List<InetAddress> requestAddrs, DhcpMessage requestMsg, byte state)
+			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, byte state)
 	{
 		Collection<? extends IaAddress> addIaAddresses = null;
 		Collection<? extends IaAddress> updateIaAddresses = null;
@@ -433,7 +422,7 @@ public abstract class BaseBindingManager
 	 * @return
 	 */
 	protected List<InetAddress> getInetAddrs(Link clientLink, byte[] duid, byte iatype, long iaid,
-			List<InetAddress> requestAddrs, DhcpMessage requestMsg)
+			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg)
 	{
 		List<InetAddress> inetAddrs = new ArrayList<InetAddress>();
 		
@@ -531,11 +520,11 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the next free address
 	 */
-	protected InetAddress getNextFreeAddress(Link clientLink, DhcpMessage requestMsg)
+	protected InetAddress getNextFreeAddress(Link clientLink, DhcpMessageInterface requestMsg)
 	{
 		if (clientLink != null) {
     		List<? extends BindingPool> pools = bindingPoolMap.get(clientLink.getAddress());
-    		if (pools != null) {
+    		if ((pools != null) && !pools.isEmpty()) {
     			for (BindingPool bp : pools) {
     				LinkFilter filter = bp.getLinkFilter();
     				if ((requestMsg != null) && (filter != null)) {
@@ -561,12 +550,66 @@ public abstract class BaseBindingManager
 								bp.toString());
 					}
     			}
+    			// if we get this far, then we did not find any free(virgin) addresses
+    			// so we must start searching for any that can be used in the pools
+    			for (BindingPool bp : pools) {
+    				LinkFilter filter = bp.getLinkFilter();
+    				if ((requestMsg != null) && (filter != null)) {
+    					if (!DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
+    						log.info("Client request does not match filter, skipping pool: " +
+    								bp.toString());
+    						continue;
+    					}
+    				}
+    				InetAddress reused = reuseAvailableAddress(bp);
+    				if (reused != null) {
+    					return reused;
+    				}
+    			}
     		}
-    		log.error("No Pools defined in server configuration for Link: " +
-    				clientLink.getAddress());
+    		else {
+	    		log.error("No Pools defined in server configuration for Link: " +
+	    				clientLink.getAddress());
+    		}
 		}
 		else {
 			throw new IllegalStateException("ClientLink is null");
+		}
+		return null;
+	}
+	
+	protected InetAddress reuseAvailableAddress(BindingPool bp)
+	{
+		lock.lock();
+		try {
+			if (log.isDebugEnabled())
+				log.debug("Finding available addresses in pool: " +
+						bp.toString());
+			List<IaAddress> iaAddrs = 
+				iaMgr.findUnusedIaAddresses(bp.getStartAddress(), bp.getEndAddress());
+			if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
+				if (log.isDebugEnabled()) {
+					for (IaAddress iaAddr : iaAddrs) {
+						log.debug("Found available address: " + iaAddr.toString());
+					}
+				}
+				// list is ordered by validendtime
+				// so the first one is the oldest one
+				IaAddress iaAddr = iaAddrs.get(0);
+				log.info("Deleting oldest available address: " + iaAddr.toString());
+				// delete the oldest one and return the IP
+				// allowing that IP to be used again
+				iaMgr.deleteIaAddr(iaAddr);
+				return iaAddr.getIpAddress();
+// TODO: should we clear the rest of unused IPs
+// now, or wait for them to expire or be needed
+//				for (int i=1; i<iaAddrs.size(); i++) {
+//					
+//				}
+			}
+		}
+		finally {
+			lock.unlock();
 		}
 		return null;
 	}
@@ -581,7 +624,7 @@ public abstract class BaseBindingManager
 	 * @return the binding
 	 */
 	protected abstract Binding buildBindingFromIa(IdentityAssoc ia, 
-			Link clientLink, DhcpMessage requestMsg);
+			Link clientLink, DhcpMessageInterface requestMsg);
 
 	/**
 	 * Builds a new Binding.  Create a new IdentityAssoc from the given
@@ -613,13 +656,19 @@ public abstract class BaseBindingManager
 	 * @return the set<binding object>
 	 */
 	private Set<BindingObject> buildBindingObjects(Link clientLink, 
-			List<InetAddress> inetAddrs, DhcpMessage requestMsg)
+			List<InetAddress> inetAddrs, DhcpMessageInterface requestMsg)
 	{
 		Set<BindingObject> bindingObjs = new HashSet<BindingObject>();
 		for (InetAddress inetAddr : inetAddrs) {
+			if (log.isDebugEnabled())
+				log.debug("Building BindingObject for IP=" + inetAddr.getHostAddress());
 			BindingObject bindingObj = buildBindingObject(inetAddr, clientLink, requestMsg);
-			if (bindingObj != null)
+			if (bindingObj != null) {
 				bindingObjs.add(bindingObj);
+			}
+			else {
+				log.warn("Failed to build BindingObject for IP=" + inetAddr.getHostAddress());
+			}
 		}
 		return bindingObjs;
 	}
@@ -634,7 +683,7 @@ public abstract class BaseBindingManager
 	 * @return the binding object
 	 */
 	protected abstract BindingObject buildBindingObject(InetAddress inetAddr, 
-			Link clientLink, DhcpMessage requestMsg);
+			Link clientLink, DhcpMessageInterface requestMsg);
 
 	/**
 	 * Sets the lifetimes of the given collection of binding objects.
@@ -682,37 +731,4 @@ public abstract class BaseBindingManager
 	public void setIaMgr(IaManager iaMgr) {
 		this.iaMgr = iaMgr;
 	}
-
-	public IdentityAssocDAO getIaDao() {
-		return iaDao;
-	}
-
-	public void setIaDao(IdentityAssocDAO iaDao) {
-		this.iaDao = iaDao;
-	}
-
-	public IaAddressDAO getIaAddrDao() {
-		return iaAddrDao;
-	}
-
-	public void setIaAddrDao(IaAddressDAO iaAddrDao) {
-		this.iaAddrDao = iaAddrDao;
-	}
-
-	public IaPrefixDAO getIaPrefixDao() {
-		return iaPrefixDao;
-	}
-
-	public void setIaPrefixDao(IaPrefixDAO iaPrefixDao) {
-		this.iaPrefixDao = iaPrefixDao;
-	}
-
-	public DhcpOptionDAO getOptDao() {
-		return optDao;
-	}
-
-	public void setOptDao(DhcpOptionDAO optDao) {
-		this.optDao = optDao;
-	}
-    
 }

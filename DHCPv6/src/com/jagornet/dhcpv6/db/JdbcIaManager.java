@@ -39,6 +39,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
+import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Util;
 
 /**
@@ -283,6 +284,41 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		deleteExpiredIA(iaPrefix.getIdentityAssocId());
 	}
 
+	@Override
+	public List<InetAddress> findExistingIPs(InetAddress startAddr, InetAddress endAddr) {
+		return iaAddrDao.findExistingIPs(startAddr, endAddr);
+	}
+	
+	@Override
+	public List<IaAddress> findUnusedIaAddresses(InetAddress startAddr, InetAddress endAddr) {
+		return iaAddrDao.findUnusedByRange(startAddr, endAddr);
+	}
+	
+	@Override
+	public List<IaAddress> findExpiredIaAddresses(byte iatype) {
+		return iaAddrDao.findAllOlderThanNow(iatype);
+	}
+	
+	@Override
+	public List<IaPrefix> findUnusedIaPrefixes(InetAddress startAddr, InetAddress endAddr) {
+		return iaPrefixDao.findUnusedByRange(startAddr, endAddr);
+	}
+	
+	@Override
+	public List<IaPrefix> findExpiredIaPrefixes() {
+		return iaPrefixDao.findAllOlderThan(new Date());
+	}
+	
+	@Override
+	public void reconcileIaAddresses(List<Range> ranges) {
+		iaAddrDao.deleteNotInRanges(ranges);
+	}
+	
+	@Override
+	public List<DhcpOption> findDhcpOptionsByIdentityAssocId(long identityAssocId) {
+		return dhcpOptDao.findAllByIdentityAssocId(identityAssocId);
+	}
+
 	/**
 	 * Expire ia.
 	 * 
@@ -293,9 +329,10 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		getJdbcTemplate().update(
 				"update identityassoc set state=" + IdentityAssoc.EXPIRED +
 				" where id=?" +
-				" and not exists (select 1 from iaaddress" +
-				"				  where identityassoc_id=identityassoc.id" +
-				"				  and validendtime>=?)",
+				" and not exists" +
+				" (select 1 from iaaddress" +
+				" where identityassoc_id=identityassoc.id" +
+				" and validendtime>=?)",
 				new PreparedStatementSetter() {
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -424,5 +461,4 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	public void setDhcpOptDao(DhcpOptionDAO dhcpOptDao) {
 		this.dhcpOptDao = dhcpOptDao;
 	}
-	
 }

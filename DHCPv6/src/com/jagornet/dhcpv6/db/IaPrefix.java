@@ -85,6 +85,8 @@ public class IaPrefix extends IaAddress
 		sb.append(this.getIpAddress().getHostAddress());
 		sb.append(" prefixLength=");
 		sb.append(this.getPrefixLength());
+		sb.append(" state=");
+		sb.append(this.getState() + "(" + stateToString() + ")");
 		sb.append(" startTime=");
 		sb.append(this.getStartTime());
 		sb.append(" preferredEndTime=");

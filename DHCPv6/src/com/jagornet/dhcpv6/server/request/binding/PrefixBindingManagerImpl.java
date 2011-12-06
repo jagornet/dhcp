@@ -29,7 +29,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -40,13 +39,14 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IaPrefix;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPrefixOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
@@ -167,7 +167,7 @@ public class PrefixBindingManagerImpl
     			Range range = new Range(bp.getStartAddress(), bp.getEndAddress());
 				ranges.add(range);
 			}
-        	iaPrefixDao.deleteNotInRanges(ranges);
+        	iaMgr.reconcileIaAddresses(ranges);
     	}
     }
     
@@ -210,13 +210,13 @@ public class PrefixBindingManagerImpl
 		bp.setValidLifetime(vLifetime);
 		bp.setLinkFilter(linkFilter);
 		
-		List<IaPrefix> usedIps = iaPrefixDao.findAllByRange(bp.getStartAddress(), bp.getEndAddress());
+		List<InetAddress> usedIps = iaMgr.findExistingIPs(bp.getStartAddress(), bp.getEndAddress());
 		if ((usedIps != null) && !usedIps.isEmpty()) {
-			for (IaPrefix ip : usedIps) {
+			for (InetAddress ip : usedIps) {
 				//TODO: for the quickest startup?...
 				// set IP as used without checking if the binding has expired
 				// let the reaper thread deal with all binding cleanup activity
-				bp.setUsed(ip.getIpAddress());
+				bp.setUsed(ip);
 			}
 		}
     	return bp;
@@ -248,10 +248,10 @@ public class PrefixBindingManagerImpl
     }
     
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessage)
+	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessageInterface)
 	 */
 	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaPdOption iaPdOption, DhcpMessage requestMsg)
+			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg)
 	{
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaPdOption.getIaPdOption().getIaId();
@@ -262,26 +262,26 @@ public class PrefixBindingManagerImpl
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessage, boolean)
+	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessageInterface, boolean)
 	 */
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaPdOption iaPdOption, DhcpMessage requestMsg, boolean rapidCommit)
+			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg, boolean rapidCommit)
 	{	
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaPdOption.getIaPdOption().getIaId();
 		
 		List<InetAddress> requestAddrs = getInetAddrs(iaPdOption);
 		
-		return super.createSolicitBinding(clientLink, duid, IdentityAssoc.PD_TYPE, 
+		return super.createBinding(clientLink, duid, IdentityAssoc.PD_TYPE, 
 				iaid, requestAddrs, requestMsg, rapidCommit);		
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessage, byte)
+	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessageInterface, byte)
 	 */
 	public Binding updateBinding(Binding binding, Link clientLink, 
 			DhcpClientIdOption clientIdOption, DhcpIaPdOption iaPdOption,
-			DhcpMessage requestMsg, byte state)
+			DhcpMessageInterface requestMsg, byte state)
 	{
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaPdOption.getIaPdOption().getIaId();
@@ -301,6 +301,10 @@ public class PrefixBindingManagerImpl
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
 				iaMgr.deleteIaPrefix(iaPrefix);
+				// free the prefix only if it is deleted from the db,
+				// otherwise, we will get a unique constraint violation
+				// if another client obtains this released prefix
+				freeAddress(iaPrefix.getIpAddress());
 			}
 			else {
 				iaPrefix.setStartTime(null);
@@ -309,7 +313,6 @@ public class PrefixBindingManagerImpl
 				iaPrefix.setState(IaPrefix.RELEASED);
 				iaMgr.updateIaPrefix(iaPrefix);
 			}
-			freeAddress(iaPrefix.getIpAddress());
 		}
 		catch (Exception ex) {
 			log.error("Failed to release address", ex);
@@ -346,6 +349,10 @@ public class PrefixBindingManagerImpl
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
 				log.debug("Deleting expired prefix: " + iaPrefix.getIpAddress());
 				iaMgr.deleteIaPrefix(iaPrefix);
+				// free the prefix only if it is deleted from the db,
+				// otherwise, we will get a unique constraint violation
+				// if another client obtains this released prefix
+				freeAddress(iaPrefix.getIpAddress());
 			}
 			else {
 				iaPrefix.setStartTime(null);
@@ -355,7 +362,6 @@ public class PrefixBindingManagerImpl
 				log.debug("Updating expired prefix: " + iaPrefix.getIpAddress());
 				iaMgr.updateIaPrefix(iaPrefix);
 			}
-			freeAddress(iaPrefix.getIpAddress());
 		}
 		catch (Exception ex) {
 			log.error("Failed to expire address", ex);
@@ -368,7 +374,7 @@ public class PrefixBindingManagerImpl
 	 */
 	public void expirePrefixes()
 	{
-		List<IaPrefix> expiredPrefs = iaPrefixDao.findAllOlderThan(new Date());
+		List<IaPrefix> expiredPrefs = iaMgr.findExpiredIaPrefixes();
 		if ((expiredPrefs != null) && !expiredPrefs.isEmpty()) {
 			for (IaPrefix iaPrefix : expiredPrefs) {
 				expireIaPrefix(iaPrefix);
@@ -407,8 +413,13 @@ public class PrefixBindingManagerImpl
 	 * @return the binding
 	 */
 	protected Binding buildBindingFromIa(IdentityAssoc ia, 
-			Link clientLink, DhcpMessage requestMsg)
+			Link clientLink, DhcpMessageInterface requestMsg)
 	{
+		if (log.isDebugEnabled())
+			log.debug("Building binding from IA: " +
+					" duid=" + Util.toHexString(ia.getDuid()) +
+					" iatype=" + ia.getIatype() +
+					" iaid=" + ia.getIaid());
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaPrefs = ia.getIaAddresses();
 		if ((iaPrefs != null) && !iaPrefs.isEmpty()) {
@@ -421,6 +432,9 @@ public class PrefixBindingManagerImpl
 			}
 			// replace the collection of IaPrefixes with BindingPrefixes
 			binding.setIaAddresses(bindingPrefixes);
+		}
+		else {
+			log.warn("IA has no prefixes, binding is empty.");
 		}
 		return binding;
 	}
@@ -435,8 +449,10 @@ public class PrefixBindingManagerImpl
 	 * @return the binding address
 	 */
 	private BindingPrefix buildBindingAddrFromIaPrefix(IaPrefix iaPrefix, 
-			Link clientLink, DhcpMessage requestMsg)
+			Link clientLink, DhcpMessageInterface requestMsg)
 	{
+		if (log.isDebugEnabled())
+			log.debug("Building BindingObject from " + iaPrefix.toString());
 		InetAddress inetAddr = iaPrefix.getIpAddress();
 		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
 		if (bp != null) {
@@ -463,7 +479,7 @@ public class PrefixBindingManagerImpl
 	 * @return the binding address
 	 */
 	protected BindingObject buildBindingObject(InetAddress inetAddr, 
-			Link clientLink, DhcpMessage requestMsg)
+			Link clientLink, DhcpMessageInterface requestMsg)
 	{
 		PrefixBindingPool bp = (PrefixBindingPool) findBindingPool(clientLink, inetAddr, requestMsg);
 		if (bp != null) {

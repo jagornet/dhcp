@@ -27,6 +27,9 @@ package com.jagornet.dhcpv6.db;
 
 import java.net.InetAddress;
 import java.util.Collection;
+import java.util.List;
+
+import com.jagornet.dhcpv6.server.request.binding.Range;
 
 /**
  * Interface for handling the client bindings for the server.
@@ -162,4 +165,17 @@ public interface IaManager
 	 * @param iaPrefix the IaPrefix to delete
 	 */
 	public void deleteIaPrefix(IaPrefix iaPrefix);
+	
+	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr);
+
+	public List<IaAddress> findUnusedIaAddresses(InetAddress startAddr, InetAddress endAddr);
+	public List<IaAddress> findExpiredIaAddresses(byte iatype);
+
+	public List<IaPrefix> findUnusedIaPrefixes(InetAddress startAddr, InetAddress endAddr);
+	public List<IaPrefix> findExpiredIaPrefixes();
+
+	public void reconcileIaAddresses(List<Range> ranges);	
+
+	public List<DhcpOption> findDhcpOptionsByIdentityAssocId(long identityAssocId);
+	
 }

@@ -56,8 +56,15 @@ public class DbSchemaManager
     public static String SCHEMA_FILENAME = DhcpConstants.DHCPV6_HOME != null ? 
         	(DhcpConstants.DHCPV6_HOME + "/db/jagornet-dhcpv6-schema.sql") : 
         		"db/jagornet-dhcpv6-schema.sql";
+	
+	public static String[] TABLE_NAMES = { "DHCPOPTION", "IAADDRESS", "IAPREFIX", "IDENTITYASSOC" };
 
-    public static String[] TABLE_NAMES = { "DHCPOPTION", "IAADDRESS", "IAPREFIX", "IDENTITYASSOC" };
+	
+    public static String SCHEMA_FILENAME_V2 = DhcpConstants.DHCPV6_HOME != null ? 
+        	(DhcpConstants.DHCPV6_HOME + "/db/jagornet-dhcpv6-schema-v2.sql") : 
+        		"db/jagornet-dhcpv6-schema-v2.sql";
+
+    public static String[] TABLE_NAMES_V2 = { "DHCPLEASE" };
 	
 	/**
 	 * Validate schema.
@@ -67,7 +74,8 @@ public class DbSchemaManager
 	 * @throws SQLException if there is a problem with the database
 	 * @throws IOExcpetion if there is a problem reading the schema file
 	 */
-	public static void validateSchema(DataSource dataSource) throws SQLException, IOException
+	public static void validateSchema(DataSource dataSource, int schemaVersion) 
+						throws SQLException, IOException
 	{
         List<String> tableNames = new ArrayList<String>();
 
@@ -89,7 +97,7 @@ public class DbSchemaManager
             tableNames.add(rs.getString("TABLE_NAME"));
         }
         else {
-        	createSchema(dataSource);
+        	createSchema(dataSource, schemaVersion);
             dbMetaData = conn.getMetaData();
             rs = dbMetaData.getTables(null, null, "%", types);
         }
@@ -97,9 +105,17 @@ public class DbSchemaManager
           tableNames.add(rs.getString("TABLE_NAME"));
         }
         
-		if (tableNames.size() == TABLE_NAMES.length) {
-			for (int i=0; i<TABLE_NAMES.length; i++) {
-				if (!tableNames.contains(TABLE_NAMES[i])) {
+        String[] schemaTableNames;
+        if (schemaVersion <= 1) {
+        	schemaTableNames = TABLE_NAMES;
+        }
+        else {
+        	schemaTableNames = TABLE_NAMES_V2;
+        }
+        
+		if (tableNames.size() == schemaTableNames.length) {
+			for (int i=0; i<schemaTableNames.length; i++) {
+				if (!tableNames.contains(schemaTableNames[i])) {
 					throw new IllegalStateException("Invalid database schema: unknown tables");
 				}
 			}
@@ -117,14 +133,23 @@ public class DbSchemaManager
 	 * @throws SQLException if there is a problem with the database
 	 * @throws IOExcpetion if there is a problem reading the schema file
 	 */
-	public static void createSchema(DataSource dataSource) throws SQLException, IOException
+	public static void createSchema(DataSource dataSource, int schemaVersion) 
+						throws SQLException, IOException
 	{
+		String schemaFilename;
+		if (schemaVersion <= 1) {
+			schemaFilename = SCHEMA_FILENAME;
+		}
+		else {
+			schemaFilename = SCHEMA_FILENAME_V2;
+		}
+		
 		FileReader fr = null;
 		BufferedReader br = null;
 		try {
 	    	JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 	    	StringBuilder schema = new StringBuilder();
-	    	fr = new FileReader(SCHEMA_FILENAME);
+	    	fr = new FileReader(schemaFilename);
 	    	br = new BufferedReader(fr);
 	    	String line = br.readLine();
 	    	while (line != null) {

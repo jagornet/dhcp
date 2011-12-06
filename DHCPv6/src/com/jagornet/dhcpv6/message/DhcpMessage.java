@@ -106,7 +106,7 @@ import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
  * @author A. Gregory Rabil
  */
 
-public class DhcpMessage
+public class DhcpMessage implements DhcpMessageInterface
 {
     private static Logger log = LoggerFactory.getLogger(DhcpMessage.class);
     

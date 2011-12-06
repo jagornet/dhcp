@@ -11,6 +11,8 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
  */
 public interface BindingPool
 {
+	public InetAddress getStartAddress();
+	public InetAddress getEndAddress();
 	public InetAddress getNextAvailableAddress();
 	public void setUsed(InetAddress addr);
 	public void setFree(InetAddress addr);

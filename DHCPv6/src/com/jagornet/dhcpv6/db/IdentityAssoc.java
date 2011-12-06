@@ -37,6 +37,9 @@ import java.util.Collection;
 public class IdentityAssoc
 {
 	// iatypes
+	
+	public static final byte V4_TYPE = 0;
+	
 	/** The Constant NA_TYPE. */
 	public static final byte NA_TYPE = 1;
 	

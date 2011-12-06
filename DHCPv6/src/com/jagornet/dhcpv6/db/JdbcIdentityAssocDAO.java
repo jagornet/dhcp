@@ -25,18 +25,20 @@
  */
 package com.jagornet.dhcpv6.db;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import com.jagornet.dhcpv6.util.Util;
 
@@ -52,17 +54,8 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IdentityAssocDAO#create(com.jagornet.dhcpv6.db.IdentityAssoc)
 	 */
-	public void create(IdentityAssoc ia) 
+	public void create(final IdentityAssoc ia) 
 	{
-		SimpleJdbcInsert insertIa = new SimpleJdbcInsert(getDataSource())
-                    							.withTableName("identityassoc")
-                    							.usingGeneratedKeyColumns("id");
-		
-        Map<String, Object> parameters = new HashMap<String, Object>(4);
-        parameters.put("duid", ia.getDuid());
-        parameters.put("iatype", ia.getIatype());
-        parameters.put("iaid", ia.getIaid());
-        parameters.put("state", ia.getState());
 		/**
 		 * Note: see https://issues.apache.org/jira/browse/DERBY-3609
 		 * "Formally, Derby does not support getGeneratedKeys since 
@@ -74,16 +67,35 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 		 * Spring has thus provided a workaround as described here:
 		 * http://jira.springframework.org/browse/SPR-5306
 		 */
-        Number newId = insertIa.executeAndReturnKey(parameters);
-        if (newId != null) {
-        	ia.setId(newId.longValue());
-        }
+		GeneratedKeyHolder newKey = new GeneratedKeyHolder();
+		getJdbcTemplate().update(
+				new PreparedStatementCreator() {					
+					@Override
+					public PreparedStatement createPreparedStatement(Connection conn)
+							throws SQLException
+					{
+						PreparedStatement ps = conn.prepareStatement("insert into identityassoc" +
+								" (duid, iatype, iaid, state)" +
+								" values (?, ?, ?, ?)",
+								PreparedStatement.RETURN_GENERATED_KEYS);
+						ps.setBytes(1, ia.getDuid());
+						ps.setByte(2, ia.getIatype());
+						ps.setLong(3, ia.getIaid());
+						ps.setByte(4, ia.getState());
+						return ps;
+					}
+				},
+				newKey);
+		Number newId = newKey.getKey();
+		if (newId != null) {
+			ia.setId(newId.longValue());
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IdentityAssocDAO#update(com.jagornet.dhcpv6.db.IdentityAssoc)
 	 */
-	public void update(IdentityAssoc ia)
+	public void update(final IdentityAssoc ia)
 	{
 		String updateQuery = "update identityassoc" +
 							" set duid=?," +
@@ -91,12 +103,17 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 							" iaid=?," +
 							" state=?" +
 							" where id=?";
-		getJdbcTemplate().update(updateQuery, 
-				new Object[] { ia.getDuid(), 
-							   ia.getIatype(), 
-							   ia.getIaid(), 
-							   ia.getState(), 
-							   ia.getId() });
+		getJdbcTemplate().update(updateQuery,
+				new PreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setBytes(1, ia.getDuid());
+				ps.setByte(2, ia.getIatype());
+				ps.setLong(3, ia.getIaid());
+				ps.setByte(4, ia.getState()); 
+				ps.setLong(5, ia.getId());
+			}
+		});
 	}
 
 	/* (non-Javadoc)
@@ -164,8 +181,7 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
      * The Class IaRowMapper.
      */
     protected class IaRowMapper implements RowMapper<IdentityAssoc> 
-    {	
-        
+    {	     
         /* (non-Javadoc)
          * @see org.springframework.jdbc.core.simple.RowMapper#mapRow(java.sql.ResultSet, int)
          */

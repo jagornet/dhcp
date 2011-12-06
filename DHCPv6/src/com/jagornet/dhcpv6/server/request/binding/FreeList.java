@@ -29,6 +29,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The Class FreeList.
@@ -54,6 +55,9 @@ public class FreeList
 	protected List<BitSet> bitsetRanges;
 	
 	protected int nextFreeIndex;
+	
+	// the ReentrantLock class is better than synchronized
+	private final ReentrantLock lock = new ReentrantLock();
 	
 	/**
 	 * Instantiates a new free list.
@@ -113,30 +117,36 @@ public class FreeList
 	 * @param bi the bi
 	 * @param used the used
 	 */
-	protected synchronized void set(BigInteger bi, boolean used)
+	protected void set(BigInteger bi, boolean used)
 	{
-		if (isInList(bi)) {
-			int offset = getOffset(bi);
-			BitSet bitset = null;
-			int ndx = getIndex(bi);
-			if (ndx < bitsetRanges.size()) {
-				bitset = bitsetRanges.get(ndx);
-			}
-			else {
-				while (ndx >= bitsetRanges.size()) {
-					bitset = new BitSet();
-					bitsetRanges.add(bitset);
+		lock.lock();
+		try {
+			if (isInList(bi)) {
+				int offset = getOffset(bi);
+				BitSet bitset = null;
+				int ndx = getIndex(bi);
+				if (ndx < bitsetRanges.size()) {
+					bitset = bitsetRanges.get(ndx);
+				}
+				else {
+					while (ndx >= bitsetRanges.size()) {
+						bitset = new BitSet();
+						bitsetRanges.add(bitset);
+					}
+				}
+				if (used) {
+					bitset.set(offset);
+				}
+				else {
+					bitset.clear(offset);
+					if (ndx < nextFreeIndex) {
+						nextFreeIndex = ndx;	// reset next free search index
+					}
 				}
 			}
-			if (used) {
-				bitset.set(offset);
-			}
-			else {
-				bitset.clear(offset);
-				if (ndx < nextFreeIndex) {
-					nextFreeIndex = ndx;	// reset next free search index
-				}
-			}
+		}
+		finally {
+			lock.unlock();
 		}
 	}
 	
@@ -199,30 +209,36 @@ public class FreeList
 	 * 
 	 * @return the next free
 	 */
-	public synchronized BigInteger getNextFree()
+	public BigInteger getNextFree()
 	{
-		BigInteger next = start.add(BigInteger.valueOf(nextFreeIndex).
-										multiply(BigInteger.valueOf(Integer.MAX_VALUE)));
-		int clearBit = -1;
-		BitSet bitset = bitsetRanges.get(nextFreeIndex);
-		clearBit = bitset.nextClearBit(0);
-		if (clearBit >= 0) {
-			next = next.add(BigInteger.valueOf(clearBit));
-			if (isInList(next)) {
-				bitset.set(clearBit);
-				return next;
+		lock.lock();
+		try {
+			BigInteger next = start.add(BigInteger.valueOf(nextFreeIndex).
+											multiply(BigInteger.valueOf(Integer.MAX_VALUE)));
+			int clearBit = -1;
+			BitSet bitset = bitsetRanges.get(nextFreeIndex);
+			clearBit = bitset.nextClearBit(0);
+			if (clearBit >= 0) {
+				next = next.add(BigInteger.valueOf(clearBit));
+				if (isInList(next)) {
+					bitset.set(clearBit);
+					return next;
+				}
+			}
+			else {
+				// no more available in the last BitSet, so the next available
+				// would be the first in the next BitSet, so add max offset
+				next = next.add(BigInteger.valueOf(Integer.MAX_VALUE));
+				if (isInList(next)) {
+					nextFreeIndex++;
+					bitset = new BitSet();
+					bitset.set(0);
+					bitsetRanges.add(nextFreeIndex, bitset);
+				}
 			}
 		}
-		else {
-			// no more available in the last BitSet, so the next available
-			// would be the first in the next BitSet, so add max offset
-			next = next.add(BigInteger.valueOf(Integer.MAX_VALUE));
-			if (isInList(next)) {
-				nextFreeIndex++;
-				bitset = new BitSet();
-				bitset.set(0);
-				bitsetRanges.add(nextFreeIndex, bitset);
-			}
+		finally {
+			lock.unlock();
 		}
 		return null;
 	}

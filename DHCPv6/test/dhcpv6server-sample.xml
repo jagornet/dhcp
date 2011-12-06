@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
+
+	<serverIdOption>
+		<opaqueData>
+			<hexValue>abcdef0123456789</hexValue>
+		</opaqueData>
+	</serverIdOption>
 	
 	<policies>
 		<policy>
@@ -7,12 +13,6 @@
 			<value>false</value>
 		</policy>
 	</policies>
-
-	<serverIdOption>
-		<opaqueData>
-			<hexValue>abcdef0123456789</hexValue>
-		</opaqueData>
-	</serverIdOption>
 
 	<msgConfigOptions>
 		<dnsServersOption>
@@ -28,23 +28,26 @@
 	</msgConfigOptions>
 
 	<filters>
+	  <!-- Global server level filters applied to all clients that match -->
 	  <filter>
 		<name>UserClass Filter Group 1</name>
 		<filterExpressions>
 			<filterExpression>
-				<optionExpression code="15">
-					<opaqueOption>
+				<optionExpression code="15" operator="equals">
+					<opaqueDataOption>
 						<opaqueData>
 							<asciiValue>FilterUserClass</asciiValue>
 						</opaqueData>
-					</opaqueOption>
+					</opaqueDataOption>
 				</optionExpression>
 			</filterExpression>
 		</filterExpressions>
 		<msgConfigOptions>
-			<domainListOption>
+			<!-- Clients that match the filter will receive this DomainListOption
+				 instead of the one defined globally -->
+			<domainSearchListOption>
 				<domainName>filter.com.</domainName>
-			</domainListOption>
+			</domainSearchListOption>
 		</msgConfigOptions>
 	  </filter>
 	</filters>
@@ -58,12 +61,23 @@
 					<ipAddress>2001:DB8:1::1</ipAddress>
 				</dnsServersOption>
 			</iaNaConfigOptions>
+			<naAddrPools>
+				<pool>
+					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
+					<addrConfigOptions>
+						<sipServerAddressesOption>
+							<ipAddress>2001:DB8:1::1:1</ipAddress>
+						</sipServerAddressesOption>
+					</addrConfigOptions>
+				</pool>
+			</naAddrPools>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Reconfigure</name>
 					<filterExpressions>
 						<filterExpression>
 							<optionExpression code="20">
+								<nilOption/>
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>
@@ -79,16 +93,6 @@
 					</naAddrPools>
 			  	</linkFilter>
 			</linkFilters>
-			<naAddrPools>
-				<pool>
-					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
-					<addrConfigOptions>
-						<sipServerAddressesOption>
-							<ipAddress>2001:DB8:1::1:1</ipAddress>
-						</sipServerAddressesOption>
-					</addrConfigOptions>
-				</pool>
-			</naAddrPools>
 		</link>
 		<link>
 			<name>Client Link 2</name>
@@ -104,6 +108,7 @@
 					<filterExpressions>
 						<filterExpression>
 							<optionExpression code="20">
+								<nilOption/>
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>

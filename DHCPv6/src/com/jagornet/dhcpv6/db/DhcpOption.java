@@ -40,7 +40,7 @@ public class DhcpOption
 	protected int code;	// int = ushort
 	
 	/** The value. */
-	protected byte[] value;
+	protected byte[] value;	// value includes 2 bytes for length - TODO: why not have separate field?
 		
 	/** The identity assoc id. */
 	protected Long identityAssocId;
