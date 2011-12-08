@@ -61,7 +61,6 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaPrefixDAO#create(com.jagornet.dhcpv6.db.IaPrefix)
 	 */
-
 	public void create(final IaPrefix iaPrefix) 
 	{
 		/**
@@ -289,6 +288,9 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
                 new IaPrefixRowMapper());
 	}
 
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaPrefixDAO#findUnusedByRange(java.net.InetAddress, java.net.InetAddress)
+	 */
 	public List<IaPrefix> findUnusedByRange(final InetAddress startAddr, final InetAddress endAddr)
 	{
 		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
@@ -312,6 +314,9 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
                 new IaPrefixRowMapper());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaPrefixDAO#findExistingIPs(java.net.InetAddress, java.net.InetAddress)
+	 */
 	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr)
 	{
         return getJdbcTemplate().query(

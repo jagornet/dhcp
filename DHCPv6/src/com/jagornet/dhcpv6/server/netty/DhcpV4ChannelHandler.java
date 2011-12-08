@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpHandlerAdapter.java is part of DHCPv6.
+ *   This file DhcpV4ChannelHandler.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -40,9 +40,9 @@ import com.jagornet.dhcpv6.message.DhcpV4Message;
 import com.jagornet.dhcpv6.server.request.DhcpV4MessageHandler;
 
 /**
- * Title: DhcpChannelHandler
- * Description: The handler used by the NETTY-based DHCP server
- * for handling DhcpMessages.
+ * Title: DhcpV4ChannelHandler
+ * Description: The handler used by the NETTY-based DHCPv4 server
+ * for handling DhcpV4Messages.
  * 
  * @author A. Gregory Rabil
  */

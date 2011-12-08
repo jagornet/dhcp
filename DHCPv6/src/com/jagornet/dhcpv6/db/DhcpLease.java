@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ * Copyright 2011 Jagornet Technologies, LLC.  All Rights Reserved.
  *
  * This software is the proprietary information of Jagornet Technologies, LLC. 
  * Use is subject to license terms.
@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file IaAddress.java is part of DHCPv6.
+ *   This file DhcpLease.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -41,160 +41,232 @@ public class DhcpLease
 {
 	// iatypes
 	public static final byte V4_TYPE = 0;
-	
-	/** The Constant NA_TYPE. */
 	public static final byte NA_TYPE = 1;
-	
-	/** The Constant TA_TYPE. */
 	public static final byte TA_TYPE = 2;
-	
-	/** The Constant PD_TYPE. */
 	public static final byte PD_TYPE = 3;
 
 	// states
-	/** The Constant ADVERTISED. */
 	public static final byte ADVERTISED = 1;
-	
-	/** The Constant COMMITTED. */
 	public static final byte COMMITTED = 2;
-	
-	/** The Constant EXPIRED. */
 	public static final byte EXPIRED = 3;
-	
-	/** The Constant RELEASED. */
 	public static final byte RELEASED = 4;
-	
-	/** The Constant DECLINED. */
 	public static final byte DECLINED = 5;
 
-	/** The ip address. */
 	protected InetAddress ipAddress;
-	
-	/** The duid. */
 	protected byte[] duid;
-	
-	/** The iatype. */
 	protected byte iatype;
-	
-	/** The iaid. */
 	protected long iaid;		// need long to hold 32-bit unsigned integer
-
 	protected short prefixLength;
-	
-	/** The state. */
 	protected byte state;
-	
-	/** The start time. */
 	protected Date startTime;
-	
-	/** The preferred end time. */
 	protected Date preferredEndTime;
-	
-	/** The valid end time. */
 	protected Date validEndTime;
-	
-	/** The dhcp options. */
 	protected Collection<DhcpOption> iaDhcpOptions;
 	protected Collection<DhcpOption> iaAddrDhcpOptions;
 	
+	/**
+	 * Gets the ip address.
+	 *
+	 * @return the ip address
+	 */
 	public InetAddress getIpAddress() {
 		return ipAddress;
 	}
 
 
+	/**
+	 * Sets the ip address.
+	 *
+	 * @param ipAddress the new ip address
+	 */
 	public void setIpAddress(InetAddress ipAddress) {
 		this.ipAddress = ipAddress;
 	}
 
 
+	/**
+	 * Gets the duid.
+	 *
+	 * @return the duid
+	 */
 	public byte[] getDuid() {
 		return duid;
 	}
 
 
+	/**
+	 * Sets the duid.
+	 *
+	 * @param duid the new duid
+	 */
 	public void setDuid(byte[] duid) {
 		this.duid = duid;
 	}
 
 
+	/**
+	 * Gets the iatype.
+	 *
+	 * @return the iatype
+	 */
 	public byte getIatype() {
 		return iatype;
 	}
 
 
+	/**
+	 * Sets the iatype.
+	 *
+	 * @param iatype the new iatype
+	 */
 	public void setIatype(byte iatype) {
 		this.iatype = iatype;
 	}
 
 
+	/**
+	 * Gets the iaid.
+	 *
+	 * @return the iaid
+	 */
 	public long getIaid() {
 		return iaid;
 	}
 
 
+	/**
+	 * Sets the iaid.
+	 *
+	 * @param iaid the new iaid
+	 */
 	public void setIaid(long iaid) {
 		this.iaid = iaid;
 	}
 
 	
+	/**
+	 * Gets the prefix length.
+	 *
+	 * @return the prefix length
+	 */
 	public short getPrefixLength() {
 		return prefixLength;
 	}
 
+	/**
+	 * Sets the prefix length.
+	 *
+	 * @param prefixLength the new prefix length
+	 */
 	public void setPrefixLength(short prefixLength) {
 		this.prefixLength = prefixLength;
 	}
 
 
+	/**
+	 * Gets the state.
+	 *
+	 * @return the state
+	 */
 	public byte getState() {
 		return state;
 	}
 
 
+	/**
+	 * Sets the state.
+	 *
+	 * @param state the new state
+	 */
 	public void setState(byte state) {
 		this.state = state;
 	}
 
 
+	/**
+	 * Gets the start time.
+	 *
+	 * @return the start time
+	 */
 	public Date getStartTime() {
 		return startTime;
 	}
 
 
+	/**
+	 * Sets the start time.
+	 *
+	 * @param startTime the new start time
+	 */
 	public void setStartTime(Date startTime) {
 		this.startTime = startTime;
 	}
 
 
+	/**
+	 * Gets the preferred end time.
+	 *
+	 * @return the preferred end time
+	 */
 	public Date getPreferredEndTime() {
 		return preferredEndTime;
 	}
 
 
+	/**
+	 * Sets the preferred end time.
+	 *
+	 * @param preferredEndTime the new preferred end time
+	 */
 	public void setPreferredEndTime(Date preferredEndTime) {
 		this.preferredEndTime = preferredEndTime;
 	}
 
 
+	/**
+	 * Gets the valid end time.
+	 *
+	 * @return the valid end time
+	 */
 	public Date getValidEndTime() {
 		return validEndTime;
 	}
 
 
+	/**
+	 * Sets the valid end time.
+	 *
+	 * @param validEndTime the new valid end time
+	 */
 	public void setValidEndTime(Date validEndTime) {
 		this.validEndTime = validEndTime;
 	}
 
 
+	/**
+	 * Gets the ia dhcp options.
+	 *
+	 * @return the ia dhcp options
+	 */
 	public Collection<DhcpOption> getIaDhcpOptions() {
 		return iaDhcpOptions;
 	}
 
 
+	/**
+	 * Sets the ia dhcp options.
+	 *
+	 * @param iaDhcpOptions the new ia dhcp options
+	 */
 	public void setIaDhcpOptions(Collection<DhcpOption> iaDhcpOptions) {
 		this.iaDhcpOptions = iaDhcpOptions;
 	}
 	
+	/**
+	 * Adds the ia dhcp option.
+	 *
+	 * @param iaDhcpOption the ia dhcp option
+	 */
 	public void addIaDhcpOption(DhcpOption iaDhcpOption) {
 		if (iaDhcpOptions == null) {			
 			//TODO: consider a Set?
@@ -204,15 +276,30 @@ public class DhcpLease
 	}
 
 
+	/**
+	 * Gets the ia addr dhcp options.
+	 *
+	 * @return the ia addr dhcp options
+	 */
 	public Collection<DhcpOption> getIaAddrDhcpOptions() {
 		return iaAddrDhcpOptions;
 	}
 
 
+	/**
+	 * Sets the ia addr dhcp options.
+	 *
+	 * @param iaAddrDhcpOptions the new ia addr dhcp options
+	 */
 	public void setIaAddrDhcpOptions(Collection<DhcpOption> iaAddrDhcpOptions) {
 		this.iaAddrDhcpOptions = iaAddrDhcpOptions;
 	}
 
+	/**
+	 * Adds the ia addr dhcp option.
+	 *
+	 * @param iaDhcpOption the ia dhcp option
+	 */
 	public void addIaAddrDhcpOption(DhcpOption iaDhcpOption) {
 		if (iaAddrDhcpOptions == null) {			
 			//TODO: consider a Set?
@@ -222,6 +309,9 @@ public class DhcpLease
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -248,6 +338,9 @@ public class DhcpLease
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -298,6 +391,9 @@ public class DhcpLease
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "DhcpLease [ipAddress=" + ipAddress + ", duid="
@@ -308,6 +404,11 @@ public class DhcpLease
 				+ ", iaAddrDhcpOptions=" + iaAddrDhcpOptions + "]";
 	}
 	
+	/**
+	 * State to string.
+	 *
+	 * @return the string
+	 */
 	public String stateToString()
 	{
 		String s = null;

@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file BindingAddress.java is part of DHCPv6.
+ *   This file V4BindingAddress.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ import org.springframework.beans.BeanUtils;
 import com.jagornet.dhcpv6.db.IaAddress;
 
 /**
- * The Class BindingAddress.  A wrapper for an IaAddress object with
+ * The Class V4BindingAddress.  A wrapper for an IaAddress object with
  * a reference to the configured binding pool for that address.
  * 
  * @author A. Gregory Rabil

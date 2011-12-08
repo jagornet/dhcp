@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpDecoderAdapter.java is part of DHCPv6.
+ *   This file DhcpChannelDecoder.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -49,8 +49,6 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
 @ChannelPipelineCoverage("one")
 public class DhcpChannelDecoder extends OneToOneDecoder
 {
-    
-    /** The log. */
     private static Logger log = LoggerFactory.getLogger(DhcpChannelDecoder.class);
 
     /** The local socket address. */

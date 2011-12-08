@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file IaAddress.java is part of DHCPv6.
+ *   This file IaPrefix.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -41,17 +41,27 @@ public class IaPrefix extends IaAddress
 {
 	protected short prefixLength;
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * Gets the prefix length.
+	 *
+	 * @return the prefix length
 	 */
 	public short getPrefixLength() {
 		return prefixLength;
 	}
 
+	/**
+	 * Sets the prefix length.
+	 *
+	 * @param prefixLength the new prefix length
+	 */
 	public void setPrefixLength(short prefixLength) {
 		this.prefixLength = prefixLength;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaAddress#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -60,6 +70,9 @@ public class IaPrefix extends IaAddress
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaAddress#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -76,6 +89,9 @@ public class IaPrefix extends IaAddress
 		return true;
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaAddress#toString()
+	 */
 	@Override
 	public String toString()
 	{

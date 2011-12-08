@@ -1,8 +1,12 @@
 /*
- * $Id$
- * 
- * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ * Copyright 2011 Jagornet Technologies, LLC.  All Rights Reserved.
  *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
  *   This file Version.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
@@ -22,7 +26,7 @@
 package com.jagornet.dhcpv6;
 
 /**
- * @author agrabil
+ * @author A. Gregory Rabil
  *
  */
 public class Version

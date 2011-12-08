@@ -55,8 +55,8 @@ import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 
 /**
- * The Class BaseBindingManager.  Abstract base class for all three
- * types of binding managers - NA address, TA address, and prefix.
+ * The Class BaseBindingManager.
+ * Top-level abstract class used by all BindingManagers.
  * 
  * @author A. Gregory Rabil
  */

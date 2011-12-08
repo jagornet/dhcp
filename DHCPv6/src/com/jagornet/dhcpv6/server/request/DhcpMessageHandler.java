@@ -37,7 +37,7 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
  * Title: DhcpMessageHandler
- * Description: The main DHCP message handler class.
+ * Description: The main DHCPv6 message handler class.
  * 
  * @author A. Gregory Rabil
  */
@@ -202,83 +202,4 @@ public class DhcpMessageHandler
     	}
     	return null;
     }
-
-    
-    
-//	private static String INFO_REQUEST_PROCESSOR_IMPL_DEFAULT =
-//		"com.jagornet.dhcpv6.server.request.DhcpInfoRequestProcessor";
-//	private static String SOLICIT_PROCESSOR_IMPL_DEFAULT =
-//		"com.jagornet.dhcpv6.server.request.DhcpSolicitProcessor";
-//	private static String REQUEST_PROCESSOR_IMPL_DEFAULT =
-//		"com.jagornet.dhcpv6.server.request.DhcpRequestProcessor";
-//	protected static String infoRequestProcessorImplClass = 
-//		INFO_REQUEST_PROCESSOR_IMPL_DEFAULT;
-//	protected static String solicitProcessorImplClass = 
-//		SOLICIT_PROCESSOR_IMPL_DEFAULT;
-//	protected static String requestProcessorImplClass = 
-//		REQUEST_PROCESSOR_IMPL_DEFAULT;
-//	    
-//    
-//    private static DhcpMessage handleInfoRequest(InetAddress linkAddress, DhcpMessage dhcpMessage)
-//    {
-//    	DhcpMessageProcessor messageProcessor = null;
-//		try {
-//			Class<?> c = Class.forName(infoRequestProcessorImplClass);
-//			messageProcessor = 
-//				(DhcpMessageProcessor) c
-//				.getConstructor(DhcpMessage.class, InetAddress.class)
-//				.newInstance(dhcpMessage, linkAddress);
-//		}
-//		catch (Exception e) {
-//			log.error("Failed to create Info-Request Processor: " + e);
-//		}
-//		
-//		if (messageProcessor != null) {
-//			return messageProcessor.process();
-//		}
-//		
-//		return null;
-//    }
-//    
-//    private static DhcpMessage handleSolicit(InetAddress linkAddress, DhcpMessage dhcpMessage)
-//    {
-//    	DhcpMessageProcessor messageProcessor = null;
-//		try {
-//			Class<?> c = Class.forName(solicitProcessorImplClass);
-//			messageProcessor = 
-//				(DhcpMessageProcessor) c
-//				.getConstructor(DhcpMessage.class, InetAddress.class)
-//				.newInstance(dhcpMessage, linkAddress);
-//		}
-//		catch (Exception e) {
-//			log.error("Failed to create Solicit Processor: " + e);
-//		}
-//		
-//		if (messageProcessor != null) {
-//			return messageProcessor.process();
-//		}
-//		
-//		return null;
-//    }
-//    
-//    private static DhcpMessage handleRequest(InetAddress linkAddress, DhcpMessage dhcpMessage)
-//    {
-//    	DhcpMessageProcessor messageProcessor = null;
-//		try {
-//			Class<?> c = Class.forName(requestProcessorImplClass);
-//			messageProcessor = 
-//				(DhcpMessageProcessor) c
-//				.getConstructor(DhcpMessage.class, InetAddress.class)
-//				.newInstance(dhcpMessage, linkAddress);
-//		}
-//		catch (Exception e) {
-//			log.error("Failed to create Request Processor: " + e);
-//		}
-//		
-//		if (messageProcessor != null) {
-//			return messageProcessor.process();
-//		}
-//		
-//		return null;
-//    }
 }

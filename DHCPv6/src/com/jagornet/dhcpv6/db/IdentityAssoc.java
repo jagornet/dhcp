@@ -37,47 +37,22 @@ import java.util.Collection;
 public class IdentityAssoc
 {
 	// iatypes
-	
 	public static final byte V4_TYPE = 0;
-	
-	/** The Constant NA_TYPE. */
 	public static final byte NA_TYPE = 1;
-	
-	/** The Constant TA_TYPE. */
 	public static final byte TA_TYPE = 2;
-	
-	/** The Constant PD_TYPE. */
 	public static final byte PD_TYPE = 3;
 	
 	// states
-	/** The Constant ADVERTISED. */
 	public static final byte ADVERTISED = 1;
-	
-	/** The Constant COMMITTED. */
 	public static final byte COMMITTED = 2;
-	
-	/** The Constant EXPIRED. */
 	public static final byte EXPIRED = 3;
 	
-	/** The id. */
 	protected Long id;	// the database-generated object ID
-	
-	/** The duid. */
 	protected byte[] duid;
-	
-	/** The iatype. */
 	protected byte iatype;
-	
-	/** The iaid. */
 	protected long iaid;		// need long to hold 32-bit unsigned integer
-	
-	/** The state. */
 	protected byte state;
-	
-	/** The ia addresses/prefixes. */
 	protected Collection<? extends IaAddress> iaAddresses;
-	
-	/** The dhcp options. */
 	protected Collection<DhcpOption> dhcpOptions;
 	
 	/**

@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpInfoRequestProcessor.java is part of DHCPv6.
+ *   This file BaseDhcpProcessor.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -75,8 +75,8 @@ import com.jagornet.dhcpv6.xml.IaTaOption;
 import com.jagornet.dhcpv6.xml.PrefixPool;
 
 /**
- * Title: BaseDhcpRequestProcessor
- * Description: The base class for processing client messages.
+ * Title: BaseDhcpProcessor
+ * Description: The base class for processing DHCPv6 client messages.
  * 
  * @author A. Gregory Rabil
  */

@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpRequestProcessor.java is part of DHCPv6.
+ *   This file DhcpV4MessageProcessor.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ public interface DhcpV4MessageProcessor
 	/**
 	 * Process message.
 	 * 
-	 * @return the dhcp message
+	 * @return the dhcp v4 message
 	 */
 	public DhcpV4Message processMessage();
 }

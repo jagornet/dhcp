@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpSolicitProcessor.java is part of DHCPv6.
+ *   This file DhcpDeclineProcessor.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by

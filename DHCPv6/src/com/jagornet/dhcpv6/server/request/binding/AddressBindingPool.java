@@ -48,31 +48,30 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
  */
 public class AddressBindingPool implements BindingPool
 {
-	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(AddressBindingPool.class);
 
-	/** The range. */
+	/** The range containing the start and end address for this pool */
 	protected Range range;
 	
 	/** The free list. */
 	protected FreeList freeList;
 	
-	/** The preferred lifetime. */
+	/** The configured preferred lifetime for this pool */
 	protected long preferredLifetime;
 	
-	/** The valid lifetime. */
+	/** The configured valid lifetime for this pool */
 	protected long validLifetime;
 	
-	/** The pool. */
+	/** The address pool wrapped by this AddressBindingPool object */
 	protected AddressPool pool;
 	
+	/** The configured options for this pool */
 	protected DhcpConfigOptions addrConfigOptions;
 	
-	/** The link filter. */
-	protected LinkFilter linkFilter;	// the LinkFilter containing this pool, if any
+	/** The LinkFilter containing this pool, if any */
+	protected LinkFilter linkFilter; 
 	
-	/** The reaper. */
+	/** The reaper which finds expired leases */
 	protected Timer reaper;
 	
 	/**
@@ -123,8 +122,6 @@ public class AddressBindingPool implements BindingPool
 		if (freeList != null) {
 			BigInteger next = freeList.getNextFree();
 			if (next != null) {
-				//TODO: if there are no more free addresses, then find one
-				//		that has been released or has been expired
 				try {
 					return InetAddress.getByAddress(next.toByteArray());
 				}

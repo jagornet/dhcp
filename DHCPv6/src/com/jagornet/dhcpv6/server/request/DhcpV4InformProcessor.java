@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpV4InfoRequestProcessor.java is part of DHCPv6.
+ *   This file DhcpV4InformRequestProcessor.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ import com.jagornet.dhcpv6.message.DhcpV4Message;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
- * Title: DhcpV4InfoRequestProcessor
+ * Title: DhcpV4InformRequestProcessor
  * Description: The main class for processing V4 INFORM messages.
  * 
  * @author A. Gregory Rabil
@@ -47,7 +47,7 @@ public class DhcpV4InformProcessor extends BaseDhcpV4Processor
 	private static Logger log = LoggerFactory.getLogger(DhcpV4InformProcessor.class);
     
     /**
-     * Construct an DhcpV4InfoRequest processor.
+     * Construct an DhcpV4InformRequest processor.
      * 
      * @param requestMsg the Inform message
      * @param clientLinkAddress the client link address

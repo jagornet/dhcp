@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpInfoRequestProcessor.java is part of DHCPv6.
+ *   This file BaseDhcpV4Processor.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -55,8 +55,8 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4LeaseTimeOption;
 
 /**
- * Title: BaseDhcpRequestProcessor
- * Description: The base class for processing client messages.
+ * Title: BaseDhcpV4Processor
+ * Description: The base class for processing DHCPv4 client messages.
  * 
  * @author A. Gregory Rabil
  */
@@ -351,7 +351,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 	
 	protected boolean addrOnLink(InetAddress inetAddr, DhcpLink clientLink)
 	{
-		boolean onLink = true;	// assume all IPs are on link
+		boolean onLink = true;	//TODO: don't assume all IPs are on link?
 		
 		return onLink;
 	}

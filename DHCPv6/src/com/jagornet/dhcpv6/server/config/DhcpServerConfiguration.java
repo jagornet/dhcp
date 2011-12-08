@@ -483,7 +483,7 @@ public class DhcpServerConfiguration
     }
     
     /**
-     * Find pool.
+     * Find the NA address pool for an address on a link
      * 
      * @param link the link
      * @param addr the addr
@@ -502,6 +502,14 @@ public class DhcpServerConfiguration
     	return pool;
     }
     
+    /**
+     * Find the TA address pool for an address on a link
+     * 
+     * @param link the link
+     * @param addr the addr
+     * 
+     * @return the pool
+     */
     public static AddressPool findTaAddrPool(Link link, InetAddress addr)
     {
     	AddressPool pool = null;
@@ -514,6 +522,13 @@ public class DhcpServerConfiguration
     	return pool;
     }
 
+    /**
+     * Find the address pool for an address by type
+     * 
+     * @param poolsType the pool type
+     * @param addr the addr
+     * @return the pool
+     */
     public static AddressPool findAddrPool(AddressPoolsType poolsType, InetAddress addr)
     {
     	AddressPool pool = null;
@@ -540,6 +555,14 @@ public class DhcpServerConfiguration
 		return pool;
     }
     
+    /**
+     * Find the prefix pool for an address on a link
+     * 
+     * @param link the link
+     * @param addr the addr
+     * 
+     * @return the pool
+     */
     public static PrefixPool findPrefixPool(Link link, InetAddress addr)
     {
     	PrefixPool pool = null;
@@ -552,6 +575,13 @@ public class DhcpServerConfiguration
     	return pool;
     }
 
+    /**
+     * Find the prefix pool for an address by type
+     * 
+     * @param poolsType the pool type
+     * @param addr the addr
+     * @return the pool
+     */
     public static PrefixPool findPrefixPool(PrefixPoolsType poolsType, InetAddress addr)
     {
     	PrefixPool pool = null;

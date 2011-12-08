@@ -51,7 +51,6 @@ import com.jagornet.dhcpv6.xml.OptionExpression;
 
 public abstract class BaseIpAddressListOption extends BaseDhcpOption implements DhcpComparableOption
 {
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseIpAddressListOption.class);
 	
 	protected IpAddressListOptionType ipAddressListOption;
@@ -145,9 +144,9 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     }
 
     /**
-     * Adds the server.
+     * Adds a server IP address from a byte array
      * 
-     * @param addr the addr
+     * @param addr the IP address to add as a byte array
      */
     public void addServer(byte[] addr)
     {
@@ -163,9 +162,9 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     }
 
     /**
-     * Adds the server.
+     * Adds a server IP address from an InetAddress
      * 
-     * @param inetAddr the inet addr
+     * @param inetAddr the IP address to add as an InetAddr
      */
     public void addServer(InetAddress inetAddr)
     {

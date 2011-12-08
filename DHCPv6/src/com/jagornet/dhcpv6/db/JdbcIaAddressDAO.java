@@ -61,7 +61,6 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#create(com.jagornet.dhcpv6.db.IaAddress)
 	 */
-
 	public void create(final IaAddress iaAddr) 
 	{
 		/**
@@ -284,6 +283,9 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
                 new IaAddrRowMapper());
 	}
 
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findUnusedByRange(java.net.InetAddress, java.net.InetAddress)
+	 */
 	public List<IaAddress> findUnusedByRange(final InetAddress startAddr, final InetAddress endAddr)
 	{
 		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
@@ -307,6 +309,9 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
                 new IaAddrRowMapper());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findExistingIPs(java.net.InetAddress, java.net.InetAddress)
+	 */
 	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr)
 	{
         return getJdbcTemplate().query(

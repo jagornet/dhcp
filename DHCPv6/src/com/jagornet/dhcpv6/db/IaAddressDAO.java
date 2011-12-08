@@ -40,15 +40,15 @@ public interface IaAddressDAO
 {
 	
 	/**
-	 * Creates the.
+	 * Creates an IaAddress
 	 * 
 	 * @param iaAddr the ia addr
 	 */
 	public void create(IaAddress iaAddr);
 	
 	/**
-	 * Update.
-	 * 
+	 * Update an IaAddress.
+	 *
 	 * @param iaAddr the ia addr
 	 */
 	public void update(IaAddress iaAddr);
@@ -128,8 +128,24 @@ public interface IaAddressDAO
 	 * @return the list< ia address>
 	 */
 	public List<IaAddress> findAllOlderThanNow(byte iatype);
-	
+
+	/**
+	 * Find unused by range.
+	 * 
+	 * @param startAddr the start addr
+	 * @param endAddr the end addr
+	 * 
+	 * @return the list < ia address>
+	 */
 	public List<IaAddress> findUnusedByRange(InetAddress startAddr, InetAddress endAddr);
 
+	/**
+	 * Find existing IPs.
+	 * 
+	 * @param startAddr the start addr
+	 * @param endAddr the end addr
+	 * 
+	 * @return the list < ia address>
+	 */
 	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr);
 }

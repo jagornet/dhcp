@@ -36,14 +36,14 @@ public interface IdentityAssocDAO
 {
 	
 	/**
-	 * Creates the.
+	 * Creates an IdentityAssoc
 	 * 
 	 * @param ia the ia
 	 */
 	public void create(IdentityAssoc ia);
 	
 	/**
-	 * Update.
+	 * Update an IdentityAssoc
 	 * 
 	 * @param ia the ia
 	 */

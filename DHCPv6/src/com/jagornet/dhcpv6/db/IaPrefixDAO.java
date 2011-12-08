@@ -41,14 +41,14 @@ public interface IaPrefixDAO
 {
 	
 	/**
-	 * Creates the.
+	 * Creates an IaPrefix
 	 * 
 	 * @param iaPrefix the ia prefix
 	 */
 	public void create(IaPrefix iaPrefix);
 	
 	/**
-	 * Update.
+	 * Update an IaPrefix
 	 * 
 	 * @param iaPrefix the ia prefix
 	 */
@@ -130,7 +130,23 @@ public interface IaPrefixDAO
 	 */
 	public List<IaPrefix> findAllOlderThan(Date date);
 	
+	/**
+	 * Find unused by range.
+	 * 
+	 * @param startAddr the start addr
+	 * @param endAddr the end addr
+	 * 
+	 * @return the list< ia prefix>
+	 */
 	public List<IaPrefix> findUnusedByRange(InetAddress startAddr, InetAddress endAddr);
 
+	/**
+	 * Find existing IPs by range.
+	 * 
+	 * @param startAddr the start addr
+	 * @param endAddr the end addr
+	 * 
+	 * @return the list< inet prefix>
+	 */
 	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr);
 }

@@ -58,8 +58,6 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 {	
-	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(JdbcLeaseManager.class);
 
 	/* (non-Javadoc)
@@ -117,6 +115,11 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		}
 	}
 	
+	/**
+	 * Insert dhcp lease.
+	 *
+	 * @param lease the lease
+	 */
 	protected void insertDhcpLease(final DhcpLease lease)
 	{
 		getJdbcTemplate().update("insert into dhcplease" +
@@ -149,6 +152,11 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		});
 	}
 	
+	/**
+	 * Update dhcp lease.
+	 *
+	 * @param lease the lease
+	 */
 	protected void updateDhcpLease(final DhcpLease lease)
 	{
 		getJdbcTemplate().update("update dhcplease" +
@@ -180,6 +188,11 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		});
 	}
 	
+	/**
+	 * Delete dhcp lease.
+	 *
+	 * @param lease the lease
+	 */
 	protected void deleteDhcpLease(final DhcpLease lease)
 	{
 		getJdbcTemplate().update("delete from dhcplease" +
@@ -193,6 +206,9 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		});
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findDhcpOptionsByIdentityAssocId(long)
+	 */
 	@Override
 	public List<DhcpOption> findDhcpOptionsByIdentityAssocId(long identityAssocId) {
 		//TODO
@@ -232,6 +248,14 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		return null;
 	}
 
+	/**
+	 * Find dhcp leases for ia.
+	 *
+	 * @param duid the duid
+	 * @param iatype the iatype
+	 * @param iaid the iaid
+	 * @return the list
+	 */
 	protected List<DhcpLease> findDhcpLeasesForIA(final byte[] duid, final byte iatype, final long iaid)
 	{
 		return getJdbcTemplate().query(
@@ -267,6 +291,13 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		return findIA(inetAddr, true);
 	}
 	
+	/**
+	 * Find ia.
+	 *
+	 * @param inetAddr the inet addr
+	 * @param allBindings the all bindings
+	 * @return the identity assoc
+	 */
 	public IdentityAssoc findIA(final InetAddress inetAddr, boolean allBindings)
 	{
         DhcpLease lease = getJdbcTemplate().query(
@@ -370,6 +401,9 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		deleteIaAddr(iaPrefix);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findExistingIPs(java.net.InetAddress, java.net.InetAddress)
+	 */
 	@Override
 	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr)
 	{
@@ -400,6 +434,9 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
                 });
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaAddresses(java.net.InetAddress, java.net.InetAddress)
+	 */
 	@Override
 	public List<IaAddress> findUnusedIaAddresses(final InetAddress startAddr, final InetAddress endAddr)
 	{
@@ -424,6 +461,9 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
                 new IaAddrRowMapper());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaAddresses(byte)
+	 */
 	@Override
 	public List<IaAddress> findExpiredIaAddresses(final byte iatype) {
         return getJdbcTemplate().query(
@@ -441,6 +481,9 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
                 new IaAddrRowMapper());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaPrefixes(java.net.InetAddress, java.net.InetAddress)
+	 */
 	@Override
 	public List<IaPrefix> findUnusedIaPrefixes(final InetAddress startAddr, final InetAddress endAddr) {
 		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
@@ -464,6 +507,9 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
                 new IaPrefixRowMapper());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaPrefixes()
+	 */
 	@Override
 	public List<IaPrefix> findExpiredIaPrefixes() {
         return getJdbcTemplate().query(
@@ -480,6 +526,9 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
                 new IaPrefixRowMapper());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#reconcileIaAddresses(java.util.List)
+	 */
 	@Override
 	public void reconcileIaAddresses(List<Range> ranges) {
 		List<byte[]> args = new ArrayList<byte[]>();
@@ -499,6 +548,12 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	
 	// Conversion methods
 	
+	/**
+	 * To identity assoc.
+	 *
+	 * @param leases the leases
+	 * @return the identity assoc
+	 */
 	public IdentityAssoc toIdentityAssoc(Collection<DhcpLease> leases)
 	{
 		IdentityAssoc ia = null;
@@ -523,6 +578,12 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		return ia;
 	}
 
+	/**
+	 * To ia address.
+	 *
+	 * @param lease the lease
+	 * @return the ia address
+	 */
 	public IaAddress toIaAddress(DhcpLease lease)
 	{
 		IaAddress iaAddr = new IaAddress();
@@ -535,6 +596,12 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		return iaAddr;
 	}
 	
+	/**
+	 * To dhcp leases.
+	 *
+	 * @param ia the ia
+	 * @return the list
+	 */
 	public List<DhcpLease> toDhcpLeases(IdentityAssoc ia)
 	{
 		if (ia != null) {
@@ -554,6 +621,13 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		return null;
 	}
 
+	/**
+	 * To dhcp lease.
+	 *
+	 * @param ia the ia
+	 * @param iaAddr the ia addr
+	 * @return the dhcp lease
+	 */
 	public DhcpLease toDhcpLease(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		DhcpLease lease = new DhcpLease();
@@ -570,6 +644,12 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		return lease;
 	}
 	
+	/**
+	 * Encode options.
+	 *
+	 * @param dhcpOptions the dhcp options
+	 * @return the byte[]
+	 */
 	protected byte[] encodeOptions(Collection<DhcpOption> dhcpOptions)
 	{
         if (dhcpOptions != null) {
@@ -587,6 +667,12 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
         return null;
 	}
 	
+	/**
+	 * Decode options.
+	 *
+	 * @param buf the buf
+	 * @return the collection
+	 */
 	protected Collection<DhcpOption> decodeOptions(byte[] buf)
 	{
 		Collection<DhcpOption> options = null;
@@ -621,8 +707,15 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
         }
     }
     
+    /**
+     * The Class DhcpLeaseResultSetExtractor.
+     */
     protected class DhcpLeaseResultSetExtractor implements ResultSetExtractor<DhcpLease>
     {
+		
+		/* (non-Javadoc)
+		 * @see org.springframework.jdbc.core.ResultSetExtractor#extractData(java.sql.ResultSet)
+		 */
 		@Override
 		public DhcpLease extractData(ResultSet rs)
 				throws SQLException, DataAccessException {

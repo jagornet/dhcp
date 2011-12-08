@@ -166,16 +166,67 @@ public interface IaManager
 	 */
 	public void deleteIaPrefix(IaPrefix iaPrefix);
 	
+	/**
+	 * Find existing IPs within an inclusive address range.
+	 * 
+	 * @param startAddr the start address of the range
+	 * @param endAddr the end address of the range
+	 * 
+	 * @return the list of InetAddress objects for existing IPs in the range
+	 */
 	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr);
 
+	/**
+	 * Find the unused IA Addresses within an inclusive address range.
+	 * 
+	 * @param startAddr the start address of the range
+	 * @param endAddr the end address of the range
+	 * 
+	 * @return the list of IaAddress objects that are unused in the range
+	 */
 	public List<IaAddress> findUnusedIaAddresses(InetAddress startAddr, InetAddress endAddr);
+	
+	/**
+	 * Find the expired IA Addresses for the given IA type.
+	 * 
+	 * @param iatype the IA type
+	 * 
+	 * @return the list of IaAddress objects that are expired for the type
+	 */
 	public List<IaAddress> findExpiredIaAddresses(byte iatype);
 
+	/**
+	 * Find the unused IA Prefixes within an inclusive address range.
+	 * 
+	 * @param startAddr the start address of the range
+	 * @param endAddr the end address of the range
+	 * 
+	 * @return the list of IaPrefix objects that are unused in the range
+	 */
 	public List<IaPrefix> findUnusedIaPrefixes(InetAddress startAddr, InetAddress endAddr);
+	
+	/**
+	 * Find the expired IA Prefixes.
+	 * 
+	 * @return the list of IaPrefix objects that are expired
+	 */
 	public List<IaPrefix> findExpiredIaPrefixes();
 
+	/**
+	 * Reconcile IA addresses to a set of ranges.  That is, delete any
+	 * lease or binding information for IPs that are outside the list of ranges.
+	 *   
+	 * @param ranges a list of IP address ranges to reconcile against
+	 */
 	public void reconcileIaAddresses(List<Range> ranges);	
 
+	/**
+	 * Find the DHCP options for a given IdentityAssocId.
+	 * 
+	 * @param identityAssocId the IdentityAssocId
+	 * 
+	 * @return the list of DhcpOption objects for the IdentityAssocId
+	 */
 	public List<DhcpOption> findDhcpOptionsByIdentityAssocId(long identityAssocId);
 	
 }

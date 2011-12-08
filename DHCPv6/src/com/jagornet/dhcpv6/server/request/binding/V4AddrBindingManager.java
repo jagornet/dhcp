@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file NaAddrBindingManager.java is part of DHCPv6.
+ *   This file V4AddrBindingManager.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.xml.Link;
 
 /**
- * The Interface NaAddrBindingManager.  The interface for IA_NA type
- * addresses, for use by the DhcpXXXProcessor classes.
+ * The Interface V4AddrBindingManager.  The interface for DHCPv4 type
+ * addresses, for use by the DhcpV4XXXProcessor classes.
  * 
  * @author A. Gregory Rabil
  */

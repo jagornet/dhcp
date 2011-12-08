@@ -57,8 +57,9 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
 
 /**
- * The Class AddressBindingManager.  Extends BaseBindingManager to
- * add behavior specific to address bindings.
+ * The Class AddressBindingManager.  
+ * Third-level abstract class that extends BaseAddrBindingManager to
+ * add behavior specific to DHCPv6 address bindings.
  * 
  * @author A. Gregory Rabil
  */

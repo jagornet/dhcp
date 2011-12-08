@@ -41,7 +41,7 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.V4AddressPool;
 
 /**
- * The Class AddressBindingPool.  A wrapper class for a configured AddressPool
+ * The Class V4AddressBindingPool.  A wrapper class for a configured V4AddressPool
  * for handling runtime activity for that pool.
  * 
  * @author A. Gregory Rabil
@@ -61,13 +61,14 @@ public class V4AddressBindingPool implements BindingPool
 	/** The leasetime. */
 	protected long leasetime;
 	
-	/** The pool. */
+	/** The v4 address pool wrapped by this V4AddressBindingPool object */
 	protected V4AddressPool pool;
 	
+	/** The configured DHCPv4 options for this pool */
 	protected DhcpV4ConfigOptions v4ConfigOptions;
 	
-	/** The link filter. */
-	protected LinkFilter linkFilter;	// the LinkFilter containing this pool, if any
+	/** The LinkFilter containing this pool, if any */
+	protected LinkFilter linkFilter; 
 	
 	/** The reaper. */
 	protected Timer reaper;

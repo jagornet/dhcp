@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file AddressBindingManager.java is part of DHCPv6.
+ *   This file BaseAddressBindingManager.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -37,7 +37,8 @@ import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 
 /**
- * The Class BaseAddressBindingManager.  Extends BaseBindingManager to
+ * The Class BaseAddressBindingManager.
+ * Second-level abstract class that extends BaseBindingManager to
  * add behavior specific to address bindings.
  * 
  * @author A. Gregory Rabil

@@ -68,8 +68,6 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public class NettyDhcpServer
 {
-	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(NettyDhcpServer.class);
 	
 	/** The unicast socket addresses */

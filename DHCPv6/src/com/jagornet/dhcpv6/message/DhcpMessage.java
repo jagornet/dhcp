@@ -144,11 +144,21 @@ public class DhcpMessage implements DhcpMessageInterface
     	this.remoteAddress = remoteAddress;
     }
     
+    /**
+     * Set the unicast flag for this message.
+     * 
+     * @param unicast
+     */
     public void setUnicast(boolean unicast)
     {
     	this.unicast = unicast;
     }
     
+    /**
+     * Check if this message was received via unicast.
+     * 
+     * @return true if unicast message, false otherwise
+     */
     public boolean isUnicast()
     {
     	return unicast;
@@ -387,7 +397,7 @@ public class DhcpMessage implements DhcpMessageInterface
     }
     
     /**
-     * Return the length of the options in this DhcpMessage in bytes.
+     * Get the length of the options in this DhcpMessage in bytes.
      * @return	an int containing the total length of all options
      */
     protected int getOptionsLength()
@@ -402,6 +412,10 @@ public class DhcpMessage implements DhcpMessageInterface
         return len;
     }
     
+    /**
+     * Get the length of the IA_NA options in this DhcpMessage in bytes.
+     * @return an int containing the total length of all IA_NA options
+     */
     protected int getIaNaOptionsLength()
     {
         int len = 0;
@@ -414,6 +428,10 @@ public class DhcpMessage implements DhcpMessageInterface
         return len;
     }
     
+    /**
+     * Get the length of the IA_TA options in this DhcpMessage in bytes.
+     * @return an int containing the total length of all IA_TA options
+     */
     protected int getIaTaOptionsLength()
     {
         int len = 0;
@@ -426,6 +444,10 @@ public class DhcpMessage implements DhcpMessageInterface
         return len;
     }
     
+    /**
+     * Return the length of the IA_PD options in this DhcpMessage in bytes.
+     * @return an int containing the total length of all IA_PD options
+     */
     protected int getIaPdOptionsLength()
     {
         int len = 0;

@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file BindingPool.java is part of DHCPv6.
+ *   This file PrefixBindingPool.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.PrefixPool;
 
 /**
- * The Class BindingPool.
+ * The Class PrefixBindingPool.
  */
 public class PrefixBindingPool implements BindingPool
 {
@@ -65,13 +65,14 @@ public class PrefixBindingPool implements BindingPool
 	/** The valid lifetime. */
 	protected long validLifetime;
 	
-	/** The pool. */
+	/** The prefix pool wrapped by this PrefixBindingPool object */
 	protected PrefixPool pool;
 	
+	/** The configured options for this pool */
 	protected DhcpConfigOptions prefixConfigOptions;
 	
-	/** The link filter. */
-	protected LinkFilter linkFilter;	// this LinkFilter containing this pool, if any
+	/** The LinkFilter containing this pool, if any */
+	protected LinkFilter linkFilter; 
 	
 	/** The reaper. */
 	protected Timer reaper;

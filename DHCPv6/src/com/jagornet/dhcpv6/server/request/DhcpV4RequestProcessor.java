@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpSolicitProcessor.java is part of DHCPv6.
+ *   This file DhcpV4RequestProcessor.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
 	protected RequestType type;
     
     /**
-     * Construct an DhcpRequestProcessor processor.
+     * Construct an DhcpV4RequestProcessor processor.
      * 
      * @param requestMsg the Request message
      * @param clientLinkAddress the client link address

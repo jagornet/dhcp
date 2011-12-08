@@ -50,7 +50,6 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  */
 public class DbSchemaManager
 {    
-    /** The log. */
     private static Logger log = LoggerFactory.getLogger(DbSchemaManager.class);
 
     public static String SCHEMA_FILENAME = DhcpConstants.DHCPV6_HOME != null ? 

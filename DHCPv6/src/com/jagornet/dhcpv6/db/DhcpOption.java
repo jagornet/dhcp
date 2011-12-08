@@ -33,22 +33,11 @@ package com.jagornet.dhcpv6.db;
 
 public class DhcpOption
 {
-	/** The id. */
 	protected Long id;	// the database-generated object ID
-
-	/** The code. */
 	protected int code;	// int = ushort
-	
-	/** The value. */
-	protected byte[] value;	// value includes 2 bytes for length - TODO: why not have separate field?
-		
-	/** The identity assoc id. */
+	protected byte[] value;	// value includes 2 bytes for length to facilitate encode/decode
 	protected Long identityAssocId;
-	
-	/** The ia address id. */
 	protected Long iaAddressId;
-	
-	/** The ia prefix id. */
 	protected Long iaPrefixId;
 
 	/**
@@ -141,10 +130,20 @@ public class DhcpOption
 		this.iaAddressId = iaAddressId;
 	}
 
+	/**
+	 * Gets the ia prefix id.
+	 *
+	 * @return the ia prefix id
+	 */
 	public Long getIaPrefixId() {
 		return iaPrefixId;
 	}
 
+	/**
+	 * Sets the ia prefix id.
+	 *
+	 * @param iaPrefixId the new ia prefix id
+	 */
 	public void setIaPrefixId(Long iaPrefixId) {
 		this.iaPrefixId = iaPrefixId;
 	}

@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpHandlerAdapter.java is part of DHCPv6.
+ *   This file DhcpChannelHandler.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -49,8 +49,6 @@ import com.jagornet.dhcpv6.server.request.DhcpMessageHandler;
 @ChannelPipelineCoverage("all")
 public class DhcpChannelHandler extends SimpleChannelHandler
 {
-	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpChannelHandler.class);
 
 	/*

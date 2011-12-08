@@ -35,8 +35,8 @@ import com.jagornet.dhcpv6.option.v4.DhcpV4MsgTypeOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
- * Title: DhcpMessageHandler
- * Description: The main DHCP message handler class.
+ * Title: DhcpV4MessageHandler
+ * Description: The main DHCPv4 message handler class.
  * 
  * @author A. Gregory Rabil
  */

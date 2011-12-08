@@ -179,6 +179,13 @@ public class Util
         return buf;
     }
     
+    /**
+     * Compare IP addresses to determine order
+     * 
+     * @param ip1
+     * @param ip2
+     * @return -1 if ip1<ip2, 0 if ip1=ip2, 1 if ip1>ip2
+     */
     public static int compareInetAddrs(InetAddress ip1, InetAddress ip2)
     {
     	BigInteger bi1 = new BigInteger(ip1.getAddress());
@@ -200,6 +207,12 @@ public class Util
 					":" + saddr.getPort();
 	}	
     
+	/**
+	 * Get the IPv6 link-local address for the given network interface.
+	 * 
+	 * @param netIf the network interface
+	 * @return the first IPv6 link-local address recorded on the interface
+	 */
 	public static InetAddress netIfIPv6LinkLocalAddress(NetworkInterface netIf)
 	{
         InetAddress v6Addr = null;

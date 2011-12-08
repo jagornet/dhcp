@@ -41,13 +41,10 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public abstract class BaseDhcpOption implements DhcpOption
 {	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseDhcpOption.class);
 	
-	/** The option name. */
 	protected String name;
-	
-	protected boolean v4;
+	protected boolean v4;	// true only if DHCPv4 option
 
 	/**
      * Encode the DHCP option code and length fields of any DHCP option.

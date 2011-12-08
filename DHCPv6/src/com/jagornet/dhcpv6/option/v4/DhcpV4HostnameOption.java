@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpV4DomainNameOption.java is part of DHCPv6.
+ *   This file DhcpV4HostnameOption.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import com.jagornet.dhcpv6.option.base.BaseStringOption;
 import com.jagornet.dhcpv6.xml.V4HostnameOption;
 
 /**
- * <p>Title: DhcpV4DomainNameOption </p>
+ * <p>Title: DhcpV4HostnameOption </p>
  * <p>Description: </p>.
  * 
  * @author A. Gregory Rabil

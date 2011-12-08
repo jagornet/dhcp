@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file BaseStringValueOption.java is part of DHCPv6.
+ *   This file BaseStringOption.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by

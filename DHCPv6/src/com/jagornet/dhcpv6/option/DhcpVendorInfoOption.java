@@ -39,7 +39,7 @@ import com.jagornet.dhcpv6.xml.OptionDefType;
 import com.jagornet.dhcpv6.xml.VendorInfoOption;
 
 /**
- * <p>Title: DhcpVendorClassOption </p>
+ * <p>Title: DhcpVendorInfoOption </p>
  * <p>Description: </p>.
  * 
  * @author A. Gregory Rabil

@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file PrefixBindingManager.java is part of DHCPv6.
+ *   This file PrefixBindingManagerImpl.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ import com.jagornet.dhcpv6.xml.PrefixPool;
 import com.jagornet.dhcpv6.xml.PrefixPoolsType;
 
 /**
- * The Class PrefixBindingManager.
+ * The Class PrefixBindingManagerImpl.
  * 
  * @author A. Gregory Rabil
  */

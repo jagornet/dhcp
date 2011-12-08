@@ -40,43 +40,19 @@ import com.jagornet.dhcpv6.util.Util;
 public class IaAddress
 {
 	// states
-	/** The Constant ADVERTISED. */
 	public static final byte ADVERTISED = 1;
-	
-	/** The Constant COMMITTED. */
 	public static final byte COMMITTED = 2;
-	
-	/** The Constant EXPIRED. */
 	public static final byte EXPIRED = 3;
-	
-	/** The Constant RELEASED. */
 	public static final byte RELEASED = 4;
-	
-	/** The Constant DECLINED. */
 	public static final byte DECLINED = 5;
 
-	/** The id. */
 	protected Long id;	// the database-generated object ID
-
-	/** The ip address. */
 	protected InetAddress ipAddress;
-	
-	/** The start time. */
 	protected Date startTime;
-	
-	/** The preferred end time. */
 	protected Date preferredEndTime;
-	
-	/** The valid end time. */
 	protected Date validEndTime;
-	
-	/** The state. */
 	protected byte state;
-	
-	/** The identity assoc id. */
 	protected Long identityAssocId;
-	
-	/** The dhcp options. */
 	protected Collection<DhcpOption> dhcpOptions;
 
 	/**
@@ -295,6 +271,9 @@ public class IaAddress
 		return true;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString()
 	{
@@ -321,6 +300,11 @@ public class IaAddress
 		return sb.toString();
 	}
 	
+	/**
+	 * State to string.
+	 *
+	 * @return the string
+	 */
 	public String stateToString()
 	{
 		String s = null;

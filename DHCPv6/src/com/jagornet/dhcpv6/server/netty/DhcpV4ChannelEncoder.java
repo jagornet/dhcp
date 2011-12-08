@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpEncoderAdapter.java is part of DHCPv6.
+ *   This file DhcpV4ChannelEncoder.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.message.DhcpV4Message;
 
 /**
- * Title: DhcpChannelEncoder
- * Description: The protocol encoder used by the NETTY-based DHCP server
+ * Title: DhcpV4ChannelEncoder
+ * Description: The protocol encoder used by the NETTY-based DHCPv4 server
  * when sending packets.
  * 
  * @author A. Gregory Rabil

@@ -112,6 +112,13 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
         }
     }
     
+    /**
+     * Convert an IPv6 address received from the wire to a string.
+     * 
+     * @param buf the ByteBuffer containing the IPv6 address to be decoded from the wire
+     * @return the string representation of the IPv6 address
+     * @throws IOException
+     */
     public static String decodeIpAddress(ByteBuffer buf) throws IOException
     {
         // it has to be hex from the wire, right?
@@ -121,6 +128,13 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
         return inetAddr.getHostAddress();
     }
     
+    /**
+     * Convert an IPv4 address received from the wire to a string.
+     * 
+     * @param buf the ByteBuffer containing the IPv4 address to be decoded from the wire
+     * @return the string representation of the IPv4 address
+     * @throws IOException
+     */
     public static String decodeIpV4Address(ByteBuffer buf) throws IOException
     {
         // it has to be hex from the wire, right?

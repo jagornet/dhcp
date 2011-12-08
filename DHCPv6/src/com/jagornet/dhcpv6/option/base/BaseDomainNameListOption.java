@@ -50,11 +50,19 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 
 	protected DomainNameListOptionType domainNameListOption;
 	
+	/**
+	 * Instantiates a new base domain name list option.
+	 */
 	public BaseDomainNameListOption()
 	{
 		this(null);
 	}
 	
+	/**
+	 * Instantiates a new base domain name list option.
+	 *
+	 * @param domainNameListOption the domain name list option
+	 */
 	public BaseDomainNameListOption(DomainNameListOptionType domainNameListOption)
 	{
 		super();
@@ -64,17 +72,32 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 			this.domainNameListOption = DomainNameListOptionType.Factory.newInstance();
 	}
 	
+    /**
+     * Gets the domain name list option.
+     *
+     * @return the domain name list option
+     */
     public DomainNameListOptionType getDomainNameListOption()
     {
 		return domainNameListOption;
 	}
 
+	/**
+	 * Sets the domain name list option.
+	 *
+	 * @param domainNameListOption the new domain name list option
+	 */
 	public void setDomainNameListOption(DomainNameListOptionType domainNameListOption)
 	{
 		if (domainNameListOption != null)
 			this.domainNameListOption = domainNameListOption;
 	}
 	
+	/**
+	 * Adds the domain name.
+	 *
+	 * @param domainName the domain name
+	 */
 	public void addDomainName(String domainName)
 	{
 		if (domainName != null) {
@@ -82,6 +105,9 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.option.base.Encodable#encode()
+	 */
 	public ByteBuffer encode() throws IOException
     {
     	ByteBuffer buf = super.encodeCodeAndLength();

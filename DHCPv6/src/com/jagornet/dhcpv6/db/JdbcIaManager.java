@@ -49,21 +49,12 @@ import com.jagornet.dhcpv6.util.Util;
  * @author A. Gregory Rabil
  */
 public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
-{	
-	
-	/** The log. */
+{		
 	private static Logger log = LoggerFactory.getLogger(JdbcIaManager.class);
 
-	/** The ia dao. */
 	protected IdentityAssocDAO iaDao;
-	
-	/** The ia addr dao. */
 	protected IaAddressDAO iaAddrDao;
-	
-	/** The ia prefix dao. */
 	protected IaPrefixDAO iaPrefixDao;
-	
-	/** The dhcp opt dao. */
 	protected DhcpOptionDAO dhcpOptDao;
 
 	/* (non-Javadoc)
@@ -284,36 +275,57 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 		deleteExpiredIA(iaPrefix.getIdentityAssocId());
 	}
 
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findExistingIPs(java.net.InetAddress, java.net.InetAddress)
+	 */
 	@Override
 	public List<InetAddress> findExistingIPs(InetAddress startAddr, InetAddress endAddr) {
 		return iaAddrDao.findExistingIPs(startAddr, endAddr);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaAddresses(java.net.InetAddress, java.net.InetAddress)
+	 */
 	@Override
 	public List<IaAddress> findUnusedIaAddresses(InetAddress startAddr, InetAddress endAddr) {
 		return iaAddrDao.findUnusedByRange(startAddr, endAddr);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaAddresses(byte)
+	 */
 	@Override
 	public List<IaAddress> findExpiredIaAddresses(byte iatype) {
 		return iaAddrDao.findAllOlderThanNow(iatype);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaPrefixes(java.net.InetAddress, java.net.InetAddress)
+	 */
 	@Override
 	public List<IaPrefix> findUnusedIaPrefixes(InetAddress startAddr, InetAddress endAddr) {
 		return iaPrefixDao.findUnusedByRange(startAddr, endAddr);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaPrefixes()
+	 */
 	@Override
 	public List<IaPrefix> findExpiredIaPrefixes() {
 		return iaPrefixDao.findAllOlderThan(new Date());
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#reconcileIaAddresses(java.util.List)
+	 */
 	@Override
 	public void reconcileIaAddresses(List<Range> ranges) {
 		iaAddrDao.deleteNotInRanges(ranges);
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findDhcpOptionsByIdentityAssocId(long)
+	 */
 	@Override
 	public List<DhcpOption> findDhcpOptionsByIdentityAssocId(long identityAssocId) {
 		return dhcpOptDao.findAllByIdentityAssocId(identityAssocId);

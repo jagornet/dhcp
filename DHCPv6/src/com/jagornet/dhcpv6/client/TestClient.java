@@ -81,42 +81,27 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
 @ChannelPipelineCoverage("all")
 public class TestClient extends SimpleChannelUpstreamHandler
 {
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(TestClient.class);
 
-    /** The options. */
     protected Options options = new Options();
-    
-    /** The parser. */
     protected CommandLineParser parser = new BasicParser();
-    
-    /** The formatter. */
     protected HelpFormatter formatter;
     
-    /** The mcast net if. */
     protected NetworkInterface mcastNetIf = null;
-    
-    /** The server addr. */
     protected InetAddress serverAddr = DhcpConstants.LOCALHOST_V6;
-    
-    /** The server port. */
     protected int serverPort = DhcpConstants.SERVER_PORT;
-    
-    /** The client port. */
     protected int clientPort = DhcpConstants.CLIENT_PORT;
-    
     protected boolean rapidCommit = false;
-    
     protected int numRequests = 100;
     protected int requestsSent = 0;
     protected int successCnt = 0;
     protected long startTime = 0;
     protected long endTime = 0;
-    
+
     protected DatagramChannel channel = null;
-	
 	protected ExecutorService executor = Executors.newCachedThreadPool();
     
+    /** The request map. */
     protected Map<Integer, DhcpMessage> requestMap =
     	Collections.synchronizedMap(new HashMap<Integer, DhcpMessage>());
 
@@ -334,16 +319,33 @@ public class TestClient extends SimpleChannelUpstreamHandler
     	System.exit(0);
     }
 
+    /**
+     * The Class RequestSender.
+     */
     class RequestSender implements Runnable, ChannelFutureListener
     {
-    	DhcpMessage msg;
-    	InetSocketAddress server;
     	
-    	public RequestSender(DhcpMessage msg, InetSocketAddress server)
+	    /** The msg. */
+	    DhcpMessage msg;
+    	
+	    /** The server. */
+	    InetSocketAddress server;
+    	
+    	/**
+	     * Instantiates a new request sender.
+	     *
+	     * @param msg the msg
+	     * @param server the server
+	     */
+	    public RequestSender(DhcpMessage msg, InetSocketAddress server)
     	{
     		this.msg = msg;
     		this.server = server;
     	}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
 		@Override
 		public void run()
 		{
@@ -351,6 +353,9 @@ public class TestClient extends SimpleChannelUpstreamHandler
 			future.addListener(this);
 		}
 		
+		/* (non-Javadoc)
+		 * @see org.jboss.netty.channel.ChannelFutureListener#operationComplete(org.jboss.netty.channel.ChannelFuture)
+		 */
 		@Override
 		public void operationComplete(ChannelFuture future) throws Exception
 		{
@@ -447,6 +452,9 @@ public class TestClient extends SimpleChannelUpstreamHandler
         }
     }
 	 
+	/* (non-Javadoc)
+	 * @see org.jboss.netty.channel.SimpleChannelUpstreamHandler#exceptionCaught(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ExceptionEvent)
+	 */
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
 	{

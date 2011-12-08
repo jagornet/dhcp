@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ * Copyright 2011 Jagornet Technologies, LLC.  All Rights Reserved.
  *
  * This software is the proprietary information of Jagornet Technologies, LLC. 
  * Use is subject to license terms.
@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file TestClient.java is part of DHCPv6.
+ *   This file TestV4Client.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -66,50 +66,33 @@ import com.jagornet.dhcpv6.server.netty.DhcpV4ChannelEncoder;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
- * A test client that sends request messages to a DHCPv6 server
- * via either unicast or multicast.
+ * A test client that sends discover messages to a DHCPv4 server
+ * via unicast.
  * 
  * @author A. Gregory Rabil
  */
 @ChannelPipelineCoverage("all")
 public class TestV4Client extends SimpleChannelUpstreamHandler
 {
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(TestV4Client.class);
 
-	protected InetAddress DEFAULT_ADDR;
-	
-    /** The options. */
     protected Options options = new Options();
-    
-    /** The parser. */
     protected CommandLineParser parser = new BasicParser();
-    
-    /** The formatter. */
     protected HelpFormatter formatter;
     
-    /** The server addr. */
+	protected InetAddress DEFAULT_ADDR;
     protected InetAddress serverAddr;
-    
-    /** The server port. */
     protected int serverPort = DhcpConstants.V4_SERVER_PORT;
-    
-    /** The server addr. */
     protected InetAddress clientAddr;
-    
-    /** The client port. */
     protected int clientPort = DhcpConstants.V4_CLIENT_PORT;
-    
     protected boolean rapidCommit = false;
-    
     protected int numRequests = 100;
     protected int requestsSent = 0;
     protected int successCnt = 0;
-    protected long startTime = 0;
+    protected long startTime = 0;    
     protected long endTime = 0;
     
-    protected DatagramChannel channel = null;
-	
+    protected DatagramChannel channel = null;	
 	protected ExecutorService executor = Executors.newCachedThreadPool();
     
     protected Map<Long, DhcpV4Message> requestMap =
@@ -117,8 +100,9 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
 
     /**
      * Instantiates a new test client.
-     * 
+     *
      * @param args the args
+     * @throws Exception the exception
      */
     public TestV4Client(String[] args) throws Exception 
     {
@@ -325,16 +309,33 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
     	System.exit(0);
     }
 
+    /**
+     * The Class RequestSender.
+     */
     class RequestSender implements Runnable, ChannelFutureListener
     {
-    	DhcpV4Message msg;
-    	InetSocketAddress server;
     	
-    	public RequestSender(DhcpV4Message msg, InetSocketAddress server)
+	    /** The msg. */
+	    DhcpV4Message msg;
+    	
+	    /** The server. */
+	    InetSocketAddress server;
+    	
+    	/**
+	     * Instantiates a new request sender.
+	     *
+	     * @param msg the msg
+	     * @param server the server
+	     */
+	    public RequestSender(DhcpV4Message msg, InetSocketAddress server)
     	{
     		this.msg = msg;
     		this.server = server;
     	}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
 		@Override
 		public void run()
 		{
@@ -342,6 +343,9 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
 			future.addListener(this);
 		}
 		
+		/* (non-Javadoc)
+		 * @see org.jboss.netty.channel.ChannelFutureListener#operationComplete(org.jboss.netty.channel.ChannelFuture)
+		 */
 		@Override
 		public void operationComplete(ChannelFuture future) throws Exception
 		{
@@ -423,6 +427,9 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
         }
     }
 	 
+	/* (non-Javadoc)
+	 * @see org.jboss.netty.channel.SimpleChannelUpstreamHandler#exceptionCaught(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ExceptionEvent)
+	 */
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
 	{
