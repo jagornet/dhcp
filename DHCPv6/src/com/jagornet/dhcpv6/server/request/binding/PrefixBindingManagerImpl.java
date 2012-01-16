@@ -203,10 +203,12 @@ public class PrefixBindingManagerImpl
     {
 		PrefixBindingPool bp = new PrefixBindingPool(pool);
 		long pLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(pool, link, Property.PREFERRED_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong((AddressPoolInterface) bp, 
+					link, Property.PREFERRED_LIFETIME);
 		bp.setPreferredLifetime(pLifetime);
 		long vLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(pool, link, Property.VALID_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong((AddressPoolInterface) bp, 
+					link, Property.VALID_LIFETIME);
 		bp.setValidLifetime(vLifetime);
 		bp.setLinkFilter(linkFilter);
 		

@@ -74,10 +74,8 @@ public class DhcpV4ChannelDecoder extends OneToOneDecoder
     {
         if (msg instanceof ChannelBuffer) {
             ChannelBuffer buf = (ChannelBuffer) msg;
-            DhcpV4Message dhcpMessage = 
-            	DhcpV4Message.decode(buf.toByteBuffer(),
-            			localSocketAddress,
-            			remoteSocketAddress);
+            DhcpV4Message dhcpMessage =  
+            	DhcpV4Message.decode(buf.toByteBuffer(), localSocketAddress, remoteSocketAddress);
             return dhcpMessage;
         }
         else {

@@ -119,8 +119,9 @@ public class DhcpV6Server
     /** The unicast server thread. */
     protected Thread ucastThread;
     
+    protected NetworkInterface v4BcastNetIf = null;
+    protected List<InetAddress> v4UcastAddrs = null;
     protected int v4PortNumber = DhcpConstants.V4_SERVER_PORT;
-    protected NetworkInterface v4NetIf = null;
     protected Thread v4Thread;
     
     protected DhcpServerConfiguration serverConfig = null;
@@ -302,15 +303,28 @@ public class DhcpV6Server
         msg = "IPv6 Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
         System.out.println(msg);
         log.info(msg);
-        
-        if (v4NetIf != null) {
-        	msg = "IPv4 Interface: " + v4NetIf.toString();
+
+        if (v4BcastNetIf != null) {
+        	msg = "IPv4 Broadcast Interface: " + v4BcastNetIf.toString();
         	System.out.println(msg);
         	log.info(msg);
         }
+        else {
+        	msg = "IPv4 Broadcast interface: none";
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+
+        // by default, all IPv4 addresses are selected for unicast
+        if (v4UcastAddrs == null) {
+        	v4UcastAddrs = getAllIPv4Addrs();
+        }
+        msg = "IPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
+        System.out.println(msg);
+        log.info(msg);
         
     	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber, 
-    														v4NetIf, v4PortNumber);
+    														v4UcastAddrs, v4BcastNetIf, v4PortNumber);
     	nettyServer.start();
     }
     
@@ -331,7 +345,7 @@ public class DhcpV6Server
         Option portOption =
         	OptionBuilder.withLongOpt("port")
         	.withArgName("portnum")
-        	.withDescription("Port Number (default = 547).")
+        	.withDescription("DHCPv6 Port number (default = 547).")
         	.hasArg()
         	.create("p");
         options.addOption(portOption);
@@ -339,9 +353,9 @@ public class DhcpV6Server
         Option mcastOption =
         	OptionBuilder.withLongOpt("mcast")
         	.withArgName("interfaces")
-        	.withDescription("Multicast support (default = none). " +
+        	.withDescription("DHCPv6 Multicast support (default = none). " +
         			"Use this option without arguments to instruct the server to bind to all " +
-        			"multicast-enabled IPv6 interfaces on the host.  Optionally, use arguments " +
+        			"multicast-enabled IPv6 interfaces on the host. Optionally, use arguments " +
         			"to list specific interfaces, separated by spaces.")
         	.hasOptionalArgs()
         	.create("m");
@@ -350,26 +364,45 @@ public class DhcpV6Server
         Option ucastOption =
         	OptionBuilder.withLongOpt("ucast")
         	.withArgName("addresses")
-        	.withDescription("Unicast addresses (default = all IPv6 addresses). " +
-        			"Optionally list specific IPv6 addresses, separated by spaces.")
+        	.withDescription("DHCPv6 Unicast addresses (default = all IPv6 addresses). " +
+        			"Use this option to instruct the server to bind to a specific list " +
+        			"of global IPv6 addresses, separated by spaces. These addresses " +
+        			"should be configured on one or more DHCPv6 relay agents connected " +
+        			"to DHCPv6 client links.")
         	.hasOptionalArgs()
-        	.create("u");
-        				 
+        	.create("u");        				 
         options.addOption(ucastOption);
         
-        Option v4Option = 
-        	OptionBuilder.withLongOpt("dhcpv4")
+        Option v4BcastOption = 
+        	OptionBuilder.withLongOpt("v4bcast")
         	.withArgName("interface")
-        	.withDescription("DHCPv4 support (default = none). " +
-        			"Use this option to enable DHCPv4 support on the specified interface.")
+        	.withDescription("DHCPv4 broadcast support (default = none). " +
+        			"Use this option to specify the interface for the server to " +
+        			"receive and send broadcast DHCPv4 packets. Only one interface " +
+        			"may be specified. All other interfaces on the host will only " +
+        			"receive and send unicast traffic.  The default IPv4 address on " +
+        			"the specified interface will be used for determining the " +
+        			"DHCPv4 client link within the server configuration file.")
+        	.hasArg()
+        	.create("4b");
+        options.addOption(v4BcastOption);
+
+        Option v4UcastOption =
+        	OptionBuilder.withLongOpt("v4ucast")
+        	.withArgName("addresses")
+        	.withDescription("DHCPv4 Unicast addresses (default = all IPv4 addresses). " +
+        			"Use this option to instruct the server to bind to a specific list " +
+        			"of IPv4 addresses, separated by spaces. These addresses " +
+        			"should be configured on one or more DHCPv4 relay agents connected " +
+        			"to DHCPv4 client links.")
         	.hasOptionalArgs()
-        	.create("4");
-        options.addOption(v4Option);
+        	.create("4u");        				 
+        options.addOption(v4UcastOption);
         
         Option v4PortOption =
         	OptionBuilder.withLongOpt("v4port")
         	.withArgName("v4portnum")
-        	.withDescription("DHCPv4 Port Number (default = 67).")
+        	.withDescription("DHCPv4 Port number (default = 67).")
         	.hasArg()
         	.create("4p");
         options.addOption(v4PortOption);
@@ -443,13 +476,23 @@ public class DhcpV6Server
         			return false;
         		}
             }
-            if (cmd.hasOption("4")) {
-            	String v4if = cmd.getOptionValue("4");
-        		v4NetIf = getIPv4NetIf(v4if);
-        		if (v4NetIf == null) {
+            if (cmd.hasOption("4b")) {
+            	String v4if = cmd.getOptionValue("4b");
+        		v4BcastNetIf = getIPv4NetIf(v4if);
+        		if (v4BcastNetIf == null) {
         			return false;
         		}
             }
+            if (cmd.hasOption("4u")) {
+            	String[] addrs = cmd.getOptionValues("4u");
+            	if ((addrs == null) || (addrs.length < 1)) {
+            		addrs = new String[] { "*" };
+            	}
+        		v4UcastAddrs = getV4IpAddrs(addrs);
+        		if ((v4UcastAddrs == null) || v4UcastAddrs.isEmpty()) {
+        			return false;
+        		}
+            }            
             if (cmd.hasOption("4p")) {
             	String p = cmd.getOptionValue("4p");
             	try {
@@ -695,6 +738,48 @@ public class DhcpV6Server
 			return null;
 		}
 		return netIf;
+	}
+	
+	private List<InetAddress> getV4IpAddrs(String[] addrs) throws UnknownHostException
+	{
+		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
+		for (String addr : addrs) {
+			if (addr.equals("*")) {
+				return getAllIPv4Addrs();
+			}
+			InetAddress ipAddr = InetAddress.getByName(addr);
+			// allow only IPv4 addresses?
+			ipAddrs.add(ipAddr);
+		}
+		return ipAddrs;
+	}
+	
+	private List<InetAddress> getAllIPv4Addrs()
+	{
+		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
+		try {
+	        Enumeration<NetworkInterface> localInterfaces =
+	        	NetworkInterface.getNetworkInterfaces();
+	        if (localInterfaces != null) {
+		        while (localInterfaces.hasMoreElements()) {
+		        	NetworkInterface netIf = localInterfaces.nextElement();
+	            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
+	            	while (ifAddrs.hasMoreElements()) {
+	            		InetAddress ip = ifAddrs.nextElement();
+	            		if (ip instanceof Inet4Address) {
+	            			ipAddrs.add(ip);
+	            		}
+	            	}
+		        }
+	        }
+	        else {
+	        	log.error("No network interfaces found!");
+	        }
+		}
+		catch (IOException ex) {
+			log.error("Failed to get IPv4 addresses: " + ex);
+		}
+        return ipAddrs;
 	}
 	
     /**

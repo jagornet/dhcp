@@ -26,16 +26,19 @@
 package com.jagornet.dhcpv6.server.request.ddns;
 
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.AAAARecord;
+import org.xbill.DNS.ARecord;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.DHCIDRecord;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Rcode;
+import org.xbill.DNS.Record;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
@@ -72,46 +75,60 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 		Resolver res = createResolver();
 		
 		Name owner = new Name(fqdn);
-		AAAARecord aaaa = new AAAARecord(owner, DClass.IN, ttl, inetAddr);
+		Record a_aaaa = null;
+		if (inetAddr instanceof Inet6Address) {
+			a_aaaa = new AAAARecord(owner, DClass.IN, ttl, inetAddr);
+		}
+		else {
+			a_aaaa = new ARecord(owner, DClass.IN, ttl, inetAddr);
+		}
 		DHCIDRecord dhcid = new DHCIDRecord(owner, DClass.IN, ttl, data);
 
 		Name _zone = buildZoneName(fqdn);
 		
 		Update update = new Update(_zone);
 		update.absent(owner);
-		update.add(aaaa);
+		update.add(a_aaaa);
 		update.add(dhcid);
 
 		if (log.isDebugEnabled()) {
-			log.debug("Sending DDNS update:\n" + update.toString());
+			log.debug("Sending forward DDNS update (not-exist/add) to server=" + server + ":\n" +  
+					update.toString());
 		}
 		else if (log.isInfoEnabled()) {
-			log.info("Sending DDNS update (not-exist/add): " + aaaa.toString());
+			log.info("Sending forward DDNS update (not-exist/add): " + a_aaaa.toString());
 		}
 		Message response = res.send(update);
 
-		if (response.getRcode() != Rcode.NOERROR) {
+		if (response.getRcode() == Rcode.NOERROR) {
+			log.info("Forward DDNS update (not-exist/add) succeeded: " + a_aaaa.toString());
+		}
+		else {
 			if (response.getRcode() == Rcode.YXDOMAIN) {
 				update = new Update(_zone);
 				update.present(owner);
 				dhcid = new DHCIDRecord(owner, DClass.IN, 0, data);
 				update.present(dhcid);
-				update.add(aaaa);
+				update.add(a_aaaa);
 				if (log.isDebugEnabled()) {
-					log.debug("Sending DDNS update:\n" + update.toString());
+					log.debug("Sending forward DDNS update (exist/update) to server=" + server + ":\n" + 
+							update.toString());
 				}
 				else if (log.isInfoEnabled()) {
-					log.info("Sending DDNS update (exist/add): " + aaaa.toString());
+					log.info("Sending forward DDNS update (exist/update): " + a_aaaa.toString());
 				}
 				response = res.send(update);
-				if (response.getRcode() != Rcode.NOERROR) {
-					log.error("Failed to update existing FORWARD RRSet: " +
-							Rcode.string(response.getRcode()));
+				if (response.getRcode() == Rcode.NOERROR) {
+					log.info("Forward DDNS update (exist/update) succeeded: " + a_aaaa.toString());
+				}
+				else {
+					log.error("Forward DDNS update (exist/update) failed (rcode=" +
+							Rcode.string(response.getRcode()) + "): " + a_aaaa.toString());
 				}
 			}
 			else {
-				log.error("Failed to create new FORWARD RRSet: " +
-						Rcode.string(response.getRcode()));
+				log.error("Forward DDNS update (not-exist/add) failed (rcode=" +
+						Rcode.string(response.getRcode()) + "): " + a_aaaa.toString());
 			}
 		}
 	}
@@ -123,21 +140,28 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 	{
 		Resolver res = createResolver();
 		
-		Name owner = new Name(fqdn);
-		AAAARecord aaaa = new AAAARecord(owner, DClass.IN, 0, inetAddr);
+		Name owner = new Name(fqdn);		
+		Record a_aaaa = null;
+		if (inetAddr instanceof Inet6Address) {
+			a_aaaa = new AAAARecord(owner, DClass.IN, 0, inetAddr);
+		}
+		else {
+			a_aaaa = new ARecord(owner, DClass.IN, 0, inetAddr);
+		}
 		DHCIDRecord dhcid = new DHCIDRecord(owner, DClass.IN, 0, data);
 
 		Name _zone = buildZoneName(fqdn);
 		
 		Update update = new Update(_zone);
 		update.present(dhcid);
-		update.delete(aaaa);
+		update.delete(a_aaaa);
 
 		if (log.isDebugEnabled()) {
-			log.debug("Sending DDNS update: " + update);
+			log.debug("Sending forward DDNS update (exist/delete) to server=" + server + ":\n" + 
+					update.toString());
 		}
 		else if (log.isInfoEnabled()) {
-			log.info("Sending DDNS update (exist/delete): " + aaaa.toString());
+			log.info("Sending forward DDNS update (exist/delete): " + a_aaaa.toString());
 		}
 		Message response = res.send(update);
 
@@ -148,16 +172,24 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 			update.absent(owner, Type.AAAA);
 			update.delete(owner);
 			if (log.isDebugEnabled()) {
-				log.debug("Sending DDNS update: " + update);
+				log.debug("Sending forward DDNS update (not-exist/delete) to server=" + server + ":\n" + 
+						update.toString());
 			}
 			else if (log.isInfoEnabled()) {
-				log.info("Sending DDNS update (not-exist/delete): " + owner.toString());
+				log.info("Sending forward DDNS update (not-exist/delete): " + owner.toString());
 			}
 			response = res.send(update);
-			if (response.getRcode() != Rcode.NOERROR) {
-				log.error("Failed to update FORWARD RRSet: " +
-						Rcode.string(response.getRcode()));
+			if (response.getRcode() == Rcode.NOERROR) {
+				log.info("Forward DDNS update (not-exist/delete) succeeded: " + owner.toString());
 			}
+			else {
+				log.error("Forward DDNS update (not-exist/delete) failed (rcode=" +
+						Rcode.string(response.getRcode()) + "): " + owner.toString());			
+			}
+		}
+		else {
+			log.error("Forward DDNS update (exist/delete) failed (rcode=" +
+					Rcode.string(response.getRcode()) + "): " + a_aaaa.toString());			
 		}
 		
 	}

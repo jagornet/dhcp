@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.db.IaAddress;
+import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 
@@ -136,6 +137,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 	public void expireIaAddress(IaAddress iaAddr)
 	{
 		try {
+			log.info("Expiring: " + iaAddr.toString());
 			ddnsDelete(iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
@@ -168,6 +170,8 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 	{
 		List<IaAddress> expiredAddrs = iaMgr.findExpiredIaAddresses(getIaType());
 		if ((expiredAddrs != null) && !expiredAddrs.isEmpty()) {
+			log.info("Found " + expiredAddrs.size() + " expired bindings of type: " + 
+					IdentityAssoc.iaTypeToString(getIaType()));
 			for (IaAddress iaAddress : expiredAddrs) {
 				expireIaAddress(iaAddress);
 			}

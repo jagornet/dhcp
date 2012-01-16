@@ -90,6 +90,9 @@ public class DhcpV4OptionFactory
             case DhcpConstants.V4OPTION_VENDOR_CLASS:	// 60
                 option = new DhcpV4VendorClassOption();
                 break;
+            case DhcpConstants.V4OPTION_CLIENT_FQDN:	// 81
+                option = new DhcpV4ClientFqdnOption();
+                break;
             case DhcpConstants.V4OPTION_EOF:			// 255
             	break;
             default:

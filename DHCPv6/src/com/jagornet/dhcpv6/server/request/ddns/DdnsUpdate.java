@@ -120,7 +120,7 @@ public abstract class DdnsUpdate
 	protected Resolver createResolver() throws UnknownHostException, TextParseException 
 	{
 		Resolver res = new SimpleResolver(server);
-		if (tsigKeyName != null) {
+		if ((tsigKeyName != null) && (tsigKeyName.length() > 0)) {
 			TSIG tsig = null;
 			if (tsigAlgorithm != null) {
 				tsig = new TSIG(new Name(tsigAlgorithm), tsigKeyName, tsigKeyData);

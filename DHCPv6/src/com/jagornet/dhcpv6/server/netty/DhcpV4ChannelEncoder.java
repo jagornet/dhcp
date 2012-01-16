@@ -62,6 +62,8 @@ public class DhcpV4ChannelEncoder extends OneToOneEncoder
         if (msg instanceof DhcpV4Message) {
             DhcpV4Message dhcpMessage = (DhcpV4Message) msg;
             ByteBuffer buf = dhcpMessage.encode();
+            if (log.isDebugEnabled())
+            	log.debug("Encoded message buffer limit=" + buf.limit());
             return new ByteBufferBackedChannelBuffer(buf);
         }
         else {

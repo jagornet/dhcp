@@ -207,10 +207,12 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
     {
 		AddressBindingPool bp = new AddressBindingPool(pool);
 		long pLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(pool, link, Property.PREFERRED_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong((AddressPoolInterface) bp, 
+					link, Property.PREFERRED_LIFETIME);
 		bp.setPreferredLifetime(pLifetime);
 		long vLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(pool, link, Property.VALID_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong((AddressPoolInterface) bp, 
+					link, Property.VALID_LIFETIME);
 		bp.setValidLifetime(vLifetime);
 		bp.setLinkFilter(linkFilter);
 		
@@ -289,9 +291,13 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 				        		BindingAddress bindingAddr =
 				        			buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
 				        		if (bindingAddr != null) {
+				        			AddressBindingPool pool = 
+				        				(AddressBindingPool) bindingAddr.getBindingPool();
 									DdnsUpdater ddns =
-										new DdnsUpdater(link.getLink(), bindingAddr, fqdn,
-												ia.getDuid(), clientFqdnOption.getUpdateAaaaBit(), true);
+										new DdnsUpdater(link.getLink(), pool,
+												bindingAddr.getIpAddress(), fqdn, ia.getDuid(),
+												pool.getValidLifetime(),
+												clientFqdnOption.getUpdateAaaaBit(), true);
 									ddns.processUpdates();
 				        		}
 				        		else {

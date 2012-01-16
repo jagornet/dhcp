@@ -101,13 +101,13 @@
 		</property>
 
 	</bean>
- 
+<!--  
 	<bean id="leaseManager" class="com.jagornet.dhcpv6.db.JdbcLeaseManager">
     
 		<property name="dataSource">
 			<ref local="dataSource"/>
 		</property>
-
 	</bean>
+ -->
 
 </beans>

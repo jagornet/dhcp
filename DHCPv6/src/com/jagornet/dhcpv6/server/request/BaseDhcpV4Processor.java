@@ -25,8 +25,11 @@
  */
 package com.jagornet.dhcpv6.server.request;
 
+import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV4Message;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.option.v4.DhcpV4ClientFqdnOption;
+import com.jagornet.dhcpv6.option.v4.DhcpV4HostnameOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4LeaseTimeOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
@@ -51,7 +56,11 @@ import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
 import com.jagornet.dhcpv6.server.request.binding.BindingObject;
 import com.jagornet.dhcpv6.server.request.binding.V4AddressBindingPool;
+import com.jagornet.dhcpv6.server.request.binding.V4BindingAddress;
+import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.DomainNameOptionType;
+import com.jagornet.dhcpv6.xml.V4ClientFqdnOption;
 import com.jagornet.dhcpv6.xml.V4LeaseTimeOption;
 
 /**
@@ -139,7 +148,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     {
     	Map<Integer, DhcpOption> optionMap = 
     		dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink, bindingPool);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool.getV4AddressPool(),
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool,
     			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
@@ -202,6 +211,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 	        
 	        replyMsg.setOp((short)DhcpConstants.OP_REPLY);
 	        // copy fields from request to reply
+	        replyMsg.setHtype(requestMsg.getHtype());
+	        replyMsg.setHlen(requestMsg.getHlen());
 	        replyMsg.setTransactionId(requestMsg.getTransactionId());
 	        replyMsg.setFlags(requestMsg.getFlags());
 	        replyMsg.setGiAddr(requestMsg.getGiAddr());
@@ -240,17 +251,13 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
      */
     public boolean preProcess()
     {        
-        // locate configuration for the client's link
-//        log.info("Client link address: " + clientLinkAddress.getHostAddress());
-//        clientLink = dhcpServerConfig.findLinkForAddress(clientLinkAddress);
-        clientLink = dhcpServerConfig.findDhcpLink(requestMsg.getLocalAddress().getAddress(),
-        		requestMsg.getRemoteAddress().getAddress());
+        clientLink = dhcpServerConfig.findDhcpLink(
+        		(Inet4Address)requestMsg.getLocalAddress().getAddress(),
+        		(Inet4Address)requestMsg.getRemoteAddress().getAddress());
         if (clientLink == null) {
-//        	log.error("No Link configured for client link address: " + 
-//        			clientLinkAddress.getHostAddress());
-        	log.error("No Link configured for client request: " +
-        			" localAddress=" + requestMsg.getLocalAddress().getAddress(),
-        			" remoteAddress=" + requestMsg.getRemoteAddress().getAddress());
+        	log.error("No Link configured for DHCPv4 client request: " +
+        			" localAddress=" + requestMsg.getLocalAddress().getAddress().getHostAddress() +
+        			" remoteAddress=" + requestMsg.getRemoteAddress().getAddress().getHostAddress());
         	return false;	// must configure link for server to reply
         }
 
@@ -346,6 +353,163 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		}
 		else {
 			log.error("No V4 bindings in binding object!");
+		}
+	}
+	
+	/**
+	 * Process ddns updates.
+	 */
+	protected void processDdnsUpdates()
+	{
+		boolean doForwardUpdate = true;
+
+		DhcpV4ClientFqdnOption clientFqdnOption = 
+			(DhcpV4ClientFqdnOption) requestMsg.getDhcpOption(DhcpConstants.V4OPTION_CLIENT_FQDN);
+		DhcpV4HostnameOption hostnameOption = 
+			(DhcpV4HostnameOption) requestMsg.getDhcpOption(DhcpConstants.V4OPTION_HOSTNAME);
+		
+		if ((clientFqdnOption == null) && (hostnameOption == null)) {
+			//TODO allow name generation?
+			log.debug("No Client FQDN nor hostname option in request.  Skipping DDNS update processing.");
+			return;
+		}
+
+		String fqdn = null;
+		String domain = DhcpServerPolicies.effectivePolicy(clientLink.getLink(), Property.DDNS_DOMAIN); 
+		DhcpV4ClientFqdnOption replyFqdnOption = null;
+
+		if (clientFqdnOption != null) {
+			replyFqdnOption = 
+				new DhcpV4ClientFqdnOption((V4ClientFqdnOption) clientFqdnOption.getDomainNameOption());
+			replyFqdnOption.setUpdateAaaaBit(false);
+			replyFqdnOption.setOverrideBit(false);
+			replyFqdnOption.setNoUpdateBit(false);
+			replyFqdnOption.setRcode1((short)0xff);		// RFC 4702 says server must set to 255
+			replyFqdnOption.setRcode2((short)0xff);		// RFC 4702 says server must set to 255
+			
+			DomainNameOptionType domainNameOption = clientFqdnOption.getDomainNameOption();
+			fqdn = domainNameOption.getDomainName();
+			if ((fqdn == null) || (fqdn.length() <= 0)) {
+				log.error("Client FQDN option domain name is null/empty.  No DDNS udpates performed.");
+				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyMsg.putDhcpOption(replyFqdnOption);
+				return;
+			}
+			
+			String policy = DhcpServerPolicies.effectivePolicy(requestMsg,
+					clientLink.getLink(), Property.DDNS_UPDATE);
+			log.info("Server configuration for ddns.update policy: " + policy);
+			if ((policy == null) || policy.equalsIgnoreCase("none")) {
+				log.info("Server configuration for ddns.update policy is null or 'none'." +
+						"  No DDNS updates performed.");
+				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyMsg.putDhcpOption(replyFqdnOption);
+				return;
+			}
+					
+			if (clientFqdnOption.getNoUpdateBit() && policy.equalsIgnoreCase("honorNoUpdate")) {
+				log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
+						"  No DDNS updates performed.");
+				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyMsg.putDhcpOption(replyFqdnOption);
+				//TODO: RFC 4704 Section 6.1
+				//		...the server SHOULD delete any RRs that it previously added 
+				//		via DNS updates for the client.
+				return;
+			}
+
+			if (!clientFqdnOption.getUpdateAaaaBit() && policy.equalsIgnoreCase("honorNoAAAA")) {
+				log.info("Client FQDN NoAAAA flag set.  Server configured to honor request." +
+						"  No FORWARD DDNS updates performed.");
+				doForwardUpdate = false;
+			}
+			else {
+				replyFqdnOption.setUpdateAaaaBit(true);	// server will do update
+				if (!clientFqdnOption.getUpdateAaaaBit())
+					replyFqdnOption.setOverrideBit(true);	// tell client that we overrode request flag
+			}
+		
+			if ((domain != null) && !domain.isEmpty()) {
+				log.info("Server configuration for domain policy: " + domain);
+				// if there is a configured domain, then replace the domain provide by the client
+				int dot = fqdn.indexOf('.');
+				if (dot > 0) {
+					fqdn = fqdn.substring(0, dot+1) + domain;
+				}
+				else {
+					fqdn = fqdn + "." + domain;
+				}
+				domainNameOption.setDomainName(fqdn);
+				replyFqdnOption.setDomainNameOption(domainNameOption);
+			}
+			// since the client DID send option 81, return it in the reply
+			replyMsg.putDhcpOption(replyFqdnOption);
+		}
+		else {
+			// The client did not send an FQDN option, so we'll try to formulate the FQDN
+			// from the hostname option combined with the DDNS_DOMAIN policy setting.
+			// A replyFqdnOption is fabricated to be stored with the binding for use
+			// with the release/expire binding processing to remove the DDNS entry.
+			replyFqdnOption = new DhcpV4ClientFqdnOption();
+			fqdn = hostnameOption.getStringOption().getString() + ".";
+			if (domain != null) {
+				fqdn = fqdn + domain;
+			}
+			// since the client did NOT send option 81, do not put
+			// the fabricated fqdnOption into the reply packet
+			// but set the option so that is can be used below
+			// when storing the fqdnOption to the database, so 
+			// that it can be used if/when the lease expires
+			DomainNameOptionType domainNameOption = V4ClientFqdnOption.Factory.newInstance();
+			domainNameOption.setDomainName(fqdn);
+			replyFqdnOption.setDomainNameOption(domainNameOption);
+			// server will do the A record update, so set the flag
+			// for the option stored in the database, so server will
+			// remove the A record when the lease expires
+			replyFqdnOption.setUpdateAaaaBit(true);
+		}
+
+		for (Binding binding : bindings) {
+			if (binding.getState() == Binding.COMMITTED) {
+				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+				if (bindingObjs != null) {
+					for (BindingObject bindingObj : bindingObjs) {
+						V4BindingAddress bindingAddr = (V4BindingAddress) bindingObj;
+	        			V4AddressBindingPool pool = 
+	        				(V4AddressBindingPool) bindingAddr.getBindingPool();
+						DdnsUpdater ddns =
+							new DdnsUpdater(requestMsg, clientLink.getLink(), pool,
+									bindingAddr.getIpAddress(), fqdn, requestMsg.getChAddr(),
+									pool.getValidLifetime(),
+									doForwardUpdate, false);
+						
+						ddns.processUpdates();
+					}
+				}
+				try {
+					byte[] newVal = replyFqdnOption.encode().array();
+					// don't store the option code, start with length to
+					// simplify decoding when retrieving from database
+					newVal = Arrays.copyOfRange(newVal, 1, newVal.length);
+					com.jagornet.dhcpv6.db.DhcpOption dbOption = 
+						binding.getDhcpOption(DhcpConstants.V4OPTION_CLIENT_FQDN);
+					if (dbOption == null) {
+						dbOption = new com.jagornet.dhcpv6.db.DhcpOption();
+						dbOption.setCode(replyFqdnOption.getCode());
+						dbOption.setValue(newVal);
+						dhcpServerConfig.getIaMgr().addDhcpOption(binding, dbOption);
+					}
+					else {
+						if(!Arrays.equals(dbOption.getValue(), newVal)) {
+							dbOption.setValue(newVal);
+							dhcpServerConfig.getIaMgr().updateDhcpOption(dbOption);
+						}
+					}
+				} 
+				catch (IOException ex) {
+					log.error("Failed to update binding with Client FQDN Option", ex);
+				}
+			}
 		}
 	}
 	

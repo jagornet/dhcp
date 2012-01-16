@@ -38,13 +38,15 @@ import com.jagornet.dhcpv6.option.DhcpConfigOptions;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
+import com.jagornet.dhcpv6.xml.FiltersType;
 import com.jagornet.dhcpv6.xml.LinkFilter;
+import com.jagornet.dhcpv6.xml.PoliciesType;
 import com.jagornet.dhcpv6.xml.PrefixPool;
 
 /**
  * The Class PrefixBindingPool.
  */
-public class PrefixBindingPool implements BindingPool
+public class PrefixBindingPool implements BindingPool, AddressPoolInterface
 {
 	
 	/** The log. */
@@ -315,5 +317,19 @@ public class PrefixBindingPool implements BindingPool
 	public String toString()
 	{
 		return subnet.getSubnetAddress().getHostAddress() + "/" + subnet.getPrefixLength();
+	}
+
+	@Override
+	public FiltersType getFilters() {
+		if (pool != null)
+			return pool.getFilters();
+		return null;
+	}
+
+	@Override
+	public PoliciesType getPolicies() {
+		if (pool != null)
+			return pool.getPolicies();
+		return null;
 	}
 }

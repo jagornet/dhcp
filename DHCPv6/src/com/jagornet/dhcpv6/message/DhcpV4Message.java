@@ -114,10 +114,10 @@ public class DhcpV4Message implements DhcpMessageInterface
     protected long transactionId = 0;   	// need a long to hold unsigned int
     protected int secs = 0;
     protected int flags = 0;
-    protected InetAddress ciAddr;
-    protected InetAddress yiAddr;
-    protected InetAddress siAddr;
-    protected InetAddress giAddr;
+    protected InetAddress ciAddr = DhcpConstants.ZEROADDR;
+    protected InetAddress yiAddr = DhcpConstants.ZEROADDR;
+    protected InetAddress siAddr = DhcpConstants.ZEROADDR;
+    protected InetAddress giAddr = DhcpConstants.ZEROADDR;
     protected byte[] chAddr;
     protected String sName;
     protected String file;
@@ -523,8 +523,36 @@ public class DhcpV4Message implements DhcpMessageInterface
 	public String toString()
     {
         StringBuffer sb = new StringBuffer();
-        //TODO
+        sb.append(DhcpConstants.getV4MessageString(getMessageType()));
+        if (this.getOp() == DhcpConstants.OP_REPLY)
+        	sb.append(" to ");
+        else
+        	sb.append(" from ");
         sb.append(Util.socketAddressAsString(remoteAddress));
+        
+        sb.append(" (htype=");
+        sb.append(this.getHtype());
+        sb.append(", hlen=");
+        sb.append(this.getHlen());
+        sb.append(", hops=");
+        sb.append(this.getHops());
+        sb.append(", xid=");
+        sb.append(this.getTransactionId());
+        sb.append(", secs=");
+        sb.append(this.getSecs());
+        sb.append(", flags=");
+        sb.append(this.getFlags());
+        sb.append(", ciaddr=");
+        sb.append(this.getCiAddr().getHostAddress());
+        sb.append(", yiaddr=");
+        sb.append(this.getYiAddr().getHostAddress());
+        sb.append(", siaddr=");
+        sb.append(this.getSiAddr().getHostAddress());
+        sb.append(", giaddr=");
+        sb.append(this.getGiAddr().getHostAddress());
+        sb.append(", chaddr=");
+        sb.append(Util.toHexString(this.getChAddr()));
+        sb.append(")");
         return sb.toString();
     }
     

@@ -25,10 +25,9 @@
  */
 package com.jagornet.dhcpv6.server.netty;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.MessageEvent;
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV4Message;
 import com.jagornet.dhcpv6.server.request.DhcpV4MessageHandler;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
  * Title: DhcpV4ChannelHandler
@@ -53,6 +53,14 @@ public class DhcpV4ChannelHandler extends SimpleChannelHandler
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpV4ChannelHandler.class);
 
+	private Channel broadcastSendChannel;
+	
+	
+	public DhcpV4ChannelHandler(Channel broadcastSendChannel)
+	{
+		this.broadcastSendChannel = broadcastSendChannel;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.jboss.netty.channel.SimpleChannelHandler#messageReceived(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.MessageEvent)
@@ -69,13 +77,25 @@ public class DhcpV4ChannelHandler extends SimpleChannelHandler
             else
             	log.info("Received: " + dhcpMessage.toString());
             
-            SocketAddress remoteAddress = e.getRemoteAddress();
-            InetAddress localAddr = ((InetSocketAddress)e.getChannel().getLocalAddress()).getAddress(); 
             DhcpV4Message replyMessage = 
-            	DhcpV4MessageHandler.handleMessage(localAddr, dhcpMessage);
+            	DhcpV4MessageHandler.handleMessage(dhcpMessage.getLocalAddress().getAddress(), 
+            										dhcpMessage);
             
             if (replyMessage != null) {
-            	e.getChannel().write(replyMessage, remoteAddress);
+            	if ((broadcastSendChannel != null) &&
+            		(replyMessage.getRemoteAddress().getAddress().equals(DhcpConstants.ZEROADDR))) {
+        			if (log.isDebugEnabled())
+        				log.debug("Client request received from zero address," +
+        							" replying to broadcast address.");
+        			replyMessage.setRemoteAddress(new InetSocketAddress(DhcpConstants.BROADCAST,
+        											replyMessage.getRemoteAddress().getPort()));
+        			// ensure the packet is sent on the proper broadcast interface
+        			broadcastSendChannel.write(replyMessage, replyMessage.getRemoteAddress());
+        		}
+        		else {
+        			// client request was unicast, so reply via receive channel
+        			e.getChannel().write(replyMessage, replyMessage.getRemoteAddress());
+        		}
             }
             else {
                 log.warn("Null DHCP reply message returned from handler");

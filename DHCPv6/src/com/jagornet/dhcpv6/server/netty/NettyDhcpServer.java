@@ -34,10 +34,13 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.Channels;
@@ -79,6 +82,7 @@ public class NettyDhcpServer
 	/** The DHCPv6 server port. */
 	private int port;
 	
+	private List<InetAddress> v4Addrs;
 	private NetworkInterface v4NetIf;
 	
 	private int v4Port;
@@ -96,13 +100,13 @@ public class NettyDhcpServer
      * @param addrs the addresses to listen on for unicast traffic
      * @param netIfs the network interfaces to listen on for multicast traffic
      */
-    public NettyDhcpServer(List<InetAddress> addrs, 
-    						List<NetworkInterface> netIfs, int port,
-    						NetworkInterface v4NetIf, int v4Port)
+    public NettyDhcpServer(List<InetAddress> addrs, List<NetworkInterface> netIfs, int port,
+    						List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port)
     {
     	this.addrs = addrs;
     	this.netIfs = netIfs;
     	this.port = port;
+    	this.v4Addrs = v4Addrs;
     	this.v4NetIf = v4NetIf;
     	this.v4Port = v4Port;
     }
@@ -117,10 +121,9 @@ public class NettyDhcpServer
         try {
         	InternalLoggerFactory.setDefaultFactory(new Log4JLoggerFactory());
         	
-        	// Use NioDatagramChannels for unicast addresses
         	if (addrs != null) {
 	        	for (InetAddress addr : addrs) {
-	
+	        		// local address for packets received on this channel
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
@@ -132,9 +135,11 @@ public class NettyDhcpServer
 	        		
 		            DatagramChannelFactory factory = null;
 		            if (DhcpConstants.IS_WINDOWS) {
+		            	// Use OioDatagramChannels for IPv6 unicast addresses on Windows
 		            	factory = new OioDatagramChannelFactory(executorService);
 		            }
 		            else {
+		            	// Use NioDatagramChannels for IPv6 unicast addresses on real OSes
 		                factory = new NioDatagramChannelFactory(executorService);
 		            }
 	
@@ -153,21 +158,26 @@ public class NettyDhcpServer
 	        	}
         	}
         	
-        	// Use OioDatagramChannels for multicast interfaces
         	if (netIfs != null) {
 	        	for (NetworkInterface netIf : netIfs) {
-	        		
+	        		// find the link local IPv6 address for this interface
 	        		InetAddress addr = Util.netIfIPv6LinkLocalAddress(netIf);
-	        		
+	        		if (addr == null) {
+	        			String msg = "No IPv6 link local addresses found on interface: " + netIf;
+	        			log.error(msg);
+	        			throw new DhcpServerConfigException(msg);	        			
+	        		}
+	        		// local address for packets received on this channel
+		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
 		            ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
-		            pipeline.addLast("decoder", 
-		            		new DhcpChannelDecoder(new InetSocketAddress(addr, port)));
+		            pipeline.addLast("decoder", new DhcpChannelDecoder(sockAddr));
 		            pipeline.addLast("encoder", new DhcpChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
 		            pipeline.addLast("handler", new DhcpChannelHandler());
 	
+		        	// Use OioDatagramChannels for IPv6 multicast interfaces
 		            DatagramChannelFactory factory =
 		                new OioDatagramChannelFactory(executorService);
 	
@@ -175,9 +185,9 @@ public class NettyDhcpServer
 		            DatagramChannel channel = factory.newChannel(pipeline);
 		            
 		            // must be bound in order to join multicast group
-		            SocketAddress sockAddr = new InetSocketAddress(port);
-		            log.info("Binding multicast channel on IPv6 socket address: " + sockAddr);
-		            ChannelFuture future = channel.bind(sockAddr);
+		            SocketAddress wildAddr = new InetSocketAddress(port);
+		            log.info("Binding multicast channel on IPv6 wildcard address: " + wildAddr);
+		            ChannelFuture future = channel.bind(wildAddr);
 		            future.await();
 		            if (!future.isSuccess()) {
 		            	log.error("Failed to bind multicast channel: " + future.getCause());
@@ -197,14 +207,61 @@ public class NettyDhcpServer
 	        	}
         	}
         	
-        	// Use NioDatagramChannels for v4 interface
+    		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
+        	if (v4Addrs != null) {
+	        	for (InetAddress addr : v4Addrs) {
+	        		// local address for packets received on this channel
+		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
+	        		ChannelPipeline pipeline = Channels.pipeline();
+		            pipeline.addLast("logger", new LoggingHandler());
+		            pipeline.addLast("decoder", new DhcpV4UnicastChannelDecoder(sockAddr));
+		            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
+		            pipeline.addLast("executor", new ExecutionHandler(
+		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
+		            pipeline.addLast("handler", new DhcpV4ChannelHandler(null));
+	        		
+		            DatagramChannelFactory factory = null;
+		            if (DhcpConstants.IS_WINDOWS) {
+		            	// Use OioDatagramChannels for IPv4 unicast addresses on Windows
+		            	factory = new OioDatagramChannelFactory(executorService);
+		            }
+		            else {
+		            	// Use NioDatagramChannels for IPv4 unicast addresses on real OSes
+		                factory = new NioDatagramChannelFactory(executorService);
+		            }
+	
+		            // create an unbound channel
+		            DatagramChannel channel = factory.newChannel(pipeline);
+		            channel.getConfig().setReuseAddress(true);
+		            channel.getConfig().setBroadcast(true);
+		            v4UcastChannels.put(addr, channel);
+		            
+		            log.info("Binding datagram channel on IPv4 socket address: " + sockAddr);
+		            ChannelFuture future = channel.bind(sockAddr);
+		            future.await();
+		            if (!future.isSuccess()) {
+		            	log.error("Failed to bind unicast channel: " + future.getCause());
+		            	throw new IOException(future.getCause());
+		            }
+		            channels.add(channel);
+	        	}
+        	}
+        	
         	if (v4NetIf != null) {
         		boolean foundV4Addr = false;
         		// get the first v4 address on the interface and bind to it
         		Enumeration<InetAddress> addrs = v4NetIf.getInetAddresses();
         		while (addrs.hasMoreElements()) {
         			InetAddress addr = addrs.nextElement();
-        			if (addr instanceof Inet4Address) {	
+        			if (addr instanceof Inet4Address) {
+        				Channel bcastChannel = v4UcastChannels.get(addr);
+        				if (bcastChannel == null) {
+                			String msg = "IPv4 address: " + addr.getHostAddress() + 
+                						" for broadcast interface: " + v4NetIf +
+                						" must be included in unicast IPv4 address list";
+                			log.error(msg);
+                			throw new DhcpServerConfigException(msg);        					
+        				}
 		        		foundV4Addr = true;
 			            InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
         				ChannelPipeline pipeline = Channels.pipeline();
@@ -213,16 +270,18 @@ public class NettyDhcpServer
 			            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
 			            pipeline.addLast("executor", new ExecutionHandler(
 			            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
-			            pipeline.addLast("handler", new DhcpV4ChannelHandler());
+			            pipeline.addLast("handler", new DhcpV4ChannelHandler(bcastChannel));
 		        		
 			            DatagramChannelFactory factory = new NioDatagramChannelFactory(executorService);
 		
 			            // create an unbound channel
 			            DatagramChannel channel = factory.newChannel(pipeline);
 			            channel.getConfig().setReuseAddress(true);
+			            channel.getConfig().setBroadcast(true);
 			            
-			            log.info("Binding datagram channel on IPv4 socket address: " + sockAddr);
-			            ChannelFuture future = channel.bind(sockAddr);
+			            InetSocketAddress wildAddr = new InetSocketAddress(v4Port);
+			            log.info("Binding datagram channel on IPv4 wildcard address: " + wildAddr);
+			            ChannelFuture future = channel.bind(wildAddr);
 			            future.await();
 			            if (!future.isSuccess()) {
 			            	log.error("Failed to bind IPv4 channel: " + future.getCause());
@@ -238,7 +297,6 @@ public class NettyDhcpServer
         			throw new DhcpServerConfigException(msg);
         		}
         	}
-        	
         }
         catch (Exception ex) {
             log.error("Failed to initialize server: " + ex, ex);

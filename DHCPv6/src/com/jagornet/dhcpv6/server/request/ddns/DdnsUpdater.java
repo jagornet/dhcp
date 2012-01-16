@@ -32,11 +32,10 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcpv6.server.request.binding.AddressBindingPool;
-import com.jagornet.dhcpv6.server.request.binding.BindingAddress;
+import com.jagornet.dhcpv6.server.request.binding.AddressPoolInterface;
 import com.jagornet.dhcpv6.xml.Link;
 
 /**
@@ -95,19 +94,25 @@ public class DdnsUpdater implements Runnable
 	/** The rev tsig key data. */
 	private String revTsigKeyData;
 	
-	private DhcpMessage requestMsg;
+	private DhcpMessageInterface requestMsg;
 	
 	/** The client link. */
 	private Link clientLink;
 	
-	/** The binding addr. */
-	private BindingAddress bindingAddr;
+	/** The addr pool. */
+	private AddressPoolInterface pool;
+	
+	/** the inet addr. */
+	private InetAddress addr;
 	
 	/** The fqdn. */
 	private String fqdn;
 	
 	/** The duid. */
 	private byte[] duid;
+	
+	/** The lifetime. */
+	private long lifetime;
 	
 	/** The do forward update. */
 	private boolean doForwardUpdate;
@@ -125,15 +130,11 @@ public class DdnsUpdater implements Runnable
 	 * @param doForwardUpdate the do forward update
 	 * @param isDelete the is delete
 	 */
-	public DdnsUpdater(Link clientLink, BindingAddress bindingAddr, String fqdn, 
-			byte[] duid, boolean doForwardUpdate, boolean isDelete)
+	public DdnsUpdater(Link clientLink, AddressPoolInterface pool,
+			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
+			boolean doForwardUpdate, boolean isDelete)
 	{
-		this.clientLink = clientLink;
-		this.bindingAddr = bindingAddr;
-		this.fqdn = fqdn;
-		this.duid = duid;
-		this.doForwardUpdate = doForwardUpdate;
-		this.isDelete = isDelete;
+		this(null, clientLink, pool, addr, fqdn, duid, lifetime, doForwardUpdate, isDelete);
 	}
 	
 	/**
@@ -146,14 +147,17 @@ public class DdnsUpdater implements Runnable
 	 * @param doForwardUpdate the do forward update
 	 * @param isDelete the is delete
 	 */
-	public DdnsUpdater(DhcpMessage requestMsg, Link clientLink, BindingAddress bindingAddr, 
-			String fqdn, boolean doForwardUpdate, boolean isDelete)
+	public DdnsUpdater(DhcpMessageInterface requestMsg, Link clientLink, AddressPoolInterface pool,
+			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
+			boolean doForwardUpdate, boolean isDelete)
 	{
 		this.requestMsg = requestMsg;
-		this.duid = requestMsg.getDhcpClientIdOption().getDuid();
+		this.duid = duid;
 		this.clientLink = clientLink;
-		this.bindingAddr = bindingAddr;
+		this.pool = pool;
+		this.addr = addr;
 		this.fqdn = fqdn;
+		this.lifetime = lifetime;
 		this.doForwardUpdate = doForwardUpdate;
 		this.isDelete = isDelete;
 	}
@@ -176,11 +180,10 @@ public class DdnsUpdater implements Runnable
 	 */
 	public void run()
 	{
-		setupPolicies((AddressBindingPool) bindingAddr.getBindingPool());						
-		InetAddress inetAddr = bindingAddr.getIpAddress();
+		setupPolicies(pool, lifetime);						
 		try {
 			if (doForwardUpdate) {
-				ForwardDdnsUpdate fwdUpdate = new ForwardDdnsUpdate(fqdn, inetAddr, duid);
+				ForwardDdnsUpdate fwdUpdate = new ForwardDdnsUpdate(fqdn, addr, duid);
 				fwdUpdate.setServer(fwdServer);
 				fwdUpdate.setZone(fwdZone);
 				fwdUpdate.setTtl(fwdTtl);
@@ -192,7 +195,7 @@ public class DdnsUpdater implements Runnable
 				else
 					fwdUpdate.sendDelete();
 			}
-			ReverseDdnsUpdate revUpdate = new ReverseDdnsUpdate(fqdn, inetAddr, duid);
+			ReverseDdnsUpdate revUpdate = new ReverseDdnsUpdate(fqdn, addr, duid);
 			revUpdate.setServer(revServer);
 			revUpdate.setZone(revZone);
 			revUpdate.setRevZoneBitLength(revZoneBitLength);
@@ -215,30 +218,30 @@ public class DdnsUpdater implements Runnable
 	 * 
 	 * @param addrBindingPool the new up policies
 	 */
-	private void setupPolicies(AddressBindingPool addrBindingPool)
+	private void setupPolicies(AddressPoolInterface addrBindingPool, long lifetime)
 	{
 		sync = DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_SYNCHRONIZE);
+				addrBindingPool, clientLink, Property.DDNS_SYNCHRONIZE);
 		
 		String zone = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_FORWARD_ZONE_NAME);
+				addrBindingPool, clientLink, Property.DDNS_FORWARD_ZONE_NAME);
 		if ((zone != null) && !zone.isEmpty())
 			fwdZone = zone;
 		
 		zone = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_REVERSE_ZONE_NAME);
+				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_NAME);
 		if ((zone != null) && !zone.isEmpty())
 			revZone = zone;
 		
 		revZoneBitLength = DhcpServerPolicies.effectivePolicyAsInt(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_REVERSE_ZONE_BITLENGTH);
+				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_BITLENGTH);
 		
 		long ttl = 0;
 		float ttlFloat = DhcpServerPolicies.effectivePolicyAsFloat(requestMsg,
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_TTL);
+				addrBindingPool, clientLink, Property.DDNS_TTL);
 		if (ttlFloat < 1) {
 			// if less than one, then percentage of lifetime seconds
-			ttl = (long) (addrBindingPool.getValidLifetime() * ttlFloat);
+			ttl = (long) (lifetime * ttlFloat);
 		}
 		else {
 			// if greater than one, then absolute number of seconds
@@ -247,10 +250,10 @@ public class DdnsUpdater implements Runnable
 		
 		fwdTtl = ttl;
 		ttlFloat = DhcpServerPolicies.effectivePolicyAsFloat(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_FORWARD_ZONE_TTL);
+				addrBindingPool, clientLink, Property.DDNS_FORWARD_ZONE_TTL);
 		if (ttlFloat < 1) {
 			// if less than one, then percentage of lifetime seconds
-			fwdTtl = (long) (addrBindingPool.getValidLifetime() * ttlFloat);
+			fwdTtl = (long) (lifetime * ttlFloat);
 		}
 		else {
 			// if greater than one, then absolute number of seconds
@@ -259,10 +262,10 @@ public class DdnsUpdater implements Runnable
 		
 		revTtl = ttl;
 		ttlFloat = DhcpServerPolicies.effectivePolicyAsFloat(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_REVERSE_ZONE_TTL);
+				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_TTL);
 		if (ttlFloat < 1) {
 			// if less than one, then percentage of lifetime seconds
-			revTtl = (long) (addrBindingPool.getValidLifetime() * ttlFloat);
+			revTtl = (long) (lifetime * ttlFloat);
 		}
 		else {
 			// if greater than one, then absolute number of seconds
@@ -270,62 +273,62 @@ public class DdnsUpdater implements Runnable
 		}
 
 		String server = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_SERVER);
+				addrBindingPool, clientLink, Property.DDNS_SERVER);
 		
 		fwdServer = server;
 		revServer = server;
 		
 		server = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_FORWARD_ZONE_SERVER);
+				addrBindingPool, clientLink, Property.DDNS_FORWARD_ZONE_SERVER);
 		if ((server != null) && !server.isEmpty())
 			fwdServer = server;
 		server = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_REVERSE_ZONE_SERVER);
+				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_SERVER);
 		if ((server != null) && !server.isEmpty())
 			revServer = server;
 		
 		String tsigKeyName = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_TSIG_KEYNAME);
+				addrBindingPool, clientLink, Property.DDNS_TSIG_KEYNAME);
 
 		fwdTsigKeyName = tsigKeyName;
 		revTsigKeyName = tsigKeyName;
 
 		tsigKeyName = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_FORWARD_ZONE_TSIG_KEYNAME);
+				addrBindingPool, clientLink, Property.DDNS_FORWARD_ZONE_TSIG_KEYNAME);
 		if ((tsigKeyName != null) && !tsigKeyName.isEmpty())
 			fwdTsigKeyName = tsigKeyName;
 		tsigKeyName = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_REVERSE_ZONE_TSIG_KEYNAME);
+				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_TSIG_KEYNAME);
 		if ((tsigKeyName != null) && !tsigKeyName.isEmpty())
 			revTsigKeyName = tsigKeyName;
 		
 		String tsigAlgorithm = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_TSIG_ALGORITHM);
+				addrBindingPool, clientLink, Property.DDNS_TSIG_ALGORITHM);
 		
 		fwdTsigAlgorithm = tsigAlgorithm;
 		revTsigAlgorithm = tsigAlgorithm;
 
 		tsigAlgorithm = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_FORWARD_ZONE_TSIG_ALGORITHM);
+				addrBindingPool, clientLink, Property.DDNS_FORWARD_ZONE_TSIG_ALGORITHM);
 		if ((tsigAlgorithm != null) && !tsigAlgorithm.isEmpty())
 			fwdTsigAlgorithm = tsigAlgorithm;
 		tsigAlgorithm = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_REVERSE_ZONE_TSIG_ALGORITHM);
+				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_TSIG_ALGORITHM);
 		if ((tsigAlgorithm != null) && !tsigAlgorithm.isEmpty())
 			revTsigAlgorithm = tsigAlgorithm;
 		
 		String tsigKeyData = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_TSIG_KEYDATA);
+				addrBindingPool, clientLink, Property.DDNS_TSIG_KEYDATA);
 		
 		fwdTsigKeyData = tsigKeyData;
 		revTsigKeyData = tsigKeyData;
 		
 		tsigKeyData = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_FORWARD_ZONE_TSIG_KEYDATA);
+				addrBindingPool, clientLink, Property.DDNS_FORWARD_ZONE_TSIG_KEYDATA);
 		if ((tsigKeyData != null) && !tsigKeyData.isEmpty())
 			fwdTsigKeyData = tsigKeyData;
 		tsigKeyData = DhcpServerPolicies.effectivePolicy(requestMsg, 
-				addrBindingPool.getAddressPool(), clientLink, Property.DDNS_REVERSE_ZONE_TSIG_KEYDATA);
+				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_TSIG_KEYDATA);
 		if ((tsigKeyData != null) && !tsigKeyData.isEmpty())
 			revTsigKeyData = tsigKeyData;
 	}	

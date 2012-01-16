@@ -37,7 +37,9 @@ import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ConfigOptions;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Util;
+import com.jagornet.dhcpv6.xml.FiltersType;
 import com.jagornet.dhcpv6.xml.LinkFilter;
+import com.jagornet.dhcpv6.xml.PoliciesType;
 import com.jagornet.dhcpv6.xml.V4AddressPool;
 
 /**
@@ -46,7 +48,7 @@ import com.jagornet.dhcpv6.xml.V4AddressPool;
  * 
  * @author A. Gregory Rabil
  */
-public class V4AddressBindingPool implements BindingPool
+public class V4AddressBindingPool implements BindingPool, AddressPoolInterface
 {
 	
 	/** The log. */
@@ -325,6 +327,20 @@ public class V4AddressBindingPool implements BindingPool
 	@Override
 	public long getValidLifetimeMs() {
 		// TODO: check this overloaded use of v6 interface
-		return getLeasetime();
+		return getLeasetimeMs();
+	}
+
+	@Override
+	public FiltersType getFilters() {
+		if (pool != null)
+			return pool.getFilters();
+		return null;
+	}
+
+	@Override
+	public PoliciesType getPolicies() {
+		if (pool != null)
+			return pool.getPolicies();
+		return null;
 	}
 }

@@ -167,7 +167,7 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     		}
     		if (!bindings.isEmpty()) {
     			populateReplyMsgOptions(clientLink);
-// TODO
+// TODO: not on discover?
 //    			processDdnsUpdates();
     		}
     	}    	

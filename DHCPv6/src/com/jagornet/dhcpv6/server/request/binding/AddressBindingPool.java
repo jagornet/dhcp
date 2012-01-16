@@ -38,7 +38,9 @@ import com.jagornet.dhcpv6.option.DhcpConfigOptions;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AddressPool;
+import com.jagornet.dhcpv6.xml.FiltersType;
 import com.jagornet.dhcpv6.xml.LinkFilter;
+import com.jagornet.dhcpv6.xml.PoliciesType;
 
 /**
  * The Class AddressBindingPool.  A wrapper class for a configured AddressPool
@@ -46,7 +48,7 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
  * 
  * @author A. Gregory Rabil
  */
-public class AddressBindingPool implements BindingPool
+public class AddressBindingPool implements BindingPool, AddressPoolInterface
 {
 	private static Logger log = LoggerFactory.getLogger(AddressBindingPool.class);
 
@@ -328,5 +330,19 @@ public class AddressBindingPool implements BindingPool
 	public String freeListToString()
 	{
 		return freeList.toString();
+	}
+
+	@Override
+	public FiltersType getFilters() {
+		if (pool != null)
+			return pool.getFilters();
+		return null;
+	}
+
+	@Override
+	public PoliciesType getPolicies() {
+		if (pool != null)
+			return pool.getPolicies();
+		return null;
 	}
 }

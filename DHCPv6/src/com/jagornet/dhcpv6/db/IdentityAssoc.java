@@ -242,4 +242,26 @@ public class IdentityAssoc
 			return false;
 		return true;
 	}
+	
+	public static String iaTypeToString(byte iaType) {
+		String s = null;
+		switch (iaType) {
+			case V4_TYPE:
+				s = "V4";
+				break;
+			case NA_TYPE:
+				s = "NA";
+				break;
+			case TA_TYPE:
+				s = "TA";
+				break;
+			case PD_TYPE:
+				s = "PD";
+				break;
+			default:
+				s = "??";
+				break;
+		}
+		return s;
+	}
 }

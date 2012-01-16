@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -65,6 +66,7 @@ import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.V4AddressBindingPool;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AddressPool;
@@ -84,6 +86,8 @@ import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.PrefixPool;
 import com.jagornet.dhcpv6.xml.PrefixPoolsType;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
+import com.jagornet.dhcpv6.xml.V4AddressPool;
+import com.jagornet.dhcpv6.xml.V4AddressPoolsType;
 import com.jagornet.dhcpv6.xml.V4ServerIdOption;
 
 /**
@@ -350,73 +354,90 @@ public class DhcpServerConfiguration
 	/**
      * Find link for address.
      * 
-     * @param inetAddr an InetAddress to find a Link for
+     * @param inetAddr an InetAddress (v4/v6) to find a Link for
      * 
      * @return the link
      */
     public DhcpLink findLinkForAddress(InetAddress inetAddr)
     {
-        DhcpLink dhcpLink = null;
-        if ((linkMap != null) && !linkMap.isEmpty()) {
-//            Subnet s = new Subnet(inetAddr, 128);
-//            SortedMap<Subnet, DhcpLink> subMap = linkMap.headMap(s);
-//            if ((subMap != null) && !subMap.isEmpty()) {
-//                s = subMap.lastKey();
-//                if (s.contains(inetAddr)) {
-//                    dhcpLink = subMap.get(s);
-//                }
-//            }
-        	for (DhcpLink link : linkMap.values()) {
-        		AddressPoolsType addrPoolType = link.getLink().getNaAddrPools();
-        		if (addrPoolType != null) {
-        			List<AddressPool> addrPools = addrPoolType.getPoolList();
-        			if (addrPools != null) {
-        				for (AddressPool addrPool : addrPools) {
-        					try {
-	        					Range range = new Range(addrPool.getRange());
-	        					if (range.contains(inetAddr)) {
-	        						return link;
-	        					}
-        					}
-        					catch (Exception ex) {
-        						log.error("Invalid AddressPool range: " + addrPool.getRange() +
-        								": " + ex);
-        					}
-        				}
-        			}
-        		}
-        		addrPoolType = link.getLink().getTaAddrPools();
-        		if (addrPoolType != null) {
-        			List<AddressPool> addrPools = addrPoolType.getPoolList();
-        			if (addrPools != null) {
-        				for (AddressPool addrPool : addrPools) {
-        					try {
-	        					Range range = new Range(addrPool.getRange());
-	        					if (range.contains(inetAddr)) {
-	        						return link;
-	        					}
-        					}
-        					catch (Exception ex) {
-        						log.error("Invalid AddressPool range: " + addrPool.getRange() +
-        								": " + ex);
-        					}
-        				}
-        			}
-        		}
-        	}
-        }
-        return dhcpLink;
+    	if (inetAddr instanceof Inet6Address) {
+            if ((linkMap != null) && !linkMap.isEmpty()) {
+            	for (DhcpLink link : linkMap.values()) {
+            		AddressPoolsType addrPoolType = link.getLink().getNaAddrPools();
+            		if (addrPoolType != null) {
+            			List<AddressPool> addrPools = addrPoolType.getPoolList();
+            			if (addrPools != null) {
+            				for (AddressPool addrPool : addrPools) {
+            					try {
+    	        					Range range = new Range(addrPool.getRange());
+    	        					if (range.contains(inetAddr)) {
+    	        						return link;
+    	        					}
+            					}
+            					catch (Exception ex) {
+            						log.error("Invalid AddressPool range: " + addrPool.getRange() +
+            								": " + ex);
+            					}
+            				}
+            			}
+            		}
+            		addrPoolType = link.getLink().getTaAddrPools();
+            		if (addrPoolType != null) {
+            			List<AddressPool> addrPools = addrPoolType.getPoolList();
+            			if (addrPools != null) {
+            				for (AddressPool addrPool : addrPools) {
+            					try {
+    	        					Range range = new Range(addrPool.getRange());
+    	        					if (range.contains(inetAddr)) {
+    	        						return link;
+    	        					}
+            					}
+            					catch (Exception ex) {
+            						log.error("Invalid AddressPool range: " + addrPool.getRange() +
+            								": " + ex);
+            					}
+            				}
+            			}
+            		}
+            	}
+            }
+    	}
+    	else {
+            if ((linkMap != null) && !linkMap.isEmpty()) {
+            	for (DhcpLink link : linkMap.values()) {
+            		V4AddressPoolsType addrPoolType = link.getLink().getV4AddrPools();
+            		if (addrPoolType != null) {
+            			List<V4AddressPool> addrPools = addrPoolType.getPoolList();
+            			if (addrPools != null) {
+            				for (V4AddressPool addrPool : addrPools) {
+            					try {
+    	        					Range range = new Range(addrPool.getRange());
+    	        					if (range.contains(inetAddr)) {
+    	        						return link;
+    	        					}
+            					}
+            					catch (Exception ex) {
+            						log.error("Invalid V4AddressPool range: " + addrPool.getRange() +
+            								": " + ex);
+            					}
+            				}
+            			}
+            		}
+            	}
+            }
+    	}
+        return null;
     }
 
     /**
      * Find dhcp link.
      * 
-     * @param local the local address
-     * @param remote the remote address
+     * @param local the local v6 address
+     * @param remote the remote v6 address
      * 
      * @return the dhcp link
      */
-    public DhcpLink findDhcpLink(InetAddress local, InetAddress remote)
+    public DhcpLink findDhcpLink(Inet6Address local, Inet6Address remote)
     {
         DhcpLink link = null;
         if ((linkMap != null) && !linkMap.isEmpty()) {
@@ -440,6 +461,43 @@ public class DhcpServerConfiguration
         		// the local address is the client link address
         		log.debug("Looking for Link by address: " + local.getHostAddress());
         		link = findLink(local);
+        	}
+        }
+        else {
+        	log.error("linkMap is null or empty");
+        }
+        if (link != null) {
+        	log.info("Found configured Link for client request: " + 
+        				link.getLink().getName());
+        }
+        return link;
+    }
+
+    /**
+     * Find dhcp link.
+     * 
+     * @param local the local v4 address
+     * @param remote the remote v4 address
+     * 
+     * @return the dhcp link
+     */
+    public DhcpLink findDhcpLink(Inet4Address local, Inet4Address remote)
+    {
+        DhcpLink link = null;
+        if ((linkMap != null) && !linkMap.isEmpty()) {
+        	if (remote.equals(DhcpConstants.ZEROADDR)) {
+        		// if the remote address is zero, then the request was received
+        		// from a client without an address on the broadcast channel, so
+        		// use the local address to search the linkMap
+        		log.debug("Looking for Link by local address: " + local.getHostAddress());
+        		link = findLink(local);
+        	}
+        	else {
+        		// if the remote address is non-zero, then the request was received
+        		// from a client or relay with that address, so use the remote address
+        		// to search the linkMap
+        		log.debug("Looking for Link by remote address: " + remote.getHostAddress());
+        		link = findLink(remote);
         	}
         }
         else {

@@ -345,6 +345,7 @@ public class DhcpConstants
     public static final int V4OPTION_SERVERID = 54;
     public static final int V4OPTION_PARAM_REQUEST_LIST = 55;
     public static final int V4OPTION_VENDOR_CLASS = 60;
+    public static final int V4OPTION_CLIENT_FQDN = 81;
     public static final int V4OPTION_EOF = 255;
 
     public static final int V4MESSAGE_TYPE_DISCOVER = 1;
@@ -365,5 +366,22 @@ public class DhcpConstants
 											        "Nack",
 											        "Release",
 											        "Inform" };
+    /**
+     * Get the string representation of a DHCPv4 message
+     * given the message type.  Note that the type is
+     * an unsigned byte, so we need a short to store
+     * it properly.
+     * 
+     * @param msg  the message type as a short (i.e. unsigned byte)
+     * 
+     * @return the message string
+     */
+    public static final String getV4MessageString(short msg)
+    {
+        if ( (msg > 0) && (msg <= V4MESSAGE_TYPE_INFORM)) {
+            return V4MESSAGE_STRING[msg];
+        }
+        return "Unknown";
+    }
 
 }

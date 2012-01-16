@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.server.request.binding;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,15 +35,20 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.db.DhcpOption;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4RequestedIpAddressOption;
+import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
+import com.jagornet.dhcpv6.xml.DomainNameOptionType;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
@@ -187,7 +193,8 @@ public class V4AddrBindingManagerImpl
     {
     	V4AddressBindingPool bp = new V4AddressBindingPool(pool);
 		long leasetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(pool, link, Property.V4_DEFAULT_LEASETIME);
+			DhcpServerPolicies.effectivePolicyAsLong((AddressPoolInterface) bp, 
+					link, Property.V4_DEFAULT_LEASETIME);
 		bp.setLeasetime(leasetime);
 		bp.setLinkFilter(linkFilter);
 		
@@ -387,8 +394,71 @@ public class V4AddrBindingManagerImpl
 
 	@Override
 	protected void ddnsDelete(IaAddress iaAddr) {
-		// TODO Auto-generated method stub
-		
+    	DhcpV4ClientFqdnOption clientFqdnOption = null;
+    	try {
+	    	long identityAssocId = iaAddr.getIdentityAssocId();
+	    	IdentityAssoc ia = iaMgr.getIA(identityAssocId);
+	    	if (ia != null) {
+	    		List<DhcpOption> opts = iaMgr.findDhcpOptionsByIdentityAssocId(identityAssocId);
+	    		if (opts != null) {
+	    			for (DhcpOption opt : opts) {
+	    				if (opt.getCode() == DhcpConstants.V4OPTION_CLIENT_FQDN) {
+	    					clientFqdnOption = new DhcpV4ClientFqdnOption();
+	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
+	    					break;
+	    				}
+	    			}
+	    		}
+	    		if (clientFqdnOption != null) {
+					DomainNameOptionType domainNameOption = 
+						clientFqdnOption.getDomainNameOption();
+					if (domainNameOption != null) {
+						String fqdn = domainNameOption.getDomainName();
+						if ((fqdn != null) && !fqdn.isEmpty()) {
+				        	DhcpLink link = serverConfig.findLinkForAddress(iaAddr.getIpAddress());
+				        	if (link != null) {
+				        		V4BindingAddress bindingAddr =
+				        			buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+				        		if (bindingAddr != null) {
+				        			V4AddressBindingPool pool = 
+				        				(V4AddressBindingPool) bindingAddr.getBindingPool();
+									DdnsUpdater ddns =
+										new DdnsUpdater(link.getLink(), pool,
+												bindingAddr.getIpAddress(), fqdn, ia.getDuid(),
+												pool.getValidLifetime(),
+												clientFqdnOption.getUpdateAaaaBit(), true);
+									ddns.processUpdates();
+				        		}
+				        		else {
+				        			log.error("Failed to find binding for address: " +
+				        					iaAddr.getIpAddress().getHostAddress());
+				        		}
+				        	}
+				        	else {
+				        		log.error("Failed to find link for binding address: " + 
+				        				iaAddr.getIpAddress().getHostAddress());
+				        	}
+						}
+						else {
+							log.error("FQDN is null or empty.  No DDNS deletes performed.");
+						}
+					}
+					else {
+						log.error("Domain name option type null in Client FQDN." +
+								"  No DDNS deletes performed.");
+					}
+	    		}
+	    		else {
+	    			log.warn("No Client FQDN option in current binding.  No DDNS deletes performed.");
+	    		}
+	    	}
+	    	else {
+	    		log.error("Failed to get IdentityAssoc id=" + identityAssocId);
+	    	}
+    	}
+    	catch (Exception ex) {
+    		log.error("Failed to perform DDNS delete", ex);
+    	}
 	}
 
 	@Override

@@ -115,6 +115,8 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
     		// the ciAddr MUST NOT be 0.0.0.0 for Renew and Rebind
     		if (requestMsg.isUnicast()) {
     			// renew is unicast
+    			// NOTE: this will not happen if the v4 broadcast interface used at startup,
+    			//		 but handling of DHCPv4 renew/rebind is the same anyway
     			type = RequestType.Request_Renewing;
     		}
     		else {
@@ -200,7 +202,7 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
             replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_ACK);
             if (!bindings.isEmpty()) {
             	populateReplyMsgOptions(clientLink);
-//TODO    			processDdnsUpdates();
+    			processDdnsUpdates();
             }
     	}
 		return sendReply;    	

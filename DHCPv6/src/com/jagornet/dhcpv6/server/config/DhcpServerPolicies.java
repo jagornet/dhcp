@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
-import com.jagornet.dhcpv6.xml.AddressPool;
+import com.jagornet.dhcpv6.server.request.binding.AddressPoolInterface;
 import com.jagornet.dhcpv6.xml.Filter;
 import com.jagornet.dhcpv6.xml.FiltersType;
 import com.jagornet.dhcpv6.xml.Link;
@@ -40,8 +40,6 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
 import com.jagornet.dhcpv6.xml.PoliciesType;
 import com.jagornet.dhcpv6.xml.Policy;
-import com.jagornet.dhcpv6.xml.PrefixPool;
-import com.jagornet.dhcpv6.xml.V4AddressPool;
 
 /**
  * The Class DhcpServerPolicies.
@@ -167,9 +165,9 @@ public class DhcpServerPolicies
 	
 	/**
 	 * For testing, allow direct manipulation of policy values.
-	 * 
-	 * @param name
-	 * @param value
+	 *
+	 * @param name the name
+	 * @param value the value
 	 */
 	public static void setProperty(String name, String value)
 	{
@@ -255,7 +253,13 @@ public class DhcpServerPolicies
     	return Float.parseFloat(globalPolicy(prop));
     }
 	
-	
+	/**
+	 * Global policy as string.
+	 *
+	 * @param requestMsg the request msg
+	 * @param prop the prop
+	 * @return the string
+	 */
     public static String globalPolicy(DhcpMessageInterface requestMsg, Property prop)
     {
     	DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
@@ -289,36 +293,36 @@ public class DhcpServerPolicies
 
 
     /**
-	 * Global policy as boolean.
-	 * 
-	 * @param prop the prop
-	 * 
-	 * @return true, if successful
-	 */
+     * Global policy as boolean.
+     *
+     * @param requestMsg the request msg
+     * @param prop the prop
+     * @return true, if successful
+     */
 	public static boolean globalPolicyAsBoolean(DhcpMessageInterface requestMsg, Property prop)
     {
     	return Boolean.parseBoolean(globalPolicy(requestMsg, prop));
     }
     
     /**
-	 * Global policy as int.
-	 * 
-	 * @param prop the prop
-	 * 
-	 * @return the int
-	 */
+     * Global policy as int.
+     *
+     * @param requestMsg the request msg
+     * @param prop the prop
+     * @return the int
+     */
 	public static int globalPolicyAsInt(DhcpMessageInterface requestMsg, Property prop)
     {
     	return Integer.parseInt(globalPolicy(requestMsg, prop));
     }
     
     /**
-	 * Global policy as long.
-	 * 
-	 * @param prop the prop
-	 * 
-	 * @return the long
-	 */
+     * Global policy as long.
+     *
+     * @param requestMsg the request msg
+     * @param prop the prop
+     * @return the long
+     */
 	public static long globalPolicyAsLong(DhcpMessageInterface requestMsg, Property prop)
     {
     	return Long.parseLong(globalPolicy(requestMsg, prop));
@@ -326,12 +330,12 @@ public class DhcpServerPolicies
     
     
     /**
-	 * Global policy as float.
-	 * 
-	 * @param prop the prop
-	 * 
-	 * @return the float
-	 */
+     * Global policy as float.
+     *
+     * @param requestMsg the request msg
+     * @param prop the prop
+     * @return the float
+     */
 	public static float globalPolicyAsFloat(DhcpMessageInterface requestMsg, Property prop)
     {
     	return Float.parseFloat(globalPolicy(requestMsg, prop));
@@ -406,7 +410,16 @@ public class DhcpServerPolicies
     	return Float.parseFloat(effectivePolicy(link, prop));
     }
 	
-	public static String effectivePolicy(DhcpMessageInterface requestMsg, Link link, Property prop)
+	/**
+	 * Effective policy.
+	 *
+	 * @param requestMsg the request msg
+	 * @param link the link
+	 * @param prop the prop
+	 * @return the string
+	 */
+	public static String effectivePolicy(DhcpMessageInterface requestMsg, 
+			Link link, Property prop)
 	{
 		String policy = null;
 		if (requestMsg != null) {
@@ -438,53 +451,57 @@ public class DhcpServerPolicies
 	}
     
     /**
-	 * Effective policy as boolean.
-	 * 
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return true, if successful
-	 */
-	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, Link link, Property prop)
+     * Effective policy as boolean.
+     *
+     * @param requestMsg the request msg
+     * @param link the link
+     * @param prop the prop
+     * @return true, if successful
+     */
+	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, 
+			Link link, Property prop)
     {
     	return Boolean.parseBoolean(effectivePolicy(requestMsg, link, prop));
     }
     
     /**
-	 * Effective policy as int.
-	 * 
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the int
-	 */
-	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, Link link, Property prop)
+     * Effective policy as int.
+     *
+     * @param requestMsg the request msg
+     * @param link the link
+     * @param prop the prop
+     * @return the int
+     */
+	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, 
+			Link link, Property prop)
     {
     	return Integer.parseInt(effectivePolicy(requestMsg, link, prop));
     }
     
     /**
-	 * Effective policy as long.
-	 * 
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the long
-	 */
-	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, Link link, Property prop)
+     * Effective policy as long.
+     *
+     * @param requestMsg the request msg
+     * @param link the link
+     * @param prop the prop
+     * @return the long
+     */
+	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, 
+			Link link, Property prop)
     {
     	return Long.parseLong(effectivePolicy(requestMsg, link, prop));
     }
     
     /**
-	 * Effective policy as float.
-	 * 
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the float
-	 */
-	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, Link link, Property prop)
+     * Effective policy as float.
+     *
+     * @param requestMsg the request msg
+     * @param link the link
+     * @param prop the prop
+     * @return the float
+     */
+	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, 
+			Link link, Property prop)
     {
     	return Float.parseFloat(effectivePolicy(requestMsg, link, prop));
     }
@@ -498,7 +515,7 @@ public class DhcpServerPolicies
      * 
      * @return the string
      */
-    public static String effectivePolicy(AddressPool pool, Link link, Property prop)
+    public static String effectivePolicy(AddressPoolInterface pool, Link link, Property prop)
     {
     	String policy = getPolicy(pool.getPolicies(), prop.key());
     	if (policy != null) {
@@ -520,7 +537,8 @@ public class DhcpServerPolicies
 	 * 
 	 * @return true, if successful
 	 */
-	public static boolean effectivePolicyAsBoolean(AddressPool pool, Link link, Property prop)
+	public static boolean effectivePolicyAsBoolean(AddressPoolInterface pool, 
+			Link link, Property prop)
     {
     	return Boolean.parseBoolean(effectivePolicy(pool, link, prop));
     }
@@ -534,7 +552,8 @@ public class DhcpServerPolicies
 	 * 
 	 * @return the int
 	 */
-	public static int effectivePolicyAsInt(AddressPool pool, Link link, Property prop)
+	public static int effectivePolicyAsInt(AddressPoolInterface pool, 
+			Link link, Property prop)
     {
     	return Integer.parseInt(effectivePolicy(pool, link, prop));
     }
@@ -548,7 +567,8 @@ public class DhcpServerPolicies
 	 * 
 	 * @return the long
 	 */
-	public static long effectivePolicyAsLong(AddressPool pool, Link link, Property prop)
+	public static long effectivePolicyAsLong(AddressPoolInterface pool, 
+			Link link, Property prop)
     {
     	return Long.parseLong(effectivePolicy(pool, link, prop));
     }
@@ -562,19 +582,29 @@ public class DhcpServerPolicies
 	 * 
 	 * @return the float
 	 */
-	public static float effectivePolicyAsFloat(AddressPool pool, Link link, Property prop)
+	public static float effectivePolicyAsFloat(AddressPoolInterface pool, 
+			Link link, Property prop)
     {
     	return Float.parseFloat(effectivePolicy(pool, link, prop));
     }
 	
-    public static String effectivePolicy(DhcpMessageInterface requestMsg, AddressPool pool, 
-    		Link link, Property prop)
+    /**
+     * Effective policy.
+     *
+     * @param requestMsg the request msg
+     * @param filtersType the filters type
+     * @param policiesType the policies type
+     * @param link the link
+     * @param prop the prop
+     * @return the string
+     */
+    public static String effectivePolicy(DhcpMessageInterface requestMsg, 
+    		AddressPoolInterface pool, Link link, Property prop)
     {
 		String policy = null;
 		if (requestMsg != null) {
-			FiltersType filtersType = pool.getFilters();
-			if (filtersType != null) {
-				List<Filter> filters = filtersType.getFilterList();
+			if (pool.getFilters() != null) {
+				List<Filter> filters = pool.getFilters().getFilterList();
 				if (filters != null) {
 					for (Filter filter : filters) {
 						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
@@ -600,405 +630,64 @@ public class DhcpServerPolicies
     }
     
     /**
-	 * Effective policy as boolean.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return true, if successful
-	 */
-	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, AddressPool pool, 
-			Link link, Property prop)
-    {
-    	return Boolean.parseBoolean(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as int.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the int
-	 */
-	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, AddressPool pool, 
-			Link link, Property prop)
-    {
-    	return Integer.parseInt(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as long.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the long
-	 */
-	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, AddressPool pool, 
-			Link link, Property prop)
-    {
-    	return Long.parseLong(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as float.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the float
-	 */
-	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, AddressPool pool, 
-			Link link, Property prop)
-    {
-    	return Float.parseFloat(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
-    /**
-     * Effective policy.
-     * 
+     * Effective policy as boolean.
+     *
+     * @param requestMsg the request msg
      * @param pool the pool
      * @param link the link
      * @param prop the prop
-     * 
-     * @return the string
+     * @return true, if successful
      */
-    public static String effectivePolicy(PrefixPool pool, Link link, Property prop)
-    {
-    	String policy = getPolicy(pool.getPolicies(), prop.key());
-    	if (policy != null) {
-    		return policy;
-    	}
-    	policy = getPolicy(link.getPolicies(), prop.key());
-    	if (policy != null) {
-    		return policy;
-    	}
-    	return globalPolicy(prop);
-    }
-    
-    /**
-	 * Effective policy as boolean.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return true, if successful
-	 */
-	public static boolean effectivePolicyAsBoolean(PrefixPool pool, Link link, Property prop)
-    {
-    	return Boolean.parseBoolean(effectivePolicy(pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as int.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the int
-	 */
-	public static int effectivePolicyAsInt(PrefixPool pool, Link link, Property prop)
-    {
-    	return Integer.parseInt(effectivePolicy(pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as long.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the long
-	 */
-	public static long effectivePolicyAsLong(PrefixPool pool, Link link, Property prop)
-    {
-    	return Long.parseLong(effectivePolicy(pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as float.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the float
-	 */
-	public static float effectivePolicyAsFloat(PrefixPool pool, Link link, Property prop)
-    {
-    	return Float.parseFloat(effectivePolicy(pool, link, prop));
-    }
-	
-    public static String effectivePolicy(DhcpMessageInterface requestMsg, PrefixPool pool, 
-    		Link link, Property prop)
-    {
-		String policy = null;
-		if (requestMsg != null) {
-			FiltersType filtersType = pool.getFilters();
-			if (filtersType != null) {
-				List<Filter> filters = filtersType.getFilterList();
-				if (filters != null) {
-					for (Filter filter : filters) {
-						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
-							policy = getPolicy(filter.getPolicies(), prop.key());
-						}
-					}
-					// if the client request matches at least one filter on the pool,
-					// and that filter has configured a value for the policy, then return
-					// that value from the last filter that the client matches
-			    	if (policy != null) {
-			    		return policy;
-			    	}
-				}
-			}
-		}
-		// client does not match a pool filter 
-		// get the value of the policy on the pool, if any
-		policy = getPolicy(pool.getPolicies(), prop.key());
-		if (policy != null) {
-			return policy;
-		}
-    	return effectivePolicy(requestMsg, link, prop);
-    }
-    
-    /**
-	 * Effective policy as boolean.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return true, if successful
-	 */
-	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, PrefixPool pool, 
-			Link link, Property prop)
+	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, 
+			AddressPoolInterface pool, Link link, Property prop)
     {
     	return Boolean.parseBoolean(effectivePolicy(requestMsg, pool, link, prop));
     }
     
     /**
-	 * Effective policy as int.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the int
-	 */
-	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, PrefixPool pool, 
-			Link link, Property prop)
-    {
-    	return Integer.parseInt(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as long.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the long
-	 */
-	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, PrefixPool pool, 
-			Link link, Property prop)
-    {
-    	return Long.parseLong(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as float.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the float
-	 */
-	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, PrefixPool pool, 
-			Link link, Property prop)
-    {
-    	return Float.parseFloat(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
-    /**
-     * Effective policy.
-     * 
+     * Effective policy as int.
+     *
+     * @param requestMsg the request msg
      * @param pool the pool
      * @param link the link
      * @param prop the prop
-     * 
-     * @return the string
+     * @return the int
      */
-    public static String effectivePolicy(V4AddressPool pool, Link link, Property prop)
-    {
-    	String policy = getPolicy(pool.getPolicies(), prop.key());
-    	if (policy != null) {
-    		return policy;
-    	}
-    	policy = getPolicy(link.getPolicies(), prop.key());
-    	if (policy != null) {
-    		return policy;
-    	}
-    	return globalPolicy(prop);
-    }
-    
-    /**
-	 * Effective policy as boolean.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return true, if successful
-	 */
-	public static boolean effectivePolicyAsBoolean(V4AddressPool pool, Link link, Property prop)
-    {
-    	return Boolean.parseBoolean(effectivePolicy(pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as int.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the int
-	 */
-	public static int effectivePolicyAsInt(V4AddressPool pool, Link link, Property prop)
-    {
-    	return Integer.parseInt(effectivePolicy(pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as long.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the long
-	 */
-	public static long effectivePolicyAsLong(V4AddressPool pool, Link link, Property prop)
-    {
-    	return Long.parseLong(effectivePolicy(pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as float.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the float
-	 */
-	public static float effectivePolicyAsFloat(V4AddressPool pool, Link link, Property prop)
-    {
-    	return Float.parseFloat(effectivePolicy(pool, link, prop));
-    }
-	
-    public static String effectivePolicy(DhcpMessageInterface requestMsg, V4AddressPool pool, 
-    		Link link, Property prop)
-    {
-		String policy = null;
-		if (requestMsg != null) {
-			FiltersType filtersType = pool.getFilters();
-			if (filtersType != null) {
-				List<Filter> filters = filtersType.getFilterList();
-				if (filters != null) {
-					for (Filter filter : filters) {
-						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
-							policy = getPolicy(filter.getPolicies(), prop.key());
-						}
-					}
-					// if the client request matches at least one filter on the pool,
-					// and that filter has configured a value for the policy, then return
-					// that value from the last filter that the client matches
-			    	if (policy != null) {
-			    		return policy;
-			    	}
-				}
-			}
-		}
-		// client does not match a pool filter 
-		// get the value of the policy on the pool, if any
-		policy = getPolicy(pool.getPolicies(), prop.key());
-		if (policy != null) {
-			return policy;
-		}
-    	return effectivePolicy(requestMsg, link, prop);
-    }
-    
-    /**
-	 * Effective policy as boolean.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return true, if successful
-	 */
-	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, V4AddressPool pool, 
-			Link link, Property prop)
-    {
-    	return Boolean.parseBoolean(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
-    /**
-	 * Effective policy as int.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the int
-	 */
-	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, V4AddressPool pool, 
-			Link link, Property prop)
+	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, 
+			AddressPoolInterface pool, Link link, Property prop)
     {
     	return Integer.parseInt(effectivePolicy(requestMsg, pool, link, prop));
     }
     
     /**
-	 * Effective policy as long.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the long
-	 */
-	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, V4AddressPool pool, 
-			Link link, Property prop)
+     * Effective policy as long.
+     *
+     * @param requestMsg the request msg
+     * @param pool the pool
+     * @param link the link
+     * @param prop the prop
+     * @return the long
+     */
+	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, 
+			AddressPoolInterface pool, Link link, Property prop)
     {
     	return Long.parseLong(effectivePolicy(requestMsg, pool, link, prop));
     }
     
     /**
-	 * Effective policy as float.
-	 * 
-	 * @param pool the pool
-	 * @param link the link
-	 * @param prop the prop
-	 * 
-	 * @return the float
-	 */
-	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, V4AddressPool pool, 
-			Link link, Property prop)
+     * Effective policy as float.
+     *
+     * @param requestMsg the request msg
+     * @param pool the pool
+     * @param link the link
+     * @param prop the prop
+     * @return the float
+     */
+	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, 
+			AddressPoolInterface pool, Link link, Property prop)
     {
     	return Float.parseFloat(effectivePolicy(requestMsg, pool, link, prop));
-    }
-    
+    }    
 
     /**
      * Gets the policy.

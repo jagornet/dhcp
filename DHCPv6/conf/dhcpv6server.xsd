@@ -1088,6 +1088,19 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
+	
+	<xs:complexType name="v4ClientFqdnOption">
+		<xs:complexContent>
+			<xs:extension base="domainNameOptionType">
+				<xs:sequence>
+					<xs:element name="flags" type="xs:unsignedByte"/>
+					<xs:element name="rcode1" type="xs:unsignedByte"/>
+					<xs:element name="rcode2" type="xs:unsignedByte"/>
+				</xs:sequence>
+				<xs:attribute name="code" type="code" fixed="81"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
 
 <!-- Consider using these types	
      <simpleType name="dotQuadIPv4Type">

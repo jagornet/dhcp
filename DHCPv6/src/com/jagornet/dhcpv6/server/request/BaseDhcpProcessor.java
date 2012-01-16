@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.server.request;
 
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -375,7 +376,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
     	Map<Integer, DhcpOption> optionMap = 
     		dhcpServerConfig.effectiveNaAddrOptions(requestMsg, dhcpLink, bindingPool);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool.getAddressPool(),
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool,
     			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
@@ -394,7 +395,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
     	Map<Integer, DhcpOption> optionMap = 
     		dhcpServerConfig.effectiveTaAddrOptions(requestMsg, dhcpLink, bindingPool);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool.getAddressPool(),
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool,
     			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
@@ -413,7 +414,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
     {
     	Map<Integer, DhcpOption> optionMap = 
     		dhcpServerConfig.effectivePrefixOptions(requestMsg, dhcpLink, bindingPool);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool.getPrefixPool(),
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool,
     			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
@@ -484,17 +485,13 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      */
     public boolean preProcess()
     {        
-        // locate configuration for the client's link
-//        log.info("Client link address: " + clientLinkAddress.getHostAddress());
-//        clientLink = dhcpServerConfig.findLinkForAddress(clientLinkAddress);
-        clientLink = dhcpServerConfig.findDhcpLink(requestMsg.getLocalAddress().getAddress(),
-        		requestMsg.getRemoteAddress().getAddress());
+        clientLink = dhcpServerConfig.findDhcpLink(
+        		(Inet6Address)requestMsg.getLocalAddress().getAddress(),
+        		(Inet6Address)requestMsg.getRemoteAddress().getAddress());
         if (clientLink == null) {
-//        	log.error("No Link configured for client link address: " + 
-//        			clientLinkAddress.getHostAddress());
-        	log.error("No Link configured for client request: " +
-        			" localAddress=" + requestMsg.getLocalAddress().getAddress(),
-        			" remoteAddress=" + requestMsg.getRemoteAddress().getAddress());
+        	log.error("No Link configured for DHCPv6 client request: " +
+        			" localAddress=" + requestMsg.getLocalAddress().getAddress().getHostAddress() +
+        			" remoteAddress=" + requestMsg.getRemoteAddress().getAddress().getHostAddress());
         	return false;	// must configure link for server to reply
         }
 
@@ -1087,10 +1084,20 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 				if (bindingObjs != null) {
 					for (BindingObject bindingObj : bindingObjs) {
-						DdnsUpdater ddns = 
-							new DdnsUpdater(requestMsg, clientLink.getLink(), 
-									(BindingAddress) bindingObj, fqdn, doForwardUpdate, false);
+						BindingAddress bindingAddr = (BindingAddress) bindingObj;
+	        			AddressBindingPool pool = 
+	        				(AddressBindingPool) bindingAddr.getBindingPool();
+						DdnsUpdater ddns =
+							new DdnsUpdater(requestMsg, clientLink.getLink(), pool,
+									bindingAddr.getIpAddress(), fqdn, 
+									requestMsg.getDhcpClientIdOption().getDuid(),
+									pool.getValidLifetime(),
+									doForwardUpdate, false);
 						ddns.processUpdates();
+
+//	public DdnsUpdater(DhcpMessageInterface requestMsg, Link clientLink, AddressPoolInterface pool,
+//			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
+//			boolean doForwardUpdate, boolean isDelete						
 					}
 				}
 				try {

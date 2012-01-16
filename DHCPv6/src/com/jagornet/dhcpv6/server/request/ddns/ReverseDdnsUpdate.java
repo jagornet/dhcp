@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.server.request.ddns;
 
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import org.slf4j.Logger;
@@ -52,6 +53,8 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 
 	/** The rev zone bit length. */
 	protected int revZoneBitLength = 64;	// default
+	
+	protected int v4RevZoneBitLength = 24;
 	
 	/**
 	 * Instantiates a new reverse ddns update.
@@ -84,16 +87,20 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		update.add(ptr);
 
 		if (log.isDebugEnabled()) {
-			log.debug("Sending DDNS update:\n" + update.toString());
+			log.debug("Sending reverse DDNS update (replace) to server=" + server + ":\n" + 
+					update.toString());
 		}
 		else if (log.isInfoEnabled()) {
-			log.info("Sending DDNS update (replace): " + ptr.toString());
+			log.info("Sending reverse DDNS update (replace): " + ptr.toString());
 		}
 		Message response = res.send(update);
 
-		if (response.getRcode() != Rcode.NOERROR) {
-			log.error("Failed to update REVERSE RRSet: " +
-					Rcode.string(response.getRcode()));
+		if (response.getRcode() == Rcode.NOERROR) {
+			log.info("Reverse DDNS update (replace) succeeded: " + ptr.toString());
+		}
+		else {
+			log.error("Reverse DDNS update (replace) failed (rcode=" +
+					Rcode.string(response.getRcode()) + "): " + ptr.toString());			
 		}
 	}
 	
@@ -115,16 +122,20 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		update.delete(ptr);
 
 		if (log.isDebugEnabled()) {
-			log.debug("Sending DDNS update:\n" + update.toString());
+			log.debug("Sending reverse DDNS update (delete) to server=" + server + ":\n" + 
+					update.toString());
 		}
 		else if (log.isInfoEnabled()) {
-			log.info("Sending DDNS update (delete): " + ptr.toString());
+			log.info("Sending reverse DDNS update (delete): " + ptr.toString());
 		}
 		Message response = res.send(update);
 
-		if (response.getRcode() != Rcode.NOERROR) {
-			log.error("Failed to update REVERSE RRSet: " +
-					Rcode.string(response.getRcode()));
+		if (response.getRcode() == Rcode.NOERROR) {
+			log.info("Reverse DDNS update (delete) succeeded: " + ptr.toString());
+		}
+		else {
+			log.error("Reverse DDNS update (delete) failed (rcode=" +
+					Rcode.string(response.getRcode()) + "): " + ptr.toString());			
 		}
 	}
 	
@@ -133,32 +144,48 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 	 * 
 	 * @return the string
 	 */
-	private String buildReverseIpString()
+	protected String buildReverseIpString()
 	{
-		String[] flds = inetAddr.getHostAddress().split(":");
-		if (flds.length != 8) {
-			throw new IllegalStateException("Invalid IPv6 Address: " + 
-					inetAddr.getHostAddress());
-		}
-		StringBuilder expanded = new StringBuilder();
-		for (int i=0; i<8; i++) {
-			StringBuilder sb = new StringBuilder();
-			if (flds[i].length() < 4) {
-				for (int j=0; j<4-flds[i].length(); j++) {
-					sb.append('0');
-				}
+		if (inetAddr instanceof Inet6Address) {
+			String[] flds = inetAddr.getHostAddress().split(":");
+			if (flds.length != 8) {
+				throw new IllegalStateException("Invalid IPv6 Address: " + 
+						inetAddr.getHostAddress());
 			}
-			sb.append(flds[i]);
-			expanded.append(sb);
+			StringBuilder expanded = new StringBuilder();
+			for (int i=0; i<8; i++) {
+				StringBuilder sb = new StringBuilder();
+				if (flds[i].length() < 4) {
+					for (int j=0; j<4-flds[i].length(); j++) {
+						sb.append('0');
+					}
+				}
+				sb.append(flds[i]);
+				expanded.append(sb);
+			}
+			StringBuilder reversed = expanded.reverse();
+			StringBuilder revIp = new StringBuilder();
+			for (int i=0; i<reversed.length(); i++) {
+				revIp.append(reversed.substring(i, i+1));
+				revIp.append('.');
+			}
+			revIp.append("ip6.arpa.");
+			return revIp.toString();
 		}
-		StringBuilder reversed = expanded.reverse();
-		StringBuilder revIp = new StringBuilder();
-		for (int i=0; i<reversed.length(); i++) {
-			revIp.append(reversed.substring(i, i+1));
-			revIp.append('.');
+		else {
+			String[] flds = inetAddr.getHostAddress().split("\\.");
+			if (flds.length != 4) {
+				throw new IllegalStateException("Invalid IPv4 Address: " + 
+						inetAddr.getHostAddress());
+			}
+			StringBuilder revIp = new StringBuilder();
+			for (int i=3; i>=0; i--) {
+				revIp.append(flds[i]);
+				revIp.append('.');
+			}
+			revIp.append("in-addr.arpa.");
+			return revIp.toString();
 		}
-		revIp.append("ip6.arpa.");
-		return revIp.toString();
 	}
 	
 	/**
@@ -177,8 +204,26 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 			_zone = new Name(zone);
 		}
 		else {
-			int p = 64 - (revZoneBitLength/2);
-			_zone = new Name(revIp.substring(p)); 
+			if (inetAddr instanceof Inet6Address) {
+				int p = 64 - (revZoneBitLength/2);
+				if (p < 0) 
+					p = 64;
+				_zone = new Name(revIp.substring(p));
+			}
+			else {
+				_zone = new Name(revIp);
+				int c = 0;
+				if (v4RevZoneBitLength <= 8)
+					c = 3;
+				else if (v4RevZoneBitLength <= 16)
+					c = 2;
+				else
+					c = 1;
+				for (int i=0; i<c; i++) {
+					int p = _zone.toString().indexOf('.');
+					_zone = new Name(_zone.toString().substring(p+1));
+				}
+			}
 		}
 		return _zone;
 	}
@@ -200,4 +245,13 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 	public void setRevZoneBitLength(int revZoneBitLength) {
 		this.revZoneBitLength = revZoneBitLength;
 	}
+
+	public int getV4RevZoneBitLength() {
+		return v4RevZoneBitLength;
+	}
+
+	public void setV4RevZoneBitLength(int v4RevZoneBitLength) {
+		this.v4RevZoneBitLength = v4RevZoneBitLength;
+	}
+	
 }
