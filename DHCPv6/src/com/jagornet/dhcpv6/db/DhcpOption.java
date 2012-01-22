@@ -25,6 +25,8 @@
  */
 package com.jagornet.dhcpv6.db;
 
+import com.jagornet.dhcpv6.util.Util;
+
 /**
  * The DhcpOption POJO class for the DHCPOPTION database table.
  * 
@@ -146,5 +148,10 @@ public class DhcpOption
 	 */
 	public void setIaPrefixId(Long iaPrefixId) {
 		this.iaPrefixId = iaPrefixId;
+	}
+	
+	public String toString() {
+		return "DhcpOption: code=" + getCode() + 
+				" value=" + Util.toHexString(getValue());
 	}
 }

@@ -264,7 +264,9 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     		}
     		if (!bindings.isEmpty()) {
     			populateReplyMsgOptions(clientLink);
-    			processDdnsUpdates();
+    			if (rapidCommit) {
+    				processDdnsUpdates();
+    			}
     		}
     	}    	
 		return sendReply;

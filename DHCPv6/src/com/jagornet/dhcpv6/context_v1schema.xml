@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC
+	"-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="transactionManager" 
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref  bean="dataSource"/>
+		</property>
+	</bean>
+
+	<!--
+	    Note use of "inner bean" for target property.
+	    This ensures that there is only one instance of this
+	    bean in the factory, allowing us to use autowire
+	    by type if necessary.
+	-->
+	<bean id="iaManager" 
+		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    
+		<property name="transactionManager">
+			<ref local="transactionManager"/>
+		</property>
+    
+		<property name="target">
+			<bean class="com.jagornet.dhcpv6.db.JdbcIaManager">
+				<property name="dataSource">
+					<ref bean="dataSource"/>
+				</property>
+				<property name="iaDao">
+					<ref bean="identityAssocDAO"/>
+				</property>
+				<property name="iaAddrDao">
+					<ref bean="iaAddressDAO"/>
+				</property>
+				<property name="iaPrefixDao">
+					<ref bean="iaPrefixDAO"/>
+				</property>
+				<property name="dhcpOptDao">
+					<ref bean="dhcpOptionDAO"/>
+				</property>
+			</bean>
+		</property>
+
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+
+	</bean>
+
+</beans>

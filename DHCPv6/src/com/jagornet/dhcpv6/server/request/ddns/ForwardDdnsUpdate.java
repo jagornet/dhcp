@@ -70,8 +70,10 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.ddns.DdnsUpdate#sendAdd()
 	 */
-	public void sendAdd() throws TextParseException, IOException
+	public boolean sendAdd() throws TextParseException, IOException
 	{
+		boolean rc = false;
+		
 		Resolver res = createResolver();
 		
 		Name owner = new Name(fqdn);
@@ -102,6 +104,7 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 
 		if (response.getRcode() == Rcode.NOERROR) {
 			log.info("Forward DDNS update (not-exist/add) succeeded: " + a_aaaa.toString());
+			rc = true;
 		}
 		else {
 			if (response.getRcode() == Rcode.YXDOMAIN) {
@@ -120,6 +123,7 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 				response = res.send(update);
 				if (response.getRcode() == Rcode.NOERROR) {
 					log.info("Forward DDNS update (exist/update) succeeded: " + a_aaaa.toString());
+					rc = true;
 				}
 				else {
 					log.error("Forward DDNS update (exist/update) failed (rcode=" +
@@ -131,13 +135,16 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 						Rcode.string(response.getRcode()) + "): " + a_aaaa.toString());
 			}
 		}
+		return rc;
 	}
 	
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.ddns.DdnsUpdate#sendDelete()
 	 */
-	public void sendDelete() throws TextParseException, IOException
+	public boolean sendDelete() throws TextParseException, IOException
 	{
+		boolean rc = false;
+		
 		Resolver res = createResolver();
 		
 		Name owner = new Name(fqdn);		
@@ -181,6 +188,7 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 			response = res.send(update);
 			if (response.getRcode() == Rcode.NOERROR) {
 				log.info("Forward DDNS update (not-exist/delete) succeeded: " + owner.toString());
+				rc = true;
 			}
 			else {
 				log.error("Forward DDNS update (not-exist/delete) failed (rcode=" +
@@ -191,7 +199,7 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 			log.error("Forward DDNS update (exist/delete) failed (rcode=" +
 					Rcode.string(response.getRcode()) + "): " + a_aaaa.toString());			
 		}
-		
+		return rc;
 	}
 	
 	/**

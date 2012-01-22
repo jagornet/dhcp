@@ -120,6 +120,8 @@ public class DdnsUpdater implements Runnable
 	/** The is delete. */
 	private boolean isDelete;
 
+	private DdnsCallback callback;
+	
 	/**
 	 * Instantiates a new ddns updater.
 	 * 
@@ -132,9 +134,10 @@ public class DdnsUpdater implements Runnable
 	 */
 	public DdnsUpdater(Link clientLink, AddressPoolInterface pool,
 			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
-			boolean doForwardUpdate, boolean isDelete)
+			boolean doForwardUpdate, boolean isDelete,
+			DdnsCallback callback)
 	{
-		this(null, clientLink, pool, addr, fqdn, duid, lifetime, doForwardUpdate, isDelete);
+		this(null, clientLink, pool, addr, fqdn, duid, lifetime, doForwardUpdate, isDelete, callback);
 	}
 	
 	/**
@@ -149,7 +152,8 @@ public class DdnsUpdater implements Runnable
 	 */
 	public DdnsUpdater(DhcpMessageInterface requestMsg, Link clientLink, AddressPoolInterface pool,
 			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
-			boolean doForwardUpdate, boolean isDelete)
+			boolean doForwardUpdate, boolean isDelete,
+			DdnsCallback callback)
 	{
 		this.requestMsg = requestMsg;
 		this.duid = duid;
@@ -160,6 +164,7 @@ public class DdnsUpdater implements Runnable
 		this.lifetime = lifetime;
 		this.doForwardUpdate = doForwardUpdate;
 		this.isDelete = isDelete;
+		this.callback = callback;
 	}
 	
 	/**
@@ -191,9 +196,9 @@ public class DdnsUpdater implements Runnable
 				fwdUpdate.setTsigAlgorithm(fwdTsigAlgorithm);
 				fwdUpdate.setTsigKeyData(fwdTsigKeyData);
 				if (!isDelete)
-					fwdUpdate.sendAdd();
+					callback.fwdAddComplete(fwdUpdate.sendAdd());
 				else
-					fwdUpdate.sendDelete();
+					callback.fwdDeleteComplete(fwdUpdate.sendDelete());
 			}
 			ReverseDdnsUpdate revUpdate = new ReverseDdnsUpdate(fqdn, addr, duid);
 			revUpdate.setServer(revServer);
@@ -204,12 +209,16 @@ public class DdnsUpdater implements Runnable
 			revUpdate.setTsigAlgorithm(revTsigAlgorithm);
 			revUpdate.setTsigKeyData(revTsigKeyData);
 			if (!isDelete)
-				revUpdate.sendAdd();
+				callback.revAddComplete(revUpdate.sendAdd());
 			else
-				revUpdate.sendDelete();
+				callback.revDeleteComplete(revUpdate.sendDelete());
 		}
 		catch (Exception ex) {
 			log.error("Failure performing DDNS updates", ex);
+			callback.fwdAddComplete(false);
+			callback.fwdDeleteComplete(false);
+			callback.revAddComplete(false);
+			callback.revDeleteComplete(false);
 		}				
 	}
 	

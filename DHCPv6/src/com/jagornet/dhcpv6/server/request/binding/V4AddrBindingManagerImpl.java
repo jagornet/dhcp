@@ -45,7 +45,9 @@ import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
+import com.jagornet.dhcpv6.server.request.ddns.DhcpV4DdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.DomainNameOptionType;
@@ -393,13 +395,11 @@ public class V4AddrBindingManagerImpl
 	}
 
 	@Override
-	protected void ddnsDelete(IaAddress iaAddr) {
+	protected void ddnsDelete(IdentityAssoc ia, IaAddress iaAddr) {
     	DhcpV4ClientFqdnOption clientFqdnOption = null;
     	try {
-	    	long identityAssocId = iaAddr.getIdentityAssocId();
-	    	IdentityAssoc ia = iaMgr.getIA(identityAssocId);
-	    	if (ia != null) {
-	    		List<DhcpOption> opts = iaMgr.findDhcpOptionsByIdentityAssocId(identityAssocId);
+	    	if ((ia != null) && (iaAddr != null)) {
+	    		Collection<DhcpOption> opts = iaAddr.getDhcpOptions();
 	    		if (opts != null) {
 	    			for (DhcpOption opt : opts) {
 	    				if (opt.getCode() == DhcpConstants.V4OPTION_CLIENT_FQDN) {
@@ -420,13 +420,20 @@ public class V4AddrBindingManagerImpl
 				        		V4BindingAddress bindingAddr =
 				        			buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
 				        		if (bindingAddr != null) {
+				        			
 				        			V4AddressBindingPool pool = 
 				        				(V4AddressBindingPool) bindingAddr.getBindingPool();
+				        			
+				        			DdnsCallback ddnsComplete = 
+				        				new DhcpV4DdnsComplete(bindingAddr, clientFqdnOption);
+				        			
 									DdnsUpdater ddns =
 										new DdnsUpdater(link.getLink(), pool,
 												bindingAddr.getIpAddress(), fqdn, ia.getDuid(),
 												pool.getValidLifetime(),
-												clientFqdnOption.getUpdateAaaaBit(), true);
+												clientFqdnOption.getUpdateAaaaBit(), true,
+												ddnsComplete);
+									
 									ddns.processUpdates();
 				        		}
 				        		else {
@@ -451,9 +458,6 @@ public class V4AddrBindingManagerImpl
 	    		else {
 	    			log.warn("No Client FQDN option in current binding.  No DDNS deletes performed.");
 	    		}
-	    	}
-	    	else {
-	    		log.error("Failed to get IdentityAssoc id=" + identityAssocId);
 	    	}
     	}
     	catch (Exception ex) {

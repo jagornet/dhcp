@@ -85,34 +85,12 @@ public interface IaManager
 	public void deleteIA(IdentityAssoc ia);
 	
 	/**
-	 * Add dhcp option to an existing IdentityAssoc.
-	 * 
-	 * @param ia the IdentityAssoc
-	 * @param option the DhcpOption to add
-	 */
-	public void addDhcpOption(IdentityAssoc ia, DhcpOption option);
-	
-	/**
-	 * Update dhcp option.
-	 * 
-	 * @param option the DhcpOption to update
-	 */
-	public void updateDhcpOption(DhcpOption option);
-		
-	/**
-	 * Delete dhcp option.
-	 * 
-	 * @param option the DhcpOption to delete
-	 */
-	public void deleteDhcpOption(DhcpOption option);
-	
-	/**
 	 * Get an IdentityAssoc by id.
 	 * 
 	 * @param id the ID of the IdentityAssoc to get
 	 * @return the IdentityAssoc for the given ID
 	 */
-	public IdentityAssoc getIA(long id);
+//	public IdentityAssoc getIA(long id);
 	
 	/**
 	 * Locate an IdentityAssoc object by the key tuple duid-iaid-iatype.
@@ -128,7 +106,14 @@ public interface IaManager
 	public IdentityAssoc findIA(byte[] duid, byte iatype, long iaid);
 	
 	/**
-	 * Find an IdentityAssoc for the given IPv6 address.  That is,
+	 * Locate an IdentityAssoc object by IaAddress
+	 * @param iaAddress
+	 * @return
+	 */
+	public IdentityAssoc findIA(IaAddress iaAddress);
+	
+	/**
+	 * Find an IdentityAssoc for the given IP address.  That is,
 	 * locate the IaAddress or IaPrefix for the address, and then
 	 * locate the IdentityAssoc that contains that address object.
 	 * 
@@ -137,6 +122,36 @@ public interface IaManager
 	 * @return the identity assoc
 	 */
 	public IdentityAssoc findIA(InetAddress inetAddr);
+
+	/**
+	 * Find expired IAs.  That is, find all the expired IaAddresses
+	 * and for each IaAddress, wrap it inside a corresponding
+	 * IdentityAssoc to be returned to the caller.
+	 * 
+	 * @param iatype
+	 * @return
+	 */
+	public List<IdentityAssoc> findExpiredIAs(byte iatype);
+	
+	/**
+	 * Save dhcp option associated with an iaAddr.  Add the option
+	 * if it does not exist, otherwise update the existing option
+	 * only if the value has actually changed.
+	 * 
+	 * @param iaAddr
+	 * @param option
+	 */
+	public void saveDhcpOption(IaAddress iaAddr, 
+								com.jagornet.dhcpv6.option.base.BaseDhcpOption option);
+
+	/**
+	 * Delete dhcp option associated with an iaAddr.
+	 * 
+	 * @param iaAddr
+	 * @param option
+	 */
+	public void deleteDhcpOption(IaAddress iaAddr, 
+								com.jagornet.dhcpv6.option.base.BaseDhcpOption option);
 	
 	/**
 	 * Update an IaAddress.
@@ -219,14 +234,5 @@ public interface IaManager
 	 * @param ranges a list of IP address ranges to reconcile against
 	 */
 	public void reconcileIaAddresses(List<Range> ranges);	
-
-	/**
-	 * Find the DHCP options for a given IdentityAssocId.
-	 * 
-	 * @param identityAssocId the IdentityAssocId
-	 * 
-	 * @return the list of DhcpOption objects for the IdentityAssocId
-	 */
-	public List<DhcpOption> findDhcpOptionsByIdentityAssocId(long identityAssocId);
 	
 }

@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.db;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -179,6 +180,38 @@ public class IaAddress
 	 */
 	public void setIdentityAssocId(Long identityAssocId) {
 		this.identityAssocId = identityAssocId;
+	}
+	
+	/**
+	 * Get a specific DHCP option.
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public DhcpOption getDhcpOption(int code)
+	{
+		if (dhcpOptions != null) {
+			for (DhcpOption dhcpOption : dhcpOptions) {
+				if (dhcpOption.getCode() == code)
+					return dhcpOption;
+			}
+		}
+		return null;
+	}
+	
+	public void setDhcpOption(DhcpOption newOption)
+	{
+		if (dhcpOptions == null) {
+			dhcpOptions = new ArrayList<DhcpOption>();
+		}
+		// first remove the option, if it exists
+		for (DhcpOption dhcpOption : dhcpOptions) {
+			if (dhcpOption.getCode() == newOption.getCode()) {
+				dhcpOptions.remove(dhcpOption);
+				break;
+			}
+		}
+		dhcpOptions.add(newOption);
 	}
 	
 	/**

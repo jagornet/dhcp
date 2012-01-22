@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.db;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -32,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -113,6 +115,12 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 				}
 			}
 		}
+	}
+	
+	public List<IdentityAssoc> findExpiredIAs(byte iatype)
+	{
+		List<DhcpLease> leases = findExpiredLeases(iatype);
+		return toIdentityAssocs(leases);
 	}
 	
 	/**
@@ -206,46 +214,123 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		});
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findDhcpOptionsByIdentityAssocId(long)
+	/**
+	 * Update ia options.
 	 */
-	@Override
-	public List<DhcpOption> findDhcpOptionsByIdentityAssocId(long identityAssocId) {
-		//TODO
-		return null;
+	protected void updateIaOptions(final InetAddress inetAddr, 
+									final Collection<DhcpOption> iaOptions)
+	{
+		getJdbcTemplate().update("update dhcplease" +
+				" set ia_options=?" +
+				" where ipaddress=?",
+				new PreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps)
+					throws SQLException {
+				ps.setBytes(1, encodeOptions(iaOptions));
+				ps.setBytes(2, inetAddr.getAddress());
+			}
+		});
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#addDhcpOption(com.jagornet.dhcpv6.db.IdentityAssoc, com.jagornet.dhcpv6.db.DhcpOption)
+	/**
+	 * Update ipaddr options.
 	 */
-	public void addDhcpOption(IdentityAssoc ia, DhcpOption option)
+	protected void updateIpAddrOptions(final InetAddress inetAddr,
+									final Collection<DhcpOption> ipAddrOptions)
 	{
-		//TODO
+		getJdbcTemplate().update("update dhcplease" +
+				" set ipaddr_options=?" +
+				" where ipaddress=?",
+				new PreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps)
+					throws SQLException {
+				ps.setBytes(1, encodeOptions(ipAddrOptions));
+				ps.setBytes(2, inetAddr.getAddress());
+			}
+		});
+	}
+
+	public void saveDhcpOption(IaAddress iaAddr, 
+							   com.jagornet.dhcpv6.option.base.BaseDhcpOption baseOption)
+	{
+		try {
+			byte[] newVal = baseOption.encode().array();
+			// don't store the option code, start with length to
+			// simplify decoding when retrieving from database
+			if (baseOption.isV4()) {
+				newVal = Arrays.copyOfRange(newVal, 1, newVal.length);
+			}
+			else {
+				newVal = Arrays.copyOfRange(newVal, 2, newVal.length);
+			}
+//			DhcpOption dbOption = iaAddr.getDhcpOption(baseOption.getCode());
+			DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
+			if (dbOption == null) {
+				dbOption = new com.jagornet.dhcpv6.db.DhcpOption();
+				dbOption.setCode(baseOption.getCode());
+				dbOption.setValue(newVal);
+				setDhcpOption(iaAddr, dbOption);
+			}
+			else {
+				if(!Arrays.equals(dbOption.getValue(), newVal)) {
+					dbOption.setValue(newVal);
+					setDhcpOption(iaAddr, dbOption);
+				}
+			}
+		} 
+		catch (IOException ex) {
+			log.error("Failed to update binding with option", ex);
+		}
+		
+	}
+
+	public void deleteDhcpOption(IaAddress iaAddr, 
+							   com.jagornet.dhcpv6.option.base.BaseDhcpOption baseOption)
+	{
+		DhcpLease lease = findDhcpLeaseForInetAddr(iaAddr.getIpAddress());
+		if (lease != null) {
+			Collection<DhcpOption> iaAddrOptions = lease.getIaAddrDhcpOptions();
+			if (iaAddrOptions != null) {
+				boolean deleted = false;
+				for (DhcpOption iaAddrOption : iaAddrOptions) {
+					if (iaAddrOption.getCode() == baseOption.getCode()) {
+						iaAddrOptions.remove(iaAddrOption);
+						deleted = true;
+						break;
+					}
+				}
+				if (deleted) {
+					updateIpAddrOptions(iaAddr.getIpAddress(), iaAddrOptions);
+				}
+			}
+		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#updateDhcpOption(com.jagornet.dhcpv6.db.DhcpOption)
-	 */
-	public void updateDhcpOption(DhcpOption option)
+	protected DhcpOption findIaAddressOption(IaAddress iaAddr,
+			com.jagornet.dhcpv6.option.base.BaseDhcpOption baseOption) 
 	{
-		//TODO
+		DhcpOption dbOption = null;
+		DhcpLease lease = findDhcpLeaseForInetAddr(iaAddr.getIpAddress());
+		if (lease != null) {
+			Collection<DhcpOption> iaAddrOptions = lease.getIaAddrDhcpOptions();
+			if (iaAddrOptions != null) {
+				for (DhcpOption iaAddrOption : iaAddrOptions) {
+					if (iaAddrOption.getCode() == baseOption.getCode()) {
+						dbOption = iaAddrOption;
+						break;
+					}
+				}
+			}
+		}
+		return dbOption;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#deleteDhcpOption(com.jagornet.dhcpv6.db.DhcpOption)
-	 */
-	public void deleteDhcpOption(DhcpOption option)
+	protected void setDhcpOption(IaAddress iaAddr, DhcpOption option)
 	{
-		//TODO
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#getIA(long)
-	 */
-	public IdentityAssoc getIA(long id)
-	{
-		//TODO
-		return null;
+		iaAddr.setDhcpOption(option);
+		updateIpAddrOptions(iaAddr.getIpAddress(), iaAddr.getDhcpOptions());
 	}
 
 	/**
@@ -274,6 +359,38 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
                 new DhcpLeaseRowMapper());
 	}
 
+	/**
+	 * Find dhcp lease for InetAddr.
+	 *
+	 * @param inetAddr the InetAddr
+	 * @return the DhcpLease
+	 */
+	protected DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr)
+	{
+        List<DhcpLease> leases = getJdbcTemplate().query(
+                "select * from dhcplease" +
+                " where ipaddress = ?",
+                new PreparedStatementSetter() {
+            		@Override
+            		public void setValues(PreparedStatement ps) throws SQLException {
+            			ps.setBytes(1, inetAddr.getAddress());
+            		}
+            	},
+                new DhcpLeaseRowMapper());
+        if ((leases != null) && (leases.size() > 0)) {
+        	if (leases.size() == 1) {
+        		return leases.get(0);
+        	}
+        	else {
+        		//TODO: this really should be impossible because of the unique
+        		//		constraint on the IP address
+        		log.error("Found more than one lease for IP=" + 
+        					inetAddr.getHostAddress());
+        	}
+        }
+        return null;
+	}
+
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#findIA(byte[], byte, long)
 	 */
@@ -281,6 +398,13 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	{
         List<DhcpLease> leases = findDhcpLeasesForIA(duid, iatype, iaid);        
         return toIdentityAssoc(leases);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findIA(com.jagornet.dhcpv6.db.IaAddress)
+	 */
+	public IdentityAssoc findIA(IaAddress iaAddress) {
+		return findIA(iaAddress.getIpAddress(), true);
 	}
 
 	/* (non-Javadoc)
@@ -300,25 +424,19 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	 */
 	public IdentityAssoc findIA(final InetAddress inetAddr, boolean allBindings)
 	{
-        DhcpLease lease = getJdbcTemplate().query(
-                "select * from dhcplease" +
-                " where ipaddress = ?",
-                new PreparedStatementSetter() {
-            		@Override
-            		public void setValues(PreparedStatement ps) throws SQLException {
-            			ps.setBytes(1, inetAddr.getAddress());
-            		}
-            	},
-                new DhcpLeaseResultSetExtractor());
-        
-        // use a set here, so that if we are getting all bindings, then we don't
-        // include the lease found above again in the returned collection
-        Set<DhcpLease> leases = new LinkedHashSet<DhcpLease>();
-        leases.add(lease);
-        if (allBindings) {
-        	leases.addAll(findDhcpLeasesForIA(lease.getDuid(), lease.getIatype(), lease.getIaid()));
+		IdentityAssoc ia = null;
+        DhcpLease lease = findDhcpLeaseForInetAddr(inetAddr);
+        if (lease != null) {
+	        // use a set here, so that if we are getting all bindings, then we don't
+	        // include the lease found above again in the returned collection
+	        Set<DhcpLease> leases = new LinkedHashSet<DhcpLease>();
+	        leases.add(lease);
+	        if (allBindings) {
+	        	leases.addAll(findDhcpLeasesForIA(lease.getDuid(), lease.getIatype(), lease.getIaid()));
+	        }
+        	ia = toIdentityAssoc(leases);
         }
-        return toIdentityAssoc(leases);
+        return ia;
 	}
 	
 	/* (non-Javadoc)
@@ -441,7 +559,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	public List<IaAddress> findUnusedIaAddresses(final InetAddress startAddr, final InetAddress endAddr)
 	{
 		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
-        return getJdbcTemplate().query(
+        List<DhcpLease> leases = getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where ((state=" + IaAddress.ADVERTISED +
                 " and starttime <= ?)" +
@@ -458,14 +576,20 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 						ps.setBytes(3, endAddr.getAddress());
 					}                	
                 },
-                new IaAddrRowMapper());
+                new DhcpLeaseRowMapper());
+		return toIaAddresses(leases);
 	}
 	
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaAddresses(byte)
 	 */
 	@Override
-	public List<IaAddress> findExpiredIaAddresses(final byte iatype) {
+	public List<IaAddress> findExpiredIaAddresses(byte iatype) {
+		List<DhcpLease> leases = findExpiredLeases(iatype);
+		return toIaAddresses(leases);
+	}
+
+	protected List<DhcpLease> findExpiredLeases(final byte iatype) {
         return getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where iatype = ?" +
@@ -478,7 +602,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
             			ps.setTimestamp(2, ts, Util.GMT_CALENDAR);
             		}
                 },
-                new IaAddrRowMapper());
+                new DhcpLeaseRowMapper());
 	}
 	
 	/* (non-Javadoc)
@@ -487,7 +611,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	@Override
 	public List<IaPrefix> findUnusedIaPrefixes(final InetAddress startAddr, final InetAddress endAddr) {
 		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
-        return getJdbcTemplate().query(
+        List<DhcpLease> leases = getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where ((state=" + IaPrefix.ADVERTISED +
                 " and starttime <= ?)" +
@@ -504,7 +628,8 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 						ps.setBytes(3, endAddr.getAddress());
 					}                	
                 },
-                new IaPrefixRowMapper());
+                new DhcpLeaseRowMapper());
+		return toIaPrefixes(leases);
 	}
 	
 	/* (non-Javadoc)
@@ -512,7 +637,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	 */
 	@Override
 	public List<IaPrefix> findExpiredIaPrefixes() {
-        return getJdbcTemplate().query(
+        List<DhcpLease> leases = getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where iatype = " + IdentityAssoc.PD_TYPE +
                 " and validendtime < ? order by validendtime",
@@ -523,7 +648,8 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
             			ps.setTimestamp(1, ts, Util.GMT_CALENDAR);
             		}
                 },
-                new IaPrefixRowMapper());
+                new DhcpLeaseRowMapper());
+		return toIaPrefixes(leases);
 	}
 	
 	/* (non-Javadoc)
@@ -554,7 +680,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	 * @param leases the leases
 	 * @return the identity assoc
 	 */
-	public IdentityAssoc toIdentityAssoc(Collection<DhcpLease> leases)
+	protected IdentityAssoc toIdentityAssoc(Collection<DhcpLease> leases)
 	{
 		IdentityAssoc ia = null;
 		if ((leases != null) && !leases.isEmpty()) {
@@ -577,6 +703,34 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		}
 		return ia;
 	}
+	
+	protected List<IdentityAssoc> toIdentityAssocs(Collection<DhcpLease> leases)
+	{
+		List<IdentityAssoc> ias = null;
+		if ((leases != null) && !leases.isEmpty()) {
+			ias = new ArrayList<IdentityAssoc>();
+			// for each lease, create a separate IdentityAssoc
+			for (DhcpLease lease : leases) {
+				Collection<DhcpLease> _leases = new ArrayList<DhcpLease>();
+				_leases.add(lease);
+				IdentityAssoc ia = toIdentityAssoc(_leases);
+				ias.add(ia);
+			}
+		}
+		return ias;
+	}
+
+	protected List<IaAddress> toIaAddresses(List<DhcpLease> leases) 
+	{
+		List<IaAddress> addrs = null;
+        if (leases != null) {
+        	addrs = new ArrayList<IaAddress>();
+        	for (DhcpLease dhcpLease : leases) {
+				addrs.add(this.toIaAddress(dhcpLease));
+			}
+        }
+        return addrs;
+	}
 
 	/**
 	 * To ia address.
@@ -584,7 +738,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	 * @param lease the lease
 	 * @return the ia address
 	 */
-	public IaAddress toIaAddress(DhcpLease lease)
+	protected IaAddress toIaAddress(DhcpLease lease)
 	{
 		IaAddress iaAddr = new IaAddress();
 		iaAddr.setIpAddress(lease.getIpAddress());
@@ -595,6 +749,38 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 		iaAddr.setDhcpOptions(lease.getIaAddrDhcpOptions());
 		return iaAddr;
 	}
+
+
+	protected List<IaPrefix> toIaPrefixes(List<DhcpLease> leases) 
+	{
+		List<IaPrefix> prefixes = null;
+        if (leases != null) {
+        	prefixes = new ArrayList<IaPrefix>();
+        	for (DhcpLease dhcpLease : leases) {
+				prefixes.add(toIaPrefix(dhcpLease));
+			}
+        }
+        return prefixes;
+	}
+
+	/**
+	 * To ia prefix.
+	 *
+	 * @param lease the lease
+	 * @return the ia prefix
+	 */
+	protected IaPrefix toIaPrefix(DhcpLease lease)
+	{
+		IaPrefix iaPrefix = new IaPrefix();
+		iaPrefix.setIpAddress(lease.getIpAddress());
+		iaPrefix.setPrefixLength(lease.getPrefixLength());
+		iaPrefix.setState(lease.getState());
+		iaPrefix.setStartTime(lease.getStartTime());
+		iaPrefix.setPreferredEndTime(lease.getPreferredEndTime());
+		iaPrefix.setValidEndTime(lease.getValidEndTime());
+		iaPrefix.setDhcpOptions(lease.getIaAddrDhcpOptions());
+		return iaPrefix;
+	}
 	
 	/**
 	 * To dhcp leases.
@@ -602,7 +788,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	 * @param ia the ia
 	 * @return the list
 	 */
-	public List<DhcpLease> toDhcpLeases(IdentityAssoc ia)
+	protected List<DhcpLease> toDhcpLeases(IdentityAssoc ia)
 	{
 		if (ia != null) {
 			Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
@@ -628,7 +814,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 	 * @param iaAddr the ia addr
 	 * @return the dhcp lease
 	 */
-	public DhcpLease toDhcpLease(IdentityAssoc ia, IaAddress iaAddr)
+	protected DhcpLease toDhcpLease(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		DhcpLease lease = new DhcpLease();
 		lease.setDuid(ia.getDuid());
@@ -738,60 +924,5 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
 			lease.setIaAddrDhcpOptions(decodeOptions(rs.getBytes("ipaddr_options")));
             return lease;
 		};
-    }
-
-    /**
-     * The Class IaAddrRowMapper.
-     */
-    protected class IaAddrRowMapper implements RowMapper<IaAddress> 
-    {
-    	
-	    /* (non-Javadoc)
-	     * @see org.springframework.jdbc.core.simple.RowMapper#mapRow(java.sql.ResultSet, int)
-	     */
-	    @Override
-        public IaAddress mapRow(ResultSet rs, int rowNum) throws SQLException {
-        	IaAddress iaAddr = new IaAddress();
-        	try {
-				iaAddr.setIpAddress(InetAddress.getByAddress(rs.getBytes("ipaddress")));
-			} 
-        	catch (UnknownHostException e) {
-        		// re-throw as SQLException
-				throw new SQLException("Unable to map ipaddress", e);
-			}
-			iaAddr.setState(rs.getByte("state"));
-			iaAddr.setStartTime(rs.getTimestamp("starttime", Util.GMT_CALENDAR));
-			iaAddr.setPreferredEndTime(rs.getTimestamp("preferredendtime", Util.GMT_CALENDAR));
-			iaAddr.setValidEndTime(rs.getTimestamp("validendtime", Util.GMT_CALENDAR));
-            return iaAddr;
-        }
-    }
-
-    /**
-     * The Class IaPrefixRowMapper.
-     */
-    protected class IaPrefixRowMapper implements RowMapper<IaPrefix> 
-    {
-    	
-	    /* (non-Javadoc)
-	     * @see org.springframework.jdbc.core.simple.RowMapper#mapRow(java.sql.ResultSet, int)
-	     */
-	    @Override
-        public IaPrefix mapRow(ResultSet rs, int rowNum) throws SQLException {
-        	IaPrefix iaPrefix = new IaPrefix();
-        	try {
-				iaPrefix.setIpAddress(InetAddress.getByAddress(rs.getBytes("ipaddress")));
-			} 
-        	catch (UnknownHostException e) {
-        		// re-throw as SQLException
-				throw new SQLException("Unable to map ipaddress", e);
-			}
-        	iaPrefix.setPrefixLength(rs.getShort("prefixlen"));
-			iaPrefix.setState(rs.getByte("state"));
-			iaPrefix.setStartTime(rs.getTimestamp("starttime", Util.GMT_CALENDAR));
-			iaPrefix.setPreferredEndTime(rs.getTimestamp("preferredendtime", Util.GMT_CALENDAR));
-			iaPrefix.setValidEndTime(rs.getTimestamp("validendtime", Util.GMT_CALENDAR));
-            return iaPrefix;
-        }
     }
 }

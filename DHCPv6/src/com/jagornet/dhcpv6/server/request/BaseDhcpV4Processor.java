@@ -25,11 +25,9 @@
  */
 package com.jagornet.dhcpv6.server.request;
 
-import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,7 +55,9 @@ import com.jagornet.dhcpv6.server.request.binding.Binding;
 import com.jagornet.dhcpv6.server.request.binding.BindingObject;
 import com.jagornet.dhcpv6.server.request.binding.V4AddressBindingPool;
 import com.jagornet.dhcpv6.server.request.binding.V4BindingAddress;
+import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
+import com.jagornet.dhcpv6.server.request.ddns.DhcpV4DdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.DomainNameOptionType;
 import com.jagornet.dhcpv6.xml.V4ClientFqdnOption;
@@ -474,40 +474,23 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 				if (bindingObjs != null) {
 					for (BindingObject bindingObj : bindingObjs) {
+						
 						V4BindingAddress bindingAddr = (V4BindingAddress) bindingObj;
+						
 	        			V4AddressBindingPool pool = 
 	        				(V4AddressBindingPool) bindingAddr.getBindingPool();
+	        			
+	        			DdnsCallback ddnsComplete = 
+	        				new DhcpV4DdnsComplete(bindingAddr, replyFqdnOption);
+	        			
 						DdnsUpdater ddns =
 							new DdnsUpdater(requestMsg, clientLink.getLink(), pool,
 									bindingAddr.getIpAddress(), fqdn, requestMsg.getChAddr(),
-									pool.getValidLifetime(),
-									doForwardUpdate, false);
+									pool.getValidLifetime(), doForwardUpdate, false,
+									ddnsComplete);
 						
 						ddns.processUpdates();
 					}
-				}
-				try {
-					byte[] newVal = replyFqdnOption.encode().array();
-					// don't store the option code, start with length to
-					// simplify decoding when retrieving from database
-					newVal = Arrays.copyOfRange(newVal, 1, newVal.length);
-					com.jagornet.dhcpv6.db.DhcpOption dbOption = 
-						binding.getDhcpOption(DhcpConstants.V4OPTION_CLIENT_FQDN);
-					if (dbOption == null) {
-						dbOption = new com.jagornet.dhcpv6.db.DhcpOption();
-						dbOption.setCode(replyFqdnOption.getCode());
-						dbOption.setValue(newVal);
-						dhcpServerConfig.getIaMgr().addDhcpOption(binding, dbOption);
-					}
-					else {
-						if(!Arrays.equals(dbOption.getValue(), newVal)) {
-							dbOption.setValue(newVal);
-							dhcpServerConfig.getIaMgr().updateDhcpOption(dbOption);
-						}
-					}
-				} 
-				catch (IOException ex) {
-					log.error("Failed to update binding with Client FQDN Option", ex);
 				}
 			}
 		}
@@ -519,7 +502,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		
 		return onLink;
 	}
-	
+		
     /**
      * The Class RecentMsgTimerTask.
      */

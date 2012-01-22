@@ -179,7 +179,7 @@ public class DhcpDeclineProcessor extends BaseDhcpProcessor
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 							for (BindingObject bindingObj : bindingObjs) {
-								bindingMgr.declineIaAddress((BindingAddress)bindingObj);
+								bindingMgr.declineIaAddress(binding, (BindingAddress)bindingObj);
 							}
 						}
 					}
@@ -207,7 +207,7 @@ public class DhcpDeclineProcessor extends BaseDhcpProcessor
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 							for (BindingObject bindingObj : bindingObjs) {
-								bindingMgr.declineIaAddress((BindingAddress)bindingObj);
+								bindingMgr.declineIaAddress(binding, (BindingAddress)bindingObj);
 							}
 						}
 					}

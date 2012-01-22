@@ -102,7 +102,9 @@ public class DhcpV6Server
     protected String configFilename = DEFAULT_CONFIG_FILENAME;
 
     /** The application context filename. */
-    public static String appContextFilename = "com/jagornet/dhcpv6/context.xml";
+    public static String APP_CONTEXT_FILENAME = "com/jagornet/dhcpv6/context.xml";
+    public static String APP_CONTEXT_V1SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_v1schema.xml";
+    public static String APP_CONTEXT_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_v2schema.xml";    
     
     /** The server port number. */
     protected int portNumber = DhcpConstants.SERVER_PORT;
@@ -176,12 +178,21 @@ public class DhcpV6Server
         	throw new IllegalStateException("Failed to initialize server configuration file: " +
         			configFilename);
         }
-        
-        log.info("Loading application context: " + appContextFilename);
-		context = new ClassPathXmlApplicationContext(appContextFilename);
+
+		int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DHCP_DATABASE_SCHEMA_VERSION);
+
+        String appContext[] = null;
+        if (schemaVersion <= 1) {
+        	appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_V1SCHEMA_FILENAME };
+        }
+        else {
+        	appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_V2SCHEMA_FILENAME };
+        }
+        log.info("Loading application context: " + Arrays.toString(appContext));
+		context = new ClassPathXmlApplicationContext(appContext);
 		if (context == null) {
 			throw new IllegalStateException("Failed to initialize application context: " +
-        			appContextFilename);
+        			appContext);
 		}
 		log.info("Application context loaded.");
 		
@@ -190,7 +201,6 @@ public class DhcpV6Server
 			throw new IllegalStateException("Failed to initialize DataSource");
 		}
 		
-		int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DHCP_DATABASE_SCHEMA_VERSION);
 		DbSchemaManager.validateSchema(dataSource, schemaVersion);
 		
 		log.info("Loading managers from context...");

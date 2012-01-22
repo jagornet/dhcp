@@ -71,8 +71,10 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.ddns.DdnsUpdate#sendAdd()
 	 */
-	public void sendAdd() throws TextParseException, IOException
+	public boolean sendAdd() throws TextParseException, IOException
 	{
+		boolean rc = false;
+		
 		Resolver res = createResolver();
 
 		String revIp = buildReverseIpString();
@@ -97,18 +99,22 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 
 		if (response.getRcode() == Rcode.NOERROR) {
 			log.info("Reverse DDNS update (replace) succeeded: " + ptr.toString());
+			rc = true;
 		}
 		else {
 			log.error("Reverse DDNS update (replace) failed (rcode=" +
 					Rcode.string(response.getRcode()) + "): " + ptr.toString());			
 		}
+		return rc;
 	}
 	
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.ddns.DdnsUpdate#sendDelete()
 	 */
-	public void sendDelete() throws TextParseException, IOException
+	public boolean sendDelete() throws TextParseException, IOException
 	{
+		boolean rc = false;
+		
 		Resolver res = createResolver();
 
 		String revIp = buildReverseIpString();
@@ -132,11 +138,13 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 
 		if (response.getRcode() == Rcode.NOERROR) {
 			log.info("Reverse DDNS update (delete) succeeded: " + ptr.toString());
+			rc = true;
 		}
 		else {
 			log.error("Reverse DDNS update (delete) failed (rcode=" +
 					Rcode.string(response.getRcode()) + "): " + ptr.toString());			
 		}
+		return rc;
 	}
 	
 	/**

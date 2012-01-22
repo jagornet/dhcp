@@ -106,7 +106,7 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
 				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 				if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 					V4BindingAddress bindingAddr = (V4BindingAddress) bindingObjs.iterator().next();
-					bindingMgr.releaseIaAddress(bindingAddr);
+					bindingMgr.releaseIaAddress(binding, bindingAddr);
 				}
 				else {
 					log.error("No binding addresses in binding for client: " + 

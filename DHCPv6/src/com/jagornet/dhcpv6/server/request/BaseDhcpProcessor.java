@@ -25,11 +25,9 @@
  */
 package com.jagornet.dhcpv6.server.request;
 
-import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,7 +61,9 @@ import com.jagornet.dhcpv6.server.request.binding.BindingAddress;
 import com.jagornet.dhcpv6.server.request.binding.BindingObject;
 import com.jagornet.dhcpv6.server.request.binding.BindingPrefix;
 import com.jagornet.dhcpv6.server.request.binding.PrefixBindingPool;
+import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
+import com.jagornet.dhcpv6.server.request.ddns.DhcpDdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.AddressPool;
 import com.jagornet.dhcpv6.xml.ClientFqdnOption;
@@ -1084,44 +1084,24 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 				if (bindingObjs != null) {
 					for (BindingObject bindingObj : bindingObjs) {
+						
 						BindingAddress bindingAddr = (BindingAddress) bindingObj;
+						
 	        			AddressBindingPool pool = 
 	        				(AddressBindingPool) bindingAddr.getBindingPool();
+	        			
+	        			DdnsCallback ddnsComplete = 
+	        				new DhcpDdnsComplete(bindingAddr, replyFqdnOption);
+	        			
 						DdnsUpdater ddns =
 							new DdnsUpdater(requestMsg, clientLink.getLink(), pool,
 									bindingAddr.getIpAddress(), fqdn, 
 									requestMsg.getDhcpClientIdOption().getDuid(),
-									pool.getValidLifetime(),
-									doForwardUpdate, false);
+									pool.getValidLifetime(), doForwardUpdate, false,
+									ddnsComplete);
+						
 						ddns.processUpdates();
-
-//	public DdnsUpdater(DhcpMessageInterface requestMsg, Link clientLink, AddressPoolInterface pool,
-//			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
-//			boolean doForwardUpdate, boolean isDelete						
 					}
-				}
-				try {
-					byte[] newVal = replyFqdnOption.encode().array();
-					// don't store the option code, start with length to
-					// simplify decoding when retrieving from database
-					newVal = Arrays.copyOfRange(newVal, 2, newVal.length);
-					com.jagornet.dhcpv6.db.DhcpOption dbOption = 
-						binding.getDhcpOption(DhcpConstants.OPTION_CLIENT_FQDN);
-					if (dbOption == null) {
-						dbOption = new com.jagornet.dhcpv6.db.DhcpOption();
-						dbOption.setCode(replyFqdnOption.getCode());
-						dbOption.setValue(newVal);
-						dhcpServerConfig.getIaMgr().addDhcpOption(binding, dbOption);
-					}
-					else {
-						if(!Arrays.equals(dbOption.getValue(), newVal)) {
-							dbOption.setValue(newVal);
-							dhcpServerConfig.getIaMgr().updateDhcpOption(dbOption);
-						}
-					}
-				} 
-				catch (IOException ex) {
-					log.error("Failed to update binding with Client FQDN Option", ex);
 				}
 			}
 		}

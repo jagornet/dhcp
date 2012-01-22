@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.server.request.binding;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,6 +37,7 @@ import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * The Class BaseAddressBindingManager.
@@ -71,7 +73,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
      * 
      * @param iaAddr the released or expired IaAddress 
      */
-    protected abstract void ddnsDelete(IaAddress iaAddr);
+    protected abstract void ddnsDelete(IdentityAssoc ia, IaAddress iaAddr);
     
     protected abstract byte getIaType();
 	
@@ -82,10 +84,10 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
      * 
      * @param iaAddr the IaAddress to be released
      */
-	public void releaseIaAddress(IaAddress iaAddr)
+	public void releaseIaAddress(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		try {
-			ddnsDelete(iaAddr);
+			ddnsDelete(ia, iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
 				iaMgr.deleteIaAddr(iaAddr);
@@ -114,10 +116,10 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 	 * 
 	 * @param iaAddr the declined IaAddress.
 	 */
-	public void declineIaAddress(IaAddress iaAddr)
+	public void declineIaAddress(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		try {
-			ddnsDelete(iaAddr);
+			ddnsDelete(ia, iaAddr);
 			iaAddr.setStartTime(null);
 			iaAddr.setPreferredEndTime(null);
 			iaAddr.setValidEndTime(null);
@@ -134,11 +136,11 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 	 * 
 	 * @param iaAddr the ia addr
 	 */
-	public void expireIaAddress(IaAddress iaAddr)
+	public void expireIaAddress(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		try {
 			log.info("Expiring: " + iaAddr.toString());
-			ddnsDelete(iaAddr);
+			ddnsDelete(ia, iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
 				log.debug("Deleting expired address: " + iaAddr.getIpAddress());
@@ -168,12 +170,21 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 	 */
 	public void expireAddresses()
 	{
-		List<IaAddress> expiredAddrs = iaMgr.findExpiredIaAddresses(getIaType());
-		if ((expiredAddrs != null) && !expiredAddrs.isEmpty()) {
-			log.info("Found " + expiredAddrs.size() + " expired bindings of type: " + 
+		List<IdentityAssoc> expiredIAs = iaMgr.findExpiredIAs(getIaType());
+		if ((expiredIAs != null) && !expiredIAs.isEmpty()) {
+			log.info("Found " + expiredIAs.size() + " expired bindings of type: " + 
 					IdentityAssoc.iaTypeToString(getIaType()));
-			for (IaAddress iaAddress : expiredAddrs) {
-				expireIaAddress(iaAddress);
+			for (IdentityAssoc ia : expiredIAs) {
+				Collection<? extends IaAddress> expiredAddrs = ia.getIaAddresses();
+				if ((expiredAddrs != null) && !expiredAddrs.isEmpty()) {
+					// due to the implementation of findExpiredIAs, each IdentityAssoc
+					// SHOULD have only one IaAddress within it to be expired
+					log.info("Found " + expiredAddrs.size() + " expired bindings for IA: " + 
+							"duid=" + Util.toHexString(ia.getDuid()) + " iaid=" + ia.getIaid());
+					for (IaAddress iaAddress : expiredAddrs) {
+						expireIaAddress(ia, iaAddress);
+					}
+				}
 			}
 		}
 	}

@@ -175,7 +175,7 @@ public class DhcpReleaseProcessor extends BaseDhcpProcessor
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 							for (BindingObject bindingObj : bindingObjs) {
-								bindingMgr.releaseIaAddress((BindingAddress)bindingObj);
+								bindingMgr.releaseIaAddress(binding, (BindingAddress)bindingObj);
 							}
 						}
 					}
@@ -203,7 +203,7 @@ public class DhcpReleaseProcessor extends BaseDhcpProcessor
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 							for (BindingObject bindingObj : bindingObjs) {
-								bindingMgr.releaseIaAddress((BindingAddress)bindingObj);
+								bindingMgr.releaseIaAddress(binding, (BindingAddress)bindingObj);
 							}
 						}
 					}

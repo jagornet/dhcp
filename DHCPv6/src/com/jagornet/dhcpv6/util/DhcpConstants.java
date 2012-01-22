@@ -345,6 +345,7 @@ public class DhcpConstants
     public static final int V4OPTION_SERVERID = 54;
     public static final int V4OPTION_PARAM_REQUEST_LIST = 55;
     public static final int V4OPTION_VENDOR_CLASS = 60;
+    public static final int V4OPTION_RAPID_COMMIT = 80;
     public static final int V4OPTION_CLIENT_FQDN = 81;
     public static final int V4OPTION_EOF = 255;
 

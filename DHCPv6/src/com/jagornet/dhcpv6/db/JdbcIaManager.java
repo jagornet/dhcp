@@ -25,10 +25,12 @@
  */
 package com.jagornet.dhcpv6.db;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -149,35 +151,6 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#addDhcpOption(com.jagornet.dhcpv6.db.IdentityAssoc, com.jagornet.dhcpv6.db.DhcpOption)
-	 */
-	public void addDhcpOption(IdentityAssoc ia, DhcpOption option)
-	{
-		// ensure the DhcpOption references this IA, and nothing else
-		option.setIdentityAssocId(ia.getId());
-		option.setIaAddressId(null);
-		option.setIaPrefixId(null);
-		
-		dhcpOptDao.create(option);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#updateDhcpOption(com.jagornet.dhcpv6.db.DhcpOption)
-	 */
-	public void updateDhcpOption(DhcpOption option)
-	{
-		dhcpOptDao.update(option);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#deleteDhcpOption(com.jagornet.dhcpv6.db.DhcpOption)
-	 */
-	public void deleteDhcpOption(DhcpOption option)
-	{
-		dhcpOptDao.deleteById(option.getId());
-	}
-	
-	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#getIA(long)
 	 */
 	public IdentityAssoc getIA(long id)
@@ -219,6 +192,24 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	}
 
 	/* (non-Javadoc)
+	 * @see com.jagornet.dhcpv6.db.IaManager#findIA(com.jagornet.dhcpv6.db.IaAddress)
+	 */
+	public IdentityAssoc findIA(IaAddress iaAddr)
+	{
+		IdentityAssoc ia = null;
+		if (iaAddr != null) {
+			try {
+				ia = iaDao.getById(iaAddr.getIdentityAssocId());
+			}
+			catch (EmptyResultDataAccessException ex) {
+				log.debug("No IdenityAssoc found for ID=" +iaAddr.getIdentityAssocId() +
+						": " + ex);
+			}
+		}
+		return ia;
+	}
+
+	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#findIA(java.net.InetAddress)
 	 */
 	public IdentityAssoc findIA(InetAddress inetAddr)
@@ -237,6 +228,129 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 			}
 		}
 		return ia;
+	}
+	
+	public List<IdentityAssoc> findExpiredIAs(byte iatype)
+	{
+		List<IdentityAssoc> expiredIAs = null;
+		//TODO: improve on this logic, see hack below
+		List<IaAddress> iaAddrs = iaAddrDao.findAllOlderThanNow(iatype);
+		if (iaAddrs != null) {
+			expiredIAs = new ArrayList<IdentityAssoc>();
+			for (IaAddress iaAddr : iaAddrs) {
+				List<IaAddress> _iaAddrs = new ArrayList<IaAddress>();
+				// populate the IaAddress with the associated DhcpOptions
+				iaAddr.setDhcpOptions(dhcpOptDao.findAllByIaAddressId(iaAddr.getId()));
+				// find the IA for this expired IaAddress
+				IdentityAssoc ia = findIA(iaAddr);
+				// now add this one expired IaAddress to the
+				// fabricated expired IA for the returned list
+				_iaAddrs.add(iaAddr);
+				// this hack is likely to be a problem someday...
+				ia.setIaAddresses(_iaAddrs);
+				expiredIAs.add(ia);
+			}
+		}
+		return expiredIAs;
+	}
+
+	public void saveDhcpOption(IaAddress iaAddr, 
+							   com.jagornet.dhcpv6.option.base.BaseDhcpOption baseOption)
+	{
+		try {
+			byte[] newVal = baseOption.encode().array();
+			// don't store the option code, start with length to
+			// simplify decoding when retrieving from database
+			if (baseOption.isV4()) {
+				newVal = Arrays.copyOfRange(newVal, 1, newVal.length);
+			}
+			else {
+				newVal = Arrays.copyOfRange(newVal, 2, newVal.length);
+			}
+//			DhcpOption dbOption = iaAddr.getDhcpOption(baseOption.getCode());
+			DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
+			if (dbOption == null) {
+				dbOption = new com.jagornet.dhcpv6.db.DhcpOption();
+				dbOption.setCode(baseOption.getCode());
+				dbOption.setValue(newVal);
+				addDhcpOption(iaAddr, dbOption);
+			}
+			else {
+				if(!Arrays.equals(dbOption.getValue(), newVal)) {
+					dbOption.setValue(newVal);
+					updateDhcpOption(dbOption);
+				}
+			}
+		} 
+		catch (IOException ex) {
+			log.error("Failed to update binding with option", ex);
+		}
+		
+	}
+
+	public void deleteDhcpOption(IaAddress iaAddr, 
+							   com.jagornet.dhcpv6.option.base.BaseDhcpOption baseOption)
+	{
+		DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
+		if (dbOption != null) {
+			dhcpOptDao.deleteById(dbOption.getId());
+		}
+	}
+
+	protected DhcpOption findIaAddressOption(IaAddress iaAddr,
+			com.jagornet.dhcpv6.option.base.BaseDhcpOption baseOption) 
+	{
+		DhcpOption dbOption = null;
+		List<DhcpOption> iaAddrOptions = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());
+		if (iaAddrOptions != null) {
+			for (DhcpOption iaAddrOption : iaAddrOptions) {
+				if (iaAddrOption.getCode() == baseOption.getCode()) {
+					dbOption = iaAddrOption;
+					break;
+				}
+			}
+		}
+		return dbOption;
+	}
+	
+	protected void addDhcpOption(IdentityAssoc ia, DhcpOption option)
+	{
+		// ensure the DhcpOption references this IA, and nothing else
+		option.setIdentityAssocId(ia.getId());
+		option.setIaAddressId(null);
+		option.setIaPrefixId(null);
+		
+		dhcpOptDao.create(option);
+	}
+	
+	protected void addDhcpOption(IaAddress iaAddr, DhcpOption option)
+	{
+		// ensure the DhcpOption references this IA_ADDR, and nothing else
+		option.setIdentityAssocId(null);
+		option.setIaAddressId(iaAddr.getId());
+		option.setIaPrefixId(null);
+		
+		dhcpOptDao.create(option);
+	}
+	
+	protected void addDhcpOption(IaPrefix iaPrefix, DhcpOption option)
+	{
+		// ensure the DhcpOption references this IA_PREFIX, and nothing else
+		option.setIdentityAssocId(null);
+		option.setIaAddressId(null);
+		option.setIaPrefixId(iaPrefix.getId());
+		
+		dhcpOptDao.create(option);
+	}
+	
+	protected void updateDhcpOption(DhcpOption option)
+	{
+		dhcpOptDao.update(option);
+	}
+	
+	protected void deleteDhcpOption(DhcpOption option)
+	{
+		dhcpOptDao.deleteById(option.getId());
 	}
 	
 	/* (non-Javadoc)
@@ -322,21 +436,13 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	public void reconcileIaAddresses(List<Range> ranges) {
 		iaAddrDao.deleteNotInRanges(ranges);
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findDhcpOptionsByIdentityAssocId(long)
-	 */
-	@Override
-	public List<DhcpOption> findDhcpOptionsByIdentityAssocId(long identityAssocId) {
-		return dhcpOptDao.findAllByIdentityAssocId(identityAssocId);
-	}
 
 	/**
 	 * Expire ia.
 	 * 
 	 * @param id the id
 	 */
-	public void expireIA(final Long id)
+	protected void expireIA(final Long id)
 	{	
 		getJdbcTemplate().update(
 				"update identityassoc set state=" + IdentityAssoc.EXPIRED +
@@ -362,7 +468,7 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	 * 
 	 * @param id the id
 	 */
-	public void deleteExpiredIA(final Long id)
+	protected void deleteExpiredIA(final Long id)
 	{	
 		getJdbcTemplate().update(
 				"delete from identityassoc" +
@@ -385,7 +491,7 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	/**
 	 * Expire i as.
 	 */
-	public void expireIAs()
+	protected void expireIAs()
 	{
 		getJdbcTemplate().update(
 				"update identityassoc set state=" + IdentityAssoc.EXPIRED +

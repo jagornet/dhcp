@@ -167,8 +167,9 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     		}
     		if (!bindings.isEmpty()) {
     			populateReplyMsgOptions(clientLink);
-// TODO: not on discover?
-//    			processDdnsUpdates();
+        		if (rapidCommit) {
+        			processDdnsUpdates();
+        		}
     		}
     	}    	
 		return sendReply;
@@ -184,7 +185,7 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
 	 */
 	private boolean isRapidCommit(DhcpV4Message requestMsg, Link clientLink)
 	{
-		if (requestMsg.hasOption(DhcpConstants.OPTION_RAPID_COMMIT) && 
+		if (requestMsg.hasOption(DhcpConstants.V4OPTION_RAPID_COMMIT) && 
 				DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg, clientLink, 
 						Property.SUPPORT_RAPID_COMMIT)) {
 			return true;

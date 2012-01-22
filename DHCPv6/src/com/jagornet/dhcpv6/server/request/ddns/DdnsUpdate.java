@@ -139,7 +139,7 @@ public abstract class DdnsUpdate
 	 * @throws TextParseException the text parse exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public abstract void sendAdd() throws TextParseException, IOException;
+	public abstract boolean sendAdd() throws TextParseException, IOException;
 	
 	/**
 	 * Send delete.
@@ -147,7 +147,7 @@ public abstract class DdnsUpdate
 	 * @throws TextParseException the text parse exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public abstract void sendDelete() throws TextParseException, IOException;
+	public abstract boolean sendDelete() throws TextParseException, IOException;
 	
 	/**
 	 * Gets the server.

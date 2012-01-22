@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
 import com.jagornet.dhcpv6.db.IaAddress;
+import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.xml.Link;
@@ -89,12 +90,12 @@ public interface V4AddrBindingManager
 	 * 
 	 * @param iaAddr the ia addr
 	 */
-	public void releaseIaAddress(IaAddress iaAddr);
+	public void releaseIaAddress(IdentityAssoc ia, IaAddress iaAddr);
 	
 	/**
 	 * Decline ia address.
 	 * 
 	 * @param iaAddr the ia addr
 	 */
-	public void declineIaAddress(IaAddress iaAddr);
+	public void declineIaAddress(IdentityAssoc ia, IaAddress iaAddr);
 }

@@ -51,9 +51,9 @@
 	    		<filelist files="${lib}/xmltypes.jar"/>
 	    	</classpath>
 	    </javac>
-  		<!-- Copy the context.xml file to classes so it gets put into the jar -->
+  		<!-- Copy the context*.xml files to classes so it gets put into the jar -->
   		<copy todir="${classes}">
-  			<fileset dir="${src}" includes="**/context.xml"/>
+  			<fileset dir="${src}" includes="**/context*.xml"/>
   		</copy>
   	</target>
 	
@@ -85,6 +85,8 @@
   	<target name="dist" depends="jar"
         description="generate the distribution" >
 
+  		<delete dir="${dist}"/>
+  		
 	  	<mkdir dir="${dist}"/>
 	  	<mkdir dir="${dist}/lib"/>
 	    
@@ -120,7 +122,7 @@
   		
 	    <mkdir dir="${dist}/db"/>    
 	    <copy todir="${dist}/db">
-	    	<fileset dir="${db}"/>
+	    	<fileset dir="${db}" excludes="derby/**"/>
 	    </copy>
 	    
 	    <mkdir dir="${dist}/log"/>
