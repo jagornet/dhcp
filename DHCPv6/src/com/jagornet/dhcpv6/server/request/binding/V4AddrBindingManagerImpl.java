@@ -41,6 +41,7 @@ import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4RequestedIpAddressOption;
+import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
@@ -49,13 +50,12 @@ import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.server.request.ddns.DhcpV4DdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.DomainNameOptionType;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
-import com.jagornet.dhcpv6.xml.PrefixBinding;
-import com.jagornet.dhcpv6.xml.PrefixBindingsType;
+import com.jagornet.dhcpv6.xml.V4AddressBinding;
+import com.jagornet.dhcpv6.xml.V4AddressBindingsType;
 import com.jagornet.dhcpv6.xml.V4AddressPool;
 import com.jagornet.dhcpv6.xml.V4AddressPoolsType;
 
@@ -195,7 +195,7 @@ public class V4AddrBindingManagerImpl
     {
     	V4AddressBindingPool bp = new V4AddressBindingPool(pool);
 		long leasetime = 
-			DhcpServerPolicies.effectivePolicyAsLong((AddressPoolInterface) bp, 
+			DhcpServerPolicies.effectivePolicyAsLong((DhcpConfigObject) bp, 
 					link, Property.V4_DEFAULT_LEASETIME);
 		bp.setLeasetime(leasetime);
 		bp.setLinkFilter(linkFilter);
@@ -218,15 +218,15 @@ public class V4AddrBindingManagerImpl
     protected void initBindings(Link link) throws DhcpServerConfigException
     {
     	try {
-			PrefixBindingsType bindingsType = link.getPrefixBindings();
+			V4AddressBindingsType bindingsType = link.getV4AddrBindings();
 			if (bindingsType != null) {
-				List<PrefixBinding> staticBindings = 
+				List<V4AddressBinding> staticBindings = 
 					bindingsType.getBindingList();
 				if (staticBindings != null) {
-					for (PrefixBinding staticBinding : staticBindings) {
+					for (V4AddressBinding staticBinding : staticBindings) {
 	//TODO								reconcileStaticBinding(staticBinding);
 						setIpAsUsed(link, 
-								InetAddress.getByName(staticBinding.getPrefix()));
+								InetAddress.getByName(staticBinding.getIpAddress()));
 					}
 				}
 			}
@@ -237,6 +237,38 @@ public class V4AddrBindingManagerImpl
     	}
     }
     
+    protected List<? extends StaticBinding> buildStaticBindings(Link link) 
+			throws DhcpServerConfigException
+	{
+		List<StaticV4AddressBinding> staticBindings = new ArrayList<StaticV4AddressBinding>();
+		V4AddressBindingsType bindingsType = link.getV4AddrBindings();
+		if (bindingsType != null) {
+			List<V4AddressBinding> bindings = bindingsType.getBindingList();
+			if ((bindings != null) && !bindings.isEmpty()) {
+				for (V4AddressBinding binding : bindings) {
+					StaticV4AddressBinding sab = buildStaticBinding(binding, link);
+					staticBindings.add(sab);
+				}
+			}
+		}
+		
+		return staticBindings;
+	}
+	
+	protected StaticV4AddressBinding buildStaticBinding(V4AddressBinding binding, Link link) 
+			throws DhcpServerConfigException
+	{
+		try {
+			InetAddress inetAddr = InetAddress.getByName(binding.getIpAddress());
+			StaticV4AddressBinding sb = new StaticV4AddressBinding(binding);
+			setIpAsUsed(link, inetAddr);
+			return sb;
+		}
+		catch (UnknownHostException ex) {
+			log.error("Invalid static binding address", ex);
+			throw new DhcpServerConfigException("Invalid static binding address", ex);
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage)
@@ -254,12 +286,19 @@ public class V4AddrBindingManagerImpl
 	 */
 	@Override
 	public Binding createDiscoverBinding(Link clientLink, byte[] macAddr, 
-			DhcpMessageInterface requestMsg, boolean rapidCommit) {
+			DhcpMessageInterface requestMsg, byte state)
+	{
+		StaticBinding staticBinding = 
+			findStaticBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
 		
-		List<InetAddress> requestAddrs = getInetAddrs(requestMsg);
-		
-		return super.createBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
-				0, requestAddrs, requestMsg, rapidCommit);
+		if (staticBinding != null) {
+			return super.createStaticBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+					0, staticBinding, requestMsg);
+		}
+		else {
+			return super.createBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+					0, getInetAddrs(requestMsg), requestMsg, state);
+		}		
 	}
 
 	/* (non-Javadoc)
@@ -268,11 +307,18 @@ public class V4AddrBindingManagerImpl
 	@Override
 	public Binding updateBinding(Binding binding, Link clientLink, 
 			byte[] macAddr, DhcpMessageInterface requestMsg, byte state) {
-				
-		List<InetAddress> requestAddrs = getInetAddrs(requestMsg);
+
+		StaticBinding staticBinding = 
+			findStaticBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
 		
-		return super.updateBinding(binding, clientLink, macAddr, IdentityAssoc.V4_TYPE,
-				0, requestAddrs, requestMsg, state);
+		if (staticBinding != null) {
+			return super.updateStaticBinding(binding, clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+					0, staticBinding, requestMsg);
+		}
+		else {
+			return super.updateBinding(binding, clientLink, macAddr, IdentityAssoc.V4_TYPE,
+					0, getInetAddrs(requestMsg), requestMsg, state);
+		}		
 	}
 	
 	/**
@@ -312,19 +358,25 @@ public class V4AddrBindingManagerImpl
 	 * @return the binding
 	 */
 	protected Binding buildBindingFromIa(IdentityAssoc ia, Link clientLink,
-			DhcpMessageInterface requestMsg) {
-		if (log.isDebugEnabled())
-			log.debug("Building binding from IA: " +
-					" duid=" + Util.toHexString(ia.getDuid()) +
-					" iatype=" + ia.getIatype() +
-					" iaid=" + ia.getIaid());
+			DhcpMessageInterface requestMsg)
+	{
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
 		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
 			List<V4BindingAddress> bindingAddrs = new ArrayList<V4BindingAddress>();
 			for (IaAddress iaAddr : iaAddrs) {
-				V4BindingAddress bindingAddr = 
-					buildBindingAddrFromIaAddr(iaAddr, clientLink, requestMsg);
+				V4BindingAddress bindingAddr = null;
+        		StaticBinding staticBinding =
+        			findStaticBinding(clientLink, ia.getDuid(), 
+        					ia.getIatype(), ia.getIaid(), requestMsg);
+        		if (staticBinding != null) {
+        			bindingAddr = 
+        				buildStaticBindingFromIaAddr(iaAddr, staticBinding);
+        		}
+        		else {
+        			bindingAddr =
+        				buildBindingAddrFromIaAddr(iaAddr, clientLink, requestMsg);
+        		}
 				if (bindingAddr != null)
 					bindingAddrs.add(bindingAddr);
 			}
@@ -349,15 +401,9 @@ public class V4AddrBindingManagerImpl
 	private V4BindingAddress buildBindingAddrFromIaAddr(IaAddress iaAddr, 
 			Link clientLink, DhcpMessageInterface requestMsg)
 	{
-		if (log.isDebugEnabled())
-			log.debug("Building BindingObject from " + iaAddr.toString());
 		InetAddress inetAddr = iaAddr.getIpAddress();
 		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
 		if (bp != null) {
-			// TODO determine if we need to set the IP as used in the
-			// BindingPool.  Note that this method is also called when
-			// releasing addresses.
-//			bp.setUsed(inetAddr);
 			// TODO store the configured options in the persisted binding?
 			// ipAddr.setDhcpOptions(bp.getDhcpOptions());
 			return new V4BindingAddress(iaAddr, (V4AddressBindingPool)bp);
@@ -368,6 +414,13 @@ public class V4AddrBindingManagerImpl
 		}
 		// MUST have a BindingPool, otherwise something's broke
 		return null;
+	}
+	
+	private V4BindingAddress buildStaticBindingFromIaAddr(IaAddress iaAddr, 
+			StaticBinding staticBinding)
+	{
+		V4BindingAddress bindingAddr = new V4BindingAddress(iaAddr, staticBinding);
+		return bindingAddr;
 	}
 
 	@Override
@@ -417,20 +470,29 @@ public class V4AddrBindingManagerImpl
 						if ((fqdn != null) && !fqdn.isEmpty()) {
 				        	DhcpLink link = serverConfig.findLinkForAddress(iaAddr.getIpAddress());
 				        	if (link != null) {
-				        		V4BindingAddress bindingAddr =
-				        			buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+				        		V4BindingAddress bindingAddr = null;
+				        		StaticBinding staticBinding =
+				        			findStaticBinding(link.getLink(), ia.getDuid(), 
+				        					ia.getIatype(), ia.getIaid(), null);
+				        		if (staticBinding != null) {
+				        			bindingAddr = 
+				        				buildStaticBindingFromIaAddr(iaAddr, staticBinding);
+				        		}
+				        		else {
+				        			bindingAddr =
+				        				buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+				        		}
 				        		if (bindingAddr != null) {
-				        			
-				        			V4AddressBindingPool pool = 
-				        				(V4AddressBindingPool) bindingAddr.getBindingPool();
 				        			
 				        			DdnsCallback ddnsComplete = 
 				        				new DhcpV4DdnsComplete(bindingAddr, clientFqdnOption);
 				        			
+				        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
+				        			
 									DdnsUpdater ddns =
-										new DdnsUpdater(link.getLink(), pool,
+										new DdnsUpdater(link.getLink(), configObj,
 												bindingAddr.getIpAddress(), fqdn, ia.getDuid(),
-												pool.getValidLifetime(),
+												configObj.getValidLifetime(),
 												clientFqdnOption.getUpdateAaaaBit(), true,
 												ddnsComplete);
 									

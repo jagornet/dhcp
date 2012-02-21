@@ -105,15 +105,22 @@ public class TaAddrBindingManagerImpl
 	@Override
 	public Binding createSolicitBinding(Link clientLink,
 			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
-			DhcpMessageInterface requestMsg, boolean rapidCommit) {
+			DhcpMessageInterface requestMsg, byte state) {
 		
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaTaOption.getIaTaOption().getIaId();
+
+		StaticBinding staticBinding = 
+			findStaticBinding(clientLink, duid, IdentityAssoc.TA_TYPE, iaid, requestMsg);
 		
-		List<InetAddress> requestAddrs = getInetAddrs(iaTaOption);
-		
-		return super.createBinding(clientLink, duid, IdentityAssoc.TA_TYPE, 
-				iaid, requestAddrs, requestMsg, rapidCommit);
+		if (staticBinding != null) {
+			return super.createStaticBinding(clientLink, duid, IdentityAssoc.TA_TYPE, 
+					iaid, staticBinding, requestMsg);
+		}
+		else {
+			return super.createBinding(clientLink, duid, IdentityAssoc.TA_TYPE, 
+					iaid, getInetAddrs(iaTaOption), requestMsg, state);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -126,11 +133,18 @@ public class TaAddrBindingManagerImpl
 		
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaTaOption.getIaTaOption().getIaId();
+
+		StaticBinding staticBinding = 
+			findStaticBinding(clientLink, duid, IdentityAssoc.TA_TYPE, iaid, requestMsg);
 		
-		List<InetAddress> requestAddrs = getInetAddrs(iaTaOption);
-		
-		return super.updateBinding(binding, clientLink, duid, IdentityAssoc.TA_TYPE,
-				iaid, requestAddrs, requestMsg, state);
+		if (staticBinding != null) {
+			return super.updateStaticBinding(binding, clientLink, duid, IdentityAssoc.TA_TYPE, 
+					iaid, staticBinding, requestMsg);
+		}
+		else {
+			return super.updateBinding(binding, clientLink, duid, IdentityAssoc.TA_TYPE,
+					iaid, getInetAddrs(iaTaOption), requestMsg, state);
+		}
 	}
 	
 	/**

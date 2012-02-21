@@ -234,7 +234,7 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	{
 		List<IdentityAssoc> expiredIAs = null;
 		//TODO: improve on this logic, see hack below
-		List<IaAddress> iaAddrs = iaAddrDao.findAllOlderThanNow(iatype);
+		List<IaAddress> iaAddrs = iaAddrDao.findExpiredAddresses(iatype);
 		if (iaAddrs != null) {
 			expiredIAs = new ArrayList<IdentityAssoc>();
 			for (IaAddress iaAddr : iaAddrs) {
@@ -410,7 +410,7 @@ public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
 	 */
 	@Override
 	public List<IaAddress> findExpiredIaAddresses(byte iatype) {
-		return iaAddrDao.findAllOlderThanNow(iatype);
+		return iaAddrDao.findExpiredAddresses(iatype);
 	}
 	
 	/* (non-Javadoc)

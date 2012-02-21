@@ -112,19 +112,12 @@ public class DhcpV6Server
     /** The multicast network interfaces. */
     protected List<NetworkInterface> mcastNetIfs = null;
     
-    /** The multicast server thread. */
-    protected Thread mcastThread;
-    
     /** The unicast IP addresses. */
     protected List<InetAddress> ucastAddrs = null;
-    
-    /** The unicast server thread. */
-    protected Thread ucastThread;
     
     protected NetworkInterface v4BcastNetIf = null;
     protected List<InetAddress> v4UcastAddrs = null;
     protected int v4PortNumber = DhcpConstants.V4_SERVER_PORT;
-    protected Thread v4Thread;
     
     protected DhcpServerConfiguration serverConfig = null;
     protected ApplicationContext context = null;

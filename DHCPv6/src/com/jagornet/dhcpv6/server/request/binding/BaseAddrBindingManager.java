@@ -75,6 +75,12 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
      */
     protected abstract void ddnsDelete(IdentityAssoc ia, IaAddress iaAddr);
     
+    /**
+     * Return the IA type for this binding.  This is a hack to allow consolidated
+     * code in this base class (i.e. expireAddresses) for use by the subclasses.
+     * 
+     * @return
+     */
     protected abstract byte getIaType();
 	
     /**

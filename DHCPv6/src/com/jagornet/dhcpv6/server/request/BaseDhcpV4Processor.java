@@ -47,13 +47,14 @@ import com.jagornet.dhcpv6.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4HostnameOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4LeaseTimeOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ServerIdOption;
+import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcpv6.server.config.DhcpV4OptionConfigObject;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
 import com.jagornet.dhcpv6.server.request.binding.BindingObject;
-import com.jagornet.dhcpv6.server.request.binding.V4AddressBindingPool;
 import com.jagornet.dhcpv6.server.request.binding.V4BindingAddress;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
@@ -144,11 +145,11 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
      * @param link the link
      * @param pool the pool
      */
-    protected void populateV4Options(DhcpLink dhcpLink, V4AddressBindingPool bindingPool)
+    protected void populateV4Options(DhcpLink dhcpLink, DhcpV4OptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink, bindingPool);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool,
+    		dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink, configObj);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
     			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
@@ -322,17 +323,17 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				InetAddress inetAddr = bindingObj.getIpAddress();
 				if (inetAddr != null) {
 					replyMsg.setYiAddr(inetAddr);
-					// must be an V4AddresBindingPool for v4 binding
-					V4AddressBindingPool bindingPool = 
-						(V4AddressBindingPool) bindingObj.getBindingPool();
-					if (bindingPool != null) {
-						long preferred = bindingPool.getPreferredLifetime();
+					// must be an DhcpV4OptionConfigObject for v4 binding
+					DhcpV4OptionConfigObject configObj = 
+						(DhcpV4OptionConfigObject) bindingObj.getConfigObj();
+					if (configObj != null) {
+						long preferred = configObj.getPreferredLifetime();
 						DhcpV4LeaseTimeOption dhcpV4LeaseTimeOption = new DhcpV4LeaseTimeOption();
 						V4LeaseTimeOption v4LeaseTimeOption = (V4LeaseTimeOption)
 									dhcpV4LeaseTimeOption.getUnsignedIntOption();
 						v4LeaseTimeOption.setUnsignedInt(preferred);
 						replyMsg.putDhcpOption(dhcpV4LeaseTimeOption);
-						populateV4Options(clientLink, bindingPool);
+						populateV4Options(clientLink, configObj);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
 						//     policy to allow real-time expiration?
@@ -477,16 +478,15 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 						
 						V4BindingAddress bindingAddr = (V4BindingAddress) bindingObj;
 						
-	        			V4AddressBindingPool pool = 
-	        				(V4AddressBindingPool) bindingAddr.getBindingPool();
+	        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
 	        			
 	        			DdnsCallback ddnsComplete = 
 	        				new DhcpV4DdnsComplete(bindingAddr, replyFqdnOption);
 	        			
 						DdnsUpdater ddns =
-							new DdnsUpdater(requestMsg, clientLink.getLink(), pool,
+							new DdnsUpdater(requestMsg, clientLink.getLink(), configObj,
 									bindingAddr.getIpAddress(), fqdn, requestMsg.getChAddr(),
-									pool.getValidLifetime(), doForwardUpdate, false,
+									configObj.getValidLifetime(), doForwardUpdate, false,
 									ddnsComplete);
 						
 						ddns.processUpdates();

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.option.DhcpConfigOptions;
+import com.jagornet.dhcpv6.server.config.DhcpOptionConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
@@ -46,7 +47,7 @@ import com.jagornet.dhcpv6.xml.PrefixPool;
 /**
  * The Class PrefixBindingPool.
  */
-public class PrefixBindingPool implements BindingPool, AddressPoolInterface
+public class PrefixBindingPool implements BindingPool, DhcpOptionConfigObject
 {
 	
 	/** The log. */
@@ -71,7 +72,7 @@ public class PrefixBindingPool implements BindingPool, AddressPoolInterface
 	protected PrefixPool pool;
 	
 	/** The configured options for this pool */
-	protected DhcpConfigOptions prefixConfigOptions;
+	protected DhcpConfigOptions dhcpConfigOptions;
 	
 	/** The LinkFilter containing this pool, if any */
 	protected LinkFilter linkFilter; 
@@ -105,7 +106,7 @@ public class PrefixBindingPool implements BindingPool, AddressPoolInterface
 			freeList = new FreeList(BigInteger.ZERO, 
 					BigInteger.valueOf(numPrefixes).subtract(BigInteger.ONE));
 			reaper = new Timer(pool.getRange()+"_Reaper");
-			prefixConfigOptions = new DhcpConfigOptions(pool.getPrefixConfigOptions());
+			dhcpConfigOptions = new DhcpConfigOptions(pool.getPrefixConfigOptions());
 		} 
 		catch (NumberFormatException ex) {
 			log.error("Invalid PrefixPool definition", ex);
@@ -306,12 +307,12 @@ public class PrefixBindingPool implements BindingPool, AddressPoolInterface
 		this.linkFilter = linkFilter;
 	}
 	
-	public DhcpConfigOptions getPrefixConfigOptions() {
-		return prefixConfigOptions;
+	public DhcpConfigOptions getDhcpConfigOptions() {
+		return dhcpConfigOptions;
 	}
 
-	public void setPrefixConfigOptions(DhcpConfigOptions prefixConfigOptions) {
-		this.prefixConfigOptions = prefixConfigOptions;
+	public void setDhcpConfigOptions(DhcpConfigOptions dhcpConfigOptions) {
+		this.dhcpConfigOptions = dhcpConfigOptions;
 	}
 
 	public String toString()

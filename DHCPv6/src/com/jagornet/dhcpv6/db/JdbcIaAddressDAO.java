@@ -263,15 +263,16 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	}
 
 	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findAllOlderThanNow(java.util.Date)
+	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#findExpiredAddresses(byte)
 	 */
-	public List<IaAddress> findAllOlderThanNow(final byte iatype)
+	public List<IaAddress> findExpiredAddresses(final byte iatype)
 	{
         return getJdbcTemplate().query(
-                "select * from iaaddress" +
-                " join identityassoc ia on identityassoc_id=ia.id" +
+                "select * from iaaddress a" +
+                " join identityassoc ia on ia.id=a.identityassoc_id" +
                 " where ia.iatype = ?" +
-                " and validendtime < ? order by validendtime",
+                " and a.state != " + IaAddress.STATIC +
+                " and a.validendtime < ? order by a.validendtime",
                 new PreparedStatementSetter() {
             		@Override
             		public void setValues(PreparedStatement ps) throws SQLException {

@@ -7,6 +7,10 @@
 		</opaqueData>
 	</serverIdOption>
 	
+	<v4ServerIdOption>
+		<ipAddress>192.168.0.10</ipAddress>
+	</v4ServerIdOption>
+	
 	<policies>
 		<policy>
 			<name>sendRequestedOptionsOnly</name>
@@ -152,6 +156,29 @@
 				</dnsServersOption>
 			</iaNaConfigOptions>
 		</link>
+        <link>
+            <name>V4 Client Link 1</name>
+            <address>192.168.0.1/24</address>
+            <v4ConfigOptions>
+            	<v4SubnetMaskOption>
+            		<ipAddress>255.255.255.0</ipAddress>
+            	</v4SubnetMaskOption>
+            	<v4RoutersOption>
+            		<ipAddress>192.168.0.1</ipAddress>
+            	</v4RoutersOption>
+            	<v4DomainServersOption>
+            		<ipAddress>192.168.0.10</ipAddress>
+            	</v4DomainServersOption>
+            	<v4DomainNameOption>
+            		<domainName>v4.foo.com.</domainName>
+            	</v4DomainNameOption>
+            </v4ConfigOptions>
+            <v4AddrPools>
+                <pool>
+                    <range>192.168.0.100-192.168.0.199</range>
+                </pool>
+            </v4AddrPools>
+        </link>
 	</links>
 
 </dhc:dhcpV6ServerConfig>

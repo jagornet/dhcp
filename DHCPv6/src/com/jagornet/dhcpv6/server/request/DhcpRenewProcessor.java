@@ -167,7 +167,8 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
 						}
 						else {
 							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-									clientIdOption, dhcpIaNaOption, requestMsg, IdentityAssoc.COMMITTED);
+									clientIdOption, dhcpIaNaOption, requestMsg, 
+									IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
@@ -205,7 +206,8 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
 						}
 						else {
 							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-									clientIdOption, dhcpIaTaOption, requestMsg, IdentityAssoc.COMMITTED);
+									clientIdOption, dhcpIaTaOption, requestMsg, 
+									IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
@@ -243,7 +245,8 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
 						}
 						else {
 							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-									clientIdOption, dhcpIaPdOption, requestMsg, IdentityAssoc.COMMITTED);
+									clientIdOption, dhcpIaPdOption, requestMsg, 
+									IdentityAssoc.COMMITTED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);

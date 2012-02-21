@@ -2,11 +2,16 @@
 <dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
 
 	<serverIdOption>
-		<!-- ServerID is auto-generated -->
+		<!-- DHCPv6 ServerID should be auto-generated hex data -->
 		<opaqueData>
-			<hexValue>abcdef0123456789</hexValue>
+			<asciiValue>Jagornet</asciiValue>
 		</opaqueData>
 	</serverIdOption>
+	
+	<v4ServerIdOption>
+		<!--  DHCPv4 ServerID must be a local IP address -->
+		<ipAddress>10.0.0.2</ipAddress>
+	</v4ServerIdOption>
 	
 	<policies>
 		<!-- Global server level policies -->
@@ -14,15 +19,39 @@
 			<name>sendRequestedOptionsOnly</name>
 			<value>false</value>
 		</policy>
+        <policy>
+            <name>ddns.update</name>
+            <value>server</value>
+        </policy>
+        <policy>
+            <name>ddns.domain</name>
+            <value>example.com.</value>
+        </policy>
+        <policy>
+            <name>ddns.server</name>
+            <value>10.0.0.2</value>
+        </policy>
+        <policy>
+			<name>ddns.tsig.keyName</name>
+			<value>dhcpv6server-ddnsserver.</value>
+		</policy>
+		<policy>
+			<name>ddns.tsig.algorithm</name>
+			<value>hmac-sha256.</value>
+		</policy>
+		<policy>
+			<name>ddns.tsig.keyData</name>
+			<value>yourKeyDataHere</value>
+		</policy>
 	</policies>
 
 	<msgConfigOptions>
 		<!-- Global server level options to be put at the message level
-			 for reply messages sent to clients -->
+			 for reply messages sent to DHCPv6 clients -->
 		<dnsServersOption>
-			<ipAddress>2001:DB8::1</ipAddress>
-			<ipAddress>2001:DB8::2</ipAddress>
-			<ipAddress>2001:DB8::3</ipAddress>
+			<ipAddress>2001:db8::1</ipAddress>
+			<ipAddress>2001:db8::2</ipAddress>
+			<ipAddress>2001:db8::3</ipAddress>
 		</dnsServersOption>
 		<domainSearchListOption>
 			<domainName>foo.com.</domainName>
@@ -34,13 +63,13 @@
 	<filters>
 	  <!-- Global server level filters applied to all clients that match -->
 	  <filter>
-		<name>UserClass Filter Group 1</name>
+		<name>DHCPv6 UserClass Filter</name>
 		<filterExpressions>
 			<filterExpression>
 				<optionExpression code="15" operator="equals">
 					<opaqueDataOption>
 						<opaqueData>
-							<asciiValue>FilterUserClass</asciiValue>
+							<asciiValue>MyUserClass</asciiValue>
 						</opaqueData>
 					</opaqueDataOption>
 				</optionExpression>
@@ -54,15 +83,76 @@
 			</domainSearchListOption>
 		</msgConfigOptions>
 	  </filter>
+	  <filter>
+		<name>DHCPv4 VendorClass Filter</name>
+		<filterExpressions>
+			<filterExpression>
+				<optionExpression v4="true" code="60" operator="equals">
+					<opaqueDataOption>
+						<opaqueData>
+							<asciiValue>MyVendorClass</asciiValue>
+						</opaqueData>
+					</opaqueDataOption>
+				</optionExpression>
+			</filterExpression>
+		</filterExpressions>
+		<v4ConfigOptions>
+			<!-- Clients that match the filter will receive these options -->
+			<v4VendorSpecificOption>
+				<opaqueData>
+					<hexValue>01020304</hexValue>
+				</opaqueData>
+			</v4VendorSpecificOption>
+		</v4ConfigOptions>
+	  </filter>
 	</filters>
 	
 	<links>
 		<!-- Must define at least one link for client requests -->
+        <link>
+            <name>IPv4 Client Link 1</name>
+            <!-- All DHCPv4 links are defined in CIDR notation.
+            	 For local links, specify the interface as a
+            	 startup command-line option, and configure the
+            	 subnet for that interface's IPv4 address. -->
+            <address>10.0.0.0/24</address>
+            <policies>
+                <policy>
+                    <name>v4.defaultLeasetime</name>
+                    <value>600</value>
+                </policy>
+            </policies>
+            <v4ConfigOptions>
+                <v4SubnetMaskOption>
+                    <ipAddress>255.255.255.0</ipAddress>
+                </v4SubnetMaskOption>
+                <v4RoutersOption>
+                    <ipAddress>10.0.0.1</ipAddress>
+                </v4RoutersOption>
+            </v4ConfigOptions>
+            <v4AddrPools>
+                <pool>
+                    <range>10.0.0.100-10.0.0.199</range>
+                </pool>
+            </v4AddrPools>
+            <v4AddrBindings>
+            	<binding>
+            		<!-- Binding addresses should NOT be inside a pool -->
+            		<ipAddress>10.0.0.200</ipAddress>
+            		<chaddr>0a1b2c3d4e5f</chaddr>
+            		<configOptions>
+		                <v4RoutersOption>
+		                    <ipAddress>10.0.0.11</ipAddress>
+		                </v4RoutersOption>
+            		</configOptions>
+            	</binding>
+            </v4AddrBindings>
+        </link>
 		<link>
-			<name>Local Client Link (Multicast traffic)</name>
-			<interface>eth0</interface>
+			<name>Local IPv6 Client Link (Multicast traffic)</name>
+			<!-- Local DHCPv6 links are defined by interface name -->
+			<interface>eth2</interface>
 			<policies>
-				<!--  10 minute lease times for testing -->
 				<policy>
 					<name>preferredLifetime</name>
 					<value>600</value>
@@ -71,38 +161,10 @@
 					<name>validLifetime</name>
 					<value>600</value>
 				</policy>
-				<policy>
-					<name>ddns.update</name>
-					<value>server</value>
-				</policy>
-				<policy>
-					<name>ddns.domain</name>
-					<value>ddns.test.com.</value>
-				</policy>
-				<policy>
-					<name>ddns.server</name>
-					<value>192.168.0.1</value>
-				</policy>
-				<policy>
-					<name>ddns.tsig.keyName</name>
-					<value>dhcpv6server-ddnsserver.</value>
-				</policy>
-				<policy>
-					<name>ddns.tsig.algorithm</name>
-					<value>hmac-sha256.</value>
-				</policy>
-				<policy>
-					<name>ddns.tsig.keyData</name>
-					<value>yourKeyDataHere</value>
-				</policy>
-				<policy>
-					<name>ddns.reverse.zone.bitLength</name>
-					<value>48</value>
-				</policy>
 			</policies>
 			<iaNaConfigOptions>
 				<dnsServersOption>
-					<ipAddress>2001:DB8:1::1</ipAddress>
+					<ipAddress>2001:db8:1::1</ipAddress>
 				</dnsServersOption>
 			</iaNaConfigOptions>
 			<naAddrPools>
@@ -110,14 +172,35 @@
 					addresses, will get an address from this pool with the
 					address level options provided -->
 				<pool>
-					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
+					<range>2001:db8:1::0A-2001:db8:1::FF</range>
 					<addrConfigOptions>
 						<sipServerAddressesOption>
-							<ipAddress>2001:DB8:1::1:1</ipAddress>
+							<ipAddress>2001:db8:1::1:1</ipAddress>
 						</sipServerAddressesOption>
 					</addrConfigOptions>
 				</pool>
 			</naAddrPools>
+			<naAddrBindings>
+				<binding>
+					<ipAddress>2001:db8:1::100</ipAddress>
+					<!-- DHCPv6 "binding" is not really supported yet
+						 because clients do not send a MAC address, but
+						 if the DUID is known, then a binding can be made. -->
+					<duid>
+						<hexValue>0a1b2c3d4e5f</hexValue>
+					</duid>
+					<!-- The IA_ID is almost definitely unpredictable, so
+						 it is an optional element for a DHCPv6 binding.  If
+						 left undefined, then ANY IA_ID will match.
+					<iaid>0</iaid>
+					-->
+					<addrConfigOptions>
+						<sipServerAddressesOption>
+							<ipAddress>2001:db8:1::1:2</ipAddress>
+						</sipServerAddressesOption>
+					</addrConfigOptions>
+				</binding>
+			</naAddrBindings>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Rapid Commit</name>
@@ -133,10 +216,10 @@
 							addresses, will get an address from this pool with the
 							address level options provided -->
 						<pool>
-							<range>2001:DB8:1::10A-2001:DB8:1::1FF</range>
+							<range>2001:db8:1::10A-2001:db8:1::1FF</range>
 							<addrConfigOptions>
 								<sipServerAddressesOption>
-									<ipAddress>2001:DB8:1::1:101</ipAddress>
+									<ipAddress>2001:db8:1::1:101</ipAddress>
 								</sipServerAddressesOption>
 							</addrConfigOptions>
 						</pool>
@@ -145,19 +228,20 @@
 			</linkFilters>
 		</link>
 		<link>
-			<name>Remote Client Link (Unicast/Multicast traffic)</name>
-			<address>2001:DB8:2::/48</address>
+			<name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
+			<!-- Remote DHCPv6 links are defined in CIDR notation -->
+			<address>2001:db8:2::/48</address>
 			<iaNaConfigOptions>
 				<dnsServersOption>
-					<ipAddress>2001:DB8:2::1</ipAddress>
+					<ipAddress>2001:db8:2::1</ipAddress>
 				</dnsServersOption>
 			</iaNaConfigOptions>
 			<naAddrPools>
 				<pool>
-					<range>2001:DB8:2::0A-2001:DB8:2::FF</range>
+					<range>2001:db8:2::0A-2001:db8:2::FF</range>
 					<addrConfigOptions>
 						<sipServerAddressesOption>
-							<ipAddress>2001:DB8:2::1:1</ipAddress>
+							<ipAddress>2001:db8:2::1:1</ipAddress>
 						</sipServerAddressesOption>
 					</addrConfigOptions>
 				</pool>

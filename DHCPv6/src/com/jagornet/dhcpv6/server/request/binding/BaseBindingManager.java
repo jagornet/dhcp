@@ -46,11 +46,11 @@ import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IaManager;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.Subnet;
-import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 
@@ -71,13 +71,22 @@ public abstract class BaseBindingManager
     /** The IdentityAssoc manager */
     protected IaManager iaMgr;
 
-    /** The map of binding binding pools for this manager.  The key is the link address
-     *  and the value is the list of configured BindingPools for the link. */
+    /** 
+     * The map of binding binding pools for this manager.  The key is the link address
+     *  and the value is the list of configured BindingPools for the link. 
+     */
     protected Map<String, List<? extends BindingPool>> bindingPoolMap;
+    
+    /**
+     * The map of static bindings for this manager.  The key is the link address
+     * and the value is the list of configured StaticBindings for the link. 
+     */
+    protected Map<String, List<? extends StaticBinding>> staticBindingMap;
 
 	/** The reaper thread for cleaning expired bindings. */
 	protected Timer reaper;
 	
+	/** The lock for access to the reuseAvailableAddress method */
 	// the ReentrantLock class is better than synchronized
 	private final ReentrantLock lock = new ReentrantLock();
 	
@@ -96,7 +105,7 @@ public abstract class BaseBindingManager
     /**
      * Initialize the pool map.  Read through the link map from the server's
      * configuration and build the pool map keyed by link address with a
-     * value of the list of (na/ta address or prefix) bindings for the link.
+     * value of the list of (na/ta/v4 address or prefix) bindings for the link.
      * 
      * @throws DhcpServerConfigException the exception
      */
@@ -121,7 +130,8 @@ public abstract class BaseBindingManager
 
     /**
      * Build the list of BindingPools for the given Link.  The BindingPools
-     * are either AddressBindingPools (NA and TA) or PrefixBindingPools.
+     * are either AddressBindingPools (NA and TA) or PrefixBindingPools
+     * or V4AddressBindingPools.
      * 
      * @param link the configured Link
      * @return the list of BindingPools for the link
@@ -132,7 +142,10 @@ public abstract class BaseBindingManager
     
 	
     /**
-     * Initialize the static bindings.
+     * Initialize the static bindings.  Read through the link map from the server's
+     * configuration and build the binding map keyed by link address with a
+     * value of the list of (na/ta/v4 address or prefix) bindings for the link.
+     * 
      * 
      * @throws DhcpServerConfigException the exception
      */
@@ -140,20 +153,28 @@ public abstract class BaseBindingManager
     {
 		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
 		if (linkMap != null) {
+    		staticBindingMap = new HashMap<String, List<? extends StaticBinding>>();
 			for (DhcpLink dhcpLink : linkMap.values()) {
 				Link link = dhcpLink.getLink();
-				initBindings(link);
+				List<? extends StaticBinding> staticBindings = buildStaticBindings(link);
+				if ((staticBindings != null) && !staticBindings.isEmpty()) {
+					staticBindingMap.put(link.getAddress(), staticBindings);
+				}
 			}
 		}
     }
     
     /**
-     * Initialize the static bindings for the given Link.
+     * Initialize the static bindings for the given Link.  The StaticBindings
+     * are either StaticAddressBindings (NA and TA) or StaticPrefixBindings
+     * or StaticV4AddressBindings.
      * 
-     * @param link the Link
+     * @param link the configured Link
+     * @return the list of StaticBindings for the link
      * @throws DhcpServerConfigException
      */
-    protected abstract void initBindings(Link link) throws DhcpServerConfigException;
+    protected abstract List<? extends StaticBinding> buildStaticBindings(Link link) 
+			throws DhcpServerConfigException;
 
 
 	/**
@@ -187,10 +208,12 @@ public abstract class BaseBindingManager
 					if ((requestMsg != null) && (bindingPool.getLinkFilter() != null)) {
 						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, 
 								bindingPool.getLinkFilter())) {
+							log.info("Found filter binding pool: " + bindingPool);
 							return bindingPool;
 						}
 					}
 					else {
+						log.info("Found binding pool: " + bindingPool);
 						return bindingPool;
 					}
 				}
@@ -214,6 +237,9 @@ public abstract class BaseBindingManager
 			for (List<? extends BindingPool> bps : allPools) {
 				for (BindingPool bindingPool : bps) {
 					if (bindingPool.contains(inetAddr))
+						log.info("Found binding pool for address=" + 
+								inetAddr.getHostAddress() +
+								": " + bindingPool);
 						return bindingPool;
 				}
 			}
@@ -273,22 +299,56 @@ public abstract class BaseBindingManager
 		try {
 			IdentityAssoc ia = iaMgr.findIA(duid, iatype, iaid);
 			if (ia != null) {
+				log.info("Found current binding for " + 
+						IdentityAssoc.keyToString(duid, iatype, iaid));
 				binding = buildBindingFromIa(ia, clientLink, requestMsg);
-			}
-			if (binding != null) {
-				log.info("Found current binding: " + binding.toString());
+				if (binding != null) {
+					log.info("Successfully built Binding object: " + binding);
+				}
+				else {
+					log.error("Failed to build Binding object");
+				}
 			}
 			else {
-				log.info("No current binding found for IA: " +
-						" duid=" + Util.toHexString(duid) +
-						" iatype=" + iatype +
-						" iaid=" + iaid);
+				log.info("No current binding found for " +
+						IdentityAssoc.keyToString(duid, iatype, iaid));
 			}
 		}
 		catch (Exception ex) {
 			log.error("Failed to find current binding", ex);
 		}
 		return binding;
+	}
+	
+	/**
+	 * Find a static binding, if any, for the given client identity association (IA).
+	 * 
+	 * @param clientLink the link for the client request message
+	 * @param duid the DUID of the client
+	 * @param iatype the IA type of the client request
+	 * @param iaid the IAID of the client request
+	 * @param requestMsg the client request message
+	 * @return the existing StaticBinding for this client request
+	 */
+	public StaticBinding findStaticBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
+			DhcpMessageInterface requestMsg)
+	{
+		try {
+			List<? extends StaticBinding> staticBindings = 
+				staticBindingMap.get(clientLink.getAddress());
+			if ((staticBindings != null) && !staticBindings.isEmpty()) {
+				for (StaticBinding staticBinding : staticBindings) {
+					if (staticBinding.matches(duid, iatype, iaid, requestMsg)) {
+						log.info("Found static binding: " + staticBinding);
+						return staticBinding;
+					}
+				}
+			}
+		}
+		catch (Exception ex) {
+			log.error("Exception in findStaticBinding", ex);
+		}		
+		return null;
 	}
 
 	/**
@@ -300,32 +360,20 @@ public abstract class BaseBindingManager
 	 * @param iaid the IAID of the client request
 	 * @param requestAddrs the list of requested IP addresses, if any
 	 * @param requestMsg the client request message
-	 * @param rapidCommit flag to indicate if this binding should be committed
+	 * @param state the binding state
 	 * @return the created Binding
 	 */
 	protected Binding createBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
-			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, boolean rapidCommit)
+			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, byte state)
 	{
-		Binding binding = null;
-		
+		Binding binding = null;		
 		List<InetAddress> inetAddrs = 
 			getInetAddrs(clientLink, duid, iatype, iaid, requestAddrs, requestMsg);
 		if ((inetAddrs != null) && !inetAddrs.isEmpty()) {
-			binding = buildBinding(clientLink, duid, iatype, iaid);
-			Set<BindingObject> bindingObjs = buildBindingObjects(clientLink, inetAddrs, requestMsg);
+			binding = buildBinding(clientLink, duid, iatype, iaid, state);
+			Set<BindingObject> bindingObjs = 
+				buildBindingObjects(clientLink, inetAddrs, requestMsg, state);
 			if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
-				if (rapidCommit) {
-					binding.setState(IdentityAssoc.COMMITTED);
-					for (BindingObject bindingObj : bindingObjs) {
-						bindingObj.setState(IaAddress.COMMITTED);
-					}
-				}
-				else {
-					binding.setState(IdentityAssoc.ADVERTISED);
-					for (BindingObject bindingObj : bindingObjs) {
-						bindingObj.setState(IaAddress.ADVERTISED);
-					}
-				}
 				binding.setBindingObjects(bindingObjs);
 				try {
 					iaMgr.createIA(binding);
@@ -352,6 +400,66 @@ public abstract class BaseBindingManager
 	}
 	
 	/**
+	 * Create a binding in from a StaticBinding
+	 * 
+	 * @param clientLink the link for the client request message
+	 * @param duid the DUID of the client
+	 * @param iatype the IA type of the client request
+	 * @param iaid the IAID of the client request
+	 * @param staticBinding the static binding
+	 * @param requestMsg the client request message
+	 * @return the created Binding
+	 */
+	protected Binding createStaticBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
+			StaticBinding staticBinding, DhcpMessageInterface requestMsg)
+	{
+		Binding binding = null;		
+		if (staticBinding != null) {
+			binding = buildBinding(clientLink, duid, iatype, iaid, IaAddress.STATIC);
+			InetAddress inetAddr = staticBinding.getInetAddress();
+			if (inetAddr != null) {
+				IaAddress iaAddr = new IaAddress();
+				iaAddr.setIpAddress(inetAddr);
+				iaAddr.setState(IaAddress.STATIC);
+				BindingAddress bindingAddr = 
+					new BindingAddress(iaAddr, (DhcpConfigObject)staticBinding);
+				setBindingObjectTimes(bindingAddr, 
+						staticBinding.getPreferredLifetimeMs(), 
+						staticBinding.getPreferredLifetimeMs());
+				// TODO store the configured options in the persisted binding?
+				// bindingAddr.setDhcpOptions(bp.getDhcpOptions());
+				Collection<BindingObject> bindingObjs = new ArrayList<BindingObject>();
+				bindingObjs.add(bindingAddr);
+				binding.setBindingObjects(bindingObjs);
+				try {
+					iaMgr.createIA(binding);
+				}
+				catch (Exception ex) {
+					log.error("Failed to create persistent binding", ex);
+					return null;
+				}
+			}
+			else {
+				log.error("Failed to build binding object(s)");
+				return null;
+			}
+		}
+		else {
+			log.error("StaticBinding object is null");
+		}
+		
+		String bindingType = (iatype == IdentityAssoc.V4_TYPE) ? "discover" : "solicit";
+		if (binding != null) {
+			log.info("Created static " + bindingType + " binding: " + binding.toString());
+		}
+		else {
+			log.warn("Failed to create static " + bindingType + " binding");
+		}
+		return binding;		
+	}
+	
+	
+	/**
 	 * Update an existing client binding.  Addresses in the current binding that are appropriate
 	 * for the client's link are simply updated with new lifetimes.  If no current bindings are
 	 * appropriate for the client link, new binding addresses will be created and added to the
@@ -365,7 +473,7 @@ public abstract class BaseBindingManager
 	 * @param requestAddrs the list of requested IP addresses, if any
 	 * @param requestMsg the client request message
 	 * @param state the new state for the binding
-	 * @return
+	 * @return the updated Binding
 	 */
 	protected Binding updateBinding(Binding binding, Link clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, byte state)
@@ -374,16 +482,17 @@ public abstract class BaseBindingManager
 		Collection<? extends IaAddress> updateIaAddresses = null;
 		Collection<? extends IaAddress> delIaAddresses = null;	// not used currently
 		
+		log.info("Updating dynamic binding: " + binding);
+		
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
-			log.info("Updating times for existing binding addresses");
 			// current binding has addresses, so update times
 			setBindingObjsTimes(bindingObjs);
 			// the existing IaAddress binding objects will be updated
 			updateIaAddresses = binding.getIaAddresses();
 		}
 		else {
-			log.info("Existing binding has no on-link addresses, allocating new address(es)");
+			log.warn("Existing binding has no on-link addresses, allocating new address(es)");
 			// current binding has no addresses, add new one(s)
 			List<InetAddress> inetAddrs = 
 				getInetAddrs(clientLink, duid, iatype, iaid, requestAddrs, requestMsg);
@@ -391,15 +500,75 @@ public abstract class BaseBindingManager
 				log.error("Failed to update binding, no addresses available");
 				return null;
 			}
-			bindingObjs = buildBindingObjects(clientLink, inetAddrs, requestMsg);
+			bindingObjs = buildBindingObjects(clientLink, inetAddrs, requestMsg, state);
 			binding.setBindingObjects(bindingObjs);
 			// these new IaAddress binding objects will be added
 			addIaAddresses = binding.getIaAddresses();
 		}
 		binding.setState(state);
-		for (BindingObject bindingObj : bindingObjs) {
-			bindingObj.setState(state);
+		try {
+			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses);
+			return binding;	// if we get here, it worked
 		}
+		catch (Exception ex) {
+			log.error("Failed to update binding", ex);
+			return null;
+		}
+	}
+
+	/**
+	 * Update an existing static binding.
+	 * 
+	 * @param binding the existing client binding
+	 * @param clientLink the link for the client request message
+	 * @param duid the DUID of the client
+	 * @param iatype the IA type of the client request
+	 * @param iaid the IAID of the client request
+	 * @param staticBinding the static binding
+	 * @param requestMsg the client request message
+	 * @return the updated Binding
+	 */
+	protected Binding updateStaticBinding(Binding binding, Link clientLink, 
+			byte[] duid, byte iatype, long iaid, StaticBinding staticBinding,
+			DhcpMessageInterface requestMsg)
+	{
+		Collection<? extends IaAddress> addIaAddresses = null;
+		Collection<? extends IaAddress> updateIaAddresses = null;
+		Collection<? extends IaAddress> delIaAddresses = null;	// not used currently
+
+		if (staticBinding != null) {
+			log.info("Updating static binding: " + binding);
+			Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+			if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+				for (BindingObject bindingObj : bindingObjs) {
+					if (bindingObj.getIpAddress().equals(staticBinding.getInetAddress())) {
+						setBindingObjectTimes(bindingObj, 
+								staticBinding.getPreferredLifetimeMs(), 
+								staticBinding.getPreferredLifetimeMs());
+						break;
+					}
+					//TODO: what about bindingObjs that do NOT match the static binding?
+				}
+				// the existing IaAddress binding objects will be updated
+				updateIaAddresses = binding.getIaAddresses();
+			}
+			else {
+				InetAddress inetAddr = staticBinding.getInetAddress();
+				if (inetAddr != null) {
+					BindingObject bindingObj = buildStaticBindingObject(inetAddr, staticBinding);
+					bindingObjs = new ArrayList<BindingObject>();
+					bindingObjs.add(bindingObj);
+					binding.setBindingObjects(bindingObjs);
+					// this new IaAddress binding object will be added
+					addIaAddresses = binding.getIaAddresses();
+				}
+			}
+		}
+		else {
+			log.error("StaticBindingObject is null");
+		}
+
+		binding.setState(IaAddress.STATIC);
 		try {
 			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses);
 			return binding;	// if we get here, it worked
@@ -419,7 +588,7 @@ public abstract class BaseBindingManager
 	 * @param iaid the IAID of the client request
 	 * @param requestAddrs the list of requested IP addresses, if any
 	 * @param requestMsg the client request message
-	 * @return
+	 * @return the list of InetAddresses
 	 */
 	protected List<InetAddress> getInetAddrs(Link clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg)
@@ -453,18 +622,14 @@ public abstract class BaseBindingManager
 						// but, perhaps another thread just created it?
 						if (isMyIa(duid, iatype, iaid, ia)) {
 							log.warn("Requested IP=" + reqAddr.getHostAddress() +
-									" is already held by THIS client IA: " +
-									" duid=" + Util.toHexString(duid) +
-									" iatype=" + iatype +
-									" iaid=" + iaid +
+									" is already held by THIS client " +
+									IdentityAssoc.keyToString(duid, iatype, iaid) +
 									".  Allowing this requested IP.");
 						}
 						else {
 							log.info("Requested IP=" + reqAddr.getHostAddress() +
-									" is held by ANOTHER client IA: " +
-									" duid=" + Util.toHexString(duid) +
-									" iatype=" + iatype +
-									" iaid=" + iaid);
+									" is held by ANOTHER client " +
+									IdentityAssoc.keyToString(duid, iatype, iaid));
 							// the address is held by another IA, so get a new one
 							reqAddr = getNextFreeAddress(clientLink, requestMsg);
 						}
@@ -578,6 +743,13 @@ public abstract class BaseBindingManager
 		return null;
 	}
 	
+	/**
+	 * Find an address that can be reused.  This method is invoked only
+	 * when no "virgin" leases can be found for a new client request.
+	 * 
+	 * @param bp the binding pool
+	 * @return the oldest available address, if any
+	 */
 	protected InetAddress reuseAvailableAddress(BindingPool bp)
 	{
 		lock.lock();
@@ -637,12 +809,14 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the binding (a wrapped IdentityAssoc)
 	 */
-	private Binding buildBinding(Link clientLink, byte[] duid, byte iatype, long iaid)
+	private Binding buildBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
+			byte state)
 	{
 		IdentityAssoc ia = new IdentityAssoc();
 		ia.setDuid(duid);
 		ia.setIatype(iatype);
 		ia.setIaid(iaid);
+		ia.setState(state);
 		return new Binding(ia, clientLink);		
 	}
 	
@@ -652,11 +826,13 @@ public abstract class BaseBindingManager
 	 * @param clientLink the client link
 	 * @param inetAddrs the list of IP addresses for the client binding
 	 * @param requestMsg the request message
+	 * @param state the binding state
 	 * 
 	 * @return the set<binding object>
 	 */
 	private Set<BindingObject> buildBindingObjects(Link clientLink, 
-			List<InetAddress> inetAddrs, DhcpMessageInterface requestMsg)
+			List<InetAddress> inetAddrs, DhcpMessageInterface requestMsg,
+			byte state)
 	{
 		Set<BindingObject> bindingObjs = new HashSet<BindingObject>();
 		for (InetAddress inetAddr : inetAddrs) {
@@ -664,6 +840,7 @@ public abstract class BaseBindingManager
 				log.debug("Building BindingObject for IP=" + inetAddr.getHostAddress());
 			BindingObject bindingObj = buildBindingObject(inetAddr, clientLink, requestMsg);
 			if (bindingObj != null) {
+				bindingObj.setState(state);
 				bindingObjs.add(bindingObj);
 			}
 			else {
@@ -675,9 +852,10 @@ public abstract class BaseBindingManager
 	
 	/**
 	 * Build the appropriate type of BindingObject.  This method is implemented by the
-	 * subclasses to create an NA/TA AddressBinding object or a PrefixBinding object.
+	 * subclasses to create an NA/TA BindingAddress object or a BindingPrefix object
+	 * or a V4AddressBinding object.
 	 * 
-	 * @param inetAddr the IP address for this AddressBinding/PrefixBinding
+	 * @param inetAddr the IP address for this binding object
 	 * @param clientLink the client link
 	 * @param requestMsg the request message
 	 * @return the binding object
@@ -685,6 +863,30 @@ public abstract class BaseBindingManager
 	protected abstract BindingObject buildBindingObject(InetAddress inetAddr, 
 			Link clientLink, DhcpMessageInterface requestMsg);
 
+
+	/**
+	 * Build a BindingObject from a static binding.  Because the StaticBinding
+	 * implements the DhcpConfigObject interface, it can be used directly in
+	 * creating the BindingObject, unlike buildBindingObject above which is
+	 * abstract because each implementation must lookup the object in that
+	 * binding manager's map of binding pools.
+	 * 
+	 * @param inetAddr the IP address for this binding object
+	 * @param staticBinding the static binding
+	 * @return the binding object
+	 */
+	protected BindingObject buildStaticBindingObject(InetAddress inetAddr,
+			StaticBinding staticBinding)
+	{
+		IaAddress iaAddr = new IaAddress();
+		iaAddr.setIpAddress(inetAddr);
+		BindingAddress bindingAddr = new BindingAddress(iaAddr, staticBinding);
+		setBindingObjectTimes(bindingAddr, 
+				staticBinding.getPreferredLifetimeMs(), 
+				staticBinding.getPreferredLifetimeMs());
+		return bindingAddr;
+	}
+	
 	/**
 	 * Sets the lifetimes of the given collection of binding objects.
 	 * 
@@ -694,11 +896,10 @@ public abstract class BaseBindingManager
 	{
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			for (BindingObject bindingObj : bindingObjs) {
-				BindingPool bp = bindingObj.getBindingPool();
-				// TODO: is this the right place to do this?
-				// mark the address in use, just to be sure
-				bp.setUsed(bindingObj.getIpAddress());
-				setBindingObjectTimes(bindingObj, bp.getPreferredLifetimeMs(), bp.getValidLifetimeMs());
+				DhcpConfigObject configObj = bindingObj.getConfigObj();
+				setBindingObjectTimes(bindingObj, 
+						configObj.getPreferredLifetimeMs(), 
+						configObj.getValidLifetimeMs());
 				//TODO: if we store the options, and they have changed,
 				// 		then we must update those options here somehow
 			}
@@ -714,14 +915,28 @@ public abstract class BaseBindingManager
 	 */
 	protected void setBindingObjectTimes(BindingObject bindingObj, long preferred, long valid)
 	{
-		log.debug("Updating binding times for address: " + 
-				bindingObj.getIpAddress().getHostAddress());
+		if (log.isDebugEnabled())
+			log.debug("Updating binding times for address: " + 
+					bindingObj.getIpAddress().getHostAddress() +
+					" preferred=" + preferred + ", valid=" + valid);
 		Date now = new Date();
 		bindingObj.setStartTime(now);
-		long pEndTime = now.getTime() + preferred;
-		bindingObj.setPreferredEndTime(new Date(pEndTime));
-		long vEndTime = now.getTime() + valid;
-		bindingObj.setValidEndTime(new Date(vEndTime));
+		if (preferred < 0) {
+			// infinite lease
+			bindingObj.setPreferredEndTime(new Date(-1));
+		}
+		else {
+			long pEndTime = now.getTime() + preferred;
+			bindingObj.setPreferredEndTime(new Date(pEndTime));
+		}
+		if (valid < 0) {
+			// infinite lease
+			bindingObj.setValidEndTime(new Date(-1));
+		}
+		else {
+			long vEndTime = now.getTime() + valid;
+			bindingObj.setValidEndTime(new Date(vEndTime));
+		}
 	}
 
 	public IaManager getIaMgr() {

@@ -45,6 +45,7 @@ package com.jagornet.dhcpv6.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,8 @@ public class DhcpConstants
 	
 	/** The Constant SERVER_PORT. */
 	public static final int SERVER_PORT = 547;
+	
+	public static SimpleDateFormat dateFormat = null;
 
 	/** DHCP Message Types - use short to support unsigned byte. */
 	public static final short SOLICIT = 1;
@@ -318,6 +321,7 @@ public class DhcpConstants
 			ALL_DHCP_RELAY_AGENTS_AND_SERVERS = InetAddress.getByName("FF02::1:2");
 			ALL_DHCP_SERVERS = InetAddress.getByName("FF05::1:3");
 			ZEROADDR = InetAddress.getByName("0.0.0.0");
+			dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 		}
 		catch (UnknownHostException ex) { 
 			log.error("Failed to initialize IP constants: " + ex);

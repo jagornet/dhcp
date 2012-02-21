@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.db;
 
 import java.util.Collection;
 
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
 
@@ -102,13 +103,13 @@ public class IaPrefix extends IaAddress
 		sb.append(" prefixLength=");
 		sb.append(this.getPrefixLength());
 		sb.append(" state=");
-		sb.append(this.getState() + "(" + stateToString() + ")");
+		sb.append(this.getState() + "(" + stateToString(this.getState()) + ")");
 		sb.append(" startTime=");
-		sb.append(this.getStartTime());
+		sb.append(DhcpConstants.dateFormat.format(this.getStartTime()));
 		sb.append(" preferredEndTime=");
-		sb.append(this.getPreferredEndTime());
+		sb.append(DhcpConstants.dateFormat.format(this.getPreferredEndTime()));
 		sb.append(" validEndTime=");
-		sb.append(this.getValidEndTime());
+		sb.append(DhcpConstants.dateFormat.format(this.getValidEndTime()));
 		Collection<DhcpOption> opts = this.getDhcpOptions();
 		if (opts != null) {
 			for (DhcpOption dhcpOption : opts) {

@@ -40,6 +40,7 @@ import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientFqdnOption;
+import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
@@ -48,7 +49,6 @@ import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.server.request.ddns.DhcpDdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AddressBinding;
 import com.jagornet.dhcpv6.xml.AddressBindingsType;
 import com.jagornet.dhcpv6.xml.AddressPool;
@@ -209,12 +209,10 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
     {
 		AddressBindingPool bp = new AddressBindingPool(pool);
 		long pLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong((AddressPoolInterface) bp, 
-					link, Property.PREFERRED_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.PREFERRED_LIFETIME);
 		bp.setPreferredLifetime(pLifetime);
 		long vLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong((AddressPoolInterface) bp, 
-					link, Property.VALID_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.VALID_LIFETIME);
 		bp.setValidLifetime(vLifetime);
 		bp.setLinkFilter(linkFilter);
 		
@@ -238,31 +236,57 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
      */
     protected abstract AddressBindingsType getAddressBindingsType(Link link);
     
-    protected void initBindings(Link link) throws DhcpServerConfigException
-    {
-    	try {
-			AddressBindingsType bindingsType = getAddressBindingsType(link);
-			if (bindingsType != null) {
-				List<AddressBinding> staticBindings = 
-					bindingsType.getBindingList();
-				if (staticBindings != null) {
-					for (AddressBinding staticBinding : staticBindings) {
-	//TODO								reconcileStaticBinding(staticBinding);
-						setIpAsUsed(link, 
-								InetAddress.getByName(staticBinding.getIpAddress()));
-					}
+    /**
+     * Build the list of static bindings for the given link.
+     * 
+     * @param link the link
+     * @return the list of static bindings
+     * @throws DhcpServerConfigException if the static binding is invalid
+     */
+    protected List<? extends StaticBinding> buildStaticBindings(Link link) 
+			throws DhcpServerConfigException
+	{
+		List<StaticAddressBinding> staticBindings = new ArrayList<StaticAddressBinding>();
+		AddressBindingsType bindingsType = getAddressBindingsType(link);
+		if (bindingsType != null) {
+			List<AddressBinding> bindings = bindingsType.getBindingList();
+			if ((bindings != null) && !bindings.isEmpty()) {
+				for (AddressBinding binding : bindings) {
+					StaticAddressBinding sab = buildStaticBinding(binding, link);
+					staticBindings.add(sab);
 				}
 			}
+		}
+		return staticBindings;
+	}
+    
+    /**
+     * Build a static address binding from the given address binding.
+     * 
+     * @param binding the address binding
+     * @param link the link
+     * @return the static address binding
+     * @throws DhcpServerConfigException if the static binding is invalid
+     */
+    protected StaticAddressBinding buildStaticBinding(AddressBinding binding, Link link) 
+    		throws DhcpServerConfigException
+    {
+    	try {
+    		InetAddress inetAddr = InetAddress.getByName(binding.getIpAddress());
+    		StaticAddressBinding sb = new StaticAddressBinding(binding, getIaType());
+    		setIpAsUsed(link, inetAddr);
+    		return sb;
     	}
     	catch (UnknownHostException ex) {
     		log.error("Invalid static binding address", ex);
-    		throw new DhcpServerConfigException("Invalid statid binding address", ex);
+    		throw new DhcpServerConfigException("Invalid static binding address", ex);
     	}
     }
     
     /**
      * Perform the DDNS delete processing when a lease is released or expired.
      * 
+     * @param ia the IdentityAssoc of the client
      * @param iaAddr the released or expired IaAddress 
      */
     protected void ddnsDelete(IdentityAssoc ia, IaAddress iaAddr)
@@ -288,20 +312,29 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 						if ((fqdn != null) && !fqdn.isEmpty()) {
 				        	DhcpLink link = serverConfig.findLinkForAddress(iaAddr.getIpAddress());
 				        	if (link != null) {
-				        		BindingAddress bindingAddr =
-				        			buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+				        		BindingAddress bindingAddr = null;
+				        		StaticBinding staticBinding =
+				        			findStaticBinding(link.getLink(), ia.getDuid(), 
+				        					ia.getIatype(), ia.getIaid(), null);
+				        		if (staticBinding != null) {
+				        			bindingAddr = 
+				        				buildStaticBindingFromIaAddr(iaAddr, staticBinding);
+				        		}
+				        		else {
+				        			bindingAddr =
+				        				buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+				        		}
 				        		if (bindingAddr != null) {
-				        			
-				        			AddressBindingPool pool = 
-				        				(AddressBindingPool) bindingAddr.getBindingPool();
 				        			
 				        			DdnsCallback ddnsComplete = 
 				        				new DhcpDdnsComplete(bindingAddr, clientFqdnOption);
+				        			
+				        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
 
 				        			DdnsUpdater ddns =
-										new DdnsUpdater(link.getLink(), pool,
+										new DdnsUpdater(link.getLink(), configObj,
 												bindingAddr.getIpAddress(), fqdn, ia.getDuid(),
-												pool.getValidLifetime(),
+												configObj.getValidLifetime(),
 												clientFqdnOption.getUpdateAaaaBit(), true,
 												ddnsComplete);
 				        			
@@ -348,18 +381,23 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 	protected Binding buildBindingFromIa(IdentityAssoc ia, 
 			Link clientLink, DhcpMessageInterface requestMsg)
 	{
-		if (log.isDebugEnabled())
-			log.debug("Building binding from IA: " +
-					" duid=" + Util.toHexString(ia.getDuid()) +
-					" iatype=" + ia.getIatype() +
-					" iaid=" + ia.getIaid());
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
 		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
 			List<BindingAddress> bindingAddrs = new ArrayList<BindingAddress>();
 			for (IaAddress iaAddr : iaAddrs) {
-				BindingAddress bindingAddr = 
-					buildBindingAddrFromIaAddr(iaAddr, clientLink, requestMsg);
+				BindingAddress bindingAddr = null;
+        		StaticBinding staticBinding =
+        			findStaticBinding(clientLink, ia.getDuid(), 
+        					ia.getIatype(), ia.getIaid(), requestMsg);
+        		if (staticBinding != null) {
+        			bindingAddr = 
+        				buildStaticBindingFromIaAddr(iaAddr, staticBinding);
+        		}
+        		else {
+        			bindingAddr =
+        				buildBindingAddrFromIaAddr(iaAddr, clientLink, requestMsg);
+        		}
 				if (bindingAddr != null)
 					bindingAddrs.add(bindingAddr);
 			}
@@ -384,15 +422,9 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 	private BindingAddress buildBindingAddrFromIaAddr(IaAddress iaAddr, 
 			Link clientLink, DhcpMessageInterface requestMsg)
 	{
-		if (log.isDebugEnabled())
-			log.debug("Building BindingAddress from " + iaAddr.toString());
 		InetAddress inetAddr = iaAddr.getIpAddress();
 		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
 		if (bp != null) {
-			// TODO determine if we need to set the IP as used in the
-			// BindingPool.  Note that this method is also called when
-			// releasing addresses.
-//			bp.setUsed(inetAddr);
 			// TODO store the configured options in the persisted binding?
 			// ipAddr.setDhcpOptions(bp.getDhcpOptions());
 			return new BindingAddress(iaAddr, (AddressBindingPool)bp);
@@ -403,6 +435,21 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 		}
 		// MUST have a BindingPool, otherwise something's broke
 		return null;
+	}
+	
+	/**
+	 * Build a BindingAddress given an IaAddress loaded from the database
+	 * and a static binding for the client request.
+	 * 
+	 * @param iaAddr
+	 * @param staticBinding
+	 * @return
+	 */
+	private BindingAddress buildStaticBindingFromIaAddr(IaAddress iaAddr, 
+			StaticBinding staticBinding)
+	{
+		BindingAddress bindingAddr = new BindingAddress(iaAddr, staticBinding);
+		return bindingAddr;
 	}
 	
 	/**

@@ -31,7 +31,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.db.IdentityAssoc;
+import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
@@ -139,6 +139,7 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 
 		boolean sendReply = true;
 		boolean rapidCommit = isRapidCommit(requestMsg, clientLink.getLink());
+		byte state = rapidCommit ? IaAddress.COMMITTED : IaAddress.ADVERTISED;
 		DhcpClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
 		
 		List<DhcpIaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
@@ -152,12 +153,11 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					if (binding == null) {
 						// no current binding for this IA_NA, create a new one
 						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
-								clientIdOption, dhcpIaNaOption, requestMsg, rapidCommit);
+								clientIdOption, dhcpIaNaOption, requestMsg, state);
 					}
 					else {
 						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-								clientIdOption, dhcpIaNaOption, requestMsg, rapidCommit ? 
-										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
+								clientIdOption, dhcpIaNaOption, requestMsg, state);
 					}
 					if (binding != null) {
 						// have a good binding, put it in the reply with options
@@ -190,12 +190,11 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					if (binding == null) {
 						// no current binding for this IA_TA, create a new one
 						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
-								clientIdOption, dhcpIaTaOption, requestMsg, rapidCommit);
+								clientIdOption, dhcpIaTaOption, requestMsg, state);
 					}
 					else {
 						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-								clientIdOption, dhcpIaTaOption, requestMsg, rapidCommit ? 
-										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
+								clientIdOption, dhcpIaTaOption, requestMsg, state);
 					}
 					if (binding != null) {
 						// have a good binding, put it in the reply with options
@@ -228,12 +227,11 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
 					if (binding == null) {
 						// no current binding for this IA_PD, create a new one
 						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
-								clientIdOption, dhcpIaPdOption, requestMsg, rapidCommit);
+								clientIdOption, dhcpIaPdOption, requestMsg, state);
 					}
 					else {
 						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-								clientIdOption, dhcpIaPdOption, requestMsg, rapidCommit ? 
-										IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
+								clientIdOption, dhcpIaPdOption, requestMsg, state);
 					}
 					if (binding != null) {
 						// have a good binding, put it in the reply with options

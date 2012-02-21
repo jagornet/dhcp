@@ -127,7 +127,7 @@ public interface IaAddressDAO
 	 * 
 	 * @return the list< ia address>
 	 */
-	public List<IaAddress> findAllOlderThanNow(byte iatype);
+	public List<IaAddress> findExpiredAddresses(byte iatype);
 
 	/**
 	 * Find unused by range.

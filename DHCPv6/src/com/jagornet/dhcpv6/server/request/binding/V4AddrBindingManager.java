@@ -37,7 +37,7 @@ import com.jagornet.dhcpv6.xml.Link;
  * 
  * @author A. Gregory Rabil
  */
-public interface V4AddrBindingManager
+public interface V4AddrBindingManager extends StaticBindingManager
 {
 	/**
 	 * Initialize the manager.
@@ -69,7 +69,7 @@ public interface V4AddrBindingManager
 	 * @return the binding
 	 */
 	public Binding createDiscoverBinding(Link clientLink, byte[] macAddr, 
-			DhcpMessageInterface requestMsg, boolean rapidCommit);
+			DhcpMessageInterface requestMsg, byte state);
 
 	/**
 	 * Update binding.

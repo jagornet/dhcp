@@ -40,18 +40,5 @@
 	<bean id="v4AddrBindingManager" 
   		  class="com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManagerImpl"
   		  autowire="byType"/>
-  		
-	<bean id="identityAssocDAO" 
-		  class="com.jagornet.dhcpv6.db.JdbcIdentityAssocDAO" 
-		  autowire="byType"/>
-	<bean id="iaAddressDAO" 
-		  class="com.jagornet.dhcpv6.db.JdbcIaAddressDAO" 
-		  autowire="byType"/>
-	<bean id="iaPrefixDAO" 
-		  class="com.jagornet.dhcpv6.db.JdbcIaPrefixDAO" 
-		  autowire="byType"/>
-	<bean id="dhcpOptionDAO" 
-		  class="com.jagornet.dhcpv6.db.JdbcDhcpOptionDAO" 
-		  autowire="byType"/>
 
 </beans>

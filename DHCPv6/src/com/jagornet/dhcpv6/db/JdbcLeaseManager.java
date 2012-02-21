@@ -593,6 +593,7 @@ public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
         return getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where iatype = ?" +
+                " and state != " + IaAddress.STATIC +
                 " and validendtime < ? order by validendtime",
                 new PreparedStatementSetter() {
             		@Override

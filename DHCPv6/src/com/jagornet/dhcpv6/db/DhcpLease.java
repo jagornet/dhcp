@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
+import com.jagornet.dhcpv6.util.DhcpConstants;
+
 /**
  * The IaAddress POJO class for the DHCPLEASE database table.
  * 
@@ -39,19 +41,6 @@ import java.util.Date;
 
 public class DhcpLease
 {
-	// iatypes
-	public static final byte V4_TYPE = 0;
-	public static final byte NA_TYPE = 1;
-	public static final byte TA_TYPE = 2;
-	public static final byte PD_TYPE = 3;
-
-	// states
-	public static final byte ADVERTISED = 1;
-	public static final byte COMMITTED = 2;
-	public static final byte EXPIRED = 3;
-	public static final byte RELEASED = 4;
-	public static final byte DECLINED = 5;
-
 	protected InetAddress ipAddress;
 	protected byte[] duid;
 	protected byte iatype;
@@ -396,42 +385,13 @@ public class DhcpLease
 	 */
 	@Override
 	public String toString() {
-		return "DhcpLease [ipAddress=" + ipAddress + ", duid="
-				+ Arrays.toString(duid) + ", iatype=" + iatype + ", iaid="
-				+ iaid + ", state=" + state + ", startTime=" + startTime
-				+ ", preferredEndTime=" + preferredEndTime + ", validEndTime="
-				+ validEndTime + ", iaDhcpOptions=" + iaDhcpOptions
-				+ ", iaAddrDhcpOptions=" + iaAddrDhcpOptions + "]";
-	}
-	
-	/**
-	 * State to string.
-	 *
-	 * @return the string
-	 */
-	public String stateToString()
-	{
-		String s = null;
-		switch (state) {
-			case ADVERTISED:
-				s = "Advertised";
-				break;
-			case COMMITTED:
-				s = "Committed";
-				break;
-			case EXPIRED:
-				s = "Expired";
-				break;
-			case RELEASED:
-				s = "Released";
-				break;
-			case DECLINED:
-				s = "Declined";
-				break;
-			default:
-				s = "Unknown";
-				break;
-		}
-		return s;
+		return "DhcpLease [ipAddress=" + ipAddress + 
+				", duid=" + Arrays.toString(duid) + 
+				", iatype=" + iatype + ", iaid=" + iaid + ", state=" + state + 
+				", startTime=" + DhcpConstants.dateFormat.format(startTime) +
+				", preferredEndTime=" + DhcpConstants.dateFormat.format(preferredEndTime) + 
+				", validEndTime=" + DhcpConstants.dateFormat.format(validEndTime) + 
+				", iaDhcpOptions=" + iaDhcpOptions + 
+				", iaAddrDhcpOptions=" + iaAddrDhcpOptions + "]";
 	}
 }

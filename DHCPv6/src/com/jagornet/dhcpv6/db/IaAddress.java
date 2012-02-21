@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
 /**
@@ -46,6 +47,7 @@ public class IaAddress
 	public static final byte EXPIRED = 3;
 	public static final byte RELEASED = 4;
 	public static final byte DECLINED = 5;
+	public static final byte STATIC = 6;
 
 	protected Long id;	// the database-generated object ID
 	protected InetAddress ipAddress;
@@ -311,17 +313,23 @@ public class IaAddress
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("\tIA_ADDR: ");
+		sb.append("IA_ADDR: ");
 		sb.append(" ip=");
 		sb.append(this.getIpAddress().getHostAddress());
 		sb.append(" state=");
-		sb.append(this.getState() + "(" + stateToString() + ")");
+		sb.append(this.getState() + "(" + stateToString(this.getState()) + ")");
 		sb.append(" startTime=");
-		sb.append(this.getStartTime());
+		sb.append(DhcpConstants.dateFormat.format(this.getStartTime()));
 		sb.append(" preferredEndTime=");
-		sb.append(this.getPreferredEndTime());
+		if (this.getPreferredEndTime().getTime() < 0)
+			sb.append("infinite");
+		else 
+			sb.append(DhcpConstants.dateFormat.format(this.getPreferredEndTime()));
 		sb.append(" validEndTime=");
-		sb.append(this.getValidEndTime());
+		if (this.getValidEndTime().getTime() < 0)
+			sb.append("infinite");
+		else
+			sb.append(DhcpConstants.dateFormat.format(this.getValidEndTime()));
 		Collection<DhcpOption> opts = this.getDhcpOptions();
 		if (opts != null) {
 			for (DhcpOption dhcpOption : opts) {
@@ -338,7 +346,7 @@ public class IaAddress
 	 *
 	 * @return the string
 	 */
-	public String stateToString()
+	public static String stateToString(byte state)
 	{
 		String s = null;
 		switch (state) {
@@ -356,6 +364,9 @@ public class IaAddress
 				break;
 			case DECLINED:
 				s = "Declined";
+				break;
+			case STATIC:
+				s = "Static";
 				break;
 			default:
 				s = "Unknown";

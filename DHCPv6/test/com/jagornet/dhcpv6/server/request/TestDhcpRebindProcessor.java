@@ -200,6 +200,9 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 		DhcpRebindProcessor nProc =
 			new DhcpRebindProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());
 		
+		// set the server policy to allow it to verify this unknown rebind
+		DhcpServerPolicies.setProperty(Property.VERIFY_UNKNOWN_REBIND, "true");
+		
 		replyMsg = nProc.processMessage();
 		
 		assertNotNull(replyMsg);

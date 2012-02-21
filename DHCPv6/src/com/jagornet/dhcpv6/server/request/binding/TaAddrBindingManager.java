@@ -39,7 +39,7 @@ import com.jagornet.dhcpv6.xml.Link;
  * 
  * @author A. Gregory Rabil
  */
-public interface TaAddrBindingManager
+public interface TaAddrBindingManager extends StaticBindingManager
 {
 	/**
 	 * Initialize the manager.
@@ -73,7 +73,7 @@ public interface TaAddrBindingManager
 	 * @return the binding
 	 */
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaTaOption iaTaOption, DhcpMessageInterface requestMsg, boolean rapidCommit);
+			DhcpIaTaOption iaTaOption, DhcpMessageInterface requestMsg, byte state);
 
 	/**
 	 * Update binding.

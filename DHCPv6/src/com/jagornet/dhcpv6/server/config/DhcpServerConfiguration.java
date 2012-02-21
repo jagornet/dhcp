@@ -58,14 +58,11 @@ import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ConfigOptions;
 import com.jagornet.dhcpv6.server.DhcpV6Server;
-import com.jagornet.dhcpv6.server.request.binding.AddressBindingPool;
 import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
-import com.jagornet.dhcpv6.server.request.binding.PrefixBindingPool;
 import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager;
-import com.jagornet.dhcpv6.server.request.binding.V4AddressBindingPool;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
@@ -903,17 +900,17 @@ public class DhcpServerConfiguration
      * @return the map< integer, dhcp option>
      */
     public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpMessage requestMsg, DhcpLink dhcpLink, 
-    		AddressBindingPool bindingPool)
+    		DhcpOptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveNaAddrOptions(requestMsg, dhcpLink);
-    	if ((bindingPool != null) && (bindingPool.getAddressPool() != null)) {
-	    	DhcpConfigOptions configOptions = bindingPool.getAddrConfigOptions();
+    	if (configObj != null) {
+	    	DhcpConfigOptions configOptions = configObj.getDhcpConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
 	    	
 	    	Map<Integer, DhcpOption> filteredOptions = 
-	    		filteredNaAddrOptions(requestMsg, bindingPool.getAddressPool().getFilters());
+	    		filteredNaAddrOptions(requestMsg, configObj.getFilters());
 	    	if (filteredOptions != null) {
 	    		optionMap.putAll(filteredOptions);
 	    	}
@@ -1027,17 +1024,17 @@ public class DhcpServerConfiguration
      * @return the map< integer, dhcp option>
      */
     public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpMessage requestMsg, DhcpLink dhcpLink, 
-    		AddressBindingPool bindingPool)
+    		DhcpOptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveNaAddrOptions(requestMsg, dhcpLink);
-    	if ((bindingPool != null) && (bindingPool.getAddressPool() != null)) {
-	    	DhcpConfigOptions configOptions = bindingPool.getAddrConfigOptions();
+    	if (configObj != null)  {
+	    	DhcpConfigOptions configOptions = configObj.getDhcpConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
 	    	
 	    	Map<Integer, DhcpOption> filteredOptions = 
-	    		filteredTaAddrOptions(requestMsg, bindingPool.getAddressPool().getFilters());
+	    		filteredTaAddrOptions(requestMsg, configObj.getFilters());
 	    	if (filteredOptions != null) {
 	    		optionMap.putAll(filteredOptions);
 	    	}
@@ -1151,17 +1148,17 @@ public class DhcpServerConfiguration
      * @return the map< integer, dhcp option>
      */
     public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpMessage requestMsg, DhcpLink dhcpLink, 
-    		PrefixBindingPool bindingPool)
+    		DhcpOptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = effectivePrefixOptions(requestMsg, dhcpLink);
-    	if ((bindingPool != null) && (bindingPool.getPrefixPool() != null)) {
-	    	DhcpConfigOptions configOptions = bindingPool.getPrefixConfigOptions();
+    	if (configObj != null) {
+	    	DhcpConfigOptions configOptions = configObj.getDhcpConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
 	    	
 	    	Map<Integer, DhcpOption> filteredOptions = 
-	    		filteredPrefixOptions(requestMsg, bindingPool.getPrefixPool().getFilters());
+	    		filteredPrefixOptions(requestMsg, configObj.getFilters());
 	    	if (filteredOptions != null) {
 	    		optionMap.putAll(filteredOptions);
 	    	}
@@ -1227,17 +1224,17 @@ public class DhcpServerConfiguration
      * @return the map< integer, dhcp option>
      */
     public Map<Integer, DhcpOption> effectiveV4AddrOptions(DhcpV4Message requestMsg, DhcpLink dhcpLink, 
-    		V4AddressBindingPool bindingPool)
+    		DhcpV4OptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveV4AddrOptions(requestMsg, dhcpLink);
-    	if ((bindingPool != null) && (bindingPool.getV4AddressPool() != null)) {
-	    	DhcpV4ConfigOptions configOptions = bindingPool.getV4ConfigOptions();
+    	if (configObj != null) {
+	    	DhcpV4ConfigOptions configOptions = configObj.getV4ConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
 	    	
 	    	Map<Integer, DhcpOption> filteredOptions = 
-	    		filteredV4Options(requestMsg, bindingPool.getV4AddressPool().getFilters());
+	    		filteredV4Options(requestMsg, configObj.getFilters());
 	    	if (filteredOptions != null) {
 	    		optionMap.putAll(filteredOptions);
 	    	}
@@ -1795,7 +1792,9 @@ public class DhcpServerConfiguration
     {
         boolean matches = false;
         if (option instanceof DhcpComparableOption) {
-            matches = ((DhcpComparableOption)option).matches(expression);
+        	if (option.isV4() == expression.getV4()) {
+        		matches = ((DhcpComparableOption)option).matches(expression);
+        	}
         }
         else {
             log.error("Configured option expression is not comparable:" +

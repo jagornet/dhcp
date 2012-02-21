@@ -120,6 +120,7 @@
 			<xs:element name="v4TimeServersOption" type="v4TimeServersOption" minOccurs="0"/>
 			<xs:element name="v4DomainServersOption" type="v4DomainServersOption" minOccurs="0"/>
 			<xs:element name="v4DomainNameOption" type="v4DomainNameOption" minOccurs="0"/>
+			<xs:element name="v4VendorSpecificOption" type="v4VendorSpecificOption" minOccurs="0"/>
 			<xs:element name="otherOptions" type="genericOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -368,7 +369,7 @@
 	<xs:complexType name="v4AddressBinding">
 		<xs:sequence>
 			<xs:element name="ipAddress" type="ipAddress"/>
-			<xs:element name="mac" type="opaqueData"/>
+			<xs:element name="chaddr" type="macAddress"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
 			<xs:element name="configOptions" type="v4ConfigOptionsType" minOccurs="0"/>
 		</xs:sequence>
@@ -438,6 +439,10 @@
 	<xs:simpleType name="ipAddress">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
+	
+	<xs:simpleType name="macAddress">
+		<xs:restriction base="xs:hexBinary"/>
+	</xs:simpleType>
 
 	<xs:simpleType name="domainName">
 		<xs:restriction base="xs:string">
@@ -506,6 +511,7 @@
 			<xs:element name="opaqueDataOption" type="opaqueDataOptionType"/>
 			<xs:element name="opaqueDataListOption" type="opaqueDataListOptionType"/>
 		</xs:choice>
+		<xs:attribute name="v4" type="xs:boolean" default="false"/>	
 		<xs:attribute name="code" type="code"/>
 		<xs:attribute name="name" type="name" use="optional"/>
 	</xs:complexType>

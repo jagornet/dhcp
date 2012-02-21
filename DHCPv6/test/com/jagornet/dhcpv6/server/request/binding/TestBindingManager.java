@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.util.Iterator;
 
 import com.jagornet.dhcpv6.db.BaseDbTestCase;
+import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
@@ -106,7 +107,7 @@ public class TestBindingManager extends BaseDbTestCase
 		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
 		Binding binding = manager.createSolicitBinding(clientLink.getLink(), clientIdOption, 
-				dhcpIaNa, null, false);
+				dhcpIaNa, null, IdentityAssoc.ADVERTISED);
 		assertNotNull(binding);
 		Binding binding2 = manager.findCurrentBinding(clientLink.getLink(), clientIdOption, 
 				dhcpIaNa, null);

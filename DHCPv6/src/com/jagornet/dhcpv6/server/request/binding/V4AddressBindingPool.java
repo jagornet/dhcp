@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ConfigOptions;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
+import com.jagornet.dhcpv6.server.config.DhcpV4OptionConfigObject;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.FiltersType;
 import com.jagornet.dhcpv6.xml.LinkFilter;
@@ -48,7 +49,7 @@ import com.jagornet.dhcpv6.xml.V4AddressPool;
  * 
  * @author A. Gregory Rabil
  */
-public class V4AddressBindingPool implements BindingPool, AddressPoolInterface
+public class V4AddressBindingPool implements BindingPool, DhcpV4OptionConfigObject
 {
 	
 	/** The log. */

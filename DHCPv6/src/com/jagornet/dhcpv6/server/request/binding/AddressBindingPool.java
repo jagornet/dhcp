@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.option.DhcpConfigOptions;
+import com.jagornet.dhcpv6.server.config.DhcpOptionConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AddressPool;
@@ -48,7 +49,7 @@ import com.jagornet.dhcpv6.xml.PoliciesType;
  * 
  * @author A. Gregory Rabil
  */
-public class AddressBindingPool implements BindingPool, AddressPoolInterface
+public class AddressBindingPool implements BindingPool, DhcpOptionConfigObject
 {
 	private static Logger log = LoggerFactory.getLogger(AddressBindingPool.class);
 
@@ -68,7 +69,7 @@ public class AddressBindingPool implements BindingPool, AddressPoolInterface
 	protected AddressPool pool;
 	
 	/** The configured options for this pool */
-	protected DhcpConfigOptions addrConfigOptions;
+	protected DhcpConfigOptions dhcpConfigOptions;
 	
 	/** The LinkFilter containing this pool, if any */
 	protected LinkFilter linkFilter; 
@@ -101,7 +102,7 @@ public class AddressBindingPool implements BindingPool, AddressPoolInterface
 			new FreeList(new BigInteger(range.getStartAddress().getAddress()),
 					new BigInteger(range.getEndAddress().getAddress()));
 		reaper = new Timer(pool.getRange()+"_Reaper");
-		addrConfigOptions = new DhcpConfigOptions(pool.getAddrConfigOptions());
+		dhcpConfigOptions = new DhcpConfigOptions(pool.getAddrConfigOptions());
 	}
 	
 	/**
@@ -313,12 +314,12 @@ public class AddressBindingPool implements BindingPool, AddressPoolInterface
 		this.linkFilter = linkFilter;
 	}
 	
-	public DhcpConfigOptions getAddrConfigOptions() {
-		return addrConfigOptions;
+	public DhcpConfigOptions getDhcpConfigOptions() {
+		return dhcpConfigOptions;
 	}
 
-	public void setAddrConfigOptions(DhcpConfigOptions addrConfigOptions) {
-		this.addrConfigOptions = addrConfigOptions;
+	public void setDhcpConfigOptions(DhcpConfigOptions dhcpConfigOptions) {
+		this.dhcpConfigOptions = dhcpConfigOptions;
 	}
 
 	public String toString()

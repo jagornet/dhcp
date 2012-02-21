@@ -33,9 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcpv6.server.request.binding.AddressPoolInterface;
 import com.jagornet.dhcpv6.xml.Link;
 
 /**
@@ -99,8 +99,8 @@ public class DdnsUpdater implements Runnable
 	/** The client link. */
 	private Link clientLink;
 	
-	/** The addr pool. */
-	private AddressPoolInterface pool;
+	/** The config object. */
+	private DhcpConfigObject configObj;
 	
 	/** the inet addr. */
 	private InetAddress addr;
@@ -132,12 +132,13 @@ public class DdnsUpdater implements Runnable
 	 * @param doForwardUpdate the do forward update
 	 * @param isDelete the is delete
 	 */
-	public DdnsUpdater(Link clientLink, AddressPoolInterface pool,
+	public DdnsUpdater(Link clientLink, DhcpConfigObject configObj,
 			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
 			boolean doForwardUpdate, boolean isDelete,
 			DdnsCallback callback)
 	{
-		this(null, clientLink, pool, addr, fqdn, duid, lifetime, doForwardUpdate, isDelete, callback);
+		this(null, clientLink, configObj, addr, fqdn, duid, lifetime, 
+				doForwardUpdate, isDelete, callback);
 	}
 	
 	/**
@@ -150,7 +151,7 @@ public class DdnsUpdater implements Runnable
 	 * @param doForwardUpdate the do forward update
 	 * @param isDelete the is delete
 	 */
-	public DdnsUpdater(DhcpMessageInterface requestMsg, Link clientLink, AddressPoolInterface pool,
+	public DdnsUpdater(DhcpMessageInterface requestMsg, Link clientLink, DhcpConfigObject configObj,
 			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
 			boolean doForwardUpdate, boolean isDelete,
 			DdnsCallback callback)
@@ -158,7 +159,7 @@ public class DdnsUpdater implements Runnable
 		this.requestMsg = requestMsg;
 		this.duid = duid;
 		this.clientLink = clientLink;
-		this.pool = pool;
+		this.configObj = configObj;
 		this.addr = addr;
 		this.fqdn = fqdn;
 		this.lifetime = lifetime;
@@ -185,7 +186,7 @@ public class DdnsUpdater implements Runnable
 	 */
 	public void run()
 	{
-		setupPolicies(pool, lifetime);						
+		setupPolicies(configObj, lifetime);						
 		try {
 			if (doForwardUpdate) {
 				ForwardDdnsUpdate fwdUpdate = new ForwardDdnsUpdate(fqdn, addr, duid);
@@ -227,7 +228,7 @@ public class DdnsUpdater implements Runnable
 	 * 
 	 * @param addrBindingPool the new up policies
 	 */
-	private void setupPolicies(AddressPoolInterface addrBindingPool, long lifetime)
+	private void setupPolicies(DhcpConfigObject addrBindingPool, long lifetime)
 	{
 		sync = DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg, 
 				addrBindingPool, clientLink, Property.DDNS_SYNCHRONIZE);

@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Properties;
 
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
-import com.jagornet.dhcpv6.server.request.binding.AddressPoolInterface;
 import com.jagornet.dhcpv6.xml.Filter;
 import com.jagornet.dhcpv6.xml.FiltersType;
 import com.jagornet.dhcpv6.xml.Link;
@@ -169,10 +168,10 @@ public class DhcpServerPolicies
 	 * @param name the name
 	 * @param value the value
 	 */
-	public static void setProperty(String name, String value)
+	public static void setProperty(Property prop, String value)
 	{
 		if (SERVER_PROPERTIES != null) {
-			SERVER_PROPERTIES.setProperty(name, value);
+			SERVER_PROPERTIES.setProperty(prop.key(), value);
 		}
 	}
 	
@@ -515,9 +514,9 @@ public class DhcpServerPolicies
      * 
      * @return the string
      */
-    public static String effectivePolicy(AddressPoolInterface pool, Link link, Property prop)
+    public static String effectivePolicy(DhcpConfigObject configObj, Link link, Property prop)
     {
-    	String policy = getPolicy(pool.getPolicies(), prop.key());
+    	String policy = getPolicy(configObj.getPolicies(), prop.key());
     	if (policy != null) {
     		return policy;
     	}
@@ -537,10 +536,10 @@ public class DhcpServerPolicies
 	 * 
 	 * @return true, if successful
 	 */
-	public static boolean effectivePolicyAsBoolean(AddressPoolInterface pool, 
+	public static boolean effectivePolicyAsBoolean(DhcpConfigObject configObj, 
 			Link link, Property prop)
     {
-    	return Boolean.parseBoolean(effectivePolicy(pool, link, prop));
+    	return Boolean.parseBoolean(effectivePolicy(configObj, link, prop));
     }
     
     /**
@@ -552,10 +551,10 @@ public class DhcpServerPolicies
 	 * 
 	 * @return the int
 	 */
-	public static int effectivePolicyAsInt(AddressPoolInterface pool, 
+	public static int effectivePolicyAsInt(DhcpConfigObject configObj, 
 			Link link, Property prop)
     {
-    	return Integer.parseInt(effectivePolicy(pool, link, prop));
+    	return Integer.parseInt(effectivePolicy(configObj, link, prop));
     }
     
     /**
@@ -567,10 +566,10 @@ public class DhcpServerPolicies
 	 * 
 	 * @return the long
 	 */
-	public static long effectivePolicyAsLong(AddressPoolInterface pool, 
+	public static long effectivePolicyAsLong(DhcpConfigObject configObj, 
 			Link link, Property prop)
     {
-    	return Long.parseLong(effectivePolicy(pool, link, prop));
+    	return Long.parseLong(effectivePolicy(configObj, link, prop));
     }
     
     /**
@@ -582,10 +581,10 @@ public class DhcpServerPolicies
 	 * 
 	 * @return the float
 	 */
-	public static float effectivePolicyAsFloat(AddressPoolInterface pool, 
+	public static float effectivePolicyAsFloat(DhcpConfigObject configObj, 
 			Link link, Property prop)
     {
-    	return Float.parseFloat(effectivePolicy(pool, link, prop));
+    	return Float.parseFloat(effectivePolicy(configObj, link, prop));
     }
 	
     /**
@@ -599,12 +598,12 @@ public class DhcpServerPolicies
      * @return the string
      */
     public static String effectivePolicy(DhcpMessageInterface requestMsg, 
-    		AddressPoolInterface pool, Link link, Property prop)
+    		DhcpConfigObject configObj, Link link, Property prop)
     {
 		String policy = null;
 		if (requestMsg != null) {
-			if (pool.getFilters() != null) {
-				List<Filter> filters = pool.getFilters().getFilterList();
+			if (configObj.getFilters() != null) {
+				List<Filter> filters = configObj.getFilters().getFilterList();
 				if (filters != null) {
 					for (Filter filter : filters) {
 						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
@@ -622,7 +621,7 @@ public class DhcpServerPolicies
 		}
 		// client does not match a pool filter 
 		// get the value of the policy on the pool, if any
-		policy = getPolicy(pool.getPolicies(), prop.key());
+		policy = getPolicy(configObj.getPolicies(), prop.key());
 		if (policy != null) {
 			return policy;
 		}
@@ -639,9 +638,9 @@ public class DhcpServerPolicies
      * @return true, if successful
      */
 	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, 
-			AddressPoolInterface pool, Link link, Property prop)
+			DhcpConfigObject configObj, Link link, Property prop)
     {
-    	return Boolean.parseBoolean(effectivePolicy(requestMsg, pool, link, prop));
+    	return Boolean.parseBoolean(effectivePolicy(requestMsg, configObj, link, prop));
     }
     
     /**
@@ -654,9 +653,9 @@ public class DhcpServerPolicies
      * @return the int
      */
 	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, 
-			AddressPoolInterface pool, Link link, Property prop)
+			DhcpConfigObject configObj, Link link, Property prop)
     {
-    	return Integer.parseInt(effectivePolicy(requestMsg, pool, link, prop));
+    	return Integer.parseInt(effectivePolicy(requestMsg, configObj, link, prop));
     }
     
     /**
@@ -669,9 +668,9 @@ public class DhcpServerPolicies
      * @return the long
      */
 	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, 
-			AddressPoolInterface pool, Link link, Property prop)
+			DhcpConfigObject configObj, Link link, Property prop)
     {
-    	return Long.parseLong(effectivePolicy(requestMsg, pool, link, prop));
+    	return Long.parseLong(effectivePolicy(requestMsg, configObj, link, prop));
     }
     
     /**
@@ -684,9 +683,9 @@ public class DhcpServerPolicies
      * @return the float
      */
 	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, 
-			AddressPoolInterface pool, Link link, Property prop)
+			DhcpConfigObject configObj, Link link, Property prop)
     {
-    	return Float.parseFloat(effectivePolicy(requestMsg, pool, link, prop));
+    	return Float.parseFloat(effectivePolicy(requestMsg, configObj, link, prop));
     }    
 
     /**

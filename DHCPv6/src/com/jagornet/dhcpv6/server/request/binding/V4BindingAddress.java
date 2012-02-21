@@ -28,59 +28,37 @@ package com.jagornet.dhcpv6.server.request.binding;
 import org.springframework.beans.BeanUtils;
 
 import com.jagornet.dhcpv6.db.IaAddress;
+import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 
 /**
  * The Class V4BindingAddress.  A wrapper for an IaAddress object with
- * a reference to the configured binding pool for that address.
+ * a reference to the configuration object for that address.
  * 
  * @author A. Gregory Rabil
  */
 public class V4BindingAddress extends IaAddress implements BindingObject
 {
-	
-	/** The orig ia addr. */
-	private IaAddress origIaAddr;
-	
-	/** The binding pool. */
-	private V4AddressBindingPool bindingPool;
+	/** The config obj. */
+	private DhcpConfigObject configObj;
 	
 	/**
 	 * Instantiates a new binding address.
 	 * 
 	 * @param iaAddr the ia addr
-	 * @param bindingPool the binding pool
+	 * @param configObj the config object
 	 */
-	public V4BindingAddress(IaAddress iaAddr, V4AddressBindingPool bindingPool)
+	public V4BindingAddress(IaAddress iaAddr, DhcpConfigObject configObj)
 	{
-		this.origIaAddr = iaAddr;	// save a reference to the original IaAddress
+		// populate *this* IaAddress from the given one
 		BeanUtils.copyProperties(iaAddr, this);
-		this.bindingPool = bindingPool;
-	}
-	
-	/**
-	 * Gets the binding pool.
-	 * 
-	 * @return the binding pool
-	 */
-	public BindingPool getBindingPool() {
-		return bindingPool;
+		this.configObj = configObj;
 	}
 
-	/**
-	 * Sets the binding pool.
-	 * 
-	 * @param bindingPool the new binding pool
-	 */
-	public void setBindingPool(V4AddressBindingPool bindingPool) {
-		this.bindingPool = bindingPool;
+	public DhcpConfigObject getConfigObj() {
+		return configObj;
 	}
-	
-	/**
-	 * Checks for changed.
-	 * 
-	 * @return true, if successful
-	 */
-	public boolean hasChanged() {
-		return !this.equals(origIaAddr);
+
+	public void setConfigObj(DhcpConfigObject configObj) {
+		this.configObj = configObj;
 	}
 }

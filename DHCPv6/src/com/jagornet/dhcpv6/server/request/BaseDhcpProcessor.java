@@ -51,16 +51,16 @@ import com.jagornet.dhcpv6.option.DhcpIaTaOption;
 import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.option.DhcpStatusCodeOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
+import com.jagornet.dhcpv6.server.config.DhcpOptionConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcpv6.server.request.binding.AddressBindingPool;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
 import com.jagornet.dhcpv6.server.request.binding.BindingAddress;
 import com.jagornet.dhcpv6.server.request.binding.BindingObject;
 import com.jagornet.dhcpv6.server.request.binding.BindingPrefix;
-import com.jagornet.dhcpv6.server.request.binding.PrefixBindingPool;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.server.request.ddns.DhcpDdnsComplete;
@@ -372,11 +372,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param pool the pool
      */
     protected void populateNaAddrOptions(DhcpIaAddrOption iaAddrOption, DhcpLink dhcpLink, 
-    		AddressBindingPool bindingPool)
+    		DhcpOptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveNaAddrOptions(requestMsg, dhcpLink, bindingPool);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool,
+    		dhcpServerConfig.effectiveNaAddrOptions(requestMsg, dhcpLink, configObj);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
     			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
@@ -391,11 +391,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param pool the pool
      */
     protected void populateTaAddrOptions(DhcpIaAddrOption iaAddrOption, DhcpLink dhcpLink, 
-    		AddressBindingPool bindingPool)
+    		DhcpOptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveTaAddrOptions(requestMsg, dhcpLink, bindingPool);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool,
+    		dhcpServerConfig.effectiveTaAddrOptions(requestMsg, dhcpLink, configObj);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
     			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
@@ -410,11 +410,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @param pool the pool
      */
     protected void populatePrefixOptions(DhcpIaPrefixOption iaPrefixOption, DhcpLink dhcpLink, 
-    		PrefixBindingPool bindingPool)
+    		DhcpOptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectivePrefixOptions(requestMsg, dhcpLink, bindingPool);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(bindingPool,
+    		dhcpServerConfig.effectivePrefixOptions(requestMsg, dhcpLink, configObj);
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
     			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
@@ -660,18 +660,18 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				InetAddress inetAddr = bindingObj.getIpAddress();
 				if (inetAddr != null) {
 					iaAddrOption.setIpv6Address(inetAddr.getHostAddress());
-					// must be an AddresBindingPool for IaNa binding
-					AddressBindingPool bindingPool = 
-						(AddressBindingPool) bindingObj.getBindingPool();
-					if (bindingPool != null) {
-						long preferred = bindingPool.getPreferredLifetime();
+					// must be an DhcpOptionConfigObject for IA_NA binding
+					DhcpOptionConfigObject configObj = 
+						(DhcpOptionConfigObject) bindingObj.getConfigObj();
+					if (configObj != null) {
+						long preferred = configObj.getPreferredLifetime();
 						if ((minPreferredLifetime == 0xffffffff) ||
 								(preferred < minPreferredLifetime))  {
 							minPreferredLifetime = preferred; 
 						}
 						iaAddrOption.setPreferredLifetime(preferred);
-						iaAddrOption.setValidLifetime(bindingPool.getValidLifetime());
-						populateNaAddrOptions(dhcpIaAddrOption, clientLink, bindingPool);
+						iaAddrOption.setValidLifetime(configObj.getValidLifetime());
+						populateNaAddrOptions(dhcpIaAddrOption, clientLink, configObj);
 						dhcpIaAddrOptions.add(dhcpIaAddrOption);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
@@ -720,13 +720,13 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				InetAddress inetAddr = bindingObj.getIpAddress();
 				if (inetAddr != null) {
 					iaAddrOption.setIpv6Address(inetAddr.getHostAddress());
-					// must be an AddresBindingPool for IaNa binding
-					AddressBindingPool bindingPool = 
-						(AddressBindingPool) bindingObj.getBindingPool();
-					if (bindingPool != null) {
-						iaAddrOption.setPreferredLifetime(bindingPool.getPreferredLifetime());
-						iaAddrOption.setValidLifetime(bindingPool.getValidLifetime());
-						populateTaAddrOptions(dhcpIaAddrOption, clientLink, bindingPool);
+					// must be an DhcpOptionConfigObject for IA_TA binding
+					DhcpOptionConfigObject configObj = 
+						(DhcpOptionConfigObject) bindingObj.getConfigObj();
+					if (configObj != null) {
+						iaAddrOption.setPreferredLifetime(configObj.getPreferredLifetime());
+						iaAddrOption.setValidLifetime(configObj.getValidLifetime());
+						populateTaAddrOptions(dhcpIaAddrOption, clientLink, configObj);
 						dhcpIaAddrOptions.add(dhcpIaAddrOption);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
@@ -777,18 +777,18 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				if (inetAddr != null) {
 					iaPrefixOption.setIpv6Prefix(inetAddr.getHostAddress());
 					iaPrefixOption.setPrefixLength(bindingPrefix.getPrefixLength());
-					// must be an PrefixBindingPool for IaPd binding
-					PrefixBindingPool bindingPool = 
-						(PrefixBindingPool) bindingPrefix.getBindingPool();
-					if (bindingPool != null) {
-						long preferred = bindingPool.getPreferredLifetime();
+					// must be an DhcpOptionConfigObject for IA_PD binding
+					DhcpOptionConfigObject configObj = 
+						(DhcpOptionConfigObject) bindingObj.getConfigObj();
+					if (configObj != null) {
+						long preferred = configObj.getPreferredLifetime();
 						if ((minPreferredLifetime == 0xffffffff) ||
 								(preferred < minPreferredLifetime))  {
 							minPreferredLifetime = preferred; 
 						}
 						iaPrefixOption.setPreferredLifetime(preferred);
-						iaPrefixOption.setValidLifetime(bindingPool.getValidLifetime());
-						populatePrefixOptions(dhcpIaPrefixOption, clientLink, bindingPool);
+						iaPrefixOption.setValidLifetime(configObj.getValidLifetime());
+						populatePrefixOptions(dhcpIaPrefixOption, clientLink, configObj);
 						dhcpIaPrefixOptions.add(dhcpIaPrefixOption);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
@@ -1087,17 +1087,16 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 						
 						BindingAddress bindingAddr = (BindingAddress) bindingObj;
 						
-	        			AddressBindingPool pool = 
-	        				(AddressBindingPool) bindingAddr.getBindingPool();
+	        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
 	        			
 	        			DdnsCallback ddnsComplete = 
 	        				new DhcpDdnsComplete(bindingAddr, replyFqdnOption);
 	        			
 						DdnsUpdater ddns =
-							new DdnsUpdater(requestMsg, clientLink.getLink(), pool,
+							new DdnsUpdater(requestMsg, clientLink.getLink(), configObj,
 									bindingAddr.getIpAddress(), fqdn, 
 									requestMsg.getDhcpClientIdOption().getDuid(),
-									pool.getValidLifetime(), doForwardUpdate, false,
+									configObj.getValidLifetime(), doForwardUpdate, false,
 									ddnsComplete);
 						
 						ddns.processUpdates();

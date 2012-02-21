@@ -28,6 +28,8 @@ package com.jagornet.dhcpv6.db;
 import java.util.Arrays;
 import java.util.Collection;
 
+import com.jagornet.dhcpv6.util.Util;
+
 /**
  * The IdentityAssoc POJO class for the IDENTITYASSOC database table.
  * 
@@ -43,9 +45,9 @@ public class IdentityAssoc
 	public static final byte PD_TYPE = 3;
 	
 	// states
-	public static final byte ADVERTISED = 1;
-	public static final byte COMMITTED = 2;
-	public static final byte EXPIRED = 3;
+	public static final byte ADVERTISED = IaAddress.ADVERTISED;
+	public static final byte COMMITTED = IaAddress.COMMITTED;
+	public static final byte EXPIRED = IaAddress.EXPIRED;
 	
 	protected Long id;	// the database-generated object ID
 	protected byte[] duid;
@@ -243,9 +245,56 @@ public class IdentityAssoc
 		return true;
 	}
 	
-	public static String iaTypeToString(byte iaType) {
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
+		sb.append(keyToString(this.getDuid(), this.getIatype(), this.getIaid()));
+		sb.append(" state=");
+		sb.append(this.getState());
+		sb.append("(");
+		sb.append(IaAddress.stateToString(this.getState()));
+		sb.append(")");
+		Collection<? extends IaAddress> iaAddrs = this.getIaAddresses();
+		if (iaAddrs != null) {
+			for (IaAddress iaAddr : iaAddrs) {
+				sb.append(Util.LINE_SEPARATOR);
+				sb.append("\t");
+				sb.append(iaAddr.toString());
+			}
+		}
+		Collection<DhcpOption> opts = this.getDhcpOptions();
+		if (opts != null) {
+			for (DhcpOption dhcpOption : opts) {
+				sb.append(Util.LINE_SEPARATOR);
+				sb.append("\tIA Option: ");
+				sb.append(dhcpOption.toString());
+			}
+		}
+		return sb.toString();
+	}
+	
+	public static String keyToString(byte[] _duid, byte _iatype, long _iaid)
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("IA: duid=");
+		sb.append(Util.toHexString(_duid));
+		sb.append(" iatype=");
+		sb.append(_iaid);
+		sb.append("(");
+		sb.append(iaTypeToString(_iatype));
+		sb.append(")");
+		sb.append(" iaid=");
+		sb.append(_iaid);
+		return sb.toString();
+	}
+	
+	public static String iaTypeToString(byte _iatype) {
 		String s = null;
-		switch (iaType) {
+		switch (_iatype) {
 			case V4_TYPE:
 				s = "V4";
 				break;

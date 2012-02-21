@@ -94,8 +94,8 @@ public class TestJdbcIaManager extends BaseDbTestCase
 	public TestJdbcIaManager()
 	{
 		super();
-//		iaMgr = (IaManager) ctx.getBean("iaManager");
-		iaMgr = (IaManager) ctx.getBean("leaseManager");
+		iaMgr = (IaManager) ctx.getBean("iaManager");
+//		iaMgr = (IaManager) ctx.getBean("leaseManager");
 	}
 	
 	/* (non-Javadoc)

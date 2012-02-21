@@ -38,7 +38,7 @@ import com.jagornet.dhcpv6.xml.Link;
  * 
  * @author A. Gregory Rabil
  */
-public interface PrefixBindingManager
+public interface PrefixBindingManager extends StaticBindingManager
 {
 	/**
 	 * Initialize the manager.
@@ -72,7 +72,7 @@ public interface PrefixBindingManager
 	 * @return the binding
 	 */
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg, boolean rapidCommit);
+			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg, byte state);
 
 	/**
 	 * Update binding.

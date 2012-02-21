@@ -61,4 +61,11 @@ public interface DhcpOption extends Encodable, Decodable
      * @return the string
      */
     public String toString();
+    
+    /**
+     * Return true if this is a DHCPv4 option, false otherwise.
+     * 
+     * @return true if this is a DHCPv4 option, false otherwise.
+     */
+    public boolean isV4();
 }

@@ -4,6 +4,20 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+  		
+	<bean id="identityAssocDAO" 
+		  class="com.jagornet.dhcpv6.db.JdbcIdentityAssocDAO" 
+		  autowire="byType"/>
+	<bean id="iaAddressDAO" 
+		  class="com.jagornet.dhcpv6.db.JdbcIaAddressDAO" 
+		  autowire="byType"/>
+	<bean id="iaPrefixDAO" 
+		  class="com.jagornet.dhcpv6.db.JdbcIaPrefixDAO" 
+		  autowire="byType"/>
+	<bean id="dhcpOptionDAO" 
+		  class="com.jagornet.dhcpv6.db.JdbcDhcpOptionDAO" 
+		  autowire="byType"/>
+
 
 	<bean id="transactionManager" 
 		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

@@ -105,15 +105,22 @@ public class NaAddrBindingManagerImpl
 	@Override
 	public Binding createSolicitBinding(Link clientLink,
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
-			DhcpMessageInterface requestMsg, boolean rapidCommit) {
+			DhcpMessageInterface requestMsg, byte state) {
 		
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaNaOption.getIaNaOption().getIaId();
+
+		StaticBinding staticBinding = 
+			findStaticBinding(clientLink, duid, IdentityAssoc.NA_TYPE, iaid, requestMsg);
 		
-		List<InetAddress> requestAddrs = getInetAddrs(iaNaOption);
-		
-		return super.createBinding(clientLink, duid, IdentityAssoc.NA_TYPE, 
-				iaid, requestAddrs, requestMsg, rapidCommit);
+		if (staticBinding != null) {
+			return super.createStaticBinding(clientLink, duid, IdentityAssoc.NA_TYPE, 
+					iaid, staticBinding, requestMsg);
+		}
+		else {
+			return super.createBinding(clientLink, duid, IdentityAssoc.NA_TYPE, 
+					iaid, getInetAddrs(iaNaOption), requestMsg, state);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -125,12 +132,19 @@ public class NaAddrBindingManagerImpl
 			DhcpMessageInterface requestMsg, byte state) {
 		
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaNaOption.getIaNaOption().getIaId();
+		long iaid = iaNaOption.getIaNaOption().getIaId();	
+
+		StaticBinding staticBinding = 
+			findStaticBinding(clientLink, duid, IdentityAssoc.NA_TYPE, iaid, requestMsg);
 		
-		List<InetAddress> requestAddrs = getInetAddrs(iaNaOption);
-		
-		return super.updateBinding(binding, clientLink, duid, IdentityAssoc.NA_TYPE,
-				iaid, requestAddrs, requestMsg, state);
+		if (staticBinding != null) {
+			return super.updateStaticBinding(binding, clientLink, duid, IdentityAssoc.NA_TYPE, 
+					iaid, staticBinding, requestMsg);
+		}
+		else {
+			return super.updateBinding(binding, clientLink, duid, IdentityAssoc.NA_TYPE,
+					iaid, getInetAddrs(iaNaOption), requestMsg, state);
+		}
 	}
 	
 	/**

@@ -78,7 +78,9 @@ public class TestDhcpConfirmProcessor extends BaseTestDhcpProcessor
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
 		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
 		
-		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_SUCCESS);
+//	TAHI tests want the status at the message level
+//		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_SUCCESS);
+		checkReplyMsgStatus(replyMsg, DhcpConstants.STATUS_CODE_SUCCESS);
 	}
 	
 	/**
@@ -126,7 +128,9 @@ public class TestDhcpConfirmProcessor extends BaseTestDhcpProcessor
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
 		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
 		
-		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_NOTONLINK);
+//	TAHI tests want the status at the message level
+//		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_NOTONLINK);
+		checkReplyMsgStatus(replyMsg, DhcpConstants.STATUS_CODE_NOTONLINK);
 	}
 	
 	/**

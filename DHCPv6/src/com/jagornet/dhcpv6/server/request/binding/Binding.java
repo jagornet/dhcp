@@ -30,10 +30,8 @@ import java.util.Collection;
 
 import org.springframework.beans.BeanUtils;
 
-import com.jagornet.dhcpv6.db.DhcpOption;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.Link;
 
 /**
@@ -131,36 +129,5 @@ public class Binding extends IdentityAssoc
 	 */
 	public boolean hasChanged() {
 		return !this.equals(origIa);
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString()
-	{
-		StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
-		sb.append("Binding(IA): ");
-		sb.append(" duid=");
-		sb.append(Util.toHexString(this.getDuid()));
-		sb.append(" iaid=");
-		sb.append(this.getIaid());
-		sb.append(" state=");
-		sb.append(this.getState());
-		Collection<? extends IaAddress> ips = this.getIaAddresses();
-		if (ips != null) {
-			for (IaAddress ipAddress : ips) {
-				sb.append(Util.LINE_SEPARATOR);
-				sb.append(ipAddress.toString());
-			}
-		}
-		Collection<DhcpOption> opts = this.getDhcpOptions();
-		if (opts != null) {
-			for (DhcpOption dhcpOption : opts) {
-				sb.append(Util.LINE_SEPARATOR);
-				sb.append("\tIA Option: ");
-				sb.append(dhcpOption.toString());
-			}
-		}
-		return sb.toString();
 	}
 }

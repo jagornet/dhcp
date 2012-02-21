@@ -28,19 +28,17 @@ package com.jagornet.dhcpv6.server.request.binding;
 import org.springframework.beans.BeanUtils;
 
 import com.jagornet.dhcpv6.db.IaPrefix;
+import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
+import com.jagornet.dhcpv6.server.config.DhcpOptionConfigObject;
 
 /**
  * The Class BindingPrefix.  A wrapper for an IaPrefix object with
- * a reference to the configured binding pool for that prefix.
+ * a reference to the configuration object for that prefix.
  */
 public class BindingPrefix extends IaPrefix implements BindingObject
 {
-	
-	/** The orig ia prefix. */
-	private IaPrefix origIaPrefix;
-	
-	/** The binding pool. */
-	private PrefixBindingPool bindingPool;
+	/** The config obj. */
+	private DhcpConfigObject configObj;
 	
 	/**
 	 * Instantiates a new binding address.
@@ -48,37 +46,18 @@ public class BindingPrefix extends IaPrefix implements BindingObject
 	 * @param iaPrefix the ia addr
 	 * @param bindingPool the binding pool
 	 */
-	public BindingPrefix(IaPrefix iaPrefix, PrefixBindingPool bindingPool)
+	public BindingPrefix(IaPrefix iaPrefix, DhcpConfigObject configObj)
 	{
-		this.origIaPrefix = iaPrefix;	// save a reference to the original IaPrefix
+		// populate *this* IaPrefix from the given one
 		BeanUtils.copyProperties(iaPrefix, this);
-		this.bindingPool = bindingPool;
-	}
-	
-	/**
-	 * Gets the binding pool.
-	 * 
-	 * @return the binding pool
-	 */
-	public BindingPool getBindingPool() {
-		return bindingPool;
+		this.configObj = configObj;
 	}
 
-	/**
-	 * Sets the binding pool.
-	 * 
-	 * @param bindingPool the new binding pool
-	 */
-	public void setBindingPool(PrefixBindingPool bindingPool) {
-		this.bindingPool = bindingPool;
+	public DhcpConfigObject getConfigObj() {
+		return configObj;
 	}
-	
-	/**
-	 * Checks for changed.
-	 * 
-	 * @return true, if successful
-	 */
-	public boolean hasChanged() {
-		return !this.equals(origIaPrefix);
+
+	public void setConfigObj(DhcpOptionConfigObject configObj) {
+		this.configObj = configObj;
 	}
 }

@@ -37,6 +37,7 @@ import com.jagornet.dhcpv6.option.generic.GenericIpAddressOption;
 import com.jagornet.dhcpv6.option.generic.GenericOpaqueDataListOption;
 import com.jagornet.dhcpv6.option.generic.GenericOpaqueDataOption;
 import com.jagornet.dhcpv6.option.generic.GenericStringOption;
+import com.jagornet.dhcpv6.option.generic.GenericUnsignedByteListOption;
 import com.jagornet.dhcpv6.option.generic.GenericUnsignedByteOption;
 import com.jagornet.dhcpv6.option.generic.GenericUnsignedIntOption;
 import com.jagornet.dhcpv6.option.generic.GenericUnsignedShortListOption;
@@ -71,6 +72,7 @@ import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
 import com.jagornet.dhcpv6.xml.SntpServersOption;
 import com.jagornet.dhcpv6.xml.StatusCodeOption;
 import com.jagornet.dhcpv6.xml.StringOptionType;
+import com.jagornet.dhcpv6.xml.UnsignedByteListOptionType;
 import com.jagornet.dhcpv6.xml.UnsignedByteOptionType;
 import com.jagornet.dhcpv6.xml.UnsignedIntOptionType;
 import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
@@ -292,131 +294,7 @@ public class DhcpConfigOptions
 		}
 		
 		if (configOptions.isSetOtherOptions()) {
-			GenericOptionsType genericOptions = configOptions.getOtherOptions();
-			if (genericOptions != null) {
-				List<OptionDefType> optionDefs = genericOptions.getOptionDefList();
-				if ((optionDefs != null) && !optionDefs.isEmpty()) {
-					for (OptionDefType optionDefType : optionDefs) {
-						
-						int code = optionDefType.getCode();
-						String name = optionDefType.getName();
-							
-						// the XML schema defines the optionDefType as a choice,
-						// so we must determine which generic option is set
-						
-						if (optionDefType.isSetDomainNameListOption()) {
-							DomainNameListOptionType domainNameListOption =
-								optionDefType.getDomainNameListOption();
-							if (domainNameListOption != null) {
-								GenericDomainNameListOption dhcpOption = 
-									new GenericDomainNameListOption(code, name, domainNameListOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-	
-						if (optionDefType.isSetDomainNameOption()) {
-							DomainNameOptionType domainNameOption =
-								optionDefType.getDomainNameOption();
-							if (domainNameOption != null) {
-								GenericDomainNameOption dhcpOption = 
-									new GenericDomainNameOption(code, name, domainNameOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-	
-						if (optionDefType.isSetIpAddressListOption()) {
-							IpAddressListOptionType ipAddressListOption =
-								optionDefType.getIpAddressListOption();
-							if (ipAddressListOption != null) {
-								GenericIpAddressListOption dhcpOption = 
-									new GenericIpAddressListOption(code, name, ipAddressListOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-	
-						if (optionDefType.isSetIpAddressOption()) {
-							IpAddressOptionType ipAddressOption =
-								optionDefType.getIpAddressOption();
-							if (ipAddressOption != null) {
-								GenericIpAddressOption dhcpOption = 
-									new GenericIpAddressOption(code, name, ipAddressOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-	
-						if (optionDefType.isSetOpaqueDataListOption()) {
-							OpaqueDataListOptionType opaqueDataListOption =
-								optionDefType.getOpaqueDataListOption();
-							if (opaqueDataListOption != null) {
-								GenericOpaqueDataListOption dhcpOption = 
-									new GenericOpaqueDataListOption(code, name, opaqueDataListOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-	
-						if (optionDefType.isSetOpaqueDataOption()) {
-							OpaqueDataOptionType opaqueDataOption =
-								optionDefType.getOpaqueDataOption();
-							if (opaqueDataOption != null) {
-								GenericOpaqueDataOption dhcpOption = 
-									new GenericOpaqueDataOption(code, name, opaqueDataOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-						
-						if (optionDefType.isSetStringOption()) {
-							StringOptionType stringOption =
-								optionDefType.getStringOption();
-							if (stringOption != null) {
-								GenericStringOption dhcpOption =
-									new GenericStringOption(code, name, stringOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-						
-						if (optionDefType.isSetUByteOption()) {
-							UnsignedByteOptionType uByteOption =
-								optionDefType.getUByteOption();
-							if (uByteOption != null) {
-								GenericUnsignedByteOption dhcpOption = 
-									new GenericUnsignedByteOption(code, name, uByteOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-						
-						if (optionDefType.isSetUIntOption()) {
-							UnsignedIntOptionType uIntOption =
-								optionDefType.getUIntOption();
-							if (uIntOption != null) {
-								GenericUnsignedIntOption dhcpOption = 
-									new GenericUnsignedIntOption(code, name, uIntOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-						
-						if (optionDefType.isSetUShortListOption()) {
-							UnsignedShortListOptionType uShortListOption =
-								optionDefType.getUShortListOption();
-							if (uShortListOption != null) {
-								GenericUnsignedShortListOption dhcpOption = 
-									new GenericUnsignedShortListOption(code, name, uShortListOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-	
-						if (optionDefType.isSetUShortOption()) {
-							UnsignedShortOptionType uShortOption =
-								optionDefType.getUShortOption();
-							if (uShortOption != null) {
-								GenericUnsignedShortOption dhcpOption = 
-									new GenericUnsignedShortOption(code, name, uShortOption);
-								optionMap.put(code, dhcpOption);
-							}
-						}
-											
-					}
-				}
-			}
+			optionMap.putAll(genericOptions(configOptions.getOtherOptions()));
 		}
 		
 		return optionMap;
@@ -451,4 +329,163 @@ public class DhcpConfigOptions
 	{
 		return optionMap;
 	}
+
+	/**
+	 * Convert a list of XML Generic options to a map of DhcpOptions
+	 * 
+	 * @param genericOptions
+	 * @return a map of generic options
+	 */
+	public static Map<Integer, DhcpOption> genericOptions(GenericOptionsType genericOptions) 
+	{
+		Map<Integer, DhcpOption> optMap = new TreeMap<Integer, DhcpOption>(); 
+		if (genericOptions != null) {
+			List<OptionDefType> optionDefs = genericOptions.getOptionDefList();
+			if ((optionDefs != null) && !optionDefs.isEmpty()) {
+				for (OptionDefType optionDefType : optionDefs) {
+					
+					int code = optionDefType.getCode();
+					String name = optionDefType.getName();
+						
+					// the XML schema defines the optionDefType as a choice,
+					// so we must determine which generic option is set
+					
+					if (optionDefType.isSetDomainNameListOption()) {
+						DomainNameListOptionType domainNameListOption =
+							optionDefType.getDomainNameListOption();
+						if (domainNameListOption != null) {
+							GenericDomainNameListOption dhcpOption = 
+								new GenericDomainNameListOption(code, name, domainNameListOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+
+					if (optionDefType.isSetDomainNameOption()) {
+						DomainNameOptionType domainNameOption =
+							optionDefType.getDomainNameOption();
+						if (domainNameOption != null) {
+							GenericDomainNameOption dhcpOption = 
+								new GenericDomainNameOption(code, name, domainNameOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+
+					if (optionDefType.isSetIpAddressListOption()) {
+						IpAddressListOptionType ipAddressListOption =
+							optionDefType.getIpAddressListOption();
+						if (ipAddressListOption != null) {
+							GenericIpAddressListOption dhcpOption = 
+								new GenericIpAddressListOption(code, name, ipAddressListOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+
+					if (optionDefType.isSetIpAddressOption()) {
+						IpAddressOptionType ipAddressOption =
+							optionDefType.getIpAddressOption();
+						if (ipAddressOption != null) {
+							GenericIpAddressOption dhcpOption = 
+								new GenericIpAddressOption(code, name, ipAddressOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+
+					if (optionDefType.isSetOpaqueDataListOption()) {
+						OpaqueDataListOptionType opaqueDataListOption =
+							optionDefType.getOpaqueDataListOption();
+						if (opaqueDataListOption != null) {
+							GenericOpaqueDataListOption dhcpOption = 
+								new GenericOpaqueDataListOption(code, name, opaqueDataListOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+
+					if (optionDefType.isSetOpaqueDataOption()) {
+						OpaqueDataOptionType opaqueDataOption =
+							optionDefType.getOpaqueDataOption();
+						if (opaqueDataOption != null) {
+							GenericOpaqueDataOption dhcpOption = 
+								new GenericOpaqueDataOption(code, name, opaqueDataOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+					
+					if (optionDefType.isSetStringOption()) {
+						StringOptionType stringOption =
+							optionDefType.getStringOption();
+						if (stringOption != null) {
+							GenericStringOption dhcpOption =
+								new GenericStringOption(code, name, stringOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+					
+					if (optionDefType.isSetUByteListOption()) {
+						UnsignedByteListOptionType uByteListOption =
+							optionDefType.getUByteListOption();
+						if (uByteListOption != null) {
+							GenericUnsignedByteListOption dhcpOption = 
+								new GenericUnsignedByteListOption(code, name, uByteListOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+					
+					if (optionDefType.isSetUByteOption()) {
+						UnsignedByteOptionType uByteOption =
+							optionDefType.getUByteOption();
+						if (uByteOption != null) {
+							GenericUnsignedByteOption dhcpOption = 
+								new GenericUnsignedByteOption(code, name, uByteOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+					
+					if (optionDefType.isSetUIntOption()) {
+						UnsignedIntOptionType uIntOption =
+							optionDefType.getUIntOption();
+						if (uIntOption != null) {
+							GenericUnsignedIntOption dhcpOption = 
+								new GenericUnsignedIntOption(code, name, uIntOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+					
+					if (optionDefType.isSetUShortListOption()) {
+						UnsignedShortListOptionType uShortListOption =
+							optionDefType.getUShortListOption();
+						if (uShortListOption != null) {
+							GenericUnsignedShortListOption dhcpOption = 
+								new GenericUnsignedShortListOption(code, name, uShortListOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+
+					if (optionDefType.isSetUShortOption()) {
+						UnsignedShortOptionType uShortOption =
+							optionDefType.getUShortOption();
+						if (uShortOption != null) {
+							GenericUnsignedShortOption dhcpOption = 
+								new GenericUnsignedShortOption(code, name, uShortOption);
+							optMap.put(code, dhcpOption);
+							continue;
+						}
+					}
+										
+				}
+			}
+		}
+		return optMap;
+	}
+
 }

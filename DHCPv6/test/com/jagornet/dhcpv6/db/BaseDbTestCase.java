@@ -49,6 +49,7 @@ import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -61,9 +62,12 @@ public class BaseDbTestCase extends DBTestCase
 	
 	/** The context filename. */
 	public static String contextFilename = "com/jagornet/dhcpv6/context.xml";
+	public static String contextV1Filename = "com/jagornet/dhcpv6/context_v1schema.xml";
+	public static String contextV2Filename = "com/jagornet/dhcpv6/context_v2schema.xml";
 	
 	/** The init data set. */
-	public static File initDataSet = new File("test/dbunit-jagornet-dhcpv6-v2-empty.xml");
+//	public static File initDataSet = new File("test/dbunit-jagornet-dhcpv6-v2-empty.xml");
+	public static File initDataSet = new File("test/dbunit-jagornet-dhcpv6-empty.xml");
 
 	/** The config. */
 	protected static DhcpServerConfiguration config;
@@ -71,7 +75,7 @@ public class BaseDbTestCase extends DBTestCase
 	/** The ctx. */
 	protected static ApplicationContext ctx;
 
-	protected int schemaVersion = 1;
+	protected static int schemaVersion = 1;
 	
 	private boolean schemaValidated;
 	
@@ -79,7 +83,12 @@ public class BaseDbTestCase extends DBTestCase
 	{
 		DhcpServerConfiguration.configFilename = configFilename;
 		config = DhcpServerConfiguration.getInstance();
-		ctx = new ClassPathXmlApplicationContext(contextFilename);
+		if (schemaVersion < 2) {
+			ctx = new ClassPathXmlApplicationContext(contextFilename, contextV1Filename);
+		}
+		else {
+			ctx = new ClassPathXmlApplicationContext(contextFilename, contextV2Filename);
+		}
 		
 		config.setNaAddrBindingMgr(
 				(NaAddrBindingManager) ctx.getBean("naAddrBindingManager"));
@@ -87,6 +96,8 @@ public class BaseDbTestCase extends DBTestCase
 				(TaAddrBindingManager) ctx.getBean("taAddrBindingManager"));
 		config.setPrefixBindingMgr(
 				(PrefixBindingManager) ctx.getBean("prefixBindingManager"));
+		config.setV4AddrBindingMgr(
+				(V4AddrBindingManager) ctx.getBean("v4AddrBindingManager"));
 	}
 	
 	/* (non-Javadoc)

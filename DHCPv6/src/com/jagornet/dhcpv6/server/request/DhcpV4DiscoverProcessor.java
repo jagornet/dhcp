@@ -30,7 +30,7 @@ import java.net.InetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.db.IdentityAssoc;
+import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.message.DhcpV4Message;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
@@ -121,22 +121,22 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     {
 		boolean sendReply = true;
 		boolean rapidCommit = isRapidCommit(requestMsg, clientLink.getLink());
+		byte state = rapidCommit ? IaAddress.COMMITTED : IaAddress.ADVERTISED;
 		byte chAddr[] = requestMsg.getChAddr();
 		
 		V4AddrBindingManager bindingMgr = dhcpServerConfig.getV4AddrBindingMgr();
 		if (bindingMgr != null) {
-			log.info("Processing Discover from: " + Util.toHexString(chAddr));
+			log.info("Processing Discover from: chAddr=" + Util.toHexString(chAddr));
 			Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 					chAddr, requestMsg);
 			if (binding == null) {
 				// no current binding for this MAC, create a new one
 				binding = bindingMgr.createDiscoverBinding(clientLink.getLink(), 
-						chAddr, requestMsg, rapidCommit);
+						chAddr, requestMsg, state);
 			}
 			else {
 				binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
-						chAddr, requestMsg, rapidCommit ? 
-								IdentityAssoc.COMMITTED : IdentityAssoc.ADVERTISED);
+						chAddr, requestMsg, state);
 			}
 			if (binding != null) {
 				// have a good binding, put it in the reply with options

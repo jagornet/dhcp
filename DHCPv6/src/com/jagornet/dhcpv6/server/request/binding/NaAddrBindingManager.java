@@ -39,7 +39,7 @@ import com.jagornet.dhcpv6.xml.Link;
  * 
  * @author A. Gregory Rabil
  */
-public interface NaAddrBindingManager
+public interface NaAddrBindingManager extends StaticBindingManager
 {
 	/**
 	 * Initialize the manager.
@@ -73,7 +73,7 @@ public interface NaAddrBindingManager
 	 * @return the binding
 	 */
 	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
-			DhcpIaNaOption iaNaOption, DhcpMessageInterface requestMsg, boolean rapidCommit);
+			DhcpIaNaOption iaNaOption, DhcpMessageInterface requestMsg, byte state);
 
 	/**
 	 * Update binding.
