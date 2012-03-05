@@ -143,10 +143,22 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
      * Populate v4 options.
      * 
      * @param link the link
-     * @param pool the pool
+     * @param configObj the config object or null if none
      */
-    protected void populateV4Options(DhcpLink dhcpLink, DhcpV4OptionConfigObject configObj)
+    protected void populateV4Reply(DhcpLink dhcpLink, DhcpV4OptionConfigObject configObj)
     {
+    	String sname = DhcpServerPolicies.effectivePolicy(requestMsg, configObj, 
+    			dhcpLink.getLink(), Property.V4_HEADER_SNAME);
+    	if ((sname != null) && !sname.isEmpty()) {
+    		replyMsg.setsName(sname);
+    	}
+    	
+    	String filename = DhcpServerPolicies.effectivePolicy(requestMsg, configObj, 
+    			dhcpLink.getLink(), Property.V4_HEADER_FILENAME);
+    	if ((filename != null) && !filename.isEmpty()) {
+    		replyMsg.setFile(filename);
+    	}
+    	
     	Map<Integer, DhcpOption> optionMap = 
     		dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink, configObj);
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
@@ -155,34 +167,6 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     	}
     	replyMsg.putAllDhcpOptions(optionMap);
     }    
-    
-    /**
-     * Populate reply msg options.
-     */
-    protected void populateReplyMsgOptions()
-    {
-    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveV4AddrOptions(requestMsg);
-    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	replyMsg.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate reply msg options.
-     * 
-     * @param link the link
-     */
-    protected void populateReplyMsgOptions(DhcpLink dhcpLink)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
-    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	replyMsg.putAllDhcpOptions(optionMap);
-    }
 
     /**
      * Process the client request.  Find appropriate configuration based on any
@@ -333,7 +317,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 									dhcpV4LeaseTimeOption.getUnsignedIntOption();
 						v4LeaseTimeOption.setUnsignedInt(preferred);
 						replyMsg.putDhcpOption(dhcpV4LeaseTimeOption);
-						populateV4Options(clientLink, configObj);
+						populateV4Reply(clientLink, configObj);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
 						//     policy to allow real-time expiration?

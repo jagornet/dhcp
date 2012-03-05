@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
 /**
@@ -319,17 +318,17 @@ public class IaAddress
 		sb.append(" state=");
 		sb.append(this.getState() + "(" + stateToString(this.getState()) + ")");
 		sb.append(" startTime=");
-		sb.append(DhcpConstants.dateFormat.format(this.getStartTime()));
+		sb.append(Util.GMT_DATEFORMAT.format(this.getStartTime()));
 		sb.append(" preferredEndTime=");
 		if (this.getPreferredEndTime().getTime() < 0)
 			sb.append("infinite");
 		else 
-			sb.append(DhcpConstants.dateFormat.format(this.getPreferredEndTime()));
+			sb.append(Util.GMT_DATEFORMAT.format(this.getPreferredEndTime()));
 		sb.append(" validEndTime=");
 		if (this.getValidEndTime().getTime() < 0)
 			sb.append("infinite");
 		else
-			sb.append(DhcpConstants.dateFormat.format(this.getValidEndTime()));
+			sb.append(Util.GMT_DATEFORMAT.format(this.getValidEndTime()));
 		Collection<DhcpOption> opts = this.getDhcpOptions();
 		if (opts != null) {
 			for (DhcpOption dhcpOption : opts) {

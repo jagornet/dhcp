@@ -93,8 +93,11 @@ public class DhcpServerPolicies
 		DDNS_REVERSE_ZONE_TSIG_KEYNAME("ddns.reverse.zone.tsig.keyName", ""),
 		DDNS_REVERSE_ZONE_TSIG_ALGORITHM("ddns.reverse.zone.tsig.algorithm", ""),
 		DDNS_REVERSE_ZONE_TSIG_KEYDATA("ddns.reverse.zone.tsig.keyData", ""),
+		V4_HEADER_SNAME("v4.header.sname", ""),
+		V4_HEADER_FILENAME("v4.header.filename", ""),
 		V4_IGNORED_MACS("v4.ignoredMacAddrs", "000000000000, FFFFFFFFFFFF"),
 		V4_DEFAULT_LEASETIME("v4.defaultLeasetime", "3600"),
+		V4_PINGCHECK_TIMEOUT("v4.pingCheckTimeout", "0"),
 		;
 		
 	    /** The key. */
@@ -421,7 +424,7 @@ public class DhcpServerPolicies
 			Link link, Property prop)
 	{
 		String policy = null;
-		if (requestMsg != null) {
+		if ((requestMsg != null) && (link != null)) {
 			LinkFiltersType linkFiltersType = link.getLinkFilters();
 			if (linkFiltersType != null) {
 				List<LinkFilter> linkFilters = linkFiltersType.getLinkFilterList();
@@ -440,11 +443,13 @@ public class DhcpServerPolicies
 				}
 			}
 		}
-		// client does not match a link filter 
-		// get the value of the policy on the link, if any
-		policy = getPolicy(link.getPolicies(), prop.key());
-		if (policy != null) {
-			return policy;
+		if (link != null) {
+			// client does not match a link filter 
+			// get the value of the policy on the link, if any
+			policy = getPolicy(link.getPolicies(), prop.key());
+			if (policy != null) {
+				return policy;
+			}
 		}
     	return globalPolicy(prop);
 	}
@@ -516,13 +521,18 @@ public class DhcpServerPolicies
      */
     public static String effectivePolicy(DhcpConfigObject configObj, Link link, Property prop)
     {
-    	String policy = getPolicy(configObj.getPolicies(), prop.key());
-    	if (policy != null) {
-    		return policy;
+    	String policy = null;
+    	if (configObj != null) {
+	    	policy = getPolicy(configObj.getPolicies(), prop.key());
+	    	if (policy != null) {
+	    		return policy;
+	    	}
     	}
-    	policy = getPolicy(link.getPolicies(), prop.key());
-    	if (policy != null) {
-    		return policy;
+    	if (link != null) {
+	    	policy = getPolicy(link.getPolicies(), prop.key());
+	    	if (policy != null) {
+	    		return policy;
+	    	}
     	}
     	return globalPolicy(prop);
     }
@@ -601,7 +611,7 @@ public class DhcpServerPolicies
     		DhcpConfigObject configObj, Link link, Property prop)
     {
 		String policy = null;
-		if (requestMsg != null) {
+		if ((requestMsg != null) && (configObj != null)) {
 			if (configObj.getFilters() != null) {
 				List<Filter> filters = configObj.getFilters().getFilterList();
 				if (filters != null) {
@@ -619,11 +629,13 @@ public class DhcpServerPolicies
 				}
 			}
 		}
-		// client does not match a pool filter 
-		// get the value of the policy on the pool, if any
-		policy = getPolicy(configObj.getPolicies(), prop.key());
-		if (policy != null) {
-			return policy;
+		if (configObj != null) {
+			// client does not match a pool filter 
+			// get the value of the policy on the pool, if any
+			policy = getPolicy(configObj.getPolicies(), prop.key());
+			if (policy != null) {
+				return policy;
+			}
 		}
     	return effectivePolicy(requestMsg, link, prop);
     }

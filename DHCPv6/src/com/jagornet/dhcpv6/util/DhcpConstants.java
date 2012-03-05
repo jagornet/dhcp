@@ -45,7 +45,6 @@ package com.jagornet.dhcpv6.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,11 +59,7 @@ public class DhcpConstants
 {
     private static Logger log = LoggerFactory.getLogger(DhcpConstants.class);
 	
-	/** The DHCPv6 home. */
 	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
-
-	public static boolean IS_WINDOWS =
-		System.getProperty("os.name", "").startsWith("Windows") ? true : false;
 	
 	public static InetAddress ZEROADDR = null;
 	
@@ -83,13 +78,25 @@ public class DhcpConstants
 	/** The All DHCP servers. */
 	public static InetAddress ALL_DHCP_SERVERS = null;
 
+    static {
+		try {
+			ZEROADDR = InetAddress.getByName("0.0.0.0");
+            LOCALHOST = InetAddress.getByName("127.0.0.1");
+            LOCALHOST_V6 = InetAddress.getByName("::1");
+            BROADCAST = InetAddress.getByName("255.255.255.255");
+			ALL_DHCP_RELAY_AGENTS_AND_SERVERS = InetAddress.getByName("FF02::1:2");
+			ALL_DHCP_SERVERS = InetAddress.getByName("FF05::1:3");
+		}
+		catch (UnknownHostException ex) { 
+			log.error("Failed to initialize IP constants: " + ex);
+		}
+	}
+
 	/** UDP Ports. */
 	public static final int CLIENT_PORT = 546;
 	
 	/** The Constant SERVER_PORT. */
 	public static final int SERVER_PORT = 547;
-	
-	public static SimpleDateFormat dateFormat = null;
 
 	/** DHCP Message Types - use short to support unsigned byte. */
 	public static final short SOLICIT = 1;
@@ -313,20 +320,6 @@ public class DhcpConstants
     /** The Constant STATUS_CODE_NOPREFIXAVAIL. */
     public static final int STATUS_CODE_NOPREFIXAVAIL = 6;
 
-    static {
-		try {
-            LOCALHOST = InetAddress.getByName("127.0.0.1");
-            LOCALHOST_V6 = InetAddress.getByName("::1");
-            BROADCAST = InetAddress.getByName("255.255.255.255");
-			ALL_DHCP_RELAY_AGENTS_AND_SERVERS = InetAddress.getByName("FF02::1:2");
-			ALL_DHCP_SERVERS = InetAddress.getByName("FF05::1:3");
-			ZEROADDR = InetAddress.getByName("0.0.0.0");
-			dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-		}
-		catch (UnknownHostException ex) { 
-			log.error("Failed to initialize IP constants: " + ex);
-		}
-	}
     
     // V4 Constants
 	public static final int V4_CLIENT_PORT = 68;
@@ -343,12 +336,16 @@ public class DhcpConstants
     public static final int V4OPTION_HOSTNAME = 12;
     public static final int V4OPTION_DOMAIN_NAME = 15;
     public static final int V4OPTION_VENDOR_INFO = 43;
+    public static final int V4OPTION_NETBIOS_NAME_SERVERS = 44;
+    public static final int V4OPTION_NETBIOS_NODE_TYPE = 46;
     public static final int V4OPTION_REQUESTED_IP = 50;
     public static final int V4OPTION_LEASE_TIME = 51;
     public static final int V4OPTION_MESSAGE_TYPE = 53;
     public static final int V4OPTION_SERVERID = 54;
     public static final int V4OPTION_PARAM_REQUEST_LIST = 55;
     public static final int V4OPTION_VENDOR_CLASS = 60;
+    public static final int V4OPTION_TFTP_SERVER_NAME = 66;
+    public static final int V4OPTION_BOOT_FILE_NAME = 67;
     public static final int V4OPTION_RAPID_COMMIT = 80;
     public static final int V4OPTION_CLIENT_FQDN = 81;
     public static final int V4OPTION_EOF = 255;

@@ -419,7 +419,7 @@ public class DhcpV6Server
         options.addOption(testConfigFileOption);
 
         Option listIfOption = new Option("li", "list-interfaces", false, 
-        		"Show detailed interface list, then exit.");
+        		"Show detailed host interface list, then exit.");
         options.addOption(listIfOption);
 
         Option versionOption = new Option("v", "version", false, 

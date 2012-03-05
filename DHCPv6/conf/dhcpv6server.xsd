@@ -121,6 +121,10 @@
 			<xs:element name="v4DomainServersOption" type="v4DomainServersOption" minOccurs="0"/>
 			<xs:element name="v4DomainNameOption" type="v4DomainNameOption" minOccurs="0"/>
 			<xs:element name="v4VendorSpecificOption" type="v4VendorSpecificOption" minOccurs="0"/>
+			<xs:element name="v4NetbiosNameServersOption" type="v4NetbiosNameServersOption" minOccurs="0"/>
+			<xs:element name="v4NetbiosNodeTypeOption" type="v4NetbiosNodeTypeOption" minOccurs="0"/>
+			<xs:element name="v4TftpServerNameOption" type="v4TftpServerNameOption" minOccurs="0"/>
+			<xs:element name="v4BootFileNameOption" type="v4BootFileNameOption" minOccurs="0"/>
 			<xs:element name="otherOptions" type="genericOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -322,7 +326,6 @@
 			<xs:element name="duid" type="opaqueData"/>
 			<xs:element name="iaid" type="iaId" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
-			<xs:element name="iaConfigOptions" type="configOptionsType" minOccurs="0"/>
 			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -340,7 +343,6 @@
 			<xs:element name="duid" type="opaqueData"/>
 			<xs:element name="iaid" type="iaId" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
-			<xs:element name="iaPdConfigOptions" type="configOptionsType" minOccurs="0"/>
 			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -1047,6 +1049,22 @@
 		</xs:complexContent>
 	</xs:complexType>
 
+	<xs:complexType name="v4NetbiosNameServersOption">
+		<xs:complexContent>
+			<xs:extension base="ipAddressListOptionType">
+				<xs:attribute name="code" type="v4Code" fixed="44"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="v4NetbiosNodeTypeOption">
+		<xs:complexContent>
+			<xs:extension base="unsignedByteOptionType">
+				<xs:attribute name="code" type="v4Code" fixed="46"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
 	<xs:complexType name="v4RequestedIpAddressOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressOptionType">
@@ -1091,6 +1109,22 @@
 		<xs:complexContent>
 			<xs:extension base="opaqueDataOptionType">
 				<xs:attribute name="code" type="v4Code" fixed="60"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="v4TftpServerNameOption">
+		<xs:complexContent>
+			<xs:extension base="stringOptionType">
+				<xs:attribute name="code" type="v4Code" fixed="66"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="v4BootFileNameOption">
+		<xs:complexContent>
+			<xs:extension base="stringOptionType">
+				<xs:attribute name="code" type="v4Code" fixed="67"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>

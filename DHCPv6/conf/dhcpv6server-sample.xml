@@ -87,10 +87,10 @@
 		<name>DHCPv4 VendorClass Filter</name>
 		<filterExpressions>
 			<filterExpression>
-				<optionExpression v4="true" code="60" operator="equals">
+				<optionExpression v4="true" code="60" operator="startsWith">
 					<opaqueDataOption>
 						<opaqueData>
-							<asciiValue>MyVendorClass</asciiValue>
+							<asciiValue>MyVendorPrefix</asciiValue>
 						</opaqueData>
 					</opaqueDataOption>
 				</optionExpression>

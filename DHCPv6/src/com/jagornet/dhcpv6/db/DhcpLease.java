@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * The IaAddress POJO class for the DHCPLEASE database table.
@@ -388,9 +388,9 @@ public class DhcpLease
 		return "DhcpLease [ipAddress=" + ipAddress + 
 				", duid=" + Arrays.toString(duid) + 
 				", iatype=" + iatype + ", iaid=" + iaid + ", state=" + state + 
-				", startTime=" + DhcpConstants.dateFormat.format(startTime) +
-				", preferredEndTime=" + DhcpConstants.dateFormat.format(preferredEndTime) + 
-				", validEndTime=" + DhcpConstants.dateFormat.format(validEndTime) + 
+				", startTime=" + Util.GMT_DATEFORMAT.format(startTime) +
+				", preferredEndTime=" + Util.GMT_DATEFORMAT.format(preferredEndTime) + 
+				", validEndTime=" + Util.GMT_DATEFORMAT.format(validEndTime) + 
 				", iaDhcpOptions=" + iaDhcpOptions + 
 				", iaAddrDhcpOptions=" + iaAddrDhcpOptions + "]";
 	}

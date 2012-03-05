@@ -30,11 +30,15 @@ import java.util.TreeMap;
 
 import com.jagornet.dhcpv6.option.DhcpConfigOptions;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.xml.V4BootFileNameOption;
 import com.jagornet.dhcpv6.xml.V4ConfigOptionsType;
 import com.jagornet.dhcpv6.xml.V4DomainNameOption;
 import com.jagornet.dhcpv6.xml.V4DomainServersOption;
+import com.jagornet.dhcpv6.xml.V4NetbiosNameServersOption;
+import com.jagornet.dhcpv6.xml.V4NetbiosNodeTypeOption;
 import com.jagornet.dhcpv6.xml.V4RoutersOption;
 import com.jagornet.dhcpv6.xml.V4SubnetMaskOption;
+import com.jagornet.dhcpv6.xml.V4TftpServerNameOption;
 import com.jagornet.dhcpv6.xml.V4TimeOffsetOption;
 import com.jagornet.dhcpv6.xml.V4TimeServersOption;
 import com.jagornet.dhcpv6.xml.V4VendorSpecificOption;
@@ -136,6 +140,42 @@ public class DhcpV4ConfigOptions
 			if (vendorSpecificOption != null) {
 				optionMap.put((int)vendorSpecificOption.getCode(),
 						new DhcpV4VendorSpecificOption(vendorSpecificOption));
+			}
+		}
+		
+		if (configOptions.isSetV4NetbiosNameServersOption()) {
+			V4NetbiosNameServersOption netbiosNameServersOption =
+				configOptions.getV4NetbiosNameServersOption();
+			if (netbiosNameServersOption != null) {
+				optionMap.put((int)netbiosNameServersOption.getCode(),
+						new DhcpV4NetbiosNameServersOption(netbiosNameServersOption));
+			}
+		}
+		
+		if (configOptions.isSetV4NetbiosNodeTypeOption()) {
+			V4NetbiosNodeTypeOption netbiosNodeTypeOption =
+				configOptions.getV4NetbiosNodeTypeOption();
+			if (netbiosNodeTypeOption != null) {
+				optionMap.put((int)netbiosNodeTypeOption.getCode(),
+						new DhcpV4NetbiosNodeTypeOption(netbiosNodeTypeOption));
+			}
+		}
+		
+		if (configOptions.isSetV4TftpServerNameOption()) {
+			V4TftpServerNameOption tftpServerNameOption =
+				configOptions.getV4TftpServerNameOption();
+			if (tftpServerNameOption != null) {
+				optionMap.put((int)tftpServerNameOption.getCode(),
+						new DhcpV4TftpServerNameOption(tftpServerNameOption));
+			}
+		}
+		
+		if (configOptions.isSetV4BootFileNameOption()) {
+			V4BootFileNameOption bootFileNameOption =
+				configOptions.getV4BootFileNameOption();
+			if (bootFileNameOption != null) {
+				optionMap.put((int)bootFileNameOption.getCode(),
+						new DhcpV4BootFileNameOption(bootFileNameOption));
 			}
 		}
 		

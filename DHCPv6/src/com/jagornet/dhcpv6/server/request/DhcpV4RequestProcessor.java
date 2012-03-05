@@ -201,7 +201,6 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
     	if (sendReply) {
             replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_ACK);
             if (!bindings.isEmpty()) {
-            	populateReplyMsgOptions(clientLink);
     			processDdnsUpdates();
             }
     	}

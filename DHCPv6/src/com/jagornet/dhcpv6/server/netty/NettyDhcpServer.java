@@ -134,7 +134,7 @@ public class NettyDhcpServer
 		            pipeline.addLast("handler", new DhcpChannelHandler());
 	        		
 		            DatagramChannelFactory factory = null;
-		            if (DhcpConstants.IS_WINDOWS) {
+		            if (Util.IS_WINDOWS) {
 		            	// Use OioDatagramChannels for IPv6 unicast addresses on Windows
 		            	factory = new OioDatagramChannelFactory(executorService);
 		            }
@@ -221,7 +221,7 @@ public class NettyDhcpServer
 		            pipeline.addLast("handler", new DhcpV4ChannelHandler(null));
 	        		
 		            DatagramChannelFactory factory = null;
-		            if (DhcpConstants.IS_WINDOWS) {
+		            if (Util.IS_WINDOWS) {
 		            	// Use OioDatagramChannels for IPv4 unicast addresses on Windows
 		            	factory = new OioDatagramChannelFactory(executorService);
 		            }

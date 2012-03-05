@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.server.request.binding;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -36,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ConfigOptions;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.config.DhcpV4OptionConfigObject;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.FiltersType;
@@ -124,10 +127,24 @@ public class V4AddressBindingPool implements BindingPool, DhcpV4OptionConfigObje
 		if (freeList != null) {
 			BigInteger next = freeList.getNextFree();
 			if (next != null) {
-				//TODO: if there are no more free addresses, then find one
-				//		that has been released or has been expired
 				try {
-					return InetAddress.getByAddress(next.toByteArray());
+					InetAddress ip = InetAddress.getByAddress(next.toByteArray());
+					int pingCheckTimeout = 
+						DhcpServerPolicies.globalPolicyAsInt(Property.V4_PINGCHECK_TIMEOUT);
+					if (pingCheckTimeout > 0) {
+						try {
+							if (ip.isReachable(pingCheckTimeout)) {
+								log.warn("Next free address answered ping check: " + 
+										ip.getHostAddress());
+								setUsed(ip);
+								return getNextAvailableAddress();	// try again
+							}
+						}
+						catch (IOException ex) {
+							log.error("Failed to perform v4 ping check: " + ex);
+						}
+					}
+					return ip;
 				}
 				catch (UnknownHostException ex) {
 					log.error("Unable to build IPv4 address from next free: " + ex);

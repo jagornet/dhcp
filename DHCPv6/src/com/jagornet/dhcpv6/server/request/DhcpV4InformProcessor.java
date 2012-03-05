@@ -99,7 +99,7 @@ public class DhcpV4InformProcessor extends BaseDhcpV4Processor
 //    	   configuration policies known to the server.
 
         replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_ACK);
-    	populateReplyMsgOptions(clientLink);
+    	populateV4Reply(clientLink, null);
 
     	return true;
     }

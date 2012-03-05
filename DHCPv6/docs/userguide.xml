@@ -125,10 +125,10 @@
       <note>
         <para>To start the Jagornet DHCPv6 Server, you must have superuser or
         administrator access rights on the host system because the server must
-        bind to privileged port number 547 to service client requests.
-        Optionally, the server can be instructed to bind to a different port
-        number for testing purposes only. See the <link
-        linkend="startup_options">Startup Options</link> for more
+        bind to privileged port numbers 67 for DHCPv4 and 547 for DHCPv6 to
+        service client requests. Optionally, the server can be instructed to
+        bind to a different port numbers for testing purposes only. See the
+        <link linkend="startup_options">Startup Options</link> for more
         information.</para>
       </note>
 
@@ -142,7 +142,7 @@
 
         <para><synopsis>usage: com.jagornet.dhcpv6.server.DhcpV6Server [options]
 Jagornet DHCPv6 Community Edition 2.0.0-beta1
-Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
+Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
   -4b,--v4bcast &lt;interface&gt;         DHCPv4 broadcast support (default = none).
                                     Use this option to specify the interface for the server to receive and send
                                     broadcast DHCPv4 packets. Only one interface may be specified. All other
@@ -157,7 +157,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
   -?,--help                         Show this help page.
   -c,--configfile &lt;filename&gt;        Configuration file (default =
                                     $DHCPV6_HOME/conf/dhcpv6server.xml).
-  -li,--list-interfaces             Show detailed interface list, then exit.
+  -li,--list-interfaces             Show detailed host interface list, then exit.
   -m,--mcast &lt;interfaces&gt;           DHCPv6 Multicast support (default = none).
                                     Use this option without arguments to instruct the server to bind to all
                                     multicast-enabled IPv6 interfaces on the host. Optionally, use arguments to list
@@ -276,7 +276,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
 
             <listitem>
               <para>Start the server with support for DHCPv6 multicast on one
-              interface and DHCPv4 broacast on another interface</para>
+              interface and DHCPv4 broadcast on another interface</para>
 
               <itemizedlist>
                 <listitem>
@@ -416,7 +416,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
 
             <listitem>
               <para>Start the server with support for DHCPv6 multicast on one
-              interface and DHCPv4 broacast on another interface</para>
+              interface and DHCPv4 broadcast on another interface</para>
 
               <itemizedlist>
                 <listitem>
@@ -487,7 +487,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
             </listitem>
 
             <listitem>
-              <para>address/prefix pools</para>
+              <para>address/prefix/v4 pools</para>
 
               <itemizedlist>
                 <listitem>
@@ -515,7 +515,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
                 </listitem>
 
                 <listitem>
-                  <para>link filter address/prefix pools</para>
+                  <para>link filter address/prefix/v4 pools</para>
 
                   <para><itemizedlist>
                       <listitem>
@@ -530,8 +530,8 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
       </itemizedlist>
 
       <para>Policies and options are defined below and follow the natural
-      hiearchy rules. That is, policies and options defined at a higher level
-      apply to all lower levels unless overriden by another level in the
+      hierarchy rules. That is, policies and options defined at a higher level
+      apply to all lower levels unless override by another level in the
       hierarchy, which then takes precedence to the further lower levels.
       Options and polices cannot be removed or set to null at any level,
       unless specifically stated otherwise.</para>
@@ -554,10 +554,10 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
 &lt;/policies&gt;</synopsis>
 
       <para>The table below describes the policies available for the Jagornet
-      DHCPv6 Server. The Hierachy Support column indicates which levels of the
-      configuration hierarchy the policy is supported. For policies that are
-      supported at 'all' levels, the lower level policy overrides the value of
-      any matching higher level policy.</para>
+      DHCPv6 Server. The Hierarchy Support column indicates which levels of
+      the configuration hierarchy the policy is supported. For policies that
+      are supported at 'all' levels, the lower level policy overrides the
+      value of any matching higher level policy.</para>
 
       <table>
         <title>Policies</title>
@@ -588,7 +588,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
 
             <row>
               <entry
-              valign="top"><code>dhcp.database.schemaVersion</code></entry>
+              valign="top"><code>cpd.database.schemaVersion</code></entry>
 
               <entry valign="top"><code>1</code></entry>
 
@@ -612,7 +612,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"><para>Number of milliseconds to keep track
               of recent messages.  Used to minimize replays of the same
               message to the server.  That is, to help mitigate denial of
-              service (DOS) attacts.</para></entry>
+              service (DOS) attacks.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -919,16 +919,17 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               clients which send the Client FQDN option. Available values
               are:</para> <itemizedlist>
                   <listitem condition="li4">
-                    <para>none - no DDNS updates</para>
+                    <para><code>none</code> - no DDNS updates</para>
                   </listitem>
 
                   <listitem condition="li4">
-                    <para>honorNoUpdate - honor client FQDN NoUpdate
+                    <para><code>honorNoUpdate</code> - honor client FQDN
+                    NoUpdate flag</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para><code>honorNoAAAA</code> - honor client FQDN NoAAAA
                     flag</para>
-                  </listitem>
-
-                  <listitem condition="li4">
-                    <para>honorNoAAAA - honor client FQDN NoAAAA flag</para>
                   </listitem>
                 </itemizedlist></entry>
 
@@ -958,7 +959,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"><para><code>false</code></para></entry>
 
               <entry valign="top"><para>Flag to indicate if the server should
-              sychronise DDNS updates with issuing of leases.  That is, the
+              synchronize DDNS updates with issuing of leases.  That is, the
               DHCPv6 Reply message will not be sent to the client until the
               DDNS update completes.</para></entry>
 
@@ -975,10 +976,10 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
 
               <entry valign="top"/>
 
-              <entry valign="top"><para>The domain to use for the client
-              FQDN.  If the Client FQDN option in an unqualified hostname,
-              this domain will be appened to the hostname to form the FQDN for
-              DDNS updates.  If the Client FQDN contains a domain name, that
+              <entry valign="top"><para>The domain to use for the client FQDN.
+              If the Client FQDN option in an unqualified hostname, this
+              domain will be appended to the hostname to form the FQDN for
+              DDNS updates. If the Client FQDN contains a domain name, that
               domain name (everything after the first label, i.e. after the
               first dot ".") will be replaced by this configured domain
               name.</para></entry>
@@ -995,7 +996,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
 
               <entry valign="top"><para><code>0.3</code></para></entry>
 
-              <entry valign="top"><para>Value for the TTL of DDNS updates.  If
+              <entry valign="top"><para>Value for the TTL of DDNS updates. If
               the value is less than one(1), it is assumed to be a percentage
               of the valid lifetime in seconds.  If the value is greater than
               or equal to one(1), it assumed to be an absolute number of
@@ -1080,9 +1081,9 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The name of the dynamic zone for
-              forward DDNS updates.  If not set, the zone will be assumed to
-              be the ddns.domain, or if that is not set, then the portion of
-              the client supplied FQDN which follows the first
+              forward DDNS updates. If not set, the zone will be assumed to be
+              the <code>ddns.domain</code>, or if that is not set, then the
+              portion of the client supplied FQDN which follows the first
               label.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
@@ -1099,11 +1100,11 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"><para><code>0.3</code></para></entry>
 
               <entry valign="top"><para>Value for the TTL of forward DDNS
-              updates.  If the value is less than one(1), it is assumed to be
-              a percentage of the valid lifetime in seconds.  If the value is
+              updates. If the value is less than one(1), it is assumed to be a
+              percentage of the valid lifetime in seconds.  If the value is
               greater than or equal to one(1), it assumed to be an absolute
               number of seconds.  This policy is only necessary if the forward
-              DDNS TTL is different from the 'ddns.ttl' policy
+              DDNS TTL is different from the <code>ddns.ttl</code> policy
               value.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
@@ -1120,9 +1121,9 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The IP address of the dynamic DNS
-              server for sending forward DDNS updates.  This policy is only
+              server for sending forward DDNS updates. This policy is only
               necessary if the forward DDNS server is different from the
-              'ddns.server' policy value.</para></entry>
+              <code>ddns.server</code> policy value.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1138,9 +1139,9 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The name of the TSIG key for signed
-              forward DDNS updates.  This policy is only necessary if the
-              forward DDNS key name is different from the 'ddns.tsig.keyName'
-              policy value.</para></entry>
+              forward DDNS updates. This policy is only necessary if the
+              forward DDNS key name is different from the
+              <code>ddns.tsig.keyName</code> policy value.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1156,10 +1157,10 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The algorithm name used for the TSIG
-              key for signed forward DDNS updates.  This policy is only
+              key for signed forward DDNS updates. This policy is only
               necessary if the forward DDNS algorithm is different from the
-              'ddns.tsig.algorithm' policy value.  Currently supported value
-              is 'hmac-sha256.'</para></entry>
+              'ddns.tsig.algorithm' policy value. Currently supported value is
+              'hmac-sha256.'</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1175,9 +1176,9 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The public key data of the TSIG key in
-              base 64 encoding for signed reverse DDNS updates.  This policy
-              is only necessary if the forward DDNS key data is different from
-              the 'ddns.tsig.keyData' policy value.</para></entry>
+              base 64 encoding for signed reverse DDNS updates. This policy is
+              only necessary if the forward DDNS key data is different from
+              the <code>ddns.tsig.keyData</code> policy value.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1193,9 +1194,10 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The name of the dynamic zone for
-              reverse DDNS updates.  If not set, the zone will be assumed to
-              be the ip6.arpa domain  corresponding to the subnet based on the
-              'ddns.reverse.zone.bitLength' policy below.</para></entry>
+              reverse DDNS updates. If not set, the zone will be assumed to be
+              the ip6.arpa domain  corresponding to the subnet based on the
+              <code>ddns.reverse.zone.bitLength</code> policy
+              below.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1227,11 +1229,11 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"><para><code>0.3</code></para></entry>
 
               <entry valign="top"><para>Value for the TTL of reverse DDNS
-              updates.  If the value is less than one(1), it is assumed to be
-              a percentage of the valid lifetime in seconds.  If the value is
+              updates. If the value is less than one(1), it is assumed to be a
+              percentage of the valid lifetime in seconds. If the value is
               greater than or equal to one(1), it assumed to be an absolute
-              number of seconds.  This policy is only necessary if the reverse
-              DDNS TTL is different from the 'ddns.ttl' policy
+              number of seconds. This policy is only necessary if the reverse
+              DDNS TTL is different from the <code>ddns.ttl</code> policy
               value.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
@@ -1248,9 +1250,9 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The IP address of the dynamic DNS
-              server for sending reverse DDNS updates.  This policy is only
+              server for sending reverse DDNS updates. This policy is only
               necessary if the reverse DDNS server is different from the
-              'ddns.server' policy value.</para></entry>
+              <code>ddns.server</code> policy value.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1266,9 +1268,9 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The name of the TSIG key for signed
-              reverse DDNS updates.  This policy is only necessary if the
-              reverse DDNS key name is different from the 'ddns.tsig.keyName'
-              policy value.</para></entry>
+              reverse DDNS updates. This policy is only necessary if the
+              reverse DDNS key name is different from the
+              <code>ddns.tsig.keyName</code> policy value.</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1284,10 +1286,10 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The algorithm name used for the TSIG
-              key for signed reverse DDNS updates.  This policy is only
+              key for signed reverse DDNS updates. This policy is only
               necessary if the reverse DDNS algorithm is different from the
-              'ddns.tsig.algorithm' policy value.  Currently supported value
-              is 'hmac-sha256.'</para></entry>
+              <code>ddns.tsig.algorithm</code> policy value. Currently
+              supported value is 'hmac-sha256.'</para></entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1303,9 +1305,43 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"/>
 
               <entry valign="top"><para>The public key data of the TSIG key in
-              base 64 encoding for signed reverse DDNS updates.  This policy
-              is only necessary if the reverse DDNS key data is different from
-              the 'ddns.tsig.keyData' policy value.</para></entry>
+              base 64 encoding for signed reverse DDNS updates. This policy is
+              only necessary if the reverse DDNS key data is different from
+              the <code>ddns.tsig.keyData</code> policy value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><code>v4.header.sname</code></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top">The server host name field of the DHCPv4
+              header. Used in conjunction with
+              <code>v4.header.filename</code>. See also -
+              <code>v4TftpServerNameOption</code>.</entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><code>v4.header.filename</code></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top">The boot file name field of the DHCPv4
+              header. The name of a boot file which the client will retrieve
+              from the server specified in the <code>sname</code> header
+              field. See also - <code>v4BootFileNameOption</code>.</entry>
 
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
@@ -1340,6 +1376,22 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
               <entry valign="top"><para><itemizedlist>
                   <listitem condition="li4">
                     <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><code>v4.pingCheckTimeout</code></entry>
+
+              <entry valign="top"><code>0</code></entry>
+
+              <entry valign="top">The number of milliseconds to wait for a
+              response to a ping before offering new addresses to DHCPv4
+              clients.</entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
                   </listitem>
                 </itemizedlist></para></entry>
             </row>
@@ -1438,7 +1490,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
         <code>v4ServerIdOption</code> must be specified in the
         <code>conf/dhcpv6server.xml</code> file. The default
         <code>conf/dhcpv6server.xml</code> file supplied with the Jagornet
-        DHCPv6 server specifies an empty DHCPv6 server identifier option as
+        DHCPv6 server specifies an empty DHCPv4 server identifier option as
         follows:</para>
 
         <synopsis>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
@@ -1482,7 +1534,8 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
 &lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
 
         <para>Whichever method is chosen to create the server identifier, it
-        should not be changed once it has been created.</para>
+        should not be changed once it has been created because this address
+        will be used by clients when renewing their lease.</para>
       </section>
 
       <section>
@@ -1491,7 +1544,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
         <para>Configuration Options are those options that can be configured
         for the server to return to clients in reply messages. For example,
         most network clients will need to know the address of one or more
-        Doman Name System (DNS) servers.</para>
+        Domain Name System (DNS) servers.</para>
 
         <section>
           <title>DHCPv6 Configuration Options</title>
@@ -1789,7 +1842,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
                   <row>
                     <entry><code>40</code></entry>
 
-                    <entry><code>panaAgentAddressOption</code> <para><ulink
+                    <entry><code>panaAgentAddressesOption</code> <para><ulink
                     url="http://www.ietf.org/rfc/rfc5192.txt">(RFC
                     5192)</ulink></para></entry>
 
@@ -1945,7 +1998,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
                   </row>
 
                   <row>
-                    <entry><code>17</code></entry>
+                    <entry><code>43</code></entry>
 
                     <entry><code>v4VendorSpecificOption</code> <para>(Section
                     8.4 of <ulink
@@ -1966,6 +2019,59 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
     &lt;/optionDef&gt;
   &lt;/subOptionList&gt;
 &lt;/v4VendorSpecificOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>44</code></entry>
+
+                    <entry><code>v4NetbiosNameServersOption</code>
+                    <para>(Section 8.5 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4NetbiosNameServersOption&gt;
+  &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
+&lt;/v4NetbiosNameServersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>46</code></entry>
+
+                    <entry><code>v4NetbiosNodeTypeOption</code> <para>(Section
+                    8.7 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4NetbiosNodeTypeOption&gt;
+  &lt;unsignedByte&gt;8&lt;/unsignedByte&gt;
+&lt;/v4NetbiosNodeTypeOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>66</code></entry>
+
+                    <entry><code>v4TftpServerNameOption</code> <para>(Section
+                    9.4 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4TftpServerNameOption&gt;
+  &lt;string&gt;tftp.foo.com.&lt;/string&gt;
+&lt;/v4TftpServerNameOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>67</code></entry>
+
+                    <entry><code>v4BootFileNameOption</code> <para>(Section
+                    9.5 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4BootFileNameOption&gt;
+  &lt;string&gt;bootfile-name&lt;/string&gt;
+&lt;/v4BootFileNameOption&gt;</synopsis></entry>
                   </row>
                 </tbody>
               </tgroup>
@@ -2195,7 +2301,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
         expression.</para>
 
         <section>
-          <title>Option Expression</title>
+          <title>DHCPv6 Option Expression</title>
 
           <para>An option expression defines the criteria for matching all or
           part of an option provided in the client request using the generic
@@ -2610,6 +2716,24 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
         </section>
 
         <section>
+          <title>DHCPv4 Option Expression</title>
+
+          <para>DHCPv4 option expressions use the same syntax as DHCPv6 option
+          expressions, but must identify the option as a DHCPv4 option using
+          the <code>v4</code> attribute. For example:</para>
+
+          <synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression v4="true" code="99" operator="equals"&gt;
+      &lt;uByteOption&gt;
+        &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;
+      &lt;/uByteOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis>
+        </section>
+
+        <section>
           <title>Custom Expressions</title>
 
           <para><emphasis>Custom expressions are used to define filter
@@ -2623,131 +2747,137 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
         <title>Filters Example</title>
 
         <para>For example, consider the following filter definition which
-        matches clients which supply a specific user class option value and
-        request the domain name option in the ORO. This filter is configured
-        to provide a specific DNS domain name for such clients.</para>
+        matches clients which supply a specific user class option value. This
+        filter is configured to provide a specific DNS domain name for such
+        clients.</para>
 
-        <synopsis>&lt;filters&gt;
-  &lt;filter&gt;
-    &lt;name&gt;UserClass Filter Group 1&lt;/name&gt;
-    &lt;filterExpressions&gt;
-      &lt;filterExpression&gt;
-        &lt;optionExpression code="6" operator="contains"&gt;
-          &lt;uShortListOption&gt;
-            &lt;unsignedShort&gt;15&lt;/unsignedShort&gt;
-          &lt;/uShortListOption&gt;
-        &lt;/optionExpression&gt;
-        &lt;optionExpression code="15" operator="equals"&gt;
-          &lt;opaqueOption&gt;
-            &lt;opaqueData&gt;
-              &lt;asciiValue&gt;FilterUserClass&lt;/asciiValue&gt;
-            &lt;/opaqueData&gt;
-          &lt;/opaqueOption&gt;
-        &lt;/optionExpression&gt;
-      &lt;/filterExpression&gt;
-    &lt;/filterExpressions&gt;
-    &lt;msgConfigOptions&gt;
-      &lt;domainListOption&gt;
-        &lt;domainName&gt;filter.com.&lt;/domainName&gt;
-      &lt;/domainListOption&gt;
-    &lt;/msgConfigOptions&gt;
-  &lt;/filter&gt;
-&lt;/filters&gt;</synopsis>
+        <synopsis>&lt;filter&gt;
+  &lt;name&gt;DHCPv6 UserClass Filter&lt;/name&gt;
+  &lt;filterExpressions&gt;
+    &lt;filterExpression&gt;
+      &lt;optionExpression code="15" operator="equals"&gt;
+        &lt;opaqueDataOption&gt;
+          &lt;opaqueData&gt;
+            &lt;asciiValue&gt;MyUserClass&lt;/asciiValue&gt;
+          &lt;/opaqueData&gt;
+        &lt;/opaqueDataOption&gt;
+      &lt;/optionExpression&gt;
+    &lt;/filterExpression&gt;
+  &lt;/filterExpressions&gt;
+  &lt;msgConfigOptions&gt;
+    &lt;domainSearchListOption&gt;
+      &lt;domainName&gt;filter.com.&lt;/domainName&gt;
+    &lt;/domainSearchListOption&gt;
+  &lt;/msgConfigOptions&gt;
+&lt;/filter&gt;
+</synopsis>
 
         <para>As another example, consider the following filter definition
-        which matches clients which supply a vendor class option beginning
-        with the specified ASCII value.  This filter is configured to provide
-        the vendor specific information option for such clients.</para>
+        which matches DHCPv4 clients which supply a vendor class option
+        beginning with the specified ASCII value. This filter is configured to
+        provide the vendor specific information option for such
+        clients.</para>
 
-        <synopsis>&lt;filters&gt;
-  &lt;filter&gt;
-    &lt;name&gt;VendorClass Filter Group 1&lt;/name&gt;
-    &lt;filterExpressions&gt;
-      &lt;filterExpression&gt;
-        &lt;optionExpression code="16" operator="startsWith"&gt;
-          &lt;opaqueOption&gt;
-            &lt;opaqueData&gt;
-              &lt;asciiValue&gt;VendorPrefix&lt;/asciiValue&gt;
-            &lt;/opaqueData&gt;
-          &lt;/opaqueOption&gt;
-        &lt;/optionExpression&gt;
-      &lt;/filterExpression&gt;
-    &lt;/filterExpressions&gt;
-    &lt;options&gt;
-      &lt;vendorInfoOption&gt;
-        &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;
-        &lt;subOptionList&gt;
-          &lt;optionDef code="1" name="VendorSubopt1"&gt;
-            &lt;stringOption&gt;
-              &lt;string&gt;VendorSpecial&lt;/string&gt;
-            &lt;/stringOption&gt;
-          &lt;/optionDef&gt;
-          &lt;optionDef code="2" name="VendorSubopt2"&gt;
-            &lt;ipAddressOption&gt;
-              &lt;ipAddress&gt;2001:db8::999&lt;/ipAddress&gt;
-            &lt;/ipAddressOption&gt;
-          &lt;/optionDef&gt;
-        &lt;/subOptionList&gt;
-      &lt;/vendorInfoOption&gt;
-    &lt;/options&gt;
-  &lt;/filter&gt;
-&lt;/filters&gt;</synopsis>
+        <synopsis>&lt;filter&gt;
+  &lt;name&gt;DHCPv4 VendorClass Filter&lt;/name&gt;
+  &lt;filterExpressions&gt;
+    &lt;filterExpression&gt;
+      &lt;optionExpression v4="true" code="60" operator="startsWith"&gt;
+        &lt;opaqueDataOption&gt;
+          &lt;opaqueData&gt;
+            &lt;asciiValue&gt;MyVendorPrefix&lt;/asciiValue&gt;
+          &lt;/opaqueData&gt;
+        &lt;/opaqueDataOption&gt;
+      &lt;/optionExpression&gt;
+    &lt;/filterExpression&gt;
+  &lt;/filterExpressions&gt;
+  &lt;v4ConfigOptions&gt;
+    &lt;v4VendorSpecificOption&gt;
+      &lt;opaqueData&gt;
+        &lt;hexValue&gt;01020304&lt;/hexValue&gt;
+      &lt;/opaqueData&gt;
+    &lt;/v4VendorSpecificOption&gt;
+  &lt;/v4ConfigOptions&gt;
+&lt;/filter&gt;
+</synopsis>
       </section>
     </section>
 
     <section>
       <title>Links</title>
 
-      <para>Links are used to classify DHCPv6 clients by the IPv6 link from
-      which the client request was sent. Specifically, a link is used to
-      define configuration parameters for client on a specific link. The link
-      is determined by the server according to section 11 of RFC 3315. If the
-      message is received directly and the source address is link-local, then
-      the client is on the link attached to the server interface which
-      received the message. If the message is received directly and the source
-      address is not link-local, then the client is on the link identified by
-      the source address. If the message is received from a relay agent, then
-      the client is on the link identified by the link-address of the
-      Relay-Forward message. Each link definition consists of a name and
-      address, a set of one or more configured options, optional server
-      policies, and optional filters.</para>
+      <para>A link defines a network segment for client requests. At least one
+      DHCPv6 or DHCPv4 link is required proper server configuration. The
+      Jagornet DHCPv6 Server uses the link definition to classify each
+      incoming client request. Once the client link is determined, the server
+      will use the link definition to determine which addresses are available
+      from the pools and/or bindings defined within the link. Additional
+      configuration elements can be specified within the link including
+      filters, policies, and options.</para>
 
       <section>
-        <title>Links Example</title>
+        <title>DHCPv6 Links</title>
 
-        <para>For example, consider the following link definitions which match
-        clients on individual IPv6 links. Each link is configured to provide a
-        specific DNS server address for clients on that link.</para>
+        <para>For DHCPv6, the link is determined by the server according to
+        section 11 of RFC 3315. If the message is received directly and the
+        source address is link-local, then the client is on the link attached
+        to the server interface which received the message. If the message is
+        received directly and the source address is not link-local, then the
+        client is on the link identified by the source address. If the message
+        is received from a relay agent, then the client is on the link
+        identified by the link-address of the Relay-Forward message.
+        Therefore, DHCPv6 link definitions are either local or remote.</para>
 
-        <synopsis>&lt;links&gt;
-  &lt;link&gt;
-    &lt;name&gt;Client Link 1&lt;/name&gt;
-    &lt;address&gt;2001:DB8:1::/48&lt;/address&gt;
-    &lt;msgConfigOptions&gt;
-      &lt;dnsServersOption&gt;
-        &lt;ipAddress&gt;2001:DB8:1::1&lt;/ipAddress&gt;
-      &lt;/dnsServersOption&gt;
-    &lt;/msgConfigOptions&gt;
-  &lt;/link&gt;
-  &lt;link&gt;
-    &lt;name&gt;Client Link 2&lt;/name&gt;
-    &lt;address&gt;2001:DB8:2::/48&lt;/address&gt;
-    &lt;msgConfigOptions&gt;
-      &lt;dnsServersOption&gt;
-        &lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;
-      &lt;/dnsServersOption&gt;
-    &lt;/msgConfigOptions&gt;
-  &lt;/link&gt;
-  &lt;link&gt;
-    &lt;name&gt;Client Link 3&lt;/name&gt;
-    &lt;address&gt;2001:DB8:3::/48&lt;/address&gt;
-    &lt;msgConfigOptions&gt;
-      &lt;dnsServersOption&gt;
-        &lt;ipAddress&gt;2001:DB8:3::1&lt;/ipAddress&gt;
-      &lt;/dnsServersOption&gt;
-    &lt;/msgConfigOptions&gt;
-  &lt;/link&gt;
-&lt;/links&gt;</synopsis>
+        <section>
+          <title>Local DHCPv6 Link Example</title>
+
+          <para>Local links require the <code>interface</code> element to
+          specify the name of the server interface.</para>
+
+          <para><synopsis>&lt;link&gt;
+  &lt;name&gt;Local IPv6 Client Link (Multicast traffic)&lt;/name&gt;
+  &lt;!-- Local DHCPv6 links are defined by interface name --&gt;
+  &lt;interface&gt;eth2&lt;/interface&gt;
+  ...
+&lt;/link&gt;</synopsis></para>
+        </section>
+
+        <section>
+          <title>Remote DHCPv6 Link Example</title>
+
+          <para>Remote links require the <code>address</code> element to
+          specify the address of the remote link.</para>
+
+          <para><synopsis>&lt;link&gt;
+  &lt;name&gt;Remote IPv6 Client Link (Unicast/Multicast traffic)&lt;/name&gt;
+  &lt;!-- Remote DHCPv6 links are defined in CIDR notation --&gt;
+  &lt;address&gt;2001:db8:2::/48&lt;/address&gt;
+  ...
+&lt;/link&gt;</synopsis></para>
+        </section>
+      </section>
+
+      <section>
+        <title>DHCPv4 Links</title>
+
+        <para>For DHCPv4, the link is determined by the 'giAddr' field of the
+        DHCPv4 request header. If the 'giAddr' field is zero, then the link is
+        determined by the IP address assigned to the IPv4 broadcast interface
+        provided to the server at startup.</para>
+
+        <section>
+          <title>DHCPv4 Link Example</title>
+
+          <para><synopsis>&lt;link&gt;
+  &lt;name&gt;IPv4 Client Link 1&lt;/name&gt;
+  &lt;!-- All DHCPv4 links are defined in CIDR notation.
+       For local links, specify the interface as a
+       startup command-line option, and configure the
+       subnet for that interface's IPv4 address. --&gt;
+    &lt;address&gt;10.0.0.0/24&lt;/address&gt;
+  ...
+&lt;/link&gt;</synopsis></para>
+        </section>
       </section>
     </section>
 
@@ -2859,7 +2989,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
     &lt;address&gt;10.0.0.0/24&lt;/address&gt;
     &lt;v4ConfigOptions&gt;
         &lt;v4SubnetMaskOption&gt;
-            &lt;ipAddress&gt;255.255.255.0&lt;/ipAddress&gt;
+            &lt;ipAddress&gt;255.255.255.0&lt;/ipAddress&gt;s
         &lt;/v4SubnetMaskOption&gt;
         &lt;v4RoutersOption&gt;
             &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
@@ -2885,6 +3015,123 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
         &lt;/pool&gt;
     &lt;/naAddrPools&gt;
 &lt;/link&gt;</synopsis></para>
+      </section>
+    </section>
+
+    <section>
+      <title>Static Bindings</title>
+
+      <para>Static bindings are used to reserve a specific IP address for a
+      specific client. Bindings may be defined only within Links. The Jagornet
+      DHCPv6 Server supports four types of bindings.</para>
+
+      <orderedlist>
+        <listitem condition="li4">
+          <para><code>naAddrBindings</code> - DHCPv6 Non-temporary address
+          (NA) bindings</para>
+        </listitem>
+
+        <listitem condition="li4">
+          <para><code>taAddrBindings</code> - DHCPv6 Temporary address (TA)
+          bindings</para>
+        </listitem>
+
+        <listitem condition="li4">
+          <para><code>prefixBindings</code> - DHCPv6 Prefix delegation (PD)
+          bindings</para>
+        </listitem>
+
+        <listitem>
+          <para><code>v4AddrBindings</code> - DHCPv4 address (V4)
+          bindings</para>
+        </listitem>
+      </orderedlist>
+
+      <section>
+        <title>Address Bindings</title>
+
+        <para>Non-temporary and temporary static address bindings are defined
+        by the <code>addressBinding</code> type. The address binding must
+        contain the <code>ipAddress</code> element to specify the IP address
+        reserved for the client. The address binding must also contain the
+        <code>duid</code> element to identify the client. Note that the
+        client's DUID is a calculated value which is generally not predictable
+        in all situations. Therefore, static address bindings for DHCPv6
+        should be considered an experimental feature for controlled
+        environments only. In addition to the DUID, a static address binding
+        may further identify the client request by specifying the optional
+        <code>iaid</code> element. Again, the client's IA_ID is generally
+        unpredictable. However, if the IA_ID is not specified, then
+        <emphasis>all</emphasis> client requests for the given DUID will be
+        assigned the specified IP address. This may be acceptable if the
+        clients are known to have a single network interface. If the
+        administrator understands the inherent risks with this configuration
+        feature, it may be used with caution. For example:<synopsis>&lt;naAddrBindings&gt;
+  &lt;binding&gt;
+    &lt;ipAddress&gt;2001:db8:1::100&lt;/ipAddress&gt;
+    &lt;!-- DHCPv6 "binding" is not really supported yet
+         because clients do not send a MAC address, but
+         if the DUID is known, then a binding can be made. --&gt;
+    &lt;duid&gt;
+      &lt;hexValue&gt;0a1b2c3d4e5f&lt;/hexValue&gt;
+    &lt;/duid&gt;
+    &lt;!-- The IA_ID is almost definitely unpredictable, so
+         it is an optional element for a DHCPv6 binding.  If
+         left undefined, then ANY IA_ID will match.
+    &lt;iaid&gt;0&lt;/iaid&gt;
+    --&gt;
+    ...
+  &lt;/binding&gt;
+  ...
+&lt;/naAddrBindings&gt;</synopsis></para>
+      </section>
+
+      <section>
+        <title>Prefix Bindings</title>
+
+        <para>Prefix delegation static prefix bindings are defined by the
+        <code>prefixBinding</code> type. The prefix binding must contain the
+        <code>prefix</code> element to define the prefix available for
+        delegation, and the <code>prefixLength</code> element to define the
+        size of the prefixes to allocate to requesting router. The same
+        caveats and cautions as DHCPv6 address bindings apply for prefix
+        bindings as well. For example:</para>
+
+        <synopsis>&lt;prefixBindings&gt;
+  &lt;binding&gt;
+    &lt;prefix&gt;2001:db8:1::&lt;/prefix&gt;
+    &lt;prefixLength&gt;64&lt;/prefixLength&gt;
+    &lt;!-- DHCPv6 "binding" is not really supported yet
+         because clients do not send a MAC address, but
+         if the DUID is known, then a binding can be made. --&gt;
+    &lt;duid&gt;
+      &lt;hexValue&gt;0a1b2c3d4e5f&lt;/hexValue&gt;
+    &lt;/duid&gt;
+    ...
+  &lt;/binding&gt;
+  ...
+&lt;/prefixBindings&gt;</synopsis>
+      </section>
+
+      <section>
+        <title>DHCPv4 Bindings</title>
+
+        <para>DHCPv4 static address bindings are defined by the
+        <code>v4AddressBinding</code> type. The address binding must contain a
+        <code>ipAddress</code> element to specify the IP address reserved for
+        the client. The address binding must also contain the
+        <code>chAddr</code> element to identify the client from the
+        corresponding field in the DHCPv4 request header. For
+        example:<synopsis>&lt;v4AddrBindings&gt;
+  &lt;binding&gt;
+    &lt;!-- Binding addresses should NOT be inside a pool --&gt;
+    &lt;ipAddress&gt;10.0.0.200&lt;/ipAddress&gt;
+    &lt;chaddr&gt;0a1b2c3d4e5f&lt;/chaddr&gt;
+    ...
+  &lt;/binding&gt;
+  ...
+&lt;/v4AddrBindings&gt;
+</synopsis></para>
       </section>
     </section>
   </chapter>
@@ -2979,17 +3226,16 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
       <para>In this operational model, multicast request messages sent by the
       DHCPv6 clients are received by the DHCPv6 relay agent which wraps the
       request in a Relay-Forward message. The DHCPv6 relay agent may send the
-      wrapped message via unicast to the address of one or more known
-      stateless DHCPv6 servers, or to the All_DHCP_Servers site-scoped
-      multicast address. Typically, the DHCPv6 relay agent will be configured
-      with a list of known DHCPv6 server addresses in order to minimize
-      multicast traffic, and for security purposes to avoid malicious or
-      accidentally misconfigured servers. The DHCPv6 server will wrap a Reply
-      for the client in a Relay-Reply message and unicast the wrapped message
-      to the DHCPv6 relay which forwarded the original client request. The
-      relay agent will send the encapsulated Reply message to the DHCPv6
-      client via unicast to the source address of the original client
-      request.</para>
+      wrapped message via unicast to the address of one or more known DHCPv6
+      servers, or to the All_DHCP_Servers site-scoped multicast address.
+      Typically, the DHCPv6 relay agent will be configured with a list of
+      known DHCPv6 server addresses in order to minimize multicast traffic,
+      and for security purposes to avoid malicious or rouge servers. The
+      DHCPv6 server will wrap a Reply for the client in a Relay-Reply message
+      and unicast the wrapped message to the DHCPv6 relay which forwarded the
+      original client request. The relay agent will send the encapsulated
+      Reply message to the DHCPv6 client via unicast to the source address of
+      the original client request.</para>
 
       <para><code> ----------                  ----------                    
       ----------</code></para>
@@ -3025,8 +3271,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
     <section>
       <title>Operational model without a DHCPv6 Relay Agent</title>
 
-      <para>Some IPv6 networks may not involve any IPv6 routers or will
-      otherwise not utilize a DHCPv6 relay agent.</para>
+      <para>Some IPv6 networks may not utilize a DHCPv6 relay agent.</para>
 
       <para>In this operational model, multicast request messages sent by the
       DHCPv6 clients are received directly by one or more DHCPv6 servers which
@@ -3102,7 +3347,7 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
     <para>Logging for the Jagornet DHCPv6 server is performed using the <ulink
     url="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</ulink>
     logging service. The default Log4J configuration file is located in the
-    <code>conf/log4j.properties</code> file. The server writes all intial
+    <code>conf/log4j.properties</code> file. The server writes all initial
     startup messages to the standard output and error streams, which are
     redirected by the <code>bin/dhcpv6</code> script to the
     <code>log/dhcpv6server.out</code> file. After the server initialization,
@@ -3126,5 +3371,29 @@ Copyright Jagornet Technologies, LLC 2009-2011.  All Rights Reserved.
     information, please see the <ulink
     url="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html">Java
     SE Management and Monitoring Guide</ulink> .</para>
+  </appendix>
+
+  <appendix>
+    <beginpage/>
+
+    <title>DHCPv4 Limitation</title>
+
+    <para>The Jagornet DHCPv6 Server supports Dynamic Host Configuration
+    Protocol for IPv4 (DHCPv4) with the limitation that only one host
+    interface can be used to service locally connected DHCPv4 clients. DHCPv4
+    clients will broadcast certain request messages, which are received by any
+    DHCPv4 servers and relays attached to the client's network segment.
+    Servers which receive the broadcast request will reply via broadcast to
+    the client. Relays which receive the broadcast request will relay the
+    request, via unicast, to one or more servers, and then relay the server
+    reply, via broadcast, back to the client. The server will listen on the
+    wildcard IP address (0.0.0.0) in order to receive broadcast requests.
+    However, all broadcast replies will be sent on the interface designated
+    with the <code>-4b/--v4bcast</code> startup option. Therefore, the
+    administrator must ensure that local DHCPv4 clients are attached only to
+    the designated interface, or that DHCPv4 clients are separated from the
+    server by a DHCPv4 relay agent.</para>
+
+    <para/>
   </appendix>
 </book>

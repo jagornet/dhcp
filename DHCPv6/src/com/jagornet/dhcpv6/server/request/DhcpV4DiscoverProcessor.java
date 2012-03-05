@@ -166,7 +166,6 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     	        replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_OFFER);
     		}
     		if (!bindings.isEmpty()) {
-    			populateReplyMsgOptions(clientLink);
         		if (rapidCommit) {
         			processDdnsUpdates();
         		}
