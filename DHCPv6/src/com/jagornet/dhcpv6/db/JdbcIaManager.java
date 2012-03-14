@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Util;
@@ -50,7 +50,7 @@ import com.jagornet.dhcpv6.util.Util;
  * 
  * @author A. Gregory Rabil
  */
-public class JdbcIaManager extends SimpleJdbcDaoSupport implements IaManager
+public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 {		
 	private static Logger log = LoggerFactory.getLogger(JdbcIaManager.class);
 

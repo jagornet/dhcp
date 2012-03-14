@@ -47,9 +47,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -78,7 +78,7 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  * 
  * @author A. Gregory Rabil
  */
-@ChannelPipelineCoverage("all")
+@ChannelHandler.Sharable
 public class TestClient extends SimpleChannelUpstreamHandler
 {
 	private static Logger log = LoggerFactory.getLogger(TestClient.class);

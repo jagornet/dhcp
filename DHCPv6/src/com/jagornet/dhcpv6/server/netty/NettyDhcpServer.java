@@ -211,7 +211,7 @@ public class NettyDhcpServer
         	if (v4Addrs != null) {
 	        	for (InetAddress addr : v4Addrs) {
 	        		// local address for packets received on this channel
-		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
+		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
 		            pipeline.addLast("decoder", new DhcpV4UnicastChannelDecoder(sockAddr));

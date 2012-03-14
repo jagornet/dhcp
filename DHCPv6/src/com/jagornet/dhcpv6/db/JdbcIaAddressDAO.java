@@ -42,7 +42,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import com.jagornet.dhcpv6.server.request.binding.Range;
@@ -54,7 +54,7 @@ import com.jagornet.dhcpv6.util.Util;
  * 
  * @author A. Gregory Rabil
  */
-public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressDAO 
+public class JdbcIaAddressDAO extends JdbcDaoSupport implements IaAddressDAO 
 {
     private static Logger log = LoggerFactory.getLogger(JdbcIaAddressDAO.class);
 
@@ -163,7 +163,7 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	public IaAddress getById(Long id) 
 	{
 		try {
-		    return getSimpleJdbcTemplate().queryForObject(
+		    return getJdbcTemplate().queryForObject(
 		            "select * from iaaddress where id = ?", 
 		            new IaAddrRowMapper(), id);
 		}
@@ -178,7 +178,7 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	 */
 	public IaAddress getByInetAddress(InetAddress inetAddr) 
 	{
-        return getSimpleJdbcTemplate().queryForObject(
+        return getJdbcTemplate().queryForObject(
                 "select * from iaaddress where ipaddress = ?", 
                 new IaAddrRowMapper(), inetAddr.getAddress());
 	}
@@ -188,7 +188,7 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	 */
 	public void deleteById(Long id)
 	{
-        getSimpleJdbcTemplate().update(
+        getJdbcTemplate().update(
         		"delete from iaaddress where id = ?", id);
     }
 
@@ -196,7 +196,7 @@ public class JdbcIaAddressDAO extends SimpleJdbcDaoSupport implements IaAddressD
 	 * @see com.jagornet.dhcpv6.db.IaAddressDAO#deleteByInetAddress(java.net.InetAddress)
 	 */
 	public void deleteByInetAddress(InetAddress inetAddr) {
-        getSimpleJdbcTemplate().update(
+        getJdbcTemplate().update(
         		"delete from iaaddress where ipaddress = ?", 
         		inetAddr.getAddress());
 	}

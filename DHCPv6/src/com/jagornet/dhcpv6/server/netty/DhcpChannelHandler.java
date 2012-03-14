@@ -29,8 +29,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ import com.jagornet.dhcpv6.server.request.DhcpMessageHandler;
  * 
  * @author A. Gregory Rabil
  */
-@ChannelPipelineCoverage("all")
+@ChannelHandler.Sharable
 public class DhcpChannelHandler extends SimpleChannelHandler
 {
 	private static Logger log = LoggerFactory.getLogger(DhcpChannelHandler.class);

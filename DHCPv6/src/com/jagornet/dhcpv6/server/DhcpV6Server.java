@@ -281,7 +281,13 @@ public class DhcpV6Server
 		
         registerLog4jInJmx();
 
-        String msg = "Port number: " + portNumber;
+        String msg = null;
+        
+        // by default, all IPv6 addresses are selected for unicast
+        if (ucastAddrs == null) {
+        	ucastAddrs = getAllIPv6Addrs();
+        }
+        msg = "DHCPv6 Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
         System.out.println(msg);
         log.info(msg);
         
@@ -289,40 +295,51 @@ public class DhcpV6Server
         // startup to get the mcast behavior at all... but
         // we COULD default to use all IPv6 interfaces 
         if (mcastNetIfs != null) {
-        	msg = "IPv6 Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
+//        	msg = "DHCPv6 Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
+        	StringBuilder sb = new StringBuilder();
+        	sb.append("DHCPv6 Multicast interfaces: [");
+        	for (NetworkInterface mcastNetIf : mcastNetIfs) {
+				sb.append(mcastNetIf.getName());
+				sb.append(", ");
+			}
+        	sb.setLength(sb.length()-2);	// remove last ", "
+        	sb.append("]");
+        	msg = sb.toString();
         	System.out.println(msg);
         	log.info(msg);
         }
         else {
-        	msg = "IPv6 Multicast interfaces: none";
+        	msg = "DHCPv6 Multicast interfaces: none";
         	System.out.println(msg);
         	log.info(msg);
         }
         
-        // by default, all IPv6 addresses are selected for unicast
-        if (ucastAddrs == null) {
-        	ucastAddrs = getAllIPv6Addrs();
-        }
-        msg = "IPv6 Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
+        msg = "DHCPv6 Port number: " + portNumber;
         System.out.println(msg);
         log.info(msg);
 
-        if (v4BcastNetIf != null) {
-        	msg = "IPv4 Broadcast Interface: " + v4BcastNetIf.toString();
-        	System.out.println(msg);
-        	log.info(msg);
-        }
-        else {
-        	msg = "IPv4 Broadcast interface: none";
-        	System.out.println(msg);
-        	log.info(msg);
-        }
-
+        
+        
         // by default, all IPv4 addresses are selected for unicast
         if (v4UcastAddrs == null) {
         	v4UcastAddrs = getAllIPv4Addrs();
         }
-        msg = "IPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
+        msg = "DHCPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
+        System.out.println(msg);
+        log.info(msg);
+        
+        if (v4BcastNetIf != null) {
+        	msg = "DHCPv4 Broadcast Interface: " + v4BcastNetIf.getName();
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        else {
+        	msg = "DHCPv4 Broadcast interface: none";
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        
+        msg = "DHCPv4 Port number: " + v4PortNumber;
         System.out.println(msg);
         log.info(msg);
         
@@ -594,19 +611,19 @@ public class DhcpV6Server
 						}
 						if (!isV6) {
 							System.err.println("Interface is not configured for IPv6: " +
-												netIf.getDisplayName());
+												netIf);
 							return null;
 						}
 					}
 					else {
 						System.err.println("Interface does not support multicast: " +
-										   netIf.getDisplayName());
+										   netIf);
 						return null;
 					}
 				}
 				else {
 					System.err.println("Interface is not up: " +
-										netIf.getDisplayName());
+										netIf);
 					return null;
 				}
 			}
@@ -720,19 +737,19 @@ public class DhcpV6Server
 					}
 					if (!isV4) {
 						System.err.println("Interface is not configured for IPv4: " +
-											netIf.getDisplayName());
+											netIf);
 						return null;
 					}
 				}
 				else {
 					System.err.println("Interface is loopback: " +
-									   netIf.getDisplayName());
+									   netIf);
 					return null;
 				}
 			}
 			else {
 				System.err.println("Interface is not up: " +
-									netIf.getDisplayName());
+									netIf);
 				return null;
 			}
 		}

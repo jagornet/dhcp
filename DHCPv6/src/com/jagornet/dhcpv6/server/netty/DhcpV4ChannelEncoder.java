@@ -29,8 +29,8 @@ import java.nio.ByteBuffer;
 
 import org.jboss.netty.buffer.ByteBufferBackedChannelBuffer;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ import com.jagornet.dhcpv6.message.DhcpV4Message;
  * 
  * @author A. Gregory Rabil
  */
-@ChannelPipelineCoverage("all")
+@ChannelHandler.Sharable
 public class DhcpV4ChannelEncoder extends OneToOneEncoder
 {
     

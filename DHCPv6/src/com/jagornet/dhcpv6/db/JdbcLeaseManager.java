@@ -47,7 +47,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Util;
@@ -58,7 +58,7 @@ import com.jagornet.dhcpv6.util.Util;
  * 
  * @author A. Gregory Rabil
  */
-public class JdbcLeaseManager extends SimpleJdbcDaoSupport implements IaManager
+public class JdbcLeaseManager extends JdbcDaoSupport implements IaManager
 {	
 	private static Logger log = LoggerFactory.getLogger(JdbcLeaseManager.class);
 

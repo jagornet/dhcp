@@ -30,8 +30,8 @@ import java.net.InetSocketAddress;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
  * 
  * @author A. Gregory Rabil
  */
-@ChannelPipelineCoverage("one")
+@ChannelHandler.Sharable
 public class DhcpChannelDecoder extends OneToOneDecoder
 {
     private static Logger log = LoggerFactory.getLogger(DhcpChannelDecoder.class);

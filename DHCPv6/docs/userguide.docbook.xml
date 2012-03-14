@@ -1,0 +1,3584 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This document was created with Syntext Serna Free. -->
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<book>
+  <bookinfo>
+    <title>Jagornet DHCPv6 Server User Guide - Community Edition 2.0.0
+    Beta</title>
+
+    <author>
+      <firstname>A. Gregory</firstname>
+
+      <surname>Rabil</surname>
+
+      <affiliation>
+        <orgname><ulink url="http://www.jagornet.com">Jagornet Technologies,
+        LLC</ulink></orgname>
+      </affiliation>
+    </author>
+
+    <pubdate>3/12/2012</pubdate>
+  </bookinfo>
+
+  <chapter>
+    <title>Introduction</title>
+
+    <section>
+      <title>Welcome</title>
+
+      <para>Welcome to Jagornet DHCPv6 Server Community Edition Version 2.0.0
+      Beta. Please visit these links for the latest news and information on
+      Jagornet DHCPv6 Server.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Jagornet Technologies Website: <ulink
+          url="http://www.jagornet.com">http://www.jagornet.com</ulink></para>
+        </listitem>
+
+        <listitem>
+          <para>Jagornet DHCPv6 Community Server on Google Project Hosting:
+          <ulink
+          url="http://code.google.com/p/jagornet-dhcpv6">http://code.google.com/p/jagornet-dhcpv6</ulink></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Features</title>
+
+      <para>Jagornet DHCPv6 Server is an open source Dynamic Host
+      Configuration Protocol server for IPv6 (DHCPv6) and IPv4 (DHCPv4)
+      implemented in Java. The server supports the following features:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Certified IPv6 Phase II DHCPv6 server - <ulink
+          url="http://www.ipv6ready.org">IPv6 Ready Logo</ulink></para>
+        </listitem>
+
+        <listitem>
+          <para>Core DHCPv6 RFCs:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Stateful DHCPv6 - <ulink
+              url="http://www.ietf.org/rfc/rfc3315.txt">RFC
+              3315</ulink></para>
+            </listitem>
+
+            <listitem>
+              <para>Prefix Delegation - <ulink
+              url="http://www.ietf.org/rfc/rfc3633.txt">RFC
+              3633</ulink></para>
+            </listitem>
+
+            <listitem>
+              <para>DNS Options - <ulink
+              url="http://www.ietf.org/rfc/rfc3646.txt">RFC
+              3646</ulink></para>
+            </listitem>
+
+            <listitem>
+              <para>Stateless DHCPv6 - <ulink
+              url="http://www.ietf.org/rfc/rfc3736.txt">RFC
+              3736</ulink></para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+
+        <listitem>
+          <para>Core DHCPv4 RFCs:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>DHCPv4 - <ulink
+              url="http://www.ietf.org/rfc/rfc2131.txt">RFC
+              2131</ulink></para>
+            </listitem>
+
+            <listitem>
+              <para>DHCPv4 Options - <ulink
+              url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+              2132</ulink></para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+
+        <listitem>
+          <para>Other</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Dynamic DNS for DHCPv6/v4 - <ulink
+              url="http://www.ietf.org/rfc/rfc4703.txt">RFC 4703</ulink>,
+              <ulink url="http://www.ietf.org/rfc/rfc4704.txt">RFC
+              4704</ulink></para>
+            </listitem>
+
+            <listitem>
+              <para>Highly-scalable, multithreaded architecture using <ulink
+              url="http://netty.io">Netty</ulink></para>
+            </listitem>
+
+            <listitem>
+              <para>Flexible, XML configuration file format - <ulink
+              url="file://../conf/dhcpv6server.xsd">Schema</ulink></para>
+            </listitem>
+
+            <listitem>
+              <para>Java Management Extensions (JMX) support - <ulink
+              url="http://download.oracle.com/javase/6/docs/technotes/guides/jmx/index.html">JDK
+              6 JMX</ulink></para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </chapter>
+
+  <chapter>
+    <title>Getting Started</title>
+
+    <section>
+      <title>System requirements</title>
+
+      <para>Jagornet DHCPv6 Server requires any platform with a certified Java
+      6 runtime environment.</para>
+
+      <para>The server has been successfully tested on multiple flavors of
+      Linux (including RHEL/CentOS, Ubuntu), Solaris, and Windows (including
+      XP SP2, 2003, 7, 2008) using the Sun/Oracle JRE6 for the respective
+      platforms. The server has also been successfully tested on OS X
+      10.5/10.6 running Apple's Java 6 runtime and FreeBSD running the OpenJDK
+      6 runtime.</para>
+    </section>
+
+    <section>
+      <title>Installation</title>
+
+      <para>Java 6 runtime must be available on the host where the Jagornet
+      DHCPv6 server will be installed. The JAVA_HOME environment variable
+      should be set to the home directory of your Java 6 JRE.</para>
+
+      <orderedlist>
+        <listitem>
+          <para>Create the installation directory on the host system and
+          expand the compressed installation file for your target
+          platform.</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Linux/Unix/Mac</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>Installation folder: <code>/opt/jagornet</code></para>
+                </listitem>
+
+                <listitem>
+                  <para>Compressed install file:
+                  <code>jagornet-dhcpv6-2.0.0-beta.tar.gz</code></para>
+                </listitem>
+
+                <listitem>
+                  <para><code>DHCPV6_HOME=/opt/jagornet/jagornet-dhcpv6-2.0.0-beta</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem>
+              <para>Windows</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>Installation folder: <code>C:\jagornet</code></para>
+                </listitem>
+
+                <listitem>
+                  <para>Compressed install file:
+                  <code>jagornet-dhcpv6-2.0.0-beta.zip</code></para>
+                </listitem>
+
+                <listitem>
+                  <para><code>DHCPV6_HOME=C:\jagornet\jagornet-dhcpv6-2.0.0-beta</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+
+        <listitem>
+          <para>After extracting the compressed files, a dhcpv6 directory will
+          be created in the installation folder, with the following
+          contents.</para>
+
+          <itemizedlist>
+            <listitem>
+              <para><code>DHCPV6_HOME/bin</code> - executable command line
+              files. See the section on <link linkend="running_server">Running
+              the Server</link>.</para>
+            </listitem>
+
+            <listitem>
+              <para><code>DHCPV6_HOME/conf</code> - configuration files. See
+              the section on <link
+              linkend="config">Configuration</link>.</para>
+            </listitem>
+
+            <listitem>
+              <para><code>DHCPV6_HOME/db</code> - database directory. See the
+              section on <link linkend="binding_db">Binding
+              Database</link>.</para>
+            </listitem>
+
+            <listitem>
+              <para><code>DHCPV6_HOME/docs</code> - documentation
+              files.</para>
+            </listitem>
+
+            <listitem>
+              <para><code>DHCPV6_HOME/lib</code> - Java library files.</para>
+            </listitem>
+
+            <listitem>
+              <para><code>DHCPV6_HOME/log</code> - server output files. See
+              the section on <link linkend="logging">Logging</link>.</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+      </orderedlist>
+    </section>
+
+    <section>
+      <title>Running the Server</title>
+
+      <anchor id="running_server"/>
+
+      <note>
+        <para>To start the Jagornet DHCPv6 Server, you must have superuser or
+        administrator access rights on the host system because the server must
+        bind to privileged port numbers 67 for DHCPv4 and 547 for DHCPv6 to
+        service client requests. Optionally, the server can be instructed to
+        bind to a different port numbers for testing purposes only. See the
+        <link linkend="startup_options">Startup Options</link> for more
+        information.</para>
+      </note>
+
+      <section>
+        <title>Startup Options</title>
+
+        <anchor id="startup_options"/>
+
+        <para>The main Java class of the Jagornet DHCPv6 Server supports the
+        following usage:</para>
+
+        <para><synopsis>usage: com.jagornet.dhcpv6.server.DhcpV6Server [options]
+Jagornet DHCPv6 Community Edition 2.0.0-beta1
+Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
+  -4b,--v4bcast &lt;interface&gt;         DHCPv4 broadcast support (default = none).
+                                    Use this option to specify the interface for the server to receive and send
+                                    broadcast DHCPv4 packets. Only one interface may be specified. All other
+                                    interfaces on the host will only receive and send unicast traffic.  The default
+                                    IPv4 address on the specified interface will be used for determining the DHCPv4
+                                    client link within the server configuration file.
+  -4p,--v4port &lt;v4portnum&gt;          DHCPv4 Port number (default = 67).
+  -4u,--v4ucast &lt;addresses&gt;         DHCPv4 Unicast addresses (default = all IPv4
+                                    addresses). Use this option to instruct the server to bind to a specific list of
+                                    IPv4 addresses, separated by spaces. These addresses should be configured on one
+                                    or more DHCPv4 relay agents connected to DHCPv4 client links.
+  -?,--help                         Show this help page.
+  -c,--configfile &lt;filename&gt;        Configuration file (default =
+                                    $DHCPV6_HOME/conf/dhcpv6server.xml).
+  -li,--list-interfaces             Show detailed host interface list, then exit.
+  -m,--mcast &lt;interfaces&gt;           DHCPv6 Multicast support (default = none).
+                                    Use this option without arguments to instruct the server to bind to all
+                                    multicast-enabled IPv6 interfaces on the host. Optionally, use arguments to list
+                                    specific interfaces, separated by spaces.
+  -p,--port &lt;portnum&gt;               DHCPv6 Port number (default = 547).
+  -tc,--test-configfile &lt;filename&gt;  Test configuration file, then exit.
+  -u,--ucast &lt;addresses&gt;            DHCPv6 Unicast addresses (default = all IPv6
+                                    addresses). Use this option to instruct the server to bind to a specific list of
+                                    global IPv6 addresses, separated by spaces. These addresses should be configured
+                                    on one or more DHCPv6 relay agents connected to DHCPv6 client links.
+  -v,--version                      Show version information, then exit.
+
+</synopsis></para>
+
+        <para><note>
+            <para>Users should NOT directly invoke the main Java class, but
+            are encouraged to use the wrapper scripts which ensure the proper
+            environment, classpath and Java VM arguments. See the following
+            sections for Linux/Unix/Mac or Windows host systems.</para>
+          </note></para>
+      </section>
+
+      <section>
+        <title>Linux/Unix/Mac</title>
+
+        <para>The $DHCPV6_HOME/bin/dhcpv6 script can be used to operate the
+        server from a command shell. This script supports the following
+        options:</para>
+
+        <itemizedlist>
+          <listitem condition="li4">
+            <para><code>start [startup options]</code> - starts the server
+            with any startup options provided.</para>
+          </listitem>
+
+          <listitem condition="li4">
+            <para><code>stop</code> - stops the server.</para>
+          </listitem>
+
+          <listitem condition="li4">
+            <para><code>restart [startup options]</code> - stop and start the
+            server.</para>
+          </listitem>
+
+          <listitem condition="li4">
+            <para><code>status</code> - check if the server is running.</para>
+          </listitem>
+
+          <listitem condition="li4">
+            <para><code>version</code> - display server version and exit.  A
+            convenience option which can be used instead of 'start -v' or
+            'start --version'.</para>
+          </listitem>
+
+          <listitem condition="li4">
+            <para><code>test-configfile &lt;configfile&gt;</code> - test
+            server configuration file and exit. A convenience option instead
+            of 'start -tc &lt;filename&gt;' or 'start --test-configfile
+            &lt;filename&gt;'.</para>
+          </listitem>
+
+          <listitem condition="li4">
+            <para><code>list-interfaces</code> - list host interfaces and
+            exit. A convenience method instead of 'start -li' or 'start
+            --list-interfaces'.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Startup examples:</para>
+
+        <para><orderedlist>
+            <listitem condition="li4">
+              <para>Display the server version and exit (any of the
+              following):</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6
+                  version</code></para>
+                </listitem>
+
+                <listitem>
+                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start
+                  -v</code></para>
+                </listitem>
+
+                <listitem>
+                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start
+                  --version</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem condition="li4">
+              <para>Start the server with the default options (DHCPv6 unicast
+              on all interfaces, no DHCPv6 multicast, DHCPv4 unicast on all
+              interfaces, no DHCPv4 broadcast):</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem condition="li4">
+              <para>Start the server on a test port with support for multicast
+              on all IPv6 multicast-enabled interfaces:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start -p 10547
+                  -m</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem>
+              <para>Start the server with support for DHCPv6 multicast on the
+              interface named 'eth0' and DHCPv4 broadcast on the interface
+              named 'eth1':</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start -m eth0 -4b
+                  eth1</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem condition="li4">
+              <para>Start the server with an alternate configuration file, one
+              specific unicast address, and two specific multicast
+              interfaces:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start -c
+                  conf/my-dhcpv6server.xml -u 2001:db8::1 -m eth0
+                  eth1</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </orderedlist></para>
+      </section>
+
+      <section>
+        <title>Windows</title>
+
+        <section>
+          <title>Windows Service</title>
+
+          <para>Jagornet DHCPv6 Server can operate as a Microsoft Windows
+          Service courtesy of <ulink url="http://yajsw.sourceforge.net/">Yet
+          Another Java Service Wrapper (YAJSW)</ulink>. Startup options
+          <emphasis>must</emphasis> be provided in
+          <code>DHCPV6_HOME\bin\yajsw-stable-11.0\conf\wrapper.conf.</code>
+          Edit this file using a standard text editor (i.e. notepad.exe), and
+          locate the following set of commented properties:</para>
+
+          <synopsis># Application parameters.  Add parameters as needed starting from 1
+# YAJSW: to specify the main class please use wrapper.java.app.mainclass=
+#wrapper.app.parameter.1=
+#wrapper.app.parameter.2=
+#wrapper.app.parameter.#=
+</synopsis>
+
+          <para>Provide desired <link linkend="startup_options">startup
+          options</link> by adding uncommented wrapper.app.parameter.# entries
+          for each option and each option value. For example:</para>
+
+          <orderedlist>
+            <listitem>
+              <para>Start the server on a test port with support for multicast
+              on all IPv6 multicast-enabled interfaces:</para>
+
+              <synopsis>wrapper.app.parameter.1=-p
+wrapper.app.parameter.2=10547
+wrapper.app.parameter.3=-m</synopsis>
+            </listitem>
+
+            <listitem>
+              <para>Start the server with support for DHCPv6 multicast on one
+              interface and DHCPv4 broadcast on another interface:</para>
+
+              <synopsis>wrapper.app.parameter.1=-m
+wrapper.app.parameter.2=eth0
+wrapper.app.parameter.3=-4b
+wrapper.app.parameter.4=eth1</synopsis>
+            </listitem>
+
+            <listitem>
+              <para>Start the server with an alternate configuration file, one
+              specific unicast address, and two specific multicast
+              interfaces:</para>
+
+              <synopsis>wrapper.app.parameter.1=-c
+wrapper.app.parameter.2=conf\my-dhcpserver.xml
+wrapper.app.parameter.3=-u
+wrapper.app.parameter.4=2001:db8::1
+wrapper.app.parameter.5=-m
+wrapper.app.parameter.6=eth0
+wrapper.app.parameter.7=eth1</synopsis>
+            </listitem>
+          </orderedlist>
+
+          <para>The following batch files are provided for operating the
+          Jagornet DHCPv6 Server as a Windows Service.</para>
+
+          <itemizedlist>
+            <listitem condition="li4">
+              <para><code>%DHCPV6_HOME%\bin\JagornetDhcpv6.bat</code> - run
+              the server in the command window. Use Ctrl+C to stop.</para>
+            </listitem>
+
+            <listitem condition="li4">
+              <para><code>%DHCPV6_HOME%\bin\InstallJagornetDhcpv6.bat</code> -
+              install the Jagornet DHCPv6 Server as a Windows Service.
+              <emphasis>On Windows 7 / Server 2008 this must be "Run As
+              Administrator".</emphasis></para>
+            </listitem>
+
+            <listitem condition="li4">
+              <para><code>%DHCPV6_HOME%\bin\UninstallJagornetDhcpv6.bat</code>
+              - remove the Jagornet DHCPv6 Server as a Windows Service.
+              <emphasis>On Windows 7 / Server 2008 this must be "Run As
+              Administrator".</emphasis></para>
+            </listitem>
+
+            <listitem condition="li4">
+              <para><code>%DHCPV6_HOME%\bin\StartJagornetDhcpv6.bat</code> -
+              start the Jagornet DHCPv6 Server as a Windows Service. The
+              server can also be started using Windows Control Panel -&gt;
+              Administrative Tools -&gt; System or the Microsoft Management
+              Console (MMC) Services controller.</para>
+            </listitem>
+
+            <listitem condition="li4">
+              <para><code>%DHCPV6_HOME%\bin\StopJagornetDhcpv6.bat</code> -
+              stop the Jagornet DHCPv6 Server as a Windows Service. The server
+              can also be stopped using Windows Control Panel -&gt;
+              Administrative Tools -&gt; System or the Microsoft Management
+              Console (MMC) Services controller.</para>
+            </listitem>
+          </itemizedlist>
+        </section>
+
+        <section>
+          <title>Command Shell</title>
+
+          <para>As an alternative to running Jagornet DHCPv6 Server as a
+          Windows Service, the <code>%DHCPV6_HOME%\bin\dhcpv6.bat</code> batch
+          file can be used to operate the server from a command shell. Provide
+          any desired <link linkend="startup_options">startup options</link>
+          on the command line. Enter &lt;Ctrl+C&gt; in the command shell
+          window to stop the server.</para>
+
+          <para>Startup examples:</para>
+
+          <orderedlist>
+            <listitem condition="li4">
+              <para>Display the server version and exit (any of the
+              following):</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6
+                  version</code></para>
+                </listitem>
+
+                <listitem>
+                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start
+                  -v</code></para>
+                </listitem>
+
+                <listitem>
+                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start
+                  --version</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem condition="li4">
+              <para>Start the server with the default options (DHCPv6 unicast
+              on all interfaces, no DHCPv6 multicast, DHCPv4 unicast on all
+              interfaces, no DHCPv4 broadcast):</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem condition="li4">
+              <para>Start the server on a test port with support for multicast
+              on all IPv6 multicast-enabled interfaces:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start -p 10547
+                  -m</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem>
+              <para>Start the server with support for DHCPv6 multicast on the
+              interface named 'eth0' and DHCPv4 broadcast on the interface
+              named 'eth1':</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start -m eth0 -4b
+                  eth1</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem condition="li4">
+              <para>Start the server with an alternate configuration file, one
+              specific unicast address, and two specific multicast
+              interfaces:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start -c
+                  conf\my-dhcpv6server.xml -u 2001:db8::1 -m eth0
+                  eth1</code></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </orderedlist>
+        </section>
+      </section>
+    </section>
+  </chapter>
+
+  <chapter>
+    <beginpage/>
+
+    <title>Configuration</title>
+
+    <anchor id="config"/>
+
+    <section>
+      <title>Hierarchy</title>
+
+      <para>The Jagornet DHCPv6 server is configured via the
+      <code>conf/dhcpv6server.xml</code> XML document. See the <link
+      linkend="startup_options">Startup Options</link> to change the name and
+      location of the configuration file. The XML schema which defines all
+      server configuration elements is available at
+      <code>conf/dhcpv6server.xsd</code>. The configuration file has this
+      general hierarchical structure:</para>
+
+      <itemizedlist>
+        <listitem condition="li4">
+          <para>global policies and options</para>
+        </listitem>
+
+        <listitem condition="li4">
+          <para>global filters</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>filter policies and options</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+
+        <listitem condition="li4">
+          <para>links</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>link policies and options</para>
+            </listitem>
+
+            <listitem>
+              <para>address/prefix/v4 pools</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>pool policies and options</para>
+                </listitem>
+
+                <listitem>
+                  <para>pool filters</para>
+
+                  <para><itemizedlist>
+                      <listitem>
+                        <para>pool filter policies and options</para>
+                      </listitem>
+                    </itemizedlist></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+
+            <listitem>
+              <para>link filters</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>link filter policies and options</para>
+                </listitem>
+
+                <listitem>
+                  <para>link filter address/prefix/v4 pools</para>
+
+                  <para><itemizedlist>
+                      <listitem>
+                        <para>link filter pool policies and options</para>
+                      </listitem>
+                    </itemizedlist></para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+      </itemizedlist>
+
+      <para>Policies and options are defined below and follow the natural
+      hierarchy rules. That is, policies and options defined at a higher level
+      apply to all lower levels unless override by another level in the
+      hierarchy, which then takes precedence to the further lower levels.
+      Options and polices cannot be removed or set to null at any level,
+      unless specifically stated otherwise.</para>
+    </section>
+
+    <section>
+      <title>Server Policies</title>
+
+      <para>Server polices are configured using the <code>polices</code>
+      element. Each <code>policy</code> is specified with <code>name</code>
+      and <code>value</code> elements. For example:</para>
+
+      <synopsis>&lt;policies&gt;
+...  
+  &lt;policy&gt;
+    &lt;name&gt;sendRequestedOptionsOnly&lt;/name&gt;
+    &lt;value&gt;true&lt;/value&gt;
+  &lt;/policy&gt;
+...
+&lt;/policies&gt;</synopsis>
+
+      <para>The table below describes the policies available for the Jagornet
+      DHCPv6 Server. The Hierarchy Support column indicates which levels of
+      the configuration hierarchy the policy is supported. For policies that
+      are supported at 'all' levels, the lower level policy overrides the
+      value of any matching higher level policy.</para>
+
+      <table>
+        <title>Policies</title>
+
+        <tgroup cols="4">
+          <colspec colname="c1" colwidth="35*"/>
+
+          <colspec colname="c2" colwidth="10*"/>
+
+          <colspec colname="c3" colwidth="40*"/>
+
+          <colspec colname="c4" colwidth="15*"/>
+
+          <tbody>
+            <row>
+              <entry valign="top"><para><emphasis
+              role="bold">Policy</emphasis></para></entry>
+
+              <entry valign="top"><para><emphasis role="bold">Default
+              Value</emphasis></para></entry>
+
+              <entry valign="top"><para><emphasis
+              role="bold">Description</emphasis></para></entry>
+
+              <entry valign="top"><para><emphasis role="bold">Hierarchy
+              Support</emphasis></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><code>dhcp.database.schemaVersion</code></entry>
+
+              <entry valign="top"><code>1</code></entry>
+
+              <entry valign="top">The Jagornet DHCPv6 server database version.
+              Version 1 schema uses a relational model. Version 2 uses a
+              single table model.</entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>dhcp.processor.recentMessageTimer</code></para></entry>
+
+              <entry valign="top"><para><code>5000</code></para></entry>
+
+              <entry valign="top"><para>Number of milliseconds to keep track
+              of recent messages.  Used to minimize replays of the same
+              message to the server.  That is, to help mitigate denial of
+              service (DOS) attacks.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>binding.manager.reaper.startupDelay</code></para></entry>
+
+              <entry valign="top"><para><code>10000</code></para></entry>
+
+              <entry valign="top"><para>Number of milliseconds for background
+              thread to wait before checking for expired leases at server
+              startup.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>binding.manager.reaper.runPeriod</code></para></entry>
+
+              <entry valign="top"><para><code>60000</code></para></entry>
+
+              <entry valign="top"><para>Number of milliseconds for background
+              thread to wait between checks for expired leases.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>binding.manager.deleteOldBindings</code></para></entry>
+
+              <entry valign="top"><para><code>false</code></para></entry>
+
+              <entry valign="top"><para>Flag to indicate if the server should
+              delete bindings upon expiration, or keep the binding while
+              marking it expired.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>sendRequestedOptionsOnly</code></para></entry>
+
+              <entry valign="top"><para><code>false</code></para></entry>
+
+              <entry valign="top"><para>Flag to indicate if the server should
+              return only the options requested by a client in the Option
+              Request Option (ORO) if available, or send all configured
+              options.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>supportRapidCommit</code></para></entry>
+
+              <entry valign="top"><para><code>false</code></para></entry>
+
+              <entry valign="top"><para>Flag to indicate if the server should
+              support clients requesting rapid commit of
+              binding.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>filter</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>linkFilter</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>verifyUnknownRebind</code></para></entry>
+
+              <entry valign="top"><para><code>false</code></para></entry>
+
+              <entry valign="top"><para>Flag to indicate if the server should
+              attempt to verify that addresses in a client's request are
+              appropriate for the client's link, even though that client is
+              unknown to the server.  See section 18.2.4 of RFC
+              3315.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>filter</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>linkFilter</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>preferredLifetime</code></para></entry>
+
+              <entry valign="top"><para><code>3600</code></para></entry>
+
+              <entry valign="top"><para>Number of seconds for the preferred
+              lifetime of addresses/prefixes provided by the server to the
+              client.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>pool</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>validLifetime</code></para></entry>
+
+              <entry valign="top"><para><code>3600</code></para></entry>
+
+              <entry valign="top"><para>Number of seconds for the valid
+              lifetime of addresses/prefixes provided by the server to the
+              client.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>pool</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><para><code>iaNaT1</code></para></entry>
+
+              <entry valign="top"><para><code>0.5</code></para></entry>
+
+              <entry valign="top"><para>Percentage of shortest preferred
+              lifetime of the addresses in the IA_NA to set the IA_NA T1
+              (renew) time in server replies.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><para><code>iaNaT2</code></para></entry>
+
+              <entry valign="top"><para><code>0.8</code></para></entry>
+
+              <entry valign="top"><para>Percentage of shortest preferred
+              lifetime of the addresses in the IA_NA to set the IA_NA T2
+              (rebind) time in server replies.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><para><code>iaPdT1</code></para></entry>
+
+              <entry valign="top"><para><code>0.5</code></para></entry>
+
+              <entry valign="top"><para>Percentage of shortest preferred
+              lifetime of the prefixes in the IA_PD to set the IA_PD T1
+              (renew) time in server replies.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><para><code>iaPdT2</code></para></entry>
+
+              <entry valign="top"><para><code>0.8</code></para></entry>
+
+              <entry valign="top"><para>Percentage of shortest preferred
+              lifetime of the addresses in the IA_PD to set the IA_PD T2
+              (rebind) time in server replies.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.update</code></para></entry>
+
+              <entry valign="top"><para><code>none</code></para></entry>
+
+              <entry valign="top"><para>Support Dynamic DNS updates for
+              clients which send the Client FQDN option. Available values
+              are:</para> <itemizedlist>
+                  <listitem condition="li4">
+                    <para><code>none</code> - no DDNS updates</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para><code>honorNoUpdate</code> - honor client FQDN
+                    NoUpdate flag</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para><code>honorNoAAAA</code> - honor client FQDN NoAAAA
+                    flag</para>
+                  </listitem>
+                </itemizedlist></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>filter</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>link</para>
+                  </listitem>
+
+                  <listitem condition="li4">
+                    <para>linkFilter</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.synchronize</code></para></entry>
+
+              <entry valign="top"><para><code>false</code></para></entry>
+
+              <entry valign="top"><para>Flag to indicate if the server should
+              synchronize DDNS updates with issuing of leases.  That is, the
+              DHCPv6 Reply message will not be sent to the client until the
+              DDNS update completes.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.domain</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The domain to use for the client FQDN.
+              If the Client FQDN option in an unqualified hostname, this
+              domain will be appended to the hostname to form the FQDN for
+              DDNS updates. If the Client FQDN contains a domain name, that
+              domain name (everything after the first label, i.e. after the
+              first dot ".") will be replaced by this configured domain
+              name.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><para><code>ddns.ttl</code></para></entry>
+
+              <entry valign="top"><para><code>0.3</code></para></entry>
+
+              <entry valign="top"><para>Value for the TTL of DDNS updates. If
+              the value is less than one(1), it is assumed to be a percentage
+              of the valid lifetime in seconds.  If the value is greater than
+              or equal to one(1), it assumed to be an absolute number of
+              seconds.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.server</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The IP address of the dynamic DNS
+              server for sending DDNS updates.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.tsig.keyName</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The name of the TSIG key for signed
+              DDNS updates.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.tsig.algorithm</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The algorithm name used for the TSIG
+              key for signed DDNS updates.  Currently supported value is
+              'hmac-sha256.'</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.tsig.keyData</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The public key data of the TSIG key in
+              base 64 encoding.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.forward.zone.name</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The name of the dynamic zone for
+              forward DDNS updates. If not set, the zone will be assumed to be
+              the <code>ddns.domain</code>, or if that is not set, then the
+              portion of the client supplied FQDN which follows the first
+              label.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.forward.zone.ttl</code></para></entry>
+
+              <entry valign="top"><para><code>0.3</code></para></entry>
+
+              <entry valign="top"><para>Value for the TTL of forward DDNS
+              updates. If the value is less than one(1), it is assumed to be a
+              percentage of the valid lifetime in seconds.  If the value is
+              greater than or equal to one(1), it assumed to be an absolute
+              number of seconds.  This policy is only necessary if the forward
+              DDNS TTL is different from the <code>ddns.ttl</code> policy
+              value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.forward.zone.server</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The IP address of the dynamic DNS
+              server for sending forward DDNS updates. This policy is only
+              necessary if the forward DDNS server is different from the
+              <code>ddns.server</code> policy value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.forward.zone.tsig.keyName</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The name of the TSIG key for signed
+              forward DDNS updates. This policy is only necessary if the
+              forward DDNS key name is different from the
+              <code>ddns.tsig.keyName</code> policy value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.forward.zone.tsig.algorithm</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The algorithm name used for the TSIG
+              key for signed forward DDNS updates. This policy is only
+              necessary if the forward DDNS algorithm is different from the
+              'ddns.tsig.algorithm' policy value. Currently supported value is
+              'hmac-sha256.'</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.forward.zone.tsig.keyData</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The public key data of the TSIG key in
+              base 64 encoding for signed reverse DDNS updates. This policy is
+              only necessary if the forward DDNS key data is different from
+              the <code>ddns.tsig.keyData</code> policy value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.reverse.zone.name</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The name of the dynamic zone for
+              reverse DDNS updates. If not set, the zone will be assumed to be
+              the ip6.arpa domain  corresponding to the subnet based on the
+              <code>ddns.reverse.zone.bitLength</code> policy
+              below.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.reverse.zone.bitLength</code></para></entry>
+
+              <entry valign="top"><para><code>64</code></para></entry>
+
+              <entry valign="top"><para>The number of bit representing the
+              subnet for calculating the reverse zone name.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.reverse.zone.ttl</code></para></entry>
+
+              <entry valign="top"><para><code>0.3</code></para></entry>
+
+              <entry valign="top"><para>Value for the TTL of reverse DDNS
+              updates. If the value is less than one(1), it is assumed to be a
+              percentage of the valid lifetime in seconds. If the value is
+              greater than or equal to one(1), it assumed to be an absolute
+              number of seconds. This policy is only necessary if the reverse
+              DDNS TTL is different from the <code>ddns.ttl</code> policy
+              value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.reverse.zone.server</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The IP address of the dynamic DNS
+              server for sending reverse DDNS updates. This policy is only
+              necessary if the reverse DDNS server is different from the
+              <code>ddns.server</code> policy value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.reverse.zone.tsig.keyName</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The name of the TSIG key for signed
+              reverse DDNS updates. This policy is only necessary if the
+              reverse DDNS key name is different from the
+              <code>ddns.tsig.keyName</code> policy value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.reverse.zone.tsig.algorithm</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The algorithm name used for the TSIG
+              key for signed reverse DDNS updates. This policy is only
+              necessary if the reverse DDNS algorithm is different from the
+              <code>ddns.tsig.algorithm</code> policy value. Currently
+              supported value is 'hmac-sha256.'</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry
+              valign="top"><para><code>ddns.reverse.zone.tsig.keyData</code></para></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top"><para>The public key data of the TSIG key in
+              base 64 encoding for signed reverse DDNS updates. This policy is
+              only necessary if the reverse DDNS key data is different from
+              the <code>ddns.tsig.keyData</code> policy value.</para></entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><code>v4.header.sname</code></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top">The server host name field of the DHCPv4
+              header. Used in conjunction with
+              <code>v4.header.filename</code>. See also -
+              <code>v4TftpServerNameOption</code>.</entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><code>v4.header.filename</code></entry>
+
+              <entry valign="top"/>
+
+              <entry valign="top">The boot file name field of the DHCPv4
+              header. The name of a boot file which the client will retrieve
+              from the server specified in the <code>sname</code> header
+              field. See also - <code>v4BootFileNameOption</code>.</entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><code>v4.ignoredMacAddrs</code></entry>
+
+              <entry valign="top"><code>000000000000,
+              FFFFFFFFFFFF</code></entry>
+
+              <entry valign="top">A list of comma separated MAC addresses for
+              the server to ignore requests from.</entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><code>v4.defaultLeasetime</code></entry>
+
+              <entry valign="top"><code>3600</code></entry>
+
+              <entry valign="top">The lease time for DHCPv4 clients.</entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>all</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"><code>v4.pingCheckTimeout</code></entry>
+
+              <entry valign="top"><code>0</code></entry>
+
+              <entry valign="top">The number of milliseconds to wait for a
+              response to a ping before offering new addresses to DHCPv4
+              clients.</entry>
+
+              <entry valign="top"><para><itemizedlist>
+                  <listitem condition="li4">
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist></para></entry>
+            </row>
+
+            <row>
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+
+              <entry valign="top"/>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section>
+      <title>DHCP Options</title>
+
+      <para>DHCPv6 options are configured using the <code>options</code>
+      element. Each option is specified by an element with a name of the
+      option, for example <code>dnsServersOption</code>. The Jagornet DHCPv6
+      server supports all options defined in RFC 3315, as well as other DHCPv6
+      options defined in additional RFCs.</para>
+
+      <section>
+        <title>DHCPv6 Server Identifier Option</title>
+
+        <para>The Server Identifier Option is required by the DHCPv6 protocol
+        for the server to include in reply packets. The
+        <code>serverIdOption</code> must be specified in the
+        <code>conf/dhcpv6server.xml</code> file. The default
+        <code>conf/dhcpv6server.xml</code> file supplied with the Jagornet
+        DHCPv6 server specifies an empty DHCPv6 server identifier option as
+        follows:</para>
+
+        <synopsis>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;
+
+    &lt;serverIdOption&gt;
+        &lt;opaqueData&gt;
+            &lt;hexValue/&gt;
+        &lt;/opaqueData&gt;
+    &lt;/serverIdOption&gt;
+
+&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+
+        <para>Using this default configuration, a DUID-LLT, as defined by
+        section 9.2 of RFC 3315, will be automatically generated by the
+        Jagornet DHCPv6 server upon initial startup. This will cause the
+        <code>conf/dhcpv6server.xml</code> file to be rewritten with the
+        generated <code>serverIdOption</code>, for example:</para>
+
+        <synopsis>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;
+
+  &lt;serverIdOption&gt;
+    &lt;opaqueData&gt;
+        &lt;hexValue&gt;0001000149EFC509001E52C94D49&lt;/hexValue&gt;
+    &lt;/opaqueData&gt;
+  &lt;/serverIdOption&gt;
+
+&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+
+        <para>This is the recommended way to create a server identifier.
+        Optionally, the <code>serverIdOption</code> can be specified using the
+        <code>asciiValue</code> of an opaque data option type, for
+        example:</para>
+
+        <synopsis>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;
+
+    &lt;serverIdOption&gt;
+        &lt;opaqueData&gt;
+            &lt;asciiValue&gt;Jagornet-DHCPv6&lt;/asciiValue&gt;
+        &lt;/opaqueData&gt;
+    &lt;/serverIdOption&gt;
+
+&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+
+        <para>Whichever method is chosen to create the server identifier, it
+        should not be changed once it has been created.</para>
+      </section>
+
+      <section>
+        <title>DHCPv4 Server Identifier Option</title>
+
+        <para>The Server Identifier Option is required by the DHCPv4 protocol
+        for the server to include in reply packets. The identifier is an IPv4
+        address which DHCPv4 clients will send unicast requests to. The
+        <code>v4ServerIdOption</code> must be specified in the
+        <code>conf/dhcpv6server.xml</code> file. The default
+        <code>conf/dhcpv6server.xml</code> file supplied with the Jagornet
+        DHCPv6 server specifies an empty DHCPv4 server identifier option as
+        follows:</para>
+
+        <synopsis>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;
+
+    &lt;v4ServerIdOption&gt;
+        &lt;ipAddress/&gt;
+    &lt;/v4ServerIdOption&gt;
+
+&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+
+        <para>Using this default configuration, the default IP address of the
+        host will be set for the DHCPv4 server identifier by the Jagornet
+        DHCPv6 server upon initial startup. This will cause the
+        <code>conf/dhcpv6server.xml</code> file to be rewritten with the
+        populated <code>v4ServerIdOption</code>, for example:</para>
+
+        <synopsis>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;
+
+  &lt;serverIdOption&gt;
+    &lt;ipAddress&gt;10.10.10.10&lt;/ipAddress&gt;
+  &lt;/serverIdOption&gt;
+
+&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+
+        <para>This is the recommended way to create a server identifier.
+        Optionally, the <code>V4ServerIdOption</code> can be specified using
+        the <code>ipAddress</code> element, for example:</para>
+
+        <synopsis>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6"&gt;
+
+    &lt;serverIdOption&gt;
+        &lt;ipAddress&gt;11.11.11.11&lt;ipAddress&gt;
+    &lt;/serverIdOption&gt;
+
+&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+
+        <para>Whichever method is chosen to create the server identifier, it
+        should not be changed once it has been created because this address
+        will be used by clients when renewing their lease.</para>
+      </section>
+
+      <section>
+        <title>Configuration Options</title>
+
+        <para>Configuration Options are those options that can be configured
+        for the server to return to clients in reply messages. For example,
+        most network clients will need to know the address of one or more
+        Domain Name System (DNS) servers.</para>
+
+        <section>
+          <title>DHCPv6 Configuration Options</title>
+
+          <para>Options can be returned at three distinct "levels" within the
+          returned DHCPv6 reply packet.</para>
+
+          <para><orderedlist>
+              <listitem condition="li4">
+                <para><code>msgConfigOptions</code> - Message configuration
+                options will be returned to the client at the outermost layer
+                of the DHCPv6 packet. For Info-Request messages, only message
+                configuration options are returned to the client.</para>
+              </listitem>
+
+              <listitem condition="li4">
+                <para><code>iaNaConfigOptions/iaTaConfigOptions/iaPdConfigOptions</code>
+                - Identity association configuration options will be returned
+                to the client inside the Identity Association (IA) option
+                within the reply message. Separate configuration options
+                elements are available for each type of IA option, including
+                IA_NA, IA_TA, and IA_PD options.</para>
+              </listitem>
+
+              <listitem condition="li4">
+                <para><code>naAddrConfigOptions/taAddrConfigOptions/prefixConfigOptions</code>
+                - Address configuration options will be returned to the client
+                inside the address or prefix option within the IA option
+                within the reply message. Separate configuration options
+                elements are available for each of the associated IA option
+                type.</para>
+              </listitem>
+            </orderedlist><table>
+              <title>DHCPv6 Configuration Options</title>
+
+              <tgroup cols="3">
+                <colspec colname="c1" colwidth="8*"/>
+
+                <colspec colname="c2" colwidth="27*"/>
+
+                <colspec colname="c3" colwidth="65*"/>
+
+                <thead>
+                  <row>
+                    <entry>Code</entry>
+
+                    <entry>Name (Reference)</entry>
+
+                    <entry>Option Element Syntax</entry>
+                  </row>
+                </thead>
+
+                <tbody>
+                  <row>
+                    <entry><code>7</code></entry>
+
+                    <entry><code>preferenceOption</code> <para>(Section 22.8
+                    of <ulink url="http://www.ietf.org/rfc/rfc3315.txt">RFC
+                    3315)</ulink> </para></entry>
+
+                    <entry><synopsis>&lt;preferenceOption&gt;
+  &lt;unsignedByte&gt;10&lt;/unsignedByte&gt;
+&lt;/preferenceOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>12</code></entry>
+
+                    <entry valign="middle"><code>serverUnicastOption</code>
+                    <para>(Section 22.8 of <ulink
+                    url="http://www.ietf.org/rfc/rfc3315.txt">RFC
+                    3315)</ulink> </para></entry>
+
+                    <entry><synopsis>&lt;serverUnicastOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+&lt;/serverUnicastOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>13</code></entry>
+
+                    <entry><code>statusCodeOption</code> <para>(Section 22.13
+                    of <ulink url="http://www.ietf.org/rfc/rfc3315.txt">RFC
+                    3315)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;statusCodeOption&gt;
+  &lt;code&gt;5&lt;/code&gt;
+  &lt;message&gt;UseMulticast&lt;/message&gt;
+&lt;/statusCodeOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>17</code></entry>
+
+                    <entry><code>vendorInfoOption</code> <para>Section 22.16
+                    of <ulink url="http://www.ietf.org/rfc/rfc3315.txt">RFC
+                    3315</ulink></para></entry>
+
+                    <entry><synopsis>&lt;vendorInfoOption&gt;
+  &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;
+  &lt;subOptionList&gt;
+    &lt;optionDef code="1" name="VendorSubopt1"&gt;
+      &lt;stringOption&gt;
+        &lt;string&gt;VendorSpecial&lt;/string&gt;
+      &lt;/stringOption&gt;
+    &lt;/optionDef&gt;
+    &lt;optionDef code="2" name="VendorSubopt2"&gt;
+      &lt;ipAddressOption&gt;
+        &lt;ipAddress&gt;2001:db8::999&lt;/ipAddress&gt;
+      &lt;/ipAddressOption&gt;
+    &lt;/optionDef&gt;
+  &lt;/subOptionList&gt;
+&lt;/vendorInfoOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>21</code></entry>
+
+                    <entry><code>sipServerDomainNamesOption</code>
+                    <para><ulink
+                    url="http://www.ietf.org/rfc/rfc3319.txt">(RFC
+                    3319)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;sipServerDomainNamesOption&gt;
+  &lt;domainName&gt;sip.foo.com.&lt;/domainName&gt;
+  &lt;domainName&gt;sip.bar.com.&lt;/domainName&gt;
+&lt;/sipServerDomainNamesOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>22</code></entry>
+
+                    <entry><code>sipServerAddressesOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc3319.txt">(RFC
+                    3319)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;sipServerAddressesOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
+&lt;/sipServerAddressesOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>23</code></entry>
+
+                    <entry><code>dnsServersOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc3646.txt">(RFC
+                    3646)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;dnsServersOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
+&lt;/dnsServersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>24</code></entry>
+
+                    <entry><code>domainSearchListOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc3646.txt">(RFC
+                    3646)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;domainSearchListOption&gt;
+  &lt;domainName&gt;foo.com.&lt;/domainName&gt;
+  &lt;domainName&gt;bar.com.&lt;/domainName&gt;
+&lt;/domainSearchListOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>27</code></entry>
+
+                    <entry><code>nisServersOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc3898.txt">(RFC
+                    3898)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;nisServersOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
+&lt;/nisServersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>28</code></entry>
+
+                    <entry><code>nisPlusServersOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc3898.txt">(RFC
+                    3898)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;nisPlusServersOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
+&lt;/nisPlusServersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>29</code></entry>
+
+                    <entry><code>nisDomainNameOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc3898.txt">(RFC
+                    3898)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;nisDomainNameOption&gt;
+  &lt;domainName&gt;foo.com.&lt;/domainName&gt;
+&lt;/nisDomainNameOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>30</code></entry>
+
+                    <entry><code>nisPlusDomainNameOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc3898.txt">(RFC
+                    3898)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;nisPlusDomainNameOption&gt;
+  &lt;domainName&gt;foo.com.&lt;/domainName&gt;
+&lt;/nisPlusDomainNameOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>31</code></entry>
+
+                    <entry><code>sntpServersOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc4075.txt">(RFC
+                    4075)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;sntpServersOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
+&lt;/sntpServersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>32</code></entry>
+
+                    <entry><code>infoRefreshTimeOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc4242.txt">(RFC
+                    4242)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;infoRefreshTimeOption&gt;
+  &lt;unsignedInt&gt;3600&lt;/unsignedInt&gt;
+&lt;/infoRefreshTimeOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>33</code></entry>
+
+                    <entry><code>bcmcsDomainNamesOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc4280.txt">(RFC
+                    4280)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;bcmcsDomainNamesOption&gt;
+  &lt;domainName&gt;bcmcs.foo.com.&lt;/domainName&gt;
+  &lt;domainName&gt;bcmcs.bar.com.&lt;/domainName&gt;
+&lt;/bcmcsDomainNamesOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>34</code></entry>
+
+                    <entry><code>bcmcsAddressesOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc4280.txt">(RFC
+                    4280)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;bcmcsAddressesOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
+&lt;/bcmcsAddressesOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>36</code></entry>
+
+                    <entry><code>geoconfCivicOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc4776.txt">(RFC
+                    4776)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;geoconfCivicOption&gt;
+  &lt;what&gt;1&lt;/what&gt;
+  &lt;countryCode&gt;US&lt;/countryCode&gt;
+  &lt;civicAddressElement&gt;
+    &lt;caType&gt;0&lt;/caType&gt;
+    &lt;caValue&gt;de&lt;/caValue&gt;
+  &lt;/civicAddressElement&gt;
+  &lt;civicAddressElement&gt;
+    &lt;caType&gt;128&lt;/caType&gt;
+    &lt;caValue&gt;Latn&lt;/caValue&gt;
+  &lt;/civicAddressElement&gt;
+  &lt;civicAddressElement&gt;
+    &lt;caType&gt;1&lt;/caType&gt;
+    &lt;caValue&gt;Bayern&lt;/caValue&gt;
+  &lt;/civicAddressElement&gt;
+&lt;/geoconfCivicOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>40</code></entry>
+
+                    <entry><code>panaAgentAddressesOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc5192.txt">(RFC
+                    5192)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;panaAgentAddressesOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
+&lt;/panaAgentAddressesOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>41</code></entry>
+
+                    <entry><code>newPosixTimezoneOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc4833.txt">(RFC
+                    4833)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;newPosixTimezoneOption&gt;
+  &lt;string&gt;EST5EDT4,M3.2.0/02:00,M11.1.0/02:00&lt;/string&gt;
+&lt;/newPosixTimezoneOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>42</code></entry>
+
+                    <entry><code>newTzdbTimezoneOption</code> <para><ulink
+                    url="http://www.ietf.org/rfc/rfc4833.txt">(RFC
+                    4833)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;newTzdbTimezoneOption&gt;
+  &lt;string&gt;Europe/Zurich&lt;/string&gt;
+&lt;/newTzdbTimezoneOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>51</code></entry>
+
+                    <entry><code>lostServerDomainNameOption</code>
+                    <para><ulink
+                    url="http://www.ietf.org/rfc/rfc5223.txt">(RFC
+                    5223)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;lostServerDomainNameOption&gt;
+  &lt;domainName&gt;lost.foo.com.&lt;/domainName&gt;
+&lt;/lostServerDomainNameOption&gt;</synopsis></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </table></para>
+        </section>
+
+        <section>
+          <title>DHCPv4 Configuration Options</title>
+
+          <para>Options are returned within the returned DHCPv4 reply
+          packet.</para>
+
+          <para><table>
+              <title>DHCPv4 Configuration Options</title>
+
+              <tgroup cols="3">
+                <colspec colname="c1" colwidth="8*"/>
+
+                <colspec colname="c2" colwidth="27*"/>
+
+                <colspec colname="c3" colwidth="65*"/>
+
+                <thead>
+                  <row>
+                    <entry>Code</entry>
+
+                    <entry>Name (Reference)</entry>
+
+                    <entry>Option Element Syntax</entry>
+                  </row>
+                </thead>
+
+                <tbody>
+                  <row>
+                    <entry><code>1</code></entry>
+
+                    <entry><code>v4SubnetMaskOption</code> <para>(Section 3.3
+                    of <ulink url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink> </para></entry>
+
+                    <entry><synopsis>&lt;v4SubnetMaskOption&gt;
+  &lt;ipAddress&gt;255.255.255.0&lt;/ipAddress&gt;
+&lt;/v4SubnetMaskOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>2</code></entry>
+
+                    <entry valign="middle"><code>v4TimeOffsetOption</code>
+                    <para>(Section 3.4 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4TimeOffsetOption&gt;
+  &lt;unsignedInt&gt;5000&lt;/unsignedInt&gt;
+&lt;/v4TimeOffsetOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>3</code></entry>
+
+                    <entry><code>v4RoutersOption</code> <para>(Section 3.5 of
+                    <ulink url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4RoutersOption&gt;
+  &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
+&lt;/v4RoutersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>4</code></entry>
+
+                    <entry><code>v4TimeServersOption</code> <para>(Section 3.6
+                    of <ulink url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4TimeServersOption&gt;
+  &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
+&lt;/v4TimeServersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>6</code></entry>
+
+                    <entry><code>v4DomainServersOption</code> <para>(Section
+                    3.8 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4DomainServersOption&gt;
+  &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
+&lt;/v4DomainServersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>15</code></entry>
+
+                    <entry><code>v4DomainNameOption</code> <para>(Section 3.17
+                    of <ulink url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4DomainNameOption&gt;
+  &lt;domainName&gt;foo.com.&lt;/domainName&gt;
+&lt;/v4DomainNameOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>43</code></entry>
+
+                    <entry><code>v4VendorSpecificOption</code> <para>(Section
+                    8.4 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4VendorSpecificOption&gt;
+  &lt;subOptionList&gt;
+    &lt;optionDef code="1" name="VendorSubopt1"&gt;
+      &lt;stringOption&gt;
+        &lt;string&gt;VendorSpecial&lt;/string&gt;
+      &lt;/stringOption&gt;
+    &lt;/optionDef&gt;
+    &lt;optionDef code="2" name="VendorSubopt2"&gt;
+      &lt;ipAddressOption&gt;
+        &lt;ipAddress&gt;10.11.12.13&lt;/ipAddress&gt;
+      &lt;/ipAddressOption&gt;
+    &lt;/optionDef&gt;
+  &lt;/subOptionList&gt;
+&lt;/v4VendorSpecificOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>44</code></entry>
+
+                    <entry><code>v4NetbiosNameServersOption</code>
+                    <para>(Section 8.5 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4NetbiosNameServersOption&gt;
+  &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
+  &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
+&lt;/v4NetbiosNameServersOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>46</code></entry>
+
+                    <entry><code>v4NetbiosNodeTypeOption</code> <para>(Section
+                    8.7 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4NetbiosNodeTypeOption&gt;
+  &lt;unsignedByte&gt;8&lt;/unsignedByte&gt;
+&lt;/v4NetbiosNodeTypeOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>66</code></entry>
+
+                    <entry><code>v4TftpServerNameOption</code> <para>(Section
+                    9.4 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4TftpServerNameOption&gt;
+  &lt;string&gt;tftp.foo.com.&lt;/string&gt;
+&lt;/v4TftpServerNameOption&gt;</synopsis></entry>
+                  </row>
+
+                  <row>
+                    <entry><code>67</code></entry>
+
+                    <entry><code>v4BootFileNameOption</code> <para>(Section
+                    9.5 of <ulink
+                    url="http://www.ietf.org/rfc/rfc2132.txt">RFC
+                    2132)</ulink></para></entry>
+
+                    <entry><synopsis>&lt;v4BootFileNameOption&gt;
+  &lt;string&gt;bootfile-name&lt;/string&gt;
+&lt;/v4BootFileNameOption&gt;</synopsis></entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </table></para>
+        </section>
+      </section>
+
+      <section>
+        <title>Generic Options</title>
+
+        <para>Generic options are used to define new option types for
+        experimental or future options. Generic options are defined using the
+        <code>optionDef</code> element. The <code>otherOptions</code> element
+        of the configuration options can be used to add one or more new or
+        experimental options to the options that will be sent by the server to
+        the client. Generic options are also used when defining the
+        <code>suboptionList</code> of the Vendor Information Option as shown
+        in the table above.</para>
+
+        <section>
+          <title>Option Definition Type</title>
+
+          <para>The option definition type predefines several option types for
+          use in creating new, experimental, or vendor options.</para>
+
+          <table>
+            <title>Generic Option Definitions</title>
+
+            <tgroup cols="2">
+              <colspec colname="c1" colwidth="25*"/>
+
+              <colspec colname="c2" colwidth="75*"/>
+
+              <thead>
+                <row>
+                  <entry>Element</entry>
+
+                  <entry>Generic Option Definition Syntax</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><code>nilOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;nilOption/&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uByteOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;uByteOption&gt;
+    &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;
+  &lt;/uByteOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uByteListOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;uByteListOption&gt;
+    &lt;unsignedByte&gt;1&lt;/unsignedByte&gt;
+    &lt;unsignedByte&gt;10&lt;/unsignedByte&gt;
+    &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;
+  &lt;/uByteListOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uShortOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;uShortOption&gt;
+    &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;
+  &lt;/uShortOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uShortListOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;uShortListOption&gt;
+    &lt;unsignedShort&gt;1&lt;/unsignedShort&gt;
+    &lt;unsignedShort&gt;999&lt;/unsignedShort&gt;
+    &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;
+  &lt;/uShortListOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uIntOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;uIntOption&gt;
+    &lt;unsignedInt&gt;4294697295&lt;/unsignedInt&gt;
+  &lt;/uIntOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>stringOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;stringOption&gt;
+    &lt;string&gt;myOptionStringValue&lt;/string&gt;
+  &lt;/stringOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>ipAddressOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;ipAddressOption&gt;
+    &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+  &lt;/ipAddressOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>ipAddressListOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;ipAddressListOption&gt;
+    &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+    &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
+    &lt;ipAddress&gt;2001:db8::3&lt;/ipAddress&gt;
+  &lt;/ipAddressListOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>domainNameOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;domainNameOption&gt;
+    &lt;domainName&gt;my.foo.com.&lt;/domainName&gt;
+  &lt;/domainNameOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>domainNameListOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;domainNameListOption&gt;
+    &lt;domainName&gt;my.foo.com.&lt;/domainName&gt;
+    &lt;domainName&gt;my.bar.com.&lt;/domainName&gt;
+    &lt;domainName&gt;my.yuk.com.&lt;/domainName&gt;
+  &lt;/domainNameListOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>opaqueDataOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;opaqueDataOption&gt;
+    &lt;opaqueData&gt;
+      &lt;hexValue&gt;0123456789abcdef&lt;/hexValue&gt;
+    &lt;/opaqueData&gt;
+  &lt;/opaqueDataOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>opaqueDataListOption</code></entry>
+
+                  <entry><synopsis>&lt;optionDef code="99" name="MyOption"&gt;
+  &lt;opaqueDataListOption&gt;
+    &lt;opaqueData&gt;
+      &lt;hexValue&gt;0123456789abcdef&lt;/hexValue&gt;
+    &lt;/opaqueData&gt;
+    &lt;opaqueData&gt;
+      &lt;asciiValue&gt;HelloWorld&lt;/asciiValue&gt;
+    &lt;/opaqueData&gt;
+    &lt;opaqueData&gt;
+      &lt;hexValue&gt;0a1b2c3d4e5f&lt;/hexValue&gt;
+    &lt;/opaqueData&gt;
+  &lt;/opaqueDataListOption&gt;
+&lt;/optionDef&gt;</synopsis></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </table>
+        </section>
+
+        <section>
+          <title>Opaque Data Option</title>
+
+          <para>Opaque data options are those options which can contain
+          opaque, binary data. Often, these options actually contain simple
+          ASCII strings. Therefore, the <code>opaqueData</code> element
+          contains either a <code>hexValue</code> element, which specifies the
+          binary value as a hexadecimal string, or an <code>asciiValue</code>
+          element, which specifies the ASCII string value.</para>
+        </section>
+      </section>
+    </section>
+
+    <section>
+      <title>Filters</title>
+
+      <para>Filters are used to classify DHCPv6 clients so that specific
+      configuration options can be supplied to certain classes of clients. A
+      typical use of filters is to define a vendor class mapping to provide
+      vendor specific information option data for clients that include the
+      vendor class option in the request. Filters can also be used to
+      arbitrarily group clients according to any criteria which matches one or
+      more options supplied by the client. Each filter definition includes a
+      name, one or more filter expressions, a set of one or more configured
+      options, and optional server policies.</para>
+
+      <section>
+        <title>Filter Expressions</title>
+
+        <para>If more than one filter expression is defined in a filter, then
+        the client request must match <emphasis>all</emphasis> of the
+        expressions. That is, multiple filter expressions are logically
+        <emphasis>anded</emphasis> together to form the match criteria. Each
+        filter expression must contain at least one option or custom
+        expression.</para>
+
+        <section>
+          <title>DHCPv6 Option Expression</title>
+
+          <para>An option expression defines the criteria for matching all or
+          part of an option provided in the client request using the generic
+          option definition, along with a value and operator, which forms the
+          expression. The <code>optionExpression</code> element must specify
+          the DHCPv6 option code in the <code>code</code> attribute, followed
+          by the optional <code>name</code> attribute from the generic option
+          definition type above, and the required <code>operator</code>
+          attribute, which defaults to <code>'equals'</code>.</para>
+
+          <table>
+            <title>Filter Option Expressions</title>
+
+            <tgroup cols="3">
+              <colspec colname="c1" colwidth="20*"/>
+
+              <colspec colname="c2" colwidth="30*"/>
+
+              <colspec colname="c3" colwidth="50*"/>
+
+              <thead>
+                <row>
+                  <entry>Option Type</entry>
+
+                  <entry>Available Operators</entry>
+
+                  <entry>Example Filters Option Expression Syntax</entry>
+                </row>
+              </thead>
+
+              <tbody>
+                <row>
+                  <entry><code>uByteOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>lessThan</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>lessThanOrEqual</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>greaterThan</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>greaterThanOrEqual</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="equals"&gt;
+      &lt;uByteOption&gt;
+        &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;
+      &lt;/uByteOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uByteListOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="equals"&gt;
+      &lt;uByteListOption&gt;
+        &lt;unsignedByte&gt;1&lt;/unsignedByte&gt;
+        &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;
+      &lt;/uByteListOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uShortOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>lessThan</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>lessThanOrEqual</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>greaterThan</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>greaterThanOrEqual</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="lessThan"&gt;
+      &lt;uShortOption&gt;
+        &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;
+      &lt;/uShortOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uShortListOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="equals"&gt;
+      &lt;uShortListOption&gt;
+        &lt;unsignedShort&gt;1&lt;/unsignedShort&gt;
+        &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;
+      &lt;/uShortListOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>uIntOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>lessThan</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>lessThanOrEqual</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>greaterThan</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>greaterThanOrEqual</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="lessThan"&gt;
+      &lt;uIntOption&gt;
+        &lt;unsignedInt&gt;10000&lt;/unsignedInt&gt;
+      &lt;/uIntOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>stringOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>startsWith</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>endsWith</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>regExp</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="endsWith"&gt;
+      &lt;stringOption&gt;
+        &lt;string&gt;mySuffix&lt;/string&gt;
+      &lt;/stringOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>ipAddressOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>startsWith</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>endsWith</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>regExp</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="equals"&gt;
+      &lt;ipAddressOption&gt;
+        &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+      &lt;/ipAddressOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>ipAddressListOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="contains"&gt;
+      &lt;ipAddressListOption&gt;
+        &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+      &lt;/ipAddressListOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>domainNameOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>startsWith</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>endsWith</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>regExp</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="equals"&gt;
+      &lt;domainNameOption&gt;
+        &lt;domainName&gt;foo.com.&lt;/domainName&gt;
+      &lt;/domainNameOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>domainNameListOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="contains"&gt;
+      &lt;domainNameListOption&gt;
+        &lt;domainName&gt;foo.com.&lt;/domainName&gt;
+      &lt;/domainNameListOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>opaqueDataOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>startsWith</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>endsWith</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>regExp</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="regExp"&gt;
+      &lt;opaqueDataOption&gt;
+        &lt;opaqueData&gt;
+          &lt;asciiValue&gt;myRegularExpression&lt;/asciiValue&gt;
+        &lt;/opaqueData&gt;
+      &lt;/opaqueDataOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+
+                <row>
+                  <entry><code>opaqueDataListOption</code></entry>
+
+                  <entry><itemizedlist>
+                      <listitem condition="li5">
+                        <para>equals</para>
+                      </listitem>
+
+                      <listitem condition="li5">
+                        <para>contains</para>
+                      </listitem>
+                    </itemizedlist></entry>
+
+                  <entry><synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression code="99" operator="equals"&gt;
+      &lt;opaqueDataOption&gt;
+        &lt;opaqueData&gt;
+          &lt;asciiValue&gt;opaqueAsciiData&lt;/asciiValue&gt;
+        &lt;/opaqueData&gt;
+      &lt;/opaqueDataOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis></entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </table>
+        </section>
+
+        <section>
+          <title>DHCPv4 Option Expression</title>
+
+          <para>DHCPv4 option expressions use the same syntax as DHCPv6 option
+          expressions, but must identify the option as a DHCPv4 option using
+          the <code>v4</code> attribute. For example:</para>
+
+          <synopsis>&lt;filterExpressions&gt;
+  &lt;filterExpression&gt;
+    &lt;optionExpression v4="true" code="99" operator="equals"&gt;
+      &lt;uByteOption&gt;
+        &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;
+      &lt;/uByteOption&gt;
+    &lt;/optionExpression&gt;
+  &lt;/filterExpression&gt;
+&lt;/filterExpressions&gt;</synopsis>
+        </section>
+
+        <section>
+          <title>Custom Expressions</title>
+
+          <para><emphasis>Custom expressions are used to define filter
+          expressions that cannot be configured using standard option
+          expressions. Currently, Jagornet DHCPv6 Server Community Edition
+          does not support custom expressions.</emphasis></para>
+        </section>
+      </section>
+
+      <section>
+        <title>Filters Example</title>
+
+        <para>For example, consider the following filter definition which
+        matches clients which supply a specific user class option value. This
+        filter is configured to provide a specific DNS domain name for such
+        clients.</para>
+
+        <synopsis>&lt;filter&gt;
+  &lt;name&gt;DHCPv6 UserClass Filter&lt;/name&gt;
+  &lt;filterExpressions&gt;
+    &lt;filterExpression&gt;
+      &lt;optionExpression code="15" operator="equals"&gt;
+        &lt;opaqueDataOption&gt;
+          &lt;opaqueData&gt;
+            &lt;asciiValue&gt;MyUserClass&lt;/asciiValue&gt;
+          &lt;/opaqueData&gt;
+        &lt;/opaqueDataOption&gt;
+      &lt;/optionExpression&gt;
+    &lt;/filterExpression&gt;
+  &lt;/filterExpressions&gt;
+  &lt;msgConfigOptions&gt;
+    &lt;domainSearchListOption&gt;
+      &lt;domainName&gt;filter.com.&lt;/domainName&gt;
+    &lt;/domainSearchListOption&gt;
+  &lt;/msgConfigOptions&gt;
+&lt;/filter&gt;
+</synopsis>
+
+        <para>As another example, consider the following filter definition
+        which matches DHCPv4 clients which supply a vendor class option
+        beginning with the specified ASCII value. This filter is configured to
+        provide the vendor specific information option for such
+        clients.</para>
+
+        <synopsis>&lt;filter&gt;
+  &lt;name&gt;DHCPv4 VendorClass Filter&lt;/name&gt;
+  &lt;filterExpressions&gt;
+    &lt;filterExpression&gt;
+      &lt;optionExpression v4="true" code="60" operator="startsWith"&gt;
+        &lt;opaqueDataOption&gt;
+          &lt;opaqueData&gt;
+            &lt;asciiValue&gt;MyVendorPrefix&lt;/asciiValue&gt;
+          &lt;/opaqueData&gt;
+        &lt;/opaqueDataOption&gt;
+      &lt;/optionExpression&gt;
+    &lt;/filterExpression&gt;
+  &lt;/filterExpressions&gt;
+  &lt;v4ConfigOptions&gt;
+    &lt;v4VendorSpecificOption&gt;
+      &lt;opaqueData&gt;
+        &lt;hexValue&gt;01020304&lt;/hexValue&gt;
+      &lt;/opaqueData&gt;
+    &lt;/v4VendorSpecificOption&gt;
+  &lt;/v4ConfigOptions&gt;
+&lt;/filter&gt;
+</synopsis>
+      </section>
+    </section>
+
+    <section>
+      <title>Links</title>
+
+      <para>A link defines a network segment for client requests. At least one
+      DHCPv6 or DHCPv4 link is required proper server configuration. The
+      Jagornet DHCPv6 Server uses the link definition to classify each
+      incoming client request. Once the client link is determined, the server
+      will use the link definition to determine which addresses are available
+      from the pools and/or bindings defined within the link. Additional
+      configuration elements can be specified within the link including
+      filters, policies, and options.</para>
+
+      <section>
+        <title>DHCPv6 Links</title>
+
+        <para>For DHCPv6, the link is determined by the server according to
+        section 11 of RFC 3315. If the message is received directly and the
+        source address is link-local, then the client is on the link attached
+        to the server interface which received the message. If the message is
+        received directly and the source address is not link-local, then the
+        client is on the link identified by the source address. If the message
+        is received from a relay agent, then the client is on the link
+        identified by the link-address of the Relay-Forward message.
+        Therefore, DHCPv6 link definitions are either local or remote.</para>
+
+        <section>
+          <title>Local DHCPv6 Link Example</title>
+
+          <para>Local links require the <code>interface</code> element to
+          specify the name of the server interface.</para>
+
+          <para><synopsis>&lt;link&gt;
+  &lt;name&gt;Local IPv6 Client Link (Multicast traffic)&lt;/name&gt;
+  &lt;!-- Local DHCPv6 links are defined by interface name --&gt;
+  &lt;interface&gt;eth2&lt;/interface&gt;
+  ...
+&lt;/link&gt;</synopsis></para>
+        </section>
+
+        <section>
+          <title>Remote DHCPv6 Link Example</title>
+
+          <para>Remote links require the <code>address</code> element to
+          specify the address of the remote link.</para>
+
+          <para><synopsis>&lt;link&gt;
+  &lt;name&gt;Remote IPv6 Client Link (Unicast/Multicast traffic)&lt;/name&gt;
+  &lt;!-- Remote DHCPv6 links are defined in CIDR notation --&gt;
+  &lt;address&gt;2001:db8:2::/48&lt;/address&gt;
+  ...
+&lt;/link&gt;</synopsis></para>
+        </section>
+      </section>
+
+      <section>
+        <title>DHCPv4 Links</title>
+
+        <para>For DHCPv4, the link is determined by the 'giAddr' field of the
+        DHCPv4 request header. If the 'giAddr' field is zero, then the link is
+        determined by the IP address assigned to the IPv4 broadcast interface
+        provided to the server at startup.</para>
+
+        <section>
+          <title>DHCPv4 Link Example</title>
+
+          <para><synopsis>&lt;link&gt;
+  &lt;name&gt;IPv4 Client Link 1&lt;/name&gt;
+  &lt;!-- All DHCPv4 links are defined in CIDR notation.
+       For local links, specify the interface as a
+       startup command-line option, and configure the
+       subnet for that interface's IPv4 address. --&gt;
+    &lt;address&gt;10.0.0.0/24&lt;/address&gt;
+  ...
+&lt;/link&gt;</synopsis></para>
+        </section>
+      </section>
+    </section>
+
+    <section>
+      <title>Pools</title>
+
+      <para>Pools may be defined only within Links or Link Filters. The
+      Jagornet DHCPv6 Server supports four types of pools.</para>
+
+      <orderedlist>
+        <listitem condition="li4">
+          <para><code>naAddrPools</code> - DHCPv6 Non-temporary address (NA)
+          pools</para>
+        </listitem>
+
+        <listitem condition="li4">
+          <para><code>taAddrPools</code> - DHCPv6 Temporary address (TA)
+          pools</para>
+        </listitem>
+
+        <listitem condition="li4">
+          <para><code>prefixPools</code> - DHCPv6 Prefix delegation (PD)
+          pools</para>
+        </listitem>
+
+        <listitem>
+          <para><code>v4AddrPools</code> - DHCPv4 address (V4) pools</para>
+        </listitem>
+      </orderedlist>
+
+      <section>
+        <title>Address Pools</title>
+
+        <para>Non-temporary and temporary address pools are defined by the
+        <code>addressPool</code> type. The address pool must contain a
+        <code>range</code> element to define the addresses available for
+        allocation in the pool. The range is specified using the start and end
+        address of a range of addresses, or a prefix and length. For
+        example:<synopsis>&lt;link&gt;
+    &lt;name&gt;Client Link 2&lt;/name&gt;
+    &lt;address&gt;2001:DB8:2::/48&lt;/address&gt;
+    &lt;iaNaConfigOptions&gt;
+        &lt;dnsServersOption&gt;
+            &lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;
+        &lt;/dnsServersOption&gt;
+    &lt;/iaNaConfigOptions&gt;
+    &lt;naAddrPools&gt;
+        &lt;pool&gt;
+            &lt;range&gt;2001:DB8:2::0A-2001:DB8:2::FF&lt;/range&gt;
+            &lt;addrConfigOptions&gt;
+                &lt;sipServerAddressesOption&gt;
+                    &lt;ipAddress&gt;2001:DB8:2::1:1&lt;/ipAddress&gt;
+                &lt;/sipServerAddressesOption&gt;
+            &lt;/addrConfigOptions&gt;
+        &lt;/pool&gt;
+        &lt;pool&gt;
+            &lt;range&gt;2001:DB8:2:1::/64&lt;/range&gt;
+            &lt;addrConfigOptions&gt;
+                &lt;sipServerAddressesOption&gt;
+                    &lt;ipAddress&gt;2001:DB8:2:1::1:1&lt;/ipAddress&gt;
+                &lt;/sipServerAddressesOption&gt;
+            &lt;/addrConfigOptions&gt;
+        &lt;/pool&gt;
+    &lt;/naAddrPools&gt;
+&lt;/link&gt;</synopsis></para>
+      </section>
+
+      <section>
+        <title>Prefix Pools</title>
+
+        <para>Prefix delegation pools are defined by the
+        <code>prefixPool</code> type. The prefix pool must contain a
+        <code>range</code> element to define the prefix available for
+        delegation, and the <code>prefixLength</code> element to define the
+        size of the prefixes to allocate to requesting routers. For
+        example:</para>
+
+        <synopsis>&lt;link&gt;
+    &lt;name&gt;Prefix Delegation Link&lt;/name&gt;
+    &lt;address&gt;2001:DB8:1::/48&lt;/address&gt;
+    &lt;iaPdConfigOptions&gt;
+        &lt;dnsServersOption&gt;
+            &lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;
+        &lt;/dnsServersOption&gt;
+    &lt;/iaPdConfigOptions&gt;
+    &lt;prefixPools&gt;
+        &lt;pool&gt;
+            &lt;range&gt;2001:DB8:2::/48&lt;/range&gt;
+            &lt;prefixLength&gt;64&lt;/prefixLength&gt;
+            &lt;prefixConfigOptions&gt;
+                &lt;sipServerAddressesOption&gt;
+                    &lt;ipAddress&gt;2001:DB8:2:1::1:1&lt;/ipAddress&gt;
+                &lt;/sipServerAddressesOption&gt;
+            &lt;/prefixConfigOptions&gt;
+        &lt;/pool&gt;
+    &lt;/prefixPools&gt;
+&lt;/link&gt;</synopsis>
+      </section>
+
+      <section>
+        <title>DHCPv4 Pools</title>
+
+        <para>DHCPv4 address pools are defined by the
+        <code>v4AddressPool</code> type. The address pool must contain a
+        <code>range</code> element to define the addresses available for
+        allocation in the pool. The range is specified using the start and end
+        address of a range of addresses. For example:<synopsis>&lt;link&gt;
+    &lt;name&gt;DHCPv4 Client Subnet&lt;/name&gt;
+    &lt;address&gt;10.0.0.0/24&lt;/address&gt;
+    &lt;v4ConfigOptions&gt;
+        &lt;v4SubnetMaskOption&gt;
+            &lt;ipAddress&gt;255.255.255.0&lt;/ipAddress&gt;s
+        &lt;/v4SubnetMaskOption&gt;
+        &lt;v4RoutersOption&gt;
+            &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
+            &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
+        &lt;/v4RoutersOption&gt;
+    &lt;v4ConfigOptions&gt;
+    &lt;v4AddrPools&gt;
+        &lt;pool&gt;
+            &lt;range&gt;10.0.0.100-10.0.0.199&lt;/range&gt;
+            &lt;v4ConfigOptions&gt;
+                &lt;v4DomainNameOption&gt;
+                    &lt;domainName&gt;foo.com.&lt;/domainName&gt;
+                &lt;/v4DomainNameOption&gt;
+            &lt;/v4ConfigOptions&gt;
+        &lt;/pool&gt;
+        &lt;pool&gt;
+            &lt;range&gt;10.0.0.200-10.0.0.254&lt;/range&gt;
+            &lt;v4ConfigOptions&gt;
+                &lt;v4DomainNameOption&gt;
+                    &lt;domainName&gt;bar.com.&lt;/domainName&gt;
+                &lt;/v4DomainNameOption&gt;
+            &lt;/v4ConfigOptions&gt;
+        &lt;/pool&gt;
+    &lt;/naAddrPools&gt;
+&lt;/link&gt;</synopsis></para>
+      </section>
+    </section>
+
+    <section>
+      <title>Static Bindings</title>
+
+      <para>Static bindings are used to reserve a specific IP address for a
+      specific client. Bindings may be defined only within Links. The Jagornet
+      DHCPv6 Server supports four types of bindings.</para>
+
+      <orderedlist>
+        <listitem condition="li4">
+          <para><code>naAddrBindings</code> - DHCPv6 Non-temporary address
+          (NA) bindings</para>
+        </listitem>
+
+        <listitem condition="li4">
+          <para><code>taAddrBindings</code> - DHCPv6 Temporary address (TA)
+          bindings</para>
+        </listitem>
+
+        <listitem condition="li4">
+          <para><code>prefixBindings</code> - DHCPv6 Prefix delegation (PD)
+          bindings</para>
+        </listitem>
+
+        <listitem>
+          <para><code>v4AddrBindings</code> - DHCPv4 address (V4)
+          bindings</para>
+        </listitem>
+      </orderedlist>
+
+      <section>
+        <title>Address Bindings</title>
+
+        <para>Non-temporary and temporary static address bindings are defined
+        by the <code>addressBinding</code> type. The address binding must
+        contain the <code>ipAddress</code> element to specify the IP address
+        reserved for the client. The address binding must also contain the
+        <code>duid</code> element to identify the client. Note that the
+        client's DUID is a calculated value which is generally not predictable
+        in all situations. Therefore, static address bindings for DHCPv6
+        should be considered an experimental feature for controlled
+        environments only. In addition to the DUID, a static address binding
+        may further identify the client request by specifying the optional
+        <code>iaid</code> element. Again, the client's IA_ID is generally
+        unpredictable. However, if the IA_ID is not specified, then
+        <emphasis>all</emphasis> client requests for the given DUID will be
+        assigned the specified IP address. This may be acceptable if the
+        clients are known to have a single network interface. If the
+        administrator understands the inherent risks with this configuration
+        feature, it may be used with caution. For example:<synopsis>&lt;naAddrBindings&gt;
+  &lt;binding&gt;
+    &lt;ipAddress&gt;2001:db8:1::100&lt;/ipAddress&gt;
+    &lt;!-- DHCPv6 "binding" is not really supported yet
+         because clients do not send a MAC address, but
+         if the DUID is known, then a binding can be made. --&gt;
+    &lt;duid&gt;
+      &lt;hexValue&gt;0a1b2c3d4e5f&lt;/hexValue&gt;
+    &lt;/duid&gt;
+    &lt;!-- The IA_ID is almost definitely unpredictable, so
+         it is an optional element for a DHCPv6 binding.  If
+         left undefined, then ANY IA_ID will match.
+    &lt;iaid&gt;0&lt;/iaid&gt;
+    --&gt;
+    ...
+  &lt;/binding&gt;
+  ...
+&lt;/naAddrBindings&gt;</synopsis></para>
+      </section>
+
+      <section>
+        <title>Prefix Bindings</title>
+
+        <para>Prefix delegation static prefix bindings are defined by the
+        <code>prefixBinding</code> type. The prefix binding must contain the
+        <code>prefix</code> element to define the prefix available for
+        delegation, and the <code>prefixLength</code> element to define the
+        size of the prefixes to allocate to requesting router. The same
+        caveats and cautions as DHCPv6 address bindings apply for prefix
+        bindings as well. For example:</para>
+
+        <synopsis>&lt;prefixBindings&gt;
+  &lt;binding&gt;
+    &lt;prefix&gt;2001:db8:1::&lt;/prefix&gt;
+    &lt;prefixLength&gt;64&lt;/prefixLength&gt;
+    &lt;!-- DHCPv6 "binding" is not really supported yet
+         because clients do not send a MAC address, but
+         if the DUID is known, then a binding can be made. --&gt;
+    &lt;duid&gt;
+      &lt;hexValue&gt;0a1b2c3d4e5f&lt;/hexValue&gt;
+    &lt;/duid&gt;
+    ...
+  &lt;/binding&gt;
+  ...
+&lt;/prefixBindings&gt;</synopsis>
+      </section>
+
+      <section>
+        <title>DHCPv4 Bindings</title>
+
+        <para>DHCPv4 static address bindings are defined by the
+        <code>v4AddressBinding</code> type. The address binding must contain a
+        <code>ipAddress</code> element to specify the IP address reserved for
+        the client. The address binding must also contain the
+        <code>chAddr</code> element to identify the client from the
+        corresponding field in the DHCPv4 request header. For
+        example:<synopsis>&lt;v4AddrBindings&gt;
+  &lt;binding&gt;
+    &lt;!-- Binding addresses should NOT be inside a pool --&gt;
+    &lt;ipAddress&gt;10.0.0.200&lt;/ipAddress&gt;
+    &lt;chaddr&gt;0a1b2c3d4e5f&lt;/chaddr&gt;
+    ...
+  &lt;/binding&gt;
+  ...
+&lt;/v4AddrBindings&gt;
+</synopsis></para>
+      </section>
+    </section>
+  </chapter>
+
+  <chapter>
+    <beginpage/>
+
+    <title>DHCPv6 Operational Models</title>
+
+    <para>IPv6 capable hosts are notified via router advertisement (RA) flags
+    when and how to use DHCPv6. These flags are defined in RFC 4861 as
+    follows:</para>
+
+    <orderedlist>
+      <listitem condition="li4">
+        <para>Managed address configuration flag (M bit) - when set, it
+        indicates that addresses are available via Dynamic Host Configuration
+        Protocol [DHCPv6]. If the M flag is set, the O flag is redundant and
+        can be ignored because DHCPv6 will return all available configuration
+        information.</para>
+      </listitem>
+
+      <listitem condition="li4">
+        <para>Other configuration flag (O bit) - when set, it indicates that
+        other configuration information is available via DHCPv6. Examples of
+        such information are DNS-related information or information on other
+        servers within the network.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>The operation of the host with respect to these flags can be
+    summarized as follows:</para>
+
+    <table>
+      <title>DHCPv6 Operational Models</title>
+
+      <tgroup cols="3">
+        <colspec colname="c1" colwidth="33*"/>
+
+        <colspec colname="c2" colwidth="33*"/>
+
+        <colspec colname="c3" colwidth="33*"/>
+
+        <tbody>
+          <row>
+            <entry valign="middle"><para> Flag</para></entry>
+
+            <entry valign="middle"><para> M=1</para></entry>
+
+            <entry valign="middle"><para> M=0</para></entry>
+          </row>
+
+          <row>
+            <entry valign="middle"><para> O=1</para></entry>
+
+            <entry valign="middle"><para> DHCPv6 for address and configuration
+            information</para></entry>
+
+            <entry valign="middle"><para> DHCPv6 for configuration information
+            only</para></entry>
+          </row>
+
+          <row>
+            <entry valign="middle"><para> O=0</para></entry>
+
+            <entry valign="middle"><para> DHCPv6 for address and configuration
+            information</para></entry>
+
+            <entry valign="middle"><para> No DHCPv6</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>A host which is configured to use DHCPv6 as described above will
+    send Solicit messages for address assignment and configuration requests or
+    Information-Request messages for configuration-only requests to the
+    All_DHCP_Relay_Agents_and_Servers(FF02::1:2) link-scoped multicast IPv6
+    address. The request message is handled either by a DHCPv6 server on the
+    local link, or forwarded by a DHCPv6 relay agent to a DHCPv6 server on a
+    separate network link. A DHCPv6 relay agent is available in most routers
+    and layer 3 switches which support IPv6.</para>
+
+    <section>
+      <title>Operational model using a DHCPv6 Relay Agent</title>
+
+      <para>Most IPv6 networks will involve one or more IPv6 capable routers.
+      Most IPv6 capable routers include an implementation of a DHCPv6 relay
+      agent. Please consult your router vendor's documentation for details on
+      enabling the DHCPv6 relay agent.</para>
+
+      <para>In this operational model, multicast request messages sent by the
+      DHCPv6 clients are received by the DHCPv6 relay agent which wraps the
+      request in a Relay-Forward message. The DHCPv6 relay agent may send the
+      wrapped message via unicast to the address of one or more known DHCPv6
+      servers, or to the All_DHCP_Servers site-scoped multicast address.
+      Typically, the DHCPv6 relay agent will be configured with a list of
+      known DHCPv6 server addresses in order to minimize multicast traffic,
+      and for security purposes to avoid malicious or rouge servers. The
+      DHCPv6 server will wrap a Reply for the client in a Relay-Reply message
+      and unicast the wrapped message to the DHCPv6 relay which forwarded the
+      original client request. The relay agent will send the encapsulated
+      Reply message to the DHCPv6 client via unicast to the source address of
+      the original client request.</para>
+
+      <para><code> ----------                  ----------                    
+      ----------</code></para>
+
+      <para><code>|          |   Multicast    |          | Unicast/Multicast
+      |          |</code></para>
+
+      <para><code>|          | -------------&gt; |          |
+      ----------------&gt; |          |</code></para>
+
+      <para><code>|          |    Request     |          |  Relay-Forward   
+      |          |</code></para>
+
+      <para><code>|  DHCPv6  |                |  DHCPv6  |    (Request)     
+      |  DHCPv6  |</code></para>
+
+      <para><code>|  Client  |                |  Relay   |                  
+      |  Server  |</code></para>
+
+      <para><code>|          |    Unicast     | (Router) |      Unicast     
+      |          |</code></para>
+
+      <para><code>|          | &lt;------------- |          |
+      &lt;---------------- |          |</code></para>
+
+      <para><code>|          |     Reply      |          |   Relay-Reply    
+      |          |</code></para>
+
+      <para><code> ----------                  ----------      (Reply)       
+      ----------</code></para>
+    </section>
+
+    <section>
+      <title>Operational model without a DHCPv6 Relay Agent</title>
+
+      <para>Some IPv6 networks may not utilize a DHCPv6 relay agent.</para>
+
+      <para>In this operational model, multicast request messages sent by the
+      DHCPv6 clients are received directly by one or more DHCPv6 servers which
+      are configured on the same link as the clients. The DHCPv6 server(s)
+      will send the Reply message to the source address of the original client
+      request.</para>
+
+      <para><code> ----------                  ----------</code></para>
+
+      <para><code>|          |   Multicast    |          |</code></para>
+
+      <para><code>|          | -------------&gt; |          |</code></para>
+
+      <para><code>|          |    Request     |          |</code></para>
+
+      <para><code>|  DHCPv6  |                |  DHCPv6  |</code></para>
+
+      <para><code>|  Client  |                |  Server  |</code></para>
+
+      <para><code>|          |    Unicast     |          |</code></para>
+
+      <para><code>|          | &lt;------------- |          |</code></para>
+
+      <para><code>|          |     Reply      |          |</code></para>
+
+      <para><code> ----------                  ----------</code></para>
+    </section>
+  </chapter>
+
+  <appendix>
+    <beginpage/>
+
+    <title>Binding Database</title>
+
+    <anchor id="binding_db"/>
+
+    <para>The Jagornet DHCPv6 server uses an embedded <ulink
+    url="http://db.apache.org/derby/">Apache Derby</ulink> database server for
+    managing the binding database. The database schema file is located in the
+    <code>db/jagornet-dhcpv6-schema.sql</code> file. At initial startup, the
+    server will create the database in the <code>db/derby</code> directory
+    using the schema. When the server is stopped, the <code>db/derby</code>
+    directory can be deleted (<emphasis role="bold">do not delete</emphasis>
+    <code>db/jagornet-dhcpv6-schema.sql</code>), and upon restart, the
+    Jagornet DHCPv6 server will recreate the database. <emphasis>Please note
+    that deleting the database should only be performed in test environments,
+    or when a backup copy of the database is being restored.</emphasis></para>
+
+    <para>Beginning with Jagornet DHCPv6 v1.1, the server can be configured to
+    use an embedded <ulink url="http://www.h2database.com/">H2</ulink>
+    database as an alternative to Apache Derby. The database configuration is
+    maintained in the <code>conf/jdbc.properties</code> file. The default
+    configuration sets the <code>jdbc.user, jdbc.password, jdbc.driver, and
+    jdbc.url</code> properties for Derby. To switch to H2, simply comment out
+    (insert a # at the line beginning) the default properties and uncomment
+    the corresponding properties in the H2 section. At initial startup, the
+    server will create the database in the <code>db/h2</code> directory using
+    the schema. When the server is stopped, the <code>db/h2</code> directory
+    can be deleted (<emphasis role="bold">do not delete</emphasis>
+    <code>db/jagornet-dhcpv6-schema.sql</code>), and upon restart, the
+    Jagornet DHCPv6 server will recreate the database. <emphasis>Please note
+    that deleting the database should only be performed in test environments,
+    or when a backup copy of the database is being restored.</emphasis></para>
+  </appendix>
+
+  <appendix>
+    <beginpage/>
+
+    <title>Logging</title>
+
+    <anchor id="logging"/>
+
+    <para>Logging for the Jagornet DHCPv6 server is performed using the <ulink
+    url="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</ulink>
+    logging service. The default Log4J configuration file is located in the
+    <code>conf/log4j.properties</code> file. The server writes all initial
+    startup messages to the standard output and error streams, which are
+    redirected by the <code>bin/dhcpv6</code> script to the
+    <code>log/dhcpv6server.out</code> file. After the server initialization,
+    all messages are created via Log4J and configured by the
+    <code>conf/log4j.properties</code> file. The default file outputs all
+    server messages to the <code>log/dhcpv6server.log</code> rolling file.
+    When the file reaches 10MB, it is "rolled" over to a new
+    <code>log/dhcpv6server.log.#</code> file up to ten files of logging
+    history. These settings are controlled by the
+    <code>log4j.appender.Logfile</code> properties.</para>
+  </appendix>
+
+  <appendix>
+    <beginpage/>
+
+    <title>Java Management Extensions (JMX)</title>
+
+    <para>The Jagornet DHCPv6 Server supports Java Management Extensions (JMX)
+    for dynamically configuring logging parameters and for monitoring server
+    statistics. Support for JMX is available in Sun's JRE 6. For more
+    information, please see the <ulink
+    url="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html">Java
+    SE Management and Monitoring Guide</ulink> .</para>
+  </appendix>
+
+  <appendix>
+    <beginpage/>
+
+    <title>DHCPv4 Limitation</title>
+
+    <para>The Jagornet DHCPv6 Server supports Dynamic Host Configuration
+    Protocol for IPv4 (DHCPv4) with the limitation that only one host
+    interface can be used to service locally connected DHCPv4 clients. DHCPv4
+    clients will broadcast certain request messages, which are received by any
+    DHCPv4 servers and relays attached to the client's network segment.
+    Servers which receive the broadcast request will reply via broadcast to
+    the client. Relays which receive the broadcast request will relay the
+    request, via unicast, to one or more servers, and then relay the server
+    reply, via broadcast, back to the client. The server will listen on the
+    wildcard IP address (0.0.0.0) in order to receive broadcast requests.
+    However, all broadcast replies will be sent on the interface designated
+    with the <code>-4b/--v4bcast</code> startup option. Therefore, the
+    administrator must ensure that local DHCPv4 clients are attached only to
+    the designated interface, or that DHCPv4 clients are separated from the
+    server by a DHCPv4 relay agent.</para>
+
+    <para/>
+  </appendix>
+</book>

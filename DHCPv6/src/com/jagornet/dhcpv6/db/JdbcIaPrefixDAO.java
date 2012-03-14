@@ -42,7 +42,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import com.jagornet.dhcpv6.server.request.binding.Range;
@@ -54,7 +54,7 @@ import com.jagornet.dhcpv6.util.Util;
  * 
  * @author A. Gregory Rabil
  */
-public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO 
+public class JdbcIaPrefixDAO extends JdbcDaoSupport implements IaPrefixDAO 
 {
     private static Logger log = LoggerFactory.getLogger(JdbcIaPrefixDAO.class);
 
@@ -166,7 +166,7 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 	public IaPrefix getById(Long id) 
 	{
 		try {
-		    return getSimpleJdbcTemplate().queryForObject(
+		    return getJdbcTemplate().queryForObject(
 		            "select * from iaprefix where id = ?", 
 		            new IaPrefixRowMapper(), id);
 		}
@@ -181,7 +181,7 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 	 */
 	public IaPrefix getByInetAddress(InetAddress inetAddr) 
 	{
-        return getSimpleJdbcTemplate().queryForObject(
+        return getJdbcTemplate().queryForObject(
                 "select * from iaprefix where ipprefix = ?", 
                 new IaPrefixRowMapper(), inetAddr.getAddress());
 	}
@@ -191,7 +191,7 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 	 */
 	public void deleteById(Long id)
 	{
-        getSimpleJdbcTemplate().update(
+        getJdbcTemplate().update(
         		"delete from iaprefix where id = ?", id);
     }
 
@@ -199,7 +199,7 @@ public class JdbcIaPrefixDAO extends SimpleJdbcDaoSupport implements IaPrefixDAO
 	 * @see com.jagornet.dhcpv6.db.IaPrefixDAO#deleteByInetAddress(java.net.InetAddress)
 	 */
 	public void deleteByInetAddress(InetAddress inetAddr) {
-        getSimpleJdbcTemplate().update(
+        getJdbcTemplate().update(
         		"delete from iaprefix where prefixaddress = ?", 
         		inetAddr.getAddress());
 	}

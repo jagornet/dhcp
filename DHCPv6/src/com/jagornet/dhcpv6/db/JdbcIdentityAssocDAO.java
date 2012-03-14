@@ -37,7 +37,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import com.jagornet.dhcpv6.util.Util;
@@ -47,7 +47,7 @@ import com.jagornet.dhcpv6.util.Util;
  * 
  * @author A. Gregory Rabil
  */
-public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements IdentityAssocDAO 
+public class JdbcIdentityAssocDAO extends JdbcDaoSupport implements IdentityAssocDAO 
 {
     private static Logger log = LoggerFactory.getLogger(JdbcIdentityAssocDAO.class);
 
@@ -121,7 +121,7 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 	 */
 	public void deleteById(Long id)
 	{
-        getSimpleJdbcTemplate().update(
+        getJdbcTemplate().update(
         		"delete from identityassoc where id = ?", id);
     }
 
@@ -131,7 +131,7 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 	public IdentityAssoc getById(Long id) 
 	{
 		try {
-		    return getSimpleJdbcTemplate().queryForObject(
+		    return getJdbcTemplate().queryForObject(
 		            "select * from identityassoc where id = ?", 
 		            new IaRowMapper(), id);
 		}
@@ -147,7 +147,7 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 	public IdentityAssoc getByKey(byte[] duid, byte iatype, long iaid) 
 	{
 		try {
-	        return getSimpleJdbcTemplate().queryForObject(
+	        return getJdbcTemplate().queryForObject(
 	                "select * from identityassoc where duid = ? and iatype = ? and iaid = ?", 
 	                new IaRowMapper(), duid, iatype, iaid);
 		}
@@ -163,7 +163,7 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 	 * @see com.jagornet.dhcpv6.db.IdentityAssocDAO#findAllByDuid(byte[])
 	 */
 	public List<IdentityAssoc> findAllByDuid(byte[] duid) {
-        return getSimpleJdbcTemplate().query(
+        return getJdbcTemplate().query(
                 "select * from identityassoc where duid = ?", 
                 new IaRowMapper(), duid);
 	}
@@ -172,7 +172,7 @@ public class JdbcIdentityAssocDAO extends SimpleJdbcDaoSupport implements Identi
 	 * @see com.jagornet.dhcpv6.db.IdentityAssocDAO#findAllByIaid(long)
 	 */
 	public List<IdentityAssoc> findAllByIaid(long iaid) {
-        return getSimpleJdbcTemplate().query(
+        return getJdbcTemplate().query(
                 "select * from identityassoc where iaid = ?", 
                 new IaRowMapper(), iaid);
 	}

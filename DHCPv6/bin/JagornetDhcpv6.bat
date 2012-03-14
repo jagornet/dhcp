@@ -7,7 +7,7 @@ rem
 rem %~dp0 is location of current script under NT
 set JAGORNET_BINPATH=%~dp0
 
-set YAJSW_HOME=%JAGORNET_BINPATH%yajsw-beta-10.2
+set YAJSW_HOME=%JAGORNET_BINPATH%yajsw-stable-11.0
 
 cd %YAJSW_HOME%\bat
 

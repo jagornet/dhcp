@@ -35,15 +35,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 /**
  * The JdbcDhcpOptionDAO implementation class for DhcpOptionDAO interface.
  * 
  * @author A. Gregory Rabil
  */
-public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptionDAO 
+public class JdbcDhcpOptionDAO extends JdbcDaoSupport implements DhcpOptionDAO 
 {
     private static Logger log = LoggerFactory.getLogger(JdbcDhcpOptionDAO.class);
     
@@ -115,7 +115,7 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
 	 */
 	public void update(DhcpOption option)
 	{
-		getSimpleJdbcTemplate().update(
+		getJdbcTemplate().update(
 				"update dhcpoption set value=? where id=?",
 				new Object[] { option.getValue(), option.getId() });
 	}
@@ -125,7 +125,7 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
 	 */
 	public void deleteById(Long id)
 	{
-        getSimpleJdbcTemplate().update(
+        getJdbcTemplate().update(
         		"delete from dhcpoption where id = ?", id);
     }
 	/* (non-Javadoc)
@@ -134,7 +134,7 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
 	public DhcpOption getById(Long id) 
 	{
 		try {
-		    return getSimpleJdbcTemplate().queryForObject(
+		    return getJdbcTemplate().queryForObject(
 		            "select * from dhcpoption where id = ?", 
 		            new OptionRowMapper(), id);
 		}
@@ -149,7 +149,7 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
 	 */
 	public List<DhcpOption> findAllByIdentityAssocId(long identityAssocId)
 	{
-        return getSimpleJdbcTemplate().query(
+        return getJdbcTemplate().query(
                 "select * from dhcpoption where identityassoc_id = ? order by code", 
                 new OptionRowMapper(), identityAssocId);
 	}
@@ -159,7 +159,7 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
 	 */
 	public List<DhcpOption> findAllByIaAddressId(long iaAddressId)
 	{
-        return getSimpleJdbcTemplate().query(
+        return getJdbcTemplate().query(
                 "select * from dhcpoption where iaaddress_id = ? order by code", 
                 new OptionRowMapper(), iaAddressId);
 	}
@@ -169,7 +169,7 @@ public class JdbcDhcpOptionDAO extends SimpleJdbcDaoSupport implements DhcpOptio
 	 */
 	public List<DhcpOption> findAllByIaPrefixId(long iaPrefixId)
 	{
-        return getSimpleJdbcTemplate().query(
+        return getJdbcTemplate().query(
                 "select * from dhcpoption where iaprefix_id = ? order by code", 
                 new OptionRowMapper(), iaPrefixId);
 	}

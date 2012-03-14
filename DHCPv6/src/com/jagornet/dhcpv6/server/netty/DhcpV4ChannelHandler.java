@@ -28,8 +28,8 @@ package com.jagornet.dhcpv6.server.netty;
 import java.net.InetSocketAddress;
 
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  * 
  * @author A. Gregory Rabil
  */
-@ChannelPipelineCoverage("all")
+@ChannelHandler.Sharable
 public class DhcpV4ChannelHandler extends SimpleChannelHandler
 {
 	
