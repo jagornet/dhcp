@@ -48,11 +48,11 @@ public class TestDhcpUserClassOption extends TestCase
     public void testEncode() throws Exception
     {
         DhcpUserClassOption duco = new DhcpUserClassOption();
-        duco.addOpaqueData("UserClass 1");   // len = 2 + 11
-        duco.addOpaqueData("UserClass 2");   // len = 2 + 11
+        duco.addOpaqueData("UserClass 1");   // 13 (len=2 bytes, data=11 bytes)
+        duco.addOpaqueData("UserClass 2");   // 13 (len=2 bytes, data=11 bytes)
         ByteBuffer bb = duco.encode();
         assertNotNull(bb);
-        assertEquals(30, bb.capacity());    // +4 (code=2bytes, len=2bytes)
+        assertEquals(30, bb.capacity());    // +4 (code=2 bytes, len=2 bytes)
         assertEquals(30, bb.limit());
         assertEquals(0, bb.position());
         assertEquals(DhcpConstants.OPTION_USER_CLASS, bb.getShort());

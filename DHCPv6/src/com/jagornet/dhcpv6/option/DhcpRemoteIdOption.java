@@ -30,7 +30,6 @@ import java.nio.ByteBuffer;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.RemoteIdOption;
 
@@ -101,8 +100,7 @@ public class DhcpRemoteIdOption extends BaseOpaqueDataOption
                 RemoteIdOption remoteIdOption = (RemoteIdOption)opaqueDataOption;
                 remoteIdOption.setEnterpriseNumber(Util.getUnsignedInt(buf));
                 while (buf.position() < eof) {
-                	OpaqueData opaque = remoteIdOption.addNewOpaqueData();
-                    OpaqueDataUtil.decodeDataOnly(opaque, buf, len);
+                    OpaqueDataUtil.decodeDataOnly(remoteIdOption.getOpaqueData(), buf, len-4);
                 }
             }
         }
