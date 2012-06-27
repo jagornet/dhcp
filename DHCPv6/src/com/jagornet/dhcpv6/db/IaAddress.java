@@ -318,17 +318,20 @@ public class IaAddress
 		sb.append(" state=");
 		sb.append(this.getState() + "(" + stateToString(this.getState()) + ")");
 		sb.append(" startTime=");
-		sb.append(Util.GMT_DATEFORMAT.format(this.getStartTime()));
+		if (this.getStartTime() != null)
+			sb.append(Util.GMT_DATEFORMAT.format(this.getStartTime()));
 		sb.append(" preferredEndTime=");
-		if (this.getPreferredEndTime().getTime() < 0)
-			sb.append("infinite");
-		else 
-			sb.append(Util.GMT_DATEFORMAT.format(this.getPreferredEndTime()));
+		if (this.getPreferredEndTime() != null)
+			if (this.getPreferredEndTime().getTime() < 0)
+				sb.append("infinite");
+			else 
+				sb.append(Util.GMT_DATEFORMAT.format(this.getPreferredEndTime()));
 		sb.append(" validEndTime=");
-		if (this.getValidEndTime().getTime() < 0)
-			sb.append("infinite");
-		else
-			sb.append(Util.GMT_DATEFORMAT.format(this.getValidEndTime()));
+		if (this.getValidEndTime() != null)
+			if (this.getValidEndTime().getTime() < 0)
+				sb.append("infinite");
+			else
+				sb.append(Util.GMT_DATEFORMAT.format(this.getValidEndTime()));
 		Collection<DhcpOption> opts = this.getDhcpOptions();
 		if (opts != null) {
 			for (DhcpOption dhcpOption : opts) {
