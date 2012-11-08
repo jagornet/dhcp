@@ -62,6 +62,7 @@ public class DhcpConstants
 	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
 	
 	public static InetAddress ZEROADDR = null;
+	public static InetAddress ZEROADDR_V6 = null;
 	
     /** IPv4 Addresses. */
     public static InetAddress LOCALHOST = null;
@@ -81,6 +82,7 @@ public class DhcpConstants
     static {
 		try {
 			ZEROADDR = InetAddress.getByName("0.0.0.0");
+			ZEROADDR_V6 = InetAddress.getByName("::");
             LOCALHOST = InetAddress.getByName("127.0.0.1");
             LOCALHOST_V6 = InetAddress.getByName("::1");
             BROADCAST = InetAddress.getByName("255.255.255.255");

@@ -50,6 +50,7 @@ import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
@@ -595,51 +596,53 @@ public abstract class BaseBindingManager
 	{
 		List<InetAddress> inetAddrs = new ArrayList<InetAddress>();
 		
-		if ((requestAddrs != null) && !requestAddrs.isEmpty()) {
+		if ((requestAddrs != null) && !requestAddrs.isEmpty() ) {
 			for (InetAddress reqAddr : requestAddrs) {
-				BindingPool bp = findBindingPool(clientLink, reqAddr, requestMsg);
-				if (bp == null) {
-					log.warn("No BindingPool found for requested client address: " +
+				if (!reqAddr.equals(DhcpConstants.ZEROADDR_V6)) {
+					BindingPool bp = findBindingPool(clientLink, reqAddr, requestMsg);
+					if (bp == null) {
+						log.warn("No BindingPool found for requested client address: " +
+								reqAddr.getHostAddress());
+						if (iatype == IdentityAssoc.PD_TYPE) {
+							// TAHI tests want NoPrefixAvail in this case
+							log.warn("Requested prefix is not available, returning");
+							return inetAddrs;
+						}
+						// if there is no pool for the requested address, then skip it
+						// because that address is either off-link or no longer valid
+						continue;
+					}
+					log.info("Searching existing bindings for requested IP=" +
 							reqAddr.getHostAddress());
-					if (iatype == IdentityAssoc.PD_TYPE) {
-						// TAHI tests want NoPrefixAvail in this case
-						log.warn("Requested prefix is not available, returning");
-						return inetAddrs;
-					}
-					// if there is no pool for the requested address, then skip it
-					// because that address is either off-link or no longer valid
-					continue;
-				}
-				log.info("Searching existing bindings for requested IP=" +
-						reqAddr.getHostAddress());
-				IdentityAssoc ia = null;
-				try {
-					ia = iaMgr.findIA(reqAddr); 
-					if (ia != null) {
-						// the address is assigned to an IA, which we
-						// don't expect to be this IA, because we would
-						// have found it using findCurrentBinding...
-						// but, perhaps another thread just created it?
-						if (isMyIa(duid, iatype, iaid, ia)) {
-							log.warn("Requested IP=" + reqAddr.getHostAddress() +
-									" is already held by THIS client " +
-									IdentityAssoc.keyToString(duid, iatype, iaid) +
-									".  Allowing this requested IP.");
+					IdentityAssoc ia = null;
+					try {
+						ia = iaMgr.findIA(reqAddr); 
+						if (ia != null) {
+							// the address is assigned to an IA, which we
+							// don't expect to be this IA, because we would
+							// have found it using findCurrentBinding...
+							// but, perhaps another thread just created it?
+							if (isMyIa(duid, iatype, iaid, ia)) {
+								log.warn("Requested IP=" + reqAddr.getHostAddress() +
+										" is already held by THIS client " +
+										IdentityAssoc.keyToString(duid, iatype, iaid) +
+										".  Allowing this requested IP.");
+							}
+							else {
+								log.info("Requested IP=" + reqAddr.getHostAddress() +
+										" is held by ANOTHER client " +
+										IdentityAssoc.keyToString(duid, iatype, iaid));
+								// the address is held by another IA, so get a new one
+								reqAddr = getNextFreeAddress(clientLink, requestMsg);
+							}
 						}
-						else {
-							log.info("Requested IP=" + reqAddr.getHostAddress() +
-									" is held by ANOTHER client " +
-									IdentityAssoc.keyToString(duid, iatype, iaid));
-							// the address is held by another IA, so get a new one
-							reqAddr = getNextFreeAddress(clientLink, requestMsg);
+						if (reqAddr != null) {
+							inetAddrs.add(reqAddr);
 						}
 					}
-					if (reqAddr != null) {
-						inetAddrs.add(reqAddr);
+					catch (Exception ex) {
+						log.error("Failure finding IA for address", ex);
 					}
-				}
-				catch (Exception ex) {
-					log.error("Failure finding IA for address", ex);
 				}
 			}
 		}
