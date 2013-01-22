@@ -9,6 +9,10 @@
         <ipAddress>192.168.200.1</ipAddress>
     </v4ServerIdOption>
     <policies>
+    	<policy>
+    		<name>dhcp.database.schemaVersion</name>
+    		<value>2</value>
+    	</policy>
         <policy>
             <name>supportRapidCommit</name>
             <value>true</value>
@@ -27,7 +31,7 @@
         </domainSearchListOption>
     </msgConfigOptions>
     <links>
-        <!--<link>
+        <link>
 			<name>Client Link 1</name>
 			<interface>en1</interface>
 			<naAddrPools>
@@ -35,7 +39,7 @@
 					<range>fd00:9a60:deb1::0000:000a-fd00:9a60:deb1::ffff:ffff</range>
 				</pool>
 			</naAddrPools>
-		</link>-->
+		</link>
         <link>
             <name>V4 Client Link 1</name>
             <address>192.168.0.1/24</address>
