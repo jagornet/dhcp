@@ -1,121 +1,117 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Jagornet DHCPv6 Server User Guide - Community Edition 2.0.0
-    Beta</title>
+<title>Jagornet DHCPv6 Server User Guide - Community Edition 2.0.0 Release Candidate 1</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book" lang="en">
 <div class="titlepage">
 <div>
 <div><h1 class="title">
-<a name="id387550"></a>Jagornet DHCPv6 Server User Guide - Community Edition 2.0.0
-    Beta</h1></div>
+<a name="id387550"></a>Jagornet DHCPv6 Server User Guide - Community Edition 2.0.0 Release Candidate 1</h1></div>
 <div><div class="author">
 <h3 class="author">
 <span class="firstname">A. Gregory</span> <span class="surname">Rabil</span>
 </h3>
-<div class="affiliation"><span class="orgname"><a href="http://www.jagornet.com" target="_top">Jagornet Technologies,
-        LLC</a><br></span></div>
+<div class="affiliation"><span class="orgname">
+          <a href="http://www.jagornet.com" target="_top">Jagornet Technologies, LLC</a>
+        <br></span></div>
 </div></div>
-<div><p class="pubdate">3/12/2012</p></div>
+<div><p class="pubdate">1/7/2013</p></div>
 </div>
 <hr>
 </div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="chapter"><a href="#id435960">1. Introduction</a></span></dt>
+<dt><span class="chapter"><a href="#id435962">1. Introduction</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id435965">Welcome</a></span></dt>
-<dt><span class="section"><a href="#id436004">Features</a></span></dt>
+<dt><span class="section"><a href="#id435968">Welcome</a></span></dt>
+<dt><span class="section"><a href="#id436005">Features</a></span></dt>
 </dl></dd>
-<dt><span class="chapter"><a href="#id436181">2. Getting Started</a></span></dt>
+<dt><span class="chapter"><a href="#id436182">2. Getting Started</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id436186">System requirements</a></span></dt>
-<dt><span class="section"><a href="#id436207">Installation</a></span></dt>
-<dt><span class="section"><a href="#id436404">Running the Server</a></span></dt>
+<dt><span class="section"><a href="#id436188">System requirements</a></span></dt>
+<dt><span class="section"><a href="#id436202">Installation</a></span></dt>
+<dt><span class="section"><a href="#id436398">Running the Server</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id436431">Startup Options</a></span></dt>
-<dt><span class="section"><a href="#id436468">Linux/Unix/Mac</a></span></dt>
-<dt><span class="section"><a href="#id436986">Windows</a></span></dt>
-</dl></dd>
-</dl></dd>
-<dt><span class="chapter"><a href="#id437355">3. Configuration</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id437367">Hierarchy</a></span></dt>
-<dt><span class="section"><a href="#id437520">Server Policies</a></span></dt>
-<dt><span class="section"><a href="#id439569">DHCP Options</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id439589">DHCPv6 Server Identifier Option</a></span></dt>
-<dt><span class="section"><a href="#id439675">DHCPv4 Server Identifier Option</a></span></dt>
-<dt><span class="section"><a href="#id439764">Configuration Options</a></span></dt>
-<dt><span class="section"><a href="#id440878">Generic Options</a></span></dt>
-</dl></dd>
-<dt><span class="section"><a href="#id441217">Filters</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id441226">Filter Expressions</a></span></dt>
-<dt><span class="section"><a href="#id441966">Filters Example</a></span></dt>
-</dl></dd>
-<dt><span class="section"><a href="#id442001">Links</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id442010">DHCPv6 Links</a></span></dt>
-<dt><span class="section"><a href="#id442071">DHCPv4 Links</a></span></dt>
-</dl></dd>
-<dt><span class="section"><a href="#id442099">Pools</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id442158">Address Pools</a></span></dt>
-<dt><span class="section"><a href="#id442186">Prefix Pools</a></span></dt>
-<dt><span class="section"><a href="#id442183">DHCPv4 Pools</a></span></dt>
-</dl></dd>
-<dt><span class="section"><a href="#id442243">Static Bindings</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id442306">Address Bindings</a></span></dt>
-<dt><span class="section"><a href="#id442354">Prefix Bindings</a></span></dt>
-<dt><span class="section"><a href="#id442216">DHCPv4 Bindings</a></span></dt>
+<dt><span class="section"><a href="#id436425">Startup Options</a></span></dt>
+<dt><span class="section"><a href="#id436462">Linux/Unix/Mac</a></span></dt>
+<dt><span class="section"><a href="#id436976">Windows</a></span></dt>
 </dl></dd>
 </dl></dd>
-<dt><span class="chapter"><a href="#id442422">4. DHCPv6 Operational Models</a></span></dt>
+<dt><span class="chapter"><a href="#id437342">3. Configuration</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id442576">Operational model using a DHCPv6 Relay Agent</a></span></dt>
-<dt><span class="section"><a href="#id442666">Operational model without a DHCPv6 Relay Agent</a></span></dt>
+<dt><span class="section"><a href="#id437354">Hierarchy</a></span></dt>
+<dt><span class="section"><a href="#id437507">Server Policies</a></span></dt>
+<dt><span class="section"><a href="#id439893">DHCP Options</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id439913">DHCPv6 Server Identifier Option</a></span></dt>
+<dt><span class="section"><a href="#id440010">DHCPv4 Server Identifier Option</a></span></dt>
+<dt><span class="section"><a href="#id440105">Configuration Options</a></span></dt>
+<dt><span class="section"><a href="#id441441">Generic Options</a></span></dt>
 </dl></dd>
-<dt><span class="appendix"><a href="#id442746">A. Binding Database</a></span></dt>
-<dt><span class="appendix"><a href="#id442843">B. Logging</a></span></dt>
-<dt><span class="appendix"><a href="#id442898">C. Java Management Extensions (JMX)</a></span></dt>
-<dt><span class="appendix"><a href="#id442922">D. DHCPv4 Limitation</a></span></dt>
+<dt><span class="section"><a href="#id441843">Filters</a></span></dt>
+<dd><dl><dt><span class="section"><a href="#id441852">Filter Expressions</a></span></dt></dl></dd>
+<dt><span class="section"><a href="#id442756">Links</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id442764">DHCPv6 Links</a></span></dt>
+<dt><span class="section"><a href="#id442823">DHCPv4 Links</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="#id442850">Pools</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id442911">Address Pools</a></span></dt>
+<dt><span class="section"><a href="#id442939">Prefix Pools</a></span></dt>
+<dt><span class="section"><a href="#id442937">DHCPv4 Pools</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="#id442996">Static Bindings</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id443059">Address Bindings</a></span></dt>
+<dt><span class="section"><a href="#id443104">Prefix Bindings</a></span></dt>
+<dt><span class="section"><a href="#id443136">DHCPv4 Bindings</a></span></dt>
+</dl></dd>
+</dl></dd>
+<dt><span class="chapter"><a href="#id443171">4. DHCPv6 Operational Models</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id443345">Operational model using a DHCPv6 Relay Agent</a></span></dt>
+<dt><span class="section"><a href="#id443434">Operational model without a DHCPv6 Relay Agent</a></span></dt>
+</dl></dd>
+<dt><span class="appendix"><a href="#id443511">A. Binding Database</a></span></dt>
+<dt><span class="appendix"><a href="#id443606">B. Logging</a></span></dt>
+<dt><span class="appendix"><a href="#id443662">C. Java Management Extensions (JMX)</a></span></dt>
+<dt><span class="appendix"><a href="#id443692">D. DHCPv4 Limitation</a></span></dt>
 </dl>
 </div>
 <div class="list-of-tables">
 <p><b>List of Tables</b></p>
 <dl>
-<dt>3.1. <a href="#id437559">Policies</a>
+<dt>3.1. <a href="#id437540">Policies</a>
 </dt>
-<dt>3.2. <a href="#id439843">DHCPv6 Configuration Options</a>
+<dt>3.2. <a href="#id440185">DHCPv6 Configuration Options</a>
 </dt>
-<dt>3.3. <a href="#id440505">DHCPv4 Configuration Options</a>
+<dt>3.3. <a href="#id440990">DHCPv4 Configuration Options</a>
 </dt>
-<dt>3.4. <a href="#id440914">Generic Option Definitions</a>
+<dt>3.4. <a href="#id441478">Generic Option Definitions</a>
 </dt>
-<dt>3.5. <a href="#id441280">Filter Option Expressions</a>
+<dt>3.5. <a href="#id441990">Filter Option Expressions</a>
 </dt>
-<dt>4.1. <a href="#id442473">DHCPv6 Operational Models</a>
+<dt>4.1. <a href="#id443222">DHCPv6 Operational Models</a>
 </dt>
 </dl>
 </div>
 <div class="chapter" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id435960"></a>Chapter 1. Introduction</h2></div></div></div>
+<a name="id435962"></a>Chapter 1. Introduction</h2></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="#id435965">Welcome</a></span></dt>
-<dt><span class="section"><a href="#id436004">Features</a></span></dt>
+<dt><span class="section"><a href="#id435968">Welcome</a></span></dt>
+<dt><span class="section"><a href="#id436005">Features</a></span></dt>
 </dl>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id435965"></a>Welcome</h2></div></div></div>
+<a name="id435968"></a>Welcome</h2></div></div></div>
 <p>Welcome to Jagornet DHCPv6 Server Community Edition Version 2.0.0
       Beta. Please visit these links for the latest news and information on
       Jagornet DHCPv6 Server.</p>
@@ -127,7 +123,7 @@
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id436004"></a>Features</h2></div></div></div>
+<a name="id436005"></a>Features</h2></div></div></div>
 <p>Jagornet DHCPv6 Server is an open source Dynamic Host
       Configuration Protocol server for IPv6 (DHCPv6) and IPv4 (DHCPv4)
       implemented in Java. The server supports the following features:</p>
@@ -136,35 +132,27 @@
 <li>
 <p>Core DHCPv6 RFCs:</p>
 <div class="itemizedlist"><ul type="circle">
-<li><p>Stateful DHCPv6 - <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC
-              3315</a></p></li>
-<li><p>Prefix Delegation - <a href="http://www.ietf.org/rfc/rfc3633.txt" target="_top">RFC
-              3633</a></p></li>
-<li><p>DNS Options - <a href="http://www.ietf.org/rfc/rfc3646.txt" target="_top">RFC
-              3646</a></p></li>
-<li><p>Stateless DHCPv6 - <a href="http://www.ietf.org/rfc/rfc3736.txt" target="_top">RFC
-              3736</a></p></li>
+<li><p>Stateful DHCPv6 - <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC 3315</a></p></li>
+<li><p>Prefix Delegation - <a href="http://www.ietf.org/rfc/rfc3633.txt" target="_top">RFC 3633</a></p></li>
+<li><p>DNS Options - <a href="http://www.ietf.org/rfc/rfc3646.txt" target="_top">RFC 3646</a></p></li>
+<li><p>Stateless DHCPv6 - <a href="http://www.ietf.org/rfc/rfc3736.txt" target="_top">RFC 3736</a></p></li>
 </ul></div>
 </li>
 <li>
 <p>Core DHCPv4 RFCs:</p>
 <div class="itemizedlist"><ul type="circle">
-<li><p>DHCPv4 - <a href="http://www.ietf.org/rfc/rfc2131.txt" target="_top">RFC
-              2131</a></p></li>
-<li><p>DHCPv4 Options - <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-              2132</a></p></li>
+<li><p>DHCPv4 - <a href="http://www.ietf.org/rfc/rfc2131.txt" target="_top">RFC 2131</a></p></li>
+<li><p>DHCPv4 Options - <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132</a></p></li>
 </ul></div>
 </li>
 <li>
 <p>Other</p>
 <div class="itemizedlist"><ul type="circle">
 <li><p>Dynamic DNS for DHCPv6/v4 - <a href="http://www.ietf.org/rfc/rfc4703.txt" target="_top">RFC 4703</a>,
-              <a href="http://www.ietf.org/rfc/rfc4704.txt" target="_top">RFC
-              4704</a></p></li>
+              <a href="http://www.ietf.org/rfc/rfc4704.txt" target="_top">RFC 4704</a></p></li>
 <li><p>Highly-scalable, multithreaded architecture using <a href="http://netty.io" target="_top">Netty</a></p></li>
 <li><p>Flexible, XML configuration file format - <a href="file://../conf/dhcpv6server.xsd" target="_top">Schema</a></p></li>
-<li><p>Java Management Extensions (JMX) support - <a href="http://download.oracle.com/javase/6/docs/technotes/guides/jmx/index.html" target="_top">JDK
-              6 JMX</a></p></li>
+<li><p>Java Management Extensions (JMX) support - <a href="http://download.oracle.com/javase/6/docs/technotes/guides/jmx/index.html" target="_top">JDK 6 JMX</a></p></li>
 </ul></div>
 </li>
 </ul></div>
@@ -172,23 +160,23 @@
 </div>
 <div class="chapter" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id436181"></a>Chapter 2. Getting Started</h2></div></div></div>
+<a name="id436182"></a>Chapter 2. Getting Started</h2></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="#id436186">System requirements</a></span></dt>
-<dt><span class="section"><a href="#id436207">Installation</a></span></dt>
-<dt><span class="section"><a href="#id436404">Running the Server</a></span></dt>
+<dt><span class="section"><a href="#id436188">System requirements</a></span></dt>
+<dt><span class="section"><a href="#id436202">Installation</a></span></dt>
+<dt><span class="section"><a href="#id436398">Running the Server</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id436431">Startup Options</a></span></dt>
-<dt><span class="section"><a href="#id436468">Linux/Unix/Mac</a></span></dt>
-<dt><span class="section"><a href="#id436986">Windows</a></span></dt>
+<dt><span class="section"><a href="#id436425">Startup Options</a></span></dt>
+<dt><span class="section"><a href="#id436462">Linux/Unix/Mac</a></span></dt>
+<dt><span class="section"><a href="#id436976">Windows</a></span></dt>
 </dl></dd>
 </dl>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id436186"></a>System requirements</h2></div></div></div>
+<a name="id436188"></a>System requirements</h2></div></div></div>
 <p>Jagornet DHCPv6 Server requires any platform with a certified Java
       6 runtime environment.</p>
 <p>The server has been successfully tested on multiple flavors of
@@ -200,7 +188,7 @@
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id436207"></a>Installation</h2></div></div></div>
+<a name="id436202"></a>Installation</h2></div></div></div>
 <p>Java 6 runtime must be available on the host where the Jagornet
       DHCPv6 server will be installed. The JAVA_HOME environment variable
       should be set to the home directory of your Java 6 JRE.</p>
@@ -236,13 +224,11 @@
           contents.</p>
 <div class="itemizedlist"><ul type="disc">
 <li><p><code class="code">DHCPV6_HOME/bin</code> - executable command line
-              files. See the section on <a href="#running_server">Running
-              the Server</a>.</p></li>
+              files. See the section on <a href="#running_server">Running the Server</a>.</p></li>
 <li><p><code class="code">DHCPV6_HOME/conf</code> - configuration files. See
               the section on <a href="#config">Configuration</a>.</p></li>
 <li><p><code class="code">DHCPV6_HOME/db</code> - database directory. See the
-              section on <a href="#binding_db">Binding
-              Database</a>.</p></li>
+              section on <a href="#binding_db">Binding Database</a>.</p></li>
 <li><p><code class="code">DHCPV6_HOME/docs</code> - documentation
               files.</p></li>
 <li><p><code class="code">DHCPV6_HOME/lib</code> - Java library files.</p></li>
@@ -254,7 +240,7 @@
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id436404"></a>Running the Server</h2></div></div></div>
+<a name="id436398"></a>Running the Server</h2></div></div></div>
 <a name="running_server"></a><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Note</h3>
 <p>To start the Jagornet DHCPv6 Server, you must have superuser or
@@ -267,7 +253,7 @@
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id436431"></a>Startup Options</h3></div></div></div>
+<a name="id436425"></a>Startup Options</h3></div></div></div>
 <a name="startup_options"></a><p>The main Java class of the Jagornet DHCPv6 Server supports the
         following usage:</p>
 <pre class="synopsis">usage: com.jagornet.dhcpv6.server.DhcpV6Server [options]
@@ -311,7 +297,7 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id436468"></a>Linux/Unix/Mac</h3></div></div></div>
+<a name="id436462"></a>Linux/Unix/Mac</h3></div></div></div>
 <p>The $DHCPV6_HOME/bin/dhcpv6 script can be used to operate the
         server from a command shell. This script supports the following
         options:</p>
@@ -339,12 +325,9 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
 <p>Display the server version and exit (any of the
               following):</p>
 <div class="itemizedlist"><ul type="disc">
-<li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6
-                  version</code></p></li>
-<li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start
-                  -v</code></p></li>
-<li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start
-                  --version</code></p></li>
+<li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 version</code></p></li>
+<li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start -v</code></p></li>
+<li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start --version</code></p></li>
 </ul></div>
 </li>
 <li>
@@ -356,35 +339,30 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
 <li>
 <p>Start the server on a test port with support for multicast
               on all IPv6 multicast-enabled interfaces:</p>
-<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start -p 10547
-                  -m</code></p></li></ul></div>
+<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start -p 10547 -m</code></p></li></ul></div>
 </li>
 <li>
 <p>Start the server with support for DHCPv6 multicast on the
               interface named 'eth0' and DHCPv4 broadcast on the interface
               named 'eth1':</p>
-<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start -m eth0 -4b
-                  eth1</code></p></li></ul></div>
+<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start -m eth0 -4b eth1</code></p></li></ul></div>
 </li>
 <li>
 <p>Start the server with an alternate configuration file, one
               specific unicast address, and two specific multicast
               interfaces:</p>
-<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start -c
-                  conf/my-dhcpv6server.xml -u 2001:db8::1 -m eth0
-                  eth1</code></p></li></ul></div>
+<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; $DHCPV6_HOME/bin/dhcpv6 start -c conf/my-dhcpv6server.xml -u 2001:db8::1 -m eth0 eth1</code></p></li></ul></div>
 </li>
 </ol></div>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id436986"></a>Windows</h3></div></div></div>
+<a name="id436976"></a>Windows</h3></div></div></div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id436992"></a>Windows Service</h4></div></div></div>
+<a name="id436982"></a>Windows Service</h4></div></div></div>
 <p>Jagornet DHCPv6 Server can operate as a Microsoft Windows
-          Service courtesy of <a href="http://yajsw.sourceforge.net/" target="_top">Yet
-          Another Java Service Wrapper (YAJSW)</a>. Startup options
+          Service courtesy of <a href="http://yajsw.sourceforge.net/" target="_top">Yet Another Java Service Wrapper (YAJSW)</a>. Startup options
           <span class="emphasis"><em>must</em></span> be provided in
           <code class="code">DHCPV6_HOME\bin\yajsw-stable-11.0\conf\wrapper.conf.</code>
           Edit this file using a standard text editor (i.e. notepad.exe), and
@@ -395,8 +373,7 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
 #wrapper.app.parameter.2=
 #wrapper.app.parameter.#=
 </pre>
-<p>Provide desired <a href="#startup_options">startup
-          options</a> by adding uncommented wrapper.app.parameter.# entries
+<p>Provide desired <a href="#startup_options">startup options</a> by adding uncommented wrapper.app.parameter.# entries
           for each option and each option value. For example:</p>
 <div class="orderedlist"><ol type="1">
 <li>
@@ -434,12 +411,10 @@ wrapper.app.parameter.7=eth1</pre>
               the server in the command window. Use Ctrl+C to stop.</p></li>
 <li><p><code class="code">%DHCPV6_HOME%\bin\InstallJagornetDhcpv6.bat</code> -
               install the Jagornet DHCPv6 Server as a Windows Service.
-              <span class="emphasis"><em>On Windows 7 / Server 2008 this must be "Run As
-              Administrator".</em></span></p></li>
+              <span class="emphasis"><em>On Windows 7 / Server 2008 this must be "Run As Administrator".</em></span></p></li>
 <li><p><code class="code">%DHCPV6_HOME%\bin\UninstallJagornetDhcpv6.bat</code>
               - remove the Jagornet DHCPv6 Server as a Windows Service.
-              <span class="emphasis"><em>On Windows 7 / Server 2008 this must be "Run As
-              Administrator".</em></span></p></li>
+              <span class="emphasis"><em>On Windows 7 / Server 2008 this must be "Run As Administrator".</em></span></p></li>
 <li><p><code class="code">%DHCPV6_HOME%\bin\StartJagornetDhcpv6.bat</code> -
               start the Jagornet DHCPv6 Server as a Windows Service. The
               server can also be started using Windows Control Panel -&gt;
@@ -454,7 +429,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id437182"></a>Command Shell</h4></div></div></div>
+<a name="id437173"></a>Command Shell</h4></div></div></div>
 <p>As an alternative to running Jagornet DHCPv6 Server as a
           Windows Service, the <code class="code">%DHCPV6_HOME%\bin\dhcpv6.bat</code> batch
           file can be used to operate the server from a command shell. Provide
@@ -467,12 +442,9 @@ wrapper.app.parameter.7=eth1</pre>
 <p>Display the server version and exit (any of the
               following):</p>
 <div class="itemizedlist"><ul type="disc">
-<li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6
-                  version</code></p></li>
-<li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start
-                  -v</code></p></li>
-<li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start
-                  --version</code></p></li>
+<li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 version</code></p></li>
+<li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start -v</code></p></li>
+<li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start --version</code></p></li>
 </ul></div>
 </li>
 <li>
@@ -484,23 +456,19 @@ wrapper.app.parameter.7=eth1</pre>
 <li>
 <p>Start the server on a test port with support for multicast
               on all IPv6 multicast-enabled interfaces:</p>
-<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start -p 10547
-                  -m</code></p></li></ul></div>
+<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start -p 10547 -m</code></p></li></ul></div>
 </li>
 <li>
 <p>Start the server with support for DHCPv6 multicast on the
               interface named 'eth0' and DHCPv4 broadcast on the interface
               named 'eth1':</p>
-<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start -m eth0 -4b
-                  eth1</code></p></li></ul></div>
+<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start -m eth0 -4b eth1</code></p></li></ul></div>
 </li>
 <li>
 <p>Start the server with an alternate configuration file, one
               specific unicast address, and two specific multicast
               interfaces:</p>
-<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start -c
-                  conf\my-dhcpv6server.xml -u 2001:db8::1 -m eth0
-                  eth1</code></p></li></ul></div>
+<div class="itemizedlist"><ul type="disc"><li><p><code class="code">&gt; %DHCPV6_HOME\bin\dhcpv6 start -c conf\my-dhcpv6server.xml -u 2001:db8::1 -m eth0 eth1</code></p></li></ul></div>
 </li>
 </ol></div>
 </div>
@@ -509,46 +477,43 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="chapter" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id437355"></a>Chapter 3. Configuration</h2></div></div></div>
+<a name="id437342"></a>Chapter 3. Configuration</h2></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="#id437367">Hierarchy</a></span></dt>
-<dt><span class="section"><a href="#id437520">Server Policies</a></span></dt>
-<dt><span class="section"><a href="#id439569">DHCP Options</a></span></dt>
+<dt><span class="section"><a href="#id437354">Hierarchy</a></span></dt>
+<dt><span class="section"><a href="#id437507">Server Policies</a></span></dt>
+<dt><span class="section"><a href="#id439893">DHCP Options</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id439589">DHCPv6 Server Identifier Option</a></span></dt>
-<dt><span class="section"><a href="#id439675">DHCPv4 Server Identifier Option</a></span></dt>
-<dt><span class="section"><a href="#id439764">Configuration Options</a></span></dt>
-<dt><span class="section"><a href="#id440878">Generic Options</a></span></dt>
+<dt><span class="section"><a href="#id439913">DHCPv6 Server Identifier Option</a></span></dt>
+<dt><span class="section"><a href="#id440010">DHCPv4 Server Identifier Option</a></span></dt>
+<dt><span class="section"><a href="#id440105">Configuration Options</a></span></dt>
+<dt><span class="section"><a href="#id441441">Generic Options</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="#id441217">Filters</a></span></dt>
+<dt><span class="section"><a href="#id441843">Filters</a></span></dt>
+<dd><dl><dt><span class="section"><a href="#id441852">Filter Expressions</a></span></dt></dl></dd>
+<dt><span class="section"><a href="#id442756">Links</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id441226">Filter Expressions</a></span></dt>
-<dt><span class="section"><a href="#id441966">Filters Example</a></span></dt>
+<dt><span class="section"><a href="#id442764">DHCPv6 Links</a></span></dt>
+<dt><span class="section"><a href="#id442823">DHCPv4 Links</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="#id442001">Links</a></span></dt>
+<dt><span class="section"><a href="#id442850">Pools</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id442010">DHCPv6 Links</a></span></dt>
-<dt><span class="section"><a href="#id442071">DHCPv4 Links</a></span></dt>
+<dt><span class="section"><a href="#id442911">Address Pools</a></span></dt>
+<dt><span class="section"><a href="#id442939">Prefix Pools</a></span></dt>
+<dt><span class="section"><a href="#id442937">DHCPv4 Pools</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="#id442099">Pools</a></span></dt>
+<dt><span class="section"><a href="#id442996">Static Bindings</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id442158">Address Pools</a></span></dt>
-<dt><span class="section"><a href="#id442186">Prefix Pools</a></span></dt>
-<dt><span class="section"><a href="#id442183">DHCPv4 Pools</a></span></dt>
-</dl></dd>
-<dt><span class="section"><a href="#id442243">Static Bindings</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id442306">Address Bindings</a></span></dt>
-<dt><span class="section"><a href="#id442354">Prefix Bindings</a></span></dt>
-<dt><span class="section"><a href="#id442216">DHCPv4 Bindings</a></span></dt>
+<dt><span class="section"><a href="#id443059">Address Bindings</a></span></dt>
+<dt><span class="section"><a href="#id443104">Prefix Bindings</a></span></dt>
+<dt><span class="section"><a href="#id443136">DHCPv4 Bindings</a></span></dt>
 </dl></dd>
 </dl>
 </div>
 <a name="config"></a><div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id437367"></a>Hierarchy</h2></div></div></div>
+<a name="id437354"></a>Hierarchy</h2></div></div></div>
 <p>The Jagornet DHCPv6 server is configured via the
       <code class="code">conf/dhcpv6server.xml</code> XML document. See the <a href="#startup_options">Startup Options</a> to change the name and
       location of the configuration file. The XML schema which defines all
@@ -597,7 +562,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id437520"></a>Server Policies</h2></div></div></div>
+<a name="id437507"></a>Server Policies</h2></div></div></div>
 <p>Server polices are configured using the <code class="code">polices</code>
       element. Each <code class="code">policy</code> is specified with <code class="code">name</code>
       and <code class="code">value</code> elements. For example:</p>
@@ -615,7 +580,7 @@ wrapper.app.parameter.7=eth1</pre>
       are supported at 'all' levels, the lower level policy overrides the
       value of any matching higher level policy.</p>
 <div class="table">
-<a name="id437559"></a><p class="title"><b>Table 3.1. Policies</b></p>
+<a name="id437540"></a><p class="title"><b>Table 3.1. Policies</b></p>
 <table summary="Policies" border="1">
 <colgroup>
 <col>
@@ -625,52 +590,108 @@ wrapper.app.parameter.7=eth1</pre>
 </colgroup>
 <tbody>
 <tr>
-<td valign="top"><p><span class="bold"><strong>Policy</strong></span></p></td>
-<td valign="top"><p><span class="bold"><strong>Default
-              Value</strong></span></p></td>
-<td valign="top"><p><span class="bold"><strong>Description</strong></span></p></td>
-<td valign="top"><p><span class="bold"><strong>Hierarchy
-              Support</strong></span></p></td>
+<td valign="top">
+                <p><span class="bold"><strong>Policy</strong></span></p>
+              </td>
+<td valign="top">
+                <p><span class="bold"><strong>Default Value</strong></span></p>
+              </td>
+<td valign="top">
+                <p><span class="bold"><strong>Description</strong></span></p>
+              </td>
+<td valign="top">
+                <p><span class="bold"><strong>Hierarchy Support</strong></span></p>
+              </td>
 </tr>
 <tr>
-<td valign="top"><code class="code">dhcp.database.schemaVersion</code></td>
-<td valign="top"><code class="code">1</code></td>
-<td valign="top">The Jagornet DHCPv6 server database version.
-              Version 1 schema uses a relational model. Version 2 uses a
-              single table model.</td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div></td>
+<td valign="top">
+                <code class="code">dhcp.database.schemaVersion</code>
+              </td>
+<td valign="top">
+                <code class="code">1</code>
+              </td>
+<td valign="top">The Jagornet DHCPv6 server database version. Version 1 schema uses a relational model. Version 2 uses a single table model.</td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">dhcp.processor.recentMessageTimer</code></p></td>
-<td valign="top"><p><code class="code">5000</code></p></td>
-<td valign="top"><p>Number of milliseconds to keep track
+<td valign="top">
+                <p><code class="code">dhcp.processor.recentMessageTimer</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">5000</code></p>
+              </td>
+<td valign="top">
+                <p>Number of milliseconds to keep track
               of recent messages.  Used to minimize replays of the same
               message to the server.  That is, to help mitigate denial of
-              service (DOS) attacks.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div></td>
+              service (DOS) attacks.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">binding.manager.reaper.startupDelay</code></p></td>
-<td valign="top"><p><code class="code">10000</code></p></td>
-<td valign="top"><p>Number of milliseconds for background
+<td valign="top">
+                <p><code class="code">binding.manager.reaper.startupDelay</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">10000</code></p>
+              </td>
+<td valign="top">
+                <p>Number of milliseconds for background
               thread to wait before checking for expired leases at server
-              startup.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div></td>
+              startup.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">binding.manager.reaper.runPeriod</code></p></td>
-<td valign="top"><p><code class="code">60000</code></p></td>
-<td valign="top"><p>Number of milliseconds for background
-              thread to wait between checks for expired leases.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div></td>
+<td valign="top">
+                <p><code class="code">binding.manager.reaper.runPeriod</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">60000</code></p>
+              </td>
+<td valign="top">
+                <p>Number of milliseconds for background
+              thread to wait between checks for expired leases.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">binding.manager.deleteOldBindings</code></p></td>
-<td valign="top"><p><code class="code">false</code></p></td>
-<td valign="top"><p>Flag to indicate if the server should
+<td valign="top">
+                <p><code class="code">binding.manager.offerExpiration</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">12000</code></p>
+              </td>
+<td valign="top">
+                <p>Number of milliseconds after which an offered address is considered free if the address is not requested by the client.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div>
+              </td>
+</tr>
+<tr>
+<td valign="top">
+                <p><code class="code">binding.manager.deleteOldBindings</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">false</code></p>
+              </td>
+<td valign="top">
+                <p>Flag to indicate if the server should
               delete bindings upon expiration, or keep the binding while
-              marking it expired.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div></td>
+              marking it expired.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div>
+              </td>
 </tr>
 <tr>
 <td valign="top"> </td>
@@ -679,41 +700,65 @@ wrapper.app.parameter.7=eth1</pre>
 <td valign="top"> </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">sendRequestedOptionsOnly</code></p></td>
-<td valign="top"><p><code class="code">false</code></p></td>
-<td valign="top"><p>Flag to indicate if the server should
+<td valign="top">
+                <p><code class="code">sendRequestedOptionsOnly</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">false</code></p>
+              </td>
+<td valign="top">
+                <p>Flag to indicate if the server should
               return only the options requested by a client in the Option
               Request Option (ORO) if available, or send all configured
-              options.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              options.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">supportRapidCommit</code></p></td>
-<td valign="top"><p><code class="code">false</code></p></td>
-<td valign="top"><p>Flag to indicate if the server should
+<td valign="top">
+                <p><code class="code">supportRapidCommit</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">false</code></p>
+              </td>
+<td valign="top">
+                <p>Flag to indicate if the server should
               support clients requesting rapid commit of
-              binding.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
+              binding.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
 <li><p>global</p></li>
 <li><p>filter</p></li>
 <li><p>link</p></li>
 <li><p>linkFilter</p></li>
-</ul></div></td>
+</ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">verifyUnknownRebind</code></p></td>
-<td valign="top"><p><code class="code">false</code></p></td>
-<td valign="top"><p>Flag to indicate if the server should
+<td valign="top">
+                <p><code class="code">verifyUnknownRebind</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">false</code></p>
+              </td>
+<td valign="top">
+                <p>Flag to indicate if the server should
               attempt to verify that addresses in a client's request are
               appropriate for the client's link, even though that client is
               unknown to the server.  See section 18.2.4 of RFC
-              3315.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
+              3315.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
 <li><p>global</p></li>
 <li><p>filter</p></li>
 <li><p>link</p></li>
 <li><p>linkFilter</p></li>
-</ul></div></td>
+</ul></div>
+              </td>
 </tr>
 <tr>
 <td valign="top"> </td>
@@ -722,324 +767,525 @@ wrapper.app.parameter.7=eth1</pre>
 <td valign="top"> </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">preferredLifetime</code></p></td>
-<td valign="top"><p><code class="code">3600</code></p></td>
-<td valign="top"><p>Number of seconds for the preferred
-              lifetime of addresses/prefixes provided by the server to the
-              client.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
-<li><p>global</p></li>
-<li><p>link</p></li>
-<li><p>pool</p></li>
-</ul></div></td>
-</tr>
-<tr>
-<td valign="top"><p><code class="code">validLifetime</code></p></td>
-<td valign="top"><p><code class="code">3600</code></p></td>
-<td valign="top"><p>Number of seconds for the valid
-              lifetime of addresses/prefixes provided by the server to the
-              client.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
-<li><p>global</p></li>
-<li><p>link</p></li>
-<li><p>pool</p></li>
-</ul></div></td>
-</tr>
-<tr>
-<td valign="top"><p><code class="code">iaNaT1</code></p></td>
-<td valign="top"><p><code class="code">0.5</code></p></td>
-<td valign="top"><p>Percentage of shortest preferred
-              lifetime of the addresses in the IA_NA to set the IA_NA T1
-              (renew) time in server replies.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
-<li><p>global</p></li>
-<li><p>link</p></li>
-</ul></div></td>
-</tr>
-<tr>
-<td valign="top"><p><code class="code">iaNaT2</code></p></td>
-<td valign="top"><p><code class="code">0.8</code></p></td>
-<td valign="top"><p>Percentage of shortest preferred
-              lifetime of the addresses in the IA_NA to set the IA_NA T2
-              (rebind) time in server replies.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
-<li><p>global</p></li>
-<li><p>link</p></li>
-</ul></div></td>
-</tr>
-<tr>
-<td valign="top"><p><code class="code">iaPdT1</code></p></td>
-<td valign="top"><p><code class="code">0.5</code></p></td>
-<td valign="top"><p>Percentage of shortest preferred
-              lifetime of the prefixes in the IA_PD to set the IA_PD T1
-              (renew) time in server replies.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
-<li><p>global</p></li>
-<li><p>link</p></li>
-</ul></div></td>
-</tr>
-<tr>
-<td valign="top"><p><code class="code">iaPdT2</code></p></td>
-<td valign="top"><p><code class="code">0.8</code></p></td>
-<td valign="top"><p>Percentage of shortest preferred
-              lifetime of the addresses in the IA_PD to set the IA_PD T2
-              (rebind) time in server replies.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
-<li><p>global</p></li>
-<li><p>link</p></li>
-</ul></div></td>
-</tr>
-<tr>
-<td valign="top"> </td>
-<td valign="top"> </td>
-<td valign="top"> </td>
-<td valign="top"> </td>
-</tr>
-<tr>
-<td valign="top"><p><code class="code">ddns.update</code></p></td>
-<td valign="top"><p><code class="code">none</code></p></td>
 <td valign="top">
-<p>Support Dynamic DNS updates for
+                <p><code class="code">preferredLifetime</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">3600</code></p>
+              </td>
+<td valign="top">
+                <p>Number of seconds for the preferred
+              lifetime of addresses/prefixes provided by the server to the
+              client.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
+<li><p>global</p></li>
+<li><p>link</p></li>
+<li><p>pool</p></li>
+</ul></div>
+              </td>
+</tr>
+<tr>
+<td valign="top">
+                <p><code class="code">validLifetime</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">3600</code></p>
+              </td>
+<td valign="top">
+                <p>Number of seconds for the valid
+              lifetime of addresses/prefixes provided by the server to the
+              client.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
+<li><p>global</p></li>
+<li><p>link</p></li>
+<li><p>pool</p></li>
+</ul></div>
+              </td>
+</tr>
+<tr>
+<td valign="top">
+                <p><code class="code">iaNaT1</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">0.5</code></p>
+              </td>
+<td valign="top">
+                <p>Percentage of shortest preferred
+              lifetime of the addresses in the IA_NA to set the IA_NA T1
+              (renew) time in server replies.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
+<li><p>global</p></li>
+<li><p>link</p></li>
+</ul></div>
+              </td>
+</tr>
+<tr>
+<td valign="top">
+                <p><code class="code">iaNaT2</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">0.8</code></p>
+              </td>
+<td valign="top">
+                <p>Percentage of shortest preferred
+              lifetime of the addresses in the IA_NA to set the IA_NA T2
+              (rebind) time in server replies.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
+<li><p>global</p></li>
+<li><p>link</p></li>
+</ul></div>
+              </td>
+</tr>
+<tr>
+<td valign="top">
+                <p><code class="code">iaPdT1</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">0.5</code></p>
+              </td>
+<td valign="top">
+                <p>Percentage of shortest preferred
+              lifetime of the prefixes in the IA_PD to set the IA_PD T1
+              (renew) time in server replies.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
+<li><p>global</p></li>
+<li><p>link</p></li>
+</ul></div>
+              </td>
+</tr>
+<tr>
+<td valign="top">
+                <p><code class="code">iaPdT2</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">0.8</code></p>
+              </td>
+<td valign="top">
+                <p>Percentage of shortest preferred
+              lifetime of the addresses in the IA_PD to set the IA_PD T2
+              (rebind) time in server replies.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
+<li><p>global</p></li>
+<li><p>link</p></li>
+</ul></div>
+              </td>
+</tr>
+<tr>
+<td valign="top"> </td>
+<td valign="top"> </td>
+<td valign="top"> </td>
+<td valign="top"> </td>
+</tr>
+<tr>
+<td valign="top">
+                <p><code class="code">ddns.update</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">none</code></p>
+              </td>
+<td valign="top">
+                <p>Support Dynamic DNS updates for
               clients which send the Client FQDN option. Available values
-              are:</p> <div class="itemizedlist"><ul type="disc">
+              are:</p>
+                <div class="itemizedlist"><ul type="disc">
 <li><p><code class="code">none</code> - no DDNS updates</p></li>
 <li><p><code class="code">honorNoUpdate</code> - honor client FQDN
                     NoUpdate flag</p></li>
 <li><p><code class="code">honorNoAAAA</code> - honor client FQDN NoAAAA
                     flag</p></li>
 </ul></div>
-</td>
-<td valign="top"><div class="itemizedlist"><ul type="disc">
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc">
 <li><p>global</p></li>
 <li><p>filter</p></li>
 <li><p>link</p></li>
 <li><p>linkFilter</p></li>
-</ul></div></td>
+</ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.synchronize</code></p></td>
-<td valign="top"><p><code class="code">false</code></p></td>
-<td valign="top"><p>Flag to indicate if the server should
+<td valign="top">
+                <p><code class="code">ddns.synchronize</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">false</code></p>
+              </td>
+<td valign="top">
+                <p>Flag to indicate if the server should
               synchronize DDNS updates with issuing of leases.  That is, the
               DHCPv6 Reply message will not be sent to the client until the
-              DDNS update completes.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              DDNS update completes.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.domain</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.domain</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The domain to use for the client FQDN.
+<td valign="top">
+                <p>The domain to use for the client FQDN.
               If the Client FQDN option in an unqualified hostname, this
               domain will be appended to the hostname to form the FQDN for
               DDNS updates. If the Client FQDN contains a domain name, that
               domain name (everything after the first label, i.e. after the
               first dot ".") will be replaced by this configured domain
-              name.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              name.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.ttl</code></p></td>
-<td valign="top"><p><code class="code">0.3</code></p></td>
-<td valign="top"><p>Value for the TTL of DDNS updates. If
+<td valign="top">
+                <p><code class="code">ddns.ttl</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">0.3</code></p>
+              </td>
+<td valign="top">
+                <p>Value for the TTL of DDNS updates. If
               the value is less than one(1), it is assumed to be a percentage
               of the valid lifetime in seconds.  If the value is greater than
               or equal to one(1), it assumed to be an absolute number of
-              seconds.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              seconds.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.server</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.server</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The IP address of the dynamic DNS
-              server for sending DDNS updates.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+<td valign="top">
+                <p>The IP address of the dynamic DNS
+              server for sending DDNS updates.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.tsig.keyName</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.tsig.keyName</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The name of the TSIG key for signed
-              DDNS updates.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+<td valign="top">
+                <p>The name of the TSIG key for signed
+              DDNS updates.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.tsig.algorithm</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.tsig.algorithm</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The algorithm name used for the TSIG
+<td valign="top">
+                <p>The algorithm name used for the TSIG
               key for signed DDNS updates.  Currently supported value is
-              'hmac-sha256.'</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              'hmac-sha256.'</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.tsig.keyData</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.tsig.keyData</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The public key data of the TSIG key in
-              base 64 encoding.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+<td valign="top">
+                <p>The public key data of the TSIG key in
+              base 64 encoding.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.forward.zone.name</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.forward.zone.name</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The name of the dynamic zone for
+<td valign="top">
+                <p>The name of the dynamic zone for
               forward DDNS updates. If not set, the zone will be assumed to be
               the <code class="code">ddns.domain</code>, or if that is not set, then the
               portion of the client supplied FQDN which follows the first
-              label.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              label.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.forward.zone.ttl</code></p></td>
-<td valign="top"><p><code class="code">0.3</code></p></td>
-<td valign="top"><p>Value for the TTL of forward DDNS
+<td valign="top">
+                <p><code class="code">ddns.forward.zone.ttl</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">0.3</code></p>
+              </td>
+<td valign="top">
+                <p>Value for the TTL of forward DDNS
               updates. If the value is less than one(1), it is assumed to be a
               percentage of the valid lifetime in seconds.  If the value is
               greater than or equal to one(1), it assumed to be an absolute
               number of seconds.  This policy is only necessary if the forward
               DDNS TTL is different from the <code class="code">ddns.ttl</code> policy
-              value.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              value.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.forward.zone.server</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.forward.zone.server</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The IP address of the dynamic DNS
+<td valign="top">
+                <p>The IP address of the dynamic DNS
               server for sending forward DDNS updates. This policy is only
               necessary if the forward DDNS server is different from the
-              <code class="code">ddns.server</code> policy value.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              <code class="code">ddns.server</code> policy value.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.forward.zone.tsig.keyName</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.forward.zone.tsig.keyName</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The name of the TSIG key for signed
+<td valign="top">
+                <p>The name of the TSIG key for signed
               forward DDNS updates. This policy is only necessary if the
               forward DDNS key name is different from the
-              <code class="code">ddns.tsig.keyName</code> policy value.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              <code class="code">ddns.tsig.keyName</code> policy value.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.forward.zone.tsig.algorithm</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.forward.zone.tsig.algorithm</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The algorithm name used for the TSIG
+<td valign="top">
+                <p>The algorithm name used for the TSIG
               key for signed forward DDNS updates. This policy is only
               necessary if the forward DDNS algorithm is different from the
               'ddns.tsig.algorithm' policy value. Currently supported value is
-              'hmac-sha256.'</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              'hmac-sha256.'</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.forward.zone.tsig.keyData</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.forward.zone.tsig.keyData</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The public key data of the TSIG key in
+<td valign="top">
+                <p>The public key data of the TSIG key in
               base 64 encoding for signed reverse DDNS updates. This policy is
               only necessary if the forward DDNS key data is different from
-              the <code class="code">ddns.tsig.keyData</code> policy value.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              the <code class="code">ddns.tsig.keyData</code> policy value.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.reverse.zone.name</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.reverse.zone.name</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The name of the dynamic zone for
+<td valign="top">
+                <p>The name of the dynamic zone for
               reverse DDNS updates. If not set, the zone will be assumed to be
               the ip6.arpa domain  corresponding to the subnet based on the
               <code class="code">ddns.reverse.zone.bitLength</code> policy
-              below.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              below.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.reverse.zone.bitLength</code></p></td>
-<td valign="top"><p><code class="code">64</code></p></td>
-<td valign="top"><p>The number of bit representing the
-              subnet for calculating the reverse zone name.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+<td valign="top">
+                <p><code class="code">ddns.reverse.zone.bitLength</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">64</code></p>
+              </td>
+<td valign="top">
+                <p>The number of bit representing the
+              subnet for calculating the reverse zone name.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.reverse.zone.ttl</code></p></td>
-<td valign="top"><p><code class="code">0.3</code></p></td>
-<td valign="top"><p>Value for the TTL of reverse DDNS
+<td valign="top">
+                <p><code class="code">ddns.reverse.zone.ttl</code></p>
+              </td>
+<td valign="top">
+                <p><code class="code">0.3</code></p>
+              </td>
+<td valign="top">
+                <p>Value for the TTL of reverse DDNS
               updates. If the value is less than one(1), it is assumed to be a
               percentage of the valid lifetime in seconds. If the value is
               greater than or equal to one(1), it assumed to be an absolute
               number of seconds. This policy is only necessary if the reverse
               DDNS TTL is different from the <code class="code">ddns.ttl</code> policy
-              value.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              value.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.reverse.zone.server</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.reverse.zone.server</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The IP address of the dynamic DNS
+<td valign="top">
+                <p>The IP address of the dynamic DNS
               server for sending reverse DDNS updates. This policy is only
               necessary if the reverse DDNS server is different from the
-              <code class="code">ddns.server</code> policy value.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              <code class="code">ddns.server</code> policy value.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.reverse.zone.tsig.keyName</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.reverse.zone.tsig.keyName</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The name of the TSIG key for signed
+<td valign="top">
+                <p>The name of the TSIG key for signed
               reverse DDNS updates. This policy is only necessary if the
               reverse DDNS key name is different from the
-              <code class="code">ddns.tsig.keyName</code> policy value.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              <code class="code">ddns.tsig.keyName</code> policy value.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.reverse.zone.tsig.algorithm</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.reverse.zone.tsig.algorithm</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The algorithm name used for the TSIG
+<td valign="top">
+                <p>The algorithm name used for the TSIG
               key for signed reverse DDNS updates. This policy is only
               necessary if the reverse DDNS algorithm is different from the
               <code class="code">ddns.tsig.algorithm</code> policy value. Currently
-              supported value is 'hmac-sha256.'</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              supported value is 'hmac-sha256.'</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><p><code class="code">ddns.reverse.zone.tsig.keyData</code></p></td>
+<td valign="top">
+                <p><code class="code">ddns.reverse.zone.tsig.keyData</code></p>
+              </td>
 <td valign="top"> </td>
-<td valign="top"><p>The public key data of the TSIG key in
+<td valign="top">
+                <p>The public key data of the TSIG key in
               base 64 encoding for signed reverse DDNS updates. This policy is
               only necessary if the reverse DDNS key data is different from
-              the <code class="code">ddns.tsig.keyData</code> policy value.</p></td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+              the <code class="code">ddns.tsig.keyData</code> policy value.</p>
+              </td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><code class="code">v4.header.sname</code></td>
+<td valign="top">
+                <code class="code">v4.header.sname</code>
+              </td>
 <td valign="top"> </td>
-<td valign="top">The server host name field of the DHCPv4
-              header. Used in conjunction with
-              <code class="code">v4.header.filename</code>. See also -
-              <code class="code">v4TftpServerNameOption</code>.</td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+<td valign="top">The server host name field of the DHCPv4 header. Used in conjunction with <code class="code">v4.header.filename</code>. See also - <code class="code">v4TftpServerNameOption</code>.</td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><code class="code">v4.header.filename</code></td>
+<td valign="top">
+                <code class="code">v4.header.filename</code>
+              </td>
 <td valign="top"> </td>
-<td valign="top">The boot file name field of the DHCPv4
-              header. The name of a boot file which the client will retrieve
-              from the server specified in the <code class="code">sname</code> header
-              field. See also - <code class="code">v4BootFileNameOption</code>.</td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+<td valign="top">The boot file name field of the DHCPv4 header. The name of a boot file which the client will retrieve from the server specified in the <code class="code">sname</code> header field. See also - <code class="code">v4BootFileNameOption</code>.</td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><code class="code">v4.ignoredMacAddrs</code></td>
-<td valign="top"><code class="code">000000000000,
-              FFFFFFFFFFFF</code></td>
-<td valign="top">A list of comma separated MAC addresses for
-              the server to ignore requests from.</td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+<td valign="top">
+                <code class="code">v4.ignoredMacAddrs</code>
+              </td>
+<td valign="top">
+                <code class="code">000000000000, FFFFFFFFFFFF</code>
+              </td>
+<td valign="top">A list of comma separated MAC addresses for the server to ignore requests from.</td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><code class="code">v4.defaultLeasetime</code></td>
-<td valign="top"><code class="code">3600</code></td>
+<td valign="top">
+                <code class="code">v4.defaultLeasetime</code>
+              </td>
+<td valign="top">
+                <code class="code">3600</code>
+              </td>
 <td valign="top">The lease time for DHCPv4 clients.</td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div></td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>all</p></li></ul></div>
+              </td>
 </tr>
 <tr>
-<td valign="top"><code class="code">v4.pingCheckTimeout</code></td>
-<td valign="top"><code class="code">0</code></td>
-<td valign="top">The number of milliseconds to wait for a
-              response to a ping before offering new addresses to DHCPv4
-              clients.</td>
-<td valign="top"><div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div></td>
+<td valign="top">
+                <code class="code">v4.pingCheckTimeout</code>
+              </td>
+<td valign="top">
+                <code class="code">0</code>
+              </td>
+<td valign="top">The number of milliseconds to wait for a response to a ping before offering new addresses to DHCPv4 clients.</td>
+<td valign="top">
+                <div class="itemizedlist"><ul type="disc"><li><p>global</p></li></ul></div>
+              </td>
 </tr>
 <tr>
 <td valign="top"> </td>
@@ -1053,7 +1299,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id439569"></a>DHCP Options</h2></div></div></div>
+<a name="id439893"></a>DHCP Options</h2></div></div></div>
 <p>DHCPv6 options are configured using the <code class="code">options</code>
       element. Each option is specified by an element with a name of the
       option, for example <code class="code">dnsServersOption</code>. The Jagornet DHCPv6
@@ -1061,7 +1307,7 @@ wrapper.app.parameter.7=eth1</pre>
       options defined in additional RFCs.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id439589"></a>DHCPv6 Server Identifier Option</h3></div></div></div>
+<a name="id439913"></a>DHCPv6 Server Identifier Option</h3></div></div></div>
 <p>The Server Identifier Option is required by the DHCPv6 protocol
         for the server to include in reply packets. The
         <code class="code">serverIdOption</code> must be specified in the
@@ -1116,7 +1362,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id439675"></a>DHCPv4 Server Identifier Option</h3></div></div></div>
+<a name="id440010"></a>DHCPv4 Server Identifier Option</h3></div></div></div>
 <p>The Server Identifier Option is required by the DHCPv4 protocol
         for the server to include in reply packets. The identifier is an IPv4
         address which DHCPv4 clients will send unicast requests to. The
@@ -1166,14 +1412,14 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id439764"></a>Configuration Options</h3></div></div></div>
+<a name="id440105"></a>Configuration Options</h3></div></div></div>
 <p>Configuration Options are those options that can be configured
         for the server to return to clients in reply messages. For example,
         most network clients will need to know the address of one or more
         Domain Name System (DNS) servers.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id439776"></a>DHCPv6 Configuration Options</h4></div></div></div>
+<a name="id440117"></a>DHCPv6 Configuration Options</h4></div></div></div>
 <p>Options can be returned at three distinct "levels" within the
           returned DHCPv6 reply packet.</p>
 <div class="orderedlist"><ol type="1">
@@ -1195,7 +1441,7 @@ wrapper.app.parameter.7=eth1</pre>
                 type.</p></li>
 </ol></div>
 <div class="table">
-<a name="id439843"></a><p class="title"><b>Table 3.2. DHCPv6 Configuration Options</b></p>
+<a name="id440185"></a><p class="title"><b>Table 3.2. DHCPv6 Configuration Options</b></p>
 <table summary="DHCPv6 Configuration Options" border="1">
 <colgroup>
 <col>
@@ -1209,47 +1455,61 @@ wrapper.app.parameter.7=eth1</pre>
 </tr></thead>
 <tbody>
 <tr>
-<td><code class="code">7</code></td>
 <td>
-<code class="code">preferenceOption</code> <p>(Section 22.8
-                    of <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC
-                    3315)</a> </p>
-</td>
-<td><pre class="synopsis">&lt;preferenceOption&gt;
+                      <code class="code">7</code>
+                    </td>
+<td>
+                      <code class="code">preferenceOption</code>
+                      <p>(Section 22.8
+                    of <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC 3315)</a> </p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;preferenceOption&gt;
   &lt;unsignedByte&gt;10&lt;/unsignedByte&gt;
-&lt;/preferenceOption&gt;</pre></td>
+&lt;/preferenceOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">12</code></td>
-<td valign="middle">
-<code class="code">serverUnicastOption</code>
-                    <p>(Section 22.8 of <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC
-                    3315)</a> </p>
-</td>
-<td><pre class="synopsis">&lt;serverUnicastOption&gt;
-  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
-&lt;/serverUnicastOption&gt;</pre></td>
-</tr>
-<tr>
-<td><code class="code">13</code></td>
 <td>
-<code class="code">statusCodeOption</code> <p>(Section 22.13
-                    of <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC
-                    3315)</a></p>
-</td>
-<td><pre class="synopsis">&lt;statusCodeOption&gt;
+                      <code class="code">12</code>
+                    </td>
+<td valign="middle">
+                      <code class="code">serverUnicastOption</code>
+                      <p>(Section 22.8 of <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC 3315)</a> </p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;serverUnicastOption&gt;
+  &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+&lt;/serverUnicastOption&gt;</pre>
+                    </td>
+</tr>
+<tr>
+<td>
+                      <code class="code">13</code>
+                    </td>
+<td>
+                      <code class="code">statusCodeOption</code>
+                      <p>(Section 22.13
+                    of <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC 3315)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;statusCodeOption&gt;
   &lt;code&gt;5&lt;/code&gt;
   &lt;message&gt;UseMulticast&lt;/message&gt;
-&lt;/statusCodeOption&gt;</pre></td>
+&lt;/statusCodeOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">17</code></td>
 <td>
-<code class="code">vendorInfoOption</code> <p>Section 22.16
-                    of <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC
-                    3315</a></p>
-</td>
-<td><pre class="synopsis">&lt;vendorInfoOption&gt;
+                      <code class="code">17</code>
+                    </td>
+<td>
+                      <code class="code">vendorInfoOption</code>
+                      <p>Section 22.16
+                    of <a href="http://www.ietf.org/rfc/rfc3315.txt" target="_top">RFC 3315</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;vendorInfoOption&gt;
   &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;
   &lt;subOptionList&gt;
     &lt;optionDef code="1" name="VendorSubopt1"&gt;
@@ -1263,145 +1523,196 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/ipAddressOption&gt;
     &lt;/optionDef&gt;
   &lt;/subOptionList&gt;
-&lt;/vendorInfoOption&gt;</pre></td>
+&lt;/vendorInfoOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">21</code></td>
 <td>
-<code class="code">sipServerDomainNamesOption</code>
-                    <p><a href="http://www.ietf.org/rfc/rfc3319.txt" target="_top">(RFC
-                    3319)</a></p>
-</td>
-<td><pre class="synopsis">&lt;sipServerDomainNamesOption&gt;
+                      <code class="code">21</code>
+                    </td>
+<td>
+                      <code class="code">sipServerDomainNamesOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc3319.txt" target="_top">(RFC 3319)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;sipServerDomainNamesOption&gt;
   &lt;domainName&gt;sip.foo.com.&lt;/domainName&gt;
   &lt;domainName&gt;sip.bar.com.&lt;/domainName&gt;
-&lt;/sipServerDomainNamesOption&gt;</pre></td>
+&lt;/sipServerDomainNamesOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">22</code></td>
 <td>
-<code class="code">sipServerAddressesOption</code> <p><a href="http://www.ietf.org/rfc/rfc3319.txt" target="_top">(RFC
-                    3319)</a></p>
-</td>
-<td><pre class="synopsis">&lt;sipServerAddressesOption&gt;
+                      <code class="code">22</code>
+                    </td>
+<td>
+                      <code class="code">sipServerAddressesOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc3319.txt" target="_top">(RFC 3319)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;sipServerAddressesOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/sipServerAddressesOption&gt;</pre></td>
+&lt;/sipServerAddressesOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">23</code></td>
 <td>
-<code class="code">dnsServersOption</code> <p><a href="http://www.ietf.org/rfc/rfc3646.txt" target="_top">(RFC
-                    3646)</a></p>
-</td>
-<td><pre class="synopsis">&lt;dnsServersOption&gt;
+                      <code class="code">23</code>
+                    </td>
+<td>
+                      <code class="code">dnsServersOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc3646.txt" target="_top">(RFC 3646)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;dnsServersOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/dnsServersOption&gt;</pre></td>
+&lt;/dnsServersOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">24</code></td>
 <td>
-<code class="code">domainSearchListOption</code> <p><a href="http://www.ietf.org/rfc/rfc3646.txt" target="_top">(RFC
-                    3646)</a></p>
-</td>
-<td><pre class="synopsis">&lt;domainSearchListOption&gt;
+                      <code class="code">24</code>
+                    </td>
+<td>
+                      <code class="code">domainSearchListOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc3646.txt" target="_top">(RFC 3646)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;domainSearchListOption&gt;
   &lt;domainName&gt;foo.com.&lt;/domainName&gt;
   &lt;domainName&gt;bar.com.&lt;/domainName&gt;
-&lt;/domainSearchListOption&gt;</pre></td>
+&lt;/domainSearchListOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">27</code></td>
 <td>
-<code class="code">nisServersOption</code> <p><a href="http://www.ietf.org/rfc/rfc3898.txt" target="_top">(RFC
-                    3898)</a></p>
-</td>
-<td><pre class="synopsis">&lt;nisServersOption&gt;
+                      <code class="code">27</code>
+                    </td>
+<td>
+                      <code class="code">nisServersOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc3898.txt" target="_top">(RFC 3898)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;nisServersOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/nisServersOption&gt;</pre></td>
+&lt;/nisServersOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">28</code></td>
 <td>
-<code class="code">nisPlusServersOption</code> <p><a href="http://www.ietf.org/rfc/rfc3898.txt" target="_top">(RFC
-                    3898)</a></p>
-</td>
-<td><pre class="synopsis">&lt;nisPlusServersOption&gt;
+                      <code class="code">28</code>
+                    </td>
+<td>
+                      <code class="code">nisPlusServersOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc3898.txt" target="_top">(RFC 3898)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;nisPlusServersOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/nisPlusServersOption&gt;</pre></td>
+&lt;/nisPlusServersOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">29</code></td>
 <td>
-<code class="code">nisDomainNameOption</code> <p><a href="http://www.ietf.org/rfc/rfc3898.txt" target="_top">(RFC
-                    3898)</a></p>
-</td>
-<td><pre class="synopsis">&lt;nisDomainNameOption&gt;
+                      <code class="code">29</code>
+                    </td>
+<td>
+                      <code class="code">nisDomainNameOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc3898.txt" target="_top">(RFC 3898)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;nisDomainNameOption&gt;
   &lt;domainName&gt;foo.com.&lt;/domainName&gt;
-&lt;/nisDomainNameOption&gt;</pre></td>
+&lt;/nisDomainNameOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">30</code></td>
 <td>
-<code class="code">nisPlusDomainNameOption</code> <p><a href="http://www.ietf.org/rfc/rfc3898.txt" target="_top">(RFC
-                    3898)</a></p>
-</td>
-<td><pre class="synopsis">&lt;nisPlusDomainNameOption&gt;
+                      <code class="code">30</code>
+                    </td>
+<td>
+                      <code class="code">nisPlusDomainNameOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc3898.txt" target="_top">(RFC 3898)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;nisPlusDomainNameOption&gt;
   &lt;domainName&gt;foo.com.&lt;/domainName&gt;
-&lt;/nisPlusDomainNameOption&gt;</pre></td>
+&lt;/nisPlusDomainNameOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">31</code></td>
 <td>
-<code class="code">sntpServersOption</code> <p><a href="http://www.ietf.org/rfc/rfc4075.txt" target="_top">(RFC
-                    4075)</a></p>
-</td>
-<td><pre class="synopsis">&lt;sntpServersOption&gt;
+                      <code class="code">31</code>
+                    </td>
+<td>
+                      <code class="code">sntpServersOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc4075.txt" target="_top">(RFC 4075)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;sntpServersOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/sntpServersOption&gt;</pre></td>
+&lt;/sntpServersOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">32</code></td>
 <td>
-<code class="code">infoRefreshTimeOption</code> <p><a href="http://www.ietf.org/rfc/rfc4242.txt" target="_top">(RFC
-                    4242)</a></p>
-</td>
-<td><pre class="synopsis">&lt;infoRefreshTimeOption&gt;
+                      <code class="code">32</code>
+                    </td>
+<td>
+                      <code class="code">infoRefreshTimeOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc4242.txt" target="_top">(RFC 4242)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;infoRefreshTimeOption&gt;
   &lt;unsignedInt&gt;3600&lt;/unsignedInt&gt;
-&lt;/infoRefreshTimeOption&gt;</pre></td>
+&lt;/infoRefreshTimeOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">33</code></td>
 <td>
-<code class="code">bcmcsDomainNamesOption</code> <p><a href="http://www.ietf.org/rfc/rfc4280.txt" target="_top">(RFC
-                    4280)</a></p>
-</td>
-<td><pre class="synopsis">&lt;bcmcsDomainNamesOption&gt;
+                      <code class="code">33</code>
+                    </td>
+<td>
+                      <code class="code">bcmcsDomainNamesOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc4280.txt" target="_top">(RFC 4280)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;bcmcsDomainNamesOption&gt;
   &lt;domainName&gt;bcmcs.foo.com.&lt;/domainName&gt;
   &lt;domainName&gt;bcmcs.bar.com.&lt;/domainName&gt;
-&lt;/bcmcsDomainNamesOption&gt;</pre></td>
+&lt;/bcmcsDomainNamesOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">34</code></td>
 <td>
-<code class="code">bcmcsAddressesOption</code> <p><a href="http://www.ietf.org/rfc/rfc4280.txt" target="_top">(RFC
-                    4280)</a></p>
-</td>
-<td><pre class="synopsis">&lt;bcmcsAddressesOption&gt;
+                      <code class="code">34</code>
+                    </td>
+<td>
+                      <code class="code">bcmcsAddressesOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc4280.txt" target="_top">(RFC 4280)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;bcmcsAddressesOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/bcmcsAddressesOption&gt;</pre></td>
+&lt;/bcmcsAddressesOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">36</code></td>
 <td>
-<code class="code">geoconfCivicOption</code> <p><a href="http://www.ietf.org/rfc/rfc4776.txt" target="_top">(RFC
-                    4776)</a></p>
-</td>
-<td><pre class="synopsis">&lt;geoconfCivicOption&gt;
+                      <code class="code">36</code>
+                    </td>
+<td>
+                      <code class="code">geoconfCivicOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc4776.txt" target="_top">(RFC 4776)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;geoconfCivicOption&gt;
   &lt;what&gt;1&lt;/what&gt;
   &lt;countryCode&gt;US&lt;/countryCode&gt;
   &lt;civicAddressElement&gt;
@@ -1416,49 +1727,65 @@ wrapper.app.parameter.7=eth1</pre>
     &lt;caType&gt;1&lt;/caType&gt;
     &lt;caValue&gt;Bayern&lt;/caValue&gt;
   &lt;/civicAddressElement&gt;
-&lt;/geoconfCivicOption&gt;</pre></td>
+&lt;/geoconfCivicOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">40</code></td>
 <td>
-<code class="code">panaAgentAddressesOption</code> <p><a href="http://www.ietf.org/rfc/rfc5192.txt" target="_top">(RFC
-                    5192)</a></p>
-</td>
-<td><pre class="synopsis">&lt;panaAgentAddressesOption&gt;
+                      <code class="code">40</code>
+                    </td>
+<td>
+                      <code class="code">panaAgentAddressesOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc5192.txt" target="_top">(RFC 5192)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;panaAgentAddressesOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/panaAgentAddressesOption&gt;</pre></td>
+&lt;/panaAgentAddressesOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">41</code></td>
 <td>
-<code class="code">newPosixTimezoneOption</code> <p><a href="http://www.ietf.org/rfc/rfc4833.txt" target="_top">(RFC
-                    4833)</a></p>
-</td>
-<td><pre class="synopsis">&lt;newPosixTimezoneOption&gt;
+                      <code class="code">41</code>
+                    </td>
+<td>
+                      <code class="code">newPosixTimezoneOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc4833.txt" target="_top">(RFC 4833)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;newPosixTimezoneOption&gt;
   &lt;string&gt;EST5EDT4,M3.2.0/02:00,M11.1.0/02:00&lt;/string&gt;
-&lt;/newPosixTimezoneOption&gt;</pre></td>
+&lt;/newPosixTimezoneOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">42</code></td>
 <td>
-<code class="code">newTzdbTimezoneOption</code> <p><a href="http://www.ietf.org/rfc/rfc4833.txt" target="_top">(RFC
-                    4833)</a></p>
-</td>
-<td><pre class="synopsis">&lt;newTzdbTimezoneOption&gt;
+                      <code class="code">42</code>
+                    </td>
+<td>
+                      <code class="code">newTzdbTimezoneOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc4833.txt" target="_top">(RFC 4833)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;newTzdbTimezoneOption&gt;
   &lt;string&gt;Europe/Zurich&lt;/string&gt;
-&lt;/newTzdbTimezoneOption&gt;</pre></td>
+&lt;/newTzdbTimezoneOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">51</code></td>
 <td>
-<code class="code">lostServerDomainNameOption</code>
-                    <p><a href="http://www.ietf.org/rfc/rfc5223.txt" target="_top">(RFC
-                    5223)</a></p>
-</td>
-<td><pre class="synopsis">&lt;lostServerDomainNameOption&gt;
+                      <code class="code">51</code>
+                    </td>
+<td>
+                      <code class="code">lostServerDomainNameOption</code>
+                      <p><a href="http://www.ietf.org/rfc/rfc5223.txt" target="_top">(RFC 5223)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;lostServerDomainNameOption&gt;
   &lt;domainName&gt;lost.foo.com.&lt;/domainName&gt;
-&lt;/lostServerDomainNameOption&gt;</pre></td>
+&lt;/lostServerDomainNameOption&gt;</pre>
+                    </td>
 </tr>
 </tbody>
 </table>
@@ -1466,11 +1793,11 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id440494"></a>DHCPv4 Configuration Options</h4></div></div></div>
+<a name="id440980"></a>DHCPv4 Configuration Options</h4></div></div></div>
 <p>Options are returned within the returned DHCPv4 reply
           packet.</p>
 <div class="table">
-<a name="id440505"></a><p class="title"><b>Table 3.3. DHCPv4 Configuration Options</b></p>
+<a name="id440990"></a><p class="title"><b>Table 3.3. DHCPv4 Configuration Options</b></p>
 <table summary="DHCPv4 Configuration Options" border="1">
 <colgroup>
 <col>
@@ -1484,82 +1811,108 @@ wrapper.app.parameter.7=eth1</pre>
 </tr></thead>
 <tbody>
 <tr>
-<td><code class="code">1</code></td>
 <td>
-<code class="code">v4SubnetMaskOption</code> <p>(Section 3.3
-                    of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a> </p>
-</td>
-<td><pre class="synopsis">&lt;v4SubnetMaskOption&gt;
+                      <code class="code">1</code>
+                    </td>
+<td>
+                      <code class="code">v4SubnetMaskOption</code>
+                      <p>(Section 3.3
+                    of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a> </p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4SubnetMaskOption&gt;
   &lt;ipAddress&gt;255.255.255.0&lt;/ipAddress&gt;
-&lt;/v4SubnetMaskOption&gt;</pre></td>
+&lt;/v4SubnetMaskOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">2</code></td>
+<td>
+                      <code class="code">2</code>
+                    </td>
 <td valign="middle">
-<code class="code">v4TimeOffsetOption</code>
-                    <p>(Section 3.4 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4TimeOffsetOption&gt;
+                      <code class="code">v4TimeOffsetOption</code>
+                      <p>(Section 3.4 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4TimeOffsetOption&gt;
   &lt;unsignedInt&gt;5000&lt;/unsignedInt&gt;
-&lt;/v4TimeOffsetOption&gt;</pre></td>
+&lt;/v4TimeOffsetOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">3</code></td>
 <td>
-<code class="code">v4RoutersOption</code> <p>(Section 3.5 of
-                    <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4RoutersOption&gt;
+                      <code class="code">3</code>
+                    </td>
+<td>
+                      <code class="code">v4RoutersOption</code>
+                      <p>(Section 3.5 of
+                    <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4RoutersOption&gt;
   &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
-&lt;/v4RoutersOption&gt;</pre></td>
+&lt;/v4RoutersOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">4</code></td>
 <td>
-<code class="code">v4TimeServersOption</code> <p>(Section 3.6
-                    of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4TimeServersOption&gt;
+                      <code class="code">4</code>
+                    </td>
+<td>
+                      <code class="code">v4TimeServersOption</code>
+                      <p>(Section 3.6
+                    of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4TimeServersOption&gt;
   &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
-&lt;/v4TimeServersOption&gt;</pre></td>
+&lt;/v4TimeServersOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">6</code></td>
 <td>
-<code class="code">v4DomainServersOption</code> <p>(Section
-                    3.8 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4DomainServersOption&gt;
+                      <code class="code">6</code>
+                    </td>
+<td>
+                      <code class="code">v4DomainServersOption</code>
+                      <p>(Section
+                    3.8 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4DomainServersOption&gt;
   &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
-&lt;/v4DomainServersOption&gt;</pre></td>
+&lt;/v4DomainServersOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">15</code></td>
 <td>
-<code class="code">v4DomainNameOption</code> <p>(Section 3.17
-                    of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4DomainNameOption&gt;
+                      <code class="code">15</code>
+                    </td>
+<td>
+                      <code class="code">v4DomainNameOption</code>
+                      <p>(Section 3.17
+                    of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4DomainNameOption&gt;
   &lt;domainName&gt;foo.com.&lt;/domainName&gt;
-&lt;/v4DomainNameOption&gt;</pre></td>
+&lt;/v4DomainNameOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">43</code></td>
 <td>
-<code class="code">v4VendorSpecificOption</code> <p>(Section
-                    8.4 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4VendorSpecificOption&gt;
+                      <code class="code">43</code>
+                    </td>
+<td>
+                      <code class="code">v4VendorSpecificOption</code>
+                      <p>(Section
+                    8.4 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4VendorSpecificOption&gt;
   &lt;subOptionList&gt;
     &lt;optionDef code="1" name="VendorSubopt1"&gt;
       &lt;stringOption&gt;
@@ -1572,52 +1925,68 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/ipAddressOption&gt;
     &lt;/optionDef&gt;
   &lt;/subOptionList&gt;
-&lt;/v4VendorSpecificOption&gt;</pre></td>
+&lt;/v4VendorSpecificOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">44</code></td>
 <td>
-<code class="code">v4NetbiosNameServersOption</code>
-                    <p>(Section 8.5 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4NetbiosNameServersOption&gt;
+                      <code class="code">44</code>
+                    </td>
+<td>
+                      <code class="code">v4NetbiosNameServersOption</code>
+                      <p>(Section 8.5 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4NetbiosNameServersOption&gt;
   &lt;ipAddress&gt;10.0.0.1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;10.0.0.2&lt;/ipAddress&gt;
-&lt;/v4NetbiosNameServersOption&gt;</pre></td>
+&lt;/v4NetbiosNameServersOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">46</code></td>
 <td>
-<code class="code">v4NetbiosNodeTypeOption</code> <p>(Section
-                    8.7 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4NetbiosNodeTypeOption&gt;
+                      <code class="code">46</code>
+                    </td>
+<td>
+                      <code class="code">v4NetbiosNodeTypeOption</code>
+                      <p>(Section
+                    8.7 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4NetbiosNodeTypeOption&gt;
   &lt;unsignedByte&gt;8&lt;/unsignedByte&gt;
-&lt;/v4NetbiosNodeTypeOption&gt;</pre></td>
+&lt;/v4NetbiosNodeTypeOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">66</code></td>
 <td>
-<code class="code">v4TftpServerNameOption</code> <p>(Section
-                    9.4 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4TftpServerNameOption&gt;
+                      <code class="code">66</code>
+                    </td>
+<td>
+                      <code class="code">v4TftpServerNameOption</code>
+                      <p>(Section
+                    9.4 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4TftpServerNameOption&gt;
   &lt;string&gt;tftp.foo.com.&lt;/string&gt;
-&lt;/v4TftpServerNameOption&gt;</pre></td>
+&lt;/v4TftpServerNameOption&gt;</pre>
+                    </td>
 </tr>
 <tr>
-<td><code class="code">67</code></td>
 <td>
-<code class="code">v4BootFileNameOption</code> <p>(Section
-                    9.5 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC
-                    2132)</a></p>
-</td>
-<td><pre class="synopsis">&lt;v4BootFileNameOption&gt;
+                      <code class="code">67</code>
+                    </td>
+<td>
+                      <code class="code">v4BootFileNameOption</code>
+                      <p>(Section
+                    9.5 of <a href="http://www.ietf.org/rfc/rfc2132.txt" target="_top">RFC 2132)</a></p>
+                    </td>
+<td>
+                      <pre class="synopsis">&lt;v4BootFileNameOption&gt;
   &lt;string&gt;bootfile-name&lt;/string&gt;
-&lt;/v4BootFileNameOption&gt;</pre></td>
+&lt;/v4BootFileNameOption&gt;</pre>
+                    </td>
 </tr>
 </tbody>
 </table>
@@ -1626,7 +1995,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id440878"></a>Generic Options</h3></div></div></div>
+<a name="id441441"></a>Generic Options</h3></div></div></div>
 <p>Generic options are used to define new option types for
         experimental or future options. Generic options are defined using the
         <code class="code">optionDef</code> element. The <code class="code">otherOptions</code> element
@@ -1637,11 +2006,11 @@ wrapper.app.parameter.7=eth1</pre>
         in the table above.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id440904"></a>Option Definition Type</h4></div></div></div>
+<a name="id441467"></a>Option Definition Type</h4></div></div></div>
 <p>The option definition type predefines several option types for
           use in creating new, experimental, or vendor options.</p>
 <div class="table">
-<a name="id440914"></a><p class="title"><b>Table 3.4. Generic Option Definitions</b></p>
+<a name="id441478"></a><p class="title"><b>Table 3.4. Generic Option Definitions</b></p>
 <table summary="Generic Option Definitions" border="1">
 <colgroup>
 <col>
@@ -1653,112 +2022,163 @@ wrapper.app.parameter.7=eth1</pre>
 </tr></thead>
 <tbody>
 <tr>
-<td><code class="code">nilOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">nilOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;nilOption/&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uByteOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">uByteOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;uByteOption&gt;
     &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;
   &lt;/uByteOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uByteListOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">uByteListOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;uByteListOption&gt;
     &lt;unsignedByte&gt;1&lt;/unsignedByte&gt;
     &lt;unsignedByte&gt;10&lt;/unsignedByte&gt;
     &lt;unsignedByte&gt;255&lt;/unsignedByte&gt;
   &lt;/uByteListOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uShortOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">uShortOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;uShortOption&gt;
     &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;
   &lt;/uShortOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uShortListOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">uShortListOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;uShortListOption&gt;
     &lt;unsignedShort&gt;1&lt;/unsignedShort&gt;
     &lt;unsignedShort&gt;999&lt;/unsignedShort&gt;
     &lt;unsignedShort&gt;65535&lt;/unsignedShort&gt;
   &lt;/uShortListOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uIntOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">uIntOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;uIntOption&gt;
     &lt;unsignedInt&gt;4294697295&lt;/unsignedInt&gt;
   &lt;/uIntOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">stringOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">stringOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;stringOption&gt;
     &lt;string&gt;myOptionStringValue&lt;/string&gt;
   &lt;/stringOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">ipAddressOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">ipAddressOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;ipAddressOption&gt;
     &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;/ipAddressOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">ipAddressListOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">ipAddressListOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;ipAddressListOption&gt;
     &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
     &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
     &lt;ipAddress&gt;2001:db8::3&lt;/ipAddress&gt;
   &lt;/ipAddressListOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">domainNameOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">domainNameOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;domainNameOption&gt;
     &lt;domainName&gt;my.foo.com.&lt;/domainName&gt;
   &lt;/domainNameOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">domainNameListOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">domainNameListOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;domainNameListOption&gt;
     &lt;domainName&gt;my.foo.com.&lt;/domainName&gt;
     &lt;domainName&gt;my.bar.com.&lt;/domainName&gt;
     &lt;domainName&gt;my.yuk.com.&lt;/domainName&gt;
   &lt;/domainNameListOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">opaqueDataOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">opaqueDataOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;opaqueDataOption&gt;
     &lt;opaqueData&gt;
       &lt;hexValue&gt;0123456789abcdef&lt;/hexValue&gt;
     &lt;/opaqueData&gt;
   &lt;/opaqueDataOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">opaqueDataListOption</code></td>
-<td><pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
+<td>
+                    <code class="code">opaqueDataListOption</code>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;optionDef code="99" name="MyOption"&gt;
   &lt;opaqueDataListOption&gt;
     &lt;opaqueData&gt;
       &lt;hexValue&gt;0123456789abcdef&lt;/hexValue&gt;
@@ -1770,7 +2190,8 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;hexValue&gt;0a1b2c3d4e5f&lt;/hexValue&gt;
     &lt;/opaqueData&gt;
   &lt;/opaqueDataListOption&gt;
-&lt;/optionDef&gt;</pre></td>
+&lt;/optionDef&gt;</pre>
+                  </td>
 </tr>
 </tbody>
 </table>
@@ -1778,7 +2199,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id441192"></a>Opaque Data Option</h4></div></div></div>
+<a name="id441816"></a>Opaque Data Option</h4></div></div></div>
 <p>Opaque data options are those options which can contain
           opaque, binary data. Often, these options actually contain simple
           ASCII strings. Therefore, the <code class="code">opaqueData</code> element
@@ -1790,7 +2211,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id441217"></a>Filters</h2></div></div></div>
+<a name="id441843"></a>Filters</h2></div></div></div>
 <p>Filters are used to classify DHCPv6 clients so that specific
       configuration options can be supplied to certain classes of clients. A
       typical use of filters is to define a vendor class mapping to provide
@@ -1802,16 +2223,117 @@ wrapper.app.parameter.7=eth1</pre>
       options, and optional server policies.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id441226"></a>Filter Expressions</h3></div></div></div>
+<a name="id441852"></a>Filter Expressions</h3></div></div></div>
 <p>If more than one filter expression is defined in a filter, then
         the client request must match <span class="emphasis"><em>all</em></span> of the
         expressions. That is, multiple filter expressions are logically
         <span class="emphasis"><em>anded</em></span> together to form the match criteria. Each
-        filter expression must contain at least one option or custom
+        filter expression must contain at least one client class, option or custom
         expression.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id441246"></a>DHCPv6 Option Expression</h4></div></div></div>
+<a name="id441873"></a>Client Class Expression</h4></div></div></div>
+<p>A client class expression defines criteria for matching all or part of a DHCPv6 user class or vendor class, or a DHCPv4 vendor class option provided in the client request.  The <code class="code">clientClassExpression</code> element must specify only one of the three supported client class options - DHCPv6 user or vendor class, or DHCPv4 vendor class - and the required <code class="code">operator</code> attribute, which defaults to <code class="code">'equals'</code> and  defines the match criteria.</p>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="id441894"></a>DHCPv6 User Class Filter Example</h5></div></div></div>
+<p>The following filter definition         matches clients which supply a specific DHCPv6 user class option value. This
+        filter is configured to provide a specific DNS domain name for such
+        clients.</p>
+<pre class="synopsis">&lt;filter&gt;
+  &lt;name&gt;DHCPv6 UserClass Filter&lt;/name&gt;
+  &lt;filterExpressions&gt;
+    &lt;filterExpression&gt;
+      &lt;clientClassExpression operator="equals"&gt;
+        &lt;userClassOption&gt;
+          &lt;opaqueData&gt;
+            &lt;asciiValue&gt;MyUserClass&lt;/asciiValue&gt;
+          &lt;/opaqueData&gt;
+        &lt;/userClassOption&gt;
+      &lt;/clientClassExpression&gt;
+    &lt;/filterExpression&gt;
+  &lt;/filterExpressions&gt;
+  &lt;msgConfigOptions&gt;
+    &lt;domainSearchListOption&gt;
+      &lt;domainName&gt;filter.com.&lt;/domainName&gt;
+    &lt;/domainSearchListOption&gt;
+  &lt;/msgConfigOptions&gt;
+&lt;/filter&gt;
+</pre>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="id441917"></a>DHCPv6 Vendor Class Filter Example</h5></div></div></div>
+<p>The following filter definition matches client which supply a specific DHCPv6 vendor class option value.  This filter is configured to provide a vendor specific information option, which contains two suboptions, for such clients.</p>
+<pre class="synopsis">&lt;filter&gt;
+  &lt;name&gt;DHCPv6 VendorClass Filter&lt;/name&gt;
+  &lt;filterExpressions&gt;
+    &lt;filterExpression&gt;
+      &lt;clientClassExpression operator="equals"&gt;
+        &lt;vendorClassOption&gt;
+          &lt;opaqueData&gt;
+            &lt;asciiValue&gt;VendorXYZ&lt;/asciiValue&gt;
+          &lt;/opaqueData&gt;
+          &lt;enterpriseNumber&gt;12345&lt;/enterpriseNumber&gt;
+        &lt;/vendorClassOption&gt;
+      &lt;/clientClassExpression&gt;
+    &lt;/filterExpression&gt;
+  &lt;/filterExpressions&gt;
+  &lt;msgConfigOptions&gt;
+    &lt;vendorInfoOption&gt;
+      &lt;enterpriseNumber&gt;12345&lt;/enterpriseNumber&gt;
+      &lt;suboptionList&gt;
+        &lt;optionDef code="1"&gt;
+          &lt;stringOption&gt;
+            &lt;string&gt;hello&lt;/string&gt;
+          &lt;/stringOption&gt;
+        &lt;/optionDef&gt;
+        &lt;optionDef code="2"&gt;
+          &lt;ipAddressOption&gt;
+            &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
+          &lt;/ipAddressOption&gt;
+        &lt;/optionDef&gt;
+      &lt;/suboptionList&gt;
+    &lt;/vendorInfoOption&gt;
+  &lt;/msgConfigOptions&gt;
+&lt;/filter&gt;
+</pre>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="id441936"></a>DHCPv4 Vendor Class Filter Example</h5></div></div></div>
+<p>As another example, consider the following filter definition
+        which matches DHCPv4 clients which supply a vendor class option
+        beginning with the specified ASCII value. This filter is configured to
+        provide the vendor specific information option for such
+        clients.</p>
+<pre class="synopsis">&lt;filter&gt;
+  &lt;name&gt;DHCPv4 VendorClass Filter&lt;/name&gt;
+  &lt;filterExpressions&gt;
+    &lt;filterExpression&gt;
+      &lt;clientClassExpression operator="startsWith"&gt;
+        &lt;v4VendorClassOption&gt;
+          &lt;opaqueData&gt;
+            &lt;asciiValue&gt;MyVendorPrefix&lt;/asciiValue&gt;
+          &lt;/opaqueData&gt;
+        &lt;/v4VendorClassOption&gt;
+      &lt;/clientClassExpression&gt;
+    &lt;/filterExpression&gt;
+  &lt;/filterExpressions&gt;
+  &lt;v4ConfigOptions&gt;
+    &lt;v4VendorSpecificOption&gt;
+      &lt;opaqueData&gt;
+        &lt;hexValue&gt;01020304&lt;/hexValue&gt;
+      &lt;/opaqueData&gt;
+    &lt;/v4VendorSpecificOption&gt;
+  &lt;/v4ConfigOptions&gt;
+&lt;/filter&gt;
+</pre>
+</div>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="id441957"></a>Option Expression</h4></div></div></div>
 <p>An option expression defines the criteria for matching all or
           part of an option provided in the client request using the generic
           option definition, along with a value and operator, which forms the
@@ -1821,7 +2343,7 @@ wrapper.app.parameter.7=eth1</pre>
           definition type above, and the required <code class="code">operator</code>
           attribute, which defaults to <code class="code">'equals'</code>.</p>
 <div class="table">
-<a name="id441280"></a><p class="title"><b>Table 3.5. Filter Option Expressions</b></p>
+<a name="id441990"></a><p class="title"><b>Table 3.5. Filter Option Expressions</b></p>
 <table summary="Filter Option Expressions" border="1">
 <colgroup>
 <col>
@@ -1835,15 +2357,20 @@ wrapper.app.parameter.7=eth1</pre>
 </tr></thead>
 <tbody>
 <tr>
-<td><code class="code">uByteOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">uByteOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>lessThan</p></li>
 <li><p>lessThanOrEqual</p></li>
 <li><p>greaterThan</p></li>
 <li><p>greaterThanOrEqual</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="equals"&gt;
       &lt;uByteOption&gt;
@@ -1851,15 +2378,21 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/uByteOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uByteListOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">uByteListOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>contains</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="equals"&gt;
       &lt;uByteListOption&gt;
@@ -1868,18 +2401,24 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/uByteListOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uShortOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">uShortOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>lessThan</p></li>
 <li><p>lessThanOrEqual</p></li>
 <li><p>greaterThan</p></li>
 <li><p>greaterThanOrEqual</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="lessThan"&gt;
       &lt;uShortOption&gt;
@@ -1887,15 +2426,21 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/uShortOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uShortListOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">uShortListOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>contains</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="equals"&gt;
       &lt;uShortListOption&gt;
@@ -1904,18 +2449,24 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/uShortListOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">uIntOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">uIntOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>lessThan</p></li>
 <li><p>lessThanOrEqual</p></li>
 <li><p>greaterThan</p></li>
 <li><p>greaterThanOrEqual</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="lessThan"&gt;
       &lt;uIntOption&gt;
@@ -1923,18 +2474,24 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/uIntOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">stringOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">stringOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>startsWith</p></li>
 <li><p>endsWith</p></li>
 <li><p>contains</p></li>
 <li><p>regExp</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="endsWith"&gt;
       &lt;stringOption&gt;
@@ -1942,18 +2499,24 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/stringOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">ipAddressOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">ipAddressOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>startsWith</p></li>
 <li><p>endsWith</p></li>
 <li><p>contains</p></li>
 <li><p>regExp</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="equals"&gt;
       &lt;ipAddressOption&gt;
@@ -1961,15 +2524,21 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/ipAddressOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">ipAddressListOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">ipAddressListOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>contains</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="contains"&gt;
       &lt;ipAddressListOption&gt;
@@ -1977,18 +2546,24 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/ipAddressListOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">domainNameOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">domainNameOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>startsWith</p></li>
 <li><p>endsWith</p></li>
 <li><p>contains</p></li>
 <li><p>regExp</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="equals"&gt;
       &lt;domainNameOption&gt;
@@ -1996,15 +2571,21 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/domainNameOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">domainNameListOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">domainNameListOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>contains</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="contains"&gt;
       &lt;domainNameListOption&gt;
@@ -2012,18 +2593,24 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/domainNameListOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">opaqueDataOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">opaqueDataOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>startsWith</p></li>
 <li><p>endsWith</p></li>
 <li><p>contains</p></li>
 <li><p>regExp</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="regExp"&gt;
       &lt;opaqueDataOption&gt;
@@ -2033,15 +2620,21 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/opaqueDataOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 <tr>
-<td><code class="code">opaqueDataListOption</code></td>
-<td><div class="itemizedlist"><ul type="disc">
+<td>
+                    <code class="code">opaqueDataListOption</code>
+                  </td>
+<td>
+                    <div class="itemizedlist"><ul type="disc">
 <li><p>equals</p></li>
 <li><p>contains</p></li>
-</ul></div></td>
-<td><pre class="synopsis">&lt;filterExpressions&gt;
+</ul></div>
+                  </td>
+<td>
+                    <pre class="synopsis">&lt;filterExpressions&gt;
   &lt;filterExpression&gt;
     &lt;optionExpression code="99" operator="equals"&gt;
       &lt;opaqueDataOption&gt;
@@ -2051,7 +2644,8 @@ wrapper.app.parameter.7=eth1</pre>
       &lt;/opaqueDataOption&gt;
     &lt;/optionExpression&gt;
   &lt;/filterExpression&gt;
-&lt;/filterExpressions&gt;</pre></td>
+&lt;/filterExpressions&gt;</pre>
+                  </td>
 </tr>
 </tbody>
 </table>
@@ -2059,7 +2653,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id441923"></a>DHCPv4 Option Expression</h4></div></div></div>
+<a name="id442708"></a>DHCPv4 Option Expression</h4></div></div></div>
 <p>DHCPv4 option expressions use the same syntax as DHCPv6 option
           expressions, but must identify the option as a DHCPv4 option using
           the <code class="code">v4</code> attribute. For example:</p>
@@ -2075,72 +2669,14 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id441954"></a>Custom Expressions</h4></div></div></div>
-<p><span class="emphasis"><em>Custom expressions are used to define filter
-          expressions that cannot be configured using standard option
-          expressions. Currently, Jagornet DHCPv6 Server Community Edition
-          does not support custom expressions.</em></span></p>
+<a name="id442740"></a>Custom Expressions</h4></div></div></div>
+<p><span class="emphasis"><em>Custom expressions are used to define filter expressions that cannot be configured using standard option expressions. Currently, Jagornet DHCPv6 Server Community Edition does not support custom expressions.</em></span></p>
 </div>
-</div>
-<div class="section" lang="en">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="id441966"></a>Filters Example</h3></div></div></div>
-<p>For example, consider the following filter definition which
-        matches clients which supply a specific user class option value. This
-        filter is configured to provide a specific DNS domain name for such
-        clients.</p>
-<pre class="synopsis">&lt;filter&gt;
-  &lt;name&gt;DHCPv6 UserClass Filter&lt;/name&gt;
-  &lt;filterExpressions&gt;
-    &lt;filterExpression&gt;
-      &lt;optionExpression code="15" operator="equals"&gt;
-        &lt;opaqueDataOption&gt;
-          &lt;opaqueData&gt;
-            &lt;asciiValue&gt;MyUserClass&lt;/asciiValue&gt;
-          &lt;/opaqueData&gt;
-        &lt;/opaqueDataOption&gt;
-      &lt;/optionExpression&gt;
-    &lt;/filterExpression&gt;
-  &lt;/filterExpressions&gt;
-  &lt;msgConfigOptions&gt;
-    &lt;domainSearchListOption&gt;
-      &lt;domainName&gt;filter.com.&lt;/domainName&gt;
-    &lt;/domainSearchListOption&gt;
-  &lt;/msgConfigOptions&gt;
-&lt;/filter&gt;
-</pre>
-<p>As another example, consider the following filter definition
-        which matches DHCPv4 clients which supply a vendor class option
-        beginning with the specified ASCII value. This filter is configured to
-        provide the vendor specific information option for such
-        clients.</p>
-<pre class="synopsis">&lt;filter&gt;
-  &lt;name&gt;DHCPv4 VendorClass Filter&lt;/name&gt;
-  &lt;filterExpressions&gt;
-    &lt;filterExpression&gt;
-      &lt;optionExpression v4="true" code="60" operator="startsWith"&gt;
-        &lt;opaqueDataOption&gt;
-          &lt;opaqueData&gt;
-            &lt;asciiValue&gt;MyVendorPrefix&lt;/asciiValue&gt;
-          &lt;/opaqueData&gt;
-        &lt;/opaqueDataOption&gt;
-      &lt;/optionExpression&gt;
-    &lt;/filterExpression&gt;
-  &lt;/filterExpressions&gt;
-  &lt;v4ConfigOptions&gt;
-    &lt;v4VendorSpecificOption&gt;
-      &lt;opaqueData&gt;
-        &lt;hexValue&gt;01020304&lt;/hexValue&gt;
-      &lt;/opaqueData&gt;
-    &lt;/v4VendorSpecificOption&gt;
-  &lt;/v4ConfigOptions&gt;
-&lt;/filter&gt;
-</pre>
 </div>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id442001"></a>Links</h2></div></div></div>
+<a name="id442756"></a>Links</h2></div></div></div>
 <p>A link defines a network segment for client requests. At least one
       DHCPv6 or DHCPv4 link is required proper server configuration. The
       Jagornet DHCPv6 Server uses the link definition to classify each
@@ -2151,7 +2687,7 @@ wrapper.app.parameter.7=eth1</pre>
       filters, policies, and options.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id442010"></a>DHCPv6 Links</h3></div></div></div>
+<a name="id442764"></a>DHCPv6 Links</h3></div></div></div>
 <p>For DHCPv6, the link is determined by the server according to
         section 11 of RFC 3315. If the message is received directly and the
         source address is link-local, then the client is on the link attached
@@ -2163,7 +2699,7 @@ wrapper.app.parameter.7=eth1</pre>
         Therefore, DHCPv6 link definitions are either local or remote.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id442018"></a>Local DHCPv6 Link Example</h4></div></div></div>
+<a name="id442773"></a>Local DHCPv6 Link Example</h4></div></div></div>
 <p>Local links require the <code class="code">interface</code> element to
           specify the name of the server interface.</p>
 <pre class="synopsis">&lt;link&gt;
@@ -2175,7 +2711,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id442044"></a>Remote DHCPv6 Link Example</h4></div></div></div>
+<a name="id442795"></a>Remote DHCPv6 Link Example</h4></div></div></div>
 <p>Remote links require the <code class="code">address</code> element to
           specify the address of the remote link.</p>
 <pre class="synopsis">&lt;link&gt;
@@ -2188,14 +2724,14 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id442071"></a>DHCPv4 Links</h3></div></div></div>
+<a name="id442823"></a>DHCPv4 Links</h3></div></div></div>
 <p>For DHCPv4, the link is determined by the 'giAddr' field of the
         DHCPv4 request header. If the 'giAddr' field is zero, then the link is
         determined by the IP address assigned to the IPv4 broadcast interface
         provided to the server at startup.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id442084"></a>DHCPv4 Link Example</h4></div></div></div>
+<a name="id442814"></a>DHCPv4 Link Example</h4></div></div></div>
 <pre class="synopsis">&lt;link&gt;
   &lt;name&gt;IPv4 Client Link 1&lt;/name&gt;
   &lt;!-- All DHCPv4 links are defined in CIDR notation.
@@ -2210,7 +2746,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id442099"></a>Pools</h2></div></div></div>
+<a name="id442850"></a>Pools</h2></div></div></div>
 <p>Pools may be defined only within Links or Link Filters. The
       Jagornet DHCPv6 Server supports four types of pools.</p>
 <div class="orderedlist"><ol type="1">
@@ -2224,7 +2760,7 @@ wrapper.app.parameter.7=eth1</pre>
 </ol></div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id442158"></a>Address Pools</h3></div></div></div>
+<a name="id442911"></a>Address Pools</h3></div></div></div>
 <p>Non-temporary and temporary address pools are defined by the
         <code class="code">addressPool</code> type. The address pool must contain a
         <code class="code">range</code> element to define the addresses available for
@@ -2261,7 +2797,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id442186"></a>Prefix Pools</h3></div></div></div>
+<a name="id442939"></a>Prefix Pools</h3></div></div></div>
 <p>Prefix delegation pools are defined by the
         <code class="code">prefixPool</code> type. The prefix pool must contain a
         <code class="code">range</code> element to define the prefix available for
@@ -2291,7 +2827,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id442183"></a>DHCPv4 Pools</h3></div></div></div>
+<a name="id442937"></a>DHCPv4 Pools</h3></div></div></div>
 <p>DHCPv4 address pools are defined by the
         <code class="code">v4AddressPool</code> type. The address pool must contain a
         <code class="code">range</code> element to define the addresses available for
@@ -2332,7 +2868,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id442243"></a>Static Bindings</h2></div></div></div>
+<a name="id442996"></a>Static Bindings</h2></div></div></div>
 <p>Static bindings are used to reserve a specific IP address for a
       specific client. Bindings may be defined only within Links. The Jagornet
       DHCPv6 Server supports four types of bindings.</p>
@@ -2348,7 +2884,7 @@ wrapper.app.parameter.7=eth1</pre>
 </ol></div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id442306"></a>Address Bindings</h3></div></div></div>
+<a name="id443059"></a>Address Bindings</h3></div></div></div>
 <p>Non-temporary and temporary static address bindings are defined
         by the <code class="code">addressBinding</code> type. The address binding must
         contain the <code class="code">ipAddress</code> element to specify the IP address
@@ -2387,7 +2923,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id442354"></a>Prefix Bindings</h3></div></div></div>
+<a name="id443104"></a>Prefix Bindings</h3></div></div></div>
 <p>Prefix delegation static prefix bindings are defined by the
         <code class="code">prefixBinding</code> type. The prefix binding must contain the
         <code class="code">prefix</code> element to define the prefix available for
@@ -2412,7 +2948,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id442216"></a>DHCPv4 Bindings</h3></div></div></div>
+<a name="id443136"></a>DHCPv4 Bindings</h3></div></div></div>
 <p>DHCPv4 static address bindings are defined by the
         <code class="code">v4AddressBinding</code> type. The address binding must contain a
         <code class="code">ipAddress</code> element to specify the IP address reserved for
@@ -2435,12 +2971,12 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="chapter" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id442422"></a>Chapter 4. DHCPv6 Operational Models</h2></div></div></div>
+<a name="id443171"></a>Chapter 4. DHCPv6 Operational Models</h2></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="#id442576">Operational model using a DHCPv6 Relay Agent</a></span></dt>
-<dt><span class="section"><a href="#id442666">Operational model without a DHCPv6 Relay Agent</a></span></dt>
+<dt><span class="section"><a href="#id443345">Operational model using a DHCPv6 Relay Agent</a></span></dt>
+<dt><span class="section"><a href="#id443434">Operational model without a DHCPv6 Relay Agent</a></span></dt>
 </dl>
 </div>
 <p>IPv6 capable hosts are notified via router advertisement (RA) flags
@@ -2460,7 +2996,7 @@ wrapper.app.parameter.7=eth1</pre>
 <p>The operation of the host with respect to these flags can be
     summarized as follows:</p>
 <div class="table">
-<a name="id442473"></a><p class="title"><b>Table 4.1. DHCPv6 Operational Models</b></p>
+<a name="id443222"></a><p class="title"><b>Table 4.1. DHCPv6 Operational Models</b></p>
 <table summary="DHCPv6 Operational Models" border="1">
 <colgroup>
 <col>
@@ -2469,22 +3005,40 @@ wrapper.app.parameter.7=eth1</pre>
 </colgroup>
 <tbody>
 <tr>
-<td valign="middle"><p> Flag</p></td>
-<td valign="middle"><p> M=1</p></td>
-<td valign="middle"><p> M=0</p></td>
+<td valign="middle">
+              <p> Flag</p>
+            </td>
+<td valign="middle">
+              <p> M=1</p>
+            </td>
+<td valign="middle">
+              <p> M=0</p>
+            </td>
 </tr>
 <tr>
-<td valign="middle"><p> O=1</p></td>
-<td valign="middle"><p> DHCPv6 for address and configuration
-            information</p></td>
-<td valign="middle"><p> DHCPv6 for configuration information
-            only</p></td>
+<td valign="middle">
+              <p> O=1</p>
+            </td>
+<td valign="middle">
+              <p> DHCPv6 for address and configuration
+            information</p>
+            </td>
+<td valign="middle">
+              <p> DHCPv6 for configuration information
+            only</p>
+            </td>
 </tr>
 <tr>
-<td valign="middle"><p> O=0</p></td>
-<td valign="middle"><p> DHCPv6 for address and configuration
-            information</p></td>
-<td valign="middle"><p> No DHCPv6</p></td>
+<td valign="middle">
+              <p> O=0</p>
+            </td>
+<td valign="middle">
+              <p> DHCPv6 for address and configuration
+            information</p>
+            </td>
+<td valign="middle">
+              <p> No DHCPv6</p>
+            </td>
 </tr>
 </tbody>
 </table>
@@ -2499,7 +3053,7 @@ wrapper.app.parameter.7=eth1</pre>
     and layer 3 switches which support IPv6.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id442576"></a>Operational model using a DHCPv6 Relay Agent</h2></div></div></div>
+<a name="id443345"></a>Operational model using a DHCPv6 Relay Agent</h2></div></div></div>
 <p>Most IPv6 networks will involve one or more IPv6 capable routers.
       Most IPv6 capable routers include an implementation of a DHCPv6 relay
       agent. Please consult your router vendor's documentation for details on
@@ -2517,30 +3071,20 @@ wrapper.app.parameter.7=eth1</pre>
       original client request. The relay agent will send the encapsulated
       Reply message to the DHCPv6 client via unicast to the source address of
       the original client request.</p>
-<p><code class="code"> ----------                  ----------                    
-      ----------</code></p>
-<p><code class="code">|          |   Multicast    |          | Unicast/Multicast
-      |          |</code></p>
-<p><code class="code">|          | -------------&gt; |          |
-      ----------------&gt; |          |</code></p>
-<p><code class="code">|          |    Request     |          |  Relay-Forward   
-      |          |</code></p>
-<p><code class="code">|  DHCPv6  |                |  DHCPv6  |    (Request)     
-      |  DHCPv6  |</code></p>
-<p><code class="code">|  Client  |                |  Relay   |                  
-      |  Server  |</code></p>
-<p><code class="code">|          |    Unicast     | (Router) |      Unicast     
-      |          |</code></p>
-<p><code class="code">|          | &lt;------------- |          |
-      &lt;---------------- |          |</code></p>
-<p><code class="code">|          |     Reply      |          |   Relay-Reply    
-      |          |</code></p>
-<p><code class="code"> ----------                  ----------      (Reply)       
-      ----------</code></p>
+<p><code class="code"> ----------                  ----------                     ----------</code></p>
+<p><code class="code">|          |   Multicast    |          | Unicast/Multicast |          |</code></p>
+<p><code class="code">|          | -------------&gt; |          | ----------------&gt; |          |</code></p>
+<p><code class="code">|          |    Request     |          |  Relay-Forward    |          |</code></p>
+<p><code class="code">|  DHCPv6  |                |  DHCPv6  |    (Request)      |  DHCPv6  |</code></p>
+<p><code class="code">|  Client  |                |  Relay   |                   |  Server  |</code></p>
+<p><code class="code">|          |    Unicast     | (Router) |      Unicast      |          |</code></p>
+<p><code class="code">|          | &lt;------------- |          | &lt;---------------- |          |</code></p>
+<p><code class="code">|          |     Reply      |          |   Relay-Reply     |          |</code></p>
+<p><code class="code"> ----------                  ----------      (Reply)        ----------</code></p>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id442666"></a>Operational model without a DHCPv6 Relay Agent</h2></div></div></div>
+<a name="id443434"></a>Operational model without a DHCPv6 Relay Agent</h2></div></div></div>
 <p>Some IPv6 networks may not utilize a DHCPv6 relay agent.</p>
 <p>In this operational model, multicast request messages sent by the
       DHCPv6 clients are received directly by one or more DHCPv6 servers which
@@ -2561,7 +3105,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="appendix" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id442746"></a>Appendix A. Binding Database</h2></div></div></div>
+<a name="id443511"></a>Appendix A. Binding Database</h2></div></div></div>
 <a name="binding_db"></a><p>The Jagornet DHCPv6 server uses an embedded <a href="http://db.apache.org/derby/" target="_top">Apache Derby</a> database server for
     managing the binding database. The database schema file is located in the
     <code class="code">db/jagornet-dhcpv6-schema.sql</code> file. At initial startup, the
@@ -2569,28 +3113,23 @@ wrapper.app.parameter.7=eth1</pre>
     using the schema. When the server is stopped, the <code class="code">db/derby</code>
     directory can be deleted (<span class="bold"><strong>do not delete</strong></span>
     <code class="code">db/jagornet-dhcpv6-schema.sql</code>), and upon restart, the
-    Jagornet DHCPv6 server will recreate the database. <span class="emphasis"><em>Please note
-    that deleting the database should only be performed in test environments,
-    or when a backup copy of the database is being restored.</em></span></p>
+    Jagornet DHCPv6 server will recreate the database. <span class="emphasis"><em>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</em></span></p>
 <p>Beginning with Jagornet DHCPv6 v1.1, the server can be configured to
     use an embedded <a href="http://www.h2database.com/" target="_top">H2</a>
     database as an alternative to Apache Derby. The database configuration is
     maintained in the <code class="code">conf/jdbc.properties</code> file. The default
-    configuration sets the <code class="code">jdbc.user, jdbc.password, jdbc.driver, and
-    jdbc.url</code> properties for Derby. To switch to H2, simply comment out
+    configuration sets the <code class="code">jdbc.user, jdbc.password, jdbc.driver, and jdbc.url</code> properties for Derby. To switch to H2, simply comment out
     (insert a # at the line beginning) the default properties and uncomment
     the corresponding properties in the H2 section. At initial startup, the
     server will create the database in the <code class="code">db/h2</code> directory using
     the schema. When the server is stopped, the <code class="code">db/h2</code> directory
     can be deleted (<span class="bold"><strong>do not delete</strong></span>
     <code class="code">db/jagornet-dhcpv6-schema.sql</code>), and upon restart, the
-    Jagornet DHCPv6 server will recreate the database. <span class="emphasis"><em>Please note
-    that deleting the database should only be performed in test environments,
-    or when a backup copy of the database is being restored.</em></span></p>
+    Jagornet DHCPv6 server will recreate the database. <span class="emphasis"><em>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</em></span></p>
 </div>
 <div class="appendix" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id442843"></a>Appendix B. Logging</h2></div></div></div>
+<a name="id443606"></a>Appendix B. Logging</h2></div></div></div>
 <a name="logging"></a><p>Logging for the Jagornet DHCPv6 server is performed using the <a href="http://logging.apache.org/log4j/1.2/index.html" target="_top">Apache Log4J</a>
     logging service. The default Log4J configuration file is located in the
     <code class="code">conf/log4j.properties</code> file. The server writes all initial
@@ -2607,16 +3146,15 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="appendix" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id442898"></a>Appendix C. Java Management Extensions (JMX)</h2></div></div></div>
+<a name="id443662"></a>Appendix C. Java Management Extensions (JMX)</h2></div></div></div>
 <p>The Jagornet DHCPv6 Server supports Java Management Extensions (JMX)
     for dynamically configuring logging parameters and for monitoring server
     statistics. Support for JMX is available in Sun's JRE 6. For more
-    information, please see the <a href="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html" target="_top">Java
-    SE Management and Monitoring Guide</a> .</p>
+    information, please see the <a href="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html" target="_top">Java SE Management and Monitoring Guide</a> .</p>
 </div>
 <div class="appendix" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id442922"></a>Appendix D. DHCPv4 Limitation</h2></div></div></div>
+<a name="id443692"></a>Appendix D. DHCPv4 Limitation</h2></div></div></div>
 <p>The Jagornet DHCPv6 Server supports Dynamic Host Configuration
     Protocol for IPv4 (DHCPv4) with the limitation that only one host
     interface can be used to service locally connected DHCPv4 clients. DHCPv4
