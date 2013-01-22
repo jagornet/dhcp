@@ -31,15 +31,25 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.xml.ClientClassExpression;
 import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.xml.Operator;
+import com.jagornet.dhcpv6.xml.UserClassOption;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestDhcpUserClassOption.
  */
 public class TestDhcpUserClassOption extends TestCase
 {
-    
+	protected DhcpUserClassOption duco;
+	
+	public TestDhcpUserClassOption()
+	{
+		duco = new DhcpUserClassOption();
+        duco.addOpaqueData("UserClass 1");   // 13 (len=2 bytes, data=11 bytes)
+        duco.addOpaqueData("UserClass 2");   // 13 (len=2 bytes, data=11 bytes)		
+	}
+	
     /**
      * Test encode.
      * 
@@ -47,9 +57,6 @@ public class TestDhcpUserClassOption extends TestCase
      */
     public void testEncode() throws Exception
     {
-        DhcpUserClassOption duco = new DhcpUserClassOption();
-        duco.addOpaqueData("UserClass 1");   // 13 (len=2 bytes, data=11 bytes)
-        duco.addOpaqueData("UserClass 2");   // 13 (len=2 bytes, data=11 bytes)
         ByteBuffer bb = duco.encode();
         assertNotNull(bb);
         assertEquals(30, bb.capacity());    // +4 (code=2 bytes, len=2 bytes)
@@ -76,14 +83,26 @@ public class TestDhcpUserClassOption extends TestCase
         bb.putShort((short)11);
         bb.put("UserClass 2".getBytes());
         bb.flip();
-        DhcpUserClassOption duco = new DhcpUserClassOption();
-        duco.decode(bb);
-        assertNotNull(duco.getOpaqueDataListOptionType());
-        List<OpaqueData> userClasses = duco.getOpaqueDataListOptionType().getOpaqueDataList();
+        DhcpUserClassOption _duco = new DhcpUserClassOption();
+        _duco.decode(bb);
+        assertNotNull(_duco.getOpaqueDataListOptionType());
+        List<OpaqueData> userClasses = _duco.getOpaqueDataListOptionType().getOpaqueDataList();
         assertNotNull(userClasses);
         assertEquals(2, userClasses.size());
         assertEquals("UserClass 1", userClasses.get(0).getAsciiValue());
         assertEquals("UserClass 2", userClasses.get(1).getAsciiValue());
+    }
+    
+    public void testMatches() throws Exception
+    {
+        ClientClassExpression expression = ClientClassExpression.Factory.newInstance();
+        assertFalse(duco.matches((DhcpUserClassOption)expression.getUserClassOption(), Operator.EQUALS));
+        DhcpUserClassOption _duco = new DhcpUserClassOption();
+        expression.setUserClassOption((UserClassOption)_duco.getOpaqueDataListOptionType());
+        assertFalse(duco.matches(_duco, Operator.EQUALS));
+        _duco.addOpaqueData("UserClass 1");
+        _duco.addOpaqueData("UserClass 2");
+        assertTrue(duco.matches(_duco, Operator.EQUALS));
     }
     
     /**
@@ -91,9 +110,6 @@ public class TestDhcpUserClassOption extends TestCase
      */
     public void testToString()
     {
-        DhcpUserClassOption duco = new DhcpUserClassOption();
-        duco.addOpaqueData("UserClass 1");   // len = 2 + 11
-        duco.addOpaqueData("UserClass 2");   // len = 2 + 11
         System.out.println(duco);
     }
 }

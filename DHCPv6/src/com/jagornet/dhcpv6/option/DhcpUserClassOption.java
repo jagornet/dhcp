@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataListOption;
+import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.UserClassOption;
 
 /**
@@ -64,5 +65,15 @@ public class DhcpUserClassOption extends BaseOpaqueDataListOption
     public int getCode()
     {
         return ((UserClassOption)opaqueDataListOption).getCode();
+    }
+    
+    public boolean matches(DhcpUserClassOption that, Operator.Enum op)
+    {
+        if (that == null)
+            return false;
+        if (that.getCode() != this.getCode())
+            return false;
+
+        return matches(that.getOpaqueDataListOptionType(), op);
     }
 }

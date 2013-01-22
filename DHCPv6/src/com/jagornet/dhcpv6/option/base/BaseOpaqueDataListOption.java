@@ -150,19 +150,22 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (opaqueDataListOption == null)
+
+        return matches(expression.getOpaqueDataListOption(), expression.getOperator());
+    }
+
+	protected boolean matches(OpaqueDataListOptionType that, Operator.Enum op) 
+	{
+		if (opaqueDataListOption == null)
         	return false;
 
 		List<OpaqueData> myOpaqueList = opaqueDataListOption.getOpaqueDataList();
 		if (myOpaqueList == null)
 			return false;
-
-        // first see if we have a opaque opaqueData list option to compare to
-        OpaqueDataListOptionType that = expression.getOpaqueDataListOption();
-        if (that != null) {
+		
+		if (that != null) {
         	List<OpaqueData> opaqueList = that.getOpaqueDataList();
         	if (opaqueList != null) {
-        		Operator.Enum op = expression.getOperator();
         		if (op.equals(Operator.EQUALS)) {
 	        		if (opaqueList.size() != myOpaqueList.size()) {
 	        			return false;
@@ -201,9 +204,9 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
         		}
         	}
         }
-
-        return false;
-    }
+		
+		return false;
+	}
 
     /**
      * Adds the opaque opaqueData.

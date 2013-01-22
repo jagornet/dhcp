@@ -32,7 +32,7 @@ import java.util.List;
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataListOption;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.OptionExpression;
+import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.VendorClassOption;
 
 /**
@@ -111,19 +111,6 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
             }
         }
     }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcpv6.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-
-        return false;
-    }
     
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
@@ -145,4 +132,40 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
         sb.append(((VendorClassOption)opaqueDataListOption).toString());
         return sb.toString();
     }
+    
+    /**
+     * Convenience method to get enterprise number.
+     * @return
+     */
+    public long getEnterpriseNumber()
+    {
+    	return ((VendorClassOption)opaqueDataListOption).getEnterpriseNumber();
+    }
+    
+    /**
+     * Convenience method to set enterprise number.
+     * @param enterpriseNumber
+     */
+    public void setEnterpriseNumber(long enterpriseNumber)
+    {
+    	((VendorClassOption)opaqueDataListOption).setEnterpriseNumber(enterpriseNumber);
+    }
+
+    public boolean matches(DhcpVendorClassOption that, Operator.Enum op)
+    {
+        if (that == null)
+            return false;
+        if (that.getCode() != this.getCode())
+            return false;
+        if (!(that.getOpaqueDataListOptionType() instanceof VendorClassOption))
+        	return false;
+        
+        VendorClassOption vcOption = (VendorClassOption)that.getOpaqueDataListOptionType();
+        long enterpriseNum = vcOption.getEnterpriseNumber();
+        long myEnterpriseNum = ((VendorClassOption)opaqueDataListOption).getEnterpriseNumber();
+        if (enterpriseNum != myEnterpriseNum)
+        	return false;
+
+        return matches(that.getOpaqueDataListOptionType(), op);
+    }    
 }

@@ -54,9 +54,12 @@ import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.message.DhcpV4Message;
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.option.DhcpConfigOptions;
+import com.jagornet.dhcpv6.option.DhcpUserClassOption;
+import com.jagornet.dhcpv6.option.DhcpVendorClassOption;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ConfigOptions;
+import com.jagornet.dhcpv6.option.v4.DhcpV4VendorClassOption;
 import com.jagornet.dhcpv6.server.DhcpV6Server;
 import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
@@ -68,6 +71,7 @@ import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AddressPool;
 import com.jagornet.dhcpv6.xml.AddressPoolsType;
+import com.jagornet.dhcpv6.xml.ClientClassExpression;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument;
 import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 import com.jagornet.dhcpv6.xml.Filter;
@@ -1754,26 +1758,35 @@ public class DhcpServerConfiguration
         	List<FilterExpression> expressions = filterExprs.getFilterExpressionList();
             if (expressions != null) {
 		        for (FilterExpression expression : expressions) {
-		        	OptionExpression optexpr = expression.getOptionExpression();
-		        	// TODO: handle CustomExpression filters
-		            DhcpOption option = requestMsg.getDhcpOption(optexpr.getCode());
-		            if (option != null) {
-		                // found the filter option in the request,
-		                // so check if the expression matches
-		                if (!evaluateExpression(optexpr, option)) {
-		                    // it must match all expressions for the filter
-		                    // group (i.e. expressions are ANDed), so if
-		                    // just one doesn't match, then we're done
-		                    matches = false;
-		                    break;
-		                }
-		            }
-		            else {
-		                // if the expression option wasn't found in the
-		                // request message, then it can't match
-		                matches = false;
-		                break;
-		            }
+		        	if (expression.getClientClassExpression() != null) {
+		        		matches = msgMatchesClientClass(requestMsg, expression.getClientClassExpression());
+		        		if (!matches)
+		        			break;
+		        	}
+		        	else if (expression.getOptionExpression() != null) {
+		        		OptionExpression optexpr = expression.getOptionExpression();
+			            DhcpOption option = requestMsg.getDhcpOption(optexpr.getCode());
+			            if (option != null) {
+			                // found the filter option in the request,
+			                // so check if the expression matches
+			                if (!evaluateExpression(optexpr, option)) {
+			                    // it must match all expressions for the filter
+			                    // group (i.e. expressions are ANDed), so if
+			                    // just one doesn't match, then we're done
+			                    matches = false;
+			                    break;
+			                }
+			            }
+			            else {
+			                // if the expression option wasn't found in the
+			                // request message, then it can't match
+			                matches = false;
+			                break;
+			            }
+		        	}
+		        	else {
+		        		log.warn("Unsupported filter expression: " + expression);
+		        	}
 		        }
             }
     	}
@@ -1803,4 +1816,48 @@ public class DhcpServerConfiguration
         return matches;
     }
     
+    protected static boolean msgMatchesClientClass(DhcpMessageInterface requestMsg, 
+    		ClientClassExpression ccexpr)
+    {
+		if (ccexpr.getUserClassOption() != null) {
+			DhcpUserClassOption ucOption = (DhcpUserClassOption) 
+				requestMsg.getDhcpOption(ccexpr.getUserClassOption().getCode());
+			if (ucOption != null) {
+				if (!ucOption.matches(ucOption, ccexpr.getOperator())) {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		else if (ccexpr.getVendorClassOption() != null) {
+			DhcpVendorClassOption vcOption = (DhcpVendorClassOption) 
+			requestMsg.getDhcpOption(ccexpr.getVendorClassOption().getCode());
+			if (vcOption != null) {
+				if (!vcOption.matches(vcOption, ccexpr.getOperator())) {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		else if (ccexpr.getV4VendorClassOption() != null) {
+			DhcpV4VendorClassOption vcOption = (DhcpV4VendorClassOption) 
+			requestMsg.getDhcpOption(ccexpr.getV4VendorClassOption().getCode());
+			if (vcOption != null) {
+				if (!vcOption.matches(vcOption, ccexpr.getOperator())) {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			log.warn("Unsupported client class expression: " + ccexpr);
+		}
+		return true;
+    }
 }

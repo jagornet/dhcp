@@ -214,11 +214,15 @@ public class OpaqueDataUtil
         OpaqueDataOptionType opaqueOption = expression.getOpaqueDataOption();
         if (opaqueOption == null)
         	return false;
-        
-        OpaqueData expOpaque = opaqueOption.getOpaqueData();
-        if (expOpaque != null) {
-            Operator.Enum op = expression.getOperator();
-            String expAscii = expOpaque.getAsciiValue();
+
+        Operator.Enum op = expression.getOperator();
+        return matches(myOpaque, opaqueOption.getOpaqueData(), op);
+    }
+
+    public static boolean matches(OpaqueData myOpaque, OpaqueData that, Operator.Enum op)
+    {
+        if (that != null) {
+            String expAscii = that.getAsciiValue();
             String myAscii = myOpaque.getAsciiValue();
             if ( (expAscii != null) && (myAscii != null) ) {
                 if (op.equals(Operator.EQUALS)) {
@@ -242,7 +246,7 @@ public class OpaqueDataUtil
                 }
             }
             else if ( (expAscii == null) && (myAscii == null) ) {
-                byte[] expHex = expOpaque.getHexValue();
+                byte[] expHex = that.getHexValue();
                 byte[] myHex = myOpaque.getHexValue();
                 if ( (expHex != null) && (myHex != null) ) {
                     if (op.equals(Operator.EQUALS)) {

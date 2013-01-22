@@ -62,48 +62,79 @@
 
 	<filters>
 	  <!-- Global server level filters applied to all clients that match -->
-	  <filter>
+      <filter>
 		<name>DHCPv6 UserClass Filter</name>
 		<filterExpressions>
 			<filterExpression>
-				<optionExpression code="15" operator="equals">
-					<opaqueDataOption>
+				<clientClassExpression operator="equals">
+					<userClassOption>
 						<opaqueData>
 							<asciiValue>MyUserClass</asciiValue>
-						</opaqueData>
-					</opaqueDataOption>
-				</optionExpression>
-			</filterExpression>
-		</filterExpressions>
-		<msgConfigOptions>
-			<!-- Clients that match the filter will receive this DomainListOption
-				 instead of the one defined globally -->
-			<domainSearchListOption>
-				<domainName>filter.com.</domainName>
-			</domainSearchListOption>
-		</msgConfigOptions>
-	  </filter>
-	  <filter>
-		<name>DHCPv4 VendorClass Filter</name>
-		<filterExpressions>
-			<filterExpression>
-				<optionExpression v4="true" code="60" operator="startsWith">
-					<opaqueDataOption>
-						<opaqueData>
-							<asciiValue>MyVendorPrefix</asciiValue>
-						</opaqueData>
-					</opaqueDataOption>
-				</optionExpression>
-			</filterExpression>
-		</filterExpressions>
-		<v4ConfigOptions>
-			<!-- Clients that match the filter will receive these options -->
-			<v4VendorSpecificOption>
-				<opaqueData>
-					<hexValue>01020304</hexValue>
-				</opaqueData>
-			</v4VendorSpecificOption>
-		</v4ConfigOptions>
+          				</opaqueData>
+        			</userClassOption>
+      			</clientClassExpression>
+    		</filterExpression>
+  		</filterExpressions>
+  		<msgConfigOptions>
+    		<domainSearchListOption>
+      			<domainName>filter.com.</domainName>
+    		</domainSearchListOption>
+  		</msgConfigOptions>
+      </filter>
+      
+      <filter>
+  		<name>DHCPv6 VendorClass Filter</name>
+  		<filterExpressions>
+   			<filterExpression>
+      			<clientClassExpression operator="equals">
+        			<vendorClassOption>
+          				<opaqueData>
+            				<asciiValue>VendorXYZ</asciiValue>
+          				</opaqueData>
+          				<enterpriseNumber>12345</enterpriseNumber>
+        			</vendorClassOption>
+      			</clientClassExpression>
+    		</filterExpression>
+  		</filterExpressions>
+  		<msgConfigOptions>
+    		<vendorInfoOption>
+      			<enterpriseNumber>12345</enterpriseNumber>
+      			<suboptionList>
+        			<optionDef code="1">
+          				<stringOption>
+            				<string>hello</string>
+          				</stringOption>
+        			</optionDef>
+        			<optionDef code="2">
+          				<ipAddressOption>
+            				<ipAddress>2001:db8::1</ipAddress>
+          				</ipAddressOption>
+        			</optionDef>
+      			</suboptionList>
+    		</vendorInfoOption>
+  		</msgConfigOptions>
+      </filter>
+      
+      <filter>
+  		<name>DHCPv4 VendorClass Filter</name>
+  		<filterExpressions>
+    		<filterExpression>
+      			<clientClassExpression operator="startsWith">
+        			<v4VendorClassOption>
+          				<opaqueData>
+            				<asciiValue>MyVendorPrefix</asciiValue>
+          				</opaqueData>
+        			</v4VendorClassOption>
+      			</clientClassExpression>
+    		</filterExpression>
+  		</filterExpressions>
+  		<v4ConfigOptions>
+    		<v4VendorSpecificOption>
+      			<opaqueData>
+        			<hexValue>01020304</hexValue>
+      			</opaqueData>
+    		</v4VendorSpecificOption>
+  		</v4ConfigOptions>
 	  </filter>
 	</filters>
 	

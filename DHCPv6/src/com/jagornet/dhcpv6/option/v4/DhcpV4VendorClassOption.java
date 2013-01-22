@@ -25,7 +25,9 @@
  */
 package com.jagornet.dhcpv6.option.v4;
 
+import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.V4VendorClassOption;
 
 /**
@@ -70,4 +72,17 @@ public class DhcpV4VendorClassOption extends BaseOpaqueDataOption
     {
         return ((V4VendorClassOption)opaqueDataOption).getCode();
     }    
+
+    public boolean matches(DhcpV4VendorClassOption that, Operator.Enum op)
+    {
+        if (that == null)
+            return false;
+        if (that.getCode() != this.getCode())
+            return false;
+        if (that.getOpaqueDataOptionType() == null)
+        	return false;
+
+        return OpaqueDataUtil.matches(opaqueDataOption.getOpaqueData(), 
+        		that.getOpaqueDataOptionType().getOpaqueData(), op);
+    }
 }

@@ -470,9 +470,24 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:choice>
+			<xs:element name="clientClassExpression" type="clientClassExpression"/>
 			<xs:element name="optionExpression" type="optionExpression"/>
 			<xs:element name="customExpression" type="customExpression"/>
 		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="clientClassExpression">
+		<xs:annotation>
+			<xs:documentation>
+				A clientClassExpression is the combination of a user/vendor class option
+				that may be provided by a client and an operator for forming the match.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="userClassOption" type="userClassOption"/>
+			<xs:element name="vendorClassOption" type="vendorClassOption"/>
+			<xs:element name="v4VendorClassOption" type="v4VendorClassOption"/>
+		</xs:choice>
+		<xs:attribute name="operator" type="operator" default="equals"/>
 	</xs:complexType>
 	<xs:complexType name="optionExpression">
 		<xs:annotation>
