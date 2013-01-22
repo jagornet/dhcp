@@ -49,6 +49,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Util;
 
@@ -558,7 +560,9 @@ public class JdbcLeaseManager extends JdbcDaoSupport implements IaManager
 	@Override
 	public List<IaAddress> findUnusedIaAddresses(final InetAddress startAddr, final InetAddress endAddr)
 	{
-		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
+		long offerExpireMillis = 
+			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
+		final long offerExpiration = new Date().getTime() - offerExpireMillis;
         List<DhcpLease> leases = getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where ((state=" + IaAddress.ADVERTISED +

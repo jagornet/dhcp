@@ -62,6 +62,7 @@ public class DhcpServerPolicies
 		DHCP_PROCESSOR_RECENT_MESSAGE_TIMER("dhcp.processor.recentMessageTimer", "5000"),
 		BINDING_MANAGER_REAPER_STARTUP_DELAY("binding.manager.reaper.startupDelay", "10000"),
 		BINDING_MANAGER_REAPER_RUN_PERIOD("binding.manager.reaper.runPeriod", "60000"),
+		BINDING_MANAGER_OFFER_EXPIRATION("binding.manager.offerExpiration", "12000"),
 		BINDING_MANAGER_DELETE_OLD_BINDINGS("binding.manager.deleteOldBindings", "false"),
 		SEND_REQUESTED_OPTIONS_ONLY("sendRequestedOptionsOnly", "false"),
 		SUPPORT_RAPID_COMMIT("supportRapidCommit", "false"),
