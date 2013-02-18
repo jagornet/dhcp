@@ -82,12 +82,6 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     		return false;
     	}
     	
-    	byte chAddr[] = requestMsg.getChAddr();
-    	if (isIgnoredMac(chAddr)) {
-    		log.warn("Ignorning Discover message: " +
-    				"mac=" + Util.toHexString(chAddr));
-    	}
-    	
     	if (requestMsg.getDhcpV4ServerIdOption() != null) {
     		log.warn("Ignoring Discover message: " +
 					 "ServerId option is not null");
@@ -95,22 +89,6 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     	}
         
     	return true;
-    }
-    
-    protected boolean isIgnoredMac(byte[] chAddr)
-    {
-    	String ignoredMacPolicy = DhcpServerPolicies.globalPolicy(Property.V4_IGNORED_MACS);
-    	if (ignoredMacPolicy != null) {
-    		String[] ignoredMacs = ignoredMacPolicy.split(",");
-    		if (ignoredMacs != null) {
-    			for (String ignoredMac : ignoredMacs) {
-					if (ignoredMac.trim().equalsIgnoreCase(Util.toHexString(chAddr))) {
-						return true;
-					}
-				}
-    		}
-    	}
-    	return false;
     }
 
     /* (non-Javadoc)
@@ -144,18 +122,15 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
 				bindings.add(binding);
 			}
 			else {
-				// something went wrong, report NoAddrsAvail status for IA_NA
-// TAHI tests want this status at the message level
-//	    				addIaNaOptionStatusToReply(dhcpIaNaOption, 
-//	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
-//    			setReplyStatus(DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
 				log.error("Failed to create binding for Discover from: " +
 						Util.toHexString(chAddr));
+				sendReply = false;
 			}
 		}
 		else {
 			log.error("Unable to process V4 Discover:" +
 					" No V4AddrBindingManager available");
+			sendReply = false;
 		}
     	
     	if (sendReply) {
