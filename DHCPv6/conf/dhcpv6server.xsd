@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-		   xmlns="http://ietf.org/dhc/dhcpv6"
-		   targetNamespace="http://ietf.org/dhc/dhcpv6">
+		   xmlns="http://jagornet.com/dhcpv6/xml"
+		   targetNamespace="http://jagornet.com/dhcpv6/xml">
 		   
 	<!-- The top-level schema element for the DHCPv6 Server Configuration -->
 	<xs:element name="dhcpV6ServerConfig">
@@ -1050,7 +1050,7 @@
 
 	<xs:complexType name="v4DomainNameOption">
 		<xs:complexContent>
-			<xs:extension base="domainNameOptionType">
+			<xs:extension base="stringOptionType">
 				<xs:attribute name="code" type="v4Code" fixed="15"/>
 			</xs:extension>
 		</xs:complexContent>
@@ -1124,6 +1124,14 @@
 		<xs:complexContent>
 			<xs:extension base="opaqueDataOptionType">
 				<xs:attribute name="code" type="v4Code" fixed="60"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="v4ClientIdOption">
+		<xs:complexContent>
+			<xs:extension base="opaqueDataOptionType">
+				<xs:attribute name="code" type="v4Code" fixed="61"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
