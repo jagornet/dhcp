@@ -72,10 +72,12 @@ public class DhcpV4ChannelHandler extends SimpleChannelHandler
         if (message instanceof DhcpV4Message) {
             
             DhcpV4Message dhcpMessage = (DhcpV4Message) message;
-            if (log.isDebugEnabled())
+            if (log.isDebugEnabled()) {
             	log.debug("Received: " + dhcpMessage.toStringWithOptions());
-            else
+            }
+            else {
             	log.info("Received: " + dhcpMessage.toString());
+            }
             
             DhcpV4Message replyMessage = 
             	DhcpV4MessageHandler.handleMessage(dhcpMessage.getLocalAddress().getAddress(), 
@@ -100,7 +102,6 @@ public class DhcpV4ChannelHandler extends SimpleChannelHandler
             else {
                 log.warn("Null DHCP reply message returned from handler");
             }
-            
         }
         else {
             // Note: in theory, we can't get here, because the
