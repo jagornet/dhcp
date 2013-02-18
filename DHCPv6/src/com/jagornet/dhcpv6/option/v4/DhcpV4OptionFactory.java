@@ -36,6 +36,15 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  */
 public class DhcpV4OptionFactory
 {    
+	/**
+	 * "Prime" the XML Objects?
+	 */
+	public static void init() {
+		for (int i=1; i<81; i++) {
+			@SuppressWarnings("unused")
+			DhcpOption option = getDhcpOption(i);
+		}
+	}
     
     /**
      * Gets the DhcpOption for the given option code.
@@ -95,6 +104,9 @@ public class DhcpV4OptionFactory
             	break;
             case DhcpConstants.V4OPTION_VENDOR_CLASS:	// 60
                 option = new DhcpV4VendorClassOption();
+                break;
+            case DhcpConstants.V4OPTION_CLIENT_ID:		// 61
+                option = new DhcpV4ClientIdOption();
                 break;
 	        case DhcpConstants.V4OPTION_TFTP_SERVER_NAME:	// 66
 	        	option = new DhcpV4TftpServerNameOption();
