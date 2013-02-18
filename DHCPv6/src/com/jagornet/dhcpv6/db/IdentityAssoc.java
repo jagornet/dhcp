@@ -283,7 +283,7 @@ public class IdentityAssoc
 		sb.append("IA: duid=");
 		sb.append(Util.toHexString(_duid));
 		sb.append(" iatype=");
-		sb.append(_iaid);
+		sb.append(_iatype);
 		sb.append("(");
 		sb.append(iaTypeToString(_iatype));
 		sb.append(")");
