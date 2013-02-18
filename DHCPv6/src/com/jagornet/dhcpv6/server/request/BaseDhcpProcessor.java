@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.server.request;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -484,26 +485,29 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
      * @return true if processing should continue
      */
     public boolean preProcess()
-    {        
+    {
+    	InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
+    	InetSocketAddress remoteSocketAddr = requestMsg.getRemoteAddress();
+    	
         clientLink = dhcpServerConfig.findDhcpLink(
-        		(Inet6Address)requestMsg.getLocalAddress().getAddress(),
-        		(Inet6Address)requestMsg.getRemoteAddress().getAddress());
+        		(Inet6Address)localSocketAddr.getAddress(),
+        		(Inet6Address)remoteSocketAddr.getAddress());
         if (clientLink == null) {
         	log.error("No Link configured for DHCPv6 client request: " +
-        			" localAddress=" + requestMsg.getLocalAddress().getAddress().getHostAddress() +
-        			" remoteAddress=" + requestMsg.getRemoteAddress().getAddress().getHostAddress());
+        			" localAddress=" + localSocketAddr.getAddress().getHostAddress() +
+        			" remoteAddress=" + remoteSocketAddr.getAddress().getHostAddress());
         	return false;	// must configure link for server to reply
         }
 
-        synchronized (recentMsgs) {
-    		boolean isNew = recentMsgs.add(requestMsg);
-    		if (!isNew) {
-    			if (log.isDebugEnabled())
-    				log.debug("Dropping recent message");
-    			return false;	// don't process
-    		}
-    	}
-    	
+/* TODO: check if this DOS mitigation is useful
+ * 
+		boolean isNew = recentMsgs.add(requestMsg);
+		if (!isNew) {
+			if (log.isDebugEnabled())
+				log.debug("Dropping recent message");
+			return false;	// don't process
+		}
+
 		if (log.isDebugEnabled())
 			log.debug("Processing new message");
 		
@@ -512,6 +516,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		if (timer > 0) {
 			recentMsgPruner.schedule(new RecentMsgTimerTask(requestMsg), timer);
 		}
+*/    	
     	return true;	// ok to process
     }
     
@@ -532,12 +537,11 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		//TODO consider the implications of always removing the
 		//     recently processed message b/c we could just keep
 		//     getting blasted by an attempted DOS attack?
-    	synchronized (recentMsgs) {
-    		if (recentMsgs.remove(requestMsg)) {
-    			if (log.isDebugEnabled())
-    				log.debug("Removed recent message: " + requestMsg.toString());
-    		}
-    	}
+// Exactly!?... the comment above says it all
+//    		if (recentMsgs.remove(requestMsg)) {
+//    			if (log.isDebugEnabled())
+//    				log.debug("Removed recent message: " + requestMsg.toString());
+//    		}
     	return true;
     }
 	
@@ -1273,12 +1277,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	     */
 	    @Override
     	public void run() {
-    		synchronized (recentMsgs) {
-    			if (recentMsgs.remove(dhcpMsg)) {
-        			if (log.isDebugEnabled())
-        				log.debug("Pruned recent message: " + dhcpMsg.toString());
-    			}
-    		}
+			if (recentMsgs.remove(dhcpMsg)) {
+    			if (log.isDebugEnabled())
+    				log.debug("Pruned recent message: " + dhcpMsg.toString());
+			}
     	}
 
     } 
