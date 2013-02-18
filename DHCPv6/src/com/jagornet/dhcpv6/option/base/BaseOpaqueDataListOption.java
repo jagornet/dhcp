@@ -154,7 +154,7 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
         return matches(expression.getOpaqueDataListOption(), expression.getOperator());
     }
 
-	protected boolean matches(OpaqueDataListOptionType that, Operator.Enum op) 
+	public boolean matches(OpaqueDataListOptionType that, Operator.Enum op) 
 	{
 		if (opaqueDataListOption == null)
         	return false;
