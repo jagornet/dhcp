@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.server.request;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,6 +61,7 @@ import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.server.request.ddns.DhcpV4DdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.DomainNameOptionType;
 import com.jagornet.dhcpv6.xml.V4ClientFqdnOption;
 import com.jagornet.dhcpv6.xml.V4LeaseTimeOption;
@@ -236,25 +238,35 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
      */
     public boolean preProcess()
     {        
+    	InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
+    	InetSocketAddress remoteSocketAddr = requestMsg.getRemoteAddress();
+    	
+    	byte chAddr[] = requestMsg.getChAddr();
+    	if (isIgnoredMac(chAddr)) {
+    		log.warn("Ignorning request message from client: mac=" +
+    					Util.toHexString(chAddr));
+    		return false;
+    	}
+    	
         clientLink = dhcpServerConfig.findDhcpLink(
-        		(Inet4Address)requestMsg.getLocalAddress().getAddress(),
-        		(Inet4Address)requestMsg.getRemoteAddress().getAddress());
+        		(Inet4Address)localSocketAddr.getAddress(),
+        		(Inet4Address)remoteSocketAddr.getAddress());
         if (clientLink == null) {
         	log.error("No Link configured for DHCPv4 client request: " +
-        			" localAddress=" + requestMsg.getLocalAddress().getAddress().getHostAddress() +
-        			" remoteAddress=" + requestMsg.getRemoteAddress().getAddress().getHostAddress());
+        			" localAddress=" + localSocketAddr.getAddress().getHostAddress() +
+        			" remoteAddress=" + remoteSocketAddr.getAddress().getHostAddress());
         	return false;	// must configure link for server to reply
         }
 
-        synchronized (recentMsgs) {
-    		boolean isNew = recentMsgs.add(requestMsg);
-    		if (!isNew) {
-    			if (log.isDebugEnabled())
-    				log.debug("Dropping recent message");
-    			return false;	// don't process
-    		}
-    	}
-    	
+/* TODO: check if this DOS mitigation is useful
+ * 
+		boolean isNew = recentMsgs.add(requestMsg);
+		if (!isNew) {
+			if (log.isDebugEnabled())
+				log.debug("Dropping recent message");
+			return false;	// don't process
+		}
+
 		if (log.isDebugEnabled())
 			log.debug("Processing new message");
 		
@@ -263,6 +275,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		if (timer > 0) {
 			recentMsgPruner.schedule(new RecentMsgTimerTask(requestMsg), timer);
 		}
+*/    	
     	return true;	// ok to process
     }
     
@@ -283,12 +296,11 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		//TODO consider the implications of always removing the
 		//     recently processed message b/c we could just keep
 		//     getting blasted by an attempted DOS attack?
-    	synchronized (recentMsgs) {
-    		if (recentMsgs.remove(requestMsg)) {
-    			if (log.isDebugEnabled())
-    				log.debug("Removed recent message: " + requestMsg.toString());
-    		}
-    	}
+// Exactly!?... the comment above says it all
+//    		if (recentMsgs.remove(requestMsg)) {
+//    			if (log.isDebugEnabled())
+//    				log.debug("Removed recent message: " + requestMsg.toString());
+//    		}
     	return true;
     }
 
@@ -366,11 +378,12 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		if (clientFqdnOption != null) {
 			replyFqdnOption = 
 				new DhcpV4ClientFqdnOption((V4ClientFqdnOption) clientFqdnOption.getDomainNameOption());
-			replyFqdnOption.setUpdateAaaaBit(false);
+			replyFqdnOption.setUpdateABit(false);
 			replyFqdnOption.setOverrideBit(false);
 			replyFqdnOption.setNoUpdateBit(false);
-			replyFqdnOption.setRcode1((short)0xff);		// RFC 4702 says server must set to 255
-			replyFqdnOption.setRcode2((short)0xff);		// RFC 4702 says server must set to 255
+			replyFqdnOption.setEncodingBit(clientFqdnOption.getEncodingBit());
+			replyFqdnOption.setRcode1((short)0xff);		// RFC 4702 says server should set to 255
+			replyFqdnOption.setRcode2((short)0xff);		// RFC 4702 says server should set to 255
 			
 			DomainNameOptionType domainNameOption = clientFqdnOption.getDomainNameOption();
 			fqdn = domainNameOption.getDomainName();
@@ -403,14 +416,14 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				return;
 			}
 
-			if (!clientFqdnOption.getUpdateAaaaBit() && policy.equalsIgnoreCase("honorNoAAAA")) {
-				log.info("Client FQDN NoAAAA flag set.  Server configured to honor request." +
+			if (!clientFqdnOption.getUpdateABit() && policy.equalsIgnoreCase("honorNoA")) {
+				log.info("Client FQDN NoA flag set.  Server configured to honor request." +
 						"  No FORWARD DDNS updates performed.");
 				doForwardUpdate = false;
 			}
 			else {
-				replyFqdnOption.setUpdateAaaaBit(true);	// server will do update
-				if (!clientFqdnOption.getUpdateAaaaBit())
+				replyFqdnOption.setUpdateABit(true);	// server will do update
+				if (!clientFqdnOption.getUpdateABit())
 					replyFqdnOption.setOverrideBit(true);	// tell client that we overrode request flag
 			}
 		
@@ -451,7 +464,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			// server will do the A record update, so set the flag
 			// for the option stored in the database, so server will
 			// remove the A record when the lease expires
-			replyFqdnOption.setUpdateAaaaBit(true);
+			replyFqdnOption.setUpdateABit(true);
 		}
 
 		for (Binding binding : bindings) {
@@ -486,6 +499,22 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		
 		return onLink;
 	}
+    
+    protected boolean isIgnoredMac(byte[] chAddr)
+    {
+    	String ignoredMacPolicy = DhcpServerPolicies.globalPolicy(Property.V4_IGNORED_MACS);
+    	if (ignoredMacPolicy != null) {
+    		String[] ignoredMacs = ignoredMacPolicy.split(",");
+    		if (ignoredMacs != null) {
+    			for (String ignoredMac : ignoredMacs) {
+					if (ignoredMac.trim().equalsIgnoreCase(Util.toHexString(chAddr))) {
+						return true;
+					}
+				}
+    		}
+    	}
+    	return false;
+    }
 		
     /**
      * The Class RecentMsgTimerTask.
@@ -511,12 +540,10 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 	     */
 	    @Override
     	public void run() {
-    		synchronized (recentMsgs) {
-    			if (recentMsgs.remove(dhcpMsg)) {
-        			if (log.isDebugEnabled())
-        				log.debug("Pruned recent message: " + dhcpMsg.toString());
-    			}
-    		}
+			if (recentMsgs.remove(dhcpMsg)) {
+    			if (log.isDebugEnabled())
+    				log.debug("Pruned recent message: " + dhcpMsg.toString());
+			}
     	}
 
     } 
