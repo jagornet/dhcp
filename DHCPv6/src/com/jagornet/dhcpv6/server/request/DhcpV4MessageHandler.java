@@ -80,7 +80,7 @@ public class DhcpV4MessageHandler
 	    				processor = new DhcpV4ReleaseProcessor(dhcpMessage, linkAddress);
 	    				break;
 	    			case DhcpConstants.V4MESSAGE_TYPE_INFORM:
-//	    				processor = new DhcpV4InformProcessor(dhcpMessage, linkAddress);
+	    				processor = new DhcpV4InformProcessor(dhcpMessage, linkAddress);
 	    				break;
 	    	        default:
 	    	            log.error("Unknown message type.");

@@ -98,6 +98,7 @@ public class DhcpV4InformProcessor extends BaseDhcpV4Processor
 //    	   parameters appropriate to the client, based on the server
 //    	   configuration policies known to the server.
 
+    	replyMsg.setCiAddr(requestMsg.getCiAddr());		// copy the ciAddr from client
         replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_ACK);
     	populateV4Reply(clientLink, null);
 
