@@ -72,10 +72,14 @@ public class DbSchemaManager
 	 * 
 	 * @throws SQLException if there is a problem with the database
 	 * @throws IOExcpetion if there is a problem reading the schema file
+	 * 
+	 * returns true if database was created, false otherwise
 	 */
-	public static void validateSchema(DataSource dataSource, int schemaVersion) 
+	public static boolean validateSchema(DataSource dataSource, int schemaVersion) 
 						throws SQLException, IOException
 	{
+		boolean schemaCreated = false;
+		
         List<String> tableNames = new ArrayList<String>();
 
         Connection conn = dataSource.getConnection();
@@ -99,6 +103,7 @@ public class DbSchemaManager
         	createSchema(dataSource, schemaVersion);
             dbMetaData = conn.getMetaData();
             rs = dbMetaData.getTables(null, null, "%", types);
+            schemaCreated = true;
         }
         while (rs.next()){
           tableNames.add(rs.getString("TABLE_NAME"));
@@ -122,6 +127,8 @@ public class DbSchemaManager
 		else {
 			throw new IllegalStateException("Invalid database schema: wrong number of tables");
 		}
+		
+		return schemaCreated;
 	}
 	
 	/**
