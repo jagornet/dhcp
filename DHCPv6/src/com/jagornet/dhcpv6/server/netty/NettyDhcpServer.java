@@ -123,6 +123,14 @@ public class NettyDhcpServer
         	
         	if (addrs != null) {
 	        	for (InetAddress addr : addrs) {
+	        		if (addr.isLoopbackAddress()) {
+	        			log.debug("Skipping loopback address: " + addr);
+	        			continue;
+	        		}
+	        		if (addr.isLinkLocalAddress()) {
+	        			log.debug("Skipping link local address: " + addr);
+	        			continue;
+	        		}
 	        		// local address for packets received on this channel
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
@@ -133,21 +141,24 @@ public class NettyDhcpServer
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
 		            pipeline.addLast("handler", new DhcpChannelHandler());
 	        		
+		            String io = null;
 		            DatagramChannelFactory factory = null;
 		            if (Util.IS_WINDOWS) {
 		            	// Use OioDatagramChannels for IPv6 unicast addresses on Windows
 		            	factory = new OioDatagramChannelFactory(executorService);
+		            	io = "Old I/O";
 		            }
 		            else {
 		            	// Use NioDatagramChannels for IPv6 unicast addresses on real OSes
 		                factory = new NioDatagramChannelFactory(executorService);
+		                io = "New I/O";
 		            }
 	
 		            // create an unbound channel
 		            DatagramChannel channel = factory.newChannel(pipeline);
 		            channel.getConfig().setReuseAddress(true);
 		            
-		            log.info("Binding datagram channel on IPv6 socket address: " + sockAddr);
+		            log.info("Binding " + io + " datagram channel on IPv6 socket address: " + sockAddr);
 		            ChannelFuture future = channel.bind(sockAddr);
 		            future.await();
 		            if (!future.isSuccess()) {
@@ -186,7 +197,7 @@ public class NettyDhcpServer
 		            
 		            // must be bound in order to join multicast group
 		            SocketAddress wildAddr = new InetSocketAddress(port);
-		            log.info("Binding multicast channel on IPv6 wildcard address: " + wildAddr);
+		            log.info("Binding New I/O multicast channel on IPv6 wildcard address: " + wildAddr);
 		            ChannelFuture future = channel.bind(wildAddr);
 		            future.await();
 		            if (!future.isSuccess()) {
@@ -210,6 +221,14 @@ public class NettyDhcpServer
     		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
         	if (v4Addrs != null) {
 	        	for (InetAddress addr : v4Addrs) {
+	        		if (addr.isLoopbackAddress()) {
+	        			log.debug("Skipping loopback address: " + addr);
+	        			continue;
+	        		}
+	        		if (addr.isLinkLocalAddress()) {
+	        			log.debug("Skipping link local address: " + addr);
+	        			continue;
+	        		}
 	        		// local address for packets received on this channel
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
@@ -220,14 +239,17 @@ public class NettyDhcpServer
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
 		            pipeline.addLast("handler", new DhcpV4ChannelHandler(null));
 	        		
+		            String io = null;
 		            DatagramChannelFactory factory = null;
 		            if (Util.IS_WINDOWS) {
 		            	// Use OioDatagramChannels for IPv4 unicast addresses on Windows
 		            	factory = new OioDatagramChannelFactory(executorService);
+		            	io = "Old I/O";
 		            }
 		            else {
 		            	// Use NioDatagramChannels for IPv4 unicast addresses on real OSes
 		                factory = new NioDatagramChannelFactory(executorService);
+		                io = "New I/O";
 		            }
 	
 		            // create an unbound channel
@@ -236,7 +258,7 @@ public class NettyDhcpServer
 		            channel.getConfig().setBroadcast(true);
 		            v4UcastChannels.put(addr, channel);
 		            
-		            log.info("Binding datagram channel on IPv4 socket address: " + sockAddr);
+		            log.info("Binding " + io + " datagram channel on IPv4 socket address: " + sockAddr);
 		            ChannelFuture future = channel.bind(sockAddr);
 		            future.await();
 		            if (!future.isSuccess()) {
@@ -280,7 +302,7 @@ public class NettyDhcpServer
 			            channel.getConfig().setBroadcast(true);
 			            
 			            InetSocketAddress wildAddr = new InetSocketAddress(v4Port);
-			            log.info("Binding datagram channel on IPv4 wildcard address: " + wildAddr);
+			            log.info("Binding New I/O datagram channel on IPv4 wildcard address: " + wildAddr);
 			            ChannelFuture future = channel.bind(wildAddr);
 			            future.await();
 			            if (!future.isSuccess()) {
