@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcpv6.option.v4;
 
-import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
+import com.jagornet.dhcpv6.option.base.BaseStringOption;
 import com.jagornet.dhcpv6.xml.V4DomainNameOption;
 
 /**
@@ -34,7 +34,7 @@ import com.jagornet.dhcpv6.xml.V4DomainNameOption;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpV4DomainNameOption extends BaseDomainNameOption
+public class DhcpV4DomainNameOption extends BaseStringOption
 {
 	
 	/**
@@ -53,9 +53,9 @@ public class DhcpV4DomainNameOption extends BaseDomainNameOption
 	public DhcpV4DomainNameOption(V4DomainNameOption v4DomainNameOption)
 	{
 		if (v4DomainNameOption != null)
-			this.domainNameOption = v4DomainNameOption;
+			this.stringOption = v4DomainNameOption;
 		else
-			this.domainNameOption = V4DomainNameOption.Factory.newInstance();
+			this.stringOption = V4DomainNameOption.Factory.newInstance();
 		
 		super.setV4(true);
 	}
@@ -65,6 +65,6 @@ public class DhcpV4DomainNameOption extends BaseDomainNameOption
      */
     public int getCode()
     {
-        return ((V4DomainNameOption)domainNameOption).getCode();
+        return ((V4DomainNameOption)stringOption).getCode();
     }
 }
