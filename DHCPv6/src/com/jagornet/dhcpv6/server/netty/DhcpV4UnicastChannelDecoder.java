@@ -29,14 +29,20 @@ import java.net.InetSocketAddress;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV4Message;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
  * The Class DhcpUnicastChannelDecoder.
  */
 public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder 
 {
+	   
+    /** The log. */
+    private static Logger log = LoggerFactory.getLogger(DhcpV4UnicastChannelDecoder.class);
 	
 	/**
 	 * Instantiates a new dhcp unicast channel decoder.
@@ -54,6 +60,14 @@ public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
 	{
+    	if (remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR)) {
+        	// can't unicast to 0.0.0.0, so a broadcast channel is needed
+        	// this is a workaround for Windows implementation which will
+        	// see duplicate packets on the unicast and broadcast channels
+        	log.debug("Ignoring packet from 0.0.0.0 received on unicast channel");
+        	return null;
+    	}
+    	
 		Object obj = super.decode(ctx, channel, msg);
 		if (obj instanceof DhcpV4Message) {
 			// this decoder is in the pipeline for unicast
