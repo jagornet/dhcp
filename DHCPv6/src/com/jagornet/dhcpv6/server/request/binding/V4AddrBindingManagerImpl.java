@@ -493,7 +493,7 @@ public class V4AddrBindingManagerImpl
 										new DdnsUpdater(link.getLink(), configObj,
 												bindingAddr.getIpAddress(), fqdn, ia.getDuid(),
 												configObj.getValidLifetime(),
-												clientFqdnOption.getUpdateAaaaBit(), true,
+												clientFqdnOption.getUpdateABit(), true,
 												ddnsComplete);
 									
 									ddns.processUpdates();
