@@ -65,6 +65,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.jagornet.dhcpv6.Version;
 import com.jagornet.dhcpv6.db.DbSchemaManager;
 import com.jagornet.dhcpv6.db.IaManager;
+import com.jagornet.dhcpv6.option.DhcpOptionFactory;
+import com.jagornet.dhcpv6.option.v4.DhcpV4OptionFactory;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
@@ -157,6 +159,8 @@ public class DhcpV6Server
     {
     	log.info("Starting Jagornet DHCPv6 Server");
     	log.info(Version.getVersion());
+    	int cores = Runtime.getRuntime().availableProcessors();
+    	log.info("Number of available core processors: " + cores);
 
     	Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
@@ -164,6 +168,11 @@ public class DhcpV6Server
                   System.out.println("Stopping Jagornet DHCPv6 Server: " + new Date());
                 }
             });
+    	
+    	log.info("Initializing option factories...");
+    	DhcpOptionFactory.init();
+    	DhcpV4OptionFactory.init();
+    	log.info("Option factories initialized.");
     	
         DhcpServerConfiguration.configFilename = configFilename;
         serverConfig = DhcpServerConfiguration.getInstance();
@@ -194,7 +203,10 @@ public class DhcpV6Server
 			throw new IllegalStateException("Failed to initialize DataSource");
 		}
 		
-		DbSchemaManager.validateSchema(dataSource, schemaVersion);
+		boolean schemaCreated = DbSchemaManager.validateSchema(dataSource, schemaVersion);
+		if (schemaCreated) {
+			log.info("Database schema created.");
+		}
 		
 		log.info("Loading managers from context...");
 		
@@ -318,7 +330,6 @@ public class DhcpV6Server
         System.out.println(msg);
         log.info(msg);
 
-        
         
         // by default, all IPv4 addresses are selected for unicast
         if (v4UcastAddrs == null) {
@@ -681,32 +692,35 @@ public class DhcpV6Server
 		return ipAddrs;
 	}
 	
-	private List<InetAddress> getAllIPv6Addrs()
+	static List<InetAddress> allIPv6Addrs;
+	public static List<InetAddress> getAllIPv6Addrs()
 	{
-		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
-		try {
-	        Enumeration<NetworkInterface> localInterfaces =
-	        	NetworkInterface.getNetworkInterfaces();
-	        if (localInterfaces != null) {
-		        while (localInterfaces.hasMoreElements()) {
-		        	NetworkInterface netIf = localInterfaces.nextElement();
-	            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
-	            	while (ifAddrs.hasMoreElements()) {
-	            		InetAddress ip = ifAddrs.nextElement();
-	            		if (ip instanceof Inet6Address) {
-	            			ipAddrs.add(ip);
-	            		}
-	            	}
+		if (allIPv6Addrs == null) {
+			allIPv6Addrs = new ArrayList<InetAddress>();
+			try {
+		        Enumeration<NetworkInterface> localInterfaces =
+		        	NetworkInterface.getNetworkInterfaces();
+		        if (localInterfaces != null) {
+			        while (localInterfaces.hasMoreElements()) {
+			        	NetworkInterface netIf = localInterfaces.nextElement();
+		            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
+		            	while (ifAddrs.hasMoreElements()) {
+		            		InetAddress ip = ifAddrs.nextElement();
+		            		if (ip instanceof Inet6Address) {
+		            			allIPv6Addrs.add(ip);
+		            		}
+		            	}
+			        }
 		        }
-	        }
-	        else {
-	        	log.error("No network interfaces found!");
-	        }
+		        else {
+		        	log.error("No network interfaces found!");
+		        }
+			}
+			catch (IOException ex) {
+				log.error("Failed to get IPv6 addresses: " + ex);
+			}
 		}
-		catch (IOException ex) {
-			log.error("Failed to get IPv6 addresses: " + ex);
-		}
-        return ipAddrs;
+        return allIPv6Addrs;
 	}
 	
 	private NetworkInterface getIPv4NetIf(String ifname) throws SocketException 
@@ -774,32 +788,35 @@ public class DhcpV6Server
 		return ipAddrs;
 	}
 	
-	private List<InetAddress> getAllIPv4Addrs()
+	static List<InetAddress> allIPv4Addrs;
+	public static List<InetAddress> getAllIPv4Addrs()
 	{
-		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
-		try {
-	        Enumeration<NetworkInterface> localInterfaces =
-	        	NetworkInterface.getNetworkInterfaces();
-	        if (localInterfaces != null) {
-		        while (localInterfaces.hasMoreElements()) {
-		        	NetworkInterface netIf = localInterfaces.nextElement();
-	            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
-	            	while (ifAddrs.hasMoreElements()) {
-	            		InetAddress ip = ifAddrs.nextElement();
-	            		if (ip instanceof Inet4Address) {
-	            			ipAddrs.add(ip);
-	            		}
-	            	}
+		if (allIPv4Addrs == null) {
+			allIPv4Addrs = new ArrayList<InetAddress>();
+			try {
+		        Enumeration<NetworkInterface> localInterfaces =
+		        	NetworkInterface.getNetworkInterfaces();
+		        if (localInterfaces != null) {
+			        while (localInterfaces.hasMoreElements()) {
+			        	NetworkInterface netIf = localInterfaces.nextElement();
+		            	Enumeration<InetAddress> ifAddrs = netIf.getInetAddresses();
+		            	while (ifAddrs.hasMoreElements()) {
+		            		InetAddress ip = ifAddrs.nextElement();
+		            		if (ip instanceof Inet4Address) {
+		            			allIPv4Addrs.add(ip);
+		            		}
+		            	}
+			        }
 		        }
-	        }
-	        else {
-	        	log.error("No network interfaces found!");
-	        }
+		        else {
+		        	log.error("No network interfaces found!");
+		        }
+			}
+			catch (IOException ex) {
+				log.error("Failed to get IPv4 addresses: " + ex);
+			}
 		}
-		catch (IOException ex) {
-			log.error("Failed to get IPv4 addresses: " + ex);
-		}
-        return ipAddrs;
+        return allIPv4Addrs;
 	}
 	
     /**
