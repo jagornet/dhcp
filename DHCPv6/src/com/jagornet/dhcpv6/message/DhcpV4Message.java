@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,14 +39,14 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.option.DhcpOptionRequestOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4MsgTypeOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4OptionFactory;
+import com.jagornet.dhcpv6.option.v4.DhcpV4ParamRequestOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
+import com.jagornet.dhcpv6.xml.UnsignedByteListOptionType;
 
 /**
  * Title:        DhcpV4Message
@@ -507,12 +508,15 @@ public class DhcpV4Message implements DhcpMessageInterface
 	public List<Integer> getRequestedOptionCodes() {
 		if (requestedOptionCodes == null) {
 			if (dhcpOptions != null) {
-	        	DhcpOptionRequestOption oro = 
-	        		(DhcpOptionRequestOption) dhcpOptions.get(DhcpConstants.V4OPTION_PARAM_REQUEST_LIST);
-	        	if (oro != null) {
-	        		UnsignedShortListOptionType ushortListOption = oro.getUnsignedShortListOption();
-	        		if (ushortListOption != null) {
-	        			requestedOptionCodes = ushortListOption.getUnsignedShortList();
+	        	DhcpV4ParamRequestOption pro = 
+	        		(DhcpV4ParamRequestOption) dhcpOptions.get(DhcpConstants.V4OPTION_PARAM_REQUEST_LIST);
+	        	if (pro != null) {
+	        		UnsignedByteListOptionType ubyteListOption = pro.getUnsignedByteListOption();
+	        		if (ubyteListOption != null) {
+	        			requestedOptionCodes = new ArrayList<Integer>();
+	        			for (short ubyte : ubyteListOption.getUnsignedByteList()) {
+							requestedOptionCodes.add((int)ubyte);
+						}
 	        		}
 	        	}
 			}
