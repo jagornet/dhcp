@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV4Message;
+import com.jagornet.dhcpv6.server.DhcpV6Server;
 
 /**
  * Title: DhcpV4ChannelDecoder
@@ -71,9 +72,15 @@ public class DhcpV4ChannelDecoder extends OneToOneDecoder
      */
     @Override
     protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
-    {
+    {    	
+    	if (DhcpV6Server.getAllIPv4Addrs().contains(remoteSocketAddress.getAddress())) {
+    		log.debug("Ignoring packet from self: address=" + 
+    					remoteSocketAddress.getAddress());
+    		return null;
+    	}
+    	
         if (msg instanceof ChannelBuffer) {
-            ChannelBuffer buf = (ChannelBuffer) msg;
+        	ChannelBuffer buf = (ChannelBuffer) msg;
             DhcpV4Message dhcpMessage =  
             	DhcpV4Message.decode(buf.toByteBuffer(), localSocketAddress, remoteSocketAddress);
             return dhcpMessage;
