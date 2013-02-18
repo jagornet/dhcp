@@ -82,7 +82,14 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public int getLength()
     {
-        int len = 3 + super.getLength();  // size of flags (byte) + rcode1 (byte) + rcode2 (byte)
+        int len = 3;	// size of flags (byte) + rcode1 (byte) + rcode2 (byte)
+        if (getEncodingBit()) {
+        	len += super.getLength();
+        }
+        else if (domainNameOption.getDomainName() != null) {
+        	// ASCII encoding, just add length of domain name string
+        	len += domainNameOption.getDomainName().length();
+        }
         return len;
     }
     
@@ -98,7 +105,13 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
         buf.put((byte)clientFqdnOption.getRcode2());
         String domainName = clientFqdnOption.getDomainName();
         if (domainName != null) {
-            encodeDomainName(buf, domainName);
+        	if (getEncodingBit()) {
+        		encodeDomainName(buf, domainName);
+        	}
+        	else {
+        		// ASCII encoding, just append the domain name string
+        		buf.put(domainName.getBytes());
+        	}
         }
         return (ByteBuffer) buf.flip();
     }
@@ -116,7 +129,16 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
                 clientFqdnOption.setFlags(Util.getUnsignedByte(buf));
                 clientFqdnOption.setRcode1(Util.getUnsignedByte(buf));
                 clientFqdnOption.setRcode2(Util.getUnsignedByte(buf));
-                String domain = decodeDomainName(buf, eof);
+                String domain = null;
+                if (getEncodingBit()) {
+                	domain = decodeDomainName(buf, eof);
+                }
+                else {
+                	// ASCII encoding (deprecated, but used by Microsoft)
+                	byte[] b = new byte[len-3];
+                	buf.get(b);
+                	domain = new String(b);
+                }
                 clientFqdnOption.setDomainName(domain);
             }
     	}
@@ -135,7 +157,7 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      * 
      * @return the update aaaa bit
      */
-    public boolean getUpdateAaaaBit()
+    public boolean getUpdateABit()
     {
     	short sbit = (short) (((V4ClientFqdnOption)domainNameOption).getFlags() & 0x01);
     	return (sbit > 0);
@@ -146,7 +168,7 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      * 
      * @param bit the bit
      */
-    public void setUpdateAaaaBit(boolean bit)
+    public void setUpdateABit(boolean bit)
     {
     	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
     	if (bit)
@@ -227,7 +249,7 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
     	if (bit) {
     		me.setFlags((short) (me.getFlags() | 0x08));	// 1000
     		// If the "N" bit is 1, the "S" bit MUST be 0.
-    		setUpdateAaaaBit(false);
+    		setUpdateABit(false);
     	}
     	else {
     		me.setFlags((short) (me.getFlags() & 0x07));	// 0111

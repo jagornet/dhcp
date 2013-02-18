@@ -143,7 +143,8 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
             byte[] b = new byte[l];
             buf.get(b);      // get next label
             domain.append(new String(b));
-            domain.append('.');     // build the FQDN by appending labels
+            if (buf.position() < eof)
+            	domain.append('.');     // build the FQDN by appending labels
         }
         return domain.toString();
     }
@@ -171,13 +172,17 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
     public static int getDomainNameLength(String domainName)
     {
         int len = 0;
-        String[] labels = domainName.split("\\.");
-        if (labels != null) {
-            for (String label : labels) {
-                // each label consists of a length byte and opaqueData
-                len += 1 + label.length();
-            }
-            len += 1;   // one extra byte for the zero length terminator
+        if (domainName != null) {
+        	len = domainName.length();
+	        String[] labels = domainName.split("\\.");
+	        if (labels != null) {
+	        	len = 0;
+	            for (String label : labels) {
+	                // each label consists of a length byte and opaqueData
+	                len += 1 + label.length();
+	            }
+	            len += 1;   // one extra byte for the zero length terminator
+	        }
         }
         return len;
     }
