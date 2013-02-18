@@ -185,11 +185,13 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
 					else {
 						log.error("Failed to update binding for client: " + 
 								Util.toHexString(chAddr));
+						sendReply = false;
 					}
 				}
 				else {
 					log.error("No Binding available for client: " + 
 							Util.toHexString(chAddr));
+					sendReply = false;
 				}
 //			}
 		}
