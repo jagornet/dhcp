@@ -1821,9 +1821,9 @@ public class DhcpServerConfiguration
     {
 		if (ccexpr.getUserClassOption() != null) {
 			DhcpUserClassOption ucOption = (DhcpUserClassOption) 
-				requestMsg.getDhcpOption(ccexpr.getUserClassOption().getCode());
+					requestMsg.getDhcpOption(ccexpr.getUserClassOption().getCode());
 			if (ucOption != null) {
-				if (!ucOption.matches(ucOption, ccexpr.getOperator())) {
+				if (!ucOption.matches(ccexpr.getUserClassOption(), ccexpr.getOperator())) {
 					return false;
 				}
 			}
@@ -1833,9 +1833,9 @@ public class DhcpServerConfiguration
 		}
 		else if (ccexpr.getVendorClassOption() != null) {
 			DhcpVendorClassOption vcOption = (DhcpVendorClassOption) 
-			requestMsg.getDhcpOption(ccexpr.getVendorClassOption().getCode());
+					requestMsg.getDhcpOption(ccexpr.getVendorClassOption().getCode());
 			if (vcOption != null) {
-				if (!vcOption.matches(vcOption, ccexpr.getOperator())) {
+				if (!vcOption.matches(ccexpr.getVendorClassOption(), ccexpr.getOperator())) {
 					return false;
 				}
 			}
@@ -1845,9 +1845,9 @@ public class DhcpServerConfiguration
 		}
 		else if (ccexpr.getV4VendorClassOption() != null) {
 			DhcpV4VendorClassOption vcOption = (DhcpV4VendorClassOption) 
-			requestMsg.getDhcpOption(ccexpr.getV4VendorClassOption().getCode());
+					requestMsg.getDhcpOption(ccexpr.getV4VendorClassOption().getCode());
 			if (vcOption != null) {
-				if (!vcOption.matches(vcOption, ccexpr.getOperator())) {
+				if (!vcOption.matches(ccexpr.getV4VendorClassOption(), ccexpr.getOperator())) {
 					return false;
 				}
 			}
