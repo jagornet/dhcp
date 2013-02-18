@@ -35,6 +35,15 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  */
 public class DhcpOptionFactory
 {    
+	/**
+	 * "Prime" the XML Objects?
+	 */
+	public static void init() {
+		for (int i=1; i<51; i++) {
+			@SuppressWarnings("unused")
+			DhcpOption option = getDhcpOption(i);
+		}
+	}
     
     /**
      * Gets the DhcpOption for the given option code.
