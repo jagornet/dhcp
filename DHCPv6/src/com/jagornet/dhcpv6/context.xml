@@ -11,10 +11,9 @@
 			<value>classpath:jdbc.properties</value>
     	</property>
   	</bean>
-
-  	<bean id="dataSource" 
-  		  class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName">    
+  	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" >
+		<property name="driverClassName">
 			<value>${jdbc.driver}</value>
 		</property>
 		<property name="url">
@@ -26,8 +25,11 @@
 		<property name="password">
 			<value>${jdbc.password}</value>
 		</property>
-  	</bean>
-
+		<property name="removeAbandoned" value="true"/>
+		<property name="initialSize" value="10" />
+		<property name="maxActive" value="20" />
+	</bean>
+ 
 	<bean id="naAddrBindingManager" 
   		  class="com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerImpl"
   		  autowire="byType"/>
