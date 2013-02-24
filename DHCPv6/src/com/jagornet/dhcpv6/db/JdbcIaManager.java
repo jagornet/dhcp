@@ -41,6 +41,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.binding.Range;
 import com.jagornet.dhcpv6.util.Util;
 
@@ -58,6 +60,12 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	protected IaAddressDAO iaAddrDao;
 	protected IaPrefixDAO iaPrefixDao;
 	protected DhcpOptionDAO dhcpOptDao;
+	
+	// Spring bean init-method
+	public void init() throws Exception {
+		DbSchemaManager.validateSchema(getDataSource(),
+				DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_FILENAME), 1);;
+	}
 
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#createIA(com.jagornet.dhcpv6.db.IdentityAssoc)

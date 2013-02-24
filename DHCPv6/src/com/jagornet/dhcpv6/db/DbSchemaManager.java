@@ -41,8 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.jagornet.dhcpv6.util.DhcpConstants;
-
 /**
  * The Class DbSchemaManager.
  * 
@@ -52,16 +50,13 @@ public class DbSchemaManager
 {    
     private static Logger log = LoggerFactory.getLogger(DbSchemaManager.class);
 
-    public static String SCHEMA_FILENAME = DhcpConstants.DHCPV6_HOME != null ? 
-        	(DhcpConstants.DHCPV6_HOME + "/db/jagornet-dhcpv6-schema.sql") : 
-        		"db/jagornet-dhcpv6-schema.sql";
+    public static String SCHEMA_FILENAME = "db/jagornet-dhcpv6-schema.sql";
+	public static String SCHEMA_DERBY_FILENAME = "db/jagornet-dhcpv6-schema-derby.sql";
 	
 	public static String[] TABLE_NAMES = { "DHCPOPTION", "IAADDRESS", "IAPREFIX", "IDENTITYASSOC" };
 
-	
-    public static String SCHEMA_FILENAME_V2 = DhcpConstants.DHCPV6_HOME != null ? 
-        	(DhcpConstants.DHCPV6_HOME + "/db/jagornet-dhcpv6-schema-v2.sql") : 
-        		"db/jagornet-dhcpv6-schema-v2.sql";
+	public static String SCHEMA_V2_FILENAME = "db/jagornet-dhcpv6-schema-v2.sql";
+	public static String SCHEMA_DERBY_V2_FILENAME = "db/jagornet-dhcpv6-schema-derby-v2.sql";
 
     public static String[] TABLE_NAMES_V2 = { "DHCPLEASE" };
 	
@@ -75,7 +70,7 @@ public class DbSchemaManager
 	 * 
 	 * returns true if database was created, false otherwise
 	 */
-	public static boolean validateSchema(DataSource dataSource, int schemaVersion) 
+	public static boolean validateSchema(DataSource dataSource, String schemaFilename, int schemaVersion) 
 						throws SQLException, IOException
 	{
 		boolean schemaCreated = false;
@@ -100,7 +95,7 @@ public class DbSchemaManager
             tableNames.add(rs.getString("TABLE_NAME"));
         }
         else {
-        	createSchema(dataSource, schemaVersion);
+        	createSchema(dataSource, schemaFilename);
             dbMetaData = conn.getMetaData();
             rs = dbMetaData.getTables(null, null, "%", types);
             schemaCreated = true;
@@ -131,41 +126,23 @@ public class DbSchemaManager
 		return schemaCreated;
 	}
 	
-	/**
-	 * Creates the schema.
-	 * 
-	 * @param dataSource the data source
-	 * 
-	 * @throws SQLException if there is a problem with the database
-	 * @throws IOExcpetion if there is a problem reading the schema file
-	 */
-	public static void createSchema(DataSource dataSource, int schemaVersion) 
-						throws SQLException, IOException
-	{
-		String schemaFilename;
-		if (schemaVersion <= 1) {
-			schemaFilename = SCHEMA_FILENAME;
-		}
-		else {
-			schemaFilename = SCHEMA_FILENAME_V2;
-		}
-		
+	public static List<String> getSchemaDDL(String schemaFilename) throws IOException {
+		List<String> schema = new ArrayList<String>();
 		FileReader fr = null;
 		BufferedReader br = null;
 		try {
-	    	JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-	    	StringBuilder schema = new StringBuilder();
+	    	StringBuilder ddl = new StringBuilder();
 	    	fr = new FileReader(schemaFilename);
 	    	br = new BufferedReader(fr);
 	    	String line = br.readLine();
 	    	while (line != null) {
 	    		if (!line.startsWith("-- ")) {
-	    			schema.append(line);
+	    			ddl.append(line);
 	    		}
-	    		if (schema.toString().endsWith(";")) {
-	    			schema.setLength(schema.length()-1);
-		        	jdbc.execute(schema.toString());
-		        	schema.setLength(0);
+	    		if (ddl.toString().endsWith(";")) {
+	    			ddl.setLength(ddl.length()-1);
+	    			schema.add(ddl.toString());
+		        	ddl.setLength(0);
 	    		}
 	    		line = br.readLine();
 	    	}
@@ -177,6 +154,26 @@ public class DbSchemaManager
 			if (fr != null) {
 				fr.close();
 			}
+		}
+		return schema;
+	}
+	
+	/**
+	 * Creates the schema.
+	 * 
+	 * @param dataSource the data source
+	 * 
+	 * @throws SQLException if there is a problem with the database
+	 * @throws IOExcpetion if there is a problem reading the schema file
+	 */
+	public static void createSchema(DataSource dataSource, String schemaFilename) 
+						throws SQLException, IOException
+	{
+		log.info("Creating new JDBC schema from file: " + schemaFilename);
+	    JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+	    List<String> schemaDDL = getSchemaDDL(schemaFilename);
+	    for (String ddl : schemaDDL) {
+			jdbc.execute(ddl);
 		}
 	}
 }

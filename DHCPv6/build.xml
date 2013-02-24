@@ -101,7 +101,7 @@
 
   		<mkdir dir="${dist}/lib"/>
 	    <copy todir="${dist}/lib">
-	    	<fileset dir="${lib}" includes="*.jar"/>
+	    	<fileset dir="${lib}" includes="*.jar,*.so,*.dll,*.jnilib"/>
 	    </copy>
 	    
   		<mkdir dir="${dist}/docs"/>
@@ -126,7 +126,7 @@
   		
 	    <mkdir dir="${dist}/db"/>    
 	    <copy todir="${dist}/db">
-	    	<fileset dir="${db}" excludes="derby/**,h2/**"/>
+	    	<fileset dir="${db}" excludes="derby/**,h2/**,sqlite/**"/>
 	    </copy>
 	    
 	    <mkdir dir="${dist}/log"/>
@@ -137,6 +137,7 @@
 		  	</tarfileset>
 		  	<tarfileset dir="${dist}" prefix="${product}">
 			    <include name="**/*"/>
+			    <exclude name="lib/*.dll"/>
 			    <exclude name="bin/**/*"/>
 			    <exclude name="*.tar"/>
 			    <exclude name="*.gz"/>
@@ -149,6 +150,8 @@
 		<zip destfile="${dist}/${product}.zip">
 			<zipfileset dir="${dist}" prefix="${product}">
 			    <include name="**/*"/>
+				<exclude name="lib/*.so"/>
+				<exclude name="lib/*.jnilib"/>
 				<exclude name="bin/dhcpv6"/>
 				<exclude name="*.tar"/>
 			    <exclude name="*.gz"/>

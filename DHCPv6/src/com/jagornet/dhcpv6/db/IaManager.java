@@ -52,6 +52,11 @@ import com.jagornet.dhcpv6.server.request.binding.Range;
 public interface IaManager
 {
 	/**
+	 * Initialize the IaManager.
+	 */
+	public void init() throws Exception;
+	
+	/**
 	 * Create an IdentityAssoc object, including any contained
 	 * IaAddresses, IaPrefixes and DhcpOptions, as well as any DhcpOptions
 	 * contained in the IaAddresses or IaPrefixes themselves.

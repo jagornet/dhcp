@@ -40,7 +40,7 @@
 		</property>
     
 		<property name="target">
-			<bean class="com.jagornet.dhcpv6.db.JdbcIaManager">
+			<bean class="com.jagornet.dhcpv6.db.JdbcIaManager" singleton="true" init-method="init">
 				<property name="dataSource">
 					<ref bean="dataSource"/>
 				</property>

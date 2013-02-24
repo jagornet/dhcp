@@ -43,7 +43,6 @@ import java.util.List;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.sql.DataSource;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -63,7 +62,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jagornet.dhcpv6.Version;
-import com.jagornet.dhcpv6.db.DbSchemaManager;
 import com.jagornet.dhcpv6.db.IaManager;
 import com.jagornet.dhcpv6.option.DhcpOptionFactory;
 import com.jagornet.dhcpv6.option.v4.DhcpV4OptionFactory;
@@ -105,8 +103,9 @@ public class DhcpV6Server
 
     /** The application context filename. */
     public static String APP_CONTEXT_FILENAME = "com/jagornet/dhcpv6/context.xml";
-    public static String APP_CONTEXT_V1SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_v1schema.xml";
-    public static String APP_CONTEXT_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_v2schema.xml";    
+    public static String APP_CONTEXT_JDBC_V1SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_jdbc_v1schema.xml";
+    public static String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_jdbc_v2schema.xml";    
+    public static String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_sqlite_v2schema.xml";    
     
     /** The server port number. */
     protected int portNumber = DhcpConstants.SERVER_PORT;
@@ -181,15 +180,28 @@ public class DhcpV6Server
         			configFilename);
         }
 
-		int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DHCP_DATABASE_SCHEMA_VERSION);
-
         String appContext[] = null;
-        if (schemaVersion <= 1) {
-        	appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_V1SCHEMA_FILENAME };
+
+        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
+        if (schemaType.equalsIgnoreCase("jdbc")) {
+        	int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DATABASE_SCHEMA_VERSION);
+        	if (schemaVersion == 1) {
+        		appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_JDBC_V1SCHEMA_FILENAME };
+        	}
+        	else if (schemaVersion == 2) {
+        		appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_JDBC_V2SCHEMA_FILENAME };
+        	}
+        	else {
+        		throw new IllegalStateException("Unsupported schema version: " + schemaVersion);
+        	}
+        }
+        else if (schemaType.equalsIgnoreCase("sqlite")) {
+        	appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME };
         }
         else {
-        	appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_V2SCHEMA_FILENAME };
+        	throw new DhcpServerConfigException("Unsupported schema type: " + schemaType);
         }
+        
         log.info("Loading application context: " + Arrays.toString(appContext));
 		context = new ClassPathXmlApplicationContext(appContext);
 		if (context == null) {
@@ -197,16 +209,6 @@ public class DhcpV6Server
         			appContext);
 		}
 		log.info("Application context loaded.");
-		
-		DataSource dataSource = (DataSource) context.getBean("dataSource");
-		if (dataSource == null) {
-			throw new IllegalStateException("Failed to initialize DataSource");
-		}
-		
-		boolean schemaCreated = DbSchemaManager.validateSchema(dataSource, schemaVersion);
-		if (schemaCreated) {
-			log.info("Database schema created.");
-		}
 		
 		log.info("Loading managers from context...");
 		
@@ -274,19 +276,12 @@ public class DhcpV6Server
 			log.warn("No V4 Address Binding Manager available");
 		}
         
-		IaManager iaMgr;
-		if (schemaVersion <= 1) {
-			iaMgr = (IaManager) context.getBean("iaManager");
-		}
-		else {
-			iaMgr = (IaManager) context.getBean("leaseManager");
-		}
-		
-		if (iaMgr == null) {
-			log.warn("No IA Manager available");
-		}
-		else {
+		IaManager iaMgr = (IaManager) context.getBean("iaManager");		
+		if (iaMgr != null) {
 			serverConfig.setIaMgr(iaMgr);
+		}
+		else {
+			log.warn("No IA Manager available");
 		}
 		
 		log.info("Managers loaded.");

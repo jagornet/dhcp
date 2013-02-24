@@ -45,6 +45,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.xml.sax.InputSource;
 
+import com.jagornet.dhcpv6.server.DhcpV6Server;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
@@ -61,9 +62,9 @@ public class BaseDbTestCase extends DBTestCase
 	public static String configFilename = "test/dhcpv6server-sample.xml";
 	
 	/** The context filename. */
-	public static String contextFilename = "com/jagornet/dhcpv6/context.xml";
-	public static String contextV1Filename = "com/jagornet/dhcpv6/context_v1schema.xml";
-	public static String contextV2Filename = "com/jagornet/dhcpv6/context_v2schema.xml";
+	public static String contextFilename = DhcpV6Server.APP_CONTEXT_FILENAME;
+	public static String contextV1Filename = DhcpV6Server.APP_CONTEXT_JDBC_V1SCHEMA_FILENAME;
+	public static String contextV2Filename = DhcpV6Server.APP_CONTEXT_JDBC_V2SCHEMA_FILENAME;
 	
 	/** The init data set. */
 //	public static File initDataSet = new File("test/dbunit-jagornet-dhcpv6-v2-empty.xml");
@@ -106,7 +107,14 @@ public class BaseDbTestCase extends DBTestCase
 	@Override
 	protected void setUp() throws Exception {
 		if (!schemaValidated) {
-			DbSchemaManager.validateSchema((DataSource) ctx.getBean("dataSource"), schemaVersion);
+			if (schemaVersion == 1) { 
+				DbSchemaManager.validateSchema((DataSource) ctx.getBean("dataSource"), 
+						DbSchemaManager.SCHEMA_DERBY_FILENAME, schemaVersion);
+			}
+			else {
+				DbSchemaManager.validateSchema((DataSource) ctx.getBean("dataSource"), 
+						DbSchemaManager.SCHEMA_DERBY_V2_FILENAME, schemaVersion);
+			}
 			schemaValidated = true;
 		}
 		super.setUp();
