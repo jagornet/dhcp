@@ -57,6 +57,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
+import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
@@ -121,13 +123,17 @@ public class NettyDhcpServer
         try {
         	InternalLoggerFactory.setDefaultFactory(new Log4JLoggerFactory());
         	
+        	boolean ignoreLoopback = DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
+        	boolean ignoreLinkLocal = DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
+        	boolean ignoreSelfPackets = DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_SELF_PACKETS);
+        	
         	if (addrs != null) {
 	        	for (InetAddress addr : addrs) {
-	        		if (addr.isLoopbackAddress()) {
+	        		if (ignoreLoopback && addr.isLoopbackAddress()) {
 	        			log.debug("Skipping loopback address: " + addr);
 	        			continue;
 	        		}
-	        		if (addr.isLinkLocalAddress()) {
+	        		if (ignoreLinkLocal && addr.isLinkLocalAddress()) {
 	        			log.debug("Skipping link local address: " + addr);
 	        			continue;
 	        		}
@@ -135,7 +141,7 @@ public class NettyDhcpServer
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
-		            pipeline.addLast("decoder", new DhcpUnicastChannelDecoder(sockAddr));
+		            pipeline.addLast("decoder", new DhcpUnicastChannelDecoder(sockAddr, ignoreSelfPackets));
 		            pipeline.addLast("encoder", new DhcpChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
@@ -182,7 +188,7 @@ public class NettyDhcpServer
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
 		            ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
-		            pipeline.addLast("decoder", new DhcpChannelDecoder(sockAddr));
+		            pipeline.addLast("decoder", new DhcpChannelDecoder(sockAddr, ignoreSelfPackets));
 		            pipeline.addLast("encoder", new DhcpChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
@@ -221,11 +227,11 @@ public class NettyDhcpServer
     		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
         	if (v4Addrs != null) {
 	        	for (InetAddress addr : v4Addrs) {
-	        		if (addr.isLoopbackAddress()) {
+	        		if (ignoreLoopback && addr.isLoopbackAddress()) {
 	        			log.debug("Skipping loopback address: " + addr);
 	        			continue;
 	        		}
-	        		if (addr.isLinkLocalAddress()) {
+	        		if (ignoreLinkLocal && addr.isLinkLocalAddress()) {
 	        			log.debug("Skipping link local address: " + addr);
 	        			continue;
 	        		}
@@ -233,7 +239,7 @@ public class NettyDhcpServer
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
-		            pipeline.addLast("decoder", new DhcpV4UnicastChannelDecoder(sockAddr));
+		            pipeline.addLast("decoder", new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets));
 		            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
 		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
@@ -288,7 +294,7 @@ public class NettyDhcpServer
 			            InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
         				ChannelPipeline pipeline = Channels.pipeline();
 			            pipeline.addLast("logger", new LoggingHandler());
-			            pipeline.addLast("decoder", new DhcpV4ChannelDecoder(sockAddr));
+			            pipeline.addLast("decoder", new DhcpV4ChannelDecoder(sockAddr, ignoreSelfPackets));
 			            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
 			            pipeline.addLast("executor", new ExecutionHandler(
 			            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));

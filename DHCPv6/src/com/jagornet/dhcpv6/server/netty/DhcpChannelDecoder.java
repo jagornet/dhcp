@@ -58,9 +58,12 @@ public class DhcpChannelDecoder extends OneToOneDecoder
     /** The remote socket address. */
     protected InetSocketAddress remoteSocketAddress = null;
     
-    public DhcpChannelDecoder(InetSocketAddress localSocketAddress)
+    protected boolean ignoreSelfPackets;
+    
+    public DhcpChannelDecoder(InetSocketAddress localSocketAddress, boolean ignoreSelfPackets)
     {
     	this.localSocketAddress = localSocketAddress;
+    	this.ignoreSelfPackets = ignoreSelfPackets;
     }
     
     /*
@@ -71,12 +74,13 @@ public class DhcpChannelDecoder extends OneToOneDecoder
     @Override
     protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
     {
-    	if (DhcpV6Server.getAllIPv6Addrs().contains(remoteSocketAddress.getAddress())) {
-    		log.debug("Ignoring packet from self: address=" + 
-    					remoteSocketAddress.getAddress());
-    		return null;
+    	if (ignoreSelfPackets) {
+	    	if (DhcpV6Server.getAllIPv6Addrs().contains(remoteSocketAddress.getAddress())) {
+	    		log.debug("Ignoring packet from self: address=" + 
+	    					remoteSocketAddress.getAddress());
+	    		return null;
+	    	}
     	}
-
     	if (msg instanceof ChannelBuffer) {
             ChannelBuffer buf = (ChannelBuffer) msg;
             DhcpMessage dhcpMessage = 

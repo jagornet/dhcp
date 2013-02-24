@@ -49,9 +49,9 @@ public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder
 	 *
 	 * @param localSocketAddress the local socket address
 	 */
-	public DhcpV4UnicastChannelDecoder(InetSocketAddress localSocketAddress)
+	public DhcpV4UnicastChannelDecoder(InetSocketAddress localSocketAddress, boolean ignoreSelfPackets)
 	{
-		super(localSocketAddress);
+		super(localSocketAddress, ignoreSelfPackets);
 	}
 
 	/* (non-Javadoc)

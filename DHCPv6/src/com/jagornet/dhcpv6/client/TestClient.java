@@ -273,7 +273,7 @@ public class TestClient extends SimpleChannelUpstreamHandler
 		ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("logger", new LoggingHandler());
         pipeline.addLast("encoder", new DhcpChannelEncoder());
-        pipeline.addLast("decoder", new DhcpChannelDecoder(client));
+        pipeline.addLast("decoder", new DhcpChannelDecoder(client, false));
         pipeline.addLast("handler", this);
     	
     	if (mcastNetIf != null) {

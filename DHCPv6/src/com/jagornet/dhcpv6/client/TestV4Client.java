@@ -268,7 +268,7 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
 		ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("logger", new LoggingHandler());
         pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
-        pipeline.addLast("decoder", new DhcpV4ChannelDecoder(client));
+        pipeline.addLast("decoder", new DhcpV4ChannelDecoder(client, false));
         pipeline.addLast("handler", this);
     	
         channel = factory.newChannel(pipeline);
