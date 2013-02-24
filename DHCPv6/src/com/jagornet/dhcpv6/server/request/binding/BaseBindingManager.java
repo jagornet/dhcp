@@ -301,7 +301,8 @@ public abstract class BaseBindingManager
 			IdentityAssoc ia = iaMgr.findIA(duid, iatype, iaid);
 			if (ia != null) {
 				log.info("Found current binding for " + 
-						IdentityAssoc.keyToString(duid, iatype, iaid));
+						IdentityAssoc.keyToString(duid, iatype, iaid) +
+						" state=" + ia.getState());
 				binding = buildBindingFromIa(ia, clientLink, requestMsg);
 				if (binding != null) {
 					log.info("Successfully built Binding object: " + binding);
@@ -367,15 +368,19 @@ public abstract class BaseBindingManager
 	protected Binding createBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, byte state)
 	{
-		Binding binding = null;		
+		Binding binding = null;
+		log.debug("Getting addresses for new binding");
 		List<InetAddress> inetAddrs = 
 			getInetAddrs(clientLink, duid, iatype, iaid, requestAddrs, requestMsg);
 		if ((inetAddrs != null) && !inetAddrs.isEmpty()) {
+			log.debug("Got " + inetAddrs.size() + " addresses, building binding");
 			binding = buildBinding(clientLink, duid, iatype, iaid, state);
+			log.debug("Building binding objects");
 			Set<BindingObject> bindingObjs = 
 				buildBindingObjects(clientLink, inetAddrs, requestMsg, state);
 			if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 				binding.setBindingObjects(bindingObjs);
+				log.info("Creating new binding");
 				try {
 					iaMgr.createIA(binding);
 				}
@@ -483,7 +488,7 @@ public abstract class BaseBindingManager
 		Collection<? extends IaAddress> updateIaAddresses = null;
 		Collection<? extends IaAddress> delIaAddresses = null;	// not used currently
 		
-		log.info("Updating dynamic binding: " + binding);
+//		log.info("Updating dynamic binding: " + binding);
 		
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
@@ -508,7 +513,9 @@ public abstract class BaseBindingManager
 		}
 		binding.setState(state);
 		try {
+			log.info("Updating binding");
 			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses);
+			log.info("Binding updated: " + binding.toString());
 			return binding;	// if we get here, it worked
 		}
 		catch (Exception ex) {

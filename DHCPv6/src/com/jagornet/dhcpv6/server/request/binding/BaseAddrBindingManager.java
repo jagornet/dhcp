@@ -93,6 +93,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 	public void releaseIaAddress(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		try {
+			log.info("Releasing address: " + iaAddr.getIpAddress().getHostAddress());
 			ddnsDelete(ia, iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
@@ -108,6 +109,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 				iaAddr.setValidEndTime(null);
 				iaAddr.setState(IaAddress.RELEASED);
 				iaMgr.updateIaAddr(iaAddr);
+				log.info("Address released: " + iaAddr.toString());
 			}
 		}
 		catch (Exception ex) {
@@ -125,12 +127,14 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 	public void declineIaAddress(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		try {
+			log.info("Declining address: " + iaAddr.getIpAddress().getHostAddress());
 			ddnsDelete(ia, iaAddr);
 			iaAddr.setStartTime(null);
 			iaAddr.setPreferredEndTime(null);
 			iaAddr.setValidEndTime(null);
 			iaAddr.setState(IaAddress.DECLINED);
 			iaMgr.updateIaAddr(iaAddr);
+			log.info("Address declined: " + iaAddr.toString());
 		}
 		catch (Exception ex) {
 			log.error("Failed to decline address", ex);
