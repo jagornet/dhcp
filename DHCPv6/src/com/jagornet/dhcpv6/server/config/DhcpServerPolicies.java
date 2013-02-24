@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Properties;
 
+import com.jagornet.dhcpv6.db.DbSchemaManager;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.xml.Filter;
 import com.jagornet.dhcpv6.xml.FiltersType;
@@ -58,8 +59,13 @@ public class DhcpServerPolicies
 	 * The Property enum.
 	 */
 	public enum Property {
-		DHCP_DATABASE_SCHEMA_VERSION("dhcp.database.schemaVersion", "1"),
+		DATABASE_SCHEMA_TYTPE("database.schemaType", "jdbc"),
+		DATABASE_SCHEMA_VERSION("database.schemaVersion", "2"),
+		DATABASE_SCHEMA_FILENAME("database.schemaFilename", DbSchemaManager.SCHEMA_DERBY_V2_FILENAME),
 		DHCP_PROCESSOR_RECENT_MESSAGE_TIMER("dhcp.processor.recentMessageTimer", "5000"),
+		DHCP_IGNORE_LOOPBACK("dhcp.ignoreLoopback", "true"),
+		DHCP_IGNORE_LINKLOCAL("dhcp.ignoreLinkLocal", "true"),
+		DHCP_IGNORE_SELF_PACKETS("dhcp.ignoreSelfPackets", "true"),
 		BINDING_MANAGER_REAPER_STARTUP_DELAY("binding.manager.reaper.startupDelay", "10000"),
 		BINDING_MANAGER_REAPER_RUN_PERIOD("binding.manager.reaper.runPeriod", "60000"),
 		BINDING_MANAGER_OFFER_EXPIRATION("binding.manager.offerExpiration", "12000"),
