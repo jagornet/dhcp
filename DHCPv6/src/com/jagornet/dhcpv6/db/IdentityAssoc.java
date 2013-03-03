@@ -255,14 +255,14 @@ public class IdentityAssoc
 		sb.append(keyToString(this.getDuid(), this.getIatype(), this.getIaid()));
 		sb.append(" state=");
 		sb.append(this.getState());
-		sb.append("(");
+		sb.append('(');
 		sb.append(IaAddress.stateToString(this.getState()));
-		sb.append(")");
+		sb.append(')');
 		Collection<? extends IaAddress> iaAddrs = this.getIaAddresses();
 		if (iaAddrs != null) {
 			for (IaAddress iaAddr : iaAddrs) {
 				sb.append(Util.LINE_SEPARATOR);
-				sb.append("\t");
+				sb.append('\t');
 				sb.append(iaAddr.toString());
 			}
 		}
@@ -284,9 +284,9 @@ public class IdentityAssoc
 		sb.append(Util.toHexString(_duid));
 		sb.append(" iatype=");
 		sb.append(_iatype);
-		sb.append("(");
+		sb.append('(');
 		sb.append(iaTypeToString(_iatype));
-		sb.append(")");
+		sb.append(')');
 		sb.append(" iaid=");
 		sb.append(_iaid);
 		return sb.toString();

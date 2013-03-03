@@ -64,7 +64,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	// Spring bean init-method
 	public void init() throws Exception {
 		DbSchemaManager.validateSchema(getDataSource(),
-				DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_FILENAME), 1);;
+				DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_FILENAME), 1);
 	}
 
 	/* (non-Javadoc)

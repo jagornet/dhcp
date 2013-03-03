@@ -81,7 +81,7 @@ public class JdbcLeaseManager extends LeaseManager
 	// Spring bean init-method
 	public void init() throws Exception {
 		DbSchemaManager.validateSchema(dataSource,
-				DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_FILENAME), 2);;
+				DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_FILENAME), 2);
 	}
 	
 	/**
