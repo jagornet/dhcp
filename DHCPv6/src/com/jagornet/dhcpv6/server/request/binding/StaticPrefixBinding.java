@@ -76,7 +76,7 @@ public class StaticPrefixBinding extends StaticBinding implements DhcpOptionConf
 		StringBuilder sb = new StringBuilder();
 		sb.append("StaticPrefixBinding: Prefix=");
 		sb.append(prefixBinding.getPrefix());
-		sb.append("/");
+		sb.append('/');
 		sb.append(prefixBinding.getPrefixLength());
 		sb.append(" duid=");
 		sb.append(Util.toHexString(prefixBinding.getDuid().getHexValue()));
