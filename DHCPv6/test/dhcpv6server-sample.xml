@@ -172,7 +172,7 @@
             		<ipAddress>192.168.0.10</ipAddress>
             	</v4DomainServersOption>
             	<v4DomainNameOption>
-            		<domainName>v4.foo.com.</domainName>
+            		<string>v4.foo.com.</string>
             	</v4DomainNameOption>
             </v4ConfigOptions>
             <v4AddrPools>
