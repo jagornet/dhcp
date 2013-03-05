@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.UserClassOption;
 
@@ -37,7 +38,6 @@ import com.jagornet.dhcpv6.xml.UserClassOption;
  */
 public class DhcpUserClassOption extends BaseOpaqueDataListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp user class option.
 	 */
@@ -53,19 +53,9 @@ public class DhcpUserClassOption extends BaseOpaqueDataListOption
 	 */
 	public DhcpUserClassOption(UserClassOption userClassOption)
 	{
-		if (userClassOption != null)
-			this.opaqueDataListOption = userClassOption;
-		else
-			this.opaqueDataListOption = UserClassOption.Factory.newInstance();
+		super(userClassOption);
+		setCode(DhcpConstants.OPTION_USER_CLASS);
 	}
-	
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((UserClassOption)opaqueDataListOption).getCode();
-    }
     
     public boolean matches(DhcpUserClassOption that, Operator.Enum op)
     {
@@ -74,6 +64,6 @@ public class DhcpUserClassOption extends BaseOpaqueDataListOption
         if (that.getCode() != this.getCode())
             return false;
 
-        return matches(that.getOpaqueDataListOptionType(), op);
+        return super.matches(that, op);
     }
 }

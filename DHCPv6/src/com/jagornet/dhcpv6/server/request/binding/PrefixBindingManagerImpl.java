@@ -43,7 +43,6 @@ import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPrefixOption;
-import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
@@ -203,12 +202,10 @@ public class PrefixBindingManagerImpl
     {
 		PrefixBindingPool bp = new PrefixBindingPool(pool);
 		long pLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong((DhcpConfigObject) bp, 
-					link, Property.PREFERRED_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.PREFERRED_LIFETIME);
 		bp.setPreferredLifetime(pLifetime);
 		long vLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong((DhcpConfigObject) bp, 
-					link, Property.VALID_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.VALID_LIFETIME);
 		bp.setValidLifetime(vLifetime);
 		bp.setLinkFilter(linkFilter);
 		
@@ -264,7 +261,7 @@ public class PrefixBindingManagerImpl
 			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg)
 	{
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaPdOption.getIaPdOption().getIaId();
+		long iaid = iaPdOption.getIaId();
 		
 		return super.findCurrentBinding(clientLink, duid, IdentityAssoc.PD_TYPE, 
 				iaid, requestMsg);
@@ -278,7 +275,7 @@ public class PrefixBindingManagerImpl
 			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg, byte state)
 	{	
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaPdOption.getIaPdOption().getIaId();
+		long iaid = iaPdOption.getIaId();
 
 		StaticBinding staticBinding = 
 			findStaticBinding(clientLink, duid, IdentityAssoc.PD_TYPE, iaid, requestMsg);
@@ -301,7 +298,7 @@ public class PrefixBindingManagerImpl
 			DhcpMessageInterface requestMsg, byte state)
 	{
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaPdOption.getIaPdOption().getIaId();
+		long iaid = iaPdOption.getIaId();
 
 		StaticBinding staticBinding = 
 			findStaticBinding(clientLink, duid, IdentityAssoc.PD_TYPE, iaid, requestMsg);

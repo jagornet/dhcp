@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OptionExpression;
 import com.jagornet.dhcpv6.xml.StatusCodeOption;
@@ -40,10 +41,9 @@ import com.jagornet.dhcpv6.xml.StatusCodeOption;
  * @author A. Gregory Rabil
  */
 public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparableOption
-{
-    
-    /** The status code option. */
-    private StatusCodeOption statusCodeOption;
+{    
+    private int statusCode;
+    private String message;
     
     /**
      * Instantiates a new dhcp status code option.
@@ -61,40 +61,39 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
     public DhcpStatusCodeOption(StatusCodeOption statusCodeOption)
     {
         super();
-        if (statusCodeOption != null)
-            this.statusCodeOption = statusCodeOption;
-        else
-            this.statusCodeOption = StatusCodeOption.Factory.newInstance();
+        if (statusCodeOption != null) {
+        	statusCode = statusCodeOption.getCode();
+            message = statusCodeOption.getMessage();
+        }
+        setCode(DhcpConstants.OPTION_STATUS_CODE);
     }
 
-    /**
-     * Gets the status code option.
-     * 
-     * @return the status code option
-     */
-    public StatusCodeOption getStatusCodeOption()
-    {
-        return statusCodeOption;
-    }
+    public int getStatusCode() {
+		return statusCode;
+	}
 
-    /**
-     * Sets the status code option.
-     * 
-     * @param statusCodeOption the new status code option
-     */
-    public void setStatusCodeOption(StatusCodeOption statusCodeOption)
-    {
-        if (statusCodeOption != null)
-            this.statusCodeOption = statusCodeOption;
-    }
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
+	}
 
-    /* (non-Javadoc)
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
     {
-        String msg = statusCodeOption.getMessage();
-        return (2 + (msg!=null ? msg.length() : 0));
+        int len = 2;	// status code
+        if (message != null) {
+        	len += message.length();
+        }
+        return len;
     }
 
     /* (non-Javadoc)
@@ -103,10 +102,9 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.putShort((short)statusCodeOption.getStatusCode());
-        String msg = statusCodeOption.getMessage();
-        if (msg != null) {
-        	buf.put(msg.getBytes());
+        buf.putShort((short)statusCode);
+        if (message != null) {
+        	buf.put(message.getBytes());
         }
         return (ByteBuffer) buf.flip();
     }
@@ -120,12 +118,12 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
     	if ((len > 0) && (len <= buf.remaining())) {
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-	            statusCodeOption.setStatusCode(Util.getUnsignedShort(buf));
+	            statusCode = Util.getUnsignedShort(buf);
 	            if (buf.position() < eof) {
 	            	if (len > 2) {
 		                byte[] data = new byte[len-2];  // minus 2 for the status code
 		                buf.get(data);
-		                statusCodeOption.setMessage(new String(data));
+		                message = new String(data);
 	            	}
 	            }
             }
@@ -176,23 +174,16 @@ public class DhcpStatusCodeOption extends BaseDhcpOption implements DhcpComparab
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return statusCodeOption.getCode();
-    }
-
-    /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(statusCodeOption.toString());
+        sb.append(": statusCode=");
+        sb.append(statusCode);
+        sb.append(" message=");
+        sb.append(message);
         return sb.toString();
     }
     

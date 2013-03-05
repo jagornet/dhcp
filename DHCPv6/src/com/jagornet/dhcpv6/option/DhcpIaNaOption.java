@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaNaOption;
 
@@ -46,13 +47,13 @@ import com.jagornet.dhcpv6.xml.IaNaOption;
  * @author A. Gregory Rabil
  */
 public class DhcpIaNaOption extends BaseDhcpOption
-{	
-	
+{		
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaNaOption.class);
 	
-	/** The ia na option. */
-	private IaNaOption iaNaOption;
+	protected long iaId;
+	protected long t1;
+	protected long t2;
     
 	/** The dhcp options inside this ia na option, _NOT_ including any ia addr options. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
@@ -75,28 +76,37 @@ public class DhcpIaNaOption extends BaseDhcpOption
 	 */
 	public DhcpIaNaOption(IaNaOption iaNaOption)
 	{
-		if (iaNaOption != null)
-			this.iaNaOption = iaNaOption;
-		else
-			this.iaNaOption = IaNaOption.Factory.newInstance();
-	}
-	
-    /**
-     * Gets the ia na option.
-     * 
-     * @return the ia na option
-     */
-    public IaNaOption getIaNaOption() {
-		return iaNaOption;
+		super();
+		if (iaNaOption != null) {
+			iaId = iaNaOption.getIaId();
+			t1 = iaNaOption.getT1();
+			t2 = iaNaOption.getT2();
+		}
+		setCode(DhcpConstants.OPTION_IA_NA);
 	}
 
-	/**
-	 * Sets the ia na option.
-	 * 
-	 * @param iaNaOption the new ia na option
-	 */
-	public void setIaNaOption(IaNaOption iaNaOption) {
-		this.iaNaOption = iaNaOption;
+	public long getIaId() {
+		return iaId;
+	}
+
+	public void setIaId(long iaId) {
+		this.iaId = iaId;
+	}
+
+	public long getT1() {
+		return t1;
+	}
+
+	public void setT1(long t1) {
+		this.t1 = t1;
+	}
+
+	public long getT2() {
+		return t2;
+	}
+
+	public void setT2(long t2) {
+		this.t2 = t2;
 	}
 
 	/**
@@ -153,14 +163,6 @@ public class DhcpIaNaOption extends BaseDhcpOption
 	public void setIaAddrOptions(List<DhcpIaAddrOption> iaAddrOptions) {
 		this.iaAddrOptions = iaAddrOptions;
 	}
-
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return iaNaOption.getCode();
-    }
     
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
@@ -199,9 +201,9 @@ public class DhcpIaNaOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.putInt((int)iaNaOption.getIaId());
-        buf.putInt((int)iaNaOption.getT1());
-        buf.putInt((int)iaNaOption.getT2());
+        buf.putInt((int)iaId);
+        buf.putInt((int)t1);
+        buf.putInt((int)t2);
 
         if (iaAddrOptions != null) {
         	for (DhcpIaAddrOption iaAddrOption : iaAddrOptions) {
@@ -235,11 +237,11 @@ public class DhcpIaNaOption extends BaseDhcpOption
                           ":  bytes remaining in buffer=" + buf.remaining());
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-            	iaNaOption.setIaId(Util.getUnsignedInt(buf));
+            	iaId = Util.getUnsignedInt(buf);
             	if (buf.position() < eof) {
-            		iaNaOption.setT1(Util.getUnsignedInt(buf));
+            		t1 = Util.getUnsignedInt(buf);
             		if (buf.position() < eof) {
-            			iaNaOption.setT2(Util.getUnsignedInt(buf));
+            			t1 = Util.getUnsignedInt(buf);
             			if (buf.position() < eof) {
             				decodeOptions(buf, eof);
             			}
@@ -291,9 +293,12 @@ public class DhcpIaNaOption extends BaseDhcpOption
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(iaNaOption.toString());
+        sb.append(": iaId=");
+        sb.append(iaId);
+        sb.append(" t1=");
+        sb.append(t1);
+        sb.append(" t2=");
+        sb.append(t2);
         if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
             sb.append(Util.LINE_SEPARATOR);
         	sb.append("IA_DHCPOPTIONS");

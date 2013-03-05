@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.NisPlusServersOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.NisPlusServersOption;
  */
 public class DhcpNisPlusServersOption extends BaseIpAddressListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp nis plus servers option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpNisPlusServersOption extends BaseIpAddressListOption
 	 */
 	public DhcpNisPlusServersOption(NisPlusServersOption nisPlusServersOption)
 	{
-		if (nisPlusServersOption != null)
-			this.ipAddressListOption = nisPlusServersOption;
-		else
-			this.ipAddressListOption = NisPlusServersOption.Factory.newInstance();
+		super(nisPlusServersOption);
+		setCode(DhcpConstants.OPTION_NISPLUS_SERVERS);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((NisPlusServersOption)ipAddressListOption).getCode();
-    }
 }

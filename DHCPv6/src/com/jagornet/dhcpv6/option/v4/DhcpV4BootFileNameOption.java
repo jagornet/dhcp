@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseStringOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4BootFileNameOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4BootFileNameOption;
  */
 public class DhcpV4BootFileNameOption extends BaseStringOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 boot file name option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4BootFileNameOption extends BaseStringOption
 	 */
 	public DhcpV4BootFileNameOption(V4BootFileNameOption v4BootFileNameOption)
 	{
-		if (v4BootFileNameOption != null)
-			this.stringOption = v4BootFileNameOption;
-		else
-			this.stringOption = V4BootFileNameOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4BootFileNameOption);
+		setCode(DhcpConstants.V4OPTION_BOOT_FILE_NAME);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4BootFileNameOption)stringOption).getCode();
-    }
 }

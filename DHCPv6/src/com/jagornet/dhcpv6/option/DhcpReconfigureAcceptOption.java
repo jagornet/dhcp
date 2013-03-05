@@ -35,21 +35,13 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  * @author A. Gregory Rabil
  */
 public class DhcpReconfigureAcceptOption extends BaseEmptyOption
-{
-	
+{	
 	/**
 	 * Instantiates a new dhcp reconfigure accept option.
 	 */
 	public DhcpReconfigureAcceptOption()
 	{
 		super();
+		setCode(DhcpConstants.OPTION_RECONF_ACCEPT);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return DhcpConstants.OPTION_RECONF_ACCEPT;
-    }
 }

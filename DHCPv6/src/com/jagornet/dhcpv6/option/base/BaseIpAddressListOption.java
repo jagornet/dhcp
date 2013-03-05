@@ -31,6 +31,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
 {
 	private static Logger log = LoggerFactory.getLogger(BaseIpAddressListOption.class);
 	
-	protected IpAddressListOptionType ipAddressListOption;
+	protected List<String> ipAddressList;
 	
 	public BaseIpAddressListOption()
 	{
@@ -63,22 +64,59 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
 	public BaseIpAddressListOption(IpAddressListOptionType ipAddressListOption)
 	{
 		super();
-		if (ipAddressListOption != null)
-			this.ipAddressListOption = ipAddressListOption;
-		else
-			this.ipAddressListOption = IpAddressListOptionType.Factory.newInstance();
+		if (ipAddressListOption != null) {
+			if (ipAddressListOption.getIpAddressList() != null) {
+				ipAddressList = ipAddressListOption.getIpAddressList();
+			}
+		}
 	}
 
-    public IpAddressListOptionType getIpAddressListOption()
+	public List<String> getIpAddressList() {
+		return ipAddressList;
+	}
+
+	public void setIpAddressList(List<String> ipAddresses) {
+		this.ipAddressList = ipAddresses;
+	}
+	
+	public void addIpAddress(String ipAddress) {
+		if (ipAddress != null) {
+			if (ipAddressList == null) {
+				ipAddressList = new ArrayList<String>();
+			}
+			ipAddressList.add(ipAddress);
+		}
+	}
+
+    /**
+     * Adds a server IP address from a byte array
+     * 
+     * @param addr the IP address to add as a byte array
+     */
+    public void addIpAddress(byte[] addr)
     {
-		return ipAddressListOption;
-	}
+        try {
+            if (addr != null) {
+                InetAddress inetAddr = InetAddress.getByAddress(addr);
+                this.addIpAddress(inetAddr);
+            }
+        }
+        catch (UnknownHostException ex) {
+            log.error("Failed to add DnsServer: " + ex);
+        }
+    }
 
-	public void setIpAddressListOption(IpAddressListOptionType ipAddressListOption)
-	{
-		if (ipAddressListOption != null)
-			this.ipAddressListOption = ipAddressListOption;
-	}
+    /**
+     * Adds a server IP address from an InetAddress
+     * 
+     * @param inetAddr the IP address to add as an InetAddr
+     */
+    public void addIpAddress(InetAddress inetAddr)
+    {
+        if (inetAddr != null) {
+        	this.addIpAddress(inetAddr.getHostAddress());
+        }
+    }
 
 	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Encodable#encode()
@@ -86,9 +124,8 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     public ByteBuffer encode() throws IOException
     {
     	ByteBuffer buf = super.encodeCodeAndLength();
-        List<String> serverIps = ipAddressListOption.getIpAddressList();
-        if (serverIps != null) {
-            for (String ip : serverIps) {
+        if (ipAddressList != null) {
+            for (String ip : ipAddressList) {
             	InetAddress inetAddr = null;
             	if (!super.isV4()) {
             		inetAddr = Inet6Address.getByName(ip);
@@ -120,7 +157,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
             		b = new byte[4];
             	}
                 buf.get(b);
-                this.addServer(b);
+                this.addIpAddress(b);
             }
         }
     }
@@ -131,46 +168,15 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     public int getLength()
     {
         int len = 0;
-        List<String> serverIps = ipAddressListOption.getIpAddressList();
-        if (serverIps != null) {
+        if (ipAddressList != null) {
         	if (!super.isV4()) {
-        		len += serverIps.size() * 16;   // each IPv6 address is 16 bytes
+        		len += ipAddressList.size() * 16;   // each IPv6 address is 16 bytes
         	}
         	else {
-        		len += serverIps.size() * 4;	// each IPv4 address is 4 bytes
+        		len += ipAddressList.size() * 4;	// each IPv4 address is 4 bytes
         	}
         }
         return len;
-    }
-
-    /**
-     * Adds a server IP address from a byte array
-     * 
-     * @param addr the IP address to add as a byte array
-     */
-    public void addServer(byte[] addr)
-    {
-        try {
-            if (addr != null) {
-                InetAddress inetAddr = InetAddress.getByAddress(addr);
-                this.addServer(inetAddr);
-            }
-        }
-        catch (UnknownHostException ex) {
-            log.error("Failed to add DnsServer: " + ex);
-        }
-    }
-
-    /**
-     * Adds a server IP address from an InetAddress
-     * 
-     * @param inetAddr the IP address to add as an InetAddr
-     */
-    public void addServer(InetAddress inetAddr)
-    {
-        if (inetAddr != null) {
-        	ipAddressListOption.addIpAddress(inetAddr.getHostAddress());
-        }
     }
 
     /* (non-Javadoc)
@@ -182,23 +188,19 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (ipAddressListOption == null)
+        if (ipAddressList == null)
         	return false;
 
-        List<String> myServerIps = ipAddressListOption.getIpAddressList();
-        if (myServerIps == null)
-        	return false;
-        
         // first see if we have a ip address list option to compare to
-        IpAddressListOptionType that = expression.getIpAddressListOption();
-        if (that != null) {
-        	List<String> serverIps = that.getIpAddressList();
+        IpAddressListOptionType exprOption = expression.getIpAddressListOption();
+        if (exprOption != null) {
+        	List<String> exprIpAddresses = exprOption.getIpAddressList();
             Operator.Enum op = expression.getOperator();
             if (op.equals(Operator.EQUALS)) {
-            	return myServerIps.equals(serverIps);
+            	return ipAddressList.equals(exprIpAddresses);
             }
             else if (op.equals(Operator.CONTAINS)) {
-            	return myServerIps.containsAll(serverIps);
+            	return ipAddressList.containsAll(exprIpAddresses);
             }
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -215,9 +217,14 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(ipAddressListOption.toString());
+        sb.append(": ipAddressList=");
+        if (ipAddressList != null) {
+        	for (String ipAddress : ipAddressList) {
+				sb.append(ipAddress);
+				sb.append(',');
+			}
+        	sb.setLength(sb.length()-1);
+        }
         return sb.toString();
     }
 }

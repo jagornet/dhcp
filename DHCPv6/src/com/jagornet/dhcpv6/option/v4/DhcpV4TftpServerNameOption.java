@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseStringOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4TftpServerNameOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4TftpServerNameOption;
  */
 public class DhcpV4TftpServerNameOption extends BaseStringOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 tftp server name option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4TftpServerNameOption extends BaseStringOption
 	 */
 	public DhcpV4TftpServerNameOption(V4TftpServerNameOption v4TftpServerNameOption)
 	{
-		if (v4TftpServerNameOption != null)
-			this.stringOption = v4TftpServerNameOption;
-		else
-			this.stringOption = V4TftpServerNameOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4TftpServerNameOption); 
+		setCode(DhcpConstants.V4OPTION_TFTP_SERVER_NAME);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4TftpServerNameOption)stringOption).getCode();
-    }
 }

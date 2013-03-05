@@ -36,9 +36,6 @@ import com.jagornet.dhcpv6.xml.DomainNameOptionType;
  */
 public class GenericDomainNameOption extends BaseDomainNameOption
 {	
-	/** The option code. */
-	private int code;
-	
 	/**
 	 * Instantiates a new generic domain name option.
 	 * 
@@ -61,15 +58,7 @@ public class GenericDomainNameOption extends BaseDomainNameOption
 								   DomainNameOptionType domainNameOption)
 	{
 		super(domainNameOption);
-		this.code = code;
-		super.setName(name);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-	 */
-	public int getCode()
-	{
-		return code;
+		setCode(code);
+		setName(name);
 	}
 }

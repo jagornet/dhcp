@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4RequestedIpAddressOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4RequestedIpAddressOption;
  */
 public class DhcpV4RequestedIpAddressOption extends BaseIpAddressOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 requested ip address option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4RequestedIpAddressOption extends BaseIpAddressOption
 	 */
 	public DhcpV4RequestedIpAddressOption(V4RequestedIpAddressOption v4RequestedIpAddressOption)
 	{
-		if (v4RequestedIpAddressOption != null)
-			this.ipAddressOption = v4RequestedIpAddressOption;
-		else
-			this.ipAddressOption = V4RequestedIpAddressOption.Factory.newInstance();
-		
+		super(v4RequestedIpAddressOption);
+		setCode(DhcpConstants.V4OPTION_REQUESTED_IP);
 		super.setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4RequestedIpAddressOption)ipAddressOption).getCode();
-    }
 }

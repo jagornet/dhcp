@@ -93,7 +93,7 @@ public class NaAddrBindingManagerImpl
 			DhcpMessageInterface requestMsg) {
 		
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaNaOption.getIaNaOption().getIaId();
+		long iaid = iaNaOption.getIaId();
 		
 		return super.findCurrentBinding(clientLink, duid, IdentityAssoc.NA_TYPE, 
 				iaid, requestMsg);
@@ -108,7 +108,7 @@ public class NaAddrBindingManagerImpl
 			DhcpMessageInterface requestMsg, byte state) {
 		
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaNaOption.getIaNaOption().getIaId();
+		long iaid = iaNaOption.getIaId();
 
 		StaticBinding staticBinding = 
 			findStaticBinding(clientLink, duid, IdentityAssoc.NA_TYPE, iaid, requestMsg);
@@ -132,7 +132,7 @@ public class NaAddrBindingManagerImpl
 			DhcpMessageInterface requestMsg, byte state) {
 		
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaNaOption.getIaNaOption().getIaId();	
+		long iaid = iaNaOption.getIaId();	
 
 		StaticBinding staticBinding = 
 			findStaticBinding(clientLink, duid, IdentityAssoc.NA_TYPE, iaid, requestMsg);

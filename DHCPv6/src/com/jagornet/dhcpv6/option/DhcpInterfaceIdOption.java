@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.InterfaceIdOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.InterfaceIdOption;
  */
 public class DhcpInterfaceIdOption extends BaseOpaqueDataOption
 { 
-    
     /**
      * Instantiates a new dhcp interface id option.
      */
@@ -52,21 +52,7 @@ public class DhcpInterfaceIdOption extends BaseOpaqueDataOption
      */
     public DhcpInterfaceIdOption(InterfaceIdOption interfaceIdOption)
     {
-        if (interfaceIdOption != null) {
-            this.opaqueDataOption = interfaceIdOption;
-        }
-        else {
-            this.opaqueDataOption = InterfaceIdOption.Factory.newInstance();
-            // create an OpaqueData element to actually hold the data
-            this.opaqueDataOption.addNewOpaqueData();
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((InterfaceIdOption)opaqueDataOption).getCode();
+    	super(interfaceIdOption);
+    	setCode(DhcpConstants.OPTION_INTERFACE_ID);
     }
 }

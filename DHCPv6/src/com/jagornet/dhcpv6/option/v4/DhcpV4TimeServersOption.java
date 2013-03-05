@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4TimeServersOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4TimeServersOption;
  */
 public class DhcpV4TimeServersOption extends BaseIpAddressListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 time servers option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4TimeServersOption extends BaseIpAddressListOption
 	 */
 	public DhcpV4TimeServersOption(V4TimeServersOption v4TimeServersOption)
 	{
-		if (v4TimeServersOption != null)
-			this.ipAddressListOption = v4TimeServersOption;
-		else
-			this.ipAddressListOption = V4TimeServersOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4TimeServersOption);
+		setCode(DhcpConstants.V4OPTION_TIME_SERVERS);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4TimeServersOption)ipAddressListOption).getCode();
-    }
 }

@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedShortListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.OptionRequestOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.OptionRequestOption;
  */
 public class DhcpOptionRequestOption extends BaseUnsignedShortListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp option request option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpOptionRequestOption extends BaseUnsignedShortListOption
 	 */
 	public DhcpOptionRequestOption(OptionRequestOption optionRequestOption)
 	{
-		if (optionRequestOption != null)
-			this.uShortListOption = optionRequestOption;
-		else
-			this.uShortListOption = OptionRequestOption.Factory.newInstance();
+		super(optionRequestOption);
+		setCode(DhcpConstants.OPTION_ORO);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((OptionRequestOption)uShortListOption).getCode();
-    }
 }

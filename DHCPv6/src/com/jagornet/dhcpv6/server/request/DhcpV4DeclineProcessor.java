@@ -99,7 +99,7 @@ public class DhcpV4DeclineProcessor extends BaseDhcpV4Processor
 		if (bindingMgr != null) {
 			log.info("Processing Decline" +
 					 " from chAddr=" + Util.toHexString(chAddr) +
-					 " requestedIp=" + requestedIpAddrOption.getIpAddressOption().getIpAddress());
+					 " requestedIp=" + requestedIpAddrOption.getIpAddress());
 			Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
 															chAddr, requestMsg);
 			if (binding != null) {

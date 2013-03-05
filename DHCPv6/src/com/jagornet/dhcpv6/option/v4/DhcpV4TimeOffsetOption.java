@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedIntOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4TimeOffsetOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4TimeOffsetOption;
  */
 public class DhcpV4TimeOffsetOption extends BaseUnsignedIntOption
 {
-	
 	/**
 	 * Instantiates a new dhcpv4 time offset option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4TimeOffsetOption extends BaseUnsignedIntOption
 	 */
 	public DhcpV4TimeOffsetOption(V4TimeOffsetOption v4TimeOffsetOption)
 	{
-		if (v4TimeOffsetOption != null)
-			this.uIntOption = v4TimeOffsetOption;
-		else
-			this.uIntOption = V4TimeOffsetOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4TimeOffsetOption);
+		setCode(DhcpConstants.V4OPTION_TIME_OFFSET);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4TimeOffsetOption)uIntOption).getCode();
-    }
 }

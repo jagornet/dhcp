@@ -36,9 +36,6 @@ import com.jagornet.dhcpv6.xml.UnsignedByteOptionType;
  */
 public class GenericUnsignedByteOption extends BaseUnsignedByteOption
 {	
-	/** The option code. */
-	private int code;
-	
 	/**
 	 * Instantiates a new generic unsigned byte option.
 	 * 
@@ -61,15 +58,7 @@ public class GenericUnsignedByteOption extends BaseUnsignedByteOption
 									 UnsignedByteOptionType unsignedByteOption)
 	{
 		super(unsignedByteOption);
-		this.code = code;
-		super.setName(name);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-	 */
-	public int getCode()
-	{
-		return code;
+		setCode(code);
+		setName(name);
 	}
 }

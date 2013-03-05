@@ -34,7 +34,6 @@ import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
-import com.jagornet.dhcpv6.xml.IaNaOption;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 
 // TODO: Auto-generated Javadoc
@@ -82,10 +81,9 @@ public class TestBindingManager extends BaseDbTestCase
 	 */
 	public void testFindNoCurrentBinding() throws Exception {
 		DhcpIaNaOption dhcpIaNa = new DhcpIaNaOption();
-		IaNaOption iaNa = dhcpIaNa.getIaNaOption();
-		iaNa.setIaId(1);
-		iaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
-		iaNa.setT2(0);		
+		dhcpIaNa.setIaId(1);
+		dhcpIaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
+		dhcpIaNa.setT2(0);		
 		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
 		Binding binding = manager.findCurrentBinding(clientLink.getLink(), clientIdOption, 
@@ -100,10 +98,9 @@ public class TestBindingManager extends BaseDbTestCase
 	 */
 	public void testCreateSolicitBinding() throws Exception {
 		DhcpIaNaOption dhcpIaNa = new DhcpIaNaOption();
-		IaNaOption iaNa = dhcpIaNa.getIaNaOption();
-		iaNa.setIaId(1);
-		iaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
-		iaNa.setT2(0);
+		dhcpIaNa.setIaId(1);
+		dhcpIaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
+		dhcpIaNa.setT2(0);
 		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
 		Binding binding = manager.createSolicitBinding(clientLink.getLink(), clientIdOption, 

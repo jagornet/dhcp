@@ -75,8 +75,8 @@ public class TestDhcpDnsServersOption extends TestCase
 	public void testEncode() throws Exception
     {
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
-        dso.addServer(dns1);    // 16 bytes
-        dso.addServer(dns2);    // 16 bytes
+        dso.addIpAddress(dns1);    // 16 bytes
+        dso.addIpAddress(dns2);    // 16 bytes
         ByteBuffer bb = dso.encode();
         assertNotNull(bb);
         assertEquals(36, bb.capacity());    // +4 (code=2bytes, len=2bytes)
@@ -107,9 +107,8 @@ public class TestDhcpDnsServersOption extends TestCase
         bb.flip();
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
         dso.decode(bb);
-        assertNotNull(dso.getIpAddressListOption());
-        assertEquals(2, dso.getIpAddressListOption().getIpAddressList().size());
-        List<String> dnsServers = dso.getIpAddressListOption().getIpAddressList();
+        assertEquals(2, dso.getIpAddressList().size());
+        List<String> dnsServers = dso.getIpAddressList();
         assertEquals(dns1, 
                      InetAddress.getByName(dnsServers.get(0)));
         assertEquals(dns2, 
@@ -122,8 +121,8 @@ public class TestDhcpDnsServersOption extends TestCase
     public void testToString()
     {
         DhcpDnsServersOption dso = new DhcpDnsServersOption();
-        dso.addServer(dns1);    // 16 bytes
-        dso.addServer(dns2);    // 16 bytes
+        dso.addIpAddress(dns1);    // 16 bytes
+        dso.addIpAddress(dns2);    // 16 bytes
     	System.out.println(dso);
     }
 }

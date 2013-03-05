@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.option.base;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -50,8 +51,7 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
 {
 	private static Logger log = LoggerFactory.getLogger(BaseOpaqueDataListOption.class);
 	
-    /** The opaque opaqueData list option. */
-    protected OpaqueDataListOptionType opaqueDataListOption;
+    private List<BaseOpaqueData> opaqueDataList;
 
     /**
      * Instantiates a new opaque opaqueData list option.
@@ -69,43 +69,57 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
     public BaseOpaqueDataListOption(OpaqueDataListOptionType opaqueDataListOption)
     {
         super();
-        if (opaqueDataListOption != null)
-            this.opaqueDataListOption = opaqueDataListOption;
-        else
-            this.opaqueDataListOption = OpaqueDataListOptionType.Factory.newInstance();
+        if (opaqueDataListOption != null) {
+        	List<OpaqueData> _opaqueDataList = opaqueDataListOption.getOpaqueDataList();
+        	if (_opaqueDataList != null) {
+        		for (OpaqueData opaqueData : _opaqueDataList) {
+					addOpaqueData(new BaseOpaqueData(opaqueData));
+				}
+        	}
+        }
     }
 
-    /**
-     * Gets the opaque opaqueData list option.
-     * 
-     * @return the opaque opaqueData list option
-     */
-    public OpaqueDataListOptionType getOpaqueDataListOptionType()
+    public List<BaseOpaqueData> getOpaqueDataList() {
+		return opaqueDataList;
+	}
+
+	public void setOpaqueDataList(List<BaseOpaqueData> opaqueDataList) {
+		this.opaqueDataList = opaqueDataList;
+	}
+	
+	public void addOpaqueData(BaseOpaqueData baseOpaque) {
+		if (baseOpaque != null) {
+			if (opaqueDataList == null) {
+				opaqueDataList = new ArrayList<BaseOpaqueData>();
+			}
+			opaqueDataList.add(baseOpaque);
+		}
+	}
+
+    public void addOpaqueData(String opaqueString) {
+        if (opaqueString != null) {
+        	BaseOpaqueData opaque = new BaseOpaqueData(opaqueString);
+        	addOpaqueData(opaque);
+        }
+    }
+
+    public void addOpaqueData(byte[] opaqueData)
     {
-        return opaqueDataListOption;
+        if (opaqueData != null) {
+        	BaseOpaqueData opaque = new BaseOpaqueData(opaqueData);
+        	addOpaqueData(opaque);
+        }
     }
 
-    /**
-     * Sets the opaque opaqueData list option.
-     * 
-     * @param opaqueDataListOption the new opaque opaqueData list option
-     */
-    public void setOpaqueDataListOptionType(OpaqueDataListOptionType opaqueDataListOption)
-    {
-        if (opaqueDataListOption != null)
-            this.opaqueDataListOption = opaqueDataListOption;
-    }
-
-    /* (non-Javadoc)
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
     {
         int len = 0;
-        List<OpaqueData> opaqueList = opaqueDataListOption.getOpaqueDataList();
-        if ((opaqueList != null) && !opaqueList.isEmpty()) {
-            for (OpaqueData opaque : opaqueList) {
-                len += OpaqueDataUtil.getLength(opaque);
+        if ((opaqueDataList != null) && !opaqueDataList.isEmpty()) {
+            for (BaseOpaqueData opaque : opaqueDataList) {
+                len += 2 + opaque.getLength();
             }
         }
         return len;
@@ -117,10 +131,9 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        List<OpaqueData> opaqueList = opaqueDataListOption.getOpaqueDataList();
-        if ((opaqueList != null) && !opaqueList.isEmpty()) {
-            for (OpaqueData opaque : opaqueList) {
-                OpaqueDataUtil.encode(buf, opaque);
+        if ((opaqueDataList != null) && !opaqueDataList.isEmpty()) {
+            for (BaseOpaqueData opaque : opaqueDataList) {
+            	opaque.encodeLengthAndData(buf);
             }
         }
         return (ByteBuffer) buf.flip();
@@ -135,8 +148,9 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
     	if ((len > 0) && (len <= buf.remaining())) {
     		int eof = buf.position() + len;
             while (buf.position() < eof) {
-				OpaqueData opaque = opaqueDataListOption.addNewOpaqueData();
-                OpaqueDataUtil.decode(opaque, buf);
+            	BaseOpaqueData opaque = new BaseOpaqueData();
+            	opaque.decodeLengthAndData(buf);
+                addOpaqueData(opaque);
             }
         }
     }
@@ -156,23 +170,16 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
 
 	public boolean matches(OpaqueDataListOptionType that, Operator.Enum op) 
 	{
-		if (opaqueDataListOption == null)
-        	return false;
-
-		List<OpaqueData> myOpaqueList = opaqueDataListOption.getOpaqueDataList();
-		if (myOpaqueList == null)
-			return false;
-		
 		if (that != null) {
         	List<OpaqueData> opaqueList = that.getOpaqueDataList();
         	if (opaqueList != null) {
         		if (op.equals(Operator.EQUALS)) {
-	        		if (opaqueList.size() != myOpaqueList.size()) {
+	        		if (opaqueList.size() != opaqueDataList.size()) {
 	        			return false;
 	        		}
 	        		for (int i=0; i<opaqueList.size(); i++) {
-	        			OpaqueData opaque = opaqueList.get(i);
-	        			OpaqueData myOpaque = myOpaqueList.get(i);
+	        			BaseOpaqueData opaque = new BaseOpaqueData(opaqueList.get(i));
+	        			BaseOpaqueData myOpaque = opaqueDataList.get(i);
 	        			if (!OpaqueDataUtil.equals(opaque, myOpaque)) {
 	        				return false;
 	        			}
@@ -180,14 +187,14 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
 	        		return true;
         		}
         		else if (op.equals(Operator.CONTAINS)) {
-        			if (opaqueList.size() > myOpaqueList.size()) {
+        			if (opaqueList.size() > opaqueDataList.size()) {
         				return false;
         			}
         			for (int i=0; i<opaqueList.size(); i++) {
-	        			OpaqueData opaque = opaqueList.get(i);
+	        			BaseOpaqueData opaque = new BaseOpaqueData(opaqueList.get(i));
 	        			boolean found = false;
-        				for (int j=0; j<myOpaqueList.size(); i++) {
-    	        			OpaqueData myOpaque = myOpaqueList.get(j);
+        				for (int j=0; j<opaqueDataList.size(); i++) {
+    	        			BaseOpaqueData myOpaque = opaqueDataList.get(j);
     	        			if (OpaqueDataUtil.equals(opaque, myOpaque)) {
     	        				found = true;
     	        				break;
@@ -208,31 +215,55 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
 		return false;
 	}
 
-    /**
-     * Adds the opaque opaqueData.
-     * 
-     * @param opaqueString the opaque opaqueData string
-     */
-    public void addOpaqueData(String opaqueString)
-    {
-        if (opaqueString != null) {
-            OpaqueData opaque = opaqueDataListOption.addNewOpaqueData();
-            opaque.setAsciiValue(opaqueString);
+	public boolean matches(BaseOpaqueDataListOption that, Operator.Enum op) 
+	{
+		if (opaqueDataList == null)
+        	return false;
+	
+		if (that != null) {
+        	List<BaseOpaqueData> opaqueList = that.getOpaqueDataList();
+        	if (opaqueList != null) {
+        		if (op.equals(Operator.EQUALS)) {
+	        		if (opaqueList.size() != opaqueDataList.size()) {
+	        			return false;
+	        		}
+	        		for (int i=0; i<opaqueList.size(); i++) {
+	        			BaseOpaqueData opaque = opaqueList.get(i);
+	        			BaseOpaqueData myOpaque = opaqueDataList.get(i);
+	        			if (!OpaqueDataUtil.equals(opaque, myOpaque)) {
+	        				return false;
+	        			}
+	        		}
+	        		return true;
+        		}
+        		else if (op.equals(Operator.CONTAINS)) {
+        			if (opaqueList.size() > opaqueDataList.size()) {
+        				return false;
+        			}
+        			for (int i=0; i<opaqueList.size(); i++) {
+	        			BaseOpaqueData opaque = opaqueList.get(i);
+	        			boolean found = false;
+        				for (int j=0; j<opaqueDataList.size(); i++) {
+    	        			BaseOpaqueData myOpaque = opaqueDataList.get(j);
+    	        			if (OpaqueDataUtil.equals(opaque, myOpaque)) {
+    	        				found = true;
+    	        				break;
+    	        			}        					
+        				}
+        				if (!found) {
+        					return false;        					
+        				}
+        			}
+        			return true;
+        		}
+        		else {
+                	log.warn("Unsupported expression operator: " + op);
+        		}
+        	}
         }
-    }
-
-    /**
-     * Adds the opaque opaqueData.
-     * 
-     * @param opaqueData the opaque opaqueData
-     */
-    public void addOpaqueData(byte[] opaqueData)
-    {
-        if (opaqueData != null) {
-            OpaqueData opaque = opaqueDataListOption.addNewOpaqueData();
-            opaque.setHexValue(opaqueData);
-        }
-    }
+		
+		return false;
+	}
 
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
@@ -241,9 +272,14 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(opaqueDataListOption.toString());
+        sb.append(": dataList=");
+        if ((opaqueDataList != null) && !opaqueDataList.isEmpty()) {
+        	for (BaseOpaqueData opaque : opaqueDataList) {
+				sb.append(opaque.toString());
+				sb.append(',');
+			}
+        	sb.setLength(sb.length()-1);
+        }
         return sb.toString();
     }
 

@@ -57,22 +57,4 @@ public class DhcpUnknownOption extends BaseOpaqueDataOption
 	{
 		super(unknownOption);	
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return code;
-    }
-    
-    /**
-     * Sets the code.
-     * 
-     * @param code the new code
-     */
-    public void setCode(int code)
-    {
-    	this.code = code;
-    }
 }

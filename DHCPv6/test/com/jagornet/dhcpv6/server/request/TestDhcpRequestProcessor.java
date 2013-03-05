@@ -123,7 +123,7 @@ public class TestDhcpRequestProcessor extends BaseTestDhcpProcessor
 		// hack the returned advertise to request an off-link address
 		advertiseMsg.getIaNaOptions().iterator().next().
 				getIaAddrOptions().iterator().next().
-						getIaAddrOption().setIpv6Address("2001:DB8:2::1");
+						setIpAddress("2001:DB8:2::1");
 		
 		// use the ADVERTISE message to create the REQUEST message
 		advertiseMsg.setMessageType(DhcpConstants.REQUEST);

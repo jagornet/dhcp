@@ -63,8 +63,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jagornet.dhcpv6.Version;
 import com.jagornet.dhcpv6.db.IaManager;
-import com.jagornet.dhcpv6.option.DhcpOptionFactory;
-import com.jagornet.dhcpv6.option.v4.DhcpV4OptionFactory;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
@@ -167,11 +165,6 @@ public class DhcpV6Server
                   System.out.println("Stopping Jagornet DHCPv6 Server: " + new Date());
                 }
             });
-    	
-    	log.info("Initializing option factories...");
-    	DhcpOptionFactory.init();
-    	DhcpV4OptionFactory.init();
-    	log.info("Option factories initialized.");
     	
         DhcpServerConfiguration.configFilename = configFilename;
         serverConfig = DhcpServerConfiguration.getInstance();
@@ -310,7 +303,7 @@ public class DhcpV6Server
 				sb.append(", ");
 			}
         	sb.setLength(sb.length()-2);	// remove last ", "
-        	sb.append("]");
+        	sb.append(']');
         	msg = sb.toString();
         	System.out.println(msg);
         	log.info(msg);

@@ -45,8 +45,6 @@ import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
-import com.jagornet.dhcpv6.xml.IaAddrOption;
-import com.jagornet.dhcpv6.xml.IaNaOption;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 
 // TODO: Auto-generated Javadoc
@@ -121,14 +119,12 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 		DhcpMessage requestMsg = new DhcpMessage(localSocketAddr, remoteSocketAddr);
 		requestMsg.putDhcpOption(clientIdOption);
 		DhcpIaNaOption dhcpIaNa = new DhcpIaNaOption();
-		IaNaOption iaNa = dhcpIaNa.getIaNaOption();
-		iaNa.setIaId(1);
-		iaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
-		iaNa.setT2(0);
+		dhcpIaNa.setIaId(1);
+		dhcpIaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
+		dhcpIaNa.setT2(0);
 		if (requestedAddr != null) {
 			DhcpIaAddrOption dhcpIaAddr = new DhcpIaAddrOption();
-			IaAddrOption iaAddr = dhcpIaAddr.getIaAddrOption();
-			iaAddr.setIpv6Address(requestedAddr);
+			dhcpIaAddr.setIpAddress(requestedAddr);
 			dhcpIaNa.getIaAddrOptions().add(dhcpIaAddr);
 		}
 		requestMsg.addIaNaOption(dhcpIaNa);
@@ -217,8 +213,8 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 			assertTrue(Util.compareInetAddrs(poolStart, _iaAddrOption.getInetAddress()) <= 0);
 		if (poolEnd != null)
 			assertTrue(Util.compareInetAddrs(poolEnd, _iaAddrOption.getInetAddress()) >= 0);
-		assertEquals(lifetime, _iaAddrOption.getIaAddrOption().getPreferredLifetime());
-		assertEquals(lifetime, _iaAddrOption.getIaAddrOption().getValidLifetime());
+		assertEquals(lifetime, _iaAddrOption.getPreferredLifetime());
+		assertEquals(lifetime, _iaAddrOption.getValidLifetime());
 		
 		Map<Integer, DhcpOption> optMap = _iaAddrOption.getDhcpOptionMap();
 		assertNotNull(optMap);
@@ -260,7 +256,7 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 		DhcpStatusCodeOption _statusCodeOption = 
 			(DhcpStatusCodeOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_STATUS_CODE);
 		assertNotNull(_statusCodeOption);
-		assertEquals(status, _statusCodeOption.getStatusCodeOption().getStatusCode());
+		assertEquals(status, _statusCodeOption.getStatusCode());
 	}	
 
 	/**
@@ -295,6 +291,6 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 		DhcpStatusCodeOption _statusCodeOption = 
 			(DhcpStatusCodeOption) optMap.get(DhcpConstants.OPTION_STATUS_CODE);
 		assertNotNull(_statusCodeOption);
-		assertEquals(status, _statusCodeOption.getStatusCodeOption().getStatusCode());
+		assertEquals(status, _statusCodeOption.getStatusCode());
 	}	
 }

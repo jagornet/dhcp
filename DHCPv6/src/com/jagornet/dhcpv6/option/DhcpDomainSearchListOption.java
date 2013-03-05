@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.DomainSearchListOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.DomainSearchListOption;
  */
 public class DhcpDomainSearchListOption extends BaseDomainNameListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp domain search list option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpDomainSearchListOption extends BaseDomainNameListOption
 	 */
 	public DhcpDomainSearchListOption(DomainSearchListOption domainSearchListOption)
 	{
-		if (domainSearchListOption != null)
-			this.domainNameListOption = domainSearchListOption;
-		else
-			this.domainNameListOption = DomainSearchListOption.Factory.newInstance();
+		super(domainSearchListOption);
+		setCode(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((DomainSearchListOption)domainNameListOption).getCode();
-    }
 }

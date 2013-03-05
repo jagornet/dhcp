@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.BcmcsAddressesOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.BcmcsAddressesOption;
  */
 public class DhcpBcmcsAddressesOption extends BaseIpAddressListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp bcmcs addresses option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpBcmcsAddressesOption extends BaseIpAddressListOption
 	 */
 	public DhcpBcmcsAddressesOption(BcmcsAddressesOption bcmcsAddressesOption)
 	{
-		if (bcmcsAddressesOption != null)
-			this.ipAddressListOption = bcmcsAddressesOption;
-		else
-			this.ipAddressListOption = BcmcsAddressesOption.Factory.newInstance();
+		super(bcmcsAddressesOption);
+		setCode(DhcpConstants.OPTION_BCMCS_ADDRESSES);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((BcmcsAddressesOption)ipAddressListOption).getCode();
-    }
 }

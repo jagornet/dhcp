@@ -46,7 +46,7 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
 {
 	private static Logger log = LoggerFactory.getLogger(BaseDomainNameOption.class);
 
-	protected DomainNameOptionType domainNameOption;
+	protected String domainName;
 	
 	public BaseDomainNameOption()
 	{
@@ -56,21 +56,17 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
 	public BaseDomainNameOption(DomainNameOptionType domainNameOption)
 	{
 		super();
-		if (domainNameOption != null)
-			this.domainNameOption = domainNameOption;
-		else
-			this.domainNameOption = DomainNameOptionType.Factory.newInstance();
+		if (domainNameOption != null) {
+			domainName = domainNameOption.getDomainName();
+		}
 	}
 	
-    public DomainNameOptionType getDomainNameOption()
-    {
-		return domainNameOption;
+    public String getDomainName() {
+		return domainName;
 	}
 
-	public void setDomainNameOption(DomainNameOptionType domainNameOption)
-	{
-		if (domainNameOption != null)
-			this.domainNameOption = domainNameOption;
+	public void setDomainName(String domainName) {
+		this.domainName = domainName;
 	}
 
 	/* (non-Javadoc)
@@ -79,7 +75,6 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        String domainName = domainNameOption.getDomainName();
         if (domainName != null) {
             encodeDomainName(buf, domainName);
         }
@@ -120,8 +115,7 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
     	int len = super.decodeLength(buf);
     	if ((len > 0) && (len <= buf.remaining())) {
             int eof = buf.position() + len;
-            String domain = decodeDomainName(buf, eof);
-            domainNameOption.setDomainName(domain);
+            domainName = decodeDomainName(buf, eof);
         }
     }
     
@@ -155,7 +149,6 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
     public int getLength()
     {
         int len = 0;
-        String domainName = domainNameOption.getDomainName();
         if (domainName != null) {
             len = getDomainNameLength(domainName);
         }
@@ -195,32 +188,28 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
         if (expression == null)
             return false;
         if (expression.getCode() != this.getCode())
-            return false;
-        if (domainNameOption == null)
-        	return false;
-        
-        String myDomainName = domainNameOption.getDomainName();
-        if (myDomainName == null)
+            return false;        
+        if (domainName == null)
         	return false;
 
-        DomainNameOptionType that = expression.getDomainNameOption();
-        if (that != null) {
-        	String domainName = that.getDomainName();
+        DomainNameOptionType exprOption = expression.getDomainNameOption();
+        if (exprOption != null) {
+        	String exprDomainName = exprOption.getDomainName();
             Operator.Enum op = expression.getOperator();
             if (op.equals(Operator.EQUALS)) {
-            	return myDomainName.equals(domainName);
+            	return domainName.equals(exprDomainName);
             }
             else if (op.equals(Operator.STARTS_WITH)) {
-            	return myDomainName.startsWith(domainName);
+            	return domainName.startsWith(exprDomainName);
             }
             else if (op.equals(Operator.ENDS_WITH)) {
-            	return myDomainName.endsWith(domainName);
+            	return domainName.endsWith(exprDomainName);
             }
             else if (op.equals(Operator.CONTAINS)) {
-            	return myDomainName.contains(domainName);
+            	return domainName.contains(exprDomainName);
             }
             else if (op.equals(Operator.REG_EXP)) {
-            	return myDomainName.matches(domainName);
+            	return domainName.matches(exprDomainName);
             }
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -237,9 +226,8 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(domainNameOption.toString());
+        sb.append(": domainName=");
+        sb.append(domainName);
         return sb.toString();
     }
 

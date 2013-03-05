@@ -132,6 +132,12 @@ public class Util
     public static final long getUnsignedInt(ByteBuffer buf) {
         return (buf.getInt() & 0xffffffffL);
     }
+    
+    public static final BigInteger getUnsignedLong(ByteBuffer buf) {
+		byte[] data = new byte[8];
+		buf.get(data);
+		return new BigInteger(data); 
+    }
 
     /**
      * Relative <i>get</i> method for reading an unsigned medium int value.

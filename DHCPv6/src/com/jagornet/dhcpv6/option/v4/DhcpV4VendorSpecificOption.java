@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4VendorSpecificOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4VendorSpecificOption;
  */
 public class DhcpV4VendorSpecificOption extends BaseOpaqueDataOption
 {
-	
 	/**
 	 * Instantiates a new dhcp vendor info option.
 	 */
@@ -52,22 +52,8 @@ public class DhcpV4VendorSpecificOption extends BaseOpaqueDataOption
 	 */
 	public DhcpV4VendorSpecificOption(V4VendorSpecificOption v4VendorSpecificOption)
 	{
-		if (v4VendorSpecificOption != null) {
-			this.opaqueDataOption = v4VendorSpecificOption;
-		}
-		else {
-			this.opaqueDataOption = V4VendorSpecificOption.Factory.newInstance();
-            // create an OpaqueData element to actually hold the data
-            this.opaqueDataOption.addNewOpaqueData();
-		}
-		super.setV4(true);
+		super(v4VendorSpecificOption);
+		setCode(DhcpConstants.V4OPTION_VENDOR_INFO);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4VendorSpecificOption)opaqueDataOption).getCode();
-    }    
 }

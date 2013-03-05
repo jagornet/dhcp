@@ -30,9 +30,10 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
+import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.AuthenticationOption;
-import com.jagornet.dhcpv6.xml.OpaqueData;
 
 /**
  * <p>Title: DhcpAuthenticationOption </p>
@@ -42,9 +43,11 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
  */
 public class DhcpAuthenticationOption extends BaseDhcpOption
 {
-    
-    /** The authentication option. */
-    private AuthenticationOption authenticationOption;
+	private short protocol;
+	private short algorithm;
+	private short rdm;
+	private BigInteger replayDetection;
+	private BaseOpaqueData authInfo;
     
     /**
      * Instantiates a new dhcp authentication option.
@@ -62,42 +65,64 @@ public class DhcpAuthenticationOption extends BaseDhcpOption
     public DhcpAuthenticationOption(AuthenticationOption authenticationOption)
     {
         super();
-        if (authenticationOption != null)
-            this.authenticationOption = authenticationOption;
-        else
-            this.authenticationOption = AuthenticationOption.Factory.newInstance();
+        if (authenticationOption != null) {
+        	protocol = authenticationOption.getProtocol();
+        	algorithm = authenticationOption.getAlgorithm();
+        	rdm = authenticationOption.getRdm();
+        	replayDetection = authenticationOption.getReplayDetection();
+        	authInfo = new BaseOpaqueData(authenticationOption.getAuthInfo());
+        }
+        setCode(DhcpConstants.OPTION_AUTH);
     }
 
-    /**
-     * Gets the authentication option.
-     * 
-     * @return the authentication option
-     */
-    public AuthenticationOption getAuthenticationOption()
-    {
-        return authenticationOption;
-    }
+    public short getProtocol() {
+		return protocol;
+	}
 
-    /**
-     * Sets the authentication option.
-     * 
-     * @param authenticationOption the new authentication option
-     */
-    public void setAuthenticationOption(AuthenticationOption authenticationOption)
-    {
-        if (authenticationOption != null)
-            this.authenticationOption = authenticationOption;
-    }
+	public void setProtocol(short protocol) {
+		this.protocol = protocol;
+	}
 
-    /* (non-Javadoc)
+	public short getAlgorithm() {
+		return algorithm;
+	}
+
+	public void setAlgorithm(short algorithm) {
+		this.algorithm = algorithm;
+	}
+
+	public short getRdm() {
+		return rdm;
+	}
+
+	public void setRdm(short rdm) {
+		this.rdm = rdm;
+	}
+
+	public BigInteger getReplayDetection() {
+		return replayDetection;
+	}
+
+	public void setReplayDetection(BigInteger replayDetection) {
+		this.replayDetection = replayDetection;
+	}
+
+	public BaseOpaqueData getAuthInfo() {
+		return authInfo;
+	}
+
+	public void setAuthInfo(BaseOpaqueData authInfo) {
+		this.authInfo = authInfo;
+	}
+
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
     {
     	int len = 3 + 8;	// size of protocol + algorithm + rdm + replayDetection
-    	OpaqueData authInfo = authenticationOption.getAuthInfo();
     	if (authInfo != null) {
-    		len += OpaqueDataUtil.getLength(authInfo);
+    		len += authInfo.getLength();
     	}
     	return len;
     }
@@ -108,12 +133,12 @@ public class DhcpAuthenticationOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.put((byte)authenticationOption.getAlgorithm());
-        buf.put((byte)authenticationOption.getProtocol());
-        buf.put((byte)authenticationOption.getRdm());
-        OpaqueData authInfo = authenticationOption.getAuthInfo();
+        buf.put((byte)algorithm);
+        buf.put((byte)protocol);
+        buf.put((byte)rdm);
+        buf.put(replayDetection.toByteArray());
         if (authInfo != null) {
-        	OpaqueDataUtil.encodeDataOnly(buf, authInfo);
+        	authInfo.encode(buf);
         }
         return (ByteBuffer) buf.flip();
     }
@@ -127,19 +152,15 @@ public class DhcpAuthenticationOption extends BaseDhcpOption
     	if ((len > 0) && (len <= buf.remaining())) {
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-            	authenticationOption.setAlgorithm(Util.getUnsignedByte(buf));
+            	algorithm = Util.getUnsignedByte(buf);
                 if (buf.position() < eof) {
-                	authenticationOption.setProtocol(Util.getUnsignedByte(buf));
+                	protocol = Util.getUnsignedByte(buf);
                     if (buf.position() < eof) {
-                    	authenticationOption.setRdm(Util.getUnsignedByte(buf));
+                    	rdm = Util.getUnsignedByte(buf);
                     	if (buf.position() < eof) {
-                    		byte[] replayDetection = new byte[8];
-                    		buf.get(replayDetection);
-                    		authenticationOption.setReplayDetection(new BigInteger(replayDetection));
+                    		replayDetection = Util.getUnsignedLong(buf);
                     		if (buf.position() < eof) {
-	                    		OpaqueData authInfo = OpaqueData.Factory.newInstance();
-	                    		OpaqueDataUtil.decodeDataOnly(authInfo, buf, len-8-3);
-	                    		authenticationOption.setAuthInfo(authInfo);
+                    			authInfo.decode(buf, len-8-3);
                     		}
                     	}
                 	}
@@ -149,23 +170,22 @@ public class DhcpAuthenticationOption extends BaseDhcpOption
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return authenticationOption.getCode();
-    }
-
-    /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(authenticationOption.toString());
+        sb.append(": protocol=");
+        sb.append(protocol);
+        sb.append(" algorithm=");
+        sb.append(algorithm);
+        sb.append(" rdm=");
+        sb.append(rdm);
+        sb.append(" replayDetection=");
+        sb.append(replayDetection);
+        sb.append(" authInfo=");
+        sb.append(authInfo);
         return sb.toString();
     }
     

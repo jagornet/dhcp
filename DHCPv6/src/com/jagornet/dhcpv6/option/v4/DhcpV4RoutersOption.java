@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4RoutersOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4RoutersOption;
  */
 public class DhcpV4RoutersOption extends BaseIpAddressListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 routers option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4RoutersOption extends BaseIpAddressListOption
 	 */
 	public DhcpV4RoutersOption(V4RoutersOption v4RoutersOption)
 	{
-		if (v4RoutersOption != null)
-			this.ipAddressListOption = v4RoutersOption;
-		else
-			this.ipAddressListOption = V4RoutersOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4RoutersOption);
+		setCode(DhcpConstants.V4OPTION_ROUTERS);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4RoutersOption)ipAddressListOption).getCode();
-    }
 }

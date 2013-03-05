@@ -389,12 +389,12 @@ public class TestClient extends SimpleChannelUpstreamHandler
             msg.setTransactionId(id);
             String clientId = "clientid-" + id;
             DhcpClientIdOption dhcpClientId = new DhcpClientIdOption();
-            dhcpClientId.getOpaqueDataOptionType().getOpaqueData().setAsciiValue(clientId);
+            dhcpClientId.getOpaqueData().setAscii(clientId);
             
             msg.putDhcpOption(dhcpClientId);
             
             DhcpElapsedTimeOption dhcpElapsedTime = new DhcpElapsedTimeOption();
-            dhcpElapsedTime.getUnsignedShortOption().setUnsignedShort(1);
+            dhcpElapsedTime.setUnsignedShort(1);
             msg.putDhcpOption(dhcpElapsedTime);
 
             DhcpUserClassOption dhcpUserClass = new DhcpUserClassOption();
@@ -404,7 +404,7 @@ public class TestClient extends SimpleChannelUpstreamHandler
             if (rapidCommit) {
             	msg.setMessageType(DhcpConstants.SOLICIT);
                 DhcpIaNaOption dhcpIaNa = new DhcpIaNaOption();
-                dhcpIaNa.getIaNaOption().setIaId(1);
+                dhcpIaNa.setIaId(1);
                 msg.putDhcpOption(dhcpIaNa);
                 DhcpRapidCommitOption dhcpRapidCommit = new DhcpRapidCommitOption();
                 msg.putDhcpOption(dhcpRapidCommit);

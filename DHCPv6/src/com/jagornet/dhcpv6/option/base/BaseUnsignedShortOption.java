@@ -49,8 +49,7 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
 { 
 	private static Logger log = LoggerFactory.getLogger(BaseUnsignedShortOption.class);
 
-    /** The unsigned short option. */
-    protected UnsignedShortOptionType uShortOption;
+    protected int unsignedShort;
     
     /**
      * Instantiates a new unsigned short option.
@@ -68,34 +67,20 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
     public BaseUnsignedShortOption(UnsignedShortOptionType uShortOption)
     {
         super();
-        if (uShortOption != null)
-            this.uShortOption = uShortOption;
-        else
-            this.uShortOption = UnsignedShortOptionType.Factory.newInstance();
+        if (uShortOption != null) {
+            unsignedShort = uShortOption.getUnsignedShort();
+        }
     }
 
-    /**
-     * Gets the elapsed time option.
-     * 
-     * @return the elapsed time option
-     */
-    public UnsignedShortOptionType getUnsignedShortOption()
-    {
-        return uShortOption;
-    }
+    public int getUnsignedShort() {
+		return unsignedShort;
+	}
 
-    /**
-     * Sets the elapsed time option.
-     * 
-     * @param uShortOption the new elapsed time option
-     */
-    public void setUnsignedShortOption(UnsignedShortOptionType uShortOption)
-    {
-        if (uShortOption != null)
-            this.uShortOption = uShortOption;
-    }
+	public void setUnsignedShort(int unsignedShort) {
+		this.unsignedShort = unsignedShort;
+	}
 
-    /* (non-Javadoc)
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
@@ -109,7 +94,7 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.putShort((short)uShortOption.getUnsignedShort());
+        buf.putShort((short)unsignedShort);
         return (ByteBuffer) buf.flip();
     }
 
@@ -120,7 +105,7 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
     {
     	int len = super.decodeLength(buf);
     	if ((len > 0) && (len <= buf.remaining())) {
-    		uShortOption.setUnsignedShort(Util.getUnsignedShort(buf));
+    		unsignedShort = Util.getUnsignedShort(buf);
         }
     }
 
@@ -133,29 +118,25 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (uShortOption == null)
-        	return false;
-
-        int myUshort = uShortOption.getUnsignedShort();
         
-        UnsignedShortOptionType that = expression.getUShortOption();
-        if (that != null) {
-        	int ushort = that.getUnsignedShort();
+        UnsignedShortOptionType exprOption = expression.getUShortOption();
+        if (exprOption != null) {
+        	int exprUshort = exprOption.getUnsignedShort();
         	Operator.Enum op = expression.getOperator();
         	if (op.equals(Operator.EQUALS)) {
-        		return (myUshort == ushort);
+        		return (unsignedShort == exprUshort);
         	}
         	else if (op.equals(Operator.LESS_THAN)) {
-        		return (myUshort < ushort);
+        		return (unsignedShort < exprUshort);
         	}
         	else if (op.equals(Operator.LESS_THAN_OR_EQUAL)) {
-        		return (myUshort <= ushort);
+        		return (unsignedShort <= exprUshort);
         	}
         	else if (op.equals(Operator.GREATER_THAN)) {
-        		return (myUshort > ushort);
+        		return (unsignedShort > exprUshort);
         	}
         	else if (op.equals(Operator.GREATER_THAN_OR_EQUAL)) {
-        		return (myUshort >= ushort);
+        		return (unsignedShort >= exprUshort);
         	}
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -171,7 +152,7 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
 	            if (ascii != null) {
 	                try {
 	                	// need an Integer to handle unsigned short
-	                    if (uShortOption.getUnsignedShort() == Integer.parseInt(ascii)) {
+	                    if (unsignedShort == Integer.parseInt(ascii)) {
 	                        return true;
 	                    }
 	                }
@@ -184,7 +165,7 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
 	                if ( (hex != null) && 
 	                     (hex.length >= 1) && (hex.length <= 2) ) {
 	                	int hexUnsignedShort = Integer.valueOf(Util.toHexString(hex), 16);
-	                    if (uShortOption.getUnsignedShort() == hexUnsignedShort) {
+	                    if (unsignedShort == hexUnsignedShort) {
 	                        return true;
 	                    }
 	                }
@@ -201,9 +182,8 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(uShortOption.toString());
+        sb.append(": unsignedShort=");
+        sb.append(unsignedShort);
         return sb.toString();
     }
     

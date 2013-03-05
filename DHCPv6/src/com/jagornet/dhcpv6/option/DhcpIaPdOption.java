@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaPdOption;
 
@@ -46,13 +47,13 @@ import com.jagornet.dhcpv6.xml.IaPdOption;
  * @author A. Gregory Rabil
  */
 public class DhcpIaPdOption extends BaseDhcpOption
-{	
-	
+{		
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaPdOption.class);
 	
-	/** The ia pd option, which contains any configured options for the ia pd. */
-	private IaPdOption iaPdOption;
+	protected long iaId;
+	protected long t1;
+	protected long t2;
     
 	/** The dhcp options sent by the client inside this ia pd option, _NOT_ including any requested ia prefix options. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
@@ -75,28 +76,37 @@ public class DhcpIaPdOption extends BaseDhcpOption
 	 */
 	public DhcpIaPdOption(IaPdOption iaPdOption)
 	{
-		if (iaPdOption != null)
-			this.iaPdOption = iaPdOption;
-		else
-			this.iaPdOption = IaPdOption.Factory.newInstance();
-	}
-	
-    /**
-     * Gets the ia pd option.
-     * 
-     * @return the ia pd option
-     */
-    public IaPdOption getIaPdOption() {
-		return iaPdOption;
+		super();
+		if (iaPdOption != null) {
+			iaId = iaPdOption.getIaId();
+			t1 = iaPdOption.getT1();
+			t1 = iaPdOption.getT2();
+		}
+		setCode(DhcpConstants.OPTION_IA_PD);
 	}
 
-	/**
-	 * Sets the ia pd option.
-	 * 
-	 * @param iaPdOption the new ia pd option
-	 */
-	public void setIaPdOption(IaPdOption iaPdOption) {
-		this.iaPdOption = iaPdOption;
+	public long getIaId() {
+		return iaId;
+	}
+
+	public void setIaId(long iaId) {
+		this.iaId = iaId;
+	}
+
+	public long getT1() {
+		return t1;
+	}
+
+	public void setT1(long t1) {
+		this.t1 = t1;
+	}
+
+	public long getT2() {
+		return t2;
+	}
+
+	public void setT2(long t2) {
+		this.t2 = t2;
 	}
 
 	/**
@@ -155,14 +165,6 @@ public class DhcpIaPdOption extends BaseDhcpOption
 	}
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return iaPdOption.getCode();
-    }
-
-    /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
@@ -199,9 +201,9 @@ public class DhcpIaPdOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.putInt((int)iaPdOption.getIaId());
-        buf.putInt((int)iaPdOption.getT1());
-        buf.putInt((int)iaPdOption.getT2());
+        buf.putInt((int)iaId);
+        buf.putInt((int)t1);
+        buf.putInt((int)t2);
 
         if (iaPrefixOptions != null) {
         	for (DhcpIaPrefixOption iaPrefixOption : iaPrefixOptions) {
@@ -236,11 +238,11 @@ public class DhcpIaPdOption extends BaseDhcpOption
                           ":  bytes remaining in buffer=" + buf.remaining());
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-            	iaPdOption.setIaId(Util.getUnsignedInt(buf));
+            	iaId = Util.getUnsignedInt(buf);
             	if (buf.position() < eof) {
-            		iaPdOption.setT1(Util.getUnsignedInt(buf));
+            		t1 = Util.getUnsignedInt(buf);
             		if (buf.position() < eof) {
-            			iaPdOption.setT2(Util.getUnsignedInt(buf));
+            			t2 = Util.getUnsignedInt(buf);
             			if (buf.position() < eof) {
             				decodeOptions(buf, eof);
             			}
@@ -291,9 +293,12 @@ public class DhcpIaPdOption extends BaseDhcpOption
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(iaPdOption.toString());
+        sb.append(": iaId=");
+        sb.append(iaId);
+        sb.append(" t1=");
+        sb.append(t1);
+        sb.append(" t2=");
+        sb.append(t2);
         if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
             sb.append(Util.LINE_SEPARATOR);
         	sb.append("IA_DHCPOPTIONS");

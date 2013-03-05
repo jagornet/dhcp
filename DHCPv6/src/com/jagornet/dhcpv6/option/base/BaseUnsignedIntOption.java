@@ -49,8 +49,7 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
 { 
 	private static Logger log = LoggerFactory.getLogger(BaseUnsignedIntOption.class);
 
-	/** The unsigned int option. */
-    protected UnsignedIntOptionType uIntOption;
+    protected long unsignedInt;
     
     /**
      * Instantiates a new dhcp unsigned int option.
@@ -68,34 +67,20 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
     public BaseUnsignedIntOption(UnsignedIntOptionType uIntOption)
     {
         super();
-        if (uIntOption != null)
-            this.uIntOption = uIntOption;
-        else
-            this.uIntOption = UnsignedIntOptionType.Factory.newInstance();
+        if (uIntOption != null) {
+            unsignedInt = uIntOption.getUnsignedInt();
+        }
     }
 
-    /**
-     * Gets the unsigned int option.
-     * 
-     * @return the unsigned int option
-     */
-    public UnsignedIntOptionType getUnsignedIntOption()
-    {
-        return uIntOption;
-    }
+    public long getUnsignedInt() {
+		return unsignedInt;
+	}
 
-    /**
-     * Sets the unsigned int option.
-     * 
-     * @param uIntOption the new unsigned int option
-     */
-    public void setUnsignedIntOption(UnsignedIntOptionType uIntOption)
-    {
-        if (uIntOption != null)
-            this.uIntOption = uIntOption;
-    }
+	public void setUnsignedInt(long unsignedInt) {
+		this.unsignedInt = unsignedInt;
+	}
 
-    /* (non-Javadoc)
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
@@ -109,7 +94,7 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.putInt((int)uIntOption.getUnsignedInt());
+        buf.putInt((int)unsignedInt);
         return (ByteBuffer) buf.flip();
     }
 
@@ -120,7 +105,7 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
     {
     	int len = super.decodeLength(buf); 
     	if ((len > 0) && (len <= buf.remaining())) {
-    		uIntOption.setUnsignedInt(Util.getUnsignedInt(buf));
+    		unsignedInt = Util.getUnsignedInt(buf);
         }
     }
 
@@ -133,29 +118,25 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (uIntOption == null)
-        	return false;
-
-        long myUint = uIntOption.getUnsignedInt();
         
-        UnsignedIntOptionType that = expression.getUIntOption();
-        if (that != null) {
-        	long uint = that.getUnsignedInt();
+        UnsignedIntOptionType exprOption = expression.getUIntOption();
+        if (exprOption != null) {
+        	long exprUint = exprOption.getUnsignedInt();
         	Operator.Enum op = expression.getOperator();
         	if (op.equals(Operator.EQUALS)) {
-        		return (myUint == uint);
+        		return (unsignedInt == exprUint);
         	}
         	else if (op.equals(Operator.LESS_THAN)) {
-        		return (myUint < uint);
+        		return (unsignedInt < exprUint);
         	}
         	else if (op.equals(Operator.LESS_THAN_OR_EQUAL)) {
-        		return (myUint <= uint);
+        		return (unsignedInt <= exprUint);
         	}
         	else if (op.equals(Operator.GREATER_THAN)) {
-        		return (myUint > uint);
+        		return (unsignedInt > exprUint);
         	}
         	else if (op.equals(Operator.GREATER_THAN_OR_EQUAL)) {
-        		return (myUint >= uint);
+        		return (unsignedInt >= exprUint);
         	}
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -171,7 +152,7 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
 	            if (ascii != null) {
 	                try {
 	                	// need a long to handle unsigned int
-	                    if (uIntOption.getUnsignedInt() == Long.parseLong(ascii)) {
+	                    if (unsignedInt == Long.parseLong(ascii)) {
 	                        return true;
 	                    }
 	                }
@@ -184,7 +165,7 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
 	                if ( (hex != null) && 
 	                     (hex.length >= 1) && (hex.length <= 4) ) {
 	                	long hexLong = Long.valueOf(Util.toHexString(hex), 16);
-	                    if (uIntOption.getUnsignedInt() == hexLong) {
+	                    if (unsignedInt == hexLong) {
 	                        return true;
 	                    }
 	                }
@@ -201,9 +182,8 @@ public abstract class BaseUnsignedIntOption extends BaseDhcpOption implements Dh
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(uIntOption.toString());
+        sb.append(": unsignedInt=");
+        sb.append(unsignedInt);
         return sb.toString();
     }
 }

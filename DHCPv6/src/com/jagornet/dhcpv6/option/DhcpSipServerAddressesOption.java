@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.SipServerAddressesOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.SipServerAddressesOption;
  */
 public class DhcpSipServerAddressesOption extends BaseIpAddressListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp sip server addresses option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpSipServerAddressesOption extends BaseIpAddressListOption
 	 */
 	public DhcpSipServerAddressesOption(SipServerAddressesOption sipServerAddressesOption)
 	{
-		if (sipServerAddressesOption != null)
-			this.ipAddressListOption = sipServerAddressesOption;
-		else
-			this.ipAddressListOption = SipServerAddressesOption.Factory.newInstance();
+		super(sipServerAddressesOption);
+		setCode(DhcpConstants.OPTION_SIP_SERVERS_ADDRESS_LIST);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((SipServerAddressesOption)ipAddressListOption).getCode();
-    }
 }

@@ -427,8 +427,7 @@ public abstract class BaseBindingManager
 				IaAddress iaAddr = new IaAddress();
 				iaAddr.setIpAddress(inetAddr);
 				iaAddr.setState(IaAddress.STATIC);
-				BindingAddress bindingAddr = 
-					new BindingAddress(iaAddr, (DhcpConfigObject)staticBinding);
+				BindingAddress bindingAddr = new BindingAddress(iaAddr, staticBinding);
 				setBindingObjectTimes(bindingAddr, 
 						staticBinding.getPreferredLifetimeMs(), 
 						staticBinding.getPreferredLifetimeMs());

@@ -62,9 +62,6 @@ import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.server.request.ddns.DhcpV4DdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.DomainNameOptionType;
-import com.jagornet.dhcpv6.xml.V4ClientFqdnOption;
-import com.jagornet.dhcpv6.xml.V4LeaseTimeOption;
 
 /**
  * Title: BaseDhcpV4Processor
@@ -325,9 +322,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 					if (configObj != null) {
 						long preferred = configObj.getPreferredLifetime();
 						DhcpV4LeaseTimeOption dhcpV4LeaseTimeOption = new DhcpV4LeaseTimeOption();
-						V4LeaseTimeOption v4LeaseTimeOption = (V4LeaseTimeOption)
-									dhcpV4LeaseTimeOption.getUnsignedIntOption();
-						v4LeaseTimeOption.setUnsignedInt(preferred);
+						dhcpV4LeaseTimeOption.setUnsignedInt(preferred);
 						replyMsg.putDhcpOption(dhcpV4LeaseTimeOption);
 						populateV4Reply(clientLink, configObj);
 						//TODO when do actually start the timer?  currently, two get
@@ -376,8 +371,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		DhcpV4ClientFqdnOption replyFqdnOption = null;
 
 		if (clientFqdnOption != null) {
-			replyFqdnOption = 
-				new DhcpV4ClientFqdnOption((V4ClientFqdnOption) clientFqdnOption.getDomainNameOption());
+			replyFqdnOption = new DhcpV4ClientFqdnOption();
+			replyFqdnOption.setDomainName(clientFqdnOption.getDomainName());
 			replyFqdnOption.setUpdateABit(false);
 			replyFqdnOption.setOverrideBit(false);
 			replyFqdnOption.setNoUpdateBit(false);
@@ -385,8 +380,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			replyFqdnOption.setRcode1((short)0xff);		// RFC 4702 says server should set to 255
 			replyFqdnOption.setRcode2((short)0xff);		// RFC 4702 says server should set to 255
 			
-			DomainNameOptionType domainNameOption = clientFqdnOption.getDomainNameOption();
-			fqdn = domainNameOption.getDomainName();
+			fqdn = clientFqdnOption.getDomainName();
 			if ((fqdn == null) || (fqdn.length() <= 0)) {
 				log.error("Client FQDN option domain name is null/empty.  No DDNS udpates performed.");
 				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
@@ -437,8 +431,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				else {
 					fqdn = fqdn + "." + domain;
 				}
-				domainNameOption.setDomainName(fqdn);
-				replyFqdnOption.setDomainNameOption(domainNameOption);
+				replyFqdnOption.setDomainName(fqdn);
 			}
 			// since the client DID send option 81, return it in the reply
 			replyMsg.putDhcpOption(replyFqdnOption);
@@ -449,7 +442,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			// A replyFqdnOption is fabricated to be stored with the binding for use
 			// with the release/expire binding processing to remove the DDNS entry.
 			replyFqdnOption = new DhcpV4ClientFqdnOption();
-			fqdn = hostnameOption.getStringOption().getString() + ".";
+			fqdn = hostnameOption.getString() + ".";
 			if (domain != null) {
 				fqdn = fqdn + domain;
 			}
@@ -458,9 +451,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			// but set the option so that is can be used below
 			// when storing the fqdnOption to the database, so 
 			// that it can be used if/when the lease expires
-			DomainNameOptionType domainNameOption = V4ClientFqdnOption.Factory.newInstance();
-			domainNameOption.setDomainName(fqdn);
-			replyFqdnOption.setDomainNameOption(domainNameOption);
+			replyFqdnOption.setDomainName(fqdn);
 			// server will do the A record update, so set the flag
 			// for the option stored in the database, so server will
 			// remove the A record when the lease expires

@@ -30,11 +30,14 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
+import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.option.generic.GenericOpaqueDataOption;
 import com.jagornet.dhcpv6.option.generic.GenericOptionFactory;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.GenericOptionsType;
+import com.jagornet.dhcpv6.xml.OpaqueData;
+import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
 import com.jagornet.dhcpv6.xml.OptionDefType;
 import com.jagornet.dhcpv6.xml.VendorInfoOption;
 
@@ -132,10 +135,23 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
                 	subopt.decode(buf);
                 	OptionDefType optionDef = suboptList.addNewOptionDef();
                 	optionDef.setCode(code);	// patch from Audrey Zhdanov 9/22/11
-                	optionDef.setOpaqueDataOption(subopt.getOpaqueDataOptionType());
+                	optionDef.setOpaqueDataOption(convertBaseOpaque(subopt.getOpaqueData()));
                 }
             }
         }
+    }
+    
+    private OpaqueDataOptionType convertBaseOpaque(BaseOpaqueData base)
+    {
+    	OpaqueDataOptionType type = OpaqueDataOptionType.Factory.newInstance();
+    	OpaqueData opaque = type.addNewOpaqueData();
+    	if (base.getAscii() != null) {
+    		opaque.setAsciiValue(base.getAscii());
+    	}
+    	else {
+    		opaque.setHexValue(base.getHex());
+    	}
+    	return type;
     }
 
     /* (non-Javadoc)

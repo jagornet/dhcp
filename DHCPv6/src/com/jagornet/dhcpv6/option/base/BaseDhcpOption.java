@@ -44,6 +44,7 @@ public abstract class BaseDhcpOption implements DhcpOption
 	private static Logger log = LoggerFactory.getLogger(BaseDhcpOption.class);
 	
 	protected String name;
+	protected int code;
 	protected boolean v4;	// true only if DHCPv4 option
 
 	/**
@@ -117,6 +118,14 @@ public abstract class BaseDhcpOption implements DhcpOption
 			return className;
 		
 		return "Option-" + this.getCode(); 
+	}
+	
+	public void setCode(int code) {
+		this.code = code;
+	}
+	
+	public int getCode() {
+		return code;
 	}
 
 	public boolean isV4() {

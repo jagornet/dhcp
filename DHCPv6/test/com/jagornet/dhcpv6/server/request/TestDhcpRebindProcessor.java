@@ -124,7 +124,7 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.REBIND);
 		DhcpIaAddrOption dhcpIaAddr = new DhcpIaAddrOption();
-		dhcpIaAddr.getIaAddrOption().setIpv6Address("2001:DB8:2::1");
+		dhcpIaAddr.setIpAddress("2001:DB8:2::1");
 		requestMsg.getIaNaOptions().iterator().next().getIaAddrOptions().add(dhcpIaAddr);
 		
 		DhcpRebindProcessor processor =
@@ -155,8 +155,8 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 		assertNotNull(_iaAddrOption);
 		assertNotNull(_iaAddrOption.getInetAddress());
 		assertEquals(InetAddress.getByName("2001:DB8:2::1"), _iaAddrOption.getInetAddress());
-		assertEquals(0, _iaAddrOption.getIaAddrOption().getPreferredLifetime());
-		assertEquals(0, _iaAddrOption.getIaAddrOption().getValidLifetime());
+		assertEquals(0, _iaAddrOption.getPreferredLifetime());
+		assertEquals(0, _iaAddrOption.getValidLifetime());
 	}
 	
 	/**
@@ -195,7 +195,7 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 		// hack the returned reply to request an off-link address
 		replyMsg.getIaNaOptions().iterator().next().
 				getIaAddrOptions().iterator().next().
-						getIaAddrOption().setIpv6Address("2001:DB8:2::1");
+						setIpAddress("2001:DB8:2::1");
 		
 		DhcpRebindProcessor nProc =
 			new DhcpRebindProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());
@@ -228,8 +228,8 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 		DhcpIaAddrOption _iaAddrOption = _iaNaOption.getIaAddrOptions().get(0);
 		assertNotNull(_iaAddrOption);
 		assertNotNull(_iaAddrOption.getInetAddress());
-		assertEquals(0, _iaAddrOption.getIaAddrOption().getPreferredLifetime());
-		assertEquals(0, _iaAddrOption.getIaAddrOption().getValidLifetime());
+		assertEquals(0, _iaAddrOption.getPreferredLifetime());
+		assertEquals(0, _iaAddrOption.getValidLifetime());
 	}
 
 }

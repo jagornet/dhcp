@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedByteOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.PreferenceOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.PreferenceOption;
  */
 public class DhcpPreferenceOption extends BaseUnsignedByteOption
 {
-	
 	/**
 	 * Instantiates a new dhcp preference option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpPreferenceOption extends BaseUnsignedByteOption
 	 */
 	public DhcpPreferenceOption(PreferenceOption preferenceOption)
 	{
-		if (preferenceOption != null)
-			this.uByteOption = preferenceOption;
-		else
-			this.uByteOption = PreferenceOption.Factory.newInstance();
+		super(preferenceOption);
+		setCode(DhcpConstants.OPTION_PREFERENCE);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((PreferenceOption)uByteOption).getCode();
-    }
 }

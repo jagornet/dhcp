@@ -49,7 +49,7 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
 {
 	private static Logger log = LoggerFactory.getLogger(BaseStringOption.class);
 
-	protected StringOptionType stringOption;
+	protected String string;
 	
 	public BaseStringOption()
 	{
@@ -59,21 +59,18 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
 	public BaseStringOption(StringOptionType stringOption)
 	{
 		super();
-		if (stringOption != null)
-			this.stringOption = stringOption;
-		else
-			this.stringOption = StringOptionType.Factory.newInstance();
+		if (stringOption != null) {
+			string = stringOption.getString();
+		}
 	}
 	
-    public StringOptionType getStringOption()
-    {
-		return stringOption;
+    public String getString() {
+		return string;
 	}
 
-	public void setStringOption(StringOptionType stringOption)
+	public void setString(String string)
 	{
-		if (stringOption != null)
-			this.stringOption = stringOption;
+		this.string = string;
 	}
 
 	/* (non-Javadoc)
@@ -82,9 +79,8 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        String stringValue = stringOption.getString();
-        if (stringValue != null) {
-            buf.put(stringValue.getBytes());
+        if (string != null) {
+            buf.put(string.getBytes());
         }
         return (ByteBuffer) buf.flip();
     }
@@ -98,7 +94,7 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
     	if ((len > 0) && (len <= buf.remaining())) {
             byte[] b = new byte[len];
             buf.get(b);
-            stringOption.setString(new String(b));
+            string = new String(b);
         }
     }
 
@@ -108,9 +104,8 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
     public int getLength()
     {
         int len = 0;
-        String stringValue = stringOption.getString();
-        if (stringValue != null) {
-            len = stringValue.length();
+        if (string != null) {
+            len = string.length();
         }
         return len;
     }
@@ -124,31 +119,27 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (stringOption == null)
+        if (string == null)
         	return false;
         
-        String myString = stringOption.getString();
-        if (myString == null)
-        	return false;
-        
-        StringOptionType that = expression.getStringOption();
-        if (that != null) {
-        	String string = that.getString();
+        StringOptionType exprOption = expression.getStringOption();
+        if (exprOption != null) {
+        	String exprString = exprOption.getString();
             Operator.Enum op = expression.getOperator();
             if (op.equals(Operator.EQUALS)) {
-            	return myString.equals(string);
+            	return string.equals(exprString);
             }
             else if (op.equals(Operator.STARTS_WITH)) {
-            	return myString.startsWith(string);
+            	return string.startsWith(exprString);
             }
             else if (op.equals(Operator.ENDS_WITH)) {
-            	return myString.endsWith(string);
+            	return string.endsWith(exprString);
             }
             else if (op.equals(Operator.CONTAINS)) {
-            	return myString.contains(string);
+            	return string.contains(exprString);
             }
             else if (op.equals(Operator.REG_EXP)) {
-            	return myString.matches(string);
+            	return string.matches(exprString);
             }
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -162,7 +153,7 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
 	        if (opaque != null) {
 	            String ascii = opaque.getAsciiValue();
 	            if (ascii != null) {
-	            	if (stringOption.getString().equals(ascii)) {
+	            	if (string.equals(ascii)) {
 	            		return true;
 	            	}
 	            }
@@ -170,7 +161,7 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
 	                byte[] hex = opaque.getHexValue();
 	                if (hex != null) {
 	                	String hexString = new String(hex);
-	                	if (stringOption.getString().equals(hexString)) {
+	                	if (string.equals(hexString)) {
 	                        return true;
 	                    }
 	                }
@@ -187,9 +178,8 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(stringOption.toString());
+        sb.append(": string=");
+        sb.append(string);
         return sb.toString();
     }
 

@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.option.base;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -48,8 +49,7 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
 {
 	private static Logger log = LoggerFactory.getLogger(BaseUnsignedShortListOption.class);
 
-    /** The unsigned short list option. */
-    protected UnsignedShortListOptionType uShortListOption;
+    protected List<Integer> unsignedShortList;
 
     /**
      * Instantiates a new unsigned short list option.
@@ -67,42 +67,36 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
     public BaseUnsignedShortListOption(UnsignedShortListOptionType uShortListOption)
     {
         super();
-        if (uShortListOption != null)
-            this.uShortListOption = uShortListOption;
-        else
-            this.uShortListOption = UnsignedShortListOptionType.Factory.newInstance();
+        if (uShortListOption != null) {
+            if (uShortListOption.getUnsignedShortList() != null) {
+            	unsignedShortList = uShortListOption.getUnsignedShortList();
+            }
+        }
     }
 
-    /**
-     * Gets the unsigned short list option.
-     * 
-     * @return the unsigned short list option
-     */
-    public UnsignedShortListOptionType getUnsignedShortListOption()
-    {
-        return uShortListOption;
-    }
+    public List<Integer> getUnsignedShortList() {
+		return unsignedShortList;
+	}
 
-    /**
-     * Sets the unsigned short list option.
-     * 
-     * @param uShortListOption the new unsigned short list option
-     */
-    public void setUnsignedShortListOption(UnsignedShortListOptionType uShortListOption)
-    {
-        if (uShortListOption != null)
-            this.uShortListOption = uShortListOption;
-    }
+	public void setUnsignedShortList(List<Integer> unsignedShorts) {
+		this.unsignedShortList = unsignedShorts;
+	}
+	
+	public void addUnsignedShort(int unsignedShort) {
+		if (unsignedShortList == null) {
+			unsignedShortList = new ArrayList<Integer>();
+		}
+		unsignedShortList.add(unsignedShort);
+	}
 
-    /* (non-Javadoc)
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Encodable#encode()
      */
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        List<Integer> ushorts = uShortListOption.getUnsignedShortList();
-        if ((ushorts != null) && !ushorts.isEmpty()) {
-            for (int ushort : ushorts) {
+        if ((unsignedShortList != null) && !unsignedShortList.isEmpty()) {
+            for (int ushort : unsignedShortList) {
                 buf.putShort((short)ushort);
             }
         }
@@ -118,7 +112,7 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
     	if ((len > 0) && (len <= buf.remaining())) {
             for (int i=0; i<len/2; i++) {
                 if (buf.hasRemaining()) {
-                	uShortListOption.addUnsignedShort(Util.getUnsignedShort(buf));
+                	addUnsignedShort(Util.getUnsignedShort(buf));
                 }
             }
         }
@@ -130,9 +124,8 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
     public int getLength()
     {
         int len = 0;
-        List<Integer> ushorts = uShortListOption.getUnsignedShortList();
-        if ((ushorts != null) && !ushorts.isEmpty()) {
-            len = ushorts.size() * 2;
+        if ((unsignedShortList != null) && !unsignedShortList.isEmpty()) {
+            len = unsignedShortList.size() * 2;
         }
         return len;
     }
@@ -146,22 +139,18 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (uShortListOption == null)
-        	return false;
-
-        List<Integer> myUshorts = uShortListOption.getUnsignedShortList();
-        if (myUshorts == null)
+        if (unsignedShortList == null)
         	return false;
         
-        UnsignedShortListOptionType that = expression.getUShortListOption();
-        if (that != null) {
-        	List<Integer> ushorts = that.getUnsignedShortList();
+        UnsignedShortListOptionType exprOption = expression.getUShortListOption();
+        if (exprOption != null) {
+        	List<Integer> exprUshorts = exprOption.getUnsignedShortList();
             Operator.Enum op = expression.getOperator();
             if (op.equals(Operator.EQUALS)) {
-            	return myUshorts.equals(ushorts);
+            	return unsignedShortList.equals(exprUshorts);
             }
             else if (op.equals(Operator.CONTAINS)) {
-            	return myUshorts.containsAll(ushorts);
+            	return unsignedShortList.containsAll(exprUshorts);
             }
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -178,9 +167,14 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(uShortListOption.toString());
+        sb.append(": unsignedShortList=");
+        if ((unsignedShortList != null) && !unsignedShortList.isEmpty()) {
+        	for (Integer ushort : unsignedShortList) {
+				sb.append(ushort);
+				sb.append(',');
+			}
+        	sb.setLength(sb.length()-1);
+        }
         return sb.toString();
     }
     

@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaTaOption;
 
@@ -47,12 +48,12 @@ import com.jagornet.dhcpv6.xml.IaTaOption;
  */
 public class DhcpIaTaOption extends BaseDhcpOption
 {	
+	//TODO: create a superclass for IaNa and IaTa and IaPd options
 	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaTaOption.class);
 	
-	/** The ia ta option, which contains any configured options for the ia ta. */
-	private IaTaOption iaTaOption;
+	protected long iaId;
     
 	/** The dhcp options inside this ia ta option, _NOT_ including any ia addr options. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
@@ -75,28 +76,19 @@ public class DhcpIaTaOption extends BaseDhcpOption
 	 */
 	public DhcpIaTaOption(IaTaOption iaTaOption)
 	{
-		if (iaTaOption != null)
-			this.iaTaOption = iaTaOption;
-		else
-			this.iaTaOption = IaTaOption.Factory.newInstance();
-	}
-	
-    /**
-     * Gets the ia ta option.
-     * 
-     * @return the ia ta option
-     */
-    public IaTaOption getIaTaOption() {
-		return iaTaOption;
+		super();
+		if (iaTaOption != null) {
+			iaId = iaTaOption.getIaId();
+		}
+		setCode(DhcpConstants.OPTION_IA_TA);
 	}
 
-	/**
-	 * Sets the ia ta option.
-	 * 
-	 * @param iaTaOption the new ia ta option
-	 */
-	public void setIaTaOption(IaTaOption iaTaOption) {
-		this.iaTaOption = iaTaOption;
+	public long getIaId() {
+		return iaId;
+	}
+
+	public void setIaId(long iaId) {
+		this.iaId = iaId;
 	}
 
 	/**
@@ -153,14 +145,6 @@ public class DhcpIaTaOption extends BaseDhcpOption
 	public void setIaAddrOptions(List<DhcpIaAddrOption> iaAddrOptions) {
 		this.iaAddrOptions = iaAddrOptions;
 	}
-
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return iaTaOption.getCode();
-    }
     
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
@@ -199,7 +183,7 @@ public class DhcpIaTaOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.putInt((int)iaTaOption.getIaId());
+        buf.putInt((int)iaId);
 
         if (iaAddrOptions != null) {
         	for (DhcpIaAddrOption iaAddrOption : iaAddrOptions) {
@@ -233,7 +217,7 @@ public class DhcpIaTaOption extends BaseDhcpOption
                           ":  bytes remaining in buffer=" + buf.remaining());
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-            	iaTaOption.setIaId(Util.getUnsignedInt(buf));
+            	iaId = Util.getUnsignedInt(buf);
     			if (buf.position() < eof) {
     				decodeOptions(buf, eof);
     			}
@@ -283,9 +267,8 @@ public class DhcpIaTaOption extends BaseDhcpOption
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(iaTaOption.toString());
+        sb.append(": iaId=");
+        sb.append(iaId);
         if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
             sb.append(Util.LINE_SEPARATOR);
         	sb.append("IA_DHCPOPTIONS");

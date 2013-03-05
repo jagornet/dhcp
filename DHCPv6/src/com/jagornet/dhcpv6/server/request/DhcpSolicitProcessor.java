@@ -98,10 +98,9 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     	
     	DhcpClientIdOption dhcpClientId = requestMsg.getDhcpClientIdOption();
     	if ((dhcpClientId == null) || 
-    			(dhcpClientId.getOpaqueDataOptionType() == null) ||
-    			(dhcpClientId.getOpaqueDataOptionType().getOpaqueData() == null) ||
-    			((dhcpClientId.getOpaqueDataOptionType().getOpaqueData().getAsciiValue() == null) &&
-    					(dhcpClientId.getOpaqueDataOptionType().getOpaqueData().getHexValue() == null))) {
+    			(dhcpClientId.getOpaqueData() == null) ||
+    			((dhcpClientId.getOpaqueData().getAscii() == null) &&
+    					(dhcpClientId.getOpaqueData().getHex() == null))) {
     		log.warn("Ignoring Solicit message: " +
     				"ClientId option is null");
     		return false;

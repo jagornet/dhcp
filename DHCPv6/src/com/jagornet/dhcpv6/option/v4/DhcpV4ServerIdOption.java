@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4ServerIdOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4ServerIdOption;
  */
 public class DhcpV4ServerIdOption extends BaseIpAddressOption
 {
-	
 	/**
 	 * Instantiates a new dhcp server id option.
 	 */
@@ -52,21 +52,8 @@ public class DhcpV4ServerIdOption extends BaseIpAddressOption
 	 */
 	public DhcpV4ServerIdOption(V4ServerIdOption serverIdOption)
 	{
-		if (serverIdOption != null) {
-			this.ipAddressOption = serverIdOption;
-		}
-		else {
-			this.ipAddressOption = V4ServerIdOption.Factory.newInstance();
-		}
-		
-		super.setV4(true);
+		super(serverIdOption);
+		setCode(DhcpConstants.V4OPTION_SERVERID);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4ServerIdOption)ipAddressOption).getCode();
-    }
 }

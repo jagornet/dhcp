@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.SipServerDomainNamesOption;
  */
 public class DhcpSipServerDomainNamesOption extends BaseDomainNameListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp sip server domain names option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpSipServerDomainNamesOption extends BaseDomainNameListOption
 	 */
 	public DhcpSipServerDomainNamesOption(SipServerDomainNamesOption sipServerDomainNamesOption)
 	{
-		if (sipServerDomainNamesOption != null)
-			this.domainNameListOption = sipServerDomainNamesOption;
-		else
-			this.domainNameListOption = SipServerDomainNamesOption.Factory.newInstance();
+		super(sipServerDomainNamesOption);
+		setCode(DhcpConstants.OPTION_SIP_SERVERS_DOMAIN_LIST);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((SipServerDomainNamesOption)domainNameListOption).getCode();
-    }
 }

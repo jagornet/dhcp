@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.option.base;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 {
 	private static Logger log = LoggerFactory.getLogger(BaseDomainNameListOption.class);
 
-	protected DomainNameListOptionType domainNameListOption;
+	protected List<String> domainNameList;
 	
 	/**
 	 * Instantiates a new base domain name list option.
@@ -66,42 +67,27 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 	public BaseDomainNameListOption(DomainNameListOptionType domainNameListOption)
 	{
 		super();
-		if (domainNameListOption != null)
-			this.domainNameListOption = domainNameListOption;
-		else
-			this.domainNameListOption = DomainNameListOptionType.Factory.newInstance();
+		if (domainNameListOption != null) {
+			if (domainNameListOption.getDomainNameList() != null) {
+				domainNameList = domainNameListOption.getDomainNameList();
+			}
+		}
 	}
 	
-    /**
-     * Gets the domain name list option.
-     *
-     * @return the domain name list option
-     */
-    public DomainNameListOptionType getDomainNameListOption()
-    {
-		return domainNameListOption;
+	public List<String> getDomainNameList() {
+		return domainNameList;
 	}
 
-	/**
-	 * Sets the domain name list option.
-	 *
-	 * @param domainNameListOption the new domain name list option
-	 */
-	public void setDomainNameListOption(DomainNameListOptionType domainNameListOption)
-	{
-		if (domainNameListOption != null)
-			this.domainNameListOption = domainNameListOption;
+	public void setDomainNameList(List<String> domainNames) {
+		this.domainNameList = domainNames;
 	}
-	
-	/**
-	 * Adds the domain name.
-	 *
-	 * @param domainName the domain name
-	 */
-	public void addDomainName(String domainName)
-	{
+
+	public void addDomainName(String domainName) {
 		if (domainName != null) {
-			domainNameListOption.addDomainName(domainName);
+			if (domainNameList == null) {
+				domainNameList = new ArrayList<String>();
+			}
+			domainNameList.add(domainName);
 		}
 	}
 
@@ -111,9 +97,8 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 	public ByteBuffer encode() throws IOException
     {
     	ByteBuffer buf = super.encodeCodeAndLength();
-        List<String> domainNames = domainNameListOption.getDomainNameList();
-        if (domainNames != null) {
-            for (String domain : domainNames) {
+        if (domainNameList != null) {
+            for (String domain : domainNameList) {
                 BaseDomainNameOption.encodeDomainName(buf, domain);
             }
         }
@@ -130,7 +115,7 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
             int eof = buf.position() + len;
             while (buf.position() < eof) {
                 String domain = BaseDomainNameOption.decodeDomainName(buf, eof);
-                domainNameListOption.addDomainName(domain);
+                addDomainName(domain);
             }
         }
     }
@@ -141,9 +126,8 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
     public int getLength()
     {
         int len = 0;
-        List<String> domainNames = domainNameListOption.getDomainNameList();
-        if (domainNames != null) {
-            for (String domain : domainNames) {
+        if (domainNameList != null) {
+            for (String domain : domainNameList) {
                 len += BaseDomainNameOption.getDomainNameLength(domain);
             }
         }
@@ -159,23 +143,19 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (domainNameListOption == null)
-        	return false;
-
-        List<String> myDomainNames = domainNameListOption.getDomainNameList();
-        if (myDomainNames == null)
+        if (domainNameList == null)
         	return false;
         
         // first see if we have a domain name list option to compare to
-        DomainNameListOptionType that = expression.getDomainNameListOption();
-        if (that != null) {
-        	List<String> domainNames = that.getDomainNameList();
+        DomainNameListOptionType exprOption = expression.getDomainNameListOption();
+        if (exprOption != null) {
+        	List<String> exprDomainNames = exprOption.getDomainNameList();
             Operator.Enum op = expression.getOperator();
             if (op.equals(Operator.EQUALS)) {
-            	return myDomainNames.equals(domainNames);
+            	return domainNameList.equals(exprDomainNames);
             }
             else if (op.equals(Operator.CONTAINS)) {
-            	return myDomainNames.containsAll(domainNames);
+            	return domainNameList.containsAll(exprDomainNames);
             }
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -192,9 +172,14 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(domainNameListOption.toString());
+        sb.append(": domainNameList=");
+        if (domainNameList != null) {
+        	for (String domain : domainNameList) {
+				sb.append(domain);
+				sb.append(',');
+			}
+        	sb.setLength(sb.length()-1);
+        }
         return sb.toString();
     }
     

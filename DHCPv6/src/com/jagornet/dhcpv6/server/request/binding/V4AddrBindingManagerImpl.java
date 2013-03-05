@@ -50,7 +50,6 @@ import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.server.request.ddns.DhcpV4DdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.DomainNameOptionType;
 import com.jagornet.dhcpv6.xml.Link;
 import com.jagornet.dhcpv6.xml.LinkFilter;
 import com.jagornet.dhcpv6.xml.LinkFiltersType;
@@ -195,8 +194,7 @@ public class V4AddrBindingManagerImpl
     {
     	V4AddressBindingPool bp = new V4AddressBindingPool(pool);
 		long leasetime = 
-			DhcpServerPolicies.effectivePolicyAsLong((DhcpConfigObject) bp, 
-					link, Property.V4_DEFAULT_LEASETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.V4_DEFAULT_LEASETIME);
 		bp.setLeasetime(leasetime);
 		bp.setLinkFilter(linkFilter);
 		
@@ -337,7 +335,7 @@ public class V4AddrBindingManagerImpl
 		if (reqIpOption != null) {
 			try {
 				InetAddress inetAddr = 
-					InetAddress.getByName(reqIpOption.getIpAddressOption().getIpAddress());
+					InetAddress.getByName(reqIpOption.getIpAddress());
 				inetAddrs = new ArrayList<InetAddress>();
 				inetAddrs.add(inetAddr);
 			}
@@ -463,58 +461,50 @@ public class V4AddrBindingManagerImpl
 	    			}
 	    		}
 	    		if (clientFqdnOption != null) {
-					DomainNameOptionType domainNameOption = 
-						clientFqdnOption.getDomainNameOption();
-					if (domainNameOption != null) {
-						String fqdn = domainNameOption.getDomainName();
-						if ((fqdn != null) && !fqdn.isEmpty()) {
-				        	DhcpLink link = serverConfig.findLinkForAddress(iaAddr.getIpAddress());
-				        	if (link != null) {
-				        		V4BindingAddress bindingAddr = null;
-				        		StaticBinding staticBinding =
-				        			findStaticBinding(link.getLink(), ia.getDuid(), 
-				        					ia.getIatype(), ia.getIaid(), null);
-				        		if (staticBinding != null) {
-				        			bindingAddr = 
-				        				buildStaticBindingFromIaAddr(iaAddr, staticBinding);
-				        		}
-				        		else {
-				        			bindingAddr =
-				        				buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
-				        		}
-				        		if (bindingAddr != null) {
-				        			
-				        			DdnsCallback ddnsComplete = 
-				        				new DhcpV4DdnsComplete(bindingAddr, clientFqdnOption);
-				        			
-				        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
-				        			
-									DdnsUpdater ddns =
-										new DdnsUpdater(link.getLink(), configObj,
-												bindingAddr.getIpAddress(), fqdn, ia.getDuid(),
-												configObj.getValidLifetime(),
-												clientFqdnOption.getUpdateABit(), true,
-												ddnsComplete);
-									
-									ddns.processUpdates();
-				        		}
-				        		else {
-				        			log.error("Failed to find binding for address: " +
-				        					iaAddr.getIpAddress().getHostAddress());
-				        		}
-				        	}
-				        	else {
-				        		log.error("Failed to find link for binding address: " + 
-				        				iaAddr.getIpAddress().getHostAddress());
-				        	}
-						}
-						else {
-							log.error("FQDN is null or empty.  No DDNS deletes performed.");
-						}
+					String fqdn = clientFqdnOption.getDomainName();
+					if ((fqdn != null) && !fqdn.isEmpty()) {
+			        	DhcpLink link = serverConfig.findLinkForAddress(iaAddr.getIpAddress());
+			        	if (link != null) {
+			        		V4BindingAddress bindingAddr = null;
+			        		StaticBinding staticBinding =
+			        			findStaticBinding(link.getLink(), ia.getDuid(), 
+			        					ia.getIatype(), ia.getIaid(), null);
+			        		if (staticBinding != null) {
+			        			bindingAddr = 
+			        				buildStaticBindingFromIaAddr(iaAddr, staticBinding);
+			        		}
+			        		else {
+			        			bindingAddr =
+			        				buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+			        		}
+			        		if (bindingAddr != null) {
+			        			
+			        			DdnsCallback ddnsComplete = 
+			        				new DhcpV4DdnsComplete(bindingAddr, clientFqdnOption);
+			        			
+			        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
+			        			
+								DdnsUpdater ddns =
+									new DdnsUpdater(link.getLink(), configObj,
+											bindingAddr.getIpAddress(), fqdn, ia.getDuid(),
+											configObj.getValidLifetime(),
+											clientFqdnOption.getUpdateABit(), true,
+											ddnsComplete);
+								
+								ddns.processUpdates();
+			        		}
+			        		else {
+			        			log.error("Failed to find binding for address: " +
+			        					iaAddr.getIpAddress().getHostAddress());
+			        		}
+			        	}
+			        	else {
+			        		log.error("Failed to find link for binding address: " + 
+			        				iaAddr.getIpAddress().getHostAddress());
+			        	}
 					}
 					else {
-						log.error("Domain name option type null in Client FQDN." +
-								"  No DDNS deletes performed.");
+						log.error("FQDN is null or empty.  No DDNS deletes performed.");
 					}
 	    		}
 	    		else {

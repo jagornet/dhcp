@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.LostServerDomainNameOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.LostServerDomainNameOption;
  */
 public class DhcpLostServerDomainNameOption extends BaseDomainNameOption
 {
-	
 	/**
 	 * Instantiates a new dhcp lost server domain name option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpLostServerDomainNameOption extends BaseDomainNameOption
 	 */
 	public DhcpLostServerDomainNameOption(LostServerDomainNameOption lostServerDomainNameOption)
 	{
-		if (lostServerDomainNameOption != null)
-			this.domainNameOption = lostServerDomainNameOption;
-		else
-			this.domainNameOption = LostServerDomainNameOption.Factory.newInstance();
+		super(lostServerDomainNameOption); 
+		setCode(DhcpConstants.OPTION_LOST_SERVER_DOMAIN_NAME);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((LostServerDomainNameOption)domainNameOption).getCode();
-    }
 }

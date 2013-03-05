@@ -43,7 +43,6 @@ import com.jagornet.dhcpv6.option.v4.DhcpV4SubnetMaskOption;
 import com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.IpAddressOptionType;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -116,8 +115,7 @@ public class BaseTestDhcpV4Processor extends BaseDbTestCase
 		requestMsg.setChAddr(clientMacAddr);
 		if (requestedAddr != null) {
 			DhcpV4RequestedIpAddressOption dhcpIaAddr = new DhcpV4RequestedIpAddressOption();
-			IpAddressOptionType ipAddr = dhcpIaAddr.getIpAddressOption();
-			ipAddr.setIpAddress(requestedAddr);
+			dhcpIaAddr.setIpAddress(requestedAddr);
 			requestMsg.getDhcpOptions().add(dhcpIaAddr);
 		}
 		return requestMsg;
@@ -216,6 +214,6 @@ public class BaseTestDhcpV4Processor extends BaseDbTestCase
 		DhcpV4LeaseTimeOption _leaseTimeOption = 
 			(DhcpV4LeaseTimeOption) replyMsg.getDhcpOption(DhcpConstants.V4OPTION_LEASE_TIME);	
 		assertNotNull(_leaseTimeOption);
-		assertEquals(lifetime, _leaseTimeOption.getUnsignedIntOption().getUnsignedInt());		
+		assertEquals(lifetime, _leaseTimeOption.getUnsignedInt());		
 	}	
 }

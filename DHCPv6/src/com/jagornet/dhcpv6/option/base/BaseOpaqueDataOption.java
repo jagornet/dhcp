@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.option.base;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
@@ -42,8 +43,8 @@ import com.jagornet.dhcpv6.xml.OptionExpression;
  */
 public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements DhcpComparableOption
 {
-	protected OpaqueDataOptionType opaqueDataOption;
-
+	protected BaseOpaqueData opaqueData;
+	
     /**
      * Instantiates a new opaque opaqueData option.
      */
@@ -60,40 +61,25 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
     public BaseOpaqueDataOption(OpaqueDataOptionType opaqueDataOption)
     {
         super();
-        if (opaqueDataOption != null) {
-            this.opaqueDataOption = opaqueDataOption;
-        }
+        if ((opaqueDataOption != null) && (opaqueDataOption.getOpaqueData() != null)) {
+    		opaqueData = new BaseOpaqueData(opaqueDataOption.getOpaqueData());
+    	}
         else {
-            this.opaqueDataOption = OpaqueDataOptionType.Factory.newInstance();
-            // create an OpaqueData element to actually hold the data
-            this.opaqueDataOption.addNewOpaqueData();
+        	opaqueData = new BaseOpaqueData();
         }
     }
 
-    /**
-     * Gets the opaque opaqueData option.
-     * 
-     * @return the opaque opaqueData option
-     */
-    public OpaqueDataOptionType getOpaqueDataOptionType()
-    {
-        return opaqueDataOption;
-    }
+	public BaseOpaqueData getOpaqueData() {
+		return opaqueData;
+	}
 
-    /**
-     * Sets the opaque opaqueData option.
-     * 
-     * @param opaqueDataOption the new opaque opaqueData option
-     */
-    public void setOpaqueDataOptionType(OpaqueDataOptionType opaqueDataOption)
-    {
-        if (opaqueDataOption != null)
-            this.opaqueDataOption = opaqueDataOption;
-    }
+	public void setOpaqueData(BaseOpaqueData opaqueData) {
+		this.opaqueData = opaqueData;
+	}
 
 	public int getLength()
     {
-        return OpaqueDataUtil.getLengthDataOnly(opaqueDataOption.getOpaqueData());
+        return opaqueData.getLength();
     }
 
     /* (non-Javadoc)
@@ -102,7 +88,7 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        OpaqueDataUtil.encodeDataOnly(buf, opaqueDataOption.getOpaqueData());
+        opaqueData.encode(buf);        
         return (ByteBuffer) buf.flip();
     }
 
@@ -114,10 +100,8 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
     	int len = super.decodeLength(buf); 
     	if ((len > 0) && (len <= buf.remaining())) {
             int eof = buf.position() + len;
-            while (buf.position() < eof) {
-//            	OpaqueData opaque = opaqueDataOption.addNewOpaqueData();
-//                OpaqueDataUtil.decodeDataOnly(opaque, buf, len);
-            	OpaqueDataUtil.decodeDataOnly(opaqueDataOption.getOpaqueData(), buf, len);
+            if (buf.position() < eof) {
+            	opaqueData.decode(buf, len);
             }
         }
     }
@@ -131,10 +115,8 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (opaqueDataOption == null)
-        	return false;
 
-        return OpaqueDataUtil.matches(expression, opaqueDataOption.getOpaqueData());
+        return OpaqueDataUtil.matches(expression, opaqueData);
     }
 
     /* (non-Javadoc)
@@ -151,8 +133,15 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
 			return false;
         if (obj instanceof BaseOpaqueDataOption) {
         	BaseOpaqueDataOption that = (BaseOpaqueDataOption) obj;
-            return OpaqueDataUtil.equals(this.getOpaqueDataOptionType().getOpaqueData(), 
-                                         that.getOpaqueDataOptionType().getOpaqueData());
+        	if (that.opaqueData != null) {
+	            if (opaqueData.getAscii() != null) {
+	            	
+	                return opaqueData.getAscii().equalsIgnoreCase(that.opaqueData.getAscii());
+	            }
+	            else {
+	            	return Arrays.equals(opaqueData.getHex(), that.opaqueData.getHex());
+	            }
+        	}
         }
         return false;
     }
@@ -164,9 +153,9 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(opaqueDataOption.toString());
+        sb.append(": data=");
+        if(opaqueData != null)
+        	sb.append(opaqueData.toString());
         return sb.toString();
     }
 }

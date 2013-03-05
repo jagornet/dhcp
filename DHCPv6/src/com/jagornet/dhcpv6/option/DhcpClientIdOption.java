@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.ClientIdOption;
  */
 public class DhcpClientIdOption extends BaseOpaqueDataOption
 {
-	
 	/**
 	 * Instantiates a new dhcp client id option.
 	 */
@@ -52,24 +52,9 @@ public class DhcpClientIdOption extends BaseOpaqueDataOption
 	 */
 	public DhcpClientIdOption(ClientIdOption clientIdOption)
 	{
-		if (clientIdOption != null) {
-			this.opaqueDataOption = clientIdOption;
-		}
-		else {
-			this.opaqueDataOption = ClientIdOption.Factory.newInstance();
-            // create an OpaqueData element to actually hold the data
-            this.opaqueDataOption.addNewOpaqueData();
-		}
-		
+		super(clientIdOption);
+		setCode(DhcpConstants.OPTION_CLIENTID);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((ClientIdOption)opaqueDataOption).getCode();
-    }
     
     /**
      * Convenience method to get the DUID bytes.
@@ -78,14 +63,12 @@ public class DhcpClientIdOption extends BaseOpaqueDataOption
      */
     public byte[] getDuid()
     {
-		if ((this.getOpaqueDataOptionType() != null) &&
-				(this.getOpaqueDataOptionType().getOpaqueData() != null)) {
-			if (this.getOpaqueDataOptionType().getOpaqueData().getHexValue() != null)
-				return this.getOpaqueDataOptionType().getOpaqueData().getHexValue();
-			else
-				return this.getOpaqueDataOptionType().getOpaqueData().getAsciiValue().getBytes();
-		}
-		return null;
+    	if (this.opaqueData.getAscii() != null) {
+    		return this.opaqueData.getAscii().getBytes();
+    	}
+    	else {
+    		return this.opaqueData.getHex();
+    	}
 	}
     
 }

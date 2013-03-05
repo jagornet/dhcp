@@ -132,8 +132,8 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
         		return false;
         	}
         	if (type == RequestType.Request_Selecting) {
-                String requestedServerId = requestedServerIdOption.getIpAddressOption().getIpAddress();
-                String myServerId = dhcpV4ServerIdOption.getIpAddressOption().getIpAddress();
+                String requestedServerId = requestedServerIdOption.getIpAddress();
+                String myServerId = dhcpV4ServerIdOption.getIpAddress();
                 if (!myServerId.equals(requestedServerId)) {
                     log.warn("Ignoring " + type + " message: " +
                              "Requested ServerId: " + requestedServerIdOption +

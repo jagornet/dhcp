@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ServerUnicastOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.ServerUnicastOption;
  */
 public class DhcpServerUnicastOption extends BaseIpAddressOption
 {
-	
 	/**
 	 * Instantiates a new dhcp server unicast option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpServerUnicastOption extends BaseIpAddressOption
 	 */
 	public DhcpServerUnicastOption(ServerUnicastOption serverUnicastOption)
 	{
-		if (serverUnicastOption != null)
-			this.ipAddressOption = serverUnicastOption;
-		else
-			this.ipAddressOption = ServerUnicastOption.Factory.newInstance();
+		super(serverUnicastOption);
+		setCode(DhcpConstants.OPTION_UNICAST);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((ServerUnicastOption)ipAddressOption).getCode();
-    }
 }

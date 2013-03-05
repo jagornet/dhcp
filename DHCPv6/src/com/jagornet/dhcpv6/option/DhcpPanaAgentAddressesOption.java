@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.PanaAgentAddressesOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.PanaAgentAddressesOption;
  */
 public class DhcpPanaAgentAddressesOption extends BaseIpAddressListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp pana agent addresses option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpPanaAgentAddressesOption extends BaseIpAddressListOption
 	 */
 	public DhcpPanaAgentAddressesOption(PanaAgentAddressesOption panaAgentAddressesOption)
 	{
-		if (panaAgentAddressesOption != null)
-			this.ipAddressListOption = panaAgentAddressesOption;
-		else
-			this.ipAddressListOption = PanaAgentAddressesOption.Factory.newInstance();
+		super(panaAgentAddressesOption);
+		setCode(DhcpConstants.OPTION_PANA_AGENT_ADDRESSES);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((PanaAgentAddressesOption)ipAddressListOption).getCode();
-    }
 }

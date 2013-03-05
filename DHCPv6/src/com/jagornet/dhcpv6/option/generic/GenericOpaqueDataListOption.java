@@ -36,9 +36,6 @@ import com.jagornet.dhcpv6.xml.OpaqueDataListOptionType;
  */
 public class GenericOpaqueDataListOption extends BaseOpaqueDataListOption
 {	
-	/** The option code. */
-	private int code;
-	
 	/**
 	 * Instantiates a new generic opaque opaqueData list option.
 	 * 
@@ -61,15 +58,7 @@ public class GenericOpaqueDataListOption extends BaseOpaqueDataListOption
 									   OpaqueDataListOptionType opaqueDataListOption)
 	{
 		super(opaqueDataListOption);
-		this.code = code;
-		super.setName(name);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-	 */
-	public int getCode()
-	{
-		return code;
+		setCode(code);
+		setName(name);
 	}
 }

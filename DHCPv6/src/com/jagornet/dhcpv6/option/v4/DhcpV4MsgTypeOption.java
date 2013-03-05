@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedByteOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4MsgTypeOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4MsgTypeOption;
  */
 public class DhcpV4MsgTypeOption extends BaseUnsignedByteOption
 {
-	
 	/**
 	 * Instantiates a new dhcpv4 message type option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4MsgTypeOption extends BaseUnsignedByteOption
 	 */
 	public DhcpV4MsgTypeOption(V4MsgTypeOption v4MsgTypeOption)
 	{
-		if (v4MsgTypeOption != null)
-			this.uByteOption = v4MsgTypeOption;
-		else
-			this.uByteOption = V4MsgTypeOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4MsgTypeOption);
+		setCode(DhcpConstants.V4OPTION_MESSAGE_TYPE);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4MsgTypeOption)uByteOption).getCode();
-    }
 }

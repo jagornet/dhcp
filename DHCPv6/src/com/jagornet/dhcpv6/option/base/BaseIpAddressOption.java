@@ -49,7 +49,7 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
 {
 	private static Logger log = LoggerFactory.getLogger(BaseIpAddressOption.class);
 
-	protected IpAddressOptionType ipAddressOption;
+	protected String ipAddress;
 	
 	public BaseIpAddressOption()
 	{
@@ -59,21 +59,17 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
 	public BaseIpAddressOption(IpAddressOptionType ipAddressOption)
 	{
 		super();
-		if (ipAddressOption != null)
-			this.ipAddressOption = ipAddressOption;
-		else
-			this.ipAddressOption = IpAddressOptionType.Factory.newInstance();
+		if (ipAddressOption != null) {
+			ipAddress = ipAddressOption.getIpAddress();
+		}
 	}
 	
-    public IpAddressOptionType getIpAddressOption()
-    {
-		return ipAddressOption;
+    public String getIpAddress() {
+		return ipAddress;
 	}
 
-	public void setIpAddressOption(IpAddressOptionType ipAddressOption)
-	{
-		if (ipAddressOption != null)
-			this.ipAddressOption = ipAddressOption;
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
 	}
 
 	/* (non-Javadoc)
@@ -82,7 +78,6 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
     	ByteBuffer buf = super.encodeCodeAndLength();
-        String ipAddress = ipAddressOption.getIpAddress();
         if (ipAddress != null) {
         	InetAddress inetAddr = null;
         	if (!super.isV4()) {
@@ -104,10 +99,10 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
     	int len = super.decodeLength(buf);
     	if ((len > 0) && (len <= buf.remaining())) {
     		if (!super.isV4()) {
-    			ipAddressOption.setIpAddress(decodeIpAddress(buf));
+    			ipAddress = decodeIpAddress(buf);
     		}
     		else {
-    			ipAddressOption.setIpAddress(decodeIpV4Address(buf));
+    			ipAddress = decodeIpV4Address(buf);
     		}
         }
     }
@@ -164,31 +159,27 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (ipAddressOption == null)
+        if (ipAddress == null)
         	return false;
         
-        String myIpAddress = ipAddressOption.getIpAddress();
-        if (myIpAddress == null)
-        	return false;
-
-        IpAddressOptionType that = expression.getIpAddressOption();
-        if (that != null) {
-        	String ipAddress = that.getIpAddress();
+        IpAddressOptionType exprOption = expression.getIpAddressOption();
+        if (exprOption != null) {
+        	String exprIpAddress = exprOption.getIpAddress();
             Operator.Enum op = expression.getOperator();
             if (op.equals(Operator.EQUALS)) {
-            	return myIpAddress.equals(ipAddress);
+            	return ipAddress.equals(exprIpAddress);
             }
             else if (op.equals(Operator.STARTS_WITH)) {
-            	return myIpAddress.startsWith(ipAddress);
+            	return ipAddress.startsWith(exprIpAddress);
             }
             else if (op.equals(Operator.ENDS_WITH)) {
-            	return myIpAddress.endsWith(ipAddress);
+            	return ipAddress.endsWith(exprIpAddress);
             }
             else if (op.equals(Operator.CONTAINS)) {
-            	return myIpAddress.contains(ipAddress);
+            	return ipAddress.contains(exprIpAddress);
             }
             else if (op.equals(Operator.REG_EXP)) {
-            	return myIpAddress.matches(ipAddress);
+            	return ipAddress.matches(exprIpAddress);
             }
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -205,9 +196,8 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(ipAddressOption.toString());
+        sb.append(": ipAddress=");
+        sb.append(ipAddress);
         return sb.toString();
     }
 

@@ -36,9 +36,6 @@ import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
  */
 public class GenericUnsignedShortListOption extends BaseUnsignedShortListOption
 {	
-	/** The option code. */
-	private int code;
-	
 	/**
 	 * Instantiates a new generic unsigned short list option.
 	 * 
@@ -61,15 +58,7 @@ public class GenericUnsignedShortListOption extends BaseUnsignedShortListOption
 										  UnsignedShortListOptionType unsignedShortListOption)
 	{
 		super(unsignedShortListOption);
-		this.code = code;
-		super.setName(name);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-	 */
-	public int getCode()
-	{
-		return code;
+		setCode(code);
+		setName(name);
 	}
 }

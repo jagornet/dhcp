@@ -57,7 +57,7 @@ public class TestDhcpV4RenewProcessor extends BaseTestDhcpV4Processor
 		// use the OFFER message to create the REQUEST message
 		offerMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_REQUEST);
 		DhcpV4RequestedIpAddressOption requestedIpOption = new DhcpV4RequestedIpAddressOption();
-		requestedIpOption.getIpAddressOption().setIpAddress(offerMsg.getYiAddr().getHostAddress());
+		requestedIpOption.setIpAddress(offerMsg.getYiAddr().getHostAddress());
 		offerMsg.putDhcpOption(requestedIpOption);
 		offerMsg.setYiAddr(DhcpConstants.ZEROADDR);
 		DhcpV4RequestProcessor rProc = 

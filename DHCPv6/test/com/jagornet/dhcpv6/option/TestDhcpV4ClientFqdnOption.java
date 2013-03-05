@@ -26,7 +26,6 @@
 package com.jagornet.dhcpv6.option;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -80,8 +79,7 @@ public class TestDhcpV4ClientFqdnOption extends TestCase
         bb.flip();
         DhcpV4ClientFqdnOption dcfo = new DhcpV4ClientFqdnOption();
         dcfo.decode(bb);
-        assertNotNull(dcfo.getDomainNameOption());
-        assertEquals("foo.bar.com.", dcfo.getDomainNameOption().getDomainName());
+        assertEquals("foo.bar.com.", dcfo.getDomainName());
     }
     
     public void testNonFqdn() throws Exception
@@ -99,8 +97,7 @@ public class TestDhcpV4ClientFqdnOption extends TestCase
         bb.flip();
         DhcpV4ClientFqdnOption dcfo = new DhcpV4ClientFqdnOption();
         dcfo.decode(bb);
-        assertNotNull(dcfo.getDomainNameOption());
-        assertEquals("foobar", dcfo.getDomainNameOption().getDomainName());
+        assertEquals("foobar", dcfo.getDomainName());
     }
     
     public void testAsciiFqdn() throws Exception
@@ -117,7 +114,6 @@ public class TestDhcpV4ClientFqdnOption extends TestCase
         bb.flip();
         DhcpV4ClientFqdnOption dcfo = new DhcpV4ClientFqdnOption();
         dcfo.decode(bb);
-        assertNotNull(dcfo.getDomainNameOption());
-        assertEquals("CLN", dcfo.getDomainNameOption().getDomainName());
+        assertEquals("CLN", dcfo.getDomainName());
     }
 }

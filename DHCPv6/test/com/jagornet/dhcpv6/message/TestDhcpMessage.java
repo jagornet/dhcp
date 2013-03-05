@@ -46,9 +46,9 @@ public class TestDhcpMessage extends TestCase
         dhcpMessage.putDhcpOption(new DhcpServerIdOption(serverId));
 
         DhcpDnsServersOption dnsServers = new DhcpDnsServersOption();	// 4 bytes
-        dnsServers.getIpAddressListOption().addIpAddress(DNS1);		// 16 bytes
-        dnsServers.getIpAddressListOption().addIpAddress(DNS2);		// 16 bytes
-        dnsServers.getIpAddressListOption().addIpAddress(DNS3);		// 16 bytes
+        dnsServers.addIpAddress(DNS1);		// 16 bytes
+        dnsServers.addIpAddress(DNS2);		// 16 bytes
+        dnsServers.addIpAddress(DNS3);		// 16 bytes
         dhcpMessage.putDhcpOption(dnsServers);
         return dhcpMessage;
     }
@@ -123,19 +123,19 @@ public class TestDhcpMessage extends TestCase
         DhcpClientIdOption clientId = 
             (DhcpClientIdOption)options.get(DhcpConstants.OPTION_CLIENTID);
         assertNotNull(clientId);
-        assertEquals("MyClientId", clientId.getOpaqueDataOptionType().getOpaqueData().getAsciiValue());
+        assertEquals("MyClientId", clientId.getOpaqueData().getAscii());
         DhcpOptionRequestOption oro =
             (DhcpOptionRequestOption)options.get(DhcpConstants.OPTION_ORO);
         assertNotNull(oro);
         assertEquals(Integer.valueOf(DhcpConstants.OPTION_DNS_SERVERS), 
-        		oro.getUnsignedShortListOption().getUnsignedShortList().get(0)); 
+        		oro.getUnsignedShortList().get(0)); 
         DhcpUserClassOption userClass =
             (DhcpUserClassOption)options.get(DhcpConstants.OPTION_USER_CLASS);
         assertNotNull(userClass);
         assertEquals("UserClass 1",
-                userClass.getOpaqueDataListOptionType().getOpaqueDataList().get(0).getAsciiValue());
+                userClass.getOpaqueDataList().get(0).getAscii());
         assertEquals("UserClass 2",
-                userClass.getOpaqueDataListOptionType().getOpaqueDataList().get(1).getAsciiValue());
+                userClass.getOpaqueDataList().get(1).getAscii());
         
     }
     
@@ -159,7 +159,7 @@ public class TestDhcpMessage extends TestCase
     	msg1.setTransactionId(12345);
     	msg1.setMessageType((short)1);
     	DhcpClientIdOption c1 = new DhcpClientIdOption();
-    	c1.getOpaqueDataOptionType().getOpaqueData().setHexValue(
+    	c1.getOpaqueData().setHex(
     			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
     	msg1.putDhcpOption(c1);
 
@@ -168,11 +168,12 @@ public class TestDhcpMessage extends TestCase
     	msg2.setTransactionId(12345);
     	msg2.setMessageType((short)1);
     	DhcpClientIdOption c2 = new DhcpClientIdOption();
-    	c2.getOpaqueDataOptionType().getOpaqueData().setHexValue(
+    	c2.getOpaqueData().setHex(
     			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
     	msg2.putDhcpOption(c2);
-    	
-    	assertEquals(msg1, msg2);
+    
+// This was testing equality of message for cheap DOS detection, but we got rid of that
+//    	assertEquals(msg1, msg2);
     }
     
     public void testSet() throws Exception
@@ -182,7 +183,7 @@ public class TestDhcpMessage extends TestCase
     	msg1.setTransactionId(12345);
     	msg1.setMessageType((short)1);
     	DhcpClientIdOption c1 = new DhcpClientIdOption();
-    	c1.getOpaqueDataOptionType().getOpaqueData().setHexValue(
+    	c1.getOpaqueData().setHex(
     			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
     	msg1.putDhcpOption(c1);
 //    	System.out.println("msg1.hash=" + msg1.hashCode());
@@ -192,7 +193,7 @@ public class TestDhcpMessage extends TestCase
     	msg2.setTransactionId(12345);
     	msg2.setMessageType((short)1);
     	DhcpClientIdOption c2 = new DhcpClientIdOption();
-    	c2.getOpaqueDataOptionType().getOpaqueData().setHexValue(
+    	c2.getOpaqueData().setHex(
     			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
     	msg2.putDhcpOption(c2);
 //    	System.out.println("msg2.hash=" + msg2.hashCode());
@@ -200,6 +201,7 @@ public class TestDhcpMessage extends TestCase
     	Set<DhcpMessage> s = new HashSet<DhcpMessage>();
     	s.add(msg1);
     	
-    	assertTrue(s.contains(msg2));
+// This was testing equality of message for cheap DOS detection, but we got rid of that
+//    	assertTrue(s.contains(msg2));
     }
 }

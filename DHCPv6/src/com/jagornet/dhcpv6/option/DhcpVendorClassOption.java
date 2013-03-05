@@ -29,9 +29,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.VendorClassOption;
 
@@ -43,6 +44,7 @@ import com.jagornet.dhcpv6.xml.VendorClassOption;
  */
 public class DhcpVendorClassOption extends BaseOpaqueDataListOption
 {
+	private long enterpriseNumber;	// long for unsigned int
 	
 	/**
 	 * Instantiates a new dhcp vendor class option.
@@ -59,11 +61,20 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
 	 */
 	public DhcpVendorClassOption(VendorClassOption vendorClassOption)
 	{
-		if (vendorClassOption != null)
-			this.opaqueDataListOption = vendorClassOption;
-		else
-			this.opaqueDataListOption = VendorClassOption.Factory.newInstance();
+    	super(vendorClassOption);
+    	if (vendorClassOption != null) {
+    		enterpriseNumber = vendorClassOption.getEnterpriseNumber();
+    	}
+    	setCode(DhcpConstants.OPTION_VENDOR_CLASS);
 	}
+    
+    public long getEnterpriseNumber() {
+    	return enterpriseNumber;
+    }
+    
+    public void setEnterpriseNumber(long enterpriseNumber) {
+    	this.enterpriseNumber = enterpriseNumber;
+    }
 	
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
@@ -80,13 +91,11 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        VendorClassOption vendorClassOption = 
-        	(VendorClassOption)opaqueDataListOption;
-        buf.putInt((int)vendorClassOption.getEnterpriseNumber());
-        List<OpaqueData> vendorClasses = vendorClassOption.getOpaqueDataList();
+        buf.putInt((int)getEnterpriseNumber());
+        List<BaseOpaqueData> vendorClasses = getOpaqueDataList();
         if ((vendorClasses != null) && !vendorClasses.isEmpty()) {
-            for (OpaqueData opaque : vendorClasses) {
-                OpaqueDataUtil.encode(buf, opaque);
+            for (BaseOpaqueData opaque : vendorClasses) {
+            	opaque.encodeLengthAndData(buf);
             }
         }
         return (ByteBuffer) buf.flip();        
@@ -101,23 +110,14 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
     	if ((len > 0) && (len <= buf.remaining())) {
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-                VendorClassOption vendorClassOption = 
-                	(VendorClassOption)opaqueDataListOption;
-                vendorClassOption.setEnterpriseNumber(Util.getUnsignedInt(buf));
+                setEnterpriseNumber(Util.getUnsignedInt(buf));
                 while (buf.position() < eof) {
-    				OpaqueData opaque = opaqueDataListOption.addNewOpaqueData();
-                    OpaqueDataUtil.decode(opaque, buf);
+    				BaseOpaqueData opaque = new BaseOpaqueData();
+                    opaque.decodeLengthAndData(buf);
+                    addOpaqueData(opaque);
                 }
             }
         }
-    }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((VendorClassOption)opaqueDataListOption).getCode();
     }
 
     /* (non-Javadoc)
@@ -125,30 +125,10 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
-        sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(((VendorClassOption)opaqueDataListOption).toString());
+        StringBuilder sb = new StringBuilder(super.toString());
+        sb.append(" enterpriseNumber=");
+        sb.append(enterpriseNumber);
         return sb.toString();
-    }
-    
-    /**
-     * Convenience method to get enterprise number.
-     * @return
-     */
-    public long getEnterpriseNumber()
-    {
-    	return ((VendorClassOption)opaqueDataListOption).getEnterpriseNumber();
-    }
-    
-    /**
-     * Convenience method to set enterprise number.
-     * @param enterpriseNumber
-     */
-    public void setEnterpriseNumber(long enterpriseNumber)
-    {
-    	((VendorClassOption)opaqueDataListOption).setEnterpriseNumber(enterpriseNumber);
     }
 
     public boolean matches(DhcpVendorClassOption that, Operator.Enum op)
@@ -157,15 +137,9 @@ public class DhcpVendorClassOption extends BaseOpaqueDataListOption
             return false;
         if (that.getCode() != this.getCode())
             return false;
-        if (!(that.getOpaqueDataListOptionType() instanceof VendorClassOption))
-        	return false;
-        
-        VendorClassOption vcOption = (VendorClassOption)that.getOpaqueDataListOptionType();
-        long enterpriseNum = vcOption.getEnterpriseNumber();
-        long myEnterpriseNum = ((VendorClassOption)opaqueDataListOption).getEnterpriseNumber();
-        if (enterpriseNum != myEnterpriseNum)
+        if (that.getEnterpriseNumber() != this.getEnterpriseNumber())
         	return false;
 
-        return matches(that.getOpaqueDataListOptionType(), op);
+        return super.matches(that, op);
     }    
 }

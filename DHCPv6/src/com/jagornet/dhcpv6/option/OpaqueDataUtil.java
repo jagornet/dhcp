@@ -33,6 +33,7 @@ import java.util.Enumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
@@ -50,153 +51,6 @@ public class OpaqueDataUtil
 	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(OpaqueDataUtil.class);
-    
-    /**
-     * Gets the length.
-     * 
-     * @param opaque the opaque
-     * 
-     * @return the length
-     */
-    public static int getLength(OpaqueData opaque)
-    {
-        if (opaque == null)
-            return 0;
-        
-        String ascii = opaque.getAsciiValue();
-        if (ascii != null) {
-            // two bytes for the len + len of string
-            return 2 + ascii.length();
-        }
-        else {
-            // two bytes for the len + len of hex opaqueData
-            return 2 + opaque.getHexValue().length;
-        }
-    }
-
-    /**
-     * Gets the length opaqueData only.
-     * 
-     * @param opaque the opaque
-     * 
-     * @return the length opaqueData only
-     */
-    public static int getLengthDataOnly(OpaqueData opaque)
-    {
-        if (opaque == null)
-            return 0;
-        
-        String ascii = opaque.getAsciiValue();
-        if (ascii != null) {
-            return ascii.length();
-        }
-        else {
-        	byte[] hex = opaque.getHexValue();
-        	if (hex == null)
-        		return 0;
-            return hex.length;
-        }
-    }
-    
-    /**
-     * Encode the opaque opaqueData, including length, into a byte buffer.
-     * 
-     * @param buf the buf
-     * @param opaque the opaque opaqueData
-     */
-    public static void encode(ByteBuffer buf, OpaqueData opaque)
-    {
-        if ( (buf == null) || (opaque == null) )
-            return;
-        
-        String ascii = opaque.getAsciiValue();
-        if (ascii != null) {
-            buf.putShort((short)ascii.length());
-            buf.put(ascii.getBytes());
-        }
-        else {
-            byte[] hexval = opaque.getHexValue();
-            if (hexval != null) {
-                buf.putShort((short)hexval.length);
-                buf.put(hexval);
-            }
-        }        
-    }
-    
-    /**
-     * Encode the opaqueData only, that is without the length,
-     * from an opaque object into a byte buffer.
-     * 
-     * @param buf the buf
-     * @param opaque the opaque opaqueData
-     */
-    public static void encodeDataOnly(ByteBuffer buf, OpaqueData opaque)
-    {
-        if ((buf == null) || (opaque == null))
-            return;
-
-        String ascii = opaque.getAsciiValue();
-        if (ascii != null) {
-            buf.put(ascii.getBytes());
-        }
-        else {
-            byte[] hexval = opaque.getHexValue();
-            if (hexval != null) {
-                buf.put(hexval);
-            }
-        }        
-    }
-    
-    /**
-     * Decode the byte buffer, including length, into an opaque opaqueData object.
-     * 
-     * @param opaque the opaque opaqueData
-     * @param buf the buf
-     */
-    public static void decode(OpaqueData opaque, ByteBuffer buf)
-    {
-        if ((buf == null) || !buf.hasRemaining())
-            return;
-        
-        int len = Util.getUnsignedShort(buf);
-        if (len > 0) {
-            byte[] data = new byte[len];
-            buf.get(data);
-            String str = new String(data);
-            if (str.matches("\\p{Print}+")) {
-                opaque.setAsciiValue(str);
-            }
-            else {
-                opaque.setHexValue(data);
-            }
-        }
-    }
-    
-    /**
-     * Decode the opaqueData only, that is without the length,
-     * from a byte buffer into an opaque opaqueData object.
-     * 
-     * @param opaque the opaque opaqueData
-     * @param buf the buf
-     * @param len the len
-     * 
-     * @return the opaque opaqueData
-     */
-    public static void decodeDataOnly(OpaqueData opaque, ByteBuffer buf, int len)
-    {
-    	if ( (opaque == null) || (buf == null) || (len <= 0) )
-    		return;
-
-        byte[] data = new byte[len];
-        buf.get(data);
-        String str = new String(data);
-        if (str.matches("\\p{Print}+")) {
-            opaque.setAsciiValue(str);
-        }
-        else {
-            opaque.setHexValue(data);
-        }
-    }
 
     /**
      * Matches.
@@ -206,7 +60,7 @@ public class OpaqueDataUtil
      * 
      * @return true, if successful
      */
-    public static boolean matches(OptionExpression expression, OpaqueData myOpaque)
+    public static boolean matches(OptionExpression expression, BaseOpaqueData myOpaque)
     {
         if (expression == null)
             return false;
@@ -219,11 +73,11 @@ public class OpaqueDataUtil
         return matches(myOpaque, opaqueOption.getOpaqueData(), op);
     }
 
-    public static boolean matches(OpaqueData myOpaque, OpaqueData that, Operator.Enum op)
+    public static boolean matches(BaseOpaqueData myOpaque, OpaqueData that, Operator.Enum op)
     {
         if (that != null) {
             String expAscii = that.getAsciiValue();
-            String myAscii = myOpaque.getAsciiValue();
+            String myAscii = myOpaque.getAscii();
             if ( (expAscii != null) && (myAscii != null) ) {
                 if (op.equals(Operator.EQUALS)) {
                     return myAscii.equalsIgnoreCase(expAscii);
@@ -247,7 +101,7 @@ public class OpaqueDataUtil
             }
             else if ( (expAscii == null) && (myAscii == null) ) {
                 byte[] expHex = that.getHexValue();
-                byte[] myHex = myOpaque.getHexValue();
+                byte[] myHex = myOpaque.getHex();
                 if ( (expHex != null) && (myHex != null) ) {
                     if (op.equals(Operator.EQUALS)) {
                     	return Arrays.equals(myHex, expHex);
@@ -346,21 +200,21 @@ public class OpaqueDataUtil
      * @param opaque2 the opaque2
      * 
      * @return true, if successful
-     */
-    public static boolean equals(OpaqueData opaque1, OpaqueData opaque2)
+     */    
+    public static boolean equals(BaseOpaqueData opaque1, BaseOpaqueData opaque2)
     {
         if ( (opaque1 == null) || (opaque2 == null) )
             return false;
         
-        String ascii1 = opaque1.getAsciiValue();
+        String ascii1 = opaque1.getAscii();
         if (ascii1 != null) {
-            String ascii2 = opaque2.getAsciiValue();
+            String ascii2 = opaque2.getAscii();
             if (ascii1.equalsIgnoreCase(ascii2)) {
                 return true;
             }
         }
         else {
-        	return Arrays.equals(opaque1.getHexValue(), opaque2.getHexValue());
+        	return Arrays.equals(opaque1.getHex(), opaque2.getHex());
         }
         return false;
     }

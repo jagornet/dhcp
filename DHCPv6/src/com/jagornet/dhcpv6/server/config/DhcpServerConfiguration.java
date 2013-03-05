@@ -1823,7 +1823,8 @@ public class DhcpServerConfiguration
 			DhcpUserClassOption ucOption = (DhcpUserClassOption) 
 					requestMsg.getDhcpOption(ccexpr.getUserClassOption().getCode());
 			if (ucOption != null) {
-				if (!ucOption.matches(ccexpr.getUserClassOption(), ccexpr.getOperator())) {
+				DhcpUserClassOption exprOption = new DhcpUserClassOption(ccexpr.getUserClassOption());
+				if (!ucOption.matches(exprOption, ccexpr.getOperator())) {
 					return false;
 				}
 			}
@@ -1835,7 +1836,8 @@ public class DhcpServerConfiguration
 			DhcpVendorClassOption vcOption = (DhcpVendorClassOption) 
 					requestMsg.getDhcpOption(ccexpr.getVendorClassOption().getCode());
 			if (vcOption != null) {
-				if (!vcOption.matches(ccexpr.getVendorClassOption(), ccexpr.getOperator())) {
+				DhcpVendorClassOption exprOption = new DhcpVendorClassOption(ccexpr.getVendorClassOption());
+				if (!vcOption.matches(exprOption, ccexpr.getOperator())) {
 					return false;
 				}
 			}

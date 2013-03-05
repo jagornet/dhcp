@@ -128,9 +128,8 @@ public class TestDhcpDomainSearchListOption extends TestCase
         bb.flip();
         DhcpDomainSearchListOption dslo = new DhcpDomainSearchListOption();
         dslo.decode(bb);
-        assertNotNull(dslo.getDomainNameListOption());
-        assertEquals(2, dslo.getDomainNameListOption().getDomainNameList().size());
-        List<String> domainNames = dslo.getDomainNameListOption().getDomainNameList();
+        assertEquals(2, dslo.getDomainNameList().size());
+        List<String> domainNames = dslo.getDomainNameList();
         assertEquals(domain1, domainNames.get(0)); 
         assertEquals(domain2, domainNames.get(1)); 
     }

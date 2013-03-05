@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaAddrOption;
 
@@ -48,13 +49,13 @@ import com.jagornet.dhcpv6.xml.IaAddrOption;
  * @author A. Gregory Rabil
  */
 public class DhcpIaAddrOption extends BaseDhcpOption
-{	
-	
+{		
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaAddrOption.class);
 	
-	/** The ia addr option. */
-	private IaAddrOption iaAddrOption;
+	private String ipAddress;
+	private long preferredLifetime;		// long for unsigned int
+	private long validLifetime;			// long for unsigned int
     
 	/** The dhcp options inside this ia addr option. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
@@ -74,31 +75,36 @@ public class DhcpIaAddrOption extends BaseDhcpOption
 	 */
 	public DhcpIaAddrOption(IaAddrOption iaAddrOption)
 	{
-		if (iaAddrOption != null)
-			this.iaAddrOption = iaAddrOption;
-		else
-			this.iaAddrOption = IaAddrOption.Factory.newInstance();
+		if (iaAddrOption != null) {
+			this.ipAddress = iaAddrOption.getIpv6Address();
+			this.preferredLifetime = iaAddrOption.getPreferredLifetime();
+			this.validLifetime = iaAddrOption.getValidLifetime();
+		}
+		setCode(DhcpConstants.OPTION_IAADDR);
 	}
 
-	/**
-	 * Gets the ia addr option.
-	 * 
-	 * @return the ia addr option
-	 */
-	public IaAddrOption getIaAddrOption()
-	{
-		return iaAddrOption;
+	public String getIpAddress() {
+		return ipAddress;
 	}
-	
-	/**
-	 * Sets the ia addr option.
-	 * 
-	 * @param iaAddrOption the new ia addr option
-	 */
-	public void setIaAddrOption(IaAddrOption iaAddrOption)
-	{
-		if (iaAddrOption != null)
-			this.iaAddrOption = iaAddrOption;
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public long getPreferredLifetime() {
+		return preferredLifetime;
+	}
+
+	public void setPreferredLifetime(long preferredLifetime) {
+		this.preferredLifetime = preferredLifetime;
+	}
+
+	public long getValidLifetime() {
+		return validLifetime;
+	}
+
+	public void setValidLifetime(long validLifetime) {
+		this.validLifetime = validLifetime;
 	}
 
 	/**
@@ -146,24 +152,16 @@ public class DhcpIaAddrOption extends BaseDhcpOption
 	public InetAddress getInetAddress()
 	{
 		InetAddress inetAddr = null;
-		if (iaAddrOption != null) {
+		if (ipAddress != null) {
 			try {
-				inetAddr = InetAddress.getByName(iaAddrOption.getIpv6Address());
+				inetAddr = InetAddress.getByName(ipAddress);
 			}
 			catch (UnknownHostException ex) {
-				log.error("Invalid IP address: " + iaAddrOption.getIpv6Address() + ": " + ex);
+				log.error("Invalid IP address: " + ipAddress + ": " + ex);
 			}
 		}
 		return inetAddr;
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return iaAddrOption.getCode();
-    }
 
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
@@ -196,12 +194,11 @@ public class DhcpIaAddrOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        String ipAddress = iaAddrOption.getIpv6Address();
         if (ipAddress != null) {
             InetAddress inet6Addr = Inet6Address.getByName(ipAddress);
             buf.put(inet6Addr.getAddress());
-            buf.putInt((int)iaAddrOption.getPreferredLifetime());
-            buf.putInt((int)iaAddrOption.getValidLifetime());
+            buf.putInt((int)preferredLifetime);
+            buf.putInt((int)validLifetime);
             // encode the configured options
             if (dhcpOptions != null) {
             	for (DhcpOption dhcpOption : dhcpOptions.values()) {
@@ -228,11 +225,11 @@ public class DhcpIaAddrOption extends BaseDhcpOption
                           ":  bytes remaining in buffer=" + buf.remaining());
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-            	iaAddrOption.setIpv6Address(BaseIpAddressOption.decodeIpAddress(buf));
+            	ipAddress = BaseIpAddressOption.decodeIpAddress(buf);
             	if (buf.position() < eof) {
-            		iaAddrOption.setPreferredLifetime(Util.getUnsignedInt(buf));
+            		preferredLifetime = Util.getUnsignedInt(buf);
                 	if (buf.position() < eof) {
-                		iaAddrOption.setValidLifetime(Util.getUnsignedInt(buf));
+                		validLifetime = Util.getUnsignedInt(buf);
                 		if (buf.position() < eof) {
                 			decodeOptions(buf, eof);
                 		}
@@ -284,9 +281,12 @@ public class DhcpIaAddrOption extends BaseDhcpOption
     public String toString()
     {
         StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(iaAddrOption.toString());
+        sb.append(": ipAddress=");
+        sb.append(ipAddress);
+        sb.append(" preferredLifetime=");
+        sb.append(getPreferredLifetime());
+        sb.append(" validLifetime=");
+        sb.append(getValidLifetime());
         if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
             sb.append(Util.LINE_SEPARATOR);
         	sb.append("IA_ADDR_DHCPOPTIONS");

@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.option;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
@@ -42,10 +43,24 @@ import com.jagornet.dhcpv6.xml.GeoconfCivicOption;
  */
 public class DhcpGeoconfCivicOption extends BaseDhcpOption
 {
-    
-    /** The geoconf civic option. */
-    private GeoconfCivicOption geoconfCivicOption;
-    
+	private short what;
+	private String countryCode;
+	private List<CivicAddress> civicAddressList;
+	
+	class CivicAddress {
+		short type;
+		String value;
+		public CivicAddress() {
+			this(null);
+		}
+		public CivicAddress(CivicAddressElement caElement) {
+			if (caElement != null) {
+				type = caElement.getCaType();
+				value = caElement.getCaValue();
+			}
+		}
+	}
+	
     /**
      * Instantiates a new dhcp geoconf civic option.
      */
@@ -62,44 +77,59 @@ public class DhcpGeoconfCivicOption extends BaseDhcpOption
     public DhcpGeoconfCivicOption(GeoconfCivicOption geoconfCivicOption)
     {
         super();
-        if (geoconfCivicOption != null)
-            this.geoconfCivicOption = geoconfCivicOption;
-        else
-            this.geoconfCivicOption = GeoconfCivicOption.Factory.newInstance();
+        if (geoconfCivicOption != null) {
+        	what = geoconfCivicOption.getWhat();
+        	countryCode = geoconfCivicOption.getCountryCode();
+        	List<CivicAddressElement> cas = geoconfCivicOption.getCivicAddressElementList();
+        	if ((cas != null) && !cas.isEmpty()) {
+        		for (CivicAddressElement civicAddressElement : cas) {
+					addCivicAddress(new CivicAddress(civicAddressElement));
+				}
+        	}
+        }
     }
 
-    /**
-     * Gets the geoconf civic option.
-     * 
-     * @return the geoconf civic option
-     */
-    public GeoconfCivicOption getGeoconfCivicOption()
-    {
-        return geoconfCivicOption;
-    }
+    public short getWhat() {
+		return what;
+	}
 
-    /**
-     * Sets the geoconf civic option.
-     * 
-     * @param geoconfCivicOption the new geoconf civic option
-     */
-    public void setGeoconfCivicOption(GeoconfCivicOption geoconfCivicOption)
-    {
-        if (geoconfCivicOption != null)
-            this.geoconfCivicOption = geoconfCivicOption;
-    }
+	public void setWhat(short what) {
+		this.what = what;
+	}
 
-    /* (non-Javadoc)
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
+
+	public List<CivicAddress> getCivicAddressList() {
+		return civicAddressList;
+	}
+
+	public void setCivicAddressList(List<CivicAddress> civicAddressList) {
+		this.civicAddressList = civicAddressList;
+	}
+	
+	public void addCivicAddress(CivicAddress civicAddress) {
+		if (civicAddressList == null) {
+			civicAddressList = new ArrayList<CivicAddress>();
+		}
+		civicAddressList.add(civicAddress);
+	}
+
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
     {
     	int len = 3;	// size of what(1) + country code(2)
-    	List<CivicAddressElement> civicAddrs = geoconfCivicOption.getCivicAddressElementList();
-    	if ((civicAddrs != null) && !civicAddrs.isEmpty()) {
-    		for (CivicAddressElement civicAddr : civicAddrs) {
+    	if ((civicAddressList != null) && !civicAddressList.isEmpty()) {
+    		for (CivicAddress civicAddr : civicAddressList) {
 				len += 2;	// CAtype byte + CAlength byte
-				String caVal = civicAddr.getCaValue();
+				String caVal = civicAddr.value;
 				if (caVal != null)
 					len += caVal.length();
 			}
@@ -113,20 +143,18 @@ public class DhcpGeoconfCivicOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.put((byte)geoconfCivicOption.getWhat());
-        String country = geoconfCivicOption.getCountryCode();
-        if (country != null) {
-        	buf.put(country.getBytes());
+        buf.put((byte)what);
+        if (countryCode != null) {
+        	buf.put(countryCode.getBytes());
         }
         else {
         	//TODO: throw exception?
         	buf.put("XX".getBytes());
         }
-        List<CivicAddressElement> civicAddrs = geoconfCivicOption.getCivicAddressElementList();
-    	if ((civicAddrs != null) && !civicAddrs.isEmpty()) {
-    		for (CivicAddressElement civicAddr : civicAddrs) {
-    			buf.put((byte)civicAddr.getCaType());
-    			String caVal = civicAddr.getCaValue();
+    	if ((civicAddressList != null) && !civicAddressList.isEmpty()) {
+    		for (CivicAddress civicAddr : civicAddressList) {
+    			buf.put((byte)civicAddr.type);
+    			String caVal = civicAddr.value;
     			if (caVal != null) {
     				buf.put((byte)caVal.length());
     				buf.put(caVal.getBytes());
@@ -148,32 +176,25 @@ public class DhcpGeoconfCivicOption extends BaseDhcpOption
     	if ((len > 0) && (len <= buf.remaining())) {
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-            	geoconfCivicOption.setWhat(Util.getUnsignedByte(buf));
+            	what = Util.getUnsignedByte(buf);
                 if (buf.position() < eof) {
                 	byte[] country = new byte[2];
                 	buf.get(country);
-                	geoconfCivicOption.setCountryCode(new String(country));
+                	countryCode = new String(country);
                 	while (buf.position() < eof) {
-                		CivicAddressElement civicAddr = geoconfCivicOption.addNewCivicAddressElement();
-                		civicAddr.setCaType(Util.getUnsignedByte(buf));
+                		CivicAddress civicAddr = new CivicAddress();
+                		civicAddr.type = Util.getUnsignedByte(buf);
                 		short caLen = Util.getUnsignedByte(buf);
                 		if (caLen > 0) {
                 			byte[] caVal = new byte[caLen];
                 			buf.get(caVal);
-                			civicAddr.setCaValue(new String(caVal));
+                			civicAddr.value = new String(caVal);
                 		}
+                		addCivicAddress(civicAddr);
                 	}
                 }
             }
         }
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return geoconfCivicOption.getCode();
     }
 
     /* (non-Javadoc)
@@ -183,9 +204,19 @@ public class DhcpGeoconfCivicOption extends BaseDhcpOption
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(geoconfCivicOption.toString());
+        sb.append(": what=");
+        sb.append(what);
+        sb.append(" countryCode=");
+        sb.append(countryCode);
+    	if ((civicAddressList != null) && !civicAddressList.isEmpty()) {
+    		sb.append(Util.LINE_SEPARATOR);
+    		for (CivicAddress civicAddr : civicAddressList) {
+    			sb.append("civicAddress: type=");
+    			sb.append(civicAddr.type);
+    			sb.append(" value=");
+    			sb.append(civicAddr.value);
+    		}
+    	}
         return sb.toString();
     }
     

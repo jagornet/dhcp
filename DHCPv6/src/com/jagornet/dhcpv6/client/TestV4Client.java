@@ -383,7 +383,7 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
             msg.setChAddr(chAddr);
             
             DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-            msgTypeOption.getUnsignedByteOption().setUnsignedByte(
+            msgTypeOption.setUnsignedByte(
             		(short)DhcpConstants.V4MESSAGE_TYPE_DISCOVER);
             
             msg.putDhcpOption(msgTypeOption);

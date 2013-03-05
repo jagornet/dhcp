@@ -117,7 +117,7 @@ public class TestDhcpConfirmProcessor extends BaseTestDhcpProcessor
 		// hack the returned reply to request an off-link address
 		replyMsg.getIaNaOptions().iterator().next().
 				getIaAddrOptions().iterator().next().
-						getIaAddrOption().setIpv6Address("2001:DB8:2::1");
+						setIpAddress("2001:DB8:2::1");
 		
 		DhcpConfirmProcessor cProc =
 			new DhcpConfirmProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());

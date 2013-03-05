@@ -49,8 +49,7 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
 {
 	private static Logger log = LoggerFactory.getLogger(BaseUnsignedByteOption.class);
 
-	/** The unsigned byte option. */
-    protected UnsignedByteOptionType uByteOption;
+    protected short unsignedByte;
 
     /**
      * Instantiates a new unsigned byte option.
@@ -68,34 +67,20 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
     public BaseUnsignedByteOption(UnsignedByteOptionType uByteOption)
     {
         super();
-        if (uByteOption != null)
-            this.uByteOption = uByteOption;
-        else
-            this.uByteOption = UnsignedByteOptionType.Factory.newInstance();
+        if (uByteOption != null) {
+        	unsignedByte = uByteOption.getUnsignedByte();
+        }
     }
 
-    /**
-     * Gets the unsigned byte option.
-     * 
-     * @return the unsigned byte option
-     */
-    public UnsignedByteOptionType getUnsignedByteOption()
-    {
-        return uByteOption;
-    }
+    public short getUnsignedByte() {
+		return unsignedByte;
+	}
 
-    /**
-     * Sets the unsigned byte option.
-     * 
-     * @param uByteOption the new unsigned byte option
-     */
-    public void setUnsignedByteOption(UnsignedByteOptionType uByteOption)
-    {
-        if (uByteOption != null)
-            this.uByteOption = uByteOption;
-    }
+	public void setUnsignedByte(short unsignedByte) {
+		this.unsignedByte = unsignedByte;
+	}
 
-    /* (non-Javadoc)
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
@@ -109,7 +94,7 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.put((byte)uByteOption.getUnsignedByte());
+        buf.put((byte)unsignedByte);
         return (ByteBuffer) buf.flip();
     }
 
@@ -120,7 +105,7 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
     {
     	int len = super.decodeLength(buf);
     	if ((len > 0) && (len <= buf.remaining())) {
-    		uByteOption.setUnsignedByte(Util.getUnsignedByte(buf));
+    		unsignedByte = Util.getUnsignedByte(buf);
         }
     }
 
@@ -133,29 +118,25 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (uByteOption == null)
-        	return false;
-
-        short myUbyte = uByteOption.getUnsignedByte();
         
-        UnsignedByteOptionType that = expression.getUByteOption();
-        if (that != null) {
-        	short ubyte = that.getUnsignedByte();
+        UnsignedByteOptionType exprOption = expression.getUByteOption();
+        if (exprOption != null) {
+        	short exprUbyte = exprOption.getUnsignedByte();
         	Operator.Enum op = expression.getOperator();
         	if (op.equals(Operator.EQUALS)) {
-        		return (myUbyte == ubyte);
+        		return (unsignedByte == exprUbyte);
         	}
         	else if (op.equals(Operator.LESS_THAN)) {
-        		return (myUbyte < ubyte);
+        		return (unsignedByte < exprUbyte);
         	}
         	else if (op.equals(Operator.LESS_THAN_OR_EQUAL)) {
-        		return (myUbyte <= ubyte);
+        		return (unsignedByte <= exprUbyte);
         	}
         	else if (op.equals(Operator.GREATER_THAN)) {
-        		return (myUbyte > ubyte);
+        		return (unsignedByte > exprUbyte);
         	}
         	else if (op.equals(Operator.GREATER_THAN_OR_EQUAL)) {
-        		return (myUbyte >= ubyte);
+        		return (unsignedByte >= exprUbyte);
         	}
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -171,7 +152,7 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
 	            if (ascii != null) {
 	                try {
 	                	// need an Short to handle unsigned byte
-	                    if (uByteOption.getUnsignedByte() == Short.parseShort(ascii)) {
+	                    if (unsignedByte == Short.parseShort(ascii)) {
 	                        return true;
 	                    }
 	                }
@@ -183,7 +164,7 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
 	                byte[] hex = opaque.getHexValue();
 	                if ((hex != null) && (hex.length == 1)) {
 	                	int hexUnsignedByte = Short.valueOf(Util.toHexString(hex), 16);
-	                    if (uByteOption.getUnsignedByte() == hexUnsignedByte) {
+	                    if (unsignedByte == hexUnsignedByte) {
 	                        return true;
 	                    }
 	                }
@@ -200,9 +181,8 @@ public abstract class BaseUnsignedByteOption extends BaseDhcpOption implements D
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(uByteOption.toString());
+        sb.append(": unsignedByte=");
+        sb.append(unsignedByte);
         return sb.toString();
     }
     

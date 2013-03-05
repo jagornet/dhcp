@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4SubnetMaskOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4SubnetMaskOption;
  */
 public class DhcpV4SubnetMaskOption extends BaseIpAddressOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 subnet mask option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4SubnetMaskOption extends BaseIpAddressOption
 	 */
 	public DhcpV4SubnetMaskOption(V4SubnetMaskOption v4SubnetMaskOption)
 	{
-		if (v4SubnetMaskOption != null)
-			this.ipAddressOption = v4SubnetMaskOption;
-		else
-			this.ipAddressOption = V4SubnetMaskOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4SubnetMaskOption);
+		setCode(DhcpConstants.V4OPTION_SUBNET_MASK);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4SubnetMaskOption)ipAddressOption).getCode();
-    }
 }

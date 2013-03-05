@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -49,9 +48,6 @@ import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
-import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
 
 /**
  * Title:        DHCPMessage
@@ -617,10 +613,7 @@ public class DhcpMessage implements DhcpMessageInterface
 	        	DhcpOptionRequestOption oro = 
 	        		(DhcpOptionRequestOption) dhcpOptions.get(DhcpConstants.OPTION_ORO);
 	        	if (oro != null) {
-	        		UnsignedShortListOptionType ushortListOption = oro.getUnsignedShortListOption();
-	        		if (ushortListOption != null) {
-	        			requestedOptionCodes = ushortListOption.getUnsignedShortList();
-	        		}
+        			requestedOptionCodes = oro.getUnsignedShortList();
 	        	}
 			}
 		}
@@ -676,63 +669,5 @@ public class DhcpMessage implements DhcpMessageInterface
         	}
         }
         return sb.toString();
-    }
-    
-    @Override
-    public int hashCode() {
-    	int hash = this.getMessageType();
-    	hash += this.getTransactionId();
-    	if (this.getDhcpClientIdOption() != null) {
-//    		hash += this.getDhcpClientIdOption().hashCode();
-    		OpaqueDataOptionType opaqueType = 
-    			this.getDhcpClientIdOption().getOpaqueDataOptionType();
-    		if (opaqueType != null) {
-    			OpaqueData opaque = opaqueType.getOpaqueData();
-    			if (opaque != null) {
-	    			String ascii = opaque.getAsciiValue();
-	    			if (ascii != null) {
-	    				hash += ascii.hashCode();
-	    			}
-	    			else {
-	    				hash += Arrays.hashCode(opaque.getHexValue());
-	    			}
-    			}
-    		}
-    	}
-    	return hash;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-
-    	boolean rc = false;
-    	if (obj instanceof DhcpMessage) {
-    		DhcpMessage that = (DhcpMessage) obj;
-    		if (that.getMessageType() == this.getMessageType()) {
-    			if (that.getTransactionId() == this.getTransactionId()) {
-    				if (this.getDhcpClientIdOption() != null) {
-    					if (that.getDhcpClientIdOption() != null) {
-    						rc = this.getDhcpClientIdOption().equals(that.getDhcpClientIdOption());
-    					}
-    					else {
-    						rc = false;
-    					}
-    				}
-    				else if (that.getDhcpClientIdOption() != null) {
-    					rc = false;
-    				}
-    				else {
-    					rc = true;
-    				}
-    			}
-    		}
-    	}
-    	return rc;
     }
 }

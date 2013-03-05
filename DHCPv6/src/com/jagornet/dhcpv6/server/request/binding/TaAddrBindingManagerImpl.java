@@ -93,7 +93,7 @@ public class TaAddrBindingManagerImpl
 			DhcpMessageInterface requestMsg) {
 		
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaTaOption.getIaTaOption().getIaId();
+		long iaid = iaTaOption.getIaId();
 		
 		return super.findCurrentBinding(clientLink, duid, IdentityAssoc.TA_TYPE, 
 				iaid, requestMsg);
@@ -108,7 +108,7 @@ public class TaAddrBindingManagerImpl
 			DhcpMessageInterface requestMsg, byte state) {
 		
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaTaOption.getIaTaOption().getIaId();
+		long iaid = iaTaOption.getIaId();
 
 		StaticBinding staticBinding = 
 			findStaticBinding(clientLink, duid, IdentityAssoc.TA_TYPE, iaid, requestMsg);
@@ -132,7 +132,7 @@ public class TaAddrBindingManagerImpl
 			DhcpMessageInterface requestMsg, byte state) {
 		
 		byte[] duid = clientIdOption.getDuid();
-		long iaid = iaTaOption.getIaTaOption().getIaId();
+		long iaid = iaTaOption.getIaId();
 
 		StaticBinding staticBinding = 
 			findStaticBinding(clientLink, duid, IdentityAssoc.TA_TYPE, iaid, requestMsg);

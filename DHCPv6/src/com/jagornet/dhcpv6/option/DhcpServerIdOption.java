@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ServerIdOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.ServerIdOption;
  */
 public class DhcpServerIdOption extends BaseOpaqueDataOption
 {
-	
 	/**
 	 * Instantiates a new dhcp server id option.
 	 */
@@ -52,22 +52,7 @@ public class DhcpServerIdOption extends BaseOpaqueDataOption
 	 */
 	public DhcpServerIdOption(ServerIdOption serverIdOption)
 	{
-		if (serverIdOption != null) {
-			this.opaqueDataOption = serverIdOption;
-		}
-		else {
-			this.opaqueDataOption = ServerIdOption.Factory.newInstance();
-            // create an OpaqueData element to actually hold the data
-            this.opaqueDataOption.addNewOpaqueData();
-		}
-		
+		super(serverIdOption);
+		setCode(DhcpConstants.OPTION_SERVERID);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((ServerIdOption)opaqueDataOption).getCode();
-    }
 }

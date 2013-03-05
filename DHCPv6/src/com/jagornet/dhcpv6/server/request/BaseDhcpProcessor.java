@@ -67,13 +67,6 @@ import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.server.request.ddns.DhcpDdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.AddressPool;
-import com.jagornet.dhcpv6.xml.ClientFqdnOption;
-import com.jagornet.dhcpv6.xml.DomainNameOptionType;
-import com.jagornet.dhcpv6.xml.IaAddrOption;
-import com.jagornet.dhcpv6.xml.IaNaOption;
-import com.jagornet.dhcpv6.xml.IaPdOption;
-import com.jagornet.dhcpv6.xml.IaPrefixOption;
-import com.jagornet.dhcpv6.xml.IaTaOption;
 import com.jagornet.dhcpv6.xml.PrefixPool;
 
 /**
@@ -573,7 +566,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	protected void setReplyStatus(int statusCode)
 	{
 		DhcpStatusCodeOption statusOption = new DhcpStatusCodeOption();
-		statusOption.getStatusCodeOption().setStatusCode(statusCode);
+		statusOption.setStatusCode(statusCode);
 		replyMsg.putDhcpOption(statusOption);
 	}
 	
@@ -585,9 +578,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 */
 	protected void addIaNaOptionStatusToReply(DhcpIaNaOption iaNaOption, int statusCode)
 	{
-		DhcpIaNaOption replyIaNaOption = new DhcpIaNaOption(iaNaOption.getIaNaOption());
+		DhcpIaNaOption replyIaNaOption = new DhcpIaNaOption();
+		replyIaNaOption.setIaId(iaNaOption.getIaId());
 		DhcpStatusCodeOption status = new DhcpStatusCodeOption();
-		status.getStatusCodeOption().setStatusCode(statusCode);
+		status.setStatusCode(statusCode);
 		replyIaNaOption.putDhcpOption(status);
 		replyMsg.addIaNaOption(replyIaNaOption);
 	}
@@ -600,9 +594,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 */
 	protected void addIaTaOptionStatusToReply(DhcpIaTaOption iaTaOption, int statusCode)
 	{
-		DhcpIaTaOption replyIaTaOption = new DhcpIaTaOption(iaTaOption.getIaTaOption());
+		DhcpIaTaOption replyIaTaOption = new DhcpIaTaOption();
+		replyIaTaOption.setIaId(iaTaOption.getIaId());
 		DhcpStatusCodeOption status = new DhcpStatusCodeOption();
-		status.getStatusCodeOption().setStatusCode(statusCode);
+		status.setStatusCode(statusCode);
 		replyIaTaOption.putDhcpOption(status);
 		replyMsg.addIaTaOption(replyIaTaOption);
 	}
@@ -615,9 +610,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 */
 	protected void addIaPdOptionStatusToReply(DhcpIaPdOption iaPdOption, int statusCode)
 	{
-		DhcpIaPdOption replyIaPdOption = new DhcpIaPdOption(iaPdOption.getIaPdOption());
+		DhcpIaPdOption replyIaPdOption = new DhcpIaPdOption();
+		replyIaPdOption.setIaId(iaPdOption.getIaId());
 		DhcpStatusCodeOption status = new DhcpStatusCodeOption();
-		status.getStatusCodeOption().setStatusCode(statusCode);
+		status.setStatusCode(statusCode);
 		replyIaPdOption.putDhcpOption(status);
 		replyMsg.addIaPdOption(replyIaPdOption);
 	}
@@ -650,8 +646,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	protected void addNaBindingToReply(DhcpLink clientLink, Binding binding)
 	{
 		DhcpIaNaOption dhcpIaNaOption = new DhcpIaNaOption();
-		IaNaOption iaNaOption = dhcpIaNaOption.getIaNaOption(); 
-		iaNaOption.setIaId(binding.getIaid());
+		dhcpIaNaOption.setIaId(binding.getIaid());
 
 		long minPreferredLifetime = 0;
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
@@ -660,10 +655,9 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			List<DhcpIaAddrOption> dhcpIaAddrOptions = new ArrayList<DhcpIaAddrOption>(); 
 			for (BindingObject bindingObj : bindingObjs) {
 				DhcpIaAddrOption dhcpIaAddrOption = new DhcpIaAddrOption();
-				IaAddrOption iaAddrOption = dhcpIaAddrOption.getIaAddrOption();
 				InetAddress inetAddr = bindingObj.getIpAddress();
 				if (inetAddr != null) {
-					iaAddrOption.setIpv6Address(inetAddr.getHostAddress());
+					dhcpIaAddrOption.setIpAddress(inetAddr.getHostAddress());
 					// must be an DhcpOptionConfigObject for IA_NA binding
 					DhcpOptionConfigObject configObj = 
 						(DhcpOptionConfigObject) bindingObj.getConfigObj();
@@ -673,8 +667,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 								(preferred < minPreferredLifetime))  {
 							minPreferredLifetime = preferred; 
 						}
-						iaAddrOption.setPreferredLifetime(preferred);
-						iaAddrOption.setValidLifetime(configObj.getValidLifetime());
+						dhcpIaAddrOption.setPreferredLifetime(preferred);
+						dhcpIaAddrOption.setValidLifetime(configObj.getValidLifetime());
 						populateNaAddrOptions(dhcpIaAddrOption, clientLink, configObj);
 						dhcpIaAddrOptions.add(dhcpIaAddrOption);
 						//TODO when do actually start the timer?  currently, two get
@@ -696,8 +690,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			log.error("No IA_NA bindings in binding object!");
 		}
 		
-		setIaNaT1(clientLink, iaNaOption, minPreferredLifetime);
-		setIaNaT2(clientLink, iaNaOption, minPreferredLifetime);
+		setIaNaT1(clientLink, dhcpIaNaOption, minPreferredLifetime);
+		setIaNaT2(clientLink, dhcpIaNaOption, minPreferredLifetime);
 		
 		populateIaNaOptions(dhcpIaNaOption, clientLink);
 		replyMsg.addIaNaOption(dhcpIaNaOption);
@@ -712,24 +706,22 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	protected void addTaBindingToReply(DhcpLink clientLink, Binding binding)
 	{
 		DhcpIaTaOption dhcpIaTaOption = new DhcpIaTaOption();
-		IaTaOption iaTaOption = dhcpIaTaOption.getIaTaOption(); 
-		iaTaOption.setIaId(binding.getIaid());
+		dhcpIaTaOption.setIaId(binding.getIaid());
 		
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			List<DhcpIaAddrOption> dhcpIaAddrOptions = new ArrayList<DhcpIaAddrOption>(); 
 			for (BindingObject bindingObj : bindingObjs) {
 				DhcpIaAddrOption dhcpIaAddrOption = new DhcpIaAddrOption();
-				IaAddrOption iaAddrOption = dhcpIaAddrOption.getIaAddrOption();
 				InetAddress inetAddr = bindingObj.getIpAddress();
 				if (inetAddr != null) {
-					iaAddrOption.setIpv6Address(inetAddr.getHostAddress());
+					dhcpIaAddrOption.setIpAddress(inetAddr.getHostAddress());
 					// must be an DhcpOptionConfigObject for IA_TA binding
 					DhcpOptionConfigObject configObj = 
 						(DhcpOptionConfigObject) bindingObj.getConfigObj();
 					if (configObj != null) {
-						iaAddrOption.setPreferredLifetime(configObj.getPreferredLifetime());
-						iaAddrOption.setValidLifetime(configObj.getValidLifetime());
+						dhcpIaAddrOption.setPreferredLifetime(configObj.getPreferredLifetime());
+						dhcpIaAddrOption.setValidLifetime(configObj.getValidLifetime());
 						populateTaAddrOptions(dhcpIaAddrOption, clientLink, configObj);
 						dhcpIaAddrOptions.add(dhcpIaAddrOption);
 						//TODO when do actually start the timer?  currently, two get
@@ -764,8 +756,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	protected void addPdBindingToReply(DhcpLink clientLink, Binding binding)
 	{
 		DhcpIaPdOption dhcpIaPdOption = new DhcpIaPdOption();
-		IaPdOption iaPdOption = dhcpIaPdOption.getIaPdOption(); 
-		iaPdOption.setIaId(binding.getIaid());
+		dhcpIaPdOption.setIaId(binding.getIaid());
 		
 		long minPreferredLifetime = 0;
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
@@ -776,11 +767,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 				// must be a Binding Prefix for IaPd binding
 				BindingPrefix bindingPrefix = (BindingPrefix) bindingObj;
 				DhcpIaPrefixOption dhcpIaPrefixOption = new DhcpIaPrefixOption();
-				IaPrefixOption iaPrefixOption = dhcpIaPrefixOption.getIaPrefixOption();
 				InetAddress inetAddr = bindingObj.getIpAddress();
 				if (inetAddr != null) {
-					iaPrefixOption.setIpv6Prefix(inetAddr.getHostAddress());
-					iaPrefixOption.setPrefixLength(bindingPrefix.getPrefixLength());
+					dhcpIaPrefixOption.setIpAddress(inetAddr.getHostAddress());
+					dhcpIaPrefixOption.setPrefixLength(bindingPrefix.getPrefixLength());
 					// must be an DhcpOptionConfigObject for IA_PD binding
 					DhcpOptionConfigObject configObj = 
 						(DhcpOptionConfigObject) bindingObj.getConfigObj();
@@ -790,8 +780,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 								(preferred < minPreferredLifetime))  {
 							minPreferredLifetime = preferred; 
 						}
-						iaPrefixOption.setPreferredLifetime(preferred);
-						iaPrefixOption.setValidLifetime(configObj.getValidLifetime());
+						dhcpIaPrefixOption.setPreferredLifetime(preferred);
+						dhcpIaPrefixOption.setValidLifetime(configObj.getValidLifetime());
 						populatePrefixOptions(dhcpIaPrefixOption, clientLink, configObj);
 						dhcpIaPrefixOptions.add(dhcpIaPrefixOption);
 						//TODO when do actually start the timer?  currently, two get
@@ -813,8 +803,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			log.error("No IA_PD bindings in binding object!");
 		}
 		
-		setIaPdT1(clientLink, iaPdOption, minPreferredLifetime);
-		setIaPdT2(clientLink, iaPdOption, minPreferredLifetime);
+		setIaPdT1(clientLink, dhcpIaPdOption, minPreferredLifetime);
+		setIaPdT2(clientLink, dhcpIaPdOption, minPreferredLifetime);
 		
 		populateIaPdOptions(dhcpIaPdOption, clientLink);
 		replyMsg.addIaPdOption(dhcpIaPdOption);
@@ -839,7 +829,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param iaNaOption the ia na option
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
-	private void setIaNaT1(DhcpLink clientLink, IaNaOption iaNaOption,
+	private void setIaNaT1(DhcpLink clientLink, DhcpIaNaOption iaNaOption,
 			long minPreferredLifetime)
 	{
 		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_NA_T1);
@@ -880,7 +870,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param iaNaOption the ia na option
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
-	private void setIaNaT2(DhcpLink clientLink, IaNaOption iaNaOption,
+	private void setIaNaT2(DhcpLink clientLink, DhcpIaNaOption iaNaOption,
 			long minPreferredLifetime)
 	{
 		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_NA_T2);
@@ -925,7 +915,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param iaPdOption the ia na option
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
-	private void setIaPdT1(DhcpLink clientLink, IaPdOption iaPdOption,
+	private void setIaPdT1(DhcpLink clientLink, DhcpIaPdOption iaPdOption,
 			long minPreferredLifetime)
 	{
 		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_PD_T1);
@@ -966,7 +956,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	 * @param iaPdOption the ia pd option
 	 * @param minPreferredLifetime the min preferred lifetime
 	 */
-	private void setIaPdT2(DhcpLink clientLink, IaPdOption iaPdOption,
+	private void setIaPdT2(DhcpLink clientLink, DhcpIaPdOption iaPdOption,
 			long minPreferredLifetime)
 	{
 		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_PD_T2);
@@ -1017,14 +1007,13 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			return;
 		}
 
-		DhcpClientFqdnOption replyFqdnOption = 
-			new DhcpClientFqdnOption((ClientFqdnOption) clientFqdnOption.getDomainNameOption());
+		DhcpClientFqdnOption replyFqdnOption = new DhcpClientFqdnOption();
+		replyFqdnOption.setDomainName(clientFqdnOption.getDomainName());
 		replyFqdnOption.setUpdateAaaaBit(false);
 		replyFqdnOption.setOverrideBit(false);
 		replyFqdnOption.setNoUpdateBit(false);
 		
-		DomainNameOptionType domainNameOption = clientFqdnOption.getDomainNameOption();
-		String fqdn = domainNameOption.getDomainName();
+		String fqdn = clientFqdnOption.getDomainName();
 		if ((fqdn == null) || (fqdn.length() <= 0)) {
 			log.error("Client FQDN option domain name is null/empty.  No DDNS udpates performed.");
 			replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
@@ -1077,8 +1066,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			else {
 				fqdn = fqdn + "." + domain;
 			}
-			domainNameOption.setDomainName(fqdn);
-			replyFqdnOption.setDomainNameOption(domainNameOption);
+			replyFqdnOption.setDomainName(fqdn);
 		}
 		
 		replyMsg.putDhcpOption(replyFqdnOption);
@@ -1139,8 +1127,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 							log.info("No local address pool found for requested IA_NA: " + 
 									iaAddrOpt.getInetAddress().getHostAddress() +
 									" - considered to be off link");
-							iaAddrOpt.getIaAddrOption().setPreferredLifetime(0);
-							iaAddrOpt.getIaAddrOption().setValidLifetime(0);
+							iaAddrOpt.setPreferredLifetime(0);
+							iaAddrOpt.setValidLifetime(0);
 							onLink = false;
 						}
 					}
@@ -1150,8 +1138,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 						if (!clientLink.getSubnet().contains(iaAddrOpt.getInetAddress())) {
 							log.info("Setting zero(0) lifetimes for off link address: " +
 									iaAddrOpt.getInetAddress().getHostAddress());
-							iaAddrOpt.getIaAddrOption().setPreferredLifetime(0);
-							iaAddrOpt.getIaAddrOption().setValidLifetime(0);
+							iaAddrOpt.setPreferredLifetime(0);
+							iaAddrOpt.setValidLifetime(0);
 							onLink = false;
 						}
 					}
@@ -1187,8 +1175,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 							log.info("No local address pool found for requested IA_TA: " + 
 									iaAddrOpt.getInetAddress().getHostAddress() +
 									" - considered to be off link");
-							iaAddrOpt.getIaAddrOption().setPreferredLifetime(0);
-							iaAddrOpt.getIaAddrOption().setValidLifetime(0);
+							iaAddrOpt.setPreferredLifetime(0);
+							iaAddrOpt.setValidLifetime(0);
 							onLink = false;
 						}
 					}
@@ -1196,8 +1184,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 						if (!clientLink.getSubnet().contains(iaAddrOpt.getInetAddress())) {
 							log.info("Setting zero(0) lifetimes for off link address: " +
 									iaAddrOpt.getInetAddress().getHostAddress());
-							iaAddrOpt.getIaAddrOption().setPreferredLifetime(0);
-							iaAddrOpt.getIaAddrOption().setValidLifetime(0);
+							iaAddrOpt.setPreferredLifetime(0);
+							iaAddrOpt.setValidLifetime(0);
 							onLink = false;
 						}
 					}
@@ -1233,8 +1221,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 							log.info("No local prefix pool found for requested IA_PD: " + 
 									iaPrefixOpt.getInetAddress().getHostAddress() +
 									" - considered to be off link");
-							iaPrefixOpt.getIaPrefixOption().setPreferredLifetime(0);
-							iaPrefixOpt.getIaPrefixOption().setValidLifetime(0);
+							iaPrefixOpt.setPreferredLifetime(0);
+							iaPrefixOpt.setValidLifetime(0);
 							onLink = false;
 						}
 					}
@@ -1242,8 +1230,8 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 						if (!clientLink.getSubnet().contains(iaPrefixOpt.getInetAddress())) {
 							log.info("Setting zero(0) lifetimes for off link prefix: " +
 									iaPrefixOpt.getInetAddress().getHostAddress());
-							iaPrefixOpt.getIaPrefixOption().setPreferredLifetime(0);
-							iaPrefixOpt.getIaPrefixOption().setValidLifetime(0);
+							iaPrefixOpt.setPreferredLifetime(0);
+							iaPrefixOpt.setValidLifetime(0);
 							onLink = false;
 						}
 					}

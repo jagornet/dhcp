@@ -36,9 +36,6 @@ import com.jagornet.dhcpv6.xml.IpAddressListOptionType;
  */
 public class GenericIpAddressListOption extends BaseIpAddressListOption
 {
-	/** The option code. */
-	private int code;
-	
 	/**
 	 * Instantiates a new generic ip address list option.
 	 * 
@@ -61,15 +58,7 @@ public class GenericIpAddressListOption extends BaseIpAddressListOption
 									   IpAddressListOptionType ipAddressListOption)
 	{
 		super(ipAddressListOption);
-		this.code = code;
-		super.setName(name);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-	 */
-	public int getCode()
-	{
-		return code;
+		setCode(code);
+		setName(name);
 	}
 }

@@ -37,12 +37,6 @@ import com.jagornet.dhcpv6.server.DhcpV6Server;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.ConfigOptionsType;
-import com.jagornet.dhcpv6.xml.DnsServersOption;
-import com.jagornet.dhcpv6.xml.DomainSearchListOption;
-import com.jagornet.dhcpv6.xml.IaAddrOption;
-import com.jagornet.dhcpv6.xml.IaAddrOptionListType;
-import com.jagornet.dhcpv6.xml.IaNaOption;
 import com.jagornet.dhcpv6.xml.PoliciesType;
 import com.jagornet.dhcpv6.xml.Policy;
 
@@ -77,36 +71,33 @@ public class TestDhcpIaNaOption extends TestCase
 	{
 		int len = 4;	// code + len
 		DhcpIaNaOption din = new DhcpIaNaOption();
-		IaNaOption ino = din.getIaNaOption();
-		ino.setIaId(0xdebb1e);
-		ino.setT1(10000);
-		ino.setT2(20000);
+		din.setIaId(0xdebb1e);
+		din.setT1(10000);
+		din.setT2(20000);
 		len += 12;
 		
 		List<DhcpIaAddrOption> iaAddrOptions = new ArrayList<DhcpIaAddrOption>();
 
 		DhcpIaAddrOption addr1 = new DhcpIaAddrOption();
-		IaAddrOption ao1 = addr1.getIaAddrOption();
-		ao1.setIpv6Address("3ffe::1");
-		ao1.setPreferredLifetime(11000);
-		ao1.setValidLifetime(12000);
+		addr1.setIpAddress("3ffe::1");
+		addr1.setPreferredLifetime(11000);
+		addr1.setValidLifetime(12000);
 		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
 		DhcpDnsServersOption dnsServers1 = new DhcpDnsServersOption();
-		dnsServers1.addServer(InetAddress.getByName("3ffe::1:1"));
-		dnsServers1.addServer(InetAddress.getByName("3ffe::1:2"));
+		dnsServers1.addIpAddress(InetAddress.getByName("3ffe::1:1"));
+		dnsServers1.addIpAddress(InetAddress.getByName("3ffe::1:2"));
 		addr1.putDhcpOption(dnsServers1);
 		iaAddrOptions.add(addr1);
 		len += 4 + 16 + 16;
 		
 		DhcpIaAddrOption addr2 = new DhcpIaAddrOption();
-		IaAddrOption ao2 = addr2.getIaAddrOption();
-		ao2.setIpv6Address("3ffe::2");
-		ao2.setPreferredLifetime(21000);
-		ao2.setValidLifetime(22000);
+		addr2.setIpAddress("3ffe::2");
+		addr2.setPreferredLifetime(21000);
+		addr2.setValidLifetime(22000);
 		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
 		DhcpDnsServersOption dnsServers2 = new DhcpDnsServersOption();
-		dnsServers2.addServer(InetAddress.getByName("3ffe::2:1"));
-		dnsServers2.addServer(InetAddress.getByName("3ffe::2:2"));
+		dnsServers2.addIpAddress(InetAddress.getByName("3ffe::2:1"));
+		dnsServers2.addIpAddress(InetAddress.getByName("3ffe::2:2"));
 		addr2.putDhcpOption(dnsServers2);		
 		iaAddrOptions.add(addr2);
 		len += 4 + 16 + 16;
@@ -221,41 +212,37 @@ public class TestDhcpIaNaOption extends TestCase
 	{
 		int len = 4;	// code + len
 		DhcpIaNaOption din = new DhcpIaNaOption();
-		IaNaOption ino = din.getIaNaOption();
-		ino.setIaId(0xdebb1e);
-		ino.setT1(10000);
-		ino.setT2(20000);
+		din.setIaId(0xdebb1e);
+		din.setT1(10000);
+		din.setT2(20000);
 		len += 12;
 		
-		IaAddrOptionListType aol = ino.addNewIaAddrOptionList();
-		IaAddrOption ao1 = aol.addNewIaAddrOption();
-		ao1.setIpv6Address("3ffe::1");
+		DhcpIaAddrOption ao1 = new DhcpIaAddrOption();
+		ao1.setIpAddress("3ffe::1");
 		ao1.setPreferredLifetime(11000);
 		ao1.setValidLifetime(12000);
 		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
-		ConfigOptionsType ao1ConfigOptions = ao1.addNewAddrConfigOptions();
-		DnsServersOption ao1dns = ao1ConfigOptions.addNewDnsServersOption();
-		ao1dns.getIpAddressList().add("3ffe::1:1");
-		ao1dns.getIpAddressList().add("3ffe::1:2");
-		ao1.setAddrConfigOptions(ao1ConfigOptions);
+		DhcpDnsServersOption ao1dns = new DhcpDnsServersOption();
+		ao1dns.addIpAddress("3ffe::1:1");
+		ao1dns.addIpAddress("3ffe::1:2");
+		ao1.putDhcpOption(ao1dns);
 		len += 4 + 16 + 16;
 		
-		IaAddrOption ao2 = aol.addNewIaAddrOption();
-		ao2.setIpv6Address("3ffe::2");
+		DhcpIaAddrOption ao2 = new DhcpIaAddrOption();
+		ao2.setIpAddress("3ffe::2");
 		ao2.setPreferredLifetime(21000);
 		ao2.setValidLifetime(22000);
 		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
-		ConfigOptionsType ao2ConfigOptions = ao2.addNewAddrConfigOptions();
-		DnsServersOption ao2dns = ao2ConfigOptions.addNewDnsServersOption();
-		ao2dns.getIpAddressList().add("3ffe::2:1");
-		ao2dns.getIpAddressList().add("3ffe::2:2");
-		ao2.setAddrConfigOptions(ao2ConfigOptions);
+		DhcpDnsServersOption ao2dns = new DhcpDnsServersOption();
+		ao2dns.addIpAddress("3ffe::2:1");
+		ao2dns.addIpAddress("3ffe::2:2");
+		ao2.putDhcpOption(ao2dns);
 		len += 4 + 16 + 16;
 		
-		ConfigOptionsType inoConfigOptions = ino.addNewAddrConfigOptions();
-		DomainSearchListOption dslo = inoConfigOptions.addNewDomainSearchListOption();
+		DhcpDomainSearchListOption dslo = new DhcpDomainSearchListOption();
 		dslo.addDomainName("foo.com.");
 		dslo.addDomainName("bar.com.");
+		din.putDhcpOption(dslo);
 		len += 4 + 9 + 9;
 		
 		System.out.println(din);

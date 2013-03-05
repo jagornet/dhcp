@@ -30,11 +30,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ClientClassExpression;
-import com.jagornet.dhcpv6.xml.OpaqueData;
 import com.jagornet.dhcpv6.xml.Operator;
-import com.jagornet.dhcpv6.xml.VendorClassOption;
 
 /**
  * The Class TestDhcpVendorClassOption.
@@ -65,7 +64,7 @@ public class TestDhcpVendorClassOption extends TestCase
         assertEquals(0, bb.position());
         assertEquals(DhcpConstants.OPTION_VENDOR_CLASS, bb.getShort());
         assertEquals((short)34, bb.getShort());   // length
-        assertEquals((int)12345, bb.getInt());
+        assertEquals(12345, bb.getInt());
         assertEquals((short)13, bb.getShort());
     }
 
@@ -89,20 +88,18 @@ public class TestDhcpVendorClassOption extends TestCase
         DhcpVendorClassOption _dvco = new DhcpVendorClassOption();
         _dvco.decode(bb);
         assertEquals(12345, _dvco.getEnterpriseNumber());
-        assertNotNull(_dvco.getOpaqueDataListOptionType());
-        List<OpaqueData> VendorClasses = _dvco.getOpaqueDataListOptionType().getOpaqueDataList();
+        List<BaseOpaqueData> VendorClasses = _dvco.getOpaqueDataList();
         assertNotNull(VendorClasses);
         assertEquals(2, VendorClasses.size());
-        assertEquals("VendorClass 1", VendorClasses.get(0).getAsciiValue());
-        assertEquals("VendorClass 2", VendorClasses.get(1).getAsciiValue());
+        assertEquals("VendorClass 1", VendorClasses.get(0).getAscii());
+        assertEquals("VendorClass 2", VendorClasses.get(1).getAscii());
     }
     
     public void testMatches() throws Exception
     {
         ClientClassExpression expression = ClientClassExpression.Factory.newInstance();
         assertFalse(dvco.matches((DhcpVendorClassOption)expression.getVendorClassOption(), Operator.EQUALS));
-        DhcpVendorClassOption _dvco = new DhcpVendorClassOption();
-        expression.setVendorClassOption((VendorClassOption)_dvco.getOpaqueDataListOptionType());
+        DhcpVendorClassOption _dvco = new DhcpVendorClassOption(expression.getVendorClassOption());
         assertFalse(dvco.matches(_dvco, Operator.EQUALS));
         _dvco.setEnterpriseNumber(12345);
         assertFalse(dvco.matches(_dvco, Operator.EQUALS));

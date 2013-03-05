@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4NetbiosNameServersOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4NetbiosNameServersOption;
  */
 public class DhcpV4NetbiosNameServersOption extends BaseIpAddressListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 netbiosName servers option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4NetbiosNameServersOption extends BaseIpAddressListOption
 	 */
 	public DhcpV4NetbiosNameServersOption(V4NetbiosNameServersOption v4NetbiosNameServersOption)
 	{
-		if (v4NetbiosNameServersOption != null)
-			this.ipAddressListOption = v4NetbiosNameServersOption;
-		else
-			this.ipAddressListOption = V4NetbiosNameServersOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4NetbiosNameServersOption);
+		setCode(DhcpConstants.V4OPTION_NETBIOS_NAME_SERVERS);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4NetbiosNameServersOption)ipAddressListOption).getCode();
-    }
 }

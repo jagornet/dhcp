@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.Operator;
 import com.jagornet.dhcpv6.xml.V4VendorClassOption;
 
@@ -38,7 +39,6 @@ import com.jagornet.dhcpv6.xml.V4VendorClassOption;
  */
 public class DhcpV4VendorClassOption extends BaseOpaqueDataOption
 {
-	
 	/**
 	 * Instantiates a new dhcp vendor class option.
 	 */
@@ -54,24 +54,10 @@ public class DhcpV4VendorClassOption extends BaseOpaqueDataOption
 	 */
 	public DhcpV4VendorClassOption(V4VendorClassOption v4VendorClassOption)
 	{
-		if (v4VendorClassOption != null) {
-			this.opaqueDataOption = v4VendorClassOption;
-		}
-		else {
-			this.opaqueDataOption = V4VendorClassOption.Factory.newInstance();
-            // create an OpaqueData element to actually hold the data
-            this.opaqueDataOption.addNewOpaqueData();
-		}
-		super.setV4(true);
+		super(v4VendorClassOption);
+		setCode(DhcpConstants.V4OPTION_VENDOR_CLASS);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4VendorClassOption)opaqueDataOption).getCode();
-    }    
 
     public boolean matches(V4VendorClassOption that, Operator.Enum op)
     {
@@ -82,7 +68,6 @@ public class DhcpV4VendorClassOption extends BaseOpaqueDataOption
         if (that.getOpaqueData() == null)
         	return false;
 
-        return OpaqueDataUtil.matches(opaqueDataOption.getOpaqueData(), 
-        								that.getOpaqueData(), op);
+        return OpaqueDataUtil.matches(opaqueData, that.getOpaqueData(), op);
     }
 }

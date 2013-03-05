@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedByteOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4NetbiosNodeTypeOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4NetbiosNodeTypeOption;
  */
 public class DhcpV4NetbiosNodeTypeOption extends BaseUnsignedByteOption
 {
-	
 	/**
 	 * Instantiates a new dhcpv4 netbios node type option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4NetbiosNodeTypeOption extends BaseUnsignedByteOption
 	 */
 	public DhcpV4NetbiosNodeTypeOption(V4NetbiosNodeTypeOption v4NetbiosNodeTypeOption)
 	{
-		if (v4NetbiosNodeTypeOption != null)
-			this.uByteOption = v4NetbiosNodeTypeOption;
-		else
-			this.uByteOption = V4NetbiosNodeTypeOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4NetbiosNodeTypeOption);
+		setCode(DhcpConstants.V4OPTION_NETBIOS_NODE_TYPE);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4NetbiosNodeTypeOption)uByteOption).getCode();
-    }
 }

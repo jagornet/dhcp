@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.IaPrefixOption;
 
@@ -49,12 +50,13 @@ import com.jagornet.dhcpv6.xml.IaPrefixOption;
  */
 public class DhcpIaPrefixOption extends BaseDhcpOption
 {	
-	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpIaPrefixOption.class);
 	
-	/** The ia addr prefix, which contains any configured options for the ia prefix. */
-	private IaPrefixOption iaPrefixOption;
+	private short prefixLength;
+	private String ipAddress;
+	private long preferredLifetime;		// long for unsigned int
+	private long validLifetime;			// long for unsigned int
     
 	/** The dhcp options inside this ia prefix option. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
@@ -74,31 +76,46 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
 	 */
 	public DhcpIaPrefixOption(IaPrefixOption iaPrefixOption)
 	{
-		if (iaPrefixOption != null)
-			this.iaPrefixOption = iaPrefixOption;
-		else
-			this.iaPrefixOption = IaPrefixOption.Factory.newInstance();
+		super();
+		if (iaPrefixOption != null) {
+			prefixLength = iaPrefixOption.getPrefixLength();
+			ipAddress = iaPrefixOption.getIpv6Prefix();
+			preferredLifetime = iaPrefixOption.getPreferredLifetime();
+			validLifetime = iaPrefixOption.getValidLifetime();
+		}
+		setCode(DhcpConstants.OPTION_IA_PD_PREFIX);
 	}
 
-	/**
-	 * Gets the ia prefix option.
-	 * 
-	 * @return the ia prefix option
-	 */
-	public IaPrefixOption getIaPrefixOption()
-	{
-		return iaPrefixOption;
+	public short getPrefixLength() {
+		return prefixLength;
 	}
-	
-	/**
-	 * Sets the ia prefix option.
-	 * 
-	 * @param iaPrefixOption the new ia prefix option
-	 */
-	public void setIaPrefixOption(IaPrefixOption iaPrefixOption)
-	{
-		if (iaPrefixOption != null)
-			this.iaPrefixOption = iaPrefixOption;
+
+	public void setPrefixLength(short prefixLength) {
+		this.prefixLength = prefixLength;
+	}
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public long getPreferredLifetime() {
+		return preferredLifetime;
+	}
+
+	public void setPreferredLifetime(long preferredLifetime) {
+		this.preferredLifetime = preferredLifetime;
+	}
+
+	public long getValidLifetime() {
+		return validLifetime;
+	}
+
+	public void setValidLifetime(long validLifetime) {
+		this.validLifetime = validLifetime;
 	}
 
 	/**
@@ -136,24 +153,16 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
 	public InetAddress getInetAddress()
 	{
 		InetAddress inetAddr = null;
-		if (iaPrefixOption != null) {
+		if (ipAddress != null) {
 			try {
-				inetAddr = InetAddress.getByName(iaPrefixOption.getIpv6Prefix());
+				inetAddr = InetAddress.getByName(ipAddress);
 			}
 			catch (UnknownHostException ex) {
-				log.error("Invalid IP address: " + iaPrefixOption.getIpv6Prefix() + ": " + ex);
+				log.error("Invalid IP address: " + ipAddress + ": " + ex);
 			}
 		}
 		return inetAddr;
 	}
-	
-    /* (non-Javadoc) 
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return iaPrefixOption.getCode();
-    }
 
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
@@ -186,12 +195,11 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.putInt((int)iaPrefixOption.getPreferredLifetime());
-        buf.putInt((int)iaPrefixOption.getValidLifetime());
-        buf.put((byte)iaPrefixOption.getPrefixLength());
-        String ipPrefix = iaPrefixOption.getIpv6Prefix();
-        if (ipPrefix != null) {
-            InetAddress inet6Prefix = Inet6Address.getByName(ipPrefix);
+        if (ipAddress != null) {
+	        buf.putInt((int)preferredLifetime);
+	        buf.putInt((int)validLifetime);
+	        buf.put((byte)prefixLength);
+            InetAddress inet6Prefix = Inet6Address.getByName(ipAddress);
             buf.put(inet6Prefix.getAddress());
             // encode the configured options
             if (dhcpOptions != null) {
@@ -219,13 +227,13 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
                           ":  bytes remaining in buffer=" + buf.remaining());
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-        		iaPrefixOption.setPreferredLifetime(Util.getUnsignedInt(buf));
+        		preferredLifetime = Util.getUnsignedInt(buf);
             	if (buf.position() < eof) {
-            		iaPrefixOption.setValidLifetime(Util.getUnsignedInt(buf));
+            		validLifetime = Util.getUnsignedInt(buf);
 	            	if (buf.position() < eof) {
-	                	iaPrefixOption.setPrefixLength(Util.getUnsignedByte(buf));
+	                	prefixLength = Util.getUnsignedByte(buf);
 	                	if (buf.position() < eof) {
-	    	            	iaPrefixOption.setIpv6Prefix(BaseIpAddressOption.decodeIpAddress(buf));
+	    	            	ipAddress = BaseIpAddressOption.decodeIpAddress(buf);
 	                		if (buf.position() < eof) {
 	                			decodeOptions(buf);
 	                		}
@@ -274,9 +282,14 @@ public class DhcpIaPrefixOption extends BaseDhcpOption
     public String toString()
     {
         StringBuilder sb = new StringBuilder(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(iaPrefixOption.toString());
+        sb.append(": ipAddress=");
+        sb.append(ipAddress);
+        sb.append(" prefixLength=");
+        sb.append(prefixLength);
+        sb.append(" preferredLifetime=");
+        sb.append(getPreferredLifetime());
+        sb.append(" validLifetime=");
+        sb.append(getValidLifetime());
         if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
             sb.append(Util.LINE_SEPARATOR);
         	sb.append("IA_PREFIX_DHCPOPTIONS");

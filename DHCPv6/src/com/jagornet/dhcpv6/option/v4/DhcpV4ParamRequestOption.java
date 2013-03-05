@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedByteListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4ParamRequestOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4ParamRequestOption;
  */
 public class DhcpV4ParamRequestOption extends BaseUnsignedByteListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 param request option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4ParamRequestOption extends BaseUnsignedByteListOption
 	 */
 	public DhcpV4ParamRequestOption(V4ParamRequestOption paramRequestOption)
 	{
-		if (paramRequestOption != null)
-			this.uByteListOption = paramRequestOption;
-		else
-			this.uByteListOption = V4ParamRequestOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(paramRequestOption);
+		setCode(DhcpConstants.V4OPTION_PARAM_REQUEST_LIST);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4ParamRequestOption)uByteListOption).getCode();
-    }
 }

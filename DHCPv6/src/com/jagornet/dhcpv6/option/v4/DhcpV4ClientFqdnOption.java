@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.V4ClientFqdnOption;
 
@@ -53,6 +54,10 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
 	 *       +-+-+-+-+-+-+-+-+
 	 * 
 	 */
+	// need short to handle unsigned byte
+	private short flags;
+	private short rcode1;
+	private short rcode2;
 	
 	/**
 	 * Instantiates a new dhcp client fqdn option.
@@ -69,15 +74,36 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
 	 */
 	public DhcpV4ClientFqdnOption(V4ClientFqdnOption clientFqdnOption)
 	{
-		if (clientFqdnOption != null)
-			this.domainNameOption = clientFqdnOption;
-		else
-			this.domainNameOption = V4ClientFqdnOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(clientFqdnOption);
+		setCode(DhcpConstants.V4OPTION_CLIENT_FQDN);
+		setV4(true);
 	}
 	
-    /* (non-Javadoc)
+    public short getFlags() {
+		return flags;
+	}
+
+	public void setFlags(short flags) {
+		this.flags = flags;
+	}
+
+	public short getRcode1() {
+		return rcode1;
+	}
+
+	public void setRcode1(short rcode1) {
+		this.rcode1 = rcode1;
+	}
+
+	public short getRcode2() {
+		return rcode2;
+	}
+
+	public void setRcode2(short rcode2) {
+		this.rcode2 = rcode2;
+	}
+
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
     public int getLength()
@@ -86,9 +112,9 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
         if (getEncodingBit()) {
         	len += super.getLength();
         }
-        else if (domainNameOption.getDomainName() != null) {
+        else if (getDomainName() != null) {
         	// ASCII encoding, just add length of domain name string
-        	len += domainNameOption.getDomainName().length();
+        	len += getDomainName().length();
         }
         return len;
     }
@@ -99,11 +125,9 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        V4ClientFqdnOption clientFqdnOption = (V4ClientFqdnOption)domainNameOption;
-        buf.put((byte)clientFqdnOption.getFlags());
-        buf.put((byte)clientFqdnOption.getRcode1());
-        buf.put((byte)clientFqdnOption.getRcode2());
-        String domainName = clientFqdnOption.getDomainName();
+        buf.put((byte)getFlags());
+        buf.put((byte)getRcode1());
+        buf.put((byte)getRcode2());
         if (domainName != null) {
         	if (getEncodingBit()) {
         		encodeDomainName(buf, domainName);
@@ -125,10 +149,9 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
     	if ((len > 0) && (len <= buf.remaining())) {
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-                V4ClientFqdnOption clientFqdnOption = (V4ClientFqdnOption)domainNameOption;
-                clientFqdnOption.setFlags(Util.getUnsignedByte(buf));
-                clientFqdnOption.setRcode1(Util.getUnsignedByte(buf));
-                clientFqdnOption.setRcode2(Util.getUnsignedByte(buf));
+                setFlags(Util.getUnsignedByte(buf));
+                setRcode1(Util.getUnsignedByte(buf));
+                setRcode2(Util.getUnsignedByte(buf));
                 String domain = null;
                 if (getEncodingBit()) {
                 	domain = decodeDomainName(buf, eof);
@@ -139,17 +162,9 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
                 	buf.get(b);
                 	domain = new String(b);
                 }
-                clientFqdnOption.setDomainName(domain);
+                setDomainName(domain);
             }
     	}
-    }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4ClientFqdnOption)domainNameOption).getCode();
     }
     
     /**
@@ -159,7 +174,7 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public boolean getUpdateABit()
     {
-    	short sbit = (short) (((V4ClientFqdnOption)domainNameOption).getFlags() & 0x01);
+    	short sbit = (short) (getFlags() & 0x01);
     	return (sbit > 0);
     }
     
@@ -170,11 +185,10 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public void setUpdateABit(boolean bit)
     {
-    	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
     	if (bit)
-    		me.setFlags((short) (me.getFlags() | 0x01));	// 0001
+    		setFlags((short) (getFlags() | 0x01));	// 0001
     	else
-    		me.setFlags((short) (me.getFlags() & 0x0e));	// 1110
+    		setFlags((short) (getFlags() & 0x0e));	// 1110
     }
     
     /**
@@ -184,7 +198,7 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public boolean getOverrideBit()
     {
-    	short obit = (short) (((V4ClientFqdnOption)domainNameOption).getFlags() & 0x02);
+    	short obit = (short) (getFlags() & 0x02);
     	return (obit > 0);
     }
     
@@ -195,11 +209,10 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public void setOverrideBit(boolean bit)
     {
-    	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
     	if (bit)
-    		me.setFlags((short) (me.getFlags() | 0x02));	// 0010
+    		setFlags((short) (getFlags() | 0x02));	// 0010
     	else
-    		me.setFlags((short) (me.getFlags() & 0x0d));	// 1101
+    		setFlags((short) (getFlags() & 0x0d));	// 1101
     }
     
     /**
@@ -209,7 +222,7 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public boolean getEncodingBit()
     {
-    	short obit = (short) (((V4ClientFqdnOption)domainNameOption).getFlags() & 0x04);
+    	short obit = (short) (getFlags() & 0x04);
     	return (obit > 0);
     }
     
@@ -220,11 +233,10 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public void setEncodingBit(boolean bit)
     {
-    	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
     	if (bit)
-    		me.setFlags((short) (me.getFlags() | 0x04));	// 0100
+    		setFlags((short) (getFlags() | 0x04));	// 0100
     	else
-    		me.setFlags((short) (me.getFlags() & 0x0b));	// 1011
+    		setFlags((short) (getFlags() & 0x0b));	// 1011
     }
     
     /**
@@ -234,7 +246,7 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public boolean getNoUpdateBit()
     {
-    	short nbit = (short) (((V4ClientFqdnOption)domainNameOption).getFlags() & 0x08);
+    	short nbit = (short) (getFlags() & 0x08);
     	return (nbit == 1);
     }
     
@@ -245,49 +257,27 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
      */
     public void setNoUpdateBit(boolean bit)
     {
-    	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
     	if (bit) {
-    		me.setFlags((short) (me.getFlags() | 0x08));	// 1000
+    		setFlags((short) (getFlags() | 0x08));	// 1000
     		// If the "N" bit is 1, the "S" bit MUST be 0.
     		setUpdateABit(false);
     	}
     	else {
-    		me.setFlags((short) (me.getFlags() & 0x07));	// 0111
+    		setFlags((short) (getFlags() & 0x07));	// 0111
     	}
     }
-    
-    public short getRcode1() {
-    	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
-    	return me.getRcode1();
-    }
-    
-    public void setRcode1(short rcode1) {
-    	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
-    	me.setRcode1(rcode1);
-    	
-    }
-    
-    public short getRcode2() {
-    	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
-    	return me.getRcode2();
-    }
-    
-    public void setRcode2(short rcode2) {
-    	V4ClientFqdnOption me = (V4ClientFqdnOption)domainNameOption;
-    	me.setRcode2(rcode2);
-    	
-    }
-
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
-        sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(((V4ClientFqdnOption)domainNameOption).toString());
+        StringBuilder sb = new StringBuilder(super.toString());
+        sb.append(" flags=");
+        sb.append(flags);
+        sb.append(" rcode1=");
+        sb.append(rcode1);
+        sb.append(" rcode2=");
+        sb.append(rcode2);
         return sb.toString();
     }
 }

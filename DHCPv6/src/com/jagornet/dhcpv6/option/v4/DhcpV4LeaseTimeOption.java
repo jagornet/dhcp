@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedIntOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4LeaseTimeOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4LeaseTimeOption;
  */
 public class DhcpV4LeaseTimeOption extends BaseUnsignedIntOption
 {
-	
 	/**
 	 * Instantiates a new dhcpv4 lease time option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4LeaseTimeOption extends BaseUnsignedIntOption
 	 */
 	public DhcpV4LeaseTimeOption(V4LeaseTimeOption v4LeaseTimeOption)
 	{
-		if (v4LeaseTimeOption != null)
-			this.uIntOption = v4LeaseTimeOption;
-		else
-			this.uIntOption = V4LeaseTimeOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4LeaseTimeOption);
+		setCode(DhcpConstants.V4OPTION_LEASE_TIME);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4LeaseTimeOption)uIntOption).getCode();
-    }
 }

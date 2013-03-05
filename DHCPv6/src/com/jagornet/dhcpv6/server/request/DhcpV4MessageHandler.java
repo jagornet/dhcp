@@ -64,7 +64,7 @@ public class DhcpV4MessageHandler
     		DhcpV4MsgTypeOption msgTypeOption = (DhcpV4MsgTypeOption) 
     				dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_MESSAGE_TYPE);
     		if (msgTypeOption != null) {
-    			short msgType = msgTypeOption.getUnsignedByteOption().getUnsignedByte();
+    			short msgType = msgTypeOption.getUnsignedByte();
     	    	DhcpV4MessageProcessor processor = null;
 	    		switch (msgType) {
 	    			case DhcpConstants.V4MESSAGE_TYPE_DISCOVER:

@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseStringOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.NewPosixTimezoneOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.NewPosixTimezoneOption;
  */
 public class DhcpNewPosixTimezoneOption extends BaseStringOption
 {
-	
 	/**
 	 * Instantiates a new dhcp new posix timezone option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpNewPosixTimezoneOption extends BaseStringOption
 	 */
 	public DhcpNewPosixTimezoneOption(NewPosixTimezoneOption newPosixTimezoneOption)
 	{
-		if (newPosixTimezoneOption != null)
-			this.stringOption = newPosixTimezoneOption;
-		else
-			this.stringOption = NewPosixTimezoneOption.Factory.newInstance();
+		super(newPosixTimezoneOption); 
+		setCode(DhcpConstants.OPTION_NEW_POSIX_TIMEZONE);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((NewPosixTimezoneOption)stringOption).getCode();
-    }
 }

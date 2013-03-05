@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.NisDomainNameOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.NisDomainNameOption;
  */
 public class DhcpNisDomainNameOption extends BaseDomainNameOption
 {
-	
 	/**
 	 * Instantiates a new dhcp nis domain name option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpNisDomainNameOption extends BaseDomainNameOption
 	 */
 	public DhcpNisDomainNameOption(NisDomainNameOption nisDomainNameOption)
 	{
-		if (nisDomainNameOption != null)
-			this.domainNameOption = nisDomainNameOption;
-		else
-			this.domainNameOption = NisDomainNameOption.Factory.newInstance();
+		super(nisDomainNameOption);
+		setCode(DhcpConstants.OPTION_NIS_DOMAIN_NAME);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((NisDomainNameOption)domainNameOption).getCode();
-    }
 }

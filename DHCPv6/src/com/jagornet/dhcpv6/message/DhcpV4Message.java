@@ -46,7 +46,6 @@ import com.jagornet.dhcpv6.option.v4.DhcpV4ParamRequestOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.UnsignedByteListOptionType;
 
 /**
  * Title:        DhcpV4Message
@@ -511,13 +510,10 @@ public class DhcpV4Message implements DhcpMessageInterface
 	        	DhcpV4ParamRequestOption pro = 
 	        		(DhcpV4ParamRequestOption) dhcpOptions.get(DhcpConstants.V4OPTION_PARAM_REQUEST_LIST);
 	        	if (pro != null) {
-	        		UnsignedByteListOptionType ubyteListOption = pro.getUnsignedByteListOption();
-	        		if (ubyteListOption != null) {
-	        			requestedOptionCodes = new ArrayList<Integer>();
-	        			for (short ubyte : ubyteListOption.getUnsignedByteList()) {
-							requestedOptionCodes.add((int)ubyte);
-						}
-	        		}
+        			requestedOptionCodes = new ArrayList<Integer>();
+        			for (short ubyte : pro.getUnsignedByteList()) {
+						requestedOptionCodes.add((int)ubyte);
+					}
 	        	}
 			}
 		}
@@ -556,7 +552,7 @@ public class DhcpV4Message implements DhcpMessageInterface
         sb.append(this.getGiAddr().getHostAddress());
         sb.append(", chaddr=");
         sb.append(Util.toHexString(this.getChAddr()));
-        sb.append(")");
+        sb.append(')');
         return sb.toString();
     }
     
@@ -687,7 +683,7 @@ public class DhcpV4Message implements DhcpMessageInterface
 	
 	public void setMessageType(short msgType) {
 		DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-		msgTypeOption.getUnsignedByteOption().setUnsignedByte(msgType);
+		msgTypeOption.setUnsignedByte(msgType);
 		putDhcpOption(msgTypeOption);
 	}
 	
@@ -695,7 +691,7 @@ public class DhcpV4Message implements DhcpMessageInterface
 		DhcpV4MsgTypeOption msgType = (DhcpV4MsgTypeOption)
 					dhcpOptions.get(DhcpConstants.V4OPTION_MESSAGE_TYPE);
 		if (msgType != null) {
-			return msgType.getUnsignedByteOption().getUnsignedByte();
+			return msgType.getUnsignedByte();
 		}
 		return 0;
 	}

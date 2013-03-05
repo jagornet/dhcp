@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.BcmcsDomainNamesOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.BcmcsDomainNamesOption;
  */
 public class DhcpBcmcsDomainNamesOption extends BaseDomainNameListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp bcmcs domain names option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpBcmcsDomainNamesOption extends BaseDomainNameListOption
 	 */
 	public DhcpBcmcsDomainNamesOption(BcmcsDomainNamesOption bcmcsDomainNamesOption)
 	{
-		if (bcmcsDomainNamesOption != null)
-			this.domainNameListOption = bcmcsDomainNamesOption;
-		else
-			this.domainNameListOption = BcmcsDomainNamesOption.Factory.newInstance();
+		super(bcmcsDomainNamesOption);
+		setCode(DhcpConstants.OPTION_BCMCS_DOMAIN_NAMES);
 	}
-
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((BcmcsDomainNamesOption)domainNameListOption).getCode();
-    }
 }

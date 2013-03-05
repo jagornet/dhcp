@@ -36,9 +36,6 @@ import com.jagornet.dhcpv6.xml.StringOptionType;
  */
 public class GenericStringOption extends BaseStringOption
 {	
-	/** The option code. */
-	private int code;
-	
 	/**
 	 * Instantiates a new generic string option.
 	 * 
@@ -61,15 +58,7 @@ public class GenericStringOption extends BaseStringOption
 							   StringOptionType stringOption)
 	{
 		super(stringOption);
-		this.code = code;
-		super.setName(name);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-	 */
-	public int getCode()
-	{
-		return code;
+		setCode(code);
+		setName(name);
 	}
 }

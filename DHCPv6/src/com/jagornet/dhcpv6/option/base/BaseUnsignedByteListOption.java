@@ -27,6 +27,7 @@ package com.jagornet.dhcpv6.option.base;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -48,8 +49,7 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
 {
 	private static Logger log = LoggerFactory.getLogger(BaseUnsignedByteListOption.class);
 
-    /** The unsigned short list option. */
-    protected UnsignedByteListOptionType uByteListOption;
+    protected List<Short> unsignedByteList;
 
     /**
      * Instantiates a new unsigned short list option.
@@ -67,42 +67,36 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
     public BaseUnsignedByteListOption(UnsignedByteListOptionType uByteListOption)
     {
         super();
-        if (uByteListOption != null)
-            this.uByteListOption = uByteListOption;
-        else
-            this.uByteListOption = UnsignedByteListOptionType.Factory.newInstance();
+        if (uByteListOption != null) {
+            if (uByteListOption.getUnsignedByteList() != null) {
+            	unsignedByteList = uByteListOption.getUnsignedByteList();
+            }
+        }
     }
 
-    /**
-     * Gets the unsigned short list option.
-     * 
-     * @return the unsigned short list option
-     */
-    public UnsignedByteListOptionType getUnsignedByteListOption()
-    {
-        return uByteListOption;
-    }
+    public List<Short> getUnsignedByteList() {
+		return unsignedByteList;
+	}
 
-    /**
-     * Sets the unsigned short list option.
-     * 
-     * @param uByteListOption the new unsigned short list option
-     */
-    public void setUnsignedByteListOption(UnsignedByteListOptionType uByteListOption)
-    {
-        if (uByteListOption != null)
-            this.uByteListOption = uByteListOption;
-    }
+	public void setUnsignedByteList(List<Short> unsignedBytes) {
+		this.unsignedByteList = unsignedBytes;
+	}
+	
+	public void addUnsignedByte(short ubyte) {
+		if (unsignedByteList == null) {
+			unsignedByteList = new ArrayList<Short>();
+		}
+		unsignedByteList.add(ubyte);
+	}
 
-    /* (non-Javadoc)
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Encodable#encode()
      */
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        List<Short> ubytes = uByteListOption.getUnsignedByteList();
-        if ((ubytes != null) && !ubytes.isEmpty()) {
-            for (short ubyte : ubytes) {
+        if ((unsignedByteList != null) && !unsignedByteList.isEmpty()) {
+            for (short ubyte : unsignedByteList) {
                 buf.put((byte)ubyte);
             }
         }
@@ -118,7 +112,7 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
     	if ((len > 0) && (len <= buf.remaining())) {
             for (int i=0; i<len; i++) {
                 if (buf.hasRemaining()) {
-                	uByteListOption.addUnsignedByte(Util.getUnsignedByte(buf));
+                	addUnsignedByte(Util.getUnsignedByte(buf));
                 }
             }
         }
@@ -130,9 +124,8 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
     public int getLength()
     {
         int len = 0;
-        List<Short> ubytes = uByteListOption.getUnsignedByteList();
-        if ((ubytes != null) && !ubytes.isEmpty()) {
-            len = ubytes.size();
+        if ((unsignedByteList != null) && !unsignedByteList.isEmpty()) {
+            len = unsignedByteList.size();
         }
         return len;
     }
@@ -146,22 +139,18 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
             return false;
         if (expression.getCode() != this.getCode())
             return false;
-        if (uByteListOption == null)
-        	return false;
-
-        List<Short> myUbytes = uByteListOption.getUnsignedByteList();
-        if (myUbytes == null)
+        if (unsignedByteList == null)
         	return false;
         
-        UnsignedByteListOptionType that = expression.getUByteListOption();
-        if (that != null) {
-        	List<Short> ubytes = that.getUnsignedByteList();
+        UnsignedByteListOptionType exprOption = expression.getUByteListOption();
+        if (exprOption != null) {
+        	List<Short> exprUbytes = exprOption.getUnsignedByteList();
             Operator.Enum op = expression.getOperator();
             if (op.equals(Operator.EQUALS)) {
-            	return myUbytes.equals(ubytes);
+            	return unsignedByteList.equals(exprUbytes);
             }
             else if (op.equals(Operator.CONTAINS)) {
-            	return myUbytes.containsAll(ubytes);
+            	return unsignedByteList.containsAll(exprUbytes);
             }
             else {
             	log.warn("Unsupported expression operator: " + op);
@@ -179,8 +168,14 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
         sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(uByteListOption.toString());
+        sb.append(": unsignedByteList=");
+        if ((unsignedByteList != null) && !unsignedByteList.isEmpty()) {
+        	for (Short ubyte : unsignedByteList) {
+				sb.append(ubyte);
+				sb.append(',');
+			}
+        	sb.setLength(sb.length()-1);
+        }
         return sb.toString();
     }
     

@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.SubscriberIdOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.SubscriberIdOption;
  */
 public class DhcpSubscriberIdOption extends BaseOpaqueDataOption
 {
-	
 	/**
 	 * Instantiates a new dhcp subscriber id option.
 	 */
@@ -52,22 +52,7 @@ public class DhcpSubscriberIdOption extends BaseOpaqueDataOption
 	 */
 	public DhcpSubscriberIdOption(SubscriberIdOption subscriberIdOption)
 	{
-		if (subscriberIdOption != null) {
-			this.opaqueDataOption = subscriberIdOption;
-		}
-		else {
-			this.opaqueDataOption = SubscriberIdOption.Factory.newInstance();
-            // create an OpaqueData element to actually hold the data
-            this.opaqueDataOption.addNewOpaqueData();
-		}
-		
+		super(subscriberIdOption);
+		setCode(DhcpConstants.OPTION_SUBSCRIBER_ID);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((SubscriberIdOption)opaqueDataOption).getCode();
-    }
 }

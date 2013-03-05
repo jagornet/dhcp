@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseStringOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.V4HostnameOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.V4HostnameOption;
  */
 public class DhcpV4HostnameOption extends BaseStringOption
 {
-	
 	/**
 	 * Instantiates a new dhcp v4 hostname option.
 	 */
@@ -52,19 +52,8 @@ public class DhcpV4HostnameOption extends BaseStringOption
 	 */
 	public DhcpV4HostnameOption(V4HostnameOption v4HostnameOption)
 	{
-		if (v4HostnameOption != null)
-			this.stringOption = v4HostnameOption;
-		else
-			this.stringOption = V4HostnameOption.Factory.newInstance();
-		
-		super.setV4(true);
+		super(v4HostnameOption);
+		setCode(DhcpConstants.V4OPTION_HOSTNAME);
+		setV4(true);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((V4HostnameOption)stringOption).getCode();
-    }
 }

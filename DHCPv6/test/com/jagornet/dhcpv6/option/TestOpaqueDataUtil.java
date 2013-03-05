@@ -29,8 +29,8 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueData;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -60,10 +60,10 @@ public class TestOpaqueDataUtil extends TestCase
 	 */
 	public void testEquals() throws Exception
 	{
-		OpaqueData od1 = OpaqueData.Factory.newInstance();
-		od1.setHexValue(Util.fromHexString("ABCDEF0123456789"));
-		OpaqueData od2 = OpaqueData.Factory.newInstance();
-		od2.setHexValue(Util.fromHexString("abcdef0123456789"));
+		BaseOpaqueData od1 = new BaseOpaqueData();
+		od1.setHex(Util.fromHexString("ABCDEF0123456789"));
+		BaseOpaqueData od2 = new BaseOpaqueData();
+		od2.setHex(Util.fromHexString("abcdef0123456789"));
 		assertTrue(OpaqueDataUtil.equals(od1, od2));
 	}
 	

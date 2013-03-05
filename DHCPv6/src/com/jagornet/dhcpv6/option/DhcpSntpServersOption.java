@@ -26,6 +26,7 @@
 package com.jagornet.dhcpv6.option;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.SntpServersOption;
 
 /**
@@ -36,7 +37,6 @@ import com.jagornet.dhcpv6.xml.SntpServersOption;
  */
 public class DhcpSntpServersOption extends BaseIpAddressListOption
 {
-	
 	/**
 	 * Instantiates a new dhcp sntp servers option.
 	 */
@@ -52,17 +52,7 @@ public class DhcpSntpServersOption extends BaseIpAddressListOption
 	 */
 	public DhcpSntpServersOption(SntpServersOption sntpServersOption)
 	{
-		if (sntpServersOption != null)
-			this.ipAddressListOption = sntpServersOption;
-		else
-			this.ipAddressListOption = SntpServersOption.Factory.newInstance();
+		super(sntpServersOption);
+		setCode(DhcpConstants.OPTION_SNTP_SERVERS);
 	}
-	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return ((SntpServersOption)ipAddressListOption).getCode();
-    }
 }
