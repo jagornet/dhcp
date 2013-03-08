@@ -13,7 +13,7 @@
     <policies>
     	<policy>
     		<name>database.schemaType</name>
-    		<value>sqlite</value>
+    		<value>jdbc</value>
     	</policy>
     	<policy>
     		<name>database.schemaVersion</name>
@@ -21,7 +21,7 @@
     	</policy>
     	<policy>
     		<name>database.schemaFilename</name>
-    		<value>db/jagornet-dhcpv6-schema-v2.sql</value>
+    		<value>db/jagornet-dhcpv6-schema-derby-v2.sql</value>
     	</policy>
     	<policy>
     		<name>dhcp.ignoreSelfPackets</name>
