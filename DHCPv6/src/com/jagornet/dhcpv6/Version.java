@@ -43,10 +43,10 @@ public class Version
 		sb.append(pkg.getImplementationTitle());
 		sb.append(' ');
 		sb.append(pkg.getImplementationVersion());
-		sb.append('\n');
+		sb.append(System.getProperty("line.separator"));
 		sb.append("Copyright ");
 		sb.append(pkg.getImplementationVendor());
-		sb.append(" 2009-2012.  All Rights Reserved.");
+		sb.append(" 2009-2013.  All Rights Reserved.");
 		return sb.toString();
 	}
 }
