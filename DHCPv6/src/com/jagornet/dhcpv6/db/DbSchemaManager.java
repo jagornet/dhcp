@@ -41,6 +41,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.jagornet.dhcpv6.util.DhcpConstants;
+
 /**
  * The Class DbSchemaManager.
  * 
@@ -50,13 +52,16 @@ public class DbSchemaManager
 {    
     private static Logger log = LoggerFactory.getLogger(DbSchemaManager.class);
 
-    public static String SCHEMA_FILENAME = "db/jagornet-dhcpv6-schema.sql";
-	public static String SCHEMA_DERBY_FILENAME = "db/jagornet-dhcpv6-schema-derby.sql";
+    public static String DB_HOME = DhcpConstants.DHCPV6_HOME != null ? 
+        							(DhcpConstants.DHCPV6_HOME + "/db/") : "db/";
+        							
+    public static String SCHEMA_FILENAME = DB_HOME + "jagornet-dhcpv6-schema.sql";
+	public static String SCHEMA_DERBY_FILENAME = DB_HOME + "jagornet-dhcpv6-schema-derby.sql";
 	
 	public static String[] TABLE_NAMES = { "DHCPOPTION", "IAADDRESS", "IAPREFIX", "IDENTITYASSOC" };
 
-	public static String SCHEMA_V2_FILENAME = "db/jagornet-dhcpv6-schema-v2.sql";
-	public static String SCHEMA_DERBY_V2_FILENAME = "db/jagornet-dhcpv6-schema-derby-v2.sql";
+	public static String SCHEMA_V2_FILENAME = DB_HOME + "jagornet-dhcpv6-schema-v2.sql";
+	public static String SCHEMA_DERBY_V2_FILENAME = DB_HOME + "jagornet-dhcpv6-schema-derby-v2.sql";
 
     public static String[] TABLE_NAMES_V2 = { "DHCPLEASE" };
 	
