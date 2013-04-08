@@ -167,7 +167,6 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
         sb.append(": unsignedByteList=");
         if ((unsignedByteList != null) && !unsignedByteList.isEmpty()) {
         	for (Short ubyte : unsignedByteList) {
