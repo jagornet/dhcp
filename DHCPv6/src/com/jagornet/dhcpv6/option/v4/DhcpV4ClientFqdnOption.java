@@ -52,6 +52,13 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
 	 *       +-+-+-+-+-+-+-+-+
 	 *       |  MBZ  |N|E|O|S|
 	 *       +-+-+-+-+-+-+-+-+
+	 *       
+	 * 2.2.  The RCODE Fields
+	 * 
+	 *    The two 1-octet RCODE1 and RCODE2 fields are deprecated.  A client
+	 *    SHOULD set these to 0 when sending the option and SHOULD ignore them
+	 *    on receipt.  A server SHOULD set these to 255 when sending the option
+	 *    and MUST ignore them on receipt.
 	 * 
 	 */
 	// need short to handle unsigned byte
