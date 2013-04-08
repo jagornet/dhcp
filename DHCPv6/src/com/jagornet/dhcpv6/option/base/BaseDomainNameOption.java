@@ -89,22 +89,29 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
      */
     public static void encodeDomainName(ByteBuffer buf, String domain)
     {
-        // we split the human-readable string representing the
-        // fully-qualified domain name along the dots, which
-        // gives us the list of labels that make up the FQDN
-        String[] labels = domain.split("\\.");
-        if (labels != null) {
-            for (String label : labels) {
-                // domain names are encoded according to RFC1035 sec 3.1
-                // a 'label' consists of a length byte (i.e. octet) with
-                // the two high order bits set to zero (which means each
-                // label is limited to 63 bytes) followed by length number
-                // of bytes (i.e. octets) which make up the name
-                buf.put((byte)label.length());
-                buf.put(label.getBytes());
-            }
-            buf.put((byte)0);    // terminate with zero-length "root" label
-        }
+    	if (domain != null) {
+        	boolean fqdn = domain.endsWith(".");
+	        // we split the human-readable string representing the
+	        // fully-qualified domain name along the dots, which
+	        // gives us the list of labels that make up the FQDN
+	        String[] labels = domain.split("\\.");
+	        if (labels != null) {
+	            for (String label : labels) {
+	                // domain names are encoded according to RFC1035 sec 3.1
+	                // a 'label' consists of a length byte (i.e. octet) with
+	                // the two high order bits set to zero (which means each
+	                // label is limited to 63 bytes) followed by length number
+	                // of bytes (i.e. octets) which make up the name
+	            	buf.put((byte)label.length());
+	            	if (label.length() > 0) {
+	            		buf.put(label.getBytes());
+	            	}
+	            }
+	            if (fqdn) {
+	            	buf.put((byte)0);    // terminate with zero-length "root" label
+	            }
+	        }
+    	}
     }
 
     /* (non-Javadoc)
@@ -166,16 +173,17 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
     {
         int len = 0;
         if (domainName != null) {
-        	len = domainName.length();
+        	boolean fqdn = domainName.endsWith(".");
 	        String[] labels = domainName.split("\\.");
 	        if (labels != null) {
-	        	len = 0;
 	            for (String label : labels) {
 	                // each label consists of a length byte and opaqueData
 	                len += 1 + label.length();
 	            }
-	            len += 1;   // one extra byte for the zero length terminator
 	        }
+            if (fqdn) {
+            	len += 1;   // one extra byte for the zero length terminator
+            }
         }
         return len;
     }
