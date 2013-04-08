@@ -55,8 +55,6 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
 	 */
 	// need short to handle unsigned byte
 	private short flags;
-	private short rcode1;
-	private short rcode2;
 	
 	/**
 	 * Instantiates a new dhcp client fqdn option.
@@ -85,22 +83,6 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
 		this.flags = flags;
 	}
 
-	public short getRcode1() {
-		return rcode1;
-	}
-
-	public void setRcode1(short rcode1) {
-		this.rcode1 = rcode1;
-	}
-
-	public short getRcode2() {
-		return rcode2;
-	}
-
-	public void setRcode2(short rcode2) {
-		this.rcode2 = rcode2;
-	}
-
 	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
      */
@@ -116,6 +98,7 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
+        buf.put((byte)getFlags());
         if (getDomainName() != null) {
             encodeDomainName(buf, getDomainName());
         }
@@ -159,7 +142,7 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
     	if (bit)
     		setFlags((short) (getFlags() | 0x01));	// 0001
     	else
-    		setFlags((short) (getFlags() & 0x06));	// 0100
+    		setFlags((short) (getFlags() & 0x06));	// 0110
     }
     
     /**
@@ -222,10 +205,6 @@ public class DhcpClientFqdnOption extends BaseDomainNameOption
         StringBuilder sb = new StringBuilder(super.toString());
         sb.append(" flags=");
         sb.append(flags);
-        sb.append(" rcode1=");
-        sb.append(rcode1);
-        sb.append(" rcode2=");
-        sb.append(rcode2);
         return sb.toString();
     }
 }
