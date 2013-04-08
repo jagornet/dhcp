@@ -27,17 +27,16 @@ package com.jagornet.dhcpv6.option;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.jagornet.dhcpv6.option.base.BaseDhcpOption;
-import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.option.generic.GenericOpaqueDataOption;
 import com.jagornet.dhcpv6.option.generic.GenericOptionFactory;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcpv6.xml.GenericOptionsType;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
 import com.jagornet.dhcpv6.xml.OptionDefType;
 import com.jagornet.dhcpv6.xml.VendorInfoOption;
 
@@ -49,9 +48,8 @@ import com.jagornet.dhcpv6.xml.VendorInfoOption;
  */
 public class DhcpVendorInfoOption extends BaseDhcpOption
 {
-    
-    /** The vendor info option. */
-    private VendorInfoOption vendorInfoOption;
+	private long enterpriseNumber;	// long for unsigned int
+	private List<DhcpOption> suboptionList;
 
     /**
      * Instantiates a new dhcp vendor info option.
@@ -68,52 +66,74 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
      */
     public DhcpVendorInfoOption(VendorInfoOption vendorInfoOption)
     {
-        super();
-        if (vendorInfoOption != null)
-            this.vendorInfoOption = vendorInfoOption;
-        else
-            this.vendorInfoOption = VendorInfoOption.Factory.newInstance();
-    }
-
-    /**
-     * Gets the vendor info option.
-     * 
-     * @return the vendor info option
-     */
-    public VendorInfoOption getVendorInfoOption()
-    {
-        return vendorInfoOption;
-    }
-
-    /**
-     * Sets the vendor info option.
-     * 
-     * @param vendorInfoOption the new vendor info option
-     */
-    public void setVendorInfoOption(VendorInfoOption vendorInfoOption)
-    {
-        if (vendorInfoOption != null)
-            this.vendorInfoOption = vendorInfoOption;
+    	super();
+    	if (vendorInfoOption != null) {
+    		enterpriseNumber = vendorInfoOption.getEnterpriseNumber();
+    		GenericOptionsType genericOptions = vendorInfoOption.getSuboptionList();
+    		if (genericOptions != null) {
+    			List<OptionDefType> optdefs = genericOptions.getOptionDefList();
+    			if (optdefs != null) {
+    				for (OptionDefType optdef : optdefs) {
+						DhcpOption subopt = GenericOptionFactory.getDhcpOption(optdef);
+						addSuboption(subopt);
+					}
+    			}
+    		}
+    	}
+    	setCode(DhcpConstants.OPTION_VENDOR_OPTS);
     }
     
+    public long getEnterpriseNumber() {
+		return enterpriseNumber;
+	}
+
+	public void setEnterpriseNumber(long enterpriseNumber) {
+		this.enterpriseNumber = enterpriseNumber;
+	}
+
+	public List<DhcpOption> getSuboptionList() {
+		return suboptionList;
+	}
+
+	public void setSuboptionList(List<DhcpOption> suboptionList) {
+		this.suboptionList = suboptionList;
+	}
+	
+	public void addSuboption(DhcpOption suboption) {
+		if (suboptionList == null) {
+			suboptionList = new ArrayList<DhcpOption>();
+		}
+		suboptionList.add(suboption);
+	}
+
     /* (non-Javadoc)
+     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
+     */
+    public int getLength()
+    {
+        int len = 4;  // size of enterprise number (int)
+        if ((suboptionList != null) && !suboptionList.isEmpty()) {
+            for (DhcpOption subopt : suboptionList) {
+            	if (subopt != null) {
+            		// code + len of suboption + suboption itself
+            		len += 2 + 2 + subopt.getLength();	// patch from Audrey Zhdanov 9/22/11
+            	}
+            }
+        }
+        return len;
+    }
+
+	/* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Encodable#encode()
      */
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
-        buf.putInt((int)vendorInfoOption.getEnterpriseNumber());
-        GenericOptionsType suboptList = vendorInfoOption.getSuboptionList();
-        if (suboptList != null) {
-        	List<OptionDefType> subopts = suboptList.getOptionDefList();
-	        if ((subopts != null) && !subopts.isEmpty()) {
-	            for (OptionDefType subopt : subopts) {
-	            	DhcpOption genericOption = GenericOptionFactory.getDhcpOption(subopt);
-	            	if (genericOption != null) {
-	            		buf.put(genericOption.encode());
-	            	}
-	            }
-	        }
+        buf.putInt((int)enterpriseNumber);
+        if ((suboptionList != null) && !suboptionList.isEmpty()) {
+            for (DhcpOption subopt : suboptionList) {
+        		buf.put(subopt.encode());
+            }
         }
         return (ByteBuffer) buf.flip();
     }
@@ -127,61 +147,14 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
     	if ((len > 0) && (len <= buf.remaining())) {
             int eof = buf.position() + len;
             if (buf.position() < eof) {
-                vendorInfoOption.setEnterpriseNumber(Util.getUnsignedInt(buf));
-            	GenericOptionsType suboptList = vendorInfoOption.addNewSuboptionList();
+                enterpriseNumber = Util.getUnsignedInt(buf);
                 while (buf.position() < eof) {
                 	int code = Util.getUnsignedShort(buf);
                 	GenericOpaqueDataOption subopt = new GenericOpaqueDataOption(code, null);
                 	subopt.decode(buf);
-                	OptionDefType optionDef = suboptList.addNewOptionDef();
-                	optionDef.setCode(code);	// patch from Audrey Zhdanov 9/22/11
-                	optionDef.setOpaqueDataOption(convertBaseOpaque(subopt.getOpaqueData()));
                 }
             }
         }
-    }
-    
-    private OpaqueDataOptionType convertBaseOpaque(BaseOpaqueData base)
-    {
-    	OpaqueDataOptionType type = OpaqueDataOptionType.Factory.newInstance();
-    	OpaqueData opaque = type.addNewOpaqueData();
-    	if (base.getAscii() != null) {
-    		opaque.setAsciiValue(base.getAscii());
-    	}
-    	else {
-    		opaque.setHexValue(base.getHex());
-    	}
-    	return type;
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
-    public int getLength()
-    {
-        int len = 4;  // size of enterprise number (int)
-        GenericOptionsType suboptList = vendorInfoOption.getSuboptionList();
-        if (suboptList != null) {
-        	List<OptionDefType> subopts = suboptList.getOptionDefList();
-	        if ((subopts != null) && !subopts.isEmpty()) {
-	            for (OptionDefType subopt : subopts) {
-	            	DhcpOption genericOption = GenericOptionFactory.getDhcpOption(subopt);
-	            	if (genericOption != null) {
-	            		// code + len of suboption + suboption itself
-	            		len += 2 + 2 + genericOption.getLength();	// patch from Audrey Zhdanov 9/22/11
-	            	}
-	            }
-	        }
-        }
-        return len;
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-     */
-    public int getCode()
-    {
-        return vendorInfoOption.getCode();
     }
 
     /* (non-Javadoc)
@@ -189,11 +162,17 @@ public class DhcpVendorInfoOption extends BaseDhcpOption
      */
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
-        sb.append(super.getName());
-        sb.append(Util.LINE_SEPARATOR);
-        // use XmlObject implementation
-        sb.append(vendorInfoOption.toString());
+        StringBuilder sb = new StringBuilder(super.toString());
+        sb.append(" enterpriseNumber=");
+        sb.append(enterpriseNumber);
+        if ((suboptionList != null) && !suboptionList.isEmpty()) {
+        	sb.append(" suboptions=");
+            for (DhcpOption subopt : suboptionList) {
+        		sb.append(subopt.toString());
+        		sb.append(',');
+            }
+            sb.setLength(sb.length()-1);
+        }
         return sb.toString();
     }
 }
