@@ -206,4 +206,19 @@ public class Subnet implements Comparable<Subnet>
         }
 	}    
     
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if (subnetAddress != null) {
+			sb.append(subnetAddress.getHostAddress());
+			sb.append('/');
+			sb.append(prefixLength);
+			sb.append(" (");
+			sb.append(subnetAddress.getHostAddress());
+			sb.append('-');
+			sb.append(getEndAddress().getHostAddress());
+			sb.append(')');
+		}
+		return sb.toString();
+	}
 }
