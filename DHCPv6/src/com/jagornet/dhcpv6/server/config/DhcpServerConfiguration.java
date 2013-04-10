@@ -265,6 +265,12 @@ public class DhcpServerConfiguration
                         if ((s != null) && (s.length == 2)) {
                             try {
 								Subnet subnet = new Subnet(s[0], s[1]);
+								log.info("Adding subnet=" + subnet.toString() +
+										" to link map for link:" +
+										" name='" + link.getName() + 
+										((link.getInterface() != null) ?  
+												"' interface=" + link.getInterface() :
+												"' address=" + link.getAddress())); 
 								linkMap.put(subnet, new DhcpLink(subnet, link));
 							} 
                             catch (NumberFormatException ex) {
