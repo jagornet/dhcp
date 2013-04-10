@@ -61,6 +61,8 @@ public class DhcpConstants
 	
 	public static String DHCPV6_HOME = System.getProperty("dhcpv6.home");
 	
+	public static boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
+	
 	public static InetAddress ZEROADDR = null;
 	public static InetAddress ZEROADDR_V6 = null;
 	
@@ -358,7 +360,7 @@ public class DhcpConstants
     public static final int V4MESSAGE_TYPE_REQUEST = 3;
     public static final int V4MESSAGE_TYPE_DECLINE = 4;
     public static final int V4MESSAGE_TYPE_ACK = 5;
-    public static final int V4MESSAGE_TYPE_NACK = 6;
+    public static final int V4MESSAGE_TYPE_NAK = 6;
     public static final int V4MESSAGE_TYPE_RELEASE = 7;
     public static final int V4MESSAGE_TYPE_INFORM = 8;
     

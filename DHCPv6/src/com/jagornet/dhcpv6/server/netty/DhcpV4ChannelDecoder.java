@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV4Message;
 import com.jagornet.dhcpv6.server.DhcpV6Server;
+import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
  * Title: DhcpV4ChannelDecoder
@@ -75,7 +76,20 @@ public class DhcpV4ChannelDecoder extends OneToOneDecoder
      */
     @Override
     protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
-    {    	
+    {
+    	if (DhcpConstants.IS_WINDOWS &&
+    		!(this instanceof DhcpV4UnicastChannelDecoder) &&
+    		!remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR)) {
+        	// we ignore packets from 0.0.0.0 in the DhcpV4UnicastChannelDecoder, so if this is NOT
+        	// that decoder, then this is the broadcast decoder, in which case we want to ignore
+        	// packets that are NOT from 0.0.0.0.  This is to workaround Windows implementation which
+        	// will see duplicate packets on the unicast and broadcast channels
+        	log.debug("Ignoring packet from " + 
+        				remoteSocketAddress.getAddress().getHostAddress() + 
+        				" received on broadcast channel");
+        	return null;
+    	}
+    	
     	if (ignoreSelfPackets) {
 	    	if (DhcpV6Server.getAllIPv4Addrs().contains(remoteSocketAddress.getAddress())) {
 	    		log.debug("Ignoring packet from self: address=" + 
