@@ -28,6 +28,7 @@ package com.jagornet.dhcpv6.server.request;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,6 +48,7 @@ import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4HostnameOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4LeaseTimeOption;
+import com.jagornet.dhcpv6.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
@@ -351,7 +353,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 	/**
 	 * Process ddns updates.
 	 */
-	protected void processDdnsUpdates()
+	protected void processDdnsUpdates(boolean sendUpdates)
 	{
 		boolean doForwardUpdate = true;
 
@@ -458,36 +460,47 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			replyFqdnOption.setUpdateABit(true);
 		}
 
-		for (Binding binding : bindings) {
-			if (binding.getState() == Binding.COMMITTED) {
-				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
-				if (bindingObjs != null) {
-					for (BindingObject bindingObj : bindingObjs) {
-						
-						V4BindingAddress bindingAddr = (V4BindingAddress) bindingObj;
-						
-	        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
-	        			
-	        			DdnsCallback ddnsComplete = 
-	        				new DhcpV4DdnsComplete(bindingAddr, replyFqdnOption);
-	        			
-						DdnsUpdater ddns =
-							new DdnsUpdater(requestMsg, clientLink.getLink(), configObj,
-									bindingAddr.getIpAddress(), fqdn, requestMsg.getChAddr(),
-									configObj.getValidLifetime(), doForwardUpdate, false,
-									ddnsComplete);
-						
-						ddns.processUpdates();
+		if (sendUpdates) {
+			for (Binding binding : bindings) {
+				if (binding.getState() == Binding.COMMITTED) {
+					Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+					if (bindingObjs != null) {
+						for (BindingObject bindingObj : bindingObjs) {
+							
+							V4BindingAddress bindingAddr = (V4BindingAddress) bindingObj;
+							
+		        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
+		        			
+		        			DdnsCallback ddnsComplete = 
+		        				new DhcpV4DdnsComplete(bindingAddr, replyFqdnOption);
+		        			
+							DdnsUpdater ddns =
+								new DdnsUpdater(requestMsg, clientLink.getLink(), configObj,
+										bindingAddr.getIpAddress(), fqdn, requestMsg.getChAddr(),
+										configObj.getValidLifetime(), doForwardUpdate, false,
+										ddnsComplete);
+							
+							ddns.processUpdates();
+						}
 					}
 				}
 			}
 		}
 	}
 	
-	protected boolean addrOnLink(InetAddress inetAddr, DhcpLink clientLink)
+	protected boolean addrOnLink(DhcpV4RequestedIpAddressOption requestedIpOption, DhcpLink clientLink)
 	{
-		boolean onLink = true;	//TODO: don't assume all IPs are on link?
-		
+		boolean onLink = true;
+		if (requestedIpOption != null) {
+			try {
+				InetAddress requestedIp = InetAddress.getByName(requestedIpOption.getIpAddress());
+				if (!clientLink.getSubnet().contains(requestedIp)) {
+					onLink = false;
+				}
+			} catch (UnknownHostException ex) {
+				log.error("Invalid requested IP=" + requestedIpOption.getIpAddress() + ": " + ex);
+			}
+		}
 		return onLink;
 	}
     

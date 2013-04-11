@@ -69,22 +69,6 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
         super(requestMsg, clientLinkAddress);
     }
 
-    /*
-     * FROM RFC 3315:
-     * 
-     * 15.4. Request Message
-     * 
-     * Servers MUST discard any received Request message that meet any of
-     * the following conditions:
-     * 
-     * -  the message does not include a Server Identifier option.
-     * 
-     * -  the contents of the Server Identifier option do not match the
-     *    server's DUID.
-     * 
-     * -  the message does not include a Client Identifier option.
-     *  
-     */
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#preProcess()
      */
@@ -168,15 +152,17 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
 					 " from chAddr=" + Util.toHexString(chAddr) +
 					 " ciAddr=" + requestMsg.getCiAddr().getHostAddress() +
 					 " requestedIpAddrOption=" + requestedIpAddrOption);
-// TODO
-//    		if (!addrOnLink(requestedIpAddrOption, clientLink)) {
-//    			//TODO - send NAK
-//    		}
-//    		else {
-    			Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+
+			if (!addrOnLink(requestedIpAddrOption, clientLink)) {
+    			log.info("Client requested IP is off-link, returning NAK");
+    			replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_NAK);
+    			return sendReply;
+    		}
+    		else {
+    			Binding binding = bindingMgr.findCurrentBinding(clientLink, 
     															chAddr, requestMsg);
 				if (binding != null) {
-					binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+					binding = bindingMgr.updateBinding(binding, clientLink, 
 							chAddr, requestMsg, IdentityAssoc.COMMITTED);
 					if (binding != null) {
 						addBindingToReply(clientLink, binding);
@@ -193,7 +179,7 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
 							Util.toHexString(chAddr));
 					sendReply = false;
 				}
-//			}
+			}
 		}
 		else {
 			log.error("Unable to process V4 Request:" +
@@ -203,7 +189,7 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
     	if (sendReply) {
             replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_ACK);
             if (!bindings.isEmpty()) {
-    			processDdnsUpdates();
+    			processDdnsUpdates(true);
             }
     	}
 		return sendReply;    	

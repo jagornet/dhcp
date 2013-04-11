@@ -160,10 +160,10 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 		    					DhcpConstants.STATUS_CODE_NOTONLINK);
 		    		}
 		    		else {
-						Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 								clientIdOption, dhcpIaNaOption, requestMsg);
 						if (binding != null) {
-							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaNaOption, requestMsg, 
 									IdentityAssoc.COMMITTED);
 							if (binding != null) {
@@ -205,10 +205,10 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 		    					DhcpConstants.STATUS_CODE_NOTONLINK);
 		    		}
 		    		else {
-						Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 								clientIdOption, dhcpIaTaOption, requestMsg);
 						if (binding != null) {
-							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaTaOption, requestMsg, 
 									IdentityAssoc.COMMITTED);
 							if (binding != null) {
@@ -251,10 +251,10 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
 		    					DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
 		    		}
 		    		else {
-						Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 								clientIdOption, dhcpIaPdOption, requestMsg);
 						if (binding != null) {
-							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaPdOption, requestMsg, 
 									IdentityAssoc.COMMITTED);
 							if (binding != null) {
@@ -290,7 +290,7 @@ public class DhcpRequestProcessor extends BaseDhcpProcessor
             replyMsg.setMessageType(DhcpConstants.REPLY);
             if (!bindings.isEmpty()) {
             	populateReplyMsgOptions(clientLink);
-    			processDdnsUpdates();
+    			processDdnsUpdates(true);
             }
     	}
 		return sendReply;    	

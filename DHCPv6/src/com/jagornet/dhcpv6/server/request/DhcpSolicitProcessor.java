@@ -147,15 +147,15 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
 	    			log.info("Processing IA_NA Solicit: " + dhcpIaNaOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaNaOption, requestMsg);
 					if (binding == null) {
 						// no current binding for this IA_NA, create a new one
-						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
+						binding = bindingMgr.createSolicitBinding(clientLink, 
 								clientIdOption, dhcpIaNaOption, requestMsg, state);
 					}
 					else {
-						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+						binding = bindingMgr.updateBinding(binding, clientLink, 
 								clientIdOption, dhcpIaNaOption, requestMsg, state);
 					}
 					if (binding != null) {
@@ -184,15 +184,15 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaTaOption dhcpIaTaOption : iaTaOptions) {
 	    			log.info("Processing IA_TA Solicit: " + dhcpIaTaOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaTaOption, requestMsg);
 					if (binding == null) {
 						// no current binding for this IA_TA, create a new one
-						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
+						binding = bindingMgr.createSolicitBinding(clientLink, 
 								clientIdOption, dhcpIaTaOption, requestMsg, state);
 					}
 					else {
-						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+						binding = bindingMgr.updateBinding(binding, clientLink, 
 								clientIdOption, dhcpIaTaOption, requestMsg, state);
 					}
 					if (binding != null) {
@@ -221,15 +221,15 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
 	    			log.info("Processing IA_PD Solicit: " + dhcpIaPdOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaPdOption, requestMsg);
 					if (binding == null) {
 						// no current binding for this IA_PD, create a new one
-						binding = bindingMgr.createSolicitBinding(clientLink.getLink(), 
+						binding = bindingMgr.createSolicitBinding(clientLink, 
 								clientIdOption, dhcpIaPdOption, requestMsg, state);
 					}
 					else {
-						binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+						binding = bindingMgr.updateBinding(binding, clientLink, 
 								clientIdOption, dhcpIaPdOption, requestMsg, state);
 					}
 					if (binding != null) {
@@ -262,7 +262,10 @@ public class DhcpSolicitProcessor extends BaseDhcpProcessor
     		if (!bindings.isEmpty()) {
     			populateReplyMsgOptions(clientLink);
     			if (rapidCommit) {
-    				processDdnsUpdates();
+    				processDdnsUpdates(true);
+    			}
+    			else {
+    				processDdnsUpdates(false);
     			}
     		}
     	}    	

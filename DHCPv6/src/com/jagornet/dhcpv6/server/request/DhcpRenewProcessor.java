@@ -158,7 +158,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
 	    			log.info("Processing IA_NA Renew: " + dhcpIaNaOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaNaOption, requestMsg);
 					if (binding != null) {
 						// zero out the lifetimes of any invalid addresses
@@ -166,7 +166,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
 							replyMsg.addIaNaOption(dhcpIaNaOption);
 						}
 						else {
-							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaNaOption, requestMsg, 
 									IdentityAssoc.COMMITTED);
 							if (binding != null) {
@@ -197,7 +197,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaTaOption dhcpIaTaOption : iaTaOptions) {
 	    			log.info("Processing IA_TA Renew: " + dhcpIaTaOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaTaOption, requestMsg);
 					if (binding != null) {
 						// zero out the lifetimes of any invalid addresses
@@ -205,7 +205,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
 							replyMsg.addIaTaOption(dhcpIaTaOption);
 						}
 						else {
-							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaTaOption, requestMsg, 
 									IdentityAssoc.COMMITTED);
 							if (binding != null) {
@@ -236,7 +236,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
 	    			log.info("Processing IA_PD Renew: " + dhcpIaPdOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaPdOption, requestMsg);
 					if (binding != null) {
 						// zero out the lifetimes of any invalid addresses
@@ -244,7 +244,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
 							replyMsg.addIaPdOption(dhcpIaPdOption);
 						}
 						else {
-							binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaPdOption, requestMsg, 
 									IdentityAssoc.COMMITTED);
 							if (binding != null) {
@@ -273,7 +273,7 @@ public class DhcpRenewProcessor extends BaseDhcpProcessor
             replyMsg.setMessageType(DhcpConstants.REPLY);
             if (!bindings.isEmpty()) {
             	populateReplyMsgOptions(clientLink);
-    			processDdnsUpdates();
+    			processDdnsUpdates(true);
             }
             else {
             	log.warn("Reply message has no bindings");

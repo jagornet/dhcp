@@ -169,7 +169,7 @@ public class DhcpReleaseProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaNaOption dhcpIaNaOption : iaNaOptions) {
 	    			log.info("Processing IA_NA Release: " + dhcpIaNaOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaNaOption, requestMsg);
 					if (binding != null) {
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
@@ -197,7 +197,7 @@ public class DhcpReleaseProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaTaOption dhcpIaTaOption : iaTaOptions) {
 	    			log.info("Processing IA_TA Release: " + dhcpIaTaOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaTaOption, requestMsg);
 					if (binding != null) {
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
@@ -225,7 +225,7 @@ public class DhcpReleaseProcessor extends BaseDhcpProcessor
     		if (bindingMgr != null) {
 	    		for (DhcpIaPdOption dhcpIaPdOption : iaPdOptions) {
 	    			log.info("Processing IA_PD Release: " + dhcpIaPdOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 							clientIdOption, dhcpIaPdOption, requestMsg);
 					if (binding != null) {
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();

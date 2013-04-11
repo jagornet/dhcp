@@ -100,7 +100,7 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
 			log.info("Processing Release" +
 					 " from chAddr=" + Util.toHexString(chAddr) +
 					 " ciAddr=" + requestMsg.getCiAddr().getHostAddress());
-			Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+			Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 															chAddr, requestMsg);
 			if (binding != null) {
 				Collection<BindingObject> bindingObjs = binding.getBindingObjects();

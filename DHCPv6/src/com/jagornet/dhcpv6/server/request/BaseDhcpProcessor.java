@@ -997,7 +997,7 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 	/**
 	 * Process ddns updates.
 	 */
-	protected void processDdnsUpdates()
+	protected void processDdnsUpdates(boolean sendUpdates)
 	{
 		DhcpClientFqdnOption clientFqdnOption = 
 			(DhcpClientFqdnOption) requestMsg.getDhcpOption(DhcpConstants.OPTION_CLIENT_FQDN);
@@ -1005,6 +1005,17 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			//TODO allow name generation?
 			log.debug("No Client FQDN option in request.  Skipping DDNS update processing.");
 			return;
+		}
+		
+		boolean includeFqdnOptionInReply = false;
+		if ((requestMsg.getRequestedOptionCodes() != null) &&
+				requestMsg.getRequestedOptionCodes().contains(DhcpConstants.OPTION_CLIENT_FQDN)) {
+			// RFC 4704 section 6 says:
+			//   Servers MUST only include a Client FQDN option in ADVERTISE and REPLY
+			//   messages if the client included a Client FQDN option and the Client
+			//   FQDN option is requested by the Option Request option in the client's
+			//   message to which the server is responding.
+			includeFqdnOptionInReply = true;
 		}
 
 		DhcpClientFqdnOption replyFqdnOption = new DhcpClientFqdnOption();
@@ -1016,8 +1027,10 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		String fqdn = clientFqdnOption.getDomainName();
 		if ((fqdn == null) || (fqdn.length() <= 0)) {
 			log.error("Client FQDN option domain name is null/empty.  No DDNS udpates performed.");
-			replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
-			replyMsg.putDhcpOption(replyFqdnOption);
+			if (includeFqdnOptionInReply) {
+				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyMsg.putDhcpOption(replyFqdnOption);
+			}
 			return;
 		}
 		
@@ -1027,16 +1040,20 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 		if ((policy == null) || policy.equalsIgnoreCase("none")) {
 			log.info("Server configuration for ddns.update policy is null or 'none'." +
 					"  No DDNS updates performed.");
-			replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
-			replyMsg.putDhcpOption(replyFqdnOption);
+			if (includeFqdnOptionInReply) {
+				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyMsg.putDhcpOption(replyFqdnOption);
+			}
 			return;
 		}
 				
 		if (clientFqdnOption.getNoUpdateBit() && policy.equalsIgnoreCase("honorNoUpdate")) {
 			log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
 					"  No DDNS updates performed.");
-			replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
-			replyMsg.putDhcpOption(replyFqdnOption);
+			if (includeFqdnOptionInReply) {
+				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyMsg.putDhcpOption(replyFqdnOption);
+			}
 			//TODO: RFC 4704 Section 6.1
 			//		...the server SHOULD delete any RRs that it previously added 
 			//		via DNS updates for the client.
@@ -1069,29 +1086,33 @@ public abstract class BaseDhcpProcessor implements DhcpMessageProcessor
 			replyFqdnOption.setDomainName(fqdn);
 		}
 		
-		replyMsg.putDhcpOption(replyFqdnOption);
-
-		for (Binding binding : bindings) {
-			if (binding.getState() == Binding.COMMITTED) {
-				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
-				if (bindingObjs != null) {
-					for (BindingObject bindingObj : bindingObjs) {
-						
-						BindingAddress bindingAddr = (BindingAddress) bindingObj;
-						
-	        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
-	        			
-	        			DdnsCallback ddnsComplete = 
-	        				new DhcpDdnsComplete(bindingAddr, replyFqdnOption);
-	        			
-						DdnsUpdater ddns =
-							new DdnsUpdater(requestMsg, clientLink.getLink(), configObj,
-									bindingAddr.getIpAddress(), fqdn, 
-									requestMsg.getDhcpClientIdOption().getDuid(),
-									configObj.getValidLifetime(), doForwardUpdate, false,
-									ddnsComplete);
-						
-						ddns.processUpdates();
+		if (includeFqdnOptionInReply) {
+			replyMsg.putDhcpOption(replyFqdnOption);
+		}
+		
+		if (sendUpdates) {
+			for (Binding binding : bindings) {
+				if (binding.getState() == Binding.COMMITTED) {
+					Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+					if (bindingObjs != null) {
+						for (BindingObject bindingObj : bindingObjs) {
+							
+							BindingAddress bindingAddr = (BindingAddress) bindingObj;
+							
+		        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
+		        			
+		        			DdnsCallback ddnsComplete = 
+		        				new DhcpDdnsComplete(bindingAddr, replyFqdnOption);
+		        			
+							DdnsUpdater ddns =
+								new DdnsUpdater(requestMsg, clientLink.getLink(), configObj,
+										bindingAddr.getIpAddress(), fqdn, 
+										requestMsg.getDhcpClientIdOption().getDuid(),
+										configObj.getValidLifetime(), doForwardUpdate, false,
+										ddnsComplete);
+							
+							ddns.processUpdates();
+						}
 					}
 				}
 			}

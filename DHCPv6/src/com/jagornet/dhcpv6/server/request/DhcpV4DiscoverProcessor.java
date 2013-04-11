@@ -105,15 +105,15 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
 		V4AddrBindingManager bindingMgr = dhcpServerConfig.getV4AddrBindingMgr();
 		if (bindingMgr != null) {
 			log.info("Processing Discover from: chAddr=" + Util.toHexString(chAddr));
-			Binding binding = bindingMgr.findCurrentBinding(clientLink.getLink(), 
+			Binding binding = bindingMgr.findCurrentBinding(clientLink, 
 					chAddr, requestMsg);
 			if (binding == null) {
 				// no current binding for this MAC, create a new one
-				binding = bindingMgr.createDiscoverBinding(clientLink.getLink(), 
+				binding = bindingMgr.createDiscoverBinding(clientLink, 
 						chAddr, requestMsg, state);
 			}
 			else {
-				binding = bindingMgr.updateBinding(binding, clientLink.getLink(), 
+				binding = bindingMgr.updateBinding(binding, clientLink, 
 						chAddr, requestMsg, state);
 			}
 			if (binding != null) {
@@ -142,7 +142,10 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     		}
     		if (!bindings.isEmpty()) {
         		if (rapidCommit) {
-        			processDdnsUpdates();
+        			processDdnsUpdates(true);
+        		}
+        		else {
+        			processDdnsUpdates(false);
         		}
     		}
     	}    	
