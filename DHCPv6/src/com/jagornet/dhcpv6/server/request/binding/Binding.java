@@ -32,7 +32,7 @@ import org.springframework.beans.BeanUtils;
 
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.xml.Link;
+import com.jagornet.dhcpv6.server.config.DhcpLink;
 
 /**
  * The Class Binding.  A wrapper class for a database IdentityAssoc object
@@ -47,7 +47,7 @@ public class Binding extends IdentityAssoc
 	private IdentityAssoc origIa;
 	
 	/** The link. */
-	private Link link;
+	private DhcpLink dhcpLink;
 	
 	/**
 	 * Instantiates a new binding.
@@ -55,11 +55,11 @@ public class Binding extends IdentityAssoc
 	 * @param ia the ia
 	 * @param link the link
 	 */
-	public Binding(IdentityAssoc ia, Link link)
+	public Binding(IdentityAssoc ia, DhcpLink dhcpLink)
 	{
 		this.origIa = ia;	// save a reference to the original IA
 		BeanUtils.copyProperties(ia, this);
-		this.link = link;
+		this.dhcpLink = dhcpLink;
 	}
 	
 	/**
@@ -67,8 +67,8 @@ public class Binding extends IdentityAssoc
 	 * 
 	 * @return the link
 	 */
-	public Link getLink() {
-		return link;
+	public DhcpLink getDhcpLink() {
+		return dhcpLink;
 	}
 
 	/**
@@ -76,8 +76,8 @@ public class Binding extends IdentityAssoc
 	 * 
 	 * @param link the new link
 	 */
-	public void setLink(Link link) {
-		this.link = link;
+	public void setDhcpLink(DhcpLink dhcpLink) {
+		this.dhcpLink = dhcpLink;
 	}
 
 	/**

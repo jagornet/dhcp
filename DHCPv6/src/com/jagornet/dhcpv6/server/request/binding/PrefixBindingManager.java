@@ -29,8 +29,8 @@ import com.jagornet.dhcpv6.db.IaPrefix;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPdOption;
+import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
-import com.jagornet.dhcpv6.xml.Link;
 
 /**
  * The Interface PrefixBindingManager.  The interface for IA_PD type
@@ -57,7 +57,7 @@ public interface PrefixBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
+	public Binding findCurrentBinding(DhcpLink clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg);
 	
 	/**
@@ -71,7 +71,7 @@ public interface PrefixBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
+	public Binding createSolicitBinding(DhcpLink clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg, byte state);
 
 	/**
@@ -86,7 +86,7 @@ public interface PrefixBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding updateBinding(Binding binding, Link clientLink, 
+	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
 			DhcpClientIdOption clientIdOption, DhcpIaPdOption iaPdOption,
 			DhcpMessageInterface requestMsg, byte state);
 

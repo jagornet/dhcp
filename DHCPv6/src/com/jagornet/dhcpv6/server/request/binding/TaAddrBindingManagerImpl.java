@@ -34,6 +34,7 @@ import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaAddrOption;
 import com.jagornet.dhcpv6.option.DhcpIaTaOption;
+import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.xml.AddressBindingsType;
 import com.jagornet.dhcpv6.xml.AddressPoolsType;
@@ -88,7 +89,7 @@ public class TaAddrBindingManagerImpl
 	 * @see com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaTaOption, com.jagornet.dhcpv6.message.DhcpMessageInterface)
 	 */
 	@Override
-	public Binding findCurrentBinding(Link clientLink,
+	public Binding findCurrentBinding(DhcpLink clientLink,
 			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
 			DhcpMessageInterface requestMsg) {
 		
@@ -103,7 +104,7 @@ public class TaAddrBindingManagerImpl
 	 * @see com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaTaOption, com.jagornet.dhcpv6.message.DhcpMessageInterface, boolean)
 	 */
 	@Override
-	public Binding createSolicitBinding(Link clientLink,
+	public Binding createSolicitBinding(DhcpLink clientLink,
 			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
 			DhcpMessageInterface requestMsg, byte state) {
 		
@@ -111,7 +112,7 @@ public class TaAddrBindingManagerImpl
 		long iaid = iaTaOption.getIaId();
 
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink, duid, IdentityAssoc.TA_TYPE, iaid, requestMsg);
+			findStaticBinding(clientLink.getLink(), duid, IdentityAssoc.TA_TYPE, iaid, requestMsg);
 		
 		if (staticBinding != null) {
 			return super.createStaticBinding(clientLink, duid, IdentityAssoc.TA_TYPE, 
@@ -127,7 +128,7 @@ public class TaAddrBindingManagerImpl
 	 * @see com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaTaOption, com.jagornet.dhcpv6.message.DhcpMessageInterface, byte)
 	 */
 	@Override
-	public Binding updateBinding(Binding binding, Link clientLink,
+	public Binding updateBinding(Binding binding, DhcpLink clientLink,
 			DhcpClientIdOption clientIdOption, DhcpIaTaOption iaTaOption,
 			DhcpMessageInterface requestMsg, byte state) {
 		
@@ -135,7 +136,7 @@ public class TaAddrBindingManagerImpl
 		long iaid = iaTaOption.getIaId();
 
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink, duid, IdentityAssoc.TA_TYPE, iaid, requestMsg);
+			findStaticBinding(clientLink.getLink(), duid, IdentityAssoc.TA_TYPE, iaid, requestMsg);
 		
 		if (staticBinding != null) {
 			return super.updateStaticBinding(binding, clientLink, duid, IdentityAssoc.TA_TYPE, 

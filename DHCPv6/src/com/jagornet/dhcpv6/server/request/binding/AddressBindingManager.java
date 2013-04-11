@@ -318,7 +318,7 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 			        		}
 			        		else {
 			        			bindingAddr =
-			        				buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+			        				buildBindingAddrFromIaAddr(iaAddr, link, null);	// safe to send null requestMsg
 			        		}
 			        		if (bindingAddr != null) {
 			        			
@@ -370,16 +370,22 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 	 * @return the binding
 	 */
 	protected Binding buildBindingFromIa(IdentityAssoc ia, 
-			Link clientLink, DhcpMessageInterface requestMsg)
+			DhcpLink clientLink, DhcpMessageInterface requestMsg)
 	{
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
 		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
 			List<BindingAddress> bindingAddrs = new ArrayList<BindingAddress>();
 			for (IaAddress iaAddr : iaAddrs) {
+// off-link check needed only for v4?
+//				if (!clientLink.getSubnet().contains(iaAddr.getIpAddress())) {
+//					log.info("Ignoring off-link binding address: " + 
+//							iaAddr.getIpAddress().getHostAddress());
+//					continue;
+//				}
 				BindingAddress bindingAddr = null;
         		StaticBinding staticBinding =
-        			findStaticBinding(clientLink, ia.getDuid(), 
+        			findStaticBinding(clientLink.getLink(), ia.getDuid(), 
         					ia.getIatype(), ia.getIaid(), requestMsg);
         		if (staticBinding != null) {
         			bindingAddr = 
@@ -411,10 +417,10 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 	 * @return the binding address
 	 */
 	private BindingAddress buildBindingAddrFromIaAddr(IaAddress iaAddr, 
-			Link clientLink, DhcpMessageInterface requestMsg)
+			DhcpLink clientLink, DhcpMessageInterface requestMsg)
 	{
 		InetAddress inetAddr = iaAddr.getIpAddress();
-		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
+		BindingPool bp = findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			// TODO store the configured options in the persisted binding?
 			// ipAddr.setDhcpOptions(bp.getDhcpOptions());
@@ -444,7 +450,7 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 	}
 	
 	/**
-	 * Build a BindingAddress for the given InetAddress and Link.
+	 * Build a BindingAddress for the given InetAddress and DhcpLink.
 	 * 
 	 * @param inetAddr the inet addr
 	 * @param clientLink the client link
@@ -453,9 +459,10 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 	 * @return the binding address
 	 */
 	protected BindingObject buildBindingObject(InetAddress inetAddr, 
-			Link clientLink, DhcpMessageInterface requestMsg)
+			DhcpLink clientLink, DhcpMessageInterface requestMsg)
 	{
-		AddressBindingPool bp = (AddressBindingPool) findBindingPool(clientLink, inetAddr, requestMsg);
+		AddressBindingPool bp = 
+			(AddressBindingPool) findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			bp.setUsed(inetAddr);	// TODO check if this is necessary
 			IaAddress iaAddr = new IaAddress();

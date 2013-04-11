@@ -28,8 +28,8 @@ package com.jagornet.dhcpv6.server.request.binding;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
-import com.jagornet.dhcpv6.xml.Link;
 
 /**
  * The Interface V4AddrBindingManager.  The interface for DHCPv4 type
@@ -55,7 +55,7 @@ public interface V4AddrBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding findCurrentBinding(Link clientLink, byte[] macAddr, 
+	public Binding findCurrentBinding(DhcpLink clientLink, byte[] macAddr, 
 			DhcpMessageInterface requestMsg);
 	
 	/**
@@ -68,7 +68,7 @@ public interface V4AddrBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding createDiscoverBinding(Link clientLink, byte[] macAddr, 
+	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] macAddr, 
 			DhcpMessageInterface requestMsg, byte state);
 
 	/**
@@ -82,7 +82,7 @@ public interface V4AddrBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding updateBinding(Binding binding, Link clientLink, 
+	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
 			byte[] macAddr, DhcpMessageInterface requestMsg, byte state);
 
 	/**

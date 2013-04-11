@@ -210,31 +210,6 @@ public class V4AddrBindingManagerImpl
     	return bp;
     }
     
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.request.binding.BaseBindingManager#initBindings(com.jagornet.dhcpv6.xml.Link)
-     */
-    protected void initBindings(Link link) throws DhcpServerConfigException
-    {
-    	try {
-			V4AddressBindingsType bindingsType = link.getV4AddrBindings();
-			if (bindingsType != null) {
-				List<V4AddressBinding> staticBindings = 
-					bindingsType.getBindingList();
-				if (staticBindings != null) {
-					for (V4AddressBinding staticBinding : staticBindings) {
-	//TODO								reconcileStaticBinding(staticBinding);
-						setIpAsUsed(link, 
-								InetAddress.getByName(staticBinding.getIpAddress()));
-					}
-				}
-			}
-    	}
-    	catch (UnknownHostException ex) {
-    		log.error("Invalid static binding address", ex);
-    		throw new DhcpServerConfigException("Invalid static binding address", ex);
-    	}
-    }
-    
     protected List<? extends StaticBinding> buildStaticBindings(Link link) 
 			throws DhcpServerConfigException
 	{
@@ -272,7 +247,7 @@ public class V4AddrBindingManagerImpl
 	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage)
 	 */
 	@Override
-	public Binding findCurrentBinding(Link clientLink, byte[] macAddr, 
+	public Binding findCurrentBinding(DhcpLink clientLink, byte[] macAddr, 
 			DhcpMessageInterface requestMsg) {
 		
 		return super.findCurrentBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
@@ -283,11 +258,11 @@ public class V4AddrBindingManagerImpl
 	 * @see com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage, boolean)
 	 */
 	@Override
-	public Binding createDiscoverBinding(Link clientLink, byte[] macAddr, 
+	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] macAddr, 
 			DhcpMessageInterface requestMsg, byte state)
 	{
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
+			findStaticBinding(clientLink.getLink(), macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
 		
 		if (staticBinding != null) {
 			return super.createStaticBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
@@ -303,11 +278,11 @@ public class V4AddrBindingManagerImpl
 	 * @see com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage, byte)
 	 */
 	@Override
-	public Binding updateBinding(Binding binding, Link clientLink, 
+	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
 			byte[] macAddr, DhcpMessageInterface requestMsg, byte state) {
 
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
+			findStaticBinding(clientLink.getLink(), macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
 		
 		if (staticBinding != null) {
 			return super.updateStaticBinding(binding, clientLink, macAddr, IdentityAssoc.V4_TYPE, 
@@ -355,7 +330,7 @@ public class V4AddrBindingManagerImpl
 	 * 
 	 * @return the binding
 	 */
-	protected Binding buildBindingFromIa(IdentityAssoc ia, Link clientLink,
+	protected Binding buildBindingFromIa(IdentityAssoc ia, DhcpLink clientLink,
 			DhcpMessageInterface requestMsg)
 	{
 		Binding binding = new Binding(ia, clientLink);
@@ -363,9 +338,14 @@ public class V4AddrBindingManagerImpl
 		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
 			List<V4BindingAddress> bindingAddrs = new ArrayList<V4BindingAddress>();
 			for (IaAddress iaAddr : iaAddrs) {
+				if (!clientLink.getSubnet().contains(iaAddr.getIpAddress())) {
+					log.info("Ignoring off-link binding address: " + 
+							iaAddr.getIpAddress().getHostAddress());
+					continue;
+				}
 				V4BindingAddress bindingAddr = null;
         		StaticBinding staticBinding =
-        			findStaticBinding(clientLink, ia.getDuid(), 
+        			findStaticBinding(clientLink.getLink(), ia.getDuid(), 
         					ia.getIatype(), ia.getIaid(), requestMsg);
         		if (staticBinding != null) {
         			bindingAddr = 
@@ -373,7 +353,7 @@ public class V4AddrBindingManagerImpl
         		}
         		else {
         			bindingAddr =
-        				buildBindingAddrFromIaAddr(iaAddr, clientLink, requestMsg);
+        				buildBindingAddrFromIaAddr(iaAddr, clientLink.getLink(), requestMsg);
         		}
 				if (bindingAddr != null)
 					bindingAddrs.add(bindingAddr);
@@ -423,9 +403,10 @@ public class V4AddrBindingManagerImpl
 
 	@Override
 	protected BindingObject buildBindingObject(InetAddress inetAddr,
-			Link clientLink, DhcpMessageInterface requestMsg)
+			DhcpLink clientLink, DhcpMessageInterface requestMsg)
 	{
-		V4AddressBindingPool bp = (V4AddressBindingPool) findBindingPool(clientLink, inetAddr, requestMsg);
+		V4AddressBindingPool bp = 
+			(V4AddressBindingPool) findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			bp.setUsed(inetAddr);	// TODO check if this is necessary
 			IaAddress iaAddr = new IaAddress();

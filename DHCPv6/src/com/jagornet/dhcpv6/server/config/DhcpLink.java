@@ -73,6 +73,13 @@ public class DhcpLink
 		prefixConfigOptions = new DhcpConfigOptions(link.getPrefixConfigOptions());
 		v4ConfigOptions = new DhcpV4ConfigOptions(link.getV4ConfigOptions());
 	}
+	
+	/**
+	 * Convenience method to get the XML Link object's address element.
+	 */
+	public String getLinkAddress() {
+		return link.getAddress();
+	}
 
 	/**
 	 * Gets the subnet.

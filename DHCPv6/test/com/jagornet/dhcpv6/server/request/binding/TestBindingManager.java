@@ -86,7 +86,7 @@ public class TestBindingManager extends BaseDbTestCase
 		dhcpIaNa.setT2(0);		
 		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
-		Binding binding = manager.findCurrentBinding(clientLink.getLink(), clientIdOption, 
+		Binding binding = manager.findCurrentBinding(clientLink, clientIdOption, 
 				dhcpIaNa, null);
 		assertNull(binding);
 	}
@@ -103,10 +103,10 @@ public class TestBindingManager extends BaseDbTestCase
 		dhcpIaNa.setT2(0);
 		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
-		Binding binding = manager.createSolicitBinding(clientLink.getLink(), clientIdOption, 
+		Binding binding = manager.createSolicitBinding(clientLink, clientIdOption, 
 				dhcpIaNa, null, IdentityAssoc.ADVERTISED);
 		assertNotNull(binding);
-		Binding binding2 = manager.findCurrentBinding(clientLink.getLink(), clientIdOption, 
+		Binding binding2 = manager.findCurrentBinding(clientLink, clientIdOption, 
 				dhcpIaNa, null);
 		assertNotNull(binding2);
 		assertEquals(binding.getDuid().length, binding2.getDuid().length);

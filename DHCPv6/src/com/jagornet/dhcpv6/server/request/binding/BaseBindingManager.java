@@ -116,10 +116,9 @@ public abstract class BaseBindingManager
 		if ((linkMap != null) && !linkMap.isEmpty()) {
     		bindingPoolMap = new HashMap<String, List<? extends BindingPool>>();
 			for (DhcpLink dhcpLink : linkMap.values()) {
-				Link link = dhcpLink.getLink();
-				List<? extends BindingPool> bindingPools = buildBindingPools(link);
+				List<? extends BindingPool> bindingPools = buildBindingPools(dhcpLink.getLink());
 				if ((bindingPools != null) && !bindingPools.isEmpty()) {
-					bindingPoolMap.put(link.getAddress(), bindingPools);
+					bindingPoolMap.put(dhcpLink.getLinkAddress(), bindingPools);
 				}
 			}
 		}
@@ -130,11 +129,11 @@ public abstract class BaseBindingManager
 
 
     /**
-     * Build the list of BindingPools for the given Link.  The BindingPools
+     * Build the list of BindingPools for the given DhcpLink.  The BindingPools
      * are either AddressBindingPools (NA and TA) or PrefixBindingPools
      * or V4AddressBindingPools.
      * 
-     * @param link the configured Link
+     * @param link the configured DhcpLink
      * @return the list of BindingPools for the link
      * @throws DhcpServerConfigException
      */
@@ -156,21 +155,20 @@ public abstract class BaseBindingManager
 		if (linkMap != null) {
     		staticBindingMap = new HashMap<String, List<? extends StaticBinding>>();
 			for (DhcpLink dhcpLink : linkMap.values()) {
-				Link link = dhcpLink.getLink();
-				List<? extends StaticBinding> staticBindings = buildStaticBindings(link);
+				List<? extends StaticBinding> staticBindings = buildStaticBindings(dhcpLink.getLink());
 				if ((staticBindings != null) && !staticBindings.isEmpty()) {
-					staticBindingMap.put(link.getAddress(), staticBindings);
+					staticBindingMap.put(dhcpLink.getLinkAddress(), staticBindings);
 				}
 			}
 		}
     }
     
     /**
-     * Initialize the static bindings for the given Link.  The StaticBindings
+     * Initialize the static bindings for the given DhcpLink.  The StaticBindings
      * are either StaticAddressBindings (NA and TA) or StaticPrefixBindings
      * or StaticV4AddressBindings.
      * 
-     * @param link the configured Link
+     * @param link the configured DhcpLink
      * @return the list of StaticBindings for the link
      * @throws DhcpServerConfigException
      */
@@ -261,7 +259,7 @@ public abstract class BaseBindingManager
 			bindingPool.setUsed(inetAddr);
 		}
 		else {
-			log.error("Failed to set address used: No BindingPool found for IP=" + 
+			log.warn("Unable to set address used: No BindingPool found for IP=" + 
 					inetAddr.getHostAddress());
 		}    	
     }
@@ -293,7 +291,7 @@ public abstract class BaseBindingManager
 	 * @param requestMsg the client request message
 	 * @return the existing Binding for this client request
 	 */
-	protected Binding findCurrentBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
+	protected Binding findCurrentBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
 			DhcpMessageInterface requestMsg) 
 	{
 		Binding binding = null;
@@ -365,7 +363,7 @@ public abstract class BaseBindingManager
 	 * @param state the binding state
 	 * @return the created Binding
 	 */
-	protected Binding createBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
+	protected Binding createBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, byte state)
 	{
 		Binding binding = null;
@@ -416,7 +414,7 @@ public abstract class BaseBindingManager
 	 * @param requestMsg the client request message
 	 * @return the created Binding
 	 */
-	protected Binding createStaticBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
+	protected Binding createStaticBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
 			StaticBinding staticBinding, DhcpMessageInterface requestMsg)
 	{
 		Binding binding = null;		
@@ -480,7 +478,7 @@ public abstract class BaseBindingManager
 	 * @param state the new state for the binding
 	 * @return the updated Binding
 	 */
-	protected Binding updateBinding(Binding binding, Link clientLink, byte[] duid, byte iatype, long iaid,
+	protected Binding updateBinding(Binding binding, DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, byte state)
 	{
 		Collection<? extends IaAddress> addIaAddresses = null;
@@ -535,7 +533,7 @@ public abstract class BaseBindingManager
 	 * @param requestMsg the client request message
 	 * @return the updated Binding
 	 */
-	protected Binding updateStaticBinding(Binding binding, Link clientLink, 
+	protected Binding updateStaticBinding(Binding binding, DhcpLink clientLink, 
 			byte[] duid, byte iatype, long iaid, StaticBinding staticBinding,
 			DhcpMessageInterface requestMsg)
 	{
@@ -597,7 +595,7 @@ public abstract class BaseBindingManager
 	 * @param requestMsg the client request message
 	 * @return the list of InetAddresses
 	 */
-	protected List<InetAddress> getInetAddrs(Link clientLink, byte[] duid, byte iatype, long iaid,
+	protected List<InetAddress> getInetAddrs(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg)
 	{
 		List<InetAddress> inetAddrs = new ArrayList<InetAddress>();
@@ -605,7 +603,7 @@ public abstract class BaseBindingManager
 		if ((requestAddrs != null) && !requestAddrs.isEmpty() ) {
 			for (InetAddress reqAddr : requestAddrs) {
 				if (!reqAddr.equals(DhcpConstants.ZEROADDR_V6)) {
-					BindingPool bp = findBindingPool(clientLink, reqAddr, requestMsg);
+					BindingPool bp = findBindingPool(clientLink.getLink(), reqAddr, requestMsg);
 					if (bp == null) {
 						log.warn("No BindingPool found for requested client address: " +
 								reqAddr.getHostAddress());
@@ -694,10 +692,10 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the next free address
 	 */
-	protected InetAddress getNextFreeAddress(Link clientLink, DhcpMessageInterface requestMsg)
+	protected InetAddress getNextFreeAddress(DhcpLink clientLink, DhcpMessageInterface requestMsg)
 	{
 		if (clientLink != null) {
-    		List<? extends BindingPool> pools = bindingPoolMap.get(clientLink.getAddress());
+    		List<? extends BindingPool> pools = bindingPoolMap.get(clientLink.getLinkAddress());
     		if ((pools != null) && !pools.isEmpty()) {
     			for (BindingPool bp : pools) {
     				LinkFilter filter = bp.getLinkFilter();
@@ -743,7 +741,7 @@ public abstract class BaseBindingManager
     		}
     		else {
 	    		log.error("No Pools defined in server configuration for Link: " +
-	    				clientLink.getAddress());
+	    				clientLink.getLinkAddress());
     		}
 		}
 		else {
@@ -805,7 +803,7 @@ public abstract class BaseBindingManager
 	 * @return the binding
 	 */
 	protected abstract Binding buildBindingFromIa(IdentityAssoc ia, 
-			Link clientLink, DhcpMessageInterface requestMsg);
+			DhcpLink clientLink, DhcpMessageInterface requestMsg);
 
 	/**
 	 * Builds a new Binding.  Create a new IdentityAssoc from the given
@@ -818,7 +816,7 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the binding (a wrapped IdentityAssoc)
 	 */
-	private Binding buildBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
+	private Binding buildBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
 			byte state)
 	{
 		IdentityAssoc ia = new IdentityAssoc();
@@ -839,7 +837,7 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the set<binding object>
 	 */
-	private Set<BindingObject> buildBindingObjects(Link clientLink, 
+	private Set<BindingObject> buildBindingObjects(DhcpLink clientLink, 
 			List<InetAddress> inetAddrs, DhcpMessageInterface requestMsg,
 			byte state)
 	{
@@ -870,7 +868,7 @@ public abstract class BaseBindingManager
 	 * @return the binding object
 	 */
 	protected abstract BindingObject buildBindingObject(InetAddress inetAddr, 
-			Link clientLink, DhcpMessageInterface requestMsg);
+			DhcpLink clientLink, DhcpMessageInterface requestMsg);
 
 
 	/**

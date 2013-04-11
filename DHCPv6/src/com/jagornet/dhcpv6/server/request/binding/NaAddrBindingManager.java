@@ -30,8 +30,8 @@ import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
-import com.jagornet.dhcpv6.xml.Link;
 
 /**
  * The Interface NaAddrBindingManager.  The interface for IA_NA type
@@ -58,7 +58,7 @@ public interface NaAddrBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
+	public Binding findCurrentBinding(DhcpLink clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaNaOption iaNaOption, DhcpMessageInterface requestMsg);
 	
 	/**
@@ -72,7 +72,7 @@ public interface NaAddrBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
+	public Binding createSolicitBinding(DhcpLink clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaNaOption iaNaOption, DhcpMessageInterface requestMsg, byte state);
 
 	/**
@@ -87,7 +87,7 @@ public interface NaAddrBindingManager extends StaticBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding updateBinding(Binding binding, Link clientLink, 
+	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
 			DhcpClientIdOption clientIdOption, DhcpIaNaOption iaNaOption,
 			DhcpMessageInterface requestMsg, byte state);
 

@@ -43,6 +43,7 @@ import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPdOption;
 import com.jagornet.dhcpv6.option.DhcpIaPrefixOption;
+import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
@@ -257,7 +258,7 @@ public class PrefixBindingManagerImpl
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessageInterface)
 	 */
-	public Binding findCurrentBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
+	public Binding findCurrentBinding(DhcpLink clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg)
 	{
 		byte[] duid = clientIdOption.getDuid();
@@ -271,14 +272,14 @@ public class PrefixBindingManagerImpl
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessageInterface, boolean)
 	 */
-	public Binding createSolicitBinding(Link clientLink, DhcpClientIdOption clientIdOption, 
+	public Binding createSolicitBinding(DhcpLink clientLink, DhcpClientIdOption clientIdOption, 
 			DhcpIaPdOption iaPdOption, DhcpMessageInterface requestMsg, byte state)
 	{	
 		byte[] duid = clientIdOption.getDuid();
 		long iaid = iaPdOption.getIaId();
 
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink, duid, IdentityAssoc.PD_TYPE, iaid, requestMsg);
+			findStaticBinding(clientLink.getLink(), duid, IdentityAssoc.PD_TYPE, iaid, requestMsg);
 		
 		if (staticBinding != null) {
 			return super.createStaticBinding(clientLink, duid, IdentityAssoc.PD_TYPE, 
@@ -293,7 +294,7 @@ public class PrefixBindingManagerImpl
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaPdOption, com.jagornet.dhcpv6.message.DhcpMessageInterface, byte)
 	 */
-	public Binding updateBinding(Binding binding, Link clientLink, 
+	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
 			DhcpClientIdOption clientIdOption, DhcpIaPdOption iaPdOption,
 			DhcpMessageInterface requestMsg, byte state)
 	{
@@ -301,7 +302,7 @@ public class PrefixBindingManagerImpl
 		long iaid = iaPdOption.getIaId();
 
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink, duid, IdentityAssoc.PD_TYPE, iaid, requestMsg);
+			findStaticBinding(clientLink.getLink(), duid, IdentityAssoc.PD_TYPE, iaid, requestMsg);
 		
 		if (staticBinding != null) {
 			return super.updateStaticBinding(binding, clientLink, duid, IdentityAssoc.PD_TYPE, 
@@ -434,16 +435,22 @@ public class PrefixBindingManagerImpl
 	 * @return the binding
 	 */
 	protected Binding buildBindingFromIa(IdentityAssoc ia, 
-			Link clientLink, DhcpMessageInterface requestMsg)
+			DhcpLink clientLink, DhcpMessageInterface requestMsg)
 	{
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaPrefs = ia.getIaAddresses();
 		if ((iaPrefs != null) && !iaPrefs.isEmpty()) {
 			List<BindingPrefix> bindingPrefixes = new ArrayList<BindingPrefix>();
 			for (IaAddress iaAddr : iaPrefs) {
+// off-link check needed only for v4?
+//				if (!clientLink.getSubnet().contains(iaAddr.getIpAddress())) {
+//					log.info("Ignoring off-link binding address: " + 
+//							iaAddr.getIpAddress().getHostAddress());
+//					continue;
+//				}
 				BindingPrefix bindingPrefix = null;
         		StaticBinding staticBinding =
-        			findStaticBinding(clientLink, ia.getDuid(), 
+        			findStaticBinding(clientLink.getLink(), ia.getDuid(), 
         					ia.getIatype(), ia.getIaid(), requestMsg);
         		if (staticBinding != null) {
         			bindingPrefix = 
@@ -451,7 +458,7 @@ public class PrefixBindingManagerImpl
         		}
         		else {
         			bindingPrefix =
-        				buildBindingAddrFromIaPrefix((IaPrefix)iaAddr, clientLink, requestMsg);
+        				buildBindingAddrFromIaPrefix((IaPrefix)iaAddr, clientLink.getLink(), requestMsg);
         		}
 				if (bindingPrefix != null)
 					bindingPrefixes.add(bindingPrefix);
@@ -517,9 +524,10 @@ public class PrefixBindingManagerImpl
 	 * @return the binding address
 	 */
 	protected BindingObject buildBindingObject(InetAddress inetAddr, 
-			Link clientLink, DhcpMessageInterface requestMsg)
+			DhcpLink clientLink, DhcpMessageInterface requestMsg)
 	{
-		PrefixBindingPool bp = (PrefixBindingPool) findBindingPool(clientLink, inetAddr, requestMsg);
+		PrefixBindingPool bp = 
+			(PrefixBindingPool) findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			bp.setUsed(inetAddr);	// TODO check if this is necessary
 			IaPrefix iaPrefix = new IaPrefix();
