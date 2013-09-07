@@ -569,8 +569,8 @@ wrapper.app.parameter.7=eth1</synopsis>
       <table>
         <title>Policies</title>
         <tgroup cols="4">
-          <colspec colname="c1" colwidth="35*"/>
-          <colspec colname="c2" colwidth="10*"/>
+          <colspec colname="c1" colwidth="30*"/>
+          <colspec colname="c2" colwidth="15*"/>
           <colspec colname="c3" colwidth="40*"/>
           <colspec colname="c4" colwidth="15*"/>
           <tbody>
@@ -589,19 +589,130 @@ wrapper.app.parameter.7=eth1</synopsis>
               </entry>
             </row>
             <row>
+              <entry>
+                <code>dhcp.database.schemaType</code>
+              </entry>
+              <entry>
+                <code>jdbc</code>
+              </entry>
+              <entry>The binding database schema type.<para><itemizedlist>
+                    <listitem>
+                      <para><code>jdbc</code> - the default schema type supports most databases with an available JDBC driver.  Jagornet DHCPv6 includes support for the following JDBC accessible databases (see <code>config/jdbc.properties</code>):</para>
+                      <para><itemizedlist>
+                          <listitem>
+                            <para>Apache Derby</para>
+                          </listitem>
+                          <listitem>
+                            <para>H2 Database</para>
+                          </listitem>
+                          <listitem>
+                            <para>SQLite (via JDBC)</para>
+                          </listitem>
+                        </itemizedlist></para>
+                    </listitem>
+                    <listitem>
+                      <para><code>sqlite</code> - this schema type uses a JNI wrapper to provide direct access to the SQLite native interfaces.</para>
+                    </listitem>
+                  </itemizedlist></para></entry>
+              <entry>
+                <itemizedlist>
+                  <listitem>
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist>
+              </entry>
+            </row>
+            <row>
               <entry valign="top">
                 <code>dhcp.database.schemaVersion</code>
               </entry>
               <entry valign="top">
-                <code>1</code>
+                <code>2</code>
               </entry>
-              <entry valign="top">The Jagornet DHCPv6 server database version. Version 1 schema uses a relational model. Version 2 uses a single table model.</entry>
+              <entry valign="top">The binding database schema version. Version 1 schema uses a relational model. Version 2 uses a single table model.</entry>
               <entry valign="top">
                 <para><itemizedlist>
                     <listitem condition="li4">
                       <para>global</para>
                     </listitem>
                   </itemizedlist></para>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <code>dhcp.database.schemaFilename</code>
+              </entry>
+              <entry>
+                <code>DHCPV6HOME/db/jagornet-dhcpv6-schema-derby-v2.schema</code>
+              </entry>
+              <entry>The database schema file corresponding to the schemaType and schemaVersion policies. Four(4) schema files are available in the <code>DHCPV6HOME/db</code> directory:<para><itemizedlist>
+                    <listitem>
+                      <para><code>jagornet-dhcpv6-schema.sql</code> - the version 1 schema file for use with  JDBC accessible databases (H2, SQLite).</para>
+                    </listitem>
+                    <listitem>
+                      <para><code>jagornet-dhcpv6-schema-derby.sql</code> - the version 1 schema file for use with the Apache Derby JDBC accessible database.</para>
+                    </listitem>
+                    <listitem>
+                      <para><code>jagornet-dhcpv6-schema-v2.sql</code> - the version 2 schema file for use with JDBC accessible databases (H2, SQLite), or native SQLite.</para>
+                    </listitem>
+                    <listitem>
+                      <para><code>jagornet-dhcpv6-schema-derby-v2.sql</code> - the version 2 schema file for use with the Apache Derby JDBC accessible database.</para>
+                    </listitem>
+                  </itemizedlist></para> </entry>
+              <entry>
+                <para><itemizedlist>
+                    <listitem>
+                      <para>global</para>
+                    </listitem>
+                  </itemizedlist></para>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <code>dhcp.ignoreLoopback</code>
+              </entry>
+              <entry>
+                <code>true</code>
+              </entry>
+              <entry>Ignore the loopback addresses when binding sockets during server startup.</entry>
+              <entry>
+                <itemizedlist>
+                  <listitem>
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <code>dhcp.ignoreLinkLocal</code>
+              </entry>
+              <entry>
+                <code>true</code>
+              </entry>
+              <entry>Ignore the link local addresses when binding sockets during server startup.</entry>
+              <entry>
+                <itemizedlist>
+                  <listitem>
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <code>dhcp.ignoreSelfPackets</code>
+              </entry>
+              <entry>
+                <code>true</code>
+              </entry>
+              <entry>Ignore packets received from one of the server&apos;s addresses.</entry>
+              <entry>
+                <itemizedlist>
+                  <listitem>
+                    <para>global</para>
+                  </listitem>
+                </itemizedlist>
               </entry>
             </row>
             <row>
@@ -1593,7 +1704,7 @@ wrapper.app.parameter.7=eth1</synopsis>
                 <para><code>msgConfigOptions</code> - Message configuration
                 options will be returned to the client at the outermost layer
                 of the DHCPv6 packet. For Info-Request messages, only message
-                configuration options are returned to the client.</para>
+                configuration options are returned to the client.  All known configuration options are returned to the client at the message level.</para>
               </listitem>
               <listitem condition="li4">
                 <para><code>iaNaConfigOptions/iaTaConfigOptions/iaPdConfigOptions</code>
@@ -1601,7 +1712,7 @@ wrapper.app.parameter.7=eth1</synopsis>
                 to the client inside the Identity Association (IA) option
                 within the reply message. Separate configuration options
                 elements are available for each type of IA option, including
-                IA_NA, IA_TA, and IA_PD options.</para>
+                IA_NA, IA_TA, and IA_PD options.  No known configuration options are returned to the client at the IA level, therefore these elements are for experimental and future use.</para>
               </listitem>
               <listitem condition="li4">
                 <para><code>naAddrConfigOptions/taAddrConfigOptions/prefixConfigOptions</code>
@@ -1609,7 +1720,7 @@ wrapper.app.parameter.7=eth1</synopsis>
                 inside the address or prefix option within the IA option
                 within the reply message. Separate configuration options
                 elements are available for each of the associated IA option
-                type.</para>
+                type.  No known configuration options are returned to the client at the address level, therefore these elements are for experimental and future use.</para>
               </listitem>
             </orderedlist><table>
               <title>DHCPv6 Configuration Options</title>
@@ -3347,24 +3458,26 @@ wrapper.app.parameter.7=eth1</synopsis>
     <title>Binding Database</title>
     <anchor id="binding_db"/>
     <para>The Jagornet DHCPv6 server uses an embedded <ulink url="http://db.apache.org/derby/">Apache Derby</ulink> database server for
-    managing the binding database. The database schema file is located in the
-    <code>db/jagornet-dhcpv6-schema.sql</code> file. At initial startup, the
+    managing the binding database by default. The database schema file is located in the
+    <code>db/jagornet-dhcpv6-schema-derby[-v2].sql</code> file. At initial startup, the
     server will create the database in the <code>db/derby</code> directory
     using the schema. When the server is stopped, the <code>db/derby</code>
     directory can be deleted (<emphasis role="bold">do not delete</emphasis>
-    <code>db/jagornet-dhcpv6-schema.sql</code>), and upon restart, the
+    <code>db/*.sql</code>), and upon restart, the
     Jagornet DHCPv6 server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
-    <para>Beginning with Jagornet DHCPv6 v1.1, the server can be configured to
-    use an embedded <ulink url="http://www.h2database.com/">H2</ulink>
-    database as an alternative to Apache Derby. The database configuration is
+    <para>Beginning with Jagornet DHCPv6 v2.0rc, the server can be configured to
+    use most any JDBC accessible database.  Jagornet DHCPv6 includes built-in support for the <ulink url="http://www.h2database.com/">H2 Database</ulink> and  <ulink url="http://www.sqlite.org/">SQLite</ulink>
+    using the JDBC interface. The JDBC database configuration is
     maintained in the <code>conf/jdbc.properties</code> file. The default
-    configuration sets the <code>jdbc.user, jdbc.password, jdbc.driver, and jdbc.url</code> properties for Derby. To switch to H2, simply comment out
+    configuration sets the <code>jdbc.user, jdbc.password, jdbc.driver, and jdbc.url</code> properties for Derby. To switch to H2 or SQLite, simply comment out
     (insert a # at the line beginning) the default properties and uncomment
-    the corresponding properties in the H2 section. At initial startup, the
-    server will create the database in the <code>db/h2</code> directory using
-    the schema. When the server is stopped, the <code>db/h2</code> directory
+    the corresponding properties in the H2 or SQLite section.  You must create the directory  <code>db/sqlite</code> before using this configuration. When the server is stopped, the contents of the <code>db/h2</code> or <code>db/sqlite</code> directory
     can be deleted (<emphasis role="bold">do not delete</emphasis>
-    <code>db/jagornet-dhcpv6-schema.sql</code>), and upon restart, the
+    <code>db/*.sql</code>), and upon restart, the
+    Jagornet DHCPv6 server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
+    <para>Also beginning with Jagornet DHCPv6 v2.0rc, the server can be configured to use a Java Native Interface (JNI) wrapper to access the native SQLite interfaces.  Due to the nature of SQLite, this interface requires the use of the version 2 database schema (<code>db/jagornet-dhcpv6-schema-v2.sql</code>). You must create the directory  <code>db/sqlite</code> before using this configuration. When the server is stopped, the contents of the  <code>db/sqlite</code> directory
+    can be deleted (<emphasis role="bold">do not delete</emphasis>
+    <code>db/*.sql</code>), and upon restart, the
     Jagornet DHCPv6 server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
   </appendix>
   <appendix>
