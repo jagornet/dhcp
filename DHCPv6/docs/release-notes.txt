@@ -1,5 +1,5 @@
-Issues fixed since 2.0.0 Beta
------------------------------
+Issues fixed in 2.0.0 RC
+------------------------
 "14","Defect","Fixed","Medium","","","BufferUnderflowException in processing DhcpRemoteIdOption","Priority-Medium, Type-Defect"
 "15","Defect","Fixed","Medium","","agrabil","NullPointerException when processing Solicit from client with previously expired/released/declined binding","OpSys-All, Priority-Medium, Type-Defect, Usability"
 "16","Defect","Fixed","High","","agrabil","Prefix Delegation fails if Requesting Router requests zero (::) prefix","OpSys-All, Priority-High, Type-Defect"
