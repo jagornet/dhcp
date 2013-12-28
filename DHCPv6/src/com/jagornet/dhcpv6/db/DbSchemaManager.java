@@ -51,6 +51,12 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
 public class DbSchemaManager
 {    
     private static Logger log = LoggerFactory.getLogger(DbSchemaManager.class);
+    
+    public static String SCHEMATYPE_JDBC_DERBY = "jdbc-derby";
+    public static String SCHEMATYPE_JDBC_H2 = "jdbc-h2";
+    public static String SCHEMATYPE_JDBC_SQLITE = "jdbc-sqlite";
+    public static String SCHEMATYPE_SQLITE = "sqlite";
+    public static String SCHEMATYPE_MONGO = "mongo";
 
     public static String DB_HOME = DhcpConstants.DHCPV6_HOME != null ? 
         							(DhcpConstants.DHCPV6_HOME + "/db/") : "db/";

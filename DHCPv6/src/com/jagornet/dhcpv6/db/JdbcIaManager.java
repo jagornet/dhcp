@@ -63,8 +63,13 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	
 	// Spring bean init-method
 	public void init() throws Exception {
-		DbSchemaManager.validateSchema(getDataSource(),
-				DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_FILENAME), 1);
+        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
+        if (schemaType.toLowerCase().endsWith("derby")) {
+			DbSchemaManager.validateSchema(getDataSource(), DbSchemaManager.SCHEMA_DERBY_FILENAME, 1);
+        }
+        else {
+        	DbSchemaManager.validateSchema(getDataSource(), DbSchemaManager.SCHEMA_FILENAME, 1);
+        }
 	}
 
 	/* (non-Javadoc)
@@ -586,5 +591,10 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	 */
 	public void setDhcpOptDao(DhcpOptionDAO dhcpOptDao) {
 		this.dhcpOptDao = dhcpOptDao;
+	}
+
+	@Override
+	public void deleteAllIAs() {
+		iaDao.deleteAll();		
 	}
 }

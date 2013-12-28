@@ -80,8 +80,13 @@ public class JdbcLeaseManager extends LeaseManager
 	
 	// Spring bean init-method
 	public void init() throws Exception {
-		DbSchemaManager.validateSchema(dataSource,
-				DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_FILENAME), 2);
+        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
+        if (schemaType.toLowerCase().endsWith("derby")) {
+			DbSchemaManager.validateSchema(dataSource, DbSchemaManager.SCHEMA_DERBY_V2_FILENAME, 2);
+        }
+        else {
+        	DbSchemaManager.validateSchema(dataSource, DbSchemaManager.SCHEMA_V2_FILENAME, 2);
+        }
 	}
 	
 	/**
@@ -227,7 +232,8 @@ public class JdbcLeaseManager extends LeaseManager
                 "select * from dhcplease" +
                 " where duid = ?" +
                 " and iatype = ?" +
-                " and iaid = ?",
+                " and iaid = ?" +
+                " order by ipaddress",
                 new PreparedStatementSetter() {
             		@Override
             		public void setValues(PreparedStatement ps) throws SQLException {
@@ -530,4 +536,12 @@ public class JdbcLeaseManager extends LeaseManager
             return lease;
 		};
     }
+
+	/**
+	 * For unit tests only
+	 */
+	public void deleteAllIAs() {
+		int cnt = getJdbcTemplate().update("delete from dhcplease");
+		log.info("Deleted all " + cnt + " dhcpleases");
+	}
 }
