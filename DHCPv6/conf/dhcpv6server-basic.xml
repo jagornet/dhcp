@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dhc:dhcpV6ServerConfig xmlns:dhc="http://jagornet.com/dhcpv6/xml"
+						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						xsi:schemaLocation="http://jagornet.com/dhcpv6server.xsd">
+
+	<serverIdOption>
+		<!-- DHCPv6 ServerID should be auto-generated hex data -->
+		<opaqueData>
+			<asciiValue>Jagornet</asciiValue>
+		</opaqueData>
+	</serverIdOption>
+	
+	<v4ServerIdOption>
+		<!--  DHCPv4 ServerID must be a local IP address -->
+		<ipAddress>10.0.0.2</ipAddress>
+	</v4ServerIdOption>
+
+	<links>
+		<!-- Must define at least one link for client requests -->
+        <link>
+            <name>IPv4 Client Link 1</name>
+            <!-- All DHCPv4 links are defined in CIDR notation.
+            	 For local links, specify the interface as a
+            	 startup command-line option, and configure the
+            	 subnet for that interface's IPv4 address. -->
+            <address>10.0.0.0/24</address>
+            <v4ConfigOptions>
+                <v4SubnetMaskOption>
+                    <ipAddress>255.255.255.0</ipAddress>
+                </v4SubnetMaskOption>
+                <v4RoutersOption>
+                    <ipAddress>10.0.0.1</ipAddress>
+                </v4RoutersOption>
+            </v4ConfigOptions>
+            <v4AddrPools>
+                <pool>
+                    <range>10.0.0.100-10.0.0.199</range>
+                </pool>
+            </v4AddrPools>
+        </link>
+		<link>
+			<name>Local IPv6 Client Link (Multicast traffic)</name>
+			<!-- Local DHCPv6 links are defined by interface name -->
+			<interface>eth2</interface>
+			<msgConfigOptions>
+				<dnsServersOption>
+					<ipAddress>2001:db8:1::1</ipAddress>
+				</dnsServersOption>
+				<domainSearchListOption>
+					<domainName>foo.com.</domainName>
+				</domainSearchListOption>
+			</msgConfigOptions>
+			<naAddrPools>
+				<pool>
+					<range>2001:db8:1::0A-2001:db8:1::FF</range>
+				</pool>
+			</naAddrPools>
+		</link>
+		<link>
+			<name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
+			<!-- Remote DHCPv6 links are defined in CIDR notation -->
+			<address>2001:db8:2::/48</address>
+			<msgConfigOptions>
+				<dnsServersOption>
+					<ipAddress>2001:db8:2::1</ipAddress>
+				</dnsServersOption>
+				<domainSearchListOption>
+					<domainName>bar.com.</domainName>
+				</domainSearchListOption>
+			</msgConfigOptions>
+			<naAddrPools>
+				<pool>
+					<range>2001:db8:2::0A-2001:db8:2::FF</range>
+				</pool>
+			</naAddrPools>
+		</link>
+	</links>
+
+</dhc:dhcpV6ServerConfig>

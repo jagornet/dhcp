@@ -195,22 +195,17 @@
 					<value>600</value>
 				</policy>
 			</policies>
-			<iaNaConfigOptions>
+			<msgConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:db8:1::1</ipAddress>
 				</dnsServersOption>
-			</iaNaConfigOptions>
+			</msgConfigOptions>
 			<naAddrPools>
 				<!-- Clients that don't support Rapid Commit requesting non-temporary
 					addresses, will get an address from this pool with the
 					address level options provided -->
 				<pool>
 					<range>2001:db8:1::0A-2001:db8:1::FF</range>
-					<addrConfigOptions>
-						<sipServerAddressesOption>
-							<ipAddress>2001:db8:1::1:1</ipAddress>
-						</sipServerAddressesOption>
-					</addrConfigOptions>
 				</pool>
 			</naAddrPools>
 			<naAddrBindings>
@@ -227,11 +222,6 @@
 						 left undefined, then ANY IA_ID will match.
 					<iaid>0</iaid>
 					-->
-					<addrConfigOptions>
-						<sipServerAddressesOption>
-							<ipAddress>2001:db8:1::1:2</ipAddress>
-						</sipServerAddressesOption>
-					</addrConfigOptions>
 				</binding>
 			</naAddrBindings>
 			<linkFilters>
@@ -246,15 +236,9 @@
 					</filterExpressions>
 					<naAddrPools>
 						<!-- Clients that support Rapid Commit requesting non-temporary
-							addresses, will get an address from this pool with the
-							address level options provided -->
+							addresses, will get an address from this pool -->
 						<pool>
 							<range>2001:db8:1::10A-2001:db8:1::1FF</range>
-							<addrConfigOptions>
-								<sipServerAddressesOption>
-									<ipAddress>2001:db8:1::1:101</ipAddress>
-								</sipServerAddressesOption>
-							</addrConfigOptions>
 						</pool>
 					</naAddrPools>
 			  	</linkFilter>
@@ -264,19 +248,14 @@
 			<name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
 			<!-- Remote DHCPv6 links are defined in CIDR notation -->
 			<address>2001:db8:2::/48</address>
-			<iaNaConfigOptions>
+			<msgConfigOptions>
 				<dnsServersOption>
 					<ipAddress>2001:db8:2::1</ipAddress>
 				</dnsServersOption>
-			</iaNaConfigOptions>
+			</msgConfigOptions>
 			<naAddrPools>
 				<pool>
 					<range>2001:db8:2::0A-2001:db8:2::FF</range>
-					<addrConfigOptions>
-						<sipServerAddressesOption>
-							<ipAddress>2001:db8:2::1:1</ipAddress>
-						</sipServerAddressesOption>
-					</addrConfigOptions>
 				</pool>
 			</naAddrPools>
 		</link>
