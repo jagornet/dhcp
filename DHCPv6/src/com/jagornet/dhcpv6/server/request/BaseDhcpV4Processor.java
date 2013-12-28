@@ -167,7 +167,13 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
     	replyMsg.putAllDhcpOptions(optionMap);
-    }    
+    	
+    	// copy the relay agent info option from request to reply 
+    	// in order to echo option back to router as required
+    	if (requestMsg.hasOption(DhcpConstants.V4OPTION_RELAY_INFO)) {
+    		replyMsg.putDhcpOption(requestMsg.getDhcpOption(DhcpConstants.V4OPTION_RELAY_INFO));
+    	}
+    }
 
     /**
      * Process the client request.  Find appropriate configuration based on any
@@ -241,7 +247,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     	InetSocketAddress remoteSocketAddr = requestMsg.getRemoteAddress();
     	
     	byte chAddr[] = requestMsg.getChAddr();
-    	if (isIgnoredMac(chAddr)) {
+    	if ((chAddr == null) || (chAddr.length == 0) || isIgnoredMac(chAddr)) {
     		log.warn("Ignorning request message from client: mac=" +
     					Util.toHexString(chAddr));
     		return false;
@@ -444,20 +450,27 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			// A replyFqdnOption is fabricated to be stored with the binding for use
 			// with the release/expire binding processing to remove the DDNS entry.
 			replyFqdnOption = new DhcpV4ClientFqdnOption();
-			fqdn = hostnameOption.getString() + ".";
-			if (domain != null) {
-				fqdn = fqdn + domain;
+			fqdn = hostnameOption.getString();
+			if ((domain != null) && !domain.isEmpty()) {
+				log.info("Server configuration for domain policy: " + domain);
+				fqdn = fqdn + "." + domain;
+				// since the client did NOT send option 81, do not put
+				// the fabricated fqdnOption into the reply packet
+				// but set the option so that is can be used below
+				// when storing the fqdnOption to the database, so 
+				// that it can be used if/when the lease expires
+				replyFqdnOption.setDomainName(fqdn);
+				// server will do the A record update, so set the flag
+				// for the option stored in the database, so server will
+				// remove the A record when the lease expires
+				replyFqdnOption.setUpdateABit(true);
 			}
-			// since the client did NOT send option 81, do not put
-			// the fabricated fqdnOption into the reply packet
-			// but set the option so that is can be used below
-			// when storing the fqdnOption to the database, so 
-			// that it can be used if/when the lease expires
-			replyFqdnOption.setDomainName(fqdn);
-			// server will do the A record update, so set the flag
-			// for the option stored in the database, so server will
-			// remove the A record when the lease expires
-			replyFqdnOption.setUpdateABit(true);
+			else {
+				log.error("No DDNS domain configured.  No DDNS udpates performed.");
+				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyMsg.putDhcpOption(replyFqdnOption);
+				return;
+			}
 		}
 
 		if (sendUpdates) {
