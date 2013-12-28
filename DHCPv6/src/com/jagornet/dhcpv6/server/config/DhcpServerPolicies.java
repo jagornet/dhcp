@@ -31,7 +31,6 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Properties;
 
-import com.jagornet.dhcpv6.db.DbSchemaManager;
 import com.jagornet.dhcpv6.message.DhcpMessageInterface;
 import com.jagornet.dhcpv6.xml.Filter;
 import com.jagornet.dhcpv6.xml.FiltersType;
@@ -59,9 +58,13 @@ public class DhcpServerPolicies
 	 * The Property enum.
 	 */
 	public enum Property {
-		DATABASE_SCHEMA_TYTPE("database.schemaType", "jdbc"),
+		CHANNEL_THREADPOOL_SIZE("channel.threadPoolSize", "16"),
+		CHANNEL_MAX_CHANNEL_MEMORY("channel.maxChannelMemory", "1048576"),	// 1024 x 1024
+		CHANNEL_MAX_TOTAL_MEMORY("channel.maxTotalMemory", "1048576"),		// 1024 x 1024
+		CHANNEL_READ_BUFFER_SIZE("channel.readBufferSize", "307200"),		// 300 bytes x 1K clients
+		CHANNEL_WRITE_BUFFER_SIZE("channel.writeBufferSize", "307200"),		// 300 bytes x 1K clients
+		DATABASE_SCHEMA_TYTPE("database.schemaType", "jdbc-derby"),
 		DATABASE_SCHEMA_VERSION("database.schemaVersion", "2"),
-		DATABASE_SCHEMA_FILENAME("database.schemaFilename", DbSchemaManager.SCHEMA_DERBY_V2_FILENAME),
 		DHCP_PROCESSOR_RECENT_MESSAGE_TIMER("dhcp.processor.recentMessageTimer", "5000"),
 		DHCP_IGNORE_LOOPBACK("dhcp.ignoreLoopback", "true"),
 		DHCP_IGNORE_LINKLOCAL("dhcp.ignoreLinkLocal", "true"),
