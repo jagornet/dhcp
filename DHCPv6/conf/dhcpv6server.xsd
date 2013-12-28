@@ -10,7 +10,7 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="serverIdOption" type="serverIdOption"/>
+				<xs:element name="serverIdOption" type="serverIdOption" minOccurs="0"/>
 				<xs:element name="v4ServerIdOption" type="v4ServerIdOption" minOccurs="0"/>
 				
 				<!-- global policies -->

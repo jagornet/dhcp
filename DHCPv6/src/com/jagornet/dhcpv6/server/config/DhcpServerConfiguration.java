@@ -157,7 +157,7 @@ public class DhcpServerConfiguration
     {
     	xmlServerConfig = loadConfig(configFilename);
     	if (xmlServerConfig != null) {
-	    	initServerId();
+	    	initServerIds();
 	    	globalMsgConfigOptions = new DhcpConfigOptions(xmlServerConfig.getMsgConfigOptions());
 	    	globalIaNaConfigOptions = new DhcpConfigOptions(xmlServerConfig.getIaNaConfigOptions());
 	    	globalNaAddrConfigOptions = new DhcpConfigOptions(xmlServerConfig.getNaAddrConfigOptions());
@@ -175,37 +175,39 @@ public class DhcpServerConfiguration
     
     
     /**
-     * Initialize the server id.
+     * Initialize the server ids.
      * 
      * @throws IOException the exception
      */
-    protected void initServerId() throws IOException
+    protected void initServerIds() throws IOException
     {
     	ServerIdOption serverId = xmlServerConfig.getServerIdOption();
-    	if (serverId != null) {
-	    	OpaqueData opaque = serverId.getOpaqueData();
-	    	if ( ( (opaque == null) ||
-	    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().length() <= 0)) &&
-	    		   ((opaque.getHexValue() == null) || (opaque.getHexValue().length <= 0)) ) ) {
-	    		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
-	    		if (duid == null) {
-	    			throw new IllegalStateException("Failed to create ServerID");
-	    		}
-	    		serverId.setOpaqueData(duid);
-	    		xmlServerConfig.setServerIdOption(serverId);
-	    		saveConfig(xmlServerConfig, configFilename);
-	    	}
+    	if (serverId == null) {
+    		serverId = ServerIdOption.Factory.newInstance();
+    	}
+    	OpaqueData opaque = serverId.getOpaqueData();
+    	if ( ( (opaque == null) ||
+    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().length() <= 0)) &&
+    		   ((opaque.getHexValue() == null) || (opaque.getHexValue().length <= 0)) ) ) {
+    		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
+    		if (duid == null) {
+    			throw new IllegalStateException("Failed to create ServerID");
+    		}
+    		serverId.setOpaqueData(duid);
+    		xmlServerConfig.setServerIdOption(serverId);
+    		saveConfig(xmlServerConfig, configFilename);
     	}
     	
     	V4ServerIdOption v4ServerId = xmlServerConfig.getV4ServerIdOption();
-    	if (v4ServerId != null) {
-    		String ip = v4ServerId.getIpAddress();
-    		if ((ip == null) || (ip.length() <= 0)) {
-    			v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
-    			xmlServerConfig.setV4ServerIdOption(v4ServerId);
-    			saveConfig(xmlServerConfig, configFilename);
-    		}
+    	if (v4ServerId == null) {
+    		v4ServerId = V4ServerIdOption.Factory.newInstance();
     	}
+		String ip = v4ServerId.getIpAddress();
+		if ((ip == null) || (ip.length() <= 0)) {
+			v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
+			xmlServerConfig.setV4ServerIdOption(v4ServerId);
+			saveConfig(xmlServerConfig, configFilename);
+		}
     }
     
     /**
