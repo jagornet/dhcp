@@ -29,11 +29,10 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,6 +56,8 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.socket.DatagramChannel;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
+import org.jboss.netty.handler.execution.ExecutionHandler;
+import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,7 @@ import com.jagornet.dhcpv6.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcpv6.server.netty.DhcpV4ChannelDecoder;
 import com.jagornet.dhcpv6.server.netty.DhcpV4ChannelEncoder;
 import com.jagornet.dhcpv6.util.DhcpConstants;
+import com.jagornet.dhcpv6.util.Util;
 
 /**
  * A test client that sends discover messages to a DHCPv4 server
@@ -75,10 +77,11 @@ import com.jagornet.dhcpv6.util.DhcpConstants;
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class TestV4Client extends SimpleChannelUpstreamHandler
+public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 {
-	private static Logger log = LoggerFactory.getLogger(TestV4Client.class);
+	private static Logger log = LoggerFactory.getLogger(ClientSimulatorV4.class);
 
+	protected Random random = new Random();
     protected Options options = new Options();
     protected CommandLineParser parser = new BasicParser();
     protected HelpFormatter formatter;
@@ -99,19 +102,17 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
     protected long startTime = 0;    
     protected long endTime = 0;
     protected long timeout = 0;
-    protected Object sync = new Object();
+    protected int poolSize = 0;
+    protected Object syncDone = new Object();
 
     protected InetSocketAddress server = null;
     protected InetSocketAddress client = null;
     
     protected DatagramChannel channel = null;	
 	protected ExecutorService executor = Executors.newCachedThreadPool();
-    
-    protected Map<Long, DhcpV4Message> discoverMap =
-    	Collections.synchronizedMap(new HashMap<Long, DhcpV4Message>());
-    
-    protected Map<Long, DhcpV4Message> requestMap =
-    	Collections.synchronizedMap(new HashMap<Long, DhcpV4Message>());
+	
+	protected Map<BigInteger, ClientMachine> clientMap =
+			Collections.synchronizedMap(new HashMap<BigInteger, ClientMachine>());
 
     /**
      * Instantiates a new test client.
@@ -119,7 +120,7 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
      * @param args the args
      * @throws Exception the exception
      */
-    public TestV4Client(String[] args) throws Exception 
+    public ClientSimulatorV4(String[] args) throws Exception 
     {
     	DEFAULT_ADDR = InetAddress.getLocalHost();
     	
@@ -129,14 +130,11 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
             formatter = new HelpFormatter();
             String cliName = this.getClass().getName();
             formatter.printHelp(cliName, options);
-//            PrintWriter stderr = new PrintWriter(System.err, true);	// auto-flush=true
-//            formatter.printHelp(stderr, 80, cliName, null, options, 2, 2, null);
             System.exit(0);
         }
         
         try {
 			start();
-
 		} 
         catch (Exception ex) {
 			ex.printStackTrace();
@@ -181,11 +179,44 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
         							"Timeout");
         options.addOption(toOption);
         
+        Option psOption = new Option("ps", "poolsize", true,
+        							"Size of the pool to wait for release after this many requests");
+        options.addOption(psOption);
+        
         Option helpOption = new Option("?", "help", false, "Show this help page.");
         
         options.addOption(helpOption);
     }
 
+	
+	protected int parseIntegerOption(String opt, String str, int defval) {
+    	int val = defval;
+    	try {
+    		val = Integer.parseInt(str);
+    	}
+    	catch (NumberFormatException ex) {
+    		System.err.println("Invalid " + opt + " '" + str +
+    							"' using default: " + defval +
+    							" Exception=" + ex);
+    		val = defval;
+    	}
+    	return val;
+	}
+	
+	protected InetAddress parseIpAddressOption(String opt, String str, InetAddress defaddr) {
+    	InetAddress addr = defaddr;
+    	try {
+    		addr = InetAddress.getByName(str);
+    	}
+    	catch (UnknownHostException ex) {
+    		System.err.println("Invalid " + opt + " address: '" + str +
+    							"' using default: " + defaddr +
+    							" Exception=" + ex);
+    		addr = defaddr;
+    	}
+    	return addr;
+	}
+	
     /**
      * Parses the options.
      * 
@@ -201,80 +232,39 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
                 return false;
             }
             if (cmd.hasOption("n")) {
-            	String n = cmd.getOptionValue("n");
-            	try {
-            		numRequests = Integer.parseInt(n);
-            	}
-            	catch (NumberFormatException ex) {
-            		numRequests = 100;
-            		System.err.println("Invalid number of requests: '" + n +
-            							"' using default: " + numRequests +
-            							" Exception=" + ex);
-            	}
+            	numRequests = 
+            			parseIntegerOption("num requests", cmd.getOptionValue("n"), 100);
             }
             clientAddr = DEFAULT_ADDR;
             if (cmd.hasOption("ca")) {
-            	String a = cmd.getOptionValue("ca");
-            	try {
-            		clientAddr = InetAddress.getByName(a);
-            	}
-            	catch (UnknownHostException ex) {
-            		clientAddr = DEFAULT_ADDR;
-            		System.err.println("Invalid address: '" + a +
-            							"' using default: " + serverAddr +
-            							" Exception=" + ex);
-            	}
+            	clientAddr = 
+            			parseIpAddressOption("client", cmd.getOptionValue("ca"), DEFAULT_ADDR);
             }
             serverAddr = DEFAULT_ADDR;
             if (cmd.hasOption("sa")) {
-            	String a = cmd.getOptionValue("sa");
-            	try {
-            		serverAddr = InetAddress.getByName(a);
-            	}
-            	catch (UnknownHostException ex) {
-            		serverAddr = DEFAULT_ADDR;
-            		System.err.println("Invalid address: '" + a +
-            							"' using default: " + serverAddr +
-            							" Exception=" + ex);
-            	}
+            	serverAddr = 
+            			parseIpAddressOption("server", cmd.getOptionValue("sa"), DEFAULT_ADDR);
             }
             if (cmd.hasOption("cp")) {
-            	String p = cmd.getOptionValue("cp");
-            	try {
-            		clientPort = Integer.parseInt(p);
-            	}
-            	catch (NumberFormatException ex) {
-            		clientPort = DhcpConstants.CLIENT_PORT;
-            		System.err.println("Invalid client port number: '" + p +
-            							"' using default: " + clientPort +
-            							" Exception=" + ex);
-            	}
+            	clientPort = 
+            			parseIntegerOption("client port", cmd.getOptionValue("cp"), 
+            								DhcpConstants.CLIENT_PORT);
             }
             if (cmd.hasOption("sp")) {
-            	String p = cmd.getOptionValue("sp");
-            	try {
-            		serverPort = Integer.parseInt(p);
-            	}
-            	catch (NumberFormatException ex) {
-            		serverPort = DhcpConstants.SERVER_PORT;
-            		System.err.println("Invalid server port number: '" + p +
-            							"' using default: " + serverPort +
-            							" Exception=" + ex);
-            	}
+            	serverPort = 
+            			parseIntegerOption("server port", cmd.getOptionValue("sp"), 
+            								DhcpConstants.SERVER_PORT);
             }
             if (cmd.hasOption("r")) {
             	rapidCommit = true;
             }
             if (cmd.hasOption("to")) {
-            	String to = cmd.getOptionValue("to");
-            	try {
-            		timeout = Integer.parseInt(to);
-            	}
-            	catch (NumberFormatException ex) {
-            		System.err.println("Invalid timeout: '" + to +
-            							"' using default: " + timeout +
-            							" Exception=" + ex);
-            	}
+            	timeout = 
+            			parseIntegerOption("timeout", cmd.getOptionValue("to"), 0);
+            }
+            if (cmd.hasOption("ps")) {
+            	poolSize = 
+            			parseIntegerOption("pool size", cmd.getOptionValue("ps"), 0);
             }
         }
         catch (ParseException pe) {
@@ -299,22 +289,22 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
         pipeline.addLast("logger", new LoggingHandler());
         pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
         pipeline.addLast("decoder", new DhcpV4ChannelDecoder(client, false));
+        pipeline.addLast("executor", new ExecutionHandler(
+        		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
         pipeline.addLast("handler", this);
     	
         channel = factory.newChannel(pipeline);
     	channel.bind(client);
 
-    	List<DhcpV4Message> discoverMsgs = buildDiscoverMessages();
-    	
-    	for (DhcpV4Message msg : discoverMsgs) {
-    		executor.execute(new RequestSender(msg, server));
+    	for (int i=1; i<=numRequests; i++) {
+    		executor.execute(new ClientMachine(i));
     	}
 
-    	synchronized (sync) {
+    	synchronized (syncDone) {
     		long ms = timeout * 1000;
         	try {
         		log.info("Waiting total of " + timeout + " milliseconds for completion");
-        		sync.wait(ms);
+        		syncDone.wait(ms);
         	}
         	catch (InterruptedException ex) {
         		log.error("Interrupted", ex);
@@ -326,7 +316,7 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
 				" requestsSent=" + requestsSent +
 				" acksReceived=" + acksReceived +
 				" releasesSent=" + releasesSent +
-				" elapsedTime = " + (endTime - startTime) + " milliseconds");
+				" elapsedTime=" + (endTime - startTime) + "ms");
 
     	log.info("Shutting down executor...");
     	executor.shutdownNow();
@@ -337,35 +327,66 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
     }
 
     /**
-     * The Class RequestSender.
+     * The Class ClientMachine.
      */
-    class RequestSender implements Runnable, ChannelFutureListener
+    class ClientMachine implements Runnable, ChannelFutureListener
     {
-    	
-	    /** The msg. */
-	    DhcpV4Message msg;
-    	
-	    /** The server. */
-	    InetSocketAddress server;
+    	DhcpV4Message msg;
+    	int id;
+    	byte[] mac;
+    	BigInteger key;
     	
     	/**
-	     * Instantiates a new request sender.
+	     * Instantiates a new client machine.
 	     *
 	     * @param msg the msg
 	     * @param server the server
 	     */
-	    public RequestSender(DhcpV4Message msg, InetSocketAddress server)
-    	{
-    		this.msg = msg;
-    		this.server = server;
+	    public ClientMachine(int id) {
+    		this.id = id;
+    		this.mac = buildChAddr(id);
+    		this.key = new BigInteger(mac);
     	}
 		
 		/* (non-Javadoc)
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
-		public void run()
-		{
+		public void run() {
+			if (poolSize > 0) {
+				synchronized (clientMap) {
+					if (poolSize <= clientMap.size()) {
+						try {
+							log.info("Waiting for release...");
+							clientMap.wait();
+						} 
+						catch (InterruptedException ex) {
+							log.error("Interrupted", ex);
+						}
+					}
+					clientMap.put(key, this);
+				}
+			}
+			else {
+				clientMap.put(key, this);
+			}
+			discover();
+		}
+		
+		public void discover() {
+			msg = buildDiscoverMessage(mac); 
+			ChannelFuture future = channel.write(msg, server);
+			future.addListener(this);
+		}
+		
+		public void request(DhcpV4Message offerMsg) {
+        	msg = buildRequestMessage(offerMsg);
+			ChannelFuture future = channel.write(msg, server);
+			future.addListener(this);
+		}
+		
+		public void release(DhcpV4Message ackMsg) {
+        	msg = buildReleaseMessage(ackMsg);
 			ChannelFuture future = channel.write(msg, server);
 			future.addListener(this);
 		}
@@ -376,27 +397,36 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
 		@Override
 		public void operationComplete(ChannelFuture future) throws Exception
 		{
-			long id = msg.getTransactionId();
 			if (future.isSuccess()) {
 				if (startTime == 0) {
 					startTime = System.currentTimeMillis();
+					log.info("Starting at: " + startTime);
 				}
 				if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_DISCOVER) {
 					discoversSent.getAndIncrement();
-					log.info("Succesfully sent discover message id=" + id);
-					discoverMap.put(id, msg);
+					log.info("Succesfully sent discover message mac=" + Util.toHexString(mac) +
+							" cnt=" + discoversSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_REQUEST) {
 					requestsSent.getAndIncrement();
-					log.info("Succesfully sent request message id=" + id);
-					requestMap.put(id, msg);
+					log.info("Succesfully sent request message mac=" + Util.toHexString(mac) +
+							" cnt=" + requestsSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
+					clientMap.remove(key);
 					releasesSent.getAndIncrement();
-					log.info("Succesfully sent release message id=" + id);
+					log.info("Succesfully sent release message mac=" + Util.toHexString(mac) +
+							" cnt=" + releasesSent);
 					if (releasesSent.get() == numRequests) {
-						synchronized (sync) {
-							sync.notifyAll();
+						endTime = System.currentTimeMillis();
+						log.info("Ending at: " + endTime);
+						synchronized (syncDone) {
+							syncDone.notifyAll();
+						}
+					}
+					else if (poolSize > 0) {
+						synchronized (clientMap) {
+							clientMap.notify();
 						}
 					}
 				}
@@ -405,35 +435,6 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
 				log.warn("Failed to send message id=" + msg.getTransactionId());
 			}
 		}
-    }
-    
-    /**
-     * Builds the discover messages.
-     * 
-     * @return the list< dhcp message>
-     */
-    private List<DhcpV4Message> buildDiscoverMessages()
-    {
-    	List<DhcpV4Message> requests = new ArrayList<DhcpV4Message>();   	
-        for (int id=0; id<numRequests; id++) {
-            DhcpV4Message msg = 
-            	new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
-
-            msg.setOp((short)DhcpConstants.OP_REQUEST);
-            msg.setTransactionId(id);
-            msg.setHtype((short)1);	// ethernet
-            msg.setHlen((byte)6);
-            msg.setChAddr(buildChAddr(id));
-            msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
-            
-            DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-            msgTypeOption.setUnsignedByte(
-            		(short)DhcpConstants.V4MESSAGE_TYPE_DISCOVER);
-            
-            msg.putDhcpOption(msgTypeOption);
-            requests.add(msg);
-        }
-        return requests;
     }
 
     private byte[] buildChAddr(long id) {
@@ -468,22 +469,43 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
         return chAddr;
     }
     
-    private DhcpV4Message buildRequestMessage(DhcpV4Message offer) {
-    	
-        DhcpV4Message msg = 
-            	new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
+    /**
+     * Builds the discover message.
+     * 
+     * @return the  dhcp message
+     */
+    private DhcpV4Message buildDiscoverMessage(byte[] chAddr)
+    {
+        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
 
         msg.setOp((short)DhcpConstants.OP_REQUEST);
-        long xid = offer.getTransactionId();
-        msg.setTransactionId(xid);
+        msg.setTransactionId(random.nextLong());
         msg.setHtype((short)1);	// ethernet
         msg.setHlen((byte)6);
-        msg.setChAddr(buildChAddr(xid));
+        msg.setChAddr(chAddr);
         msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
         
         DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-        msgTypeOption.setUnsignedByte(
-        		(short)DhcpConstants.V4MESSAGE_TYPE_REQUEST);
+        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_DISCOVER);
+        
+        msg.putDhcpOption(msgTypeOption);
+        
+        return msg;
+    }
+    
+    private DhcpV4Message buildRequestMessage(DhcpV4Message offer) {
+    	
+        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
+
+        msg.setOp((short)DhcpConstants.OP_REQUEST);
+        msg.setTransactionId(offer.getTransactionId());
+        msg.setHtype((short)1);	// ethernet
+        msg.setHlen((byte)6);
+        msg.setChAddr(offer.getChAddr());
+        msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
+        
+        DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
+        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_REQUEST);
         
         msg.putDhcpOption(msgTypeOption);
         
@@ -496,21 +518,18 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
     
     private DhcpV4Message buildReleaseMessage(DhcpV4Message ack) {
     	
-        DhcpV4Message msg = 
-            	new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
+        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
 
         msg.setOp((short)DhcpConstants.OP_REQUEST);
-        long xid = ack.getTransactionId();
-        msg.setTransactionId(xid);
+        msg.setTransactionId(ack.getTransactionId());
         msg.setHtype((short)1);	// ethernet
         msg.setHlen((byte)6);
-        msg.setChAddr(buildChAddr(xid));
+        msg.setChAddr(ack.getChAddr());
         msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
         msg.setCiAddr(ack.getYiAddr());
         
         DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-        msgTypeOption.setUnsignedByte(
-        		(short)DhcpConstants.V4MESSAGE_TYPE_RELEASE);
+        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_RELEASE);
         
         msg.putDhcpOption(msgTypeOption);
         
@@ -534,44 +553,25 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
             	log.info("Received: " + dhcpMessage.toString());
             
             if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_OFFER) {
-	            DhcpV4Message discoverMessage = discoverMap.remove(dhcpMessage.getTransactionId());
-	            if (discoverMessage != null) {
+	            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
+	            if (client != null) {
 	            	offersReceived.getAndIncrement();
-	            	log.info("Removed message from discover map: cnt=" + offersReceived);
-	            	synchronized (discoverMap) {
-	            		if (discoverMap.isEmpty()) {
-	            			discoverMap.notify();
-	            		}
-	            		else {
-	            			log.debug("Discover map size: " + discoverMap.size());
-	            		}
-	            	}
-	            	// queue the request message now
-	            	executor.execute(new RequestSender(buildRequestMessage(dhcpMessage), server));
+	            	client.request(dhcpMessage);
 	            }
 	            else {
-	            	log.error("Message not found in discover map: xid=" + dhcpMessage.getTransactionId());
+	            	log.error("Client not found in map: mac=" + 
+	            			Util.toHexString(dhcpMessage.getChAddr()));
 	            }
             }
             else if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_ACK) {
-	            DhcpV4Message requestMessage = requestMap.remove(dhcpMessage.getTransactionId());
-	            if (requestMessage != null) {
+	            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
+	            if (client != null) {
 	            	acksReceived.getAndIncrement();
-	            	log.info("Removed message from request map: cnt=" + acksReceived);
-	            	endTime = System.currentTimeMillis();
-	            	synchronized (requestMap) {
-	            		if (requestMap.isEmpty()) {
-	            			requestMap.notify();
-	            		}
-	            		else {
-	            			log.debug("Request map size: " + requestMap.size());
-	            		}
-	            	}
-	            	// queue the release message now
-	            	executor.execute(new RequestSender(buildReleaseMessage(dhcpMessage), server));
+	            	client.release(dhcpMessage);
 	            }
 	            else {
-	            	log.error("Message not found in request map: xid=" + dhcpMessage.getTransactionId());
+	            	log.error("Client not found in map: mac=" + 
+	            			Util.toHexString(dhcpMessage.getChAddr()));
 	            }
             }
             else {
@@ -602,7 +602,7 @@ public class TestV4Client extends SimpleChannelUpstreamHandler
      */
     public static void main(String[] args) {
         try {
-			new TestV4Client(args);
+			new ClientSimulatorV4(args);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

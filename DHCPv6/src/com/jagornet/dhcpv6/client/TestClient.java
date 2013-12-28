@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -66,8 +67,7 @@ import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpElapsedTimeOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
-import com.jagornet.dhcpv6.option.DhcpRapidCommitOption;
-import com.jagornet.dhcpv6.option.DhcpUserClassOption;
+import com.jagornet.dhcpv6.option.DhcpServerIdOption;
 import com.jagornet.dhcpv6.server.netty.DhcpChannelDecoder;
 import com.jagornet.dhcpv6.server.netty.DhcpChannelEncoder;
 import com.jagornet.dhcpv6.util.DhcpConstants;
@@ -93,13 +93,23 @@ public class TestClient extends SimpleChannelUpstreamHandler
     protected int clientPort = DhcpConstants.CLIENT_PORT;
     protected boolean rapidCommit = false;
     protected int numRequests = 100;
-    protected int requestsSent = 0;
+    protected AtomicInteger solicitsSent = new AtomicInteger();
+    protected AtomicInteger advertsReceived = new AtomicInteger();
+    protected AtomicInteger requestsSent = new AtomicInteger();
+    protected AtomicInteger repliesReceived = new AtomicInteger();
     protected int successCnt = 0;
     protected long startTime = 0;
     protected long endTime = 0;
 
+    protected InetSocketAddress server = null;
+    protected InetSocketAddress client = null;
+
     protected DatagramChannel channel = null;
 	protected ExecutorService executor = Executors.newCachedThreadPool();
+    
+    /** The request map. */
+    protected Map<Integer, DhcpMessage> solicitMap =
+    	Collections.synchronizedMap(new HashMap<Integer, DhcpMessage>());
     
     /** The request map. */
     protected Map<Integer, DhcpMessage> requestMap =
@@ -267,8 +277,8 @@ public class TestClient extends SimpleChannelUpstreamHandler
     		factory = new NioDatagramChannelFactory(Executors.newCachedThreadPool());
     	}
     	
-    	InetSocketAddress server = new InetSocketAddress(serverAddr, serverPort);
-    	InetSocketAddress client = new InetSocketAddress(clientPort);
+    	server = new InetSocketAddress(serverAddr, serverPort);
+    	client = new InetSocketAddress(clientPort);
     	
 		ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("logger", new LoggingHandler());
@@ -285,31 +295,34 @@ public class TestClient extends SimpleChannelUpstreamHandler
     	}
     	channel.bind(client);
 
-    	List<DhcpMessage> requestMsgs = buildRequestMessages();
+    	List<DhcpMessage> solicitMsgs = buildSolicitMessages();
     	
-    	for (DhcpMessage msg : requestMsgs) {
+    	for (DhcpMessage msg : solicitMsgs) {
     		executor.execute(new RequestSender(msg, server));
     	}
 
     	long ms = 0;
 		if (rapidCommit)
-			ms = requestMsgs.size()*200;
+			ms = solicitMsgs.size()*200;
 		else
-			ms = requestMsgs.size()*20;
+			ms = solicitMsgs.size()*20;
 
     	synchronized (requestMap) {
         	try {
         		log.info("Waiting total of " + ms + " milliseconds for completion");
-        		requestMap.wait(ms);
+//        		requestMap.wait(ms);
+        		requestMap.wait();
         	}
         	catch (InterruptedException ex) {
         		log.error("Interrupted", ex);
         	}
 		}
 
-		log.info("Successfully processed " + successCnt +
-				" of " + requestsSent + " messages in " +
-				(endTime - startTime) + " milliseconds");
+		log.info("Complete: solicitsSent=" + solicitsSent +
+				" advertsReceived=" + advertsReceived +
+				" requestsSent=" + requestsSent +
+				" repliesReceived=" + repliesReceived +
+				" elapsedTime = " + (endTime - startTime) + " milliseconds");
 
     	log.info("Shutting down executor...");
     	executor.shutdownNow();
@@ -364,9 +377,18 @@ public class TestClient extends SimpleChannelUpstreamHandler
 				if (startTime == 0) {
 					startTime = System.currentTimeMillis();
 				}
-				requestsSent++;
-				log.info("Succesfully sent message id=" + id);
-				requestMap.put(id, msg);
+				if (msg.getMessageType() == DhcpConstants.SOLICIT) {
+					solicitsSent.getAndIncrement();
+					log.info("Succesfully sent solicit message id=" + id + 
+							", solicitsSent=" + solicitsSent);
+					solicitMap.put(id, msg);
+				}
+				else if (msg.getMessageType() == DhcpConstants.REQUEST) {
+					requestsSent.getAndIncrement();
+					log.info("Succesfully sent request message id=" + id +
+							", requestsSent=" + requestsSent);
+					requestMap.put(id, msg);
+				}
 			}
 			else {
 				log.warn("Failed to send message id=" + msg.getTransactionId());
@@ -375,11 +397,11 @@ public class TestClient extends SimpleChannelUpstreamHandler
     }
     
     /**
-     * Builds the request messages.
+     * Builds the solicit messages.
      * 
      * @return the list< dhcp message>
      */
-    private List<DhcpMessage> buildRequestMessages()
+    private List<DhcpMessage> buildSolicitMessages()
     {
     	List<DhcpMessage> requests = new ArrayList<DhcpMessage>();   	
         for (int id=0; id<numRequests; id++) {
@@ -396,25 +418,44 @@ public class TestClient extends SimpleChannelUpstreamHandler
             DhcpElapsedTimeOption dhcpElapsedTime = new DhcpElapsedTimeOption();
             dhcpElapsedTime.setUnsignedShort(1);
             msg.putDhcpOption(dhcpElapsedTime);
-
-            DhcpUserClassOption dhcpUserClass = new DhcpUserClassOption();
-            dhcpUserClass.addOpaqueData("FilterUserClass");
-            msg.putDhcpOption(dhcpUserClass);
-
-            if (rapidCommit) {
-            	msg.setMessageType(DhcpConstants.SOLICIT);
-                DhcpIaNaOption dhcpIaNa = new DhcpIaNaOption();
-                dhcpIaNa.setIaId(1);
-                msg.putDhcpOption(dhcpIaNa);
-                DhcpRapidCommitOption dhcpRapidCommit = new DhcpRapidCommitOption();
-                msg.putDhcpOption(dhcpRapidCommit);
-            }
-            else {
-                msg.setMessageType(DhcpConstants.INFO_REQUEST);
-            }            
+            
+        	msg.setMessageType(DhcpConstants.SOLICIT);
+            DhcpIaNaOption dhcpIaNa = new DhcpIaNaOption();
+            dhcpIaNa.setIaId(1);
+            msg.putDhcpOption(dhcpIaNa);
+            
             requests.add(msg);
         }
         return requests;
+    }
+    
+    private DhcpMessage buildRequestMessage(DhcpMessage advert) {
+    	
+        DhcpMessage msg = 
+            	new DhcpMessage(null, new InetSocketAddress(serverAddr, serverPort));
+
+        int xid = advert.getTransactionId();
+        msg.setTransactionId(xid);
+        
+        String clientId = "clientid-" + xid;
+        DhcpClientIdOption dhcpClientId = new DhcpClientIdOption();
+        dhcpClientId.getOpaqueData().setAscii(clientId);
+        
+        msg.putDhcpOption(dhcpClientId);
+        
+        DhcpElapsedTimeOption dhcpElapsedTime = new DhcpElapsedTimeOption();
+        dhcpElapsedTime.setUnsignedShort(1);
+        msg.putDhcpOption(dhcpElapsedTime);
+        
+    	msg.setMessageType(DhcpConstants.REQUEST);
+
+    	DhcpServerIdOption dhcpServerId = 
+    			(DhcpServerIdOption)advert.getDhcpOption(DhcpConstants.OPTION_SERVERID);
+    	msg.putDhcpOption(dhcpServerId);
+    	DhcpIaNaOption dhcpIaNa = (DhcpIaNaOption)advert.getDhcpOption(DhcpConstants.OPTION_IA_NA);
+        msg.putDhcpOption(dhcpIaNa);
+        
+        return msg;
     }
 
 
@@ -433,16 +474,48 @@ public class TestClient extends SimpleChannelUpstreamHandler
             	log.debug("Received: " + dhcpMessage.toStringWithOptions());
             else
             	log.info("Received: " + dhcpMessage.toString());
-            
-            DhcpMessage requestMsg = requestMap.remove(dhcpMessage.getTransactionId());
-            if (requestMsg != null) {
-            	successCnt++;
-            	endTime = System.currentTimeMillis();
-            	synchronized (requestMap) {
-            		if (requestMap.isEmpty()) {
-            			requestMap.notify();
-            		}
-            	}
+
+            if (dhcpMessage.getMessageType() == DhcpConstants.ADVERTISE) {
+	            DhcpMessage solicitMessage = solicitMap.remove(dhcpMessage.getTransactionId());
+	            if (solicitMessage != null) {
+	            	advertsReceived.getAndIncrement();
+	            	log.info("Removed message from solicit map: cnt=" + advertsReceived);
+	            	synchronized (solicitMap) {
+	            		if (solicitMap.isEmpty()) {
+	            			solicitMap.notify();
+	            		}
+	            		else {
+	            			log.debug("Solicit map size: " + solicitMap.size());
+	            		}
+	            	}
+	            	// queue the request message now
+	            	executor.execute(new RequestSender(buildRequestMessage(dhcpMessage), server));
+	            }
+	            else {
+	            	log.error("Message not found in solicit map: xid=" + dhcpMessage.getTransactionId());
+	            }
+            }
+            else if (dhcpMessage.getMessageType() == DhcpConstants.REPLY) {
+	            DhcpMessage requestMessage = requestMap.remove(dhcpMessage.getTransactionId());
+	            if (requestMessage != null) {
+	            	repliesReceived.getAndIncrement();
+	            	log.info("Removed message from request map: cnt=" + repliesReceived);
+	            	endTime = System.currentTimeMillis();
+	            	synchronized (requestMap) {
+	            		if (requestMap.isEmpty()) {
+	            			requestMap.notify();
+	            		}
+	            		else {
+	            			log.debug("Request map size: " + requestMap.size());
+	            		}
+	            	}
+	            }
+	            else {
+	            	log.error("Message not found in request map: xid=" + dhcpMessage.getTransactionId());
+	            }
+            }
+            else {
+            	log.warn("Received unhandled message type: " + dhcpMessage.getMessageType());
             }
         }
         else {
