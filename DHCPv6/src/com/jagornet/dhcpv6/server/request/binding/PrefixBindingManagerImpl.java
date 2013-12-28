@@ -219,6 +219,8 @@ public class PrefixBindingManagerImpl
 				bp.setUsed(ip);
 			}
 		}
+		log.info("Built prefix binding pool: " + bp.getStartAddress().getHostAddress() + "-" + 
+				bp.getEndAddress().getHostAddress() + ", size=" + bp.getSize());
     	return bp;
     }
     

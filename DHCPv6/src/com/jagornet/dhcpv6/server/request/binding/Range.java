@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.server.request.binding;
 
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -140,5 +141,11 @@ public class Range
 			return true;
 		}
 		return false;
+	}
+	
+	public BigInteger size() {
+		return new BigInteger(endAddress.getAddress()).
+				subtract(new BigInteger(startAddress.getAddress())).
+				add(BigInteger.ONE);
 	}
 }

@@ -361,4 +361,8 @@ public class V4AddressBindingPool implements BindingPool, DhcpV4OptionConfigObje
 			return pool.getPolicies();
 		return null;
 	}
+	
+	public BigInteger getSize() {
+		return range.size();
+	}
 }

@@ -346,4 +346,8 @@ public class AddressBindingPool implements BindingPool, DhcpOptionConfigObject
 			return pool.getPolicies();
 		return null;
 	}
+	
+	public BigInteger getSize() {
+		return range.size();
+	}
 }

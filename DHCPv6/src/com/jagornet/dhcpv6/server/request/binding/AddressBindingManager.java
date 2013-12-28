@@ -224,6 +224,8 @@ public abstract class AddressBindingManager extends BaseAddrBindingManager
 				bp.setUsed(ip);
 			}
 		}
+		log.info("Built address binding pool: " + bp.getStartAddress().getHostAddress() + "-" + 
+				bp.getEndAddress().getHostAddress() + " size=" + bp.getSize());
     	return bp;
     }
     

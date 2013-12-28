@@ -1,5 +1,6 @@
 package com.jagornet.dhcpv6.server.request.binding;
 
+import java.math.BigInteger;
 import java.net.InetAddress;
 
 import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
@@ -20,4 +21,5 @@ public interface BindingPool extends DhcpConfigObject
 	public void setFree(InetAddress addr);
 	public boolean contains(InetAddress addr);
 	public LinkFilter getLinkFilter();
+	public BigInteger getSize();
 }

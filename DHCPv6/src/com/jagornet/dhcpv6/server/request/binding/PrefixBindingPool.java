@@ -333,4 +333,10 @@ public class PrefixBindingPool implements BindingPool, DhcpOptionConfigObject
 			return pool.getPolicies();
 		return null;
 	}
+	
+	public BigInteger getSize() {
+		// TODO: account for delegated prefix size
+		return new BigInteger(subnet.getEndAddress().getAddress()).
+				subtract(new BigInteger(subnet.getSubnetAddress().getAddress()));
+	}
 }
