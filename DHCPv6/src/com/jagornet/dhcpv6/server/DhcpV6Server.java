@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcpv6.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
@@ -52,6 +53,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.jmx.HierarchyDynamicMBean;
 import org.apache.log4j.spi.LoggerRepository;
@@ -62,6 +64,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jagornet.dhcpv6.Version;
+import com.jagornet.dhcpv6.db.DbSchemaManager;
 import com.jagornet.dhcpv6.db.IaManager;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
@@ -101,9 +104,15 @@ public class DhcpV6Server
 
     /** The application context filename. */
     public static String APP_CONTEXT_FILENAME = "com/jagornet/dhcpv6/context.xml";
+    public static String APP_CONTEXT_JDBC_DATASOURCE_FILENAME = "com/jagornet/dhcpv6/context_jdbc_datasource.xml";
+    public static String APP_CONTEXT_JDBC_DERBY_FILENAME = "com/jagornet/dhcpv6/context_jdbc_derby.xml";
+    public static String APP_CONTEXT_JDBC_H2_FILENAME = "com/jagornet/dhcpv6/context_jdbc_h2.xml";
+    public static String APP_CONTEXT_JDBC_SQLITE_FILENAME = "com/jagornet/dhcpv6/context_jdbc_sqlite.xml";
+    public static String APP_CONTEXT_JDBC_FILENAME = "com/jagornet/dhcpv6/context_jdbc.xml";
     public static String APP_CONTEXT_JDBC_V1SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_jdbc_v1schema.xml";
     public static String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_jdbc_v2schema.xml";    
     public static String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_sqlite_v2schema.xml";    
+    public static String APP_CONTEXT_MONGO_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_mongo_v2schema.xml";    
     
     /** The server port number. */
     protected int portNumber = DhcpConstants.SERVER_PORT;
@@ -172,29 +181,10 @@ public class DhcpV6Server
         	throw new IllegalStateException("Failed to initialize server configuration file: " +
         			configFilename);
         }
-
-        String appContext[] = null;
-
-        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
-        if (schemaType.equalsIgnoreCase("jdbc")) {
-        	int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DATABASE_SCHEMA_VERSION);
-        	if (schemaVersion == 1) {
-        		appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_JDBC_V1SCHEMA_FILENAME };
-        	}
-        	else if (schemaVersion == 2) {
-        		appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_JDBC_V2SCHEMA_FILENAME };
-        	}
-        	else {
-        		throw new IllegalStateException("Unsupported schema version: " + schemaVersion);
-        	}
-        }
-        else if (schemaType.equalsIgnoreCase("sqlite")) {
-        	appContext = new String[] { APP_CONTEXT_FILENAME, APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME };
-        }
-        else {
-        	throw new DhcpServerConfigException("Unsupported schema type: " + schemaType);
-        }
         
+        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
+    	int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DATABASE_SCHEMA_VERSION);
+        String[] appContext = getAppContextFiles(schemaType, schemaVersion);     
         log.info("Loading application context: " + Arrays.toString(appContext));
 		context = new ClassPathXmlApplicationContext(appContext);
 		if (context == null) {
@@ -202,6 +192,144 @@ public class DhcpV6Server
         			appContext);
 		}
 		log.info("Application context loaded.");
+		
+		loadManagers();
+		
+        registerLog4jInJmx();
+
+        String msg = null;
+        
+        // by default, all IPv6 addresses are selected for unicast
+        if (ucastAddrs == null) {
+        	ucastAddrs = getAllIPv6Addrs();
+        }
+        msg = "DHCPv6 Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
+        System.out.println(msg);
+        log.info(msg);
+        
+        // for now, the mcast interfaces MUST be listed at
+        // startup to get the mcast behavior at all... but
+        // we COULD default to use all IPv6 interfaces 
+        if (mcastNetIfs != null) {
+//        	msg = "DHCPv6 Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
+        	StringBuilder sb = new StringBuilder();
+        	sb.append("DHCPv6 Multicast interfaces: [");
+        	for (NetworkInterface mcastNetIf : mcastNetIfs) {
+				sb.append(mcastNetIf.getName());
+				sb.append(", ");
+			}
+        	sb.setLength(sb.length()-2);	// remove last ", "
+        	sb.append(']');
+        	msg = sb.toString();
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        else {
+        	msg = "DHCPv6 Multicast interfaces: none";
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        
+        msg = "DHCPv6 Port number: " + portNumber;
+        System.out.println(msg);
+        log.info(msg);
+
+        
+        // by default, all IPv4 addresses are selected for unicast
+        if (v4UcastAddrs == null) {
+        	v4UcastAddrs = getAllIPv4Addrs();
+        }
+        msg = "DHCPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
+        System.out.println(msg);
+        log.info(msg);
+        
+        if (v4BcastNetIf != null) {
+        	msg = "DHCPv4 Broadcast Interface: " + v4BcastNetIf.getName();
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        else {
+        	msg = "DHCPv4 Broadcast interface: none";
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        
+        msg = "DHCPv4 Port number: " + v4PortNumber;
+        System.out.println(msg);
+        log.info(msg);
+        
+    	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber, 
+    														v4UcastAddrs, v4BcastNetIf, v4PortNumber);
+    	nettyServer.start();
+    }
+    
+    public static String[] getAppContextFiles(String schemaType, int schemaVersion) throws Exception {
+
+    	List<String> appContexts = new ArrayList<String>();
+
+    	String dbDir = DbSchemaManager.DB_HOME;
+    	
+    	if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_DERBY) ||
+    			schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_H2) ||
+    			schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_SQLITE)) {
+            String jdbcContext = null;
+        	if (schemaVersion == 1) {
+        		jdbcContext = APP_CONTEXT_JDBC_V1SCHEMA_FILENAME;
+        	}
+        	else if (schemaVersion == 2) {
+        		jdbcContext = APP_CONTEXT_JDBC_V2SCHEMA_FILENAME;
+        	}
+        	else {
+        		throw new IllegalStateException("Unsupported schema version: " + schemaVersion);
+        	}
+        	
+        	if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_DERBY)) {
+        		FileUtils.forceMkdir(new File(dbDir + "derby"));
+            	appContexts.add(APP_CONTEXT_JDBC_DERBY_FILENAME);
+            	appContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
+            	appContexts.add(jdbcContext);
+            	appContexts.add(APP_CONTEXT_FILENAME);
+            }
+            else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_H2)) {
+        		FileUtils.forceMkdir(new File(dbDir + "h2"));
+            	appContexts.add(APP_CONTEXT_JDBC_H2_FILENAME);
+            	appContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
+            	appContexts.add(jdbcContext);
+            	appContexts.add(APP_CONTEXT_FILENAME);
+            }
+            else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_SQLITE)) {
+        		FileUtils.forceMkdir(new File(dbDir + "sqlite"));
+            	appContexts.add(APP_CONTEXT_JDBC_SQLITE_FILENAME);
+            	appContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
+            	appContexts.add(jdbcContext);
+            	appContexts.add(APP_CONTEXT_FILENAME);
+            }
+            else {
+            	log.warn("Unknown JDBC data source, using jdbc.properties");
+            	appContexts.add(APP_CONTEXT_JDBC_FILENAME);
+            	appContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
+            	appContexts.add(jdbcContext);
+            	appContexts.add(APP_CONTEXT_FILENAME);
+            }
+    	}
+        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_SQLITE)) {
+    		FileUtils.forceMkdir(new File(dbDir + "sqlite"));
+        	appContexts.add(APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME);
+        	appContexts.add(APP_CONTEXT_FILENAME);
+        }
+        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_MONGO)) {
+        	appContexts.add(APP_CONTEXT_MONGO_V2SCHEMA_FILENAME);
+        	appContexts.add(APP_CONTEXT_FILENAME);
+        }
+        else {
+        	throw new DhcpServerConfigException("Unsupported schema type: " + schemaType);
+        }
+        
+    	String[] ctxArray = new String[appContexts.size()];
+    	return appContexts.toArray(ctxArray);
+    }
+    
+    private void loadManagers() throws Exception {
 		
 		log.info("Loading managers from context...");
 		
@@ -278,73 +406,6 @@ public class DhcpV6Server
 		}
 		
 		log.info("Managers loaded.");
-		
-        registerLog4jInJmx();
-
-        String msg = null;
-        
-        // by default, all IPv6 addresses are selected for unicast
-        if (ucastAddrs == null) {
-        	ucastAddrs = getAllIPv6Addrs();
-        }
-        msg = "DHCPv6 Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
-        System.out.println(msg);
-        log.info(msg);
-        
-        // for now, the mcast interfaces MUST be listed at
-        // startup to get the mcast behavior at all... but
-        // we COULD default to use all IPv6 interfaces 
-        if (mcastNetIfs != null) {
-//        	msg = "DHCPv6 Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
-        	StringBuilder sb = new StringBuilder();
-        	sb.append("DHCPv6 Multicast interfaces: [");
-        	for (NetworkInterface mcastNetIf : mcastNetIfs) {
-				sb.append(mcastNetIf.getName());
-				sb.append(", ");
-			}
-        	sb.setLength(sb.length()-2);	// remove last ", "
-        	sb.append(']');
-        	msg = sb.toString();
-        	System.out.println(msg);
-        	log.info(msg);
-        }
-        else {
-        	msg = "DHCPv6 Multicast interfaces: none";
-        	System.out.println(msg);
-        	log.info(msg);
-        }
-        
-        msg = "DHCPv6 Port number: " + portNumber;
-        System.out.println(msg);
-        log.info(msg);
-
-        
-        // by default, all IPv4 addresses are selected for unicast
-        if (v4UcastAddrs == null) {
-        	v4UcastAddrs = getAllIPv4Addrs();
-        }
-        msg = "DHCPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
-        System.out.println(msg);
-        log.info(msg);
-        
-        if (v4BcastNetIf != null) {
-        	msg = "DHCPv4 Broadcast Interface: " + v4BcastNetIf.getName();
-        	System.out.println(msg);
-        	log.info(msg);
-        }
-        else {
-        	msg = "DHCPv4 Broadcast interface: none";
-        	System.out.println(msg);
-        	log.info(msg);
-        }
-        
-        msg = "DHCPv4 Port number: " + v4PortNumber;
-        System.out.println(msg);
-        log.info(msg);
-        
-    	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber, 
-    														v4UcastAddrs, v4BcastNetIf, v4PortNumber);
-    	nettyServer.start();
     }
     
 	/**
@@ -682,7 +743,12 @@ public class DhcpV6Server
 	
 	static List<InetAddress> allIPv6Addrs;
 	public static List<InetAddress> getAllIPv6Addrs()
-	{
+	{    	
+    	boolean ignoreLoopback = 
+    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
+    	boolean ignoreLinkLocal = 
+    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
+    	
 		if (allIPv6Addrs == null) {
 			allIPv6Addrs = new ArrayList<InetAddress>();
 			try {
@@ -695,6 +761,14 @@ public class DhcpV6Server
 		            	while (ifAddrs.hasMoreElements()) {
 		            		InetAddress ip = ifAddrs.nextElement();
 		            		if (ip instanceof Inet6Address) {
+		    	        		if (ignoreLoopback && ip.isLoopbackAddress()) {
+		    	        			log.debug("Skipping loopback address: " + ip);
+		    	        			continue;
+		    	        		}
+		    	        		if (ignoreLinkLocal && ip.isLinkLocalAddress()) {
+		    	        			log.debug("Skipping link local address: " + ip);
+		    	        			continue;
+		    	        		}
 		            			allIPv6Addrs.add(ip);
 		            		}
 		            	}
@@ -779,6 +853,11 @@ public class DhcpV6Server
 	static List<InetAddress> allIPv4Addrs;
 	public static List<InetAddress> getAllIPv4Addrs()
 	{
+    	boolean ignoreLoopback = 
+    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
+    	boolean ignoreLinkLocal = 
+    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
+    	
 		if (allIPv4Addrs == null) {
 			allIPv4Addrs = new ArrayList<InetAddress>();
 			try {
@@ -791,6 +870,14 @@ public class DhcpV6Server
 		            	while (ifAddrs.hasMoreElements()) {
 		            		InetAddress ip = ifAddrs.nextElement();
 		            		if (ip instanceof Inet4Address) {
+		    	        		if (ignoreLoopback && ip.isLoopbackAddress()) {
+		    	        			log.debug("Skipping loopback address: " + ip);
+		    	        			continue;
+		    	        		}
+		    	        		if (ignoreLinkLocal && ip.isLinkLocalAddress()) {
+		    	        			log.debug("Skipping link local address: " + ip);
+		    	        			continue;
+		    	        		}
 		            			allIPv4Addrs.add(ip);
 		            		}
 		            	}
