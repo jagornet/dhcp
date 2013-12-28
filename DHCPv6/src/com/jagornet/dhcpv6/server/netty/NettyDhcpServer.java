@@ -123,20 +123,28 @@ public class NettyDhcpServer
         try {
         	InternalLoggerFactory.setDefaultFactory(new Log4JLoggerFactory());
         	
-        	boolean ignoreLoopback = DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
-        	boolean ignoreLinkLocal = DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
-        	boolean ignoreSelfPackets = DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_SELF_PACKETS);
+        	boolean ignoreSelfPackets = 
+        			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_SELF_PACKETS);
+        	int corePoolSize = 
+        			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_THREADPOOL_SIZE);
+        	int maxChannelMemorySize = 
+        			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_MAX_CHANNEL_MEMORY);
+        	int maxTotalMemorySize = 
+        			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_MAX_TOTAL_MEMORY);
+        	int receiveBufSize = 
+        			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_READ_BUFFER_SIZE);
+        	int sendBufSize = 
+        			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_WRITE_BUFFER_SIZE);
+        	
+        	log.info("Initializing channels:" + 
+        			" corePoolSize=" + corePoolSize +
+        			" maxChannelMemorySize=" + maxChannelMemorySize +
+        			" maxTotalMemorySize=" + maxTotalMemorySize + 
+        			" receiveBufferSize=" + receiveBufSize +
+        			" sendBufferSize=" + sendBufSize);
         	
         	if (addrs != null) {
 	        	for (InetAddress addr : addrs) {
-	        		if (ignoreLoopback && addr.isLoopbackAddress()) {
-	        			log.debug("Skipping loopback address: " + addr);
-	        			continue;
-	        		}
-	        		if (ignoreLinkLocal && addr.isLinkLocalAddress()) {
-	        			log.debug("Skipping link local address: " + addr);
-	        			continue;
-	        		}
 	        		// local address for packets received on this channel
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
@@ -144,7 +152,9 @@ public class NettyDhcpServer
 		            pipeline.addLast("decoder", new DhcpUnicastChannelDecoder(sockAddr, ignoreSelfPackets));
 		            pipeline.addLast("encoder", new DhcpChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
-		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
+		            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
+		            												maxChannelMemorySize,
+		            												maxTotalMemorySize)));
 		            pipeline.addLast("handler", new DhcpChannelHandler());
 	        		
 		            String io = null;
@@ -162,7 +172,9 @@ public class NettyDhcpServer
 	
 		            // create an unbound channel
 		            DatagramChannel channel = factory.newChannel(pipeline);
-		            channel.getConfig().setReuseAddress(true);
+		            //channel.getConfig().setReuseAddress(true);
+		            channel.getConfig().setReceiveBufferSize(receiveBufSize);
+		            channel.getConfig().setSendBufferSize(sendBufSize);
 		            
 		            log.info("Binding " + io + " datagram channel on IPv6 socket address: " + sockAddr);
 		            ChannelFuture future = channel.bind(sockAddr);
@@ -191,7 +203,9 @@ public class NettyDhcpServer
 		            pipeline.addLast("decoder", new DhcpChannelDecoder(sockAddr, ignoreSelfPackets));
 		            pipeline.addLast("encoder", new DhcpChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
-		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
+		            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
+																	maxChannelMemorySize,
+																	maxTotalMemorySize)));
 		            pipeline.addLast("handler", new DhcpChannelHandler());
 	
 		        	// Use OioDatagramChannels for IPv6 multicast interfaces
@@ -200,6 +214,8 @@ public class NettyDhcpServer
 	
 		            // create an unbound channel
 		            DatagramChannel channel = factory.newChannel(pipeline);
+		            channel.getConfig().setReceiveBufferSize(receiveBufSize);
+		            channel.getConfig().setSendBufferSize(sendBufSize);
 		            
 		            // must be bound in order to join multicast group
 		            SocketAddress wildAddr = new InetSocketAddress(port);
@@ -227,14 +243,6 @@ public class NettyDhcpServer
     		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
         	if (v4Addrs != null) {
 	        	for (InetAddress addr : v4Addrs) {
-	        		if (ignoreLoopback && addr.isLoopbackAddress()) {
-	        			log.debug("Skipping loopback address: " + addr);
-	        			continue;
-	        		}
-	        		if (ignoreLinkLocal && addr.isLinkLocalAddress()) {
-	        			log.debug("Skipping link local address: " + addr);
-	        			continue;
-	        		}
 	        		// local address for packets received on this channel
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
@@ -242,7 +250,9 @@ public class NettyDhcpServer
 		            pipeline.addLast("decoder", new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets));
 		            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
-		            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
+		            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
+																	maxChannelMemorySize,
+																	maxTotalMemorySize)));
 		            pipeline.addLast("handler", new DhcpV4ChannelHandler(null));
 	        		
 		            String io = null;
@@ -260,8 +270,11 @@ public class NettyDhcpServer
 	
 		            // create an unbound channel
 		            DatagramChannel channel = factory.newChannel(pipeline);
-		            channel.getConfig().setReuseAddress(true);
+		            //channel.getConfig().setReuseAddress(true);
 		            channel.getConfig().setBroadcast(true);
+		            channel.getConfig().setReceiveBufferSize(receiveBufSize);
+		            channel.getConfig().setSendBufferSize(sendBufSize);
+
 		            v4UcastChannels.put(addr, channel);
 		            
 		            log.info("Binding " + io + " datagram channel on IPv4 socket address: " + sockAddr);
@@ -297,14 +310,18 @@ public class NettyDhcpServer
 			            pipeline.addLast("decoder", new DhcpV4ChannelDecoder(sockAddr, ignoreSelfPackets));
 			            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
 			            pipeline.addLast("executor", new ExecutionHandler(
-			            		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
+			            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
+																		maxChannelMemorySize,
+																		maxTotalMemorySize)));
 			            pipeline.addLast("handler", new DhcpV4ChannelHandler(bcastChannel));
 		        		
 			            DatagramChannelFactory factory = new NioDatagramChannelFactory(executorService);
 		
 			            // create an unbound channel
 			            DatagramChannel channel = factory.newChannel(pipeline);
-			            channel.getConfig().setReuseAddress(true);
+			            //channel.getConfig().setReuseAddress(true);
+			            channel.getConfig().setReceiveBufferSize(receiveBufSize);
+			            channel.getConfig().setSendBufferSize(sendBufSize);
 			            channel.getConfig().setBroadcast(true);
 			            
 			            InetSocketAddress wildAddr = new InetSocketAddress(v4Port);
