@@ -209,6 +209,13 @@ public class DhcpV4Message implements DhcpMessageInterface
         buf.put(fileBuf.toString().getBytes());
 
         buf.put(encodeOptions());
+    	int msglen = buf.position();
+    	log.debug("DHCPv4 Message is " + msglen + " bytes");
+        if (msglen < 300) {
+        	int pad = 300 - msglen;
+        	log.debug("Padding with " + pad + " bytes to 300 byte (Bootp) minimum");
+        	buf.put(new byte[pad]);
+        }
         buf.flip();
         
         if (log.isDebugEnabled())
@@ -331,11 +338,11 @@ public class DhcpV4Message implements DhcpMessageInterface
       			ciAddr = InetAddress.getByAddress(ipbuf);
       			log.debug("ciaddr=" + ciAddr.getHostAddress());
       			buf.get(ipbuf);
-      			siAddr = InetAddress.getByAddress(ipbuf);
-      			log.debug("siaddr=" + siAddr.getHostAddress());
-      			buf.get(ipbuf);
       			yiAddr = InetAddress.getByAddress(ipbuf);
       			log.debug("yiaddr=" + yiAddr.getHostAddress());
+      			buf.get(ipbuf);
+      			siAddr = InetAddress.getByAddress(ipbuf);
+      			log.debug("siaddr=" + siAddr.getHostAddress());
       			buf.get(ipbuf);
       			giAddr = InetAddress.getByAddress(ipbuf);
       			log.debug("giaddr=" + giAddr.getHostAddress());
