@@ -30,7 +30,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
 
-import com.jagornet.dhcpv6.db.BaseDbTestCase;
+import com.jagornet.dhcpv6.db.BaseTestCase;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpDnsServersOption;
@@ -51,7 +51,7 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
 /**
  * The Class BaseTestDhcpProcessor.
  */
-public class BaseTestDhcpProcessor extends BaseDbTestCase
+public class BaseTestDhcpProcessor extends BaseTestCase
 {
 	/** The manager. */
 	protected NaAddrBindingManager manager;
@@ -61,14 +61,17 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 	
 	protected InetAddress firstPoolAddr;
 	
+	public BaseTestDhcpProcessor() {
+		super();
+		manager = config.getNaAddrBindingMgr();
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.BaseDbTestCase#setUp()
 	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (NaAddrBindingManager) ctx.getBean("naAddrBindingManager");
-		manager.init();
 		OpaqueData opaque = OpaqueData.Factory.newInstance();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });
@@ -84,7 +87,6 @@ public class BaseTestDhcpProcessor extends BaseDbTestCase
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		manager = null;
 		clientIdOption = null;
 		firstPoolAddr = null;
 	}

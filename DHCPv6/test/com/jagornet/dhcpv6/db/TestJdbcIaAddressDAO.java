@@ -30,20 +30,22 @@ import java.util.Date;
  * 
  * @author agrabil
  */
-public class TestJdbcIaAddressDAO extends BaseDbTestCase
+public class TestJdbcIaAddressDAO extends BaseTestCase
 {
 	protected IdentityAssocDAO iaDao;
 	protected IaAddressDAO iaAddrDao;
 	protected IdentityAssoc ia;
 	
+	public TestJdbcIaAddressDAO() throws Exception 
+	{
+		super("jdbc-derby", 1);	
+		iaDao = (IdentityAssocDAO) ctx.getBean("identityAssocDAO");		
+		iaAddrDao = (IaAddressDAO) ctx.getBean("iaAddressDAO");
+	}
+	
 	@Override
 	public void setUp() throws Exception
 	{
-		super.setUp();
-		
-		iaDao = (IdentityAssocDAO) ctx.getBean("identityAssocDAO");		
-		iaAddrDao = (IaAddressDAO) ctx.getBean("iaAddressDAO");
-		
 		byte[] duid = new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e };
 		byte iatype = 1;
 		long iaid = (long)0xdebdeb00;
@@ -99,7 +101,6 @@ public class TestJdbcIaAddressDAO extends BaseDbTestCase
 	protected void tearDown() throws Exception
 	{
 		iaDao.deleteById(ia.getId());
-		super.tearDown();
 	}
 	
 

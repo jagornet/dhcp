@@ -100,6 +100,9 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testRebindNoBinding() throws Exception
 	{
+		// set the default server policy
+		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "false");
+		
 		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.REBIND);
 		
@@ -108,7 +111,6 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 		
 		DhcpMessage replyMsg = processor.processMessage();
 		
-		// the verify policy is off by default, so silently ignore request
 		assertNull(replyMsg);
 	}
 	
@@ -119,8 +121,9 @@ public class TestDhcpRebindProcessor extends BaseTestDhcpProcessor
 	 */
 	public void testRebindNoBindingWithVerify() throws Exception
 	{
-		// override the default server policy
+		// set the default server policy
 		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "true");
+
 		DhcpMessage requestMsg = buildRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.REBIND);
 		DhcpIaAddrOption dhcpIaAddr = new DhcpIaAddrOption();

@@ -91,7 +91,7 @@ public class SqliteLeaseManager extends LeaseManager
 			if (path != null) {
 				path.mkdirs();
 			}
-			String schemaFilename = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_FILENAME);
+			String schemaFilename = DbSchemaManager.SCHEMA_V2_FILENAME;
 			log.info("Creating new SQLite schema from file: " + schemaFilename);
 			SQLiteConnection sqliteConnection = getSQLiteConnection();
 			List<String> schemaDDL = DbSchemaManager.getSchemaDDL(schemaFilename);
@@ -689,4 +689,25 @@ public class SqliteLeaseManager extends LeaseManager
 //		if (connection != null)
 //			connection.dispose();    	
     }
+
+	
+    /**
+     * For unit tests only
+     */
+	public void deleteAllIAs() {
+		SQLiteConnection connection = null;
+		SQLiteStatement statement = null;
+		try {
+			connection = getSQLiteConnection();
+			connection.exec("delete from dhcplease");
+		}
+		catch (SQLiteException ex) {
+			log.error("deleteAllIAs failed", ex);
+			throw new RuntimeException(ex);
+		}
+		finally {
+			closeStatement(statement);
+			closeConnection(connection);
+		}
+	}
 }

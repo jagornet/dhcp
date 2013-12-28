@@ -195,4 +195,13 @@ public class JdbcIdentityAssocDAO extends JdbcDaoSupport implements IdentityAsso
             return ia;
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * @see com.jagornet.dhcpv6.db.IdentityAssocDAO#deleteAll()
+     */
+	public void deleteAll() {
+		int cnt  = getJdbcTemplate().update("delete from identityassoc");
+		log.info("Deleted all " + cnt + " identityassocs");
+	}
 }

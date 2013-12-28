@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author agrabil
  */
-public class TestJdbcIaManager extends BaseDbTestCase
+public class TestIaManager extends BaseTestCase
 {
 	
 	/** The log. */
-	private static Logger log = LoggerFactory.getLogger(TestJdbcIaManager.class);
+	private static Logger log = LoggerFactory.getLogger(TestIaManager.class);
 	
 	/** The ia mgr. */
 	protected IaManager iaMgr;
@@ -91,11 +91,10 @@ public class TestJdbcIaManager extends BaseDbTestCase
 	/**
 	 * Instantiates a new test jdbc ia manager.
 	 */
-	public TestJdbcIaManager()
+	public TestIaManager() throws Exception
 	{
-		super();
+		super("jdbc-derby", 2);
 		iaMgr = (IaManager) ctx.getBean("iaManager");
-//		iaMgr = (IaManager) ctx.getBean("leaseManager");
 	}
 	
 	/* (non-Javadoc)
@@ -105,6 +104,9 @@ public class TestJdbcIaManager extends BaseDbTestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
+		
+		iaMgr.deleteAllIAs();	// clean the database first
+		
 		duid = new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e };
 		iatype = 1;
 		iaid = (long)0xdebdeb00;
@@ -311,6 +313,9 @@ public class TestJdbcIaManager extends BaseDbTestCase
 		
 		IaAddress ia2ip2 = ips2i.next();
 		checkIaAddr2(ia2ip2);
+		
+		log.info("Deleting IA");
+		iaMgr.deleteIA(ia2);
 	}
 
 	/**
@@ -372,6 +377,9 @@ public class TestJdbcIaManager extends BaseDbTestCase
 		assertNull(ia2ip2.getStartTime());
 		assertNull(ia2ip2.getPreferredEndTime());
 		assertNull(ia2ip2.getValidEndTime());
+		
+		log.info("Deleting IA");
+		iaMgr.deleteIA(ia2);
 	}
 
 	/**
@@ -400,6 +408,9 @@ public class TestJdbcIaManager extends BaseDbTestCase
 		
 		IaAddress ia2ip2 = ips2i.next();
 		checkIaAddr2(ia2ip2);
+		
+		log.info("Deleting IA");
+		iaMgr.deleteIA(ia2);
 	}
 
 	/**

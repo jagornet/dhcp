@@ -29,7 +29,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 
-import com.jagornet.dhcpv6.db.BaseDbTestCase;
+import com.jagornet.dhcpv6.db.BaseTestCase;
 import com.jagornet.dhcpv6.message.DhcpV4Message;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4DomainNameOption;
@@ -48,7 +48,7 @@ import com.jagornet.dhcpv6.util.Util;
 /**
  * The Class BaseTestDhcpProcessor.
  */
-public class BaseTestDhcpV4Processor extends BaseDbTestCase
+public class BaseTestDhcpV4Processor extends BaseTestCase
 {
 	/** The manager. */
 	protected V4AddrBindingManager manager;
@@ -57,6 +57,11 @@ public class BaseTestDhcpV4Processor extends BaseDbTestCase
 	protected byte[] clientMacAddr;
 	
 	protected InetAddress firstPoolAddr;
+
+	public BaseTestDhcpV4Processor() {
+		super();
+		manager = config.getV4AddrBindingMgr();
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.BaseDbTestCase#setUp()
@@ -64,8 +69,6 @@ public class BaseTestDhcpV4Processor extends BaseDbTestCase
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (V4AddrBindingManager) ctx.getBean("v4AddrBindingManager");
-		manager.init();
 		clientMacAddr = new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e };
 		firstPoolAddr = InetAddress.getByName("192.168.0.1");
@@ -77,7 +80,6 @@ public class BaseTestDhcpV4Processor extends BaseDbTestCase
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		manager = null;
 		clientMacAddr = null;
 		firstPoolAddr = null;
 	}

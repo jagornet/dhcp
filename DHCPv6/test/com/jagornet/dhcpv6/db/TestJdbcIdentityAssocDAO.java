@@ -29,15 +29,21 @@ import java.util.Arrays;
  * 
  * @author agrabil
  */
-public class TestJdbcIdentityAssocDAO extends BaseDbTestCase
+public class TestJdbcIdentityAssocDAO extends BaseTestCase
 {
+	protected IdentityAssocDAO iaDao;
+	
+	public TestJdbcIdentityAssocDAO() throws Exception 
+	{
+		super("jdbc-derby", 1);
+		iaDao = (IdentityAssocDAO) ctx.getBean("identityAssocDAO");
+	}
 	
 	/**
 	 * Test create read delete.
 	 */
 	public void testCreateReadDelete()
 	{
-		IdentityAssocDAO iaDao = (IdentityAssocDAO) ctx.getBean("identityAssocDAO");
 		
 		byte[] duid = new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e };
 		byte iatype = 1;

@@ -93,4 +93,9 @@ public interface IdentityAssocDAO
 	 * @return the list< identity assoc>
 	 */
 	public List<IdentityAssoc> findAllByIaid(long iaid);
+	
+	/**
+	 * For unit tests only
+	 */
+	public void deleteAll();
 }

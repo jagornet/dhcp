@@ -240,4 +240,9 @@ public interface IaManager
 	 */
 	public void reconcileIaAddresses(List<Range> ranges);	
 	
+	
+	/**
+	 * For unit tests only
+	 */
+	public void deleteAllIAs();
 }

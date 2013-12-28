@@ -28,7 +28,7 @@ package com.jagornet.dhcpv6.server.request.binding;
 import java.net.InetAddress;
 import java.util.Iterator;
 
-import com.jagornet.dhcpv6.db.BaseDbTestCase;
+import com.jagornet.dhcpv6.db.BaseTestCase;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpIaNaOption;
@@ -40,7 +40,7 @@ import com.jagornet.dhcpv6.xml.OpaqueData;
 /**
  * The Class TestBindingManager.
  */
-public class TestBindingManager extends BaseDbTestCase
+public class TestBindingManager extends BaseTestCase
 {
 	/** The manager. */
 	private NaAddrBindingManager manager;

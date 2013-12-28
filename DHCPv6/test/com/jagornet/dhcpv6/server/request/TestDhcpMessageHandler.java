@@ -3,29 +3,19 @@ package com.jagornet.dhcpv6.server.request;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import junit.framework.TestCase;
-
+import com.jagornet.dhcpv6.db.BaseTestCase;
 import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.message.DhcpRelayMessage;
 import com.jagornet.dhcpv6.message.TestDhcpRelayMessage;
 import com.jagornet.dhcpv6.option.DhcpClientIdOption;
 import com.jagornet.dhcpv6.option.DhcpInterfaceIdOption;
 import com.jagornet.dhcpv6.option.DhcpRelayOption;
-import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.xml.ClientIdOption;
 import com.jagornet.dhcpv6.xml.OpaqueData;
 
-public class TestDhcpMessageHandler extends TestCase
+public class TestDhcpMessageHandler extends BaseTestCase
 {
-	@Override
-	protected void setUp() throws Exception
-	{
-		super.setUp();
-		DhcpServerConfiguration.configFilename = "test/dhcpv6server-sample.xml";
-		DhcpServerConfiguration.getInstance();
-		
-	}
 	
 	public void testHandleMessage() throws Exception
 	{

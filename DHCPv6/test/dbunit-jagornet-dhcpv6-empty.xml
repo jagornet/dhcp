@@ -1,7 +1,0 @@
-<!DOCTYPE dataset SYSTEM "test/dbunit-jagornet-dhcpv6.dtd">
-<dataset>
-  <DHCPOPTION/>
-  <IAADDRESS/>
-  <IAPREFIX/>
-  <IDENTITYASSOC/>
-</dataset>
