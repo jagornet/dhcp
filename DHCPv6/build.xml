@@ -66,7 +66,7 @@
 		description="build the dhcpv6.jar">
 		
 	  	<!-- Build the dhcpv6-x.y.z.jar file from the class files, but no properties -->
-	    <jar destfile="${build}/${product}.jar" basedir="${classes}" excludes="*.properties">
+	    <jar destfile="${build}/${product.version}.jar" basedir="${classes}" excludes="*.properties">
 	    	<!-- Add the manifest inline to the jar when it is created -->
 			<manifest>
 		        <attribute name="Main-Class" value="com.jagornet.dhcpv6.Version"/>
@@ -79,7 +79,12 @@
 			</manifest>
 		</jar>
 		
-		<copy file="${build}/${product}.jar" todir="${lib}"/>
+		<!-- Remove any previous versions of the jagornet-dhcpv6-x.y.z.jar -->
+		<delete>
+			<fileset dir="${lib}" includes="${product}*.jar"/>
+		</delete>
+		
+		<copy file="${build}/${product.version}.jar" todir="${lib}"/>
 			
 	</target>		
 	
@@ -131,11 +136,11 @@
 	    
 	    <mkdir dir="${dist}/log"/>
 	
-		<tar destfile="${dist}/${product}.tar">
-		  	<tarfileset dir="${dist}" prefix="${product}" mode="755">
+		<tar destfile="${dist}/${product.version}.tar">
+		  	<tarfileset dir="${dist}" prefix="${product.version}" mode="755">
 			    <include name="bin/dhcpv6"/>
 		  	</tarfileset>
-		  	<tarfileset dir="${dist}" prefix="${product}">
+		  	<tarfileset dir="${dist}" prefix="${product.version}">
 			    <include name="**/*"/>
 			    <exclude name="lib/*.dll"/>
 			    <exclude name="bin/**/*"/>
@@ -145,10 +150,10 @@
 		  	</tarfileset>
 		</tar>
 		
-		<gzip destfile="${dist}/${product}.tar.gz" src="${dist}/${product}.tar"/>
+		<gzip destfile="${dist}/${product.version}.tar.gz" src="${dist}/${product.version}.tar"/>
 	
-		<zip destfile="${dist}/${product}.zip">
-			<zipfileset dir="${dist}" prefix="${product}">
+		<zip destfile="${dist}/${product.version}.zip">
+			<zipfileset dir="${dist}" prefix="${product.version}">
 			    <include name="**/*"/>
 				<exclude name="lib/*.so"/>
 				<exclude name="lib/*.jnilib"/>
