@@ -353,6 +353,7 @@ public class DhcpConstants
     public static final int V4OPTION_BOOT_FILE_NAME = 67;
     public static final int V4OPTION_RAPID_COMMIT = 80;
     public static final int V4OPTION_CLIENT_FQDN = 81;
+    public static final int V4OPTION_RELAY_INFO = 82;
     public static final int V4OPTION_EOF = 255;
 
     public static final int V4MESSAGE_TYPE_DISCOVER = 1;
