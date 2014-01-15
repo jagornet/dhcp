@@ -343,6 +343,7 @@ public class DhcpV6Server
 			}
 			catch (Exception ex) {
 				log.error("Failed initialize NA Address Binding Manager", ex);
+				throw ex;
 			}
 		}
 		else {
@@ -359,6 +360,7 @@ public class DhcpV6Server
 			}
 			catch (Exception ex) {
 				log.error("Failed initialize TA Address Binding Manager", ex);
+				throw ex;
 			}
 		}
 		else {
@@ -375,6 +377,7 @@ public class DhcpV6Server
 			}
 			catch (Exception ex) {
 				log.error("Failed initialize Prefix Binding Manager", ex);
+				throw ex;
 			}
 		}
 		else {
@@ -391,6 +394,7 @@ public class DhcpV6Server
 			}
 			catch (Exception ex) {
 				log.error("Failed initialize V4 Address Binding Manager", ex);
+				throw ex;
 			}
 		}
 		else {

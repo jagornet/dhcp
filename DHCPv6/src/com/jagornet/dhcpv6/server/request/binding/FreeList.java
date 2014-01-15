@@ -31,6 +31,8 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
+
 /**
  * The Class FreeList.
  * 
@@ -65,7 +67,7 @@ public class FreeList
 	 * @param start the range start
 	 * @param end the range end
 	 */
-	public FreeList(BigInteger start, BigInteger end)
+	public FreeList(BigInteger start, BigInteger end) throws DhcpServerConfigException
 	{
 		this.start = start;
 		this.end = end;
@@ -74,7 +76,7 @@ public class FreeList
 			bitsetRanges.add(new BitSet());	// create one to start
 		}
 		else {
-			throw new IllegalStateException("Failed to create FreeList: end < start");
+			throw new DhcpServerConfigException("Failed to create FreeList: end < start");
 		}
 	}
 	
