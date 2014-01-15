@@ -60,7 +60,8 @@
 			</msgConfigOptions>
 			<naAddrPools>
 				<pool>
-					<range>2001:db8:1::/64</range>
+					<!-- <range>2001:db8:1::/64</range>  -->
+					<range>2001:db8:1::1:0-2001:db8:0::1:9</range>
 				</pool>
 			</naAddrPools>
 		</link>

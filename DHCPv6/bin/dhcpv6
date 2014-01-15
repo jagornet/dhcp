@@ -74,7 +74,8 @@ CLASSPATH=$CLASSPATH:$DHCPV6_CLASSPATH; export CLASSPATH
 DHCPV6_MAIN="com.jagornet.dhcpv6.server.DhcpV6Server"
 
 # The "main" Java class for the DHCPv6 Test Client
-DHCPV6TESTCLIENT_MAIN="com.jagornet.dhcpv6.client.TestClient"
+DHCPV6TESTCLIENT_MAIN="com.jagornet.dhcpv6.client.ClientSimulator"
+DHCPV4TESTCLIENT_MAIN="com.jagornet.dhcpv6.client.ClientSimulatorV4"
 
 # Note: log4j.configuration property references a file in the classpath (see above)
 #       the default is shown, change only if necessary
@@ -167,6 +168,11 @@ testclient() {
 	$JAVA -Ddhcpv6.home="$DHCPV6_HOME" -Dlog4j.configuration="testclient_log4j.properties" $DHCPV6TESTCLIENT_MAIN $DHCPV6_OPTS 
 }
 
+testclient() {
+	echo "Running TestClientV4..."
+	$JAVA -Ddhcpv6.home="$DHCPV6_HOME" -Dlog4j.configuration="testclient_log4j.properties" $DHCPV4TESTCLIENT_MAIN $DHCPV6_OPTS 
+}
+
 
 case "$OP" in
 	start)
@@ -195,8 +201,11 @@ case "$OP" in
 	testclient)
 		testclient
 		;;
+	testclientv4)
+		testclient
+		;;
 	*)
-		echo "Usage: $0 { start [options] |\n stop |\n restart [options] |\n status |\n version |\n test-configfile <configfile> |\n list-interfaces |\n testclient [options] }"
+		echo "Usage: $0 { start [options] |\n stop |\n restart [options] |\n status |\n version |\n test-configfile <configfile> |\n list-interfaces |\n testclient [options] |\n testclientv4 [options] }"
 		exit 1
 		;;
 esac

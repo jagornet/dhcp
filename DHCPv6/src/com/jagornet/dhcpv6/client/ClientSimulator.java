@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file ClientSimulatorV4.java is part of DHCPv6.
+ *   This file ClientSimulator.java is part of DHCPv6.
  *
  *   DHCPv6 is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ package com.jagornet.dhcpv6.client;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,49 +57,52 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.socket.DatagramChannel;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
+import org.jboss.netty.channel.socket.oio.OioDatagramChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.message.DhcpV4Message;
-import com.jagornet.dhcpv6.option.v4.DhcpV4MsgTypeOption;
-import com.jagornet.dhcpv6.option.v4.DhcpV4RequestedIpAddressOption;
-import com.jagornet.dhcpv6.server.netty.DhcpV4ChannelDecoder;
-import com.jagornet.dhcpv6.server.netty.DhcpV4ChannelEncoder;
+import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.option.DhcpClientIdOption;
+import com.jagornet.dhcpv6.option.DhcpElapsedTimeOption;
+import com.jagornet.dhcpv6.option.DhcpIaNaOption;
+import com.jagornet.dhcpv6.server.netty.DhcpChannelDecoder;
+import com.jagornet.dhcpv6.server.netty.DhcpChannelEncoder;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
 /**
- * A test client that sends discover/request/release messages 
- * to a DHCPv4 server via unicast, as if sent via a relay.
+ * A test client that sends solict/request/release messages 
+ * to a DHCPv6 server via multicast.
  * 
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
+public class ClientSimulator extends SimpleChannelUpstreamHandler
 {
-	private static Logger log = LoggerFactory.getLogger(ClientSimulatorV4.class);
+	private static Logger log = LoggerFactory.getLogger(ClientSimulator.class);
 
 	protected Random random = new Random();
     protected Options options = new Options();
     protected CommandLineParser parser = new BasicParser();
     protected HelpFormatter formatter;
-    
-	protected InetAddress DEFAULT_ADDR;
+
+    protected NetworkInterface DEFAULT_NETIF = null;
+    protected NetworkInterface mcastNetIf = null;
+   	protected InetAddress DEFAULT_ADDR;
     protected InetAddress serverAddr;
-    protected int serverPort = DhcpConstants.V4_SERVER_PORT;
-    protected InetAddress clientAddr;
-    protected int clientPort = DhcpConstants.V4_SERVER_PORT;	// the test client acts as a relay
+    protected int serverPort = DhcpConstants.SERVER_PORT;
+    protected int clientPort = DhcpConstants.CLIENT_PORT;
     protected boolean rapidCommit = false;
     protected int numRequests = 100;
-    protected AtomicInteger discoversSent = new AtomicInteger();
-    protected AtomicInteger offersReceived = new AtomicInteger();
+    protected AtomicInteger solicitsSent = new AtomicInteger();
+    protected AtomicInteger advertisementsReceived = new AtomicInteger();
     protected AtomicInteger requestsSent = new AtomicInteger();
-    protected AtomicInteger acksReceived = new AtomicInteger();
+    protected AtomicInteger requestRepliesReceived = new AtomicInteger();
     protected AtomicInteger releasesSent = new AtomicInteger();
+    protected AtomicInteger releaseRepliesReceived = new AtomicInteger();
     protected int successCnt = 0;
     protected long startTime = 0;    
     protected long endTime = 0;
@@ -111,8 +116,8 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     protected DatagramChannel channel = null;	
 	protected ExecutorService executor = Executors.newCachedThreadPool();
 	
-	protected Map<BigInteger, ClientMachine> clientMap =
-			Collections.synchronizedMap(new HashMap<BigInteger, ClientMachine>());
+	protected Map<String, ClientMachine> clientMap =
+			Collections.synchronizedMap(new HashMap<String, ClientMachine>());
 
     /**
      * Instantiates a new test client.
@@ -120,9 +125,10 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
      * @param args the args
      * @throws Exception the exception
      */
-    public ClientSimulatorV4(String[] args) throws Exception 
+    public ClientSimulator(String[] args) throws Exception 
     {
-    	DEFAULT_ADDR = InetAddress.getLocalHost();
+    	DEFAULT_NETIF = NetworkInterface.getNetworkInterfaces().nextElement();
+    	DEFAULT_ADDR = DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS;
     	
         setupOptions();
 
@@ -151,13 +157,13 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 										" [" + numRequests + "]");
 		options.addOption(numOption);
 		
-        Option caOption = new Option("ca", "clientaddress", true,
-        								"Address of DHCPv4 Client (relay)" +
-        								" [" + DEFAULT_ADDR + "]");		
-        options.addOption(caOption);
+        Option miOption = new Option("mi", "multicastinterface", true,
+        								"Multicast interface of the DHCPv6 Client" +
+        								" [" + DEFAULT_NETIF.getName() + "]");
+        options.addOption(miOption);
 		
         Option saOption = new Option("sa", "serveraddress", true,
-        								"Address of DHCPv4 Server" +
+        								"Address of DHCPv6 Server" +
         								" [" + DEFAULT_ADDR + "]");		
         options.addOption(saOption);
 
@@ -235,10 +241,15 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
             	numRequests = 
             			parseIntegerOption("num requests", cmd.getOptionValue("n"), 100);
             }
-            clientAddr = DEFAULT_ADDR;
-            if (cmd.hasOption("ca")) {
-            	clientAddr = 
-            			parseIpAddressOption("client", cmd.getOptionValue("ca"), DEFAULT_ADDR);
+            mcastNetIf = DEFAULT_NETIF;
+            if (cmd.hasOption("mi")) {
+            	try {
+					mcastNetIf = NetworkInterface.getByName(cmd.getOptionValue("mi"));
+				} 
+            	catch (SocketException e) {
+					e.printStackTrace();
+					return false;
+				}
             }
             serverAddr = DEFAULT_ADDR;
             if (cmd.hasOption("sa")) {
@@ -275,25 +286,26 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     }
     
     /**
-     * Start sending DHCPv4 DISCOVERs.
+     * Start sending DHCPv6 SOLICITs.
      */
     public void start()
     {
     	DatagramChannelFactory factory = 
-    		new NioDatagramChannelFactory(Executors.newCachedThreadPool());
+    		new OioDatagramChannelFactory(Executors.newCachedThreadPool());
     	
     	server = new InetSocketAddress(serverAddr, serverPort);
     	client = new InetSocketAddress(clientPort);
     	
 		ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("logger", new LoggingHandler());
-        pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
-        pipeline.addLast("decoder", new DhcpV4ChannelDecoder(client, false));
+        pipeline.addLast("encoder", new DhcpChannelEncoder());
+        pipeline.addLast("decoder", new DhcpChannelDecoder(client, false));
         pipeline.addLast("executor", new ExecutionHandler(
         		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
         pipeline.addLast("handler", this);
     	
         channel = factory.newChannel(pipeline);
+		channel.getConfig().setNetworkInterface(mcastNetIf);
     	channel.bind(client);
 
     	for (int i=1; i<=numRequests; i++) {
@@ -311,11 +323,12 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
         	}
 		}
 
-		log.info("Complete: discoversSent=" + discoversSent +
-				" offersReceived=" + offersReceived +
+		log.info("Complete: solicitsSent=" + solicitsSent +
+				" advertisementsReceived=" + advertisementsReceived +
 				" requestsSent=" + requestsSent +
-				" acksReceived=" + acksReceived +
+				" requestRepliesReceived=" + requestRepliesReceived +
 				" releasesSent=" + releasesSent +
+				" releaseRepliesReceived=" + releaseRepliesReceived +
 				" elapsedTime=" + (endTime - startTime) + "ms");
 
     	log.info("Shutting down executor...");
@@ -331,10 +344,10 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
      */
     class ClientMachine implements Runnable, ChannelFutureListener
     {
-    	DhcpV4Message msg;
+    	DhcpMessage msg;
     	int id;
-    	byte[] mac;
-    	BigInteger key;
+    	String duid;
+    	boolean released;
     	
     	/**
 	     * Instantiates a new client machine.
@@ -344,8 +357,8 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 	     */
 	    public ClientMachine(int id) {
     		this.id = id;
-    		this.mac = buildChAddr(id);
-    		this.key = new BigInteger(mac);
+    		this.duid = buildDuid(id);
+    		this.released = false;
     	}
 		
 		/* (non-Javadoc)
@@ -364,29 +377,29 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 							log.error("Interrupted", ex);
 						}
 					}
-					clientMap.put(key, this);
+					clientMap.put(duid, this);
 				}
 			}
 			else {
-				clientMap.put(key, this);
+				clientMap.put(duid, this);
 			}
-			discover();
+			solicit();
 		}
 		
-		public void discover() {
-			msg = buildDiscoverMessage(mac); 
+		public void solicit() {
+			msg = buildSolicitMessage(duid); 
 			ChannelFuture future = channel.write(msg, server);
 			future.addListener(this);
 		}
 		
-		public void request(DhcpV4Message offerMsg) {
-        	msg = buildRequestMessage(offerMsg);
+		public void request(DhcpMessage advertiseMsg) {
+        	msg = buildRequestMessage(advertiseMsg);
 			ChannelFuture future = channel.write(msg, server);
 			future.addListener(this);
 		}
 		
-		public void release(DhcpV4Message ackMsg) {
-        	msg = buildReleaseMessage(ackMsg);
+		public void release(DhcpMessage confirmMsg) {
+        	msg = buildReleaseMessage(confirmMsg);
 			ChannelFuture future = channel.write(msg, server);
 			future.addListener(this);
 		}
@@ -402,33 +415,21 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 					startTime = System.currentTimeMillis();
 					log.info("Starting at: " + startTime);
 				}
-				if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_DISCOVER) {
-					discoversSent.getAndIncrement();
-					log.info("Succesfully sent discover message mac=" + Util.toHexString(mac) +
-							" cnt=" + discoversSent);
+				if (msg.getMessageType() == DhcpConstants.SOLICIT) {
+					solicitsSent.getAndIncrement();
+					log.info("Succesfully sent solicit message duid=" + duid +
+							" cnt=" + solicitsSent);
 				}
-				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_REQUEST) {
+				else if (msg.getMessageType() == DhcpConstants.REQUEST) {
 					requestsSent.getAndIncrement();
-					log.info("Succesfully sent request message mac=" + Util.toHexString(mac) +
+					log.info("Succesfully sent request message duid=" + duid +
 							" cnt=" + requestsSent);
 				}
-				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
-					clientMap.remove(key);
+				else if (msg.getMessageType() == DhcpConstants.RELEASE) {
+					released = true;
 					releasesSent.getAndIncrement();
-					log.info("Succesfully sent release message mac=" + Util.toHexString(mac) +
+					log.info("Succesfully sent release message duid=" + duid +
 							" cnt=" + releasesSent);
-					if (releasesSent.get() == numRequests) {
-						endTime = System.currentTimeMillis();
-						log.info("Ending at: " + endTime);
-						synchronized (syncDone) {
-							syncDone.notifyAll();
-						}
-					}
-					else if (poolSize > 0) {
-						synchronized (clientMap) {
-							clientMap.notify();
-						}
-					}
 				}
 			}
 			else {
@@ -437,7 +438,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 		}
     }
 
-    private byte[] buildChAddr(long id) {
+    private String buildDuid(long id) {
         byte[] bid = BigInteger.valueOf(id).toByteArray();
         byte[] chAddr = new byte[6];
         chAddr[0] = (byte)0xde;
@@ -466,72 +467,58 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 	        chAddr[4] = 0;
 	        chAddr[5] = bid[0];
         }
-        return chAddr;
+        return "clientid-" + Util.toHexString(chAddr);
     }
     
     /**
-     * Builds the discover message.
+     * Builds the solict message.
      * 
      * @return the  dhcp message
      */
-    private DhcpV4Message buildDiscoverMessage(byte[] chAddr)
+    private DhcpMessage buildSolicitMessage(String duid)
     {
-        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
+        DhcpMessage msg = new DhcpMessage(null, new InetSocketAddress(serverAddr, serverPort));
 
-        msg.setOp((short)DhcpConstants.OP_REQUEST);
-        msg.setTransactionId(random.nextLong());
-        msg.setHtype((short)1);	// ethernet
-        msg.setHlen((byte)6);
-        msg.setChAddr(chAddr);
-        msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
+        msg.setTransactionId(random.nextInt());
+        DhcpClientIdOption dhcpClientId = new DhcpClientIdOption();
+        dhcpClientId.getOpaqueData().setAscii(duid);
         
-        DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_DISCOVER);
+        msg.putDhcpOption(dhcpClientId);
         
-        msg.putDhcpOption(msgTypeOption);
+        DhcpElapsedTimeOption dhcpElapsedTime = new DhcpElapsedTimeOption();
+        dhcpElapsedTime.setUnsignedShort(1);
+        msg.putDhcpOption(dhcpElapsedTime);
+        
+    	msg.setMessageType(DhcpConstants.SOLICIT);
+        DhcpIaNaOption dhcpIaNa = new DhcpIaNaOption();
+        dhcpIaNa.setIaId(1);
+        msg.putDhcpOption(dhcpIaNa);
+
+        return msg;
+    }
+    
+    private DhcpMessage buildRequestMessage(DhcpMessage advertisement) {
+    	
+        DhcpMessage msg = new DhcpMessage(null, new InetSocketAddress(serverAddr, serverPort));
+
+        msg.setTransactionId(advertisement.getTransactionId());
+        msg.putDhcpOption(advertisement.getDhcpClientIdOption());
+        msg.putDhcpOption(advertisement.getDhcpServerIdOption());
+        msg.setMessageType(DhcpConstants.REQUEST);
+        msg.putDhcpOption(advertisement.getIaNaOptions().get(0));
         
         return msg;
     }
     
-    private DhcpV4Message buildRequestMessage(DhcpV4Message offer) {
+    private DhcpMessage buildReleaseMessage(DhcpMessage reply) {
     	
-        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
+        DhcpMessage msg = new DhcpMessage(null, new InetSocketAddress(serverAddr, serverPort));
 
-        msg.setOp((short)DhcpConstants.OP_REQUEST);
-        msg.setTransactionId(offer.getTransactionId());
-        msg.setHtype((short)1);	// ethernet
-        msg.setHlen((byte)6);
-        msg.setChAddr(offer.getChAddr());
-        msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
-        
-        DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_REQUEST);
-        
-        msg.putDhcpOption(msgTypeOption);
-        
-        DhcpV4RequestedIpAddressOption reqIpOption = new DhcpV4RequestedIpAddressOption();
-        reqIpOption.setIpAddress(offer.getYiAddr().getHostAddress());
-        msg.putDhcpOption(reqIpOption);
-        
-        return msg;
-    }
-    
-    private DhcpV4Message buildReleaseMessage(DhcpV4Message ack) {
-    	
-        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
-
-        msg.setOp((short)DhcpConstants.OP_REQUEST);
-        msg.setTransactionId(ack.getTransactionId());
-        msg.setHtype((short)1);	// ethernet
-        msg.setHlen((byte)6);
-        msg.setChAddr(ack.getChAddr());
-        msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
-        msg.setCiAddr(ack.getYiAddr());
-        
-        DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_RELEASE);
-        
-        msg.putDhcpOption(msgTypeOption);
+        msg.setTransactionId(reply.getTransactionId());
+        msg.putDhcpOption(reply.getDhcpClientIdOption());
+        msg.putDhcpOption(reply.getDhcpServerIdOption());
+        msg.setMessageType(DhcpConstants.RELEASE);
+        msg.putDhcpOption(reply.getIaNaOptions().get(0));
         
         return msg;
     }
@@ -544,34 +531,54 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception
     {
     	Object message = e.getMessage();
-        if (message instanceof DhcpV4Message) {
+        if (message instanceof DhcpMessage) {
             
-            DhcpV4Message dhcpMessage = (DhcpV4Message) message;
+            DhcpMessage dhcpMessage = (DhcpMessage) message;
             if (log.isDebugEnabled())
             	log.debug("Received: " + dhcpMessage.toStringWithOptions());
             else
             	log.info("Received: " + dhcpMessage.toString());
             
-            if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_OFFER) {
-	            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
+            if (dhcpMessage.getMessageType() == DhcpConstants.ADVERTISE) {
+	            ClientMachine client = 
+	            		clientMap.get(dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
 	            if (client != null) {
-	            	offersReceived.getAndIncrement();
+	            	advertisementsReceived.getAndIncrement();
 	            	client.request(dhcpMessage);
 	            }
 	            else {
-	            	log.error("Received offer for client not found in map: mac=" + 
-	            			Util.toHexString(dhcpMessage.getChAddr()));
+	            	log.error("Received advertise for client not found in map: duid=" + 
+	            			dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
 	            }
             }
-            else if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_ACK) {
-	            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
+            else if (dhcpMessage.getMessageType() == DhcpConstants.REPLY) {
+            	String key = dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii();
+	            ClientMachine client = clientMap.get(key);
 	            if (client != null) {
-	            	acksReceived.getAndIncrement();
-	            	client.release(dhcpMessage);
+	            	if (!client.released) {
+		            	requestRepliesReceived.getAndIncrement();
+		            	client.release(dhcpMessage);
+	            	}
+	            	else {
+	            		releaseRepliesReceived.getAndIncrement();
+	            		clientMap.remove(key);	            		
+						if (releaseRepliesReceived.get() == numRequests) {
+							endTime = System.currentTimeMillis();
+							log.info("Ending at: " + endTime);
+							synchronized (syncDone) {
+								syncDone.notifyAll();
+							}
+						}
+						else if (poolSize > 0) {
+							synchronized (clientMap) {
+								clientMap.notify();
+							}
+						}
+	            	}
 	            }
 	            else {
-	            	log.error("Received ack for client not found in map: mac=" + 
-	            			Util.toHexString(dhcpMessage.getChAddr()));
+	            	log.error("Received reply for client not found in map: duid=" + 
+	            			dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
 	            }
             }
             else {
@@ -602,7 +609,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
      */
     public static void main(String[] args) {
         try {
-			new ClientSimulatorV4(args);
+			new ClientSimulator(args);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
