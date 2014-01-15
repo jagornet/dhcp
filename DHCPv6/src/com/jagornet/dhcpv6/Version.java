@@ -46,7 +46,7 @@ public class Version
 		sb.append(System.getProperty("line.separator"));
 		sb.append("Copyright ");
 		sb.append(pkg.getImplementationVendor());
-		sb.append(" 2009-2013.  All Rights Reserved.");
+		sb.append(" 2009-2014.  All Rights Reserved.");
 		return sb.toString();
 	}
 }
