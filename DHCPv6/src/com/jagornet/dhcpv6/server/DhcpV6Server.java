@@ -199,9 +199,10 @@ public class DhcpV6Server
 
         String msg = null;
         
-        // by default, all IPv6 addresses are selected for unicast
+        // by default, all non-loopback, non-linklocal,
+        // IPv6 addresses are selected for unicast
         if (ucastAddrs == null) {
-        	ucastAddrs = getAllIPv6Addrs();
+        	ucastAddrs = getFilteredIPv6Addrs();
         }
         msg = "DHCPv6 Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
         System.out.println(msg);
@@ -235,9 +236,10 @@ public class DhcpV6Server
         log.info(msg);
 
         
-        // by default, all IPv4 addresses are selected for unicast
+        // by default, all non-loopback, non-linklocal,
+        // IPv4 addresses are selected for unicast
         if (v4UcastAddrs == null) {
-        	v4UcastAddrs = getAllIPv4Addrs();
+        	v4UcastAddrs = getFilteredIPv4Addrs();
         }
         msg = "DHCPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
         System.out.println(msg);
@@ -748,11 +750,6 @@ public class DhcpV6Server
 	static List<InetAddress> allIPv6Addrs;
 	public static List<InetAddress> getAllIPv6Addrs()
 	{    	
-    	boolean ignoreLoopback = 
-    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
-    	boolean ignoreLinkLocal = 
-    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
-    	
 		if (allIPv6Addrs == null) {
 			allIPv6Addrs = new ArrayList<InetAddress>();
 			try {
@@ -765,14 +762,6 @@ public class DhcpV6Server
 		            	while (ifAddrs.hasMoreElements()) {
 		            		InetAddress ip = ifAddrs.nextElement();
 		            		if (ip instanceof Inet6Address) {
-		    	        		if (ignoreLoopback && ip.isLoopbackAddress()) {
-		    	        			log.debug("Skipping loopback address: " + ip);
-		    	        			continue;
-		    	        		}
-		    	        		if (ignoreLinkLocal && ip.isLinkLocalAddress()) {
-		    	        			log.debug("Skipping link local address: " + ip);
-		    	        			continue;
-		    	        		}
 		            			allIPv6Addrs.add(ip);
 		            		}
 		            	}
@@ -787,6 +776,31 @@ public class DhcpV6Server
 			}
 		}
         return allIPv6Addrs;
+	}
+
+	public static List<InetAddress> getFilteredIPv6Addrs() {
+		
+    	boolean ignoreLoopback = 
+    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
+    	boolean ignoreLinkLocal = 
+    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
+    	
+		List<InetAddress> myV6Addrs = new ArrayList<InetAddress>();
+		List<InetAddress> allV6Addrs = getAllIPv6Addrs();
+		if (allV6Addrs != null) {
+			for (InetAddress ip : allV6Addrs) {
+        		if (ignoreLoopback && ip.isLoopbackAddress()) {
+        			log.debug("Skipping loopback address: " + ip);
+        			continue;
+        		}
+        		if (ignoreLinkLocal && ip.isLinkLocalAddress()) {
+        			log.debug("Skipping link local address: " + ip);
+        			continue;
+        		}
+        		myV6Addrs.add(ip);
+			}
+		}
+		return myV6Addrs;
 	}
 	
 	private NetworkInterface getIPv4NetIf(String ifname) throws SocketException 
@@ -857,11 +871,6 @@ public class DhcpV6Server
 	static List<InetAddress> allIPv4Addrs;
 	public static List<InetAddress> getAllIPv4Addrs()
 	{
-    	boolean ignoreLoopback = 
-    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
-    	boolean ignoreLinkLocal = 
-    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
-    	
 		if (allIPv4Addrs == null) {
 			allIPv4Addrs = new ArrayList<InetAddress>();
 			try {
@@ -874,14 +883,6 @@ public class DhcpV6Server
 		            	while (ifAddrs.hasMoreElements()) {
 		            		InetAddress ip = ifAddrs.nextElement();
 		            		if (ip instanceof Inet4Address) {
-		    	        		if (ignoreLoopback && ip.isLoopbackAddress()) {
-		    	        			log.debug("Skipping loopback address: " + ip);
-		    	        			continue;
-		    	        		}
-		    	        		if (ignoreLinkLocal && ip.isLinkLocalAddress()) {
-		    	        			log.debug("Skipping link local address: " + ip);
-		    	        			continue;
-		    	        		}
 		            			allIPv4Addrs.add(ip);
 		            		}
 		            	}
@@ -896,6 +897,31 @@ public class DhcpV6Server
 			}
 		}
         return allIPv4Addrs;
+	}
+	
+	public static List<InetAddress> getFilteredIPv4Addrs() {
+		
+    	boolean ignoreLoopback = 
+    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
+    	boolean ignoreLinkLocal = 
+    			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
+    	
+		List<InetAddress> myV4Addrs = new ArrayList<InetAddress>();
+		List<InetAddress> allV4Addrs = getAllIPv4Addrs();
+		if (allV4Addrs != null) {
+			for (InetAddress ip : allV4Addrs) {
+        		if (ignoreLoopback && ip.isLoopbackAddress()) {
+        			log.debug("Skipping loopback address: " + ip);
+        			continue;
+        		}
+        		if (ignoreLinkLocal && ip.isLinkLocalAddress()) {
+        			log.debug("Skipping link local address: " + ip);
+        			continue;
+        		}
+        		myV4Addrs.add(ip);
+			}
+		}
+		return myV4Addrs;		
 	}
 	
     /**
