@@ -323,7 +323,15 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     	log.info("Closing channel...");
     	channel.close();
     	log.info("Done.");
-    	System.exit(0);
+    	if ((discoversSent.get() == offersReceived.get()) &&
+    			(requestsSent.get() == acksReceived.get()) &&
+    			(releasesSent.get() == numRequests)) {
+    		
+    		System.exit(0);
+    	}
+    	else {
+    		System.exit(1);
+    	}
     }
 
     /**

@@ -336,7 +336,15 @@ public class ClientSimulator extends SimpleChannelUpstreamHandler
     	log.info("Closing channel...");
     	channel.close();
     	log.info("Done.");
-    	System.exit(0);
+    	if ((solicitsSent.get() == advertisementsReceived.get()) &&
+    			(requestsSent.get() == requestRepliesReceived.get()) &&
+    			(releasesSent.get() == releaseRepliesReceived.get())) {
+    		
+    		System.exit(0);
+    	}
+    	else {
+    		System.exit(1);
+    	}
     }
 
     /**
