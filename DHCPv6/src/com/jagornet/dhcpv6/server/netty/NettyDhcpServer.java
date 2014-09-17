@@ -26,11 +26,13 @@
 package com.jagornet.dhcpv6.server.netty;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -143,7 +145,12 @@ public class NettyDhcpServer
         			" receiveBufferSize=" + receiveBufSize +
         			" sendBufferSize=" + sendBufSize);
         	
+        	boolean v6SocketChecked = false;
         	if (addrs != null) {
+        		// test if this socket is already in use, which means
+        		// there is probably already a DHCPv6 server running
+        		checkSocket(port);
+        		v6SocketChecked = true;
 	        	for (InetAddress addr : addrs) {
 	        		// local address for packets received on this channel
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
@@ -172,7 +179,7 @@ public class NettyDhcpServer
 	
 		            // create an unbound channel
 		            DatagramChannel channel = factory.newChannel(pipeline);
-		            //channel.getConfig().setReuseAddress(true);
+		            channel.getConfig().setReuseAddress(true);
 		            channel.getConfig().setReceiveBufferSize(receiveBufSize);
 		            channel.getConfig().setSendBufferSize(sendBufSize);
 		            
@@ -180,7 +187,7 @@ public class NettyDhcpServer
 		            ChannelFuture future = channel.bind(sockAddr);
 		            future.await();
 		            if (!future.isSuccess()) {
-		            	log.error("Failed to bind unicast channel: " + future.getCause());
+		            	log.error("Failed to bind to IPv6 unicast channel: " + future.getCause());
 		            	throw new IOException(future.getCause());
 		            }
 		            channels.add(channel);
@@ -188,6 +195,10 @@ public class NettyDhcpServer
         	}
         	
         	if (netIfs != null) {
+        		if (!v6SocketChecked) {
+        			// if in-use socket check has not been done yet, then do it
+        			checkSocket(port);
+        		}
 	        	for (NetworkInterface netIf : netIfs) {
 	        		// find the link local IPv6 address for this interface
 	        		InetAddress addr = Util.netIfIPv6LinkLocalAddress(netIf);
@@ -214,6 +225,7 @@ public class NettyDhcpServer
 	
 		            // create an unbound channel
 		            DatagramChannel channel = factory.newChannel(pipeline);
+	            	channel.getConfig().setReuseAddress(true);
 		            channel.getConfig().setReceiveBufferSize(receiveBufSize);
 		            channel.getConfig().setSendBufferSize(sendBufSize);
 		            
@@ -223,7 +235,7 @@ public class NettyDhcpServer
 		            ChannelFuture future = channel.bind(wildAddr);
 		            future.await();
 		            if (!future.isSuccess()) {
-		            	log.error("Failed to bind multicast channel: " + future.getCause());
+		            	log.error("Failed to bind to IPv6 multicast channel: " + future.getCause());
 		            	throw new IOException(future.getCause());
 		            }
 		            InetSocketAddress relayGroup = 
@@ -240,8 +252,11 @@ public class NettyDhcpServer
 	        	}
         	}
         	
+        	boolean v4SocketChecked = false;
     		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
         	if (v4Addrs != null) {
+        		checkSocket(v4Port);
+        		v4SocketChecked = true;
 	        	for (InetAddress addr : v4Addrs) {
 	        		// local address for packets received on this channel
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
@@ -270,7 +285,7 @@ public class NettyDhcpServer
 	
 		            // create an unbound channel
 		            DatagramChannel channel = factory.newChannel(pipeline);
-		            //channel.getConfig().setReuseAddress(true);
+		            channel.getConfig().setReuseAddress(true);
 		            channel.getConfig().setBroadcast(true);
 		            channel.getConfig().setReceiveBufferSize(receiveBufSize);
 		            channel.getConfig().setSendBufferSize(sendBufSize);
@@ -281,7 +296,7 @@ public class NettyDhcpServer
 		            ChannelFuture future = channel.bind(sockAddr);
 		            future.await();
 		            if (!future.isSuccess()) {
-		            	log.error("Failed to bind unicast channel: " + future.getCause());
+		            	log.error("Failed to bind to IPv4 unicast channel: " + future.getCause());
 		            	throw new IOException(future.getCause());
 		            }
 		            channels.add(channel);
@@ -289,6 +304,10 @@ public class NettyDhcpServer
         	}
         	
         	if (v4NetIf != null) {
+        		if (!v4SocketChecked) {
+        			// if in-use socket check has not been done yet, then do it
+        			checkSocket(v4Port);
+        		}
         		boolean foundV4Addr = false;
         		// get the first v4 address on the interface and bind to it
         		Enumeration<InetAddress> addrs = v4NetIf.getInetAddresses();
@@ -319,17 +338,17 @@ public class NettyDhcpServer
 		
 			            // create an unbound channel
 			            DatagramChannel channel = factory.newChannel(pipeline);
-			            //channel.getConfig().setReuseAddress(true);
+		            	channel.getConfig().setReuseAddress(true);
+			            channel.getConfig().setBroadcast(true);
 			            channel.getConfig().setReceiveBufferSize(receiveBufSize);
 			            channel.getConfig().setSendBufferSize(sendBufSize);
-			            channel.getConfig().setBroadcast(true);
 			            
 			            InetSocketAddress wildAddr = new InetSocketAddress(v4Port);
 			            log.info("Binding New I/O datagram channel on IPv4 wildcard address: " + wildAddr);
 			            ChannelFuture future = channel.bind(wildAddr);
 			            future.await();
 			            if (!future.isSuccess()) {
-			            	log.error("Failed to bind IPv4 channel: " + future.getCause());
+			            	log.error("Failed to bind to IPv4 broadcast channel: " + future.getCause());
 			            	throw new IOException(future.getCause());
 			            }
 			            channels.add(channel);
@@ -353,6 +372,19 @@ public class NettyDhcpServer
             	  shutdown();
                 }
             });
+    }
+    
+    private void checkSocket(int port) throws SocketException {
+    	DatagramSocket ds = null;
+    	try {
+    		log.info("Checking for existing socket on port=" + port);
+    		ds = new DatagramSocket(port);
+    	}
+    	finally {
+    		if (ds != null) {
+    			ds.close();
+    		}
+    	}
     }
     
     /**
