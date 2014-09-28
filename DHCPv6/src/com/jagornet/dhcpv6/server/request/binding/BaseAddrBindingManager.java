@@ -48,7 +48,6 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public abstract class BaseAddrBindingManager extends BaseBindingManager
 {
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseAddrBindingManager.class);
     
 	public BaseAddrBindingManager()

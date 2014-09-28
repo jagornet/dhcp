@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.option.generic;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
-import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
+import com.jagornet.dhcp.xml.OpaqueDataOptionType;
 
 /**
  * <p>Title: GenericOpaqueDataOption </p>

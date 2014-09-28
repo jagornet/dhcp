@@ -3,14 +3,14 @@ package com.jagornet.dhcpv6.server.request.binding;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
-import com.jagornet.dhcpv6.xml.FiltersType;
+import com.jagornet.dhcp.xml.FiltersType;
 
 public abstract class StaticBinding implements DhcpConfigObject
 {
 	public abstract boolean matches(byte duid[], byte iatype, long iaid,
-			DhcpMessageInterface requestMsg);
+			DhcpMessage requestMsg);
 	
 	public abstract String getIpAddress();
 

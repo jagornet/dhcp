@@ -27,7 +27,7 @@ package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedIntOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.V4LeaseTimeOption;
+import com.jagornet.dhcp.xml.V4LeaseTimeOption;
 
 /**
  * <p>Title: DhcpV4LeaseTimeOption </p>

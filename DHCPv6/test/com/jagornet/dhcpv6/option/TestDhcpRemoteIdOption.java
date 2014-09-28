@@ -45,7 +45,7 @@ public class TestDhcpRemoteIdOption extends TestCase
      */
     public void testEncode() throws Exception
     {
-        DhcpRemoteIdOption drio = new DhcpRemoteIdOption();
+        DhcpV6RemoteIdOption drio = new DhcpV6RemoteIdOption();
         drio.setEnterpriseNumber(9999);
         drio.getOpaqueData().setAscii("This is a test remote id");	// 28 (enterpriseNum=4 bytes, data=24 bytes) 
         ByteBuffer bb = drio.encode();
@@ -75,7 +75,7 @@ public class TestDhcpRemoteIdOption extends TestCase
         bb.putInt(9999);     	// enterprise number
         bb.put("This is a test remote id".getBytes());
         bb.flip();
-        DhcpRemoteIdOption drio = new DhcpRemoteIdOption();
+        DhcpV6RemoteIdOption drio = new DhcpV6RemoteIdOption();
         drio.decode(bb);
         assertEquals((long)9999, drio.getEnterpriseNumber());
         assertEquals("This is a test remote id", drio.getOpaqueData().getAscii());
@@ -86,7 +86,7 @@ public class TestDhcpRemoteIdOption extends TestCase
      */
     public void testToString()
     {
-        DhcpRemoteIdOption drio = new DhcpRemoteIdOption();
+        DhcpV6RemoteIdOption drio = new DhcpV6RemoteIdOption();
         drio.setEnterpriseNumber(9999);
         drio.getOpaqueData().setAscii("This is a test remote id");	// 28 (enterpriseNum=4 bytes, data=24 bytes) 
         System.out.println(drio);

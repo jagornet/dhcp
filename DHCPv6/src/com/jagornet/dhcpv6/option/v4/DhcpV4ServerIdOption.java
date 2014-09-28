@@ -27,7 +27,7 @@ package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.V4ServerIdOption;
+import com.jagornet.dhcp.xml.V4ServerIdOption;
 
 /**
  * <p>Title: DhcpV4ServerIdOption </p>

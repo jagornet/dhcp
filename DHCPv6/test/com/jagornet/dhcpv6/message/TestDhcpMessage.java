@@ -9,15 +9,15 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import com.jagornet.dhcpv6.option.DhcpClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpDnsServersOption;
-import com.jagornet.dhcpv6.option.DhcpOptionRequestOption;
-import com.jagornet.dhcpv6.option.DhcpServerIdOption;
-import com.jagornet.dhcpv6.option.DhcpUserClassOption;
+import com.jagornet.dhcp.xml.OpaqueData;
+import com.jagornet.dhcp.xml.V6ServerIdOption;
+import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.DhcpV6DnsServersOption;
+import com.jagornet.dhcpv6.option.DhcpV6OptionRequestOption;
+import com.jagornet.dhcpv6.option.DhcpV6ServerIdOption;
+import com.jagornet.dhcpv6.option.DhcpV6UserClassOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.ServerIdOption;
 
 public class TestDhcpMessage extends TestCase
 {
@@ -29,10 +29,10 @@ public class TestDhcpMessage extends TestCase
     public static String DNS2 = "2001:DB8:1::2";
     public static String DNS3 = "2001:DB8:1::3";
     
-    public static DhcpMessage buildMockDhcpMessage()
+    public static DhcpV6Message buildMockDhcpMessage()
     {
-        DhcpMessage dhcpMessage = 
-        	new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT),
+        DhcpV6Message dhcpMessage = 
+        	new DhcpV6Message(new InetSocketAddress(DhcpConstants.SERVER_PORT),
         			new InetSocketAddress(DhcpConstants.CLIENT_PORT));
         dhcpMessage.setMessageType(DhcpConstants.REPLY);    // 1 byte
         dhcpMessage.setTransactionId(90599);                // 3 bytes
@@ -41,11 +41,11 @@ public class TestDhcpMessage extends TestCase
         opaque.setAsciiValue("jagornet-dhcpv6");	// 15 bytes
 
         // MUST include server id in reply
-        ServerIdOption serverId = ServerIdOption.Factory.newInstance();     // 4 bytes (code + len)
+        V6ServerIdOption serverId = V6ServerIdOption.Factory.newInstance();     // 4 bytes (code + len)
         serverId.setOpaqueData(opaque);
-        dhcpMessage.putDhcpOption(new DhcpServerIdOption(serverId));
+        dhcpMessage.putDhcpOption(new DhcpV6ServerIdOption(serverId));
 
-        DhcpDnsServersOption dnsServers = new DhcpDnsServersOption();	// 4 bytes
+        DhcpV6DnsServersOption dnsServers = new DhcpV6DnsServersOption();	// 4 bytes
         dnsServers.addIpAddress(DNS1);		// 16 bytes
         dnsServers.addIpAddress(DNS2);		// 16 bytes
         dnsServers.addIpAddress(DNS3);		// 16 bytes
@@ -81,7 +81,7 @@ public class TestDhcpMessage extends TestCase
     
     public void testEncode() throws Exception
     {
-        DhcpMessage dhcpMessage = buildMockDhcpMessage();
+        DhcpV6Message dhcpMessage = buildMockDhcpMessage();
         ByteBuffer bb = dhcpMessage.encode();
         assertNotNull(bb);
         assertEquals(75, bb.limit());
@@ -113,24 +113,24 @@ public class TestDhcpMessage extends TestCase
         return bb;
     }
 
-    public static void checkMockClientRequest(DhcpMessage dhcpMessage)
+    public static void checkMockClientRequest(DhcpV6Message dhcpMessage)
     {
         assertEquals(CLIENT_ADDR.getAddress(), dhcpMessage.getRemoteAddress().getAddress());
         assertEquals(DhcpConstants.INFO_REQUEST, dhcpMessage.getMessageType());
         assertEquals(Long.parseLong("FFFFFF", 16), dhcpMessage.getTransactionId());
         Map<Integer, DhcpOption> options = dhcpMessage.getDhcpOptionMap();
         assertNotNull(options);
-        DhcpClientIdOption clientId = 
-            (DhcpClientIdOption)options.get(DhcpConstants.OPTION_CLIENTID);
+        DhcpV6ClientIdOption clientId = 
+            (DhcpV6ClientIdOption)options.get(DhcpConstants.OPTION_CLIENTID);
         assertNotNull(clientId);
         assertEquals("MyClientId", clientId.getOpaqueData().getAscii());
-        DhcpOptionRequestOption oro =
-            (DhcpOptionRequestOption)options.get(DhcpConstants.OPTION_ORO);
+        DhcpV6OptionRequestOption oro =
+            (DhcpV6OptionRequestOption)options.get(DhcpConstants.OPTION_ORO);
         assertNotNull(oro);
         assertEquals(Integer.valueOf(DhcpConstants.OPTION_DNS_SERVERS), 
         		oro.getUnsignedShortList().get(0)); 
-        DhcpUserClassOption userClass =
-            (DhcpUserClassOption)options.get(DhcpConstants.OPTION_USER_CLASS);
+        DhcpV6UserClassOption userClass =
+            (DhcpV6UserClassOption)options.get(DhcpConstants.OPTION_USER_CLASS);
         assertNotNull(userClass);
         assertEquals("UserClass 1",
                 userClass.getOpaqueDataList().get(0).getAscii());
@@ -143,8 +143,8 @@ public class TestDhcpMessage extends TestCase
     {
         ByteBuffer bb = buildMockClientRequest();
         int len = bb.limit();
-        DhcpMessage dhcpMessage = 
-        	new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT),
+        DhcpV6Message dhcpMessage = 
+        	new DhcpV6Message(new InetSocketAddress(DhcpConstants.SERVER_PORT),
         					CLIENT_ADDR);
         dhcpMessage.decode(bb);
         assertNotNull(dhcpMessage);
@@ -154,20 +154,20 @@ public class TestDhcpMessage extends TestCase
     
     public  void testEquals() throws Exception
     {
-    	DhcpMessage msg1 = 
-    		new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
+    	DhcpV6Message msg1 = 
+    		new DhcpV6Message(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
     	msg1.setTransactionId(12345);
     	msg1.setMessageType((short)1);
-    	DhcpClientIdOption c1 = new DhcpClientIdOption();
+    	DhcpV6ClientIdOption c1 = new DhcpV6ClientIdOption();
     	c1.getOpaqueData().setHex(
     			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
     	msg1.putDhcpOption(c1);
 
-    	DhcpMessage msg2 = 
-    		new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
+    	DhcpV6Message msg2 = 
+    		new DhcpV6Message(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
     	msg2.setTransactionId(12345);
     	msg2.setMessageType((short)1);
-    	DhcpClientIdOption c2 = new DhcpClientIdOption();
+    	DhcpV6ClientIdOption c2 = new DhcpV6ClientIdOption();
     	c2.getOpaqueData().setHex(
     			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
     	msg2.putDhcpOption(c2);
@@ -178,27 +178,27 @@ public class TestDhcpMessage extends TestCase
     
     public void testSet() throws Exception
     {
-    	DhcpMessage msg1 = 
-    		new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
+    	DhcpV6Message msg1 = 
+    		new DhcpV6Message(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
     	msg1.setTransactionId(12345);
     	msg1.setMessageType((short)1);
-    	DhcpClientIdOption c1 = new DhcpClientIdOption();
+    	DhcpV6ClientIdOption c1 = new DhcpV6ClientIdOption();
     	c1.getOpaqueData().setHex(
     			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
     	msg1.putDhcpOption(c1);
 //    	System.out.println("msg1.hash=" + msg1.hashCode());
 
-    	DhcpMessage msg2 = 
-    		new DhcpMessage(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
+    	DhcpV6Message msg2 = 
+    		new DhcpV6Message(new InetSocketAddress(DhcpConstants.SERVER_PORT), CLIENT_ADDR);
     	msg2.setTransactionId(12345);
     	msg2.setMessageType((short)1);
-    	DhcpClientIdOption c2 = new DhcpClientIdOption();
+    	DhcpV6ClientIdOption c2 = new DhcpV6ClientIdOption();
     	c2.getOpaqueData().setHex(
     			new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e });
     	msg2.putDhcpOption(c2);
 //    	System.out.println("msg2.hash=" + msg2.hashCode());
     	
-    	Set<DhcpMessage> s = new HashSet<DhcpMessage>();
+    	Set<DhcpV6Message> s = new HashSet<DhcpV6Message>();
     	s.add(msg1);
     	
 // This was testing equality of message for cheap DOS detection, but we got rid of that

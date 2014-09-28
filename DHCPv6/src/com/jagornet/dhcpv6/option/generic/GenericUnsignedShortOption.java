@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.option.generic;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedShortOption;
-import com.jagornet.dhcpv6.xml.UnsignedShortOptionType;
+import com.jagornet.dhcp.xml.UnsignedShortOptionType;
 
 /**
  * <p>Title: GenericUnsignedShortOption </p>

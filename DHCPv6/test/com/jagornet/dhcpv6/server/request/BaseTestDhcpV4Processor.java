@@ -145,7 +145,7 @@ public class BaseTestDhcpV4Processor extends BaseTestCase
 
         // MUST put Server Identifier DUID in ADVERTISE or REPLY message
         DhcpV4ServerIdOption serverIdOption = 
-        	new DhcpV4ServerIdOption(config.getDhcpV6ServerConfig().getV4ServerIdOption());
+        	new DhcpV4ServerIdOption(config.getDhcpServerConfig().getV4ServerIdOption());
         replyMsg.putDhcpOption(serverIdOption);
 
         return replyMsg;

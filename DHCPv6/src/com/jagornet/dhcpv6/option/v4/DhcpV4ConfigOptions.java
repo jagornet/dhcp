@@ -28,20 +28,20 @@ package com.jagornet.dhcpv6.option.v4;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.jagornet.dhcpv6.option.DhcpConfigOptions;
+import com.jagornet.dhcpv6.option.DhcpV6ConfigOptions;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
-import com.jagornet.dhcpv6.xml.V4BootFileNameOption;
-import com.jagornet.dhcpv6.xml.V4ConfigOptionsType;
-import com.jagornet.dhcpv6.xml.V4DomainNameOption;
-import com.jagornet.dhcpv6.xml.V4DomainServersOption;
-import com.jagornet.dhcpv6.xml.V4NetbiosNameServersOption;
-import com.jagornet.dhcpv6.xml.V4NetbiosNodeTypeOption;
-import com.jagornet.dhcpv6.xml.V4RoutersOption;
-import com.jagornet.dhcpv6.xml.V4SubnetMaskOption;
-import com.jagornet.dhcpv6.xml.V4TftpServerNameOption;
-import com.jagornet.dhcpv6.xml.V4TimeOffsetOption;
-import com.jagornet.dhcpv6.xml.V4TimeServersOption;
-import com.jagornet.dhcpv6.xml.V4VendorSpecificOption;
+import com.jagornet.dhcp.xml.V4BootFileNameOption;
+import com.jagornet.dhcp.xml.V4ConfigOptionsType;
+import com.jagornet.dhcp.xml.V4DomainNameOption;
+import com.jagornet.dhcp.xml.V4DomainServersOption;
+import com.jagornet.dhcp.xml.V4NetbiosNameServersOption;
+import com.jagornet.dhcp.xml.V4NetbiosNodeTypeOption;
+import com.jagornet.dhcp.xml.V4RoutersOption;
+import com.jagornet.dhcp.xml.V4SubnetMaskOption;
+import com.jagornet.dhcp.xml.V4TftpServerNameOption;
+import com.jagornet.dhcp.xml.V4TimeOffsetOption;
+import com.jagornet.dhcp.xml.V4TimeServersOption;
+import com.jagornet.dhcp.xml.V4VendorSpecificOption;
 
 /**
  * The Class DhcpV4ConfigOptions.
@@ -180,7 +180,7 @@ public class DhcpV4ConfigOptions
 		}
 		
 		if (configOptions.isSetOtherOptions()) {
-			optionMap.putAll(DhcpConfigOptions.genericOptions(configOptions.getOtherOptions()));
+			optionMap.putAll(DhcpV6ConfigOptions.genericOptions(configOptions.getOtherOptions()));
 		}
 		
 		return optionMap;

@@ -30,16 +30,16 @@ import java.util.SortedMap;
 
 import junit.framework.TestCase;
 
+import com.jagornet.dhcp.xml.DhcpServerConfigDocument;
+import com.jagornet.dhcp.xml.DhcpServerConfigDocument.DhcpServerConfig;
+import com.jagornet.dhcp.xml.OpaqueData;
+import com.jagornet.dhcp.xml.PoliciesType;
+import com.jagornet.dhcp.xml.Policy;
+import com.jagornet.dhcp.xml.V6ServerIdOption;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Subnet;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.PoliciesType;
-import com.jagornet.dhcpv6.xml.Policy;
-import com.jagornet.dhcpv6.xml.ServerIdOption;
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -55,12 +55,12 @@ public class TestDhcpServerConfiguration extends TestCase
 	 */
 	public void testSaveAndLoadConfig() throws Exception
 	{
-		DhcpV6ServerConfig config = DhcpV6ServerConfigDocument.DhcpV6ServerConfig.Factory.newInstance();
+		DhcpServerConfig config = DhcpServerConfigDocument.DhcpServerConfig.Factory.newInstance();
 		
-		ServerIdOption serverId = ServerIdOption.Factory.newInstance();
+		V6ServerIdOption serverId = V6ServerIdOption.Factory.newInstance();
 		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
 		serverId.setOpaqueData(duid);
-		config.setServerIdOption(serverId);
+		config.setV6ServerIdOption(serverId);
 		
 		Policy policy = Policy.Factory.newInstance();
 		policy.setName("sendRequestedOptionsOnly");
@@ -73,7 +73,7 @@ public class TestDhcpServerConfiguration extends TestCase
 		
 		config = DhcpServerConfiguration.loadConfig("test/com/jagornet/dhcpv6/server/config/dhcpServerConfigTestSave.xml");
 		assertNotNull(config);
-		assertNotNull(config.getServerIdOption());
+		assertNotNull(config.getV6ServerIdOption());
 		assertNotNull(config.getPolicies().getPolicyList());
 		assertEquals(1, config.getPolicies().getPolicyList().size());
 		assertEquals("sendRequestedOptionsOnly", config.getPolicies().getPolicyList().get(0).getName());
@@ -91,27 +91,27 @@ public class TestDhcpServerConfiguration extends TestCase
     	DhcpServerConfiguration.configFilename = configFilename;
         DhcpServerConfiguration serverConfig = DhcpServerConfiguration.getInstance();
         
-        DhcpV6ServerConfig config = serverConfig.getDhcpV6ServerConfig();
+        DhcpServerConfig config = serverConfig.getDhcpServerConfig();
         assertNotNull(config);
 		assertNotNull(config.getPolicies().getPolicyList());
 		assertEquals(1, config.getPolicies().getPolicyList().size());
 		assertEquals("sendRequestedOptionsOnly", config.getPolicies().getPolicyList().get(0).getName());
 		assertEquals("true", config.getPolicies().getPolicyList().get(0).getValue());
-        assertNotNull(config.getServerIdOption());
-		assertEquals(DhcpConstants.OPTION_SERVERID, config.getServerIdOption().getCode());
-        assertEquals("abcdef0123456789", Util.toHexString(config.getServerIdOption().getOpaqueData().getHexValue()));
-        assertNotNull(config.getMsgConfigOptions().getDnsServersOption());
-        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, config.getMsgConfigOptions().getDnsServersOption().getCode());
-        assertEquals(3, config.getMsgConfigOptions().getDnsServersOption().getIpAddressList().size());
-        assertEquals("3ffe::0001", config.getMsgConfigOptions().getDnsServersOption().getIpAddressList().get(0));
-        assertEquals("3ffe::0002", config.getMsgConfigOptions().getDnsServersOption().getIpAddressList().get(1));
-        assertEquals("3ffe::0003", config.getMsgConfigOptions().getDnsServersOption().getIpAddressList().get(2));
-        assertNotNull(config.getMsgConfigOptions().getDomainSearchListOption());
-        assertEquals(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, config.getMsgConfigOptions().getDomainSearchListOption().getCode());
-        assertEquals(3, config.getMsgConfigOptions().getDomainSearchListOption().getDomainNameList().size());
-        assertEquals("foo.com.", config.getMsgConfigOptions().getDomainSearchListOption().getDomainNameList().get(0));
-        assertEquals("bar.com.", config.getMsgConfigOptions().getDomainSearchListOption().getDomainNameList().get(1));
-        assertEquals("yuk.com.", config.getMsgConfigOptions().getDomainSearchListOption().getDomainNameList().get(2));
+        assertNotNull(config.getV6ServerIdOption());
+		assertEquals(DhcpConstants.OPTION_SERVERID, config.getV6ServerIdOption().getCode());
+        assertEquals("abcdef0123456789", Util.toHexString(config.getV6ServerIdOption().getOpaqueData().getHexValue()));
+        assertNotNull(config.getV6MsgConfigOptions().getV6DnsServersOption());
+        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, config.getV6MsgConfigOptions().getV6DnsServersOption().getCode());
+        assertEquals(3, config.getV6MsgConfigOptions().getV6DnsServersOption().getIpAddressList().size());
+        assertEquals("3ffe::0001", config.getV6MsgConfigOptions().getV6DnsServersOption().getIpAddressList().get(0));
+        assertEquals("3ffe::0002", config.getV6MsgConfigOptions().getV6DnsServersOption().getIpAddressList().get(1));
+        assertEquals("3ffe::0003", config.getV6MsgConfigOptions().getV6DnsServersOption().getIpAddressList().get(2));
+        assertNotNull(config.getV6MsgConfigOptions().getV6DomainSearchListOption());
+        assertEquals(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, config.getV6MsgConfigOptions().getV6DomainSearchListOption().getCode());
+        assertEquals(3, config.getV6MsgConfigOptions().getV6DomainSearchListOption().getDomainNameList().size());
+        assertEquals("foo.com.", config.getV6MsgConfigOptions().getV6DomainSearchListOption().getDomainNameList().get(0));
+        assertEquals("bar.com.", config.getV6MsgConfigOptions().getV6DomainSearchListOption().getDomainNameList().get(1));
+        assertEquals("yuk.com.", config.getV6MsgConfigOptions().getV6DomainSearchListOption().getDomainNameList().get(2));
         
         SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
         assertNotNull(linkMap);

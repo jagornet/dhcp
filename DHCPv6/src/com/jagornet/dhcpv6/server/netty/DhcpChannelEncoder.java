@@ -35,7 +35,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpV6Message;
 
 /**
  * Title: DhcpChannelEncoder
@@ -57,8 +57,8 @@ public class DhcpChannelEncoder extends OneToOneEncoder
     @Override
     public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
     {
-        if (msg instanceof DhcpMessage) {
-            DhcpMessage dhcpMessage = (DhcpMessage) msg;
+        if (msg instanceof DhcpV6Message) {
+            DhcpV6Message dhcpMessage = (DhcpV6Message) msg;
             ByteBuffer buf = dhcpMessage.encode();
             return new ByteBufferBackedChannelBuffer(buf);
         }

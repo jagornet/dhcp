@@ -74,7 +74,7 @@ public class TestDhcpDnsServersOption extends TestCase
 	 */
 	public void testEncode() throws Exception
     {
-        DhcpDnsServersOption dso = new DhcpDnsServersOption();
+        DhcpV6DnsServersOption dso = new DhcpV6DnsServersOption();
         dso.addIpAddress(dns1);    // 16 bytes
         dso.addIpAddress(dns2);    // 16 bytes
         ByteBuffer bb = dso.encode();
@@ -105,7 +105,7 @@ public class TestDhcpDnsServersOption extends TestCase
         bb.put(dns1.getAddress());
         bb.put(dns2.getAddress());
         bb.flip();
-        DhcpDnsServersOption dso = new DhcpDnsServersOption();
+        DhcpV6DnsServersOption dso = new DhcpV6DnsServersOption();
         dso.decode(bb);
         assertEquals(2, dso.getIpAddressList().size());
         List<String> dnsServers = dso.getIpAddressList();
@@ -120,7 +120,7 @@ public class TestDhcpDnsServersOption extends TestCase
      */
     public void testToString()
     {
-        DhcpDnsServersOption dso = new DhcpDnsServersOption();
+        DhcpV6DnsServersOption dso = new DhcpV6DnsServersOption();
         dso.addIpAddress(dns1);    // 16 bytes
         dso.addIpAddress(dns2);    // 16 bytes
     	System.out.println(dso);

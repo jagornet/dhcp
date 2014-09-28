@@ -9,8 +9,8 @@ public class AllTestsBinding {
 		TestSuite suite = new TestSuite(AllTestsBinding.class.getName());
 		//$JUnit-BEGIN$
 		suite.addTest(TestFreeList.suite());
-		suite.addTestSuite(TestPrefixBindingPool.class);
-		suite.addTestSuite(TestBindingManager.class);
+		suite.addTestSuite(TestV6PrefixBindingPool.class);
+		suite.addTestSuite(TestV6NaAddrBindingManager.class);
 		//$JUnit-END$
 		return suite;
 	}

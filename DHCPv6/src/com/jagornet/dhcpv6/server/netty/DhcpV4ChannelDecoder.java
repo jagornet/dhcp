@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV4Message;
-import com.jagornet.dhcpv6.server.DhcpV6Server;
+import com.jagornet.dhcpv6.server.JagornetDhcpServer;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
@@ -91,7 +91,7 @@ public class DhcpV4ChannelDecoder extends OneToOneDecoder
     	}
     	
     	if (ignoreSelfPackets) {
-	    	if (DhcpV6Server.getAllIPv4Addrs().contains(remoteSocketAddress.getAddress())) {
+	    	if (JagornetDhcpServer.getAllIPv4Addrs().contains(remoteSocketAddress.getAddress())) {
 	    		log.debug("Ignoring packet from self: address=" + 
 	    					remoteSocketAddress.getAddress());
 	    		return null;

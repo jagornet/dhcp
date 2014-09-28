@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.option.generic;
 
 import com.jagornet.dhcpv6.option.base.BaseIpAddressListOption;
-import com.jagornet.dhcpv6.xml.IpAddressListOptionType;
+import com.jagornet.dhcp.xml.IpAddressListOptionType;
 
 /**
  * <p>Title: GenericIpAddressListOption </p>

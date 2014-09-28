@@ -27,7 +27,7 @@ package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedByteOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.V4MsgTypeOption;
+import com.jagornet.dhcp.xml.V4MsgTypeOption;
 
 /**
  * <p>Title: DhcpV4MsgTypeOption </p>

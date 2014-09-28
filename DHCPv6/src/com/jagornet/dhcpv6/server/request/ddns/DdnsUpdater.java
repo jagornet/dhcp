@@ -32,11 +32,11 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcpv6.xml.Link;
+import com.jagornet.dhcp.xml.Link;
 
 /**
  * The Class DdnsUpdater.
@@ -94,7 +94,7 @@ public class DdnsUpdater implements Runnable
 	/** The rev tsig key data. */
 	private String revTsigKeyData;
 	
-	private DhcpMessageInterface requestMsg;
+	private DhcpMessage requestMsg;
 	
 	/** The client link. */
 	private Link clientLink;
@@ -151,7 +151,7 @@ public class DdnsUpdater implements Runnable
 	 * @param doForwardUpdate the do forward update
 	 * @param isDelete the is delete
 	 */
-	public DdnsUpdater(DhcpMessageInterface requestMsg, Link clientLink, DhcpConfigObject configObj,
+	public DdnsUpdater(DhcpMessage requestMsg, Link clientLink, DhcpConfigObject configObj,
 			InetAddress addr, String fqdn, byte[] duid, long lifetime, 
 			boolean doForwardUpdate, boolean isDelete,
 			DdnsCallback callback)

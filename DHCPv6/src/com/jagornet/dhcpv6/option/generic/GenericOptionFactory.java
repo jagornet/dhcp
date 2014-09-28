@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.base.DhcpOption;
-import com.jagornet.dhcpv6.xml.OptionDefType;
+import com.jagornet.dhcp.xml.OptionDefType;
 
 /**
  * A factory for creating GenericOption objects.

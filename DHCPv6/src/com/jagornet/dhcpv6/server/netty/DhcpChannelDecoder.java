@@ -37,8 +37,8 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.server.DhcpV6Server;
+import com.jagornet.dhcpv6.message.DhcpV6Message;
+import com.jagornet.dhcpv6.server.JagornetDhcpServer;
 
 /**
  * Title: DhcpChannelDecoder
@@ -75,7 +75,7 @@ public class DhcpChannelDecoder extends OneToOneDecoder
     protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
     {
     	if (ignoreSelfPackets) {
-	    	if (DhcpV6Server.getAllIPv6Addrs().contains(remoteSocketAddress.getAddress())) {
+	    	if (JagornetDhcpServer.getAllIPv6Addrs().contains(remoteSocketAddress.getAddress())) {
 	    		log.debug("Ignoring packet from self: address=" + 
 	    					remoteSocketAddress.getAddress());
 	    		return null;
@@ -83,8 +83,8 @@ public class DhcpChannelDecoder extends OneToOneDecoder
     	}
     	if (msg instanceof ChannelBuffer) {
             ChannelBuffer buf = (ChannelBuffer) msg;
-            DhcpMessage dhcpMessage = 
-            	DhcpMessage.decode(buf.toByteBuffer(), localSocketAddress, remoteSocketAddress);
+            DhcpV6Message dhcpMessage = 
+            	DhcpV6Message.decode(buf.toByteBuffer(), localSocketAddress, remoteSocketAddress);
             return dhcpMessage;
         }
         else {

@@ -38,7 +38,6 @@ import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
  */
 public class V4BindingAddress extends IaAddress implements BindingObject
 {
-	/** The config obj. */
 	private DhcpConfigObject configObj;
 	
 	/**

@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.option.generic;
 
 import com.jagornet.dhcpv6.option.base.BaseStringOption;
-import com.jagornet.dhcpv6.xml.StringOptionType;
+import com.jagornet.dhcp.xml.StringOptionType;
 
 /**
  * <p>Title: GenericStringOption </p>

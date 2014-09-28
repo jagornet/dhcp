@@ -7,7 +7,7 @@ import java.util.TreeMap;
 import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.server.config.DhcpLink;
-import com.jagornet.dhcpv6.xml.Link;
+import com.jagornet.dhcp.xml.Link;
 
 public class TestLinkMap extends TestCase 
 {

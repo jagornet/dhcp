@@ -33,12 +33,12 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
-import com.jagornet.dhcpv6.server.DhcpV6Server;
+import com.jagornet.dhcpv6.server.JagornetDhcpServer;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.PoliciesType;
-import com.jagornet.dhcpv6.xml.Policy;
+import com.jagornet.dhcp.xml.PoliciesType;
+import com.jagornet.dhcp.xml.Policy;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -52,14 +52,14 @@ public class TestDhcpIaNaOption extends TestCase
 	 */
 	public void setUp() throws Exception
 	{
-		String configFilename = DhcpV6Server.DEFAULT_CONFIG_FILENAME;
+		String configFilename = JagornetDhcpServer.DEFAULT_CONFIG_FILENAME;
 		DhcpServerConfiguration.configFilename = configFilename;
 		DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
 		PoliciesType policies = PoliciesType.Factory.newInstance();
 		Policy pcy = policies.addNewPolicy();
 		pcy.setName("sendRequestedOptionsOnly");
 		pcy.setValue("false");
-		config.getDhcpV6ServerConfig().setPolicies(policies);
+		config.getDhcpServerConfig().setPolicies(policies);
 	}
 	
 	/**
@@ -70,32 +70,32 @@ public class TestDhcpIaNaOption extends TestCase
 	public void testEncode() throws Exception
 	{
 		int len = 4;	// code + len
-		DhcpIaNaOption din = new DhcpIaNaOption();
+		DhcpV6IaNaOption din = new DhcpV6IaNaOption();
 		din.setIaId(0xdebb1e);
 		din.setT1(10000);
 		din.setT2(20000);
 		len += 12;
 		
-		List<DhcpIaAddrOption> iaAddrOptions = new ArrayList<DhcpIaAddrOption>();
+		List<DhcpV6IaAddrOption> iaAddrOptions = new ArrayList<DhcpV6IaAddrOption>();
 
-		DhcpIaAddrOption addr1 = new DhcpIaAddrOption();
+		DhcpV6IaAddrOption addr1 = new DhcpV6IaAddrOption();
 		addr1.setIpAddress("3ffe::1");
 		addr1.setPreferredLifetime(11000);
 		addr1.setValidLifetime(12000);
 		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
-		DhcpDnsServersOption dnsServers1 = new DhcpDnsServersOption();
+		DhcpV6DnsServersOption dnsServers1 = new DhcpV6DnsServersOption();
 		dnsServers1.addIpAddress(InetAddress.getByName("3ffe::1:1"));
 		dnsServers1.addIpAddress(InetAddress.getByName("3ffe::1:2"));
 		addr1.putDhcpOption(dnsServers1);
 		iaAddrOptions.add(addr1);
 		len += 4 + 16 + 16;
 		
-		DhcpIaAddrOption addr2 = new DhcpIaAddrOption();
+		DhcpV6IaAddrOption addr2 = new DhcpV6IaAddrOption();
 		addr2.setIpAddress("3ffe::2");
 		addr2.setPreferredLifetime(21000);
 		addr2.setValidLifetime(22000);
 		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
-		DhcpDnsServersOption dnsServers2 = new DhcpDnsServersOption();
+		DhcpV6DnsServersOption dnsServers2 = new DhcpV6DnsServersOption();
 		dnsServers2.addIpAddress(InetAddress.getByName("3ffe::2:1"));
 		dnsServers2.addIpAddress(InetAddress.getByName("3ffe::2:2"));
 		addr2.putDhcpOption(dnsServers2);		
@@ -104,7 +104,7 @@ public class TestDhcpIaNaOption extends TestCase
 		
 		din.setIaAddrOptions(iaAddrOptions);
 		
-		DhcpDomainSearchListOption domainSearch = new DhcpDomainSearchListOption();
+		DhcpV6DomainSearchListOption domainSearch = new DhcpV6DomainSearchListOption();
 		domainSearch.addDomainName("foo.com.");
 		domainSearch.addDomainName("bar.com.");
 		din.putDhcpOption(domainSearch);
@@ -200,7 +200,7 @@ public class TestDhcpIaNaOption extends TestCase
 		BaseDomainNameOption.encodeDomainName(bb, "bar.com.");
 		bb.flip();
 		
-		DhcpIaNaOption dhcpIaNaOption = new DhcpIaNaOption();
+		DhcpV6IaNaOption dhcpIaNaOption = new DhcpV6IaNaOption();
 		dhcpIaNaOption.decode(bb);
 		assertEquals(162, dhcpIaNaOption.getDecodedLength());
 	}
@@ -211,35 +211,35 @@ public class TestDhcpIaNaOption extends TestCase
 	public void testToString()
 	{
 		int len = 4;	// code + len
-		DhcpIaNaOption din = new DhcpIaNaOption();
+		DhcpV6IaNaOption din = new DhcpV6IaNaOption();
 		din.setIaId(0xdebb1e);
 		din.setT1(10000);
 		din.setT2(20000);
 		len += 12;
 		
-		DhcpIaAddrOption ao1 = new DhcpIaAddrOption();
+		DhcpV6IaAddrOption ao1 = new DhcpV6IaAddrOption();
 		ao1.setIpAddress("3ffe::1");
 		ao1.setPreferredLifetime(11000);
 		ao1.setValidLifetime(12000);
 		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
-		DhcpDnsServersOption ao1dns = new DhcpDnsServersOption();
+		DhcpV6DnsServersOption ao1dns = new DhcpV6DnsServersOption();
 		ao1dns.addIpAddress("3ffe::1:1");
 		ao1dns.addIpAddress("3ffe::1:2");
 		ao1.putDhcpOption(ao1dns);
 		len += 4 + 16 + 16;
 		
-		DhcpIaAddrOption ao2 = new DhcpIaAddrOption();
+		DhcpV6IaAddrOption ao2 = new DhcpV6IaAddrOption();
 		ao2.setIpAddress("3ffe::2");
 		ao2.setPreferredLifetime(21000);
 		ao2.setValidLifetime(22000);
 		len += 4 + 24;	// code + len + ipaddr(16) + preferred(4) + valid(4)
-		DhcpDnsServersOption ao2dns = new DhcpDnsServersOption();
+		DhcpV6DnsServersOption ao2dns = new DhcpV6DnsServersOption();
 		ao2dns.addIpAddress("3ffe::2:1");
 		ao2dns.addIpAddress("3ffe::2:2");
 		ao2.putDhcpOption(ao2dns);
 		len += 4 + 16 + 16;
 		
-		DhcpDomainSearchListOption dslo = new DhcpDomainSearchListOption();
+		DhcpV6DomainSearchListOption dslo = new DhcpV6DomainSearchListOption();
 		dslo.addDomainName("foo.com.");
 		dslo.addDomainName("bar.com.");
 		din.putDhcpOption(dslo);

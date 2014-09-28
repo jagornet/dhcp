@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcpv6.option;
 
-import com.jagornet.dhcpv6.xml.OptionExpression;
+import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: DhcpComparableOption

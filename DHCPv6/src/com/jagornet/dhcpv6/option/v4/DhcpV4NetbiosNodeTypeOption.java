@@ -27,7 +27,7 @@ package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedByteOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.V4NetbiosNodeTypeOption;
+import com.jagornet.dhcp.xml.V4NetbiosNodeTypeOption;
 
 /**
  * <p>Title: DhcpV4NetbiosNodeTypeOption </p>

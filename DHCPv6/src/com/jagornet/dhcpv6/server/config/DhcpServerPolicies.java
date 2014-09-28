@@ -31,14 +31,14 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Properties;
 
-import com.jagornet.dhcpv6.message.DhcpMessageInterface;
-import com.jagornet.dhcpv6.xml.Filter;
-import com.jagornet.dhcpv6.xml.FiltersType;
-import com.jagornet.dhcpv6.xml.Link;
-import com.jagornet.dhcpv6.xml.LinkFilter;
-import com.jagornet.dhcpv6.xml.LinkFiltersType;
-import com.jagornet.dhcpv6.xml.PoliciesType;
-import com.jagornet.dhcpv6.xml.Policy;
+import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcp.xml.Filter;
+import com.jagornet.dhcp.xml.FiltersType;
+import com.jagornet.dhcp.xml.Link;
+import com.jagornet.dhcp.xml.LinkFilter;
+import com.jagornet.dhcp.xml.LinkFiltersType;
+import com.jagornet.dhcp.xml.PoliciesType;
+import com.jagornet.dhcp.xml.Policy;
 
 /**
  * The Class DhcpServerPolicies.
@@ -208,7 +208,7 @@ public class DhcpServerPolicies
     public static String globalPolicy(Property prop)
     {
     	String policy = 
-    		getPolicy(DhcpServerConfiguration.getInstance().getDhcpV6ServerConfig().getPolicies(),
+    		getPolicy(DhcpServerConfiguration.getInstance().getDhcpServerConfig().getPolicies(),
     				prop.key());
     	if (policy != null) {
     		return policy;
@@ -272,12 +272,12 @@ public class DhcpServerPolicies
 	 * @param prop the prop
 	 * @return the string
 	 */
-    public static String globalPolicy(DhcpMessageInterface requestMsg, Property prop)
+    public static String globalPolicy(DhcpMessage requestMsg, Property prop)
     {
     	DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
     	String policy = null;
     	if (requestMsg != null) {
-    		FiltersType filtersType = config.getDhcpV6ServerConfig().getFilters();
+    		FiltersType filtersType = config.getDhcpServerConfig().getFilters();
     		if (filtersType != null) {
     			List<Filter> filters = filtersType.getFilterList();
     			for (Filter filter : filters) {
@@ -295,7 +295,7 @@ public class DhcpServerPolicies
     	}
 		// client does not match a global filter 
 		// get the value of the global policy, if any
-    	policy = getPolicy(config.getDhcpV6ServerConfig().getPolicies(), prop.key());
+    	policy = getPolicy(config.getDhcpServerConfig().getPolicies(), prop.key());
     	if (policy != null) {
     		return policy;
     	}
@@ -311,7 +311,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return true, if successful
      */
-	public static boolean globalPolicyAsBoolean(DhcpMessageInterface requestMsg, Property prop)
+	public static boolean globalPolicyAsBoolean(DhcpMessage requestMsg, Property prop)
     {
     	return Boolean.parseBoolean(globalPolicy(requestMsg, prop));
     }
@@ -323,7 +323,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the int
      */
-	public static int globalPolicyAsInt(DhcpMessageInterface requestMsg, Property prop)
+	public static int globalPolicyAsInt(DhcpMessage requestMsg, Property prop)
     {
     	return Integer.parseInt(globalPolicy(requestMsg, prop));
     }
@@ -335,7 +335,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the long
      */
-	public static long globalPolicyAsLong(DhcpMessageInterface requestMsg, Property prop)
+	public static long globalPolicyAsLong(DhcpMessage requestMsg, Property prop)
     {
     	return Long.parseLong(globalPolicy(requestMsg, prop));
     }
@@ -348,7 +348,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the float
      */
-	public static float globalPolicyAsFloat(DhcpMessageInterface requestMsg, Property prop)
+	public static float globalPolicyAsFloat(DhcpMessage requestMsg, Property prop)
     {
     	return Float.parseFloat(globalPolicy(requestMsg, prop));
     }
@@ -430,7 +430,7 @@ public class DhcpServerPolicies
 	 * @param prop the prop
 	 * @return the string
 	 */
-	public static String effectivePolicy(DhcpMessageInterface requestMsg, 
+	public static String effectivePolicy(DhcpMessage requestMsg, 
 			Link link, Property prop)
 	{
 		String policy = null;
@@ -472,7 +472,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return true, if successful
      */
-	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, 
+	public static boolean effectivePolicyAsBoolean(DhcpMessage requestMsg, 
 			Link link, Property prop)
     {
     	return Boolean.parseBoolean(effectivePolicy(requestMsg, link, prop));
@@ -486,7 +486,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the int
      */
-	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, 
+	public static int effectivePolicyAsInt(DhcpMessage requestMsg, 
 			Link link, Property prop)
     {
     	return Integer.parseInt(effectivePolicy(requestMsg, link, prop));
@@ -500,7 +500,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the long
      */
-	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, 
+	public static long effectivePolicyAsLong(DhcpMessage requestMsg, 
 			Link link, Property prop)
     {
     	return Long.parseLong(effectivePolicy(requestMsg, link, prop));
@@ -514,7 +514,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the float
      */
-	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, 
+	public static float effectivePolicyAsFloat(DhcpMessage requestMsg, 
 			Link link, Property prop)
     {
     	return Float.parseFloat(effectivePolicy(requestMsg, link, prop));
@@ -617,7 +617,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the string
      */
-    public static String effectivePolicy(DhcpMessageInterface requestMsg, 
+    public static String effectivePolicy(DhcpMessage requestMsg, 
     		DhcpConfigObject configObj, Link link, Property prop)
     {
 		String policy = null;
@@ -659,7 +659,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return true, if successful
      */
-	public static boolean effectivePolicyAsBoolean(DhcpMessageInterface requestMsg, 
+	public static boolean effectivePolicyAsBoolean(DhcpMessage requestMsg, 
 			DhcpConfigObject configObj, Link link, Property prop)
     {
     	return Boolean.parseBoolean(effectivePolicy(requestMsg, configObj, link, prop));
@@ -674,7 +674,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the int
      */
-	public static int effectivePolicyAsInt(DhcpMessageInterface requestMsg, 
+	public static int effectivePolicyAsInt(DhcpMessage requestMsg, 
 			DhcpConfigObject configObj, Link link, Property prop)
     {
     	return Integer.parseInt(effectivePolicy(requestMsg, configObj, link, prop));
@@ -689,7 +689,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the long
      */
-	public static long effectivePolicyAsLong(DhcpMessageInterface requestMsg, 
+	public static long effectivePolicyAsLong(DhcpMessage requestMsg, 
 			DhcpConfigObject configObj, Link link, Property prop)
     {
     	return Long.parseLong(effectivePolicy(requestMsg, configObj, link, prop));
@@ -704,7 +704,7 @@ public class DhcpServerPolicies
      * @param prop the prop
      * @return the float
      */
-	public static float effectivePolicyAsFloat(DhcpMessageInterface requestMsg, 
+	public static float effectivePolicyAsFloat(DhcpMessage requestMsg, 
 			DhcpConfigObject configObj, Link link, Property prop)
     {
     	return Float.parseFloat(effectivePolicy(requestMsg, configObj, link, prop));

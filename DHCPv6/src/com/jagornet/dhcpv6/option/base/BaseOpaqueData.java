@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.Operator;
+import com.jagornet.dhcp.xml.OpaqueData;
+import com.jagornet.dhcp.xml.Operator;
 
 public class BaseOpaqueData {
 	

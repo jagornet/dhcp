@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.option.generic;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
-import com.jagornet.dhcpv6.xml.DomainNameOptionType;
+import com.jagornet.dhcp.xml.DomainNameOptionType;
 
 /**
  * <p>Title: GenericDomainNameOption </p>

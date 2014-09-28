@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.option.generic;
 
 import com.jagornet.dhcpv6.option.base.BaseUnsignedByteListOption;
-import com.jagornet.dhcpv6.xml.UnsignedByteListOptionType;
+import com.jagornet.dhcp.xml.UnsignedByteListOptionType;
 
 /**
  * <p>Title: GenericUnsignedByteListOption </p>

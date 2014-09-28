@@ -73,7 +73,7 @@ public class TestDhcpDomainSearchListOption extends TestCase
 	 */
 	public void testEncode() throws Exception
     {
-        DhcpDomainSearchListOption dslo = new DhcpDomainSearchListOption();
+        DhcpV6DomainSearchListOption dslo = new DhcpV6DomainSearchListOption();
         dslo.addDomainName(domain1);
         dslo.addDomainName(domain2);
         ByteBuffer bb = dslo.encode();
@@ -126,7 +126,7 @@ public class TestDhcpDomainSearchListOption extends TestCase
         bb.put("com".getBytes());
         bb.put((byte)0);
         bb.flip();
-        DhcpDomainSearchListOption dslo = new DhcpDomainSearchListOption();
+        DhcpV6DomainSearchListOption dslo = new DhcpV6DomainSearchListOption();
         dslo.decode(bb);
         assertEquals(2, dslo.getDomainNameList().size());
         List<String> domainNames = dslo.getDomainNameList();
@@ -139,7 +139,7 @@ public class TestDhcpDomainSearchListOption extends TestCase
      */
     public void testToString()
     {
-        DhcpDomainSearchListOption dslo = new DhcpDomainSearchListOption();
+        DhcpV6DomainSearchListOption dslo = new DhcpV6DomainSearchListOption();
         dslo.addDomainName(domain1);
         dslo.addDomainName(domain2);
         System.out.println(dslo);

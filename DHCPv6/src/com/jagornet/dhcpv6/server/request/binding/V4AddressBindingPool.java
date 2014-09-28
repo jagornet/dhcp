@@ -41,10 +41,10 @@ import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.config.DhcpV4OptionConfigObject;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.FiltersType;
-import com.jagornet.dhcpv6.xml.LinkFilter;
-import com.jagornet.dhcpv6.xml.PoliciesType;
-import com.jagornet.dhcpv6.xml.V4AddressPool;
+import com.jagornet.dhcp.xml.FiltersType;
+import com.jagornet.dhcp.xml.LinkFilter;
+import com.jagornet.dhcp.xml.PoliciesType;
+import com.jagornet.dhcp.xml.V4AddressPool;
 
 /**
  * The Class V4AddressBindingPool.  A wrapper class for a configured V4AddressPool
@@ -54,29 +54,14 @@ import com.jagornet.dhcpv6.xml.V4AddressPool;
  */
 public class V4AddressBindingPool implements BindingPool, DhcpV4OptionConfigObject
 {
-	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(V4AddressBindingPool.class);
 
-	/** The range. */
 	protected Range range;
-	
-	/** The free list. */
 	protected FreeList freeList;
-	
-	/** The leasetime. */
 	protected long leasetime;
-	
-	/** The v4 address pool wrapped by this V4AddressBindingPool object */
 	protected V4AddressPool pool;
-	
-	/** The configured DHCPv4 options for this pool */
 	protected DhcpV4ConfigOptions v4ConfigOptions;
-	
-	/** The LinkFilter containing this pool, if any */
 	protected LinkFilter linkFilter; 
-	
-	/** The reaper. */
 	protected Timer reaper;
 	
 	/**

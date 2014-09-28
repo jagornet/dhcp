@@ -33,13 +33,13 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.jagornet.dhcpv6.server.DhcpV6Server;
+import com.jagornet.dhcpv6.server.JagornetDhcpServer;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager;
-import com.jagornet.dhcpv6.server.request.binding.PrefixBindingManager;
-import com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.V6NaAddrBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.V6PrefixBindingManager;
+import com.jagornet.dhcpv6.server.request.binding.V6TaAddrBindingManager;
 import com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager;
 
 // TODO: Auto-generated Javadoc
@@ -95,7 +95,7 @@ public class BaseTestCase extends TestCase
 					System.out.println("Cleaning db/sqlite...");
 					FileUtils.cleanDirectory(new File("db/sqlite"));
 				}
-				String[] appContext = DhcpV6Server.getAppContextFiles(schemaType, schemaVersion);
+				String[] appContext = JagornetDhcpServer.getAppContextFiles(schemaType, schemaVersion);
 
 				ctx = new ClassPathXmlApplicationContext(appContext);
 				
@@ -103,18 +103,18 @@ public class BaseTestCase extends TestCase
 				iaMgr.init();
 				config.setIaMgr(iaMgr);
 
-				NaAddrBindingManager naAddrBindingMgr = 
-						(NaAddrBindingManager) ctx.getBean("naAddrBindingManager");
+				V6NaAddrBindingManager naAddrBindingMgr = 
+						(V6NaAddrBindingManager) ctx.getBean("naAddrBindingManager");
 				naAddrBindingMgr.init();
 				config.setNaAddrBindingMgr(naAddrBindingMgr);
 
-				TaAddrBindingManager taAddrBindingMgr = 
-						(TaAddrBindingManager) ctx.getBean("taAddrBindingManager");
+				V6TaAddrBindingManager taAddrBindingMgr = 
+						(V6TaAddrBindingManager) ctx.getBean("taAddrBindingManager");
 				taAddrBindingMgr.init();
 				config.setTaAddrBindingMgr(taAddrBindingMgr);
 				
-				PrefixBindingManager prefixBindingMgr = 
-						(PrefixBindingManager) ctx.getBean("prefixBindingManager");
+				V6PrefixBindingManager prefixBindingMgr = 
+						(V6PrefixBindingManager) ctx.getBean("prefixBindingManager");
 				prefixBindingMgr.init();
 				config.setPrefixBindingMgr(prefixBindingMgr);
 				

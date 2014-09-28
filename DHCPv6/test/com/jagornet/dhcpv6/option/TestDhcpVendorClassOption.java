@@ -32,19 +32,19 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.ClientClassExpression;
-import com.jagornet.dhcpv6.xml.Operator;
+import com.jagornet.dhcp.xml.ClientClassExpression;
+import com.jagornet.dhcp.xml.Operator;
 
 /**
  * The Class TestDhcpVendorClassOption.
  */
 public class TestDhcpVendorClassOption extends TestCase
 {
-	protected DhcpVendorClassOption dvco;
+	protected DhcpV6VendorClassOption dvco;
 	
 	public TestDhcpVendorClassOption()
 	{
-		dvco = new DhcpVendorClassOption();
+		dvco = new DhcpV6VendorClassOption();
 		dvco.setEnterpriseNumber(12345);
         dvco.addOpaqueData("VendorClass 1");   // 15 (len=2 bytes, data=11 bytes)
         dvco.addOpaqueData("VendorClass 2");   // 15 (len=2 bytes, data=11 bytes)		
@@ -85,7 +85,7 @@ public class TestDhcpVendorClassOption extends TestCase
         bb.putShort((short)13);
         bb.put("VendorClass 2".getBytes());
         bb.flip();
-        DhcpVendorClassOption _dvco = new DhcpVendorClassOption();
+        DhcpV6VendorClassOption _dvco = new DhcpV6VendorClassOption();
         _dvco.decode(bb);
         assertEquals(12345, _dvco.getEnterpriseNumber());
         List<BaseOpaqueData> VendorClasses = _dvco.getOpaqueDataList();
@@ -98,8 +98,8 @@ public class TestDhcpVendorClassOption extends TestCase
     public void testMatches() throws Exception
     {
         ClientClassExpression expression = ClientClassExpression.Factory.newInstance();
-        assertFalse(dvco.matches((DhcpVendorClassOption)expression.getVendorClassOption(), Operator.EQUALS));
-        DhcpVendorClassOption _dvco = new DhcpVendorClassOption(expression.getVendorClassOption());
+        assertFalse(dvco.matches((DhcpV6VendorClassOption)expression.getV6VendorClassOption(), Operator.EQUALS));
+        DhcpV6VendorClassOption _dvco = new DhcpV6VendorClassOption(expression.getV6VendorClassOption());
         assertFalse(dvco.matches(_dvco, Operator.EQUALS));
         _dvco.setEnterpriseNumber(12345);
         assertFalse(dvco.matches(_dvco, Operator.EQUALS));

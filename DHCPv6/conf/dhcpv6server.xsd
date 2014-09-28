@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-		   xmlns="http://jagornet.com/dhcpv6/xml"
-		   targetNamespace="http://jagornet.com/dhcpv6/xml">
+		   xmlns="http://jagornet.com/dhcp/xml"
+		   targetNamespace="http://jagornet.com/dhcp/xml">
 		   
 	<!-- The top-level schema element for the DHCPv6 Server Configuration -->
-	<xs:element name="dhcpV6ServerConfig">
+	<xs:element name="dhcpServerConfig">
 		<xs:annotation>
-			<xs:documentation>DHCPv6 Server Configuration Schema</xs:documentation>
+			<xs:documentation>DHCP Server Configuration Schema</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="serverIdOption" type="serverIdOption" minOccurs="0"/>
+				<xs:element name="v6ServerIdOption" type="v6ServerIdOption" minOccurs="0"/>
 				<xs:element name="v4ServerIdOption" type="v4ServerIdOption" minOccurs="0"/>
 				
 				<!-- global policies -->
 				<xs:element name="policies" type="policiesType" minOccurs="0"/>
 
 				<!-- msgConfigOptions are put at the message level of the reply -->
-				<xs:element name="msgConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<xs:element name="v6MsgConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 	
 				<!-- iaNaConfigOptions are put into any IA_NA options in the reply message -->
-				<xs:element name="iaNaConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<xs:element name="v6IaNaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 				<!-- naAddrConfigOptions are put into any IA_ADDR options in any returned IA_NA options -->
-				<xs:element name="naAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<xs:element name="v6NaAddrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 	
 				<!-- iaTaConfigOptions are put into any IA_TA options in the reply message -->
-				<xs:element name="iaTaConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<xs:element name="v6IaTaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 				<!-- taAddrConfigOptions are put into any IA_ADDR options in any returned IA_TA options -->
-				<xs:element name="taAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<xs:element name="v6TaAddrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 	
 				<!-- iaPdConfigOptions are put into any IA_PD options in the reply message -->
-				<xs:element name="iaPdConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<xs:element name="v6IaPdConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 				<!-- prefixConfigOptions are put into any IA_PREFIX options in any returned IA_PD options -->
-				<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+				<xs:element name="v6PrefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 
 				<!-- v4ConfigOptions are always put at the message level of the reply -->
 				<xs:element name="v4ConfigOptions" type="v4ConfigOptionsType" minOccurs="0"/>
@@ -67,7 +67,7 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="configOptionsType">
+	<xs:complexType name="v6ConfigOptionsType">
 		<xs:annotation>
 			<xs:documentation>
 				The configuration options are options that have registered codes with
@@ -78,28 +78,28 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="preferenceOption" type="preferenceOption" minOccurs="0"/>
-			<xs:element name="serverUnicastOption" type="serverUnicastOption" minOccurs="0"/>
-			<xs:element name="statusCodeOption" type="statusCodeOption" minOccurs="0"/>
-			<xs:element name="vendorInfoOption" type="vendorInfoOption" minOccurs="0"/>
-			<xs:element name="sipServerDomainNamesOption" type="sipServerDomainNamesOption" minOccurs="0"/>
-			<xs:element name="sipServerAddressesOption" type="sipServerAddressesOption" minOccurs="0"/>
-			<xs:element name="dnsServersOption" type="dnsServersOption" minOccurs="0"/>
-			<xs:element name="domainSearchListOption" type="domainSearchListOption" minOccurs="0"/>
-			<xs:element name="nisServersOption" type="nisServersOption" minOccurs="0"/>
-			<xs:element name="nisPlusServersOption" type="nisPlusServersOption" minOccurs="0"/>
-			<xs:element name="nisDomainNameOption" type="nisDomainNameOption" minOccurs="0"/>
-			<xs:element name="nisPlusDomainNameOption" type="nisPlusDomainNameOption" minOccurs="0"/>
-			<xs:element name="sntpServersOption" type="sntpServersOption" minOccurs="0"/>
-			<xs:element name="infoRefreshTimeOption" type="infoRefreshTimeOption" minOccurs="0"/>
-			<xs:element name="bcmcsDomainNamesOption" type="bcmcsDomainNamesOption" minOccurs="0"/>
-			<xs:element name="bcmcsAddressesOption" type="bcmcsAddressesOption" minOccurs="0"/>
-			<xs:element name="geoconfCivicOption" type="geoconfCivicOption" minOccurs="0"/>
-			<xs:element name="panaAgentAddressesOption" type="panaAgentAddressesOption" minOccurs="0"/>
-			<xs:element name="newPosixTimezoneOption" type="newPosixTimezoneOption" minOccurs="0"/>
-			<xs:element name="newTzdbTimezoneOption" type="newTzdbTimezoneOption" minOccurs="0"/>
-			<xs:element name="lostServerDomainNameOption" type="lostServerDomainNameOption" minOccurs="0"/>
-			<xs:element name="otherOptions" type="genericOptionsType" minOccurs="0"/>
+			<xs:element name="v6PreferenceOption" type="v6PreferenceOption" minOccurs="0"/>
+			<xs:element name="v6ServerUnicastOption" type="v6ServerUnicastOption" minOccurs="0"/>
+			<xs:element name="v6StatusCodeOption" type="v6StatusCodeOption" minOccurs="0"/>
+			<xs:element name="v6VendorInfoOption" type="v6VendorInfoOption" minOccurs="0"/>
+			<xs:element name="v6SipServerDomainNamesOption" type="v6SipServerDomainNamesOption" minOccurs="0"/>
+			<xs:element name="v6SipServerAddressesOption" type="v6SipServerAddressesOption" minOccurs="0"/>
+			<xs:element name="v6DnsServersOption" type="v6DnsServersOption" minOccurs="0"/>
+			<xs:element name="v6DomainSearchListOption" type="v6DomainSearchListOption" minOccurs="0"/>
+			<xs:element name="v6NisServersOption" type="v6NisServersOption" minOccurs="0"/>
+			<xs:element name="v6NisPlusServersOption" type="v6NisPlusServersOption" minOccurs="0"/>
+			<xs:element name="v6NisDomainNameOption" type="v6NisDomainNameOption" minOccurs="0"/>
+			<xs:element name="v6NisPlusDomainNameOption" type="v6NisPlusDomainNameOption" minOccurs="0"/>
+			<xs:element name="v6SntpServersOption" type="v6SntpServersOption" minOccurs="0"/>
+			<xs:element name="v6InfoRefreshTimeOption" type="v6InfoRefreshTimeOption" minOccurs="0"/>
+			<xs:element name="v6BcmcsDomainNamesOption" type="v6BcmcsDomainNamesOption" minOccurs="0"/>
+			<xs:element name="v6BcmcsAddressesOption" type="v6BcmcsAddressesOption" minOccurs="0"/>
+			<xs:element name="v6GeoconfCivicOption" type="v6GeoconfCivicOption" minOccurs="0"/>
+			<xs:element name="v6PanaAgentAddressesOption" type="v6PanaAgentAddressesOption" minOccurs="0"/>
+			<xs:element name="v6NewPosixTimezoneOption" type="v6NewPosixTimezoneOption" minOccurs="0"/>
+			<xs:element name="v6NewTzdbTimezoneOption" type="v6NewTzdbTimezoneOption" minOccurs="0"/>
+			<xs:element name="v6LostServerDomainNameOption" type="v6LostServerDomainNameOption" minOccurs="0"/>
+			<xs:element name="v6OtherOptions" type="genericOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -152,22 +152,22 @@
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
 
 			<!-- msgConfigOptions are put at the message level of the reply -->
-			<xs:element name="msgConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6MsgConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 
 			<!-- iaNaConfigOptions are put into any IA_NA options in the reply message -->
-			<xs:element name="iaNaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6IaNaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<!-- naAddrConfigOptions are put into any IA_ADDR options in any returned IA_NA options -->
-			<xs:element name="naAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6NaAddrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 
 			<!-- iaTaConfigOptions are put into any IA_TA options in the reply message -->
-			<xs:element name="iaTaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6IaTaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<!-- taAddrConfigOptions are put into any IA_ADDR options in any returned IA_TA options -->
-			<xs:element name="taAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6TaAddrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 
 			<!-- iaPdConfigOptions are put into any IA_PD options in the reply message -->
-			<xs:element name="iaPdConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6IaPdConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<!-- prefixConfigOptions are put into any IA_PREFIX options in any returned IA_PD options -->
-			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6PrefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 
 			<!-- v4ConfigOptions are always put at the message level of the reply -->
 			<xs:element name="v4ConfigOptions" type="v4ConfigOptionsType" minOccurs="0"/>
@@ -192,9 +192,9 @@
 		<xs:complexContent>
 			<xs:extension base="filter">
 				<xs:sequence>
-					<xs:element name="naAddrPools" type="addressPoolsType" minOccurs="0"/>
-					<xs:element name="taAddrPools" type="addressPoolsType" minOccurs="0"/>
-					<xs:element name="prefixPools" type="prefixPoolsType" minOccurs="0"/>
+					<xs:element name="v6NaAddrPools" type="v6AddressPoolsType" minOccurs="0"/>
+					<xs:element name="v6TaAddrPools" type="v6AddressPoolsType" minOccurs="0"/>
+					<xs:element name="v6PrefixPools" type="v6PrefixPoolsType" minOccurs="0"/>
 					<xs:element name="v4AddrPools" type="v4AddressPoolsType" minOccurs="0"/>
 				</xs:sequence>
 			</xs:extension>
@@ -235,41 +235,41 @@
 			</xs:choice>
 			
 			<!-- allow serverIdOption override at the link level? -->
-			<xs:element name="serverIdOption" type="serverIdOption" minOccurs="0"/>
+			<xs:element name="v6ServerIdOption" type="v6ServerIdOption" minOccurs="0"/>
 			<xs:element name="v4ServerIdOption" type="v4ServerIdOption" minOccurs="0"/>
 			
 			<!-- link level policies -->
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
 
 			<!-- msgConfigOptions are put at the message level of the reply -->
-			<xs:element name="msgConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6MsgConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 
 			<!-- iaNaConfigOptions are put into any IA_NA options in the reply message -->
-			<xs:element name="iaNaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6IaNaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<!-- naAddrConfigOptions are put into any IA_ADDR options in any returned IA_NA options -->
-			<xs:element name="naAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6NaAddrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 
 			<!-- IA_NA address pools and static bindings -->			
-			<xs:element name="naAddrPools" type="addressPoolsType" minOccurs="0"/>
-			<xs:element name="naAddrBindings" type="addressBindingsType" minOccurs="0"/>
+			<xs:element name="v6NaAddrPools" type="v6AddressPoolsType" minOccurs="0"/>
+			<xs:element name="v6NaAddrBindings" type="v6AddressBindingsType" minOccurs="0"/>
 
 			<!-- iaTaConfigOptions are put into any IA_TA options in the reply message -->
-			<xs:element name="iaTaConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6IaTaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<!-- taAddrConfigOptions are put into any IA_ADDR options in any returned IA_TA options -->
-			<xs:element name="taAddrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6TaAddrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 
 			<!-- IA_TA address pools and static bindings -->			
-			<xs:element name="taAddrPools" type="addressPoolsType" minOccurs="0"/>
-			<xs:element name="taAddrBindings" type="addressBindingsType" minOccurs="0"/>
+			<xs:element name="v6TaAddrPools" type="v6AddressPoolsType" minOccurs="0"/>
+			<xs:element name="v6TaAddrBindings" type="v6AddressBindingsType" minOccurs="0"/>
 
 			<!-- iaPdConfigOptions are put into any IA_PD options in the reply message -->
-			<xs:element name="iaPdConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6IaPdConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<!-- prefixConfigOptions are put into any IA_PREFIX options in any returned IA_PD options -->
-			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="v6PrefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			
 			<!-- IA_PD prefix pools and static bindings -->			
-			<xs:element name="prefixPools" type="prefixPoolsType" minOccurs="0"/>
-			<xs:element name="prefixBindings" type="prefixBindingsType" minOccurs="0"/>
+			<xs:element name="v6PrefixPools" type="v6PrefixPoolsType" minOccurs="0"/>
+			<xs:element name="v6PrefixBindings" type="v6PrefixBindingsType" minOccurs="0"/>
 
 			<!-- v4ConfigOptions are always put at the message level of the reply -->
 			<xs:element name="v4ConfigOptions" type="v4ConfigOptionsType" minOccurs="0"/>
@@ -283,67 +283,67 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="addressPoolsType">
+	<xs:complexType name="v6AddressPoolsType">
 		<xs:sequence>
-			<xs:element name="pool" type="addressPool" maxOccurs="unbounded"/>
+			<xs:element name="pool" type="v6AddressPool" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="addressPool">
+	<xs:complexType name="v6AddressPool">
 		<xs:sequence>
 			<xs:element name="range" type="range"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
-			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="prefixPoolsType">
+	<xs:complexType name="v6PrefixPoolsType">
 		<xs:sequence>
-			<xs:element name="pool" type="prefixPool" maxOccurs="unbounded"/>
+			<xs:element name="pool" type="v6PrefixPool" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="prefixPool">
+	<xs:complexType name="v6PrefixPool">
 		<xs:sequence>
 			<xs:element name="range" type="range"/>
 			<xs:element name="prefixLength" type="length"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
-			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="prefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="addressBindingsType">
+	<xs:complexType name="v6AddressBindingsType">
 		<xs:sequence>
-			<xs:element name="binding" type="addressBinding" maxOccurs="unbounded"/>
+			<xs:element name="binding" type="v6AddressBinding" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="addressBinding">
+	<xs:complexType name="v6AddressBinding">
 		<xs:sequence>
 			<xs:element name="ipAddress" type="ipAddress"/>
 			<xs:element name="duid" type="opaqueData"/>
 			<xs:element name="iaid" type="iaId" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
-			<xs:element name="addrConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="prefixBindingsType">
+	<xs:complexType name="v6PrefixBindingsType">
 		<xs:sequence>
-			<xs:element name="binding" type="prefixBinding" maxOccurs="unbounded"/>
+			<xs:element name="binding" type="v6PrefixBinding" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="prefixBinding">
+	<xs:complexType name="v6PrefixBinding">
 		<xs:sequence>
 			<xs:element name="prefix" type="ipAddress"/>
 			<xs:element name="prefixLength" type="length"/>
 			<xs:element name="duid" type="opaqueData"/>
 			<xs:element name="iaid" type="iaId" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
-			<xs:element name="prefixConfigOptions" type="configOptionsType" minOccurs="0"/>
+			<xs:element name="prefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -483,8 +483,8 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:choice>
-			<xs:element name="userClassOption" type="userClassOption"/>
-			<xs:element name="vendorClassOption" type="vendorClassOption"/>
+			<xs:element name="v6UserClassOption" type="v6UserClassOption"/>
+			<xs:element name="v6VendorClassOption" type="v6VendorClassOption"/>
 			<xs:element name="v4VendorClassOption" type="v4VendorClassOption"/>
 		</xs:choice>
 		<xs:attribute name="operator" type="operator" default="equals"/>
@@ -607,7 +607,7 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="clientIdOption">
+	<xs:complexType name="v6ClientIdOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueDataOptionType">
 				<xs:attribute name="code" type="code" fixed="1"/>
@@ -615,7 +615,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="serverIdOption">
+	<xs:complexType name="v6ServerIdOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueDataOptionType">
 				<xs:attribute name="code" type="code" fixed="2"/>
@@ -623,45 +623,45 @@
 		</xs:complexContent>
 	</xs:complexType>
 	
-	<xs:complexType name="iaNaOption">
+	<xs:complexType name="v6IaNaOption">
 		<xs:sequence>
 			<xs:element name="iaId" type="iaId"/>
 			<xs:element name="t1" type="xs:unsignedInt"/>
 			<xs:element name="t2" type="xs:unsignedInt"/>
-			<xs:element name="iaConfigOptions" type="configOptionsType"/>
-			<xs:element name="addrConfigOptions" type="configOptionsType"/>
-			<xs:element name="iaAddrOptionList" type="iaAddrOptionListType"/>
+			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType"/>
+			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType"/>
+			<xs:element name="iaAddrOptionList" type="v6IaAddrOptionListType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="3"/>
 	</xs:complexType>
 	
-	<xs:complexType name="iaTaOption">
+	<xs:complexType name="v6IaTaOption">
 		<xs:sequence>
 			<xs:element name="iaId" type="iaId"/>
-			<xs:element name="iaConfigOptions" type="configOptionsType"/>
-			<xs:element name="addrConfigOptions" type="configOptionsType"/>
-			<xs:element name="iaAddrOptionList" type="iaAddrOptionListType"/>
+			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType"/>
+			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType"/>
+			<xs:element name="iaAddrOptionList" type="v6IaAddrOptionListType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="4"/>
 	</xs:complexType>
 	
-	<xs:complexType name="iaAddrOption">
+	<xs:complexType name="v6IaAddrOption">
 		<xs:sequence>
 			<xs:element name="ipv6Address" type="ipAddress"/>
 			<xs:element name="preferredLifetime" type="xs:unsignedInt"/>
 			<xs:element name="validLifetime" type="xs:unsignedInt"/>
-			<xs:element name="addrConfigOptions" type="configOptionsType"/>
+			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="5"/>
 	</xs:complexType>
 	
-	<xs:complexType name="iaAddrOptionListType">
+	<xs:complexType name="v6IaAddrOptionListType">
 		<xs:sequence>
-			<xs:element name="iaAddrOption" type="iaAddrOption" maxOccurs="unbounded"/>
+			<xs:element name="iaAddrOption" type="v6IaAddrOption" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="optionRequestOption">
+	<xs:complexType name="v6OptionRequestOption">
 		<xs:complexContent>
 			<xs:extension base="unsignedShortListOptionType">
 				<xs:attribute name="code" type="code" fixed="6"/>
@@ -669,7 +669,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="preferenceOption">
+	<xs:complexType name="v6PreferenceOption">
 		<xs:complexContent>
 			<xs:extension base="unsignedByteOptionType">
 				<xs:attribute name="code" type="code" fixed="7"/>
@@ -677,7 +677,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="elapsedTimeOption">
+	<xs:complexType name="v6ElapsedTimeOption">
 		<xs:complexContent>
 			<xs:extension base="unsignedShortOptionType">
 				<xs:attribute name="code" type="code" fixed="8"/>
@@ -685,7 +685,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="relayMessageOption">
+	<xs:complexType name="v6RelayMessageOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueDataOptionType">
 				<xs:attribute name="code" type="code" fixed="9"/>
@@ -695,7 +695,7 @@
 
 	<!-- option code 10 is unassigned -->
 	
-	<xs:complexType name="authenticationOption">
+	<xs:complexType name="v6AuthenticationOption">
 		<xs:sequence>
 			<xs:element name="protocol" type="xs:unsignedByte"/>
 			<xs:element name="algorithm" type="xs:unsignedByte"/>
@@ -706,7 +706,7 @@
 		<xs:attribute name="code" type="code" fixed="11"/>
 	</xs:complexType>
 
-	<xs:complexType name="serverUnicastOption">
+	<xs:complexType name="v6ServerUnicastOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressOptionType">
 				<xs:attribute name="code" type="code" fixed="12"/>
@@ -714,7 +714,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="statusCodeOption">
+	<xs:complexType name="v6StatusCodeOption">
 		<xs:sequence>
 			<xs:element name="statusCode" type="code"/>
 			<xs:element name="message" type="xs:string"/>
@@ -722,11 +722,11 @@
 		<xs:attribute name="code" type="code" fixed="13"/>
 	</xs:complexType>
 
-	<xs:complexType name="rapidCommitOption">
+	<xs:complexType name="v6RapidCommitOption">
 		<xs:attribute name="code" type="code" fixed="14"/>
 	</xs:complexType>
 
-	<xs:complexType name="userClassOption">
+	<xs:complexType name="v6UserClassOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueDataListOptionType">
 				<xs:attribute name="code" type="code" fixed="15"/>
@@ -734,7 +734,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="vendorClassOption">
+	<xs:complexType name="v6VendorClassOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueDataListOptionType">
 				<xs:sequence>
@@ -745,7 +745,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="vendorInfoOption">
+	<xs:complexType name="v6VendorInfoOption">
 		<xs:sequence>
 			<xs:element name="enterpriseNumber" type="enterpriseNumber"/>
 			<xs:element name="suboptionList" type="genericOptionsType"/>
@@ -753,7 +753,7 @@
 		<xs:attribute name="code" type="code" fixed="17"/>
 	</xs:complexType>
 
-	<xs:complexType name="interfaceIdOption">
+	<xs:complexType name="v6InterfaceIdOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueDataOptionType">
 				<xs:attribute name="code" type="code" fixed="18"/>
@@ -761,7 +761,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="reconfigureMessageOption">
+	<xs:complexType name="v6ReconfigureMessageOption">
 		<xs:complexContent>
 			<xs:extension base="unsignedByteOptionType">
 				<xs:attribute name="code" type="code" fixed="19"/>
@@ -769,11 +769,11 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="reconfigureAcceptOption">
+	<xs:complexType name="v6ReconfigureAcceptOption">
 		<xs:attribute name="code" type="code" fixed="20"/>
 	</xs:complexType>
 
-	<xs:complexType name="sipServerDomainNamesOption">
+	<xs:complexType name="v6SipServerDomainNamesOption">
 		<xs:complexContent>
 			<xs:extension base="domainNameListOptionType">
 				<xs:attribute name="code" type="code" fixed="21"/>
@@ -781,7 +781,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="sipServerAddressesOption">
+	<xs:complexType name="v6SipServerAddressesOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressListOptionType">
 				<xs:attribute name="code" type="code" fixed="22"/>
@@ -789,7 +789,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="dnsServersOption">
+	<xs:complexType name="v6DnsServersOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressListOptionType">
 				<xs:attribute name="code" type="code" fixed="23"/>
@@ -797,7 +797,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="domainSearchListOption">
+	<xs:complexType name="v6DomainSearchListOption">
 		<xs:complexContent>
 			<xs:extension base="domainNameListOptionType">
 				<xs:attribute name="code" type="code" fixed="24"/>
@@ -805,35 +805,35 @@
 		</xs:complexContent>
 	</xs:complexType>
 	
-	<xs:complexType name="iaPdOption">
+	<xs:complexType name="v6IaPdOption">
 		<xs:sequence>
 			<xs:element name="iaId" type="iaId"/>
 			<xs:element name="t1" type="xs:unsignedInt"/>
 			<xs:element name="t2" type="xs:unsignedInt"/>
-			<xs:element name="configOptions" type="configOptionsType"/>
-			<xs:element name="iaPrefixOptionList" type="iaPrefixOptionListType"/>
+			<xs:element name="configOptions" type="v6ConfigOptionsType"/>
+			<xs:element name="iaPrefixOptionList" type="v6IaPrefixOptionListType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="25"/>
 	</xs:complexType>
 	
-	<xs:complexType name="iaPrefixOption">
+	<xs:complexType name="v6IaPrefixOption">
 		<xs:sequence>
 			<xs:element name="prefixLength" type="xs:unsignedByte"/>
 			<xs:element name="ipv6Prefix" type="ipAddress"/>
 			<xs:element name="preferredLifetime" type="xs:unsignedInt"/>
 			<xs:element name="validLifetime" type="xs:unsignedInt"/>
-			<xs:element name="configOptions" type="configOptionsType"/>
+			<xs:element name="configOptions" type="v6ConfigOptionsType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="26"/>
 	</xs:complexType>
 	
-	<xs:complexType name="iaPrefixOptionListType">
+	<xs:complexType name="v6IaPrefixOptionListType">
 		<xs:sequence>
-			<xs:element name="iaPrefixOption" type="iaPrefixOption" maxOccurs="unbounded"/>
+			<xs:element name="iaPrefixOption" type="v6IaPrefixOption" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="nisServersOption">
+	<xs:complexType name="v6NisServersOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressListOptionType">
 				<xs:attribute name="code" type="code" fixed="27"/>
@@ -841,7 +841,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="nisPlusServersOption">
+	<xs:complexType name="v6NisPlusServersOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressListOptionType">
 				<xs:attribute name="code" type="code" fixed="28"/>
@@ -849,7 +849,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="nisDomainNameOption">
+	<xs:complexType name="v6NisDomainNameOption">
 		<xs:complexContent>
 			<xs:extension base="domainNameOptionType">
 				<xs:attribute name="code" type="code" fixed="29"/>
@@ -857,7 +857,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="nisPlusDomainNameOption">
+	<xs:complexType name="v6NisPlusDomainNameOption">
 		<xs:complexContent>
 			<xs:extension base="domainNameOptionType">
 				<xs:attribute name="code" type="code" fixed="30"/>
@@ -865,7 +865,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="sntpServersOption">
+	<xs:complexType name="v6SntpServersOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressListOptionType">
 				<xs:attribute name="code" type="code" fixed="31"/>
@@ -873,7 +873,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="infoRefreshTimeOption">
+	<xs:complexType name="v6InfoRefreshTimeOption">
 		<xs:complexContent>
 			<xs:extension base="unsignedIntOptionType">
 				<xs:attribute name="code" type="code" fixed="32"/>
@@ -881,7 +881,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="bcmcsDomainNamesOption">
+	<xs:complexType name="v6BcmcsDomainNamesOption">
 		<xs:complexContent>
 			<xs:extension base="domainNameListOptionType">
 				<xs:attribute name="code" type="code" fixed="33"/>
@@ -889,7 +889,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="bcmcsAddressesOption">
+	<xs:complexType name="v6BcmcsAddressesOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressListOptionType">
 				<xs:attribute name="code" type="code" fixed="34"/>
@@ -899,7 +899,7 @@
 	
 	<!-- unassigned=35 -->
 
-	<xs:complexType name="geoconfCivicOption">
+	<xs:complexType name="v6GeoconfCivicOption">
 		<xs:sequence>
 			<xs:element name="what" type="xs:unsignedByte"/>
 			<xs:element name="countryCode" type="countryCode"/>
@@ -919,7 +919,7 @@
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="remoteIdOption">
+	<xs:complexType name="v6RemoteIdOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueDataOptionType">
 				<xs:sequence>
@@ -930,7 +930,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 	
-	<xs:complexType name="subscriberIdOption">
+	<xs:complexType name="v6SubscriberIdOption">
 		<xs:complexContent>
 			<xs:extension base="opaqueDataOptionType">
 				<xs:attribute name="code" type="code" fixed="38"/>
@@ -938,7 +938,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 	
-	<xs:complexType name="clientFqdnOption">
+	<xs:complexType name="v6ClientFqdnOption">
 		<xs:complexContent>
 			<xs:extension base="domainNameOptionType">
 				<xs:sequence>
@@ -949,7 +949,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 	
-	<xs:complexType name="panaAgentAddressesOption">
+	<xs:complexType name="v6PanaAgentAddressesOption">
 		<xs:complexContent>
 			<xs:extension base="ipAddressListOptionType">
 				<xs:attribute name="code" type="code" fixed="40"/>
@@ -957,7 +957,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="newPosixTimezoneOption">
+	<xs:complexType name="v6NewPosixTimezoneOption">
 		<xs:complexContent>
 			<xs:extension base="stringOptionType">
 				<xs:attribute name="code" type="code" fixed="41"/>
@@ -965,7 +965,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="newTzdbTimezoneOption">
+	<xs:complexType name="v6NewTzdbTimezoneOption">
 		<xs:complexContent>
 			<xs:extension base="stringOptionType">
 				<xs:attribute name="code" type="code" fixed="42"/>
@@ -973,7 +973,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="echoRequestOption">
+	<xs:complexType name="v6EchoRequestOption">
 		<xs:complexContent>
 			<xs:extension base="unsignedShortListOptionType">
 				<xs:attribute name="code" type="code" fixed="43"/>
@@ -985,7 +985,7 @@
 	
 	<!-- TODO: draft-ietf-mip6-hiopt-17 options 49-50 -->
 
-	<xs:complexType name="lostServerDomainNameOption">
+	<xs:complexType name="v6LostServerDomainNameOption">
 		<xs:complexContent>
 			<xs:extension base="domainNameOptionType">
 				<xs:attribute name="code" type="code" fixed="51"/>

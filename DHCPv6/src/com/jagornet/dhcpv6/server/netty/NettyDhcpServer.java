@@ -77,18 +77,22 @@ public class NettyDhcpServer
 {
 	private static Logger log = LoggerFactory.getLogger(NettyDhcpServer.class);
 	
-	/** The unicast socket addresses */
-	private List<InetAddress> addrs;
+	/** The V6 unicast socket addresses */
+	private List<InetAddress> v6Addrs;
 	
-	/** The mulitcast network interfaces */
-	private List<NetworkInterface> netIfs;
+	/** The V6 mulitcast network interfaces */
+	private List<NetworkInterface> v6NetIfs;
 	
 	/** The DHCPv6 server port. */
-	private int port;
+	private int v6Port;
 	
+	/** The V4 unicast socket addresses */
 	private List<InetAddress> v4Addrs;
+
+	/** The V4 broadcast network interface */
 	private NetworkInterface v4NetIf;
 	
+	/** The DHCPv4 server port. */
 	private int v4Port;
 	
     /** The collection of channels this server listens on. */
@@ -100,16 +104,19 @@ public class NettyDhcpServer
     /**
      * Create a NettyDhcpServer.
      * 
-     * @param port the port to listen on
-     * @param addrs the addresses to listen on for unicast traffic
-     * @param netIfs the network interfaces to listen on for multicast traffic
+     * @param v6Addrs the addresses to listen on for unicast traffic
+     * @param v6NetIfs the network interfaces to listen on for multicast traffic
+     * @param v6Port the port to listen on
+     * @param v4Addrs the addresses to listen on for unicast traffic
+     * @param v4NetIf the network interface to listen on for broadcast traffic
+     * @param v4Port the port to listen on
      */
-    public NettyDhcpServer(List<InetAddress> addrs, List<NetworkInterface> netIfs, int port,
+    public NettyDhcpServer(List<InetAddress> v6Addrs, List<NetworkInterface> v6NetIfs, int v6Port,
     						List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port)
     {
-    	this.addrs = addrs;
-    	this.netIfs = netIfs;
-    	this.port = port;
+    	this.v6Addrs = v6Addrs;
+    	this.v6NetIfs = v6NetIfs;
+    	this.v6Port = v6Port;
     	this.v4Addrs = v4Addrs;
     	this.v4NetIf = v4NetIf;
     	this.v4Port = v4Port;
@@ -146,14 +153,14 @@ public class NettyDhcpServer
         			" sendBufferSize=" + sendBufSize);
         	
         	boolean v6SocketChecked = false;
-        	if (addrs != null) {
+        	if (v6Addrs != null) {
         		// test if this socket is already in use, which means
         		// there is probably already a DHCPv6 server running
-        		checkSocket(port);
+        		checkSocket(v6Port);
         		v6SocketChecked = true;
-	        	for (InetAddress addr : addrs) {
+	        	for (InetAddress addr : v6Addrs) {
 	        		// local address for packets received on this channel
-		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
+		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v6Port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
 		            pipeline.addLast("decoder", new DhcpUnicastChannelDecoder(sockAddr, ignoreSelfPackets));
@@ -194,12 +201,12 @@ public class NettyDhcpServer
 	        	}
         	}
         	
-        	if (netIfs != null) {
+        	if (v6NetIfs != null) {
         		if (!v6SocketChecked) {
         			// if in-use socket check has not been done yet, then do it
-        			checkSocket(port);
+        			checkSocket(v6Port);
         		}
-	        	for (NetworkInterface netIf : netIfs) {
+	        	for (NetworkInterface netIf : v6NetIfs) {
 	        		// find the link local IPv6 address for this interface
 	        		InetAddress addr = Util.netIfIPv6LinkLocalAddress(netIf);
 	        		if (addr == null) {
@@ -208,7 +215,7 @@ public class NettyDhcpServer
 	        			throw new DhcpServerConfigException(msg);	        			
 	        		}
 	        		// local address for packets received on this channel
-		            InetSocketAddress sockAddr = new InetSocketAddress(addr, port); 
+		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v6Port); 
 		            ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
 		            pipeline.addLast("decoder", new DhcpChannelDecoder(sockAddr, ignoreSelfPackets));
@@ -230,7 +237,7 @@ public class NettyDhcpServer
 		            channel.getConfig().setSendBufferSize(sendBufSize);
 		            
 		            // must be bound in order to join multicast group
-		            SocketAddress wildAddr = new InetSocketAddress(port);
+		            SocketAddress wildAddr = new InetSocketAddress(v6Port);
 		            log.info("Binding New I/O multicast channel on IPv6 wildcard address: " + wildAddr);
 		            ChannelFuture future = channel.bind(wildAddr);
 		            future.await();
@@ -239,12 +246,12 @@ public class NettyDhcpServer
 		            	throw new IOException(future.getCause());
 		            }
 		            InetSocketAddress relayGroup = 
-		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS, port);
+		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS, v6Port);
 		            log.info("Joining multicast group: " + relayGroup +
 		            		" on interface: " + netIf.getName());
 		            channel.joinGroup(relayGroup, netIf);
 		            InetSocketAddress serverGroup = 
-		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS, port); 
+		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS, v6Port); 
 		            log.info("Joining multicast group: " + serverGroup +
 		            		" on interface: " + netIf.getName());
 		            channel.joinGroup(serverGroup, netIf);

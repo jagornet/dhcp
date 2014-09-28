@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
 import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.V4ClientFqdnOption;
+import com.jagornet.dhcp.xml.V4ClientFqdnOption;
 
 /**
  * <p>Title: DhcpV4ClientFqdnOption </p>

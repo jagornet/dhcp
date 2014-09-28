@@ -36,8 +36,8 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.server.request.DhcpMessageHandler;
+import com.jagornet.dhcpv6.message.DhcpV6Message;
+import com.jagornet.dhcpv6.server.request.DhcpV6MessageHandler;
 
 /**
  * Title: DhcpChannelHandler
@@ -59,9 +59,9 @@ public class DhcpChannelHandler extends SimpleChannelHandler
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception
     {
     	Object message = e.getMessage();
-        if (message instanceof DhcpMessage) {
+        if (message instanceof DhcpV6Message) {
             
-            DhcpMessage dhcpMessage = (DhcpMessage) message;
+            DhcpV6Message dhcpMessage = (DhcpV6Message) message;
             if (log.isDebugEnabled())
             	log.debug("Received: " + dhcpMessage.toStringWithOptions());
             else
@@ -69,8 +69,8 @@ public class DhcpChannelHandler extends SimpleChannelHandler
             
             SocketAddress remoteAddress = e.getRemoteAddress();
             InetAddress localAddr = ((InetSocketAddress)e.getChannel().getLocalAddress()).getAddress(); 
-            DhcpMessage replyMessage = 
-            	DhcpMessageHandler.handleMessage(localAddr, dhcpMessage);
+            DhcpV6Message replyMessage = 
+            	DhcpV6MessageHandler.handleMessage(localAddr, dhcpMessage);
             
             if (replyMessage != null) {
             	e.getChannel().write(replyMessage, remoteAddress);

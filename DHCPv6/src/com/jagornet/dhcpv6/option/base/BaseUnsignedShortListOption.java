@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.Operator;
-import com.jagornet.dhcpv6.xml.OptionExpression;
-import com.jagornet.dhcpv6.xml.UnsignedShortListOptionType;
+import com.jagornet.dhcp.xml.Operator;
+import com.jagornet.dhcp.xml.OptionExpression;
+import com.jagornet.dhcp.xml.UnsignedShortListOptionType;
 
 /**
  * Title: BaseUnsignedShortListOption
@@ -131,7 +131,7 @@ public abstract class BaseUnsignedShortListOption extends BaseDhcpOption impleme
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcpv6.xml.OptionExpression)
+     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
      */
     public boolean matches(OptionExpression expression)
     {

@@ -32,8 +32,8 @@ import java.util.Arrays;
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
-import com.jagornet.dhcpv6.xml.OptionExpression;
+import com.jagornet.dhcp.xml.OpaqueDataOptionType;
+import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: BaseOpaqueDataOption
@@ -107,7 +107,7 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
     }
     
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcpv6.xml.OptionExpression)
+     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
      */
     public boolean matches(OptionExpression expression)
     {

@@ -92,7 +92,7 @@ import com.jagornet.dhcpv6.util.Util;
  * @author A. Gregory Rabil
  */
 
-public class DhcpV4Message implements DhcpMessageInterface
+public class DhcpV4Message implements DhcpMessage
 {
     private static Logger log = LoggerFactory.getLogger(DhcpV4Message.class);
     

@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.IpAddressListOptionType;
-import com.jagornet.dhcpv6.xml.Operator;
-import com.jagornet.dhcpv6.xml.OptionExpression;
+import com.jagornet.dhcp.xml.IpAddressListOptionType;
+import com.jagornet.dhcp.xml.Operator;
+import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: BaseIpAddressListOption
@@ -180,7 +180,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcpv6.xml.OptionExpression)
+     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
      */
     public boolean matches(OptionExpression expression)
     {

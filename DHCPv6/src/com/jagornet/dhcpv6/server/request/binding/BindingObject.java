@@ -7,7 +7,7 @@ import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 
 /**
  * Interface BindingObject.  
- * Common interface for BindingAddress, BindingPrefix and V4BindingAddress.
+ * Common interface for V6BindingAddress, V6BindingPrefix and V4BindingAddress.
  * 
  * @author A. Gregory Rabil
  */

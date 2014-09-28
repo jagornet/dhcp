@@ -45,15 +45,15 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IaManager;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Subnet;
-import com.jagornet.dhcpv6.xml.Link;
-import com.jagornet.dhcpv6.xml.LinkFilter;
+import com.jagornet.dhcp.xml.Link;
+import com.jagornet.dhcp.xml.LinkFilter;
 
 /**
  * The Class BaseBindingManager.
@@ -63,13 +63,10 @@ import com.jagornet.dhcpv6.xml.LinkFilter;
  */
 public abstract class BaseBindingManager
 {
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseBindingManager.class);
 	
-	/** The server config. */
 	protected static DhcpServerConfiguration serverConfig = DhcpServerConfiguration.getInstance();
 
-    /** The IdentityAssoc manager */
     protected IaManager iaMgr;
 
     /** 
@@ -130,7 +127,7 @@ public abstract class BaseBindingManager
 
     /**
      * Build the list of BindingPools for the given DhcpLink.  The BindingPools
-     * are either AddressBindingPools (NA and TA) or PrefixBindingPools
+     * are either V6AddressBindingPools (NA and TA) or V6PrefixBindingPools
      * or V4AddressBindingPools.
      * 
      * @param link the configured DhcpLink
@@ -191,7 +188,7 @@ public abstract class BaseBindingManager
 	 * @return the binding pool
 	 */
 	protected BindingPool findBindingPool(Link link, InetAddress inetAddr, 
-			DhcpMessageInterface requestMsg)
+			DhcpMessage requestMsg)
 	{
 		List<? extends BindingPool> bps = bindingPoolMap.get(link.getAddress());
 		if ((bps != null) && !bps.isEmpty()) {
@@ -292,7 +289,7 @@ public abstract class BaseBindingManager
 	 * @return the existing Binding for this client request
 	 */
 	protected Binding findCurrentBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
-			DhcpMessageInterface requestMsg) 
+			DhcpMessage requestMsg) 
 	{
 		Binding binding = null;
 		try {
@@ -331,7 +328,7 @@ public abstract class BaseBindingManager
 	 * @return the existing StaticBinding for this client request
 	 */
 	public StaticBinding findStaticBinding(Link clientLink, byte[] duid, byte iatype, long iaid,
-			DhcpMessageInterface requestMsg)
+			DhcpMessage requestMsg)
 	{
 		try {
 			List<? extends StaticBinding> staticBindings = 
@@ -364,7 +361,7 @@ public abstract class BaseBindingManager
 	 * @return the created Binding
 	 */
 	protected Binding createBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
-			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, byte state)
+			List<InetAddress> requestAddrs, DhcpMessage requestMsg, byte state)
 	{
 		Binding binding = null;
 		log.debug("Getting addresses for new binding");
@@ -415,7 +412,7 @@ public abstract class BaseBindingManager
 	 * @return the created Binding
 	 */
 	protected Binding createStaticBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
-			StaticBinding staticBinding, DhcpMessageInterface requestMsg)
+			StaticBinding staticBinding, DhcpMessage requestMsg)
 	{
 		Binding binding = null;		
 		if (staticBinding != null) {
@@ -425,7 +422,7 @@ public abstract class BaseBindingManager
 				IaAddress iaAddr = new IaAddress();
 				iaAddr.setIpAddress(inetAddr);
 				iaAddr.setState(IaAddress.STATIC);
-				BindingAddress bindingAddr = new BindingAddress(iaAddr, staticBinding);
+				V6BindingAddress bindingAddr = new V6BindingAddress(iaAddr, staticBinding);
 				setBindingObjectTimes(bindingAddr, 
 						staticBinding.getPreferredLifetimeMs(), 
 						staticBinding.getPreferredLifetimeMs());
@@ -479,7 +476,7 @@ public abstract class BaseBindingManager
 	 * @return the updated Binding
 	 */
 	protected Binding updateBinding(Binding binding, DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
-			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg, byte state)
+			List<InetAddress> requestAddrs, DhcpMessage requestMsg, byte state)
 	{
 		Collection<? extends IaAddress> addIaAddresses = null;
 		Collection<? extends IaAddress> updateIaAddresses = null;
@@ -535,7 +532,7 @@ public abstract class BaseBindingManager
 	 */
 	protected Binding updateStaticBinding(Binding binding, DhcpLink clientLink, 
 			byte[] duid, byte iatype, long iaid, StaticBinding staticBinding,
-			DhcpMessageInterface requestMsg)
+			DhcpMessage requestMsg)
 	{
 		Collection<? extends IaAddress> addIaAddresses = null;
 		Collection<? extends IaAddress> updateIaAddresses = null;
@@ -596,7 +593,7 @@ public abstract class BaseBindingManager
 	 * @return the list of InetAddresses
 	 */
 	protected List<InetAddress> getInetAddrs(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
-			List<InetAddress> requestAddrs, DhcpMessageInterface requestMsg)
+			List<InetAddress> requestAddrs, DhcpMessage requestMsg)
 	{
 		List<InetAddress> inetAddrs = new ArrayList<InetAddress>();
 		
@@ -692,7 +689,7 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the next free address
 	 */
-	protected InetAddress getNextFreeAddress(DhcpLink clientLink, DhcpMessageInterface requestMsg)
+	protected InetAddress getNextFreeAddress(DhcpLink clientLink, DhcpMessage requestMsg)
 	{
 		if (clientLink != null) {
     		List<? extends BindingPool> pools = bindingPoolMap.get(clientLink.getLinkAddress());
@@ -803,7 +800,7 @@ public abstract class BaseBindingManager
 	 * @return the binding
 	 */
 	protected abstract Binding buildBindingFromIa(IdentityAssoc ia, 
-			DhcpLink clientLink, DhcpMessageInterface requestMsg);
+			DhcpLink clientLink, DhcpMessage requestMsg);
 
 	/**
 	 * Builds a new Binding.  Create a new IdentityAssoc from the given
@@ -838,7 +835,7 @@ public abstract class BaseBindingManager
 	 * @return the set<binding object>
 	 */
 	private Set<BindingObject> buildBindingObjects(DhcpLink clientLink, 
-			List<InetAddress> inetAddrs, DhcpMessageInterface requestMsg,
+			List<InetAddress> inetAddrs, DhcpMessage requestMsg,
 			byte state)
 	{
 		Set<BindingObject> bindingObjs = new HashSet<BindingObject>();
@@ -868,7 +865,7 @@ public abstract class BaseBindingManager
 	 * @return the binding object
 	 */
 	protected abstract BindingObject buildBindingObject(InetAddress inetAddr, 
-			DhcpLink clientLink, DhcpMessageInterface requestMsg);
+			DhcpLink clientLink, DhcpMessage requestMsg);
 
 
 	/**
@@ -887,7 +884,7 @@ public abstract class BaseBindingManager
 	{
 		IaAddress iaAddr = new IaAddress();
 		iaAddr.setIpAddress(inetAddr);
-		BindingAddress bindingAddr = new BindingAddress(iaAddr, staticBinding);
+		V6BindingAddress bindingAddr = new V6BindingAddress(iaAddr, staticBinding);
 		setBindingObjectTimes(bindingAddr, 
 				staticBinding.getPreferredLifetimeMs(), 
 				staticBinding.getPreferredLifetimeMs());

@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.DhcpComparableOption;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
-import com.jagornet.dhcpv6.xml.Operator;
-import com.jagornet.dhcpv6.xml.OptionExpression;
-import com.jagornet.dhcpv6.xml.StringOptionType;
+import com.jagornet.dhcp.xml.OpaqueData;
+import com.jagornet.dhcp.xml.OpaqueDataOptionType;
+import com.jagornet.dhcp.xml.Operator;
+import com.jagornet.dhcp.xml.OptionExpression;
+import com.jagornet.dhcp.xml.StringOptionType;
 
 /**
  * Title: BaseStringOption
@@ -111,7 +111,7 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
     }
 
     /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcpv6.xml.OptionExpression)
+     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
      */
     public boolean matches(OptionExpression expression)
     {

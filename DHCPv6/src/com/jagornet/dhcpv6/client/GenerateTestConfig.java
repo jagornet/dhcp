@@ -1,3 +1,28 @@
+/*
+ * Copyright 2014 Jagornet Technologies, LLC.  All Rights Reserved.
+ *
+ * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * Use is subject to license terms.
+ *
+ */
+
+/*
+ *   This file GenerateTestConfig.java is part of Jagornet DHCP.
+ *
+ *   Jagornet DHCP is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Jagornet DHCP is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package com.jagornet.dhcpv6.client;
 
 import java.io.IOException;
@@ -14,19 +39,19 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.jagornet.dhcp.xml.DhcpServerConfigDocument.DhcpServerConfig;
+import com.jagornet.dhcp.xml.Link;
+import com.jagornet.dhcp.xml.LinksType;
+import com.jagornet.dhcp.xml.PoliciesType;
+import com.jagornet.dhcp.xml.Policy;
+import com.jagornet.dhcp.xml.V4AddressPoolsType;
+import com.jagornet.dhcp.xml.V4ConfigOptionsType;
+import com.jagornet.dhcp.xml.V4ServerIdOption;
+import com.jagornet.dhcp.xml.V6AddressPoolsType;
+import com.jagornet.dhcp.xml.V6ConfigOptionsType;
+import com.jagornet.dhcp.xml.V6ServerIdOption;
 import com.jagornet.dhcpv6.option.OpaqueDataUtil;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
-import com.jagornet.dhcpv6.xml.AddressPoolsType;
-import com.jagornet.dhcpv6.xml.ConfigOptionsType;
-import com.jagornet.dhcpv6.xml.DhcpV6ServerConfigDocument.DhcpV6ServerConfig;
-import com.jagornet.dhcpv6.xml.Link;
-import com.jagornet.dhcpv6.xml.LinksType;
-import com.jagornet.dhcpv6.xml.PoliciesType;
-import com.jagornet.dhcpv6.xml.Policy;
-import com.jagornet.dhcpv6.xml.ServerIdOption;
-import com.jagornet.dhcpv6.xml.V4AddressPoolsType;
-import com.jagornet.dhcpv6.xml.V4ConfigOptionsType;
-import com.jagornet.dhcpv6.xml.V4ServerIdOption;
 
 public class GenerateTestConfig {
 
@@ -106,11 +131,11 @@ public class GenerateTestConfig {
 	
 	public void generate() {
 		try {
-			DhcpV6ServerConfig config = DhcpV6ServerConfig.Factory.newInstance();
+			DhcpServerConfig config = DhcpServerConfig.Factory.newInstance();
 			
-			ServerIdOption serverId = ServerIdOption.Factory.newInstance();
+			V6ServerIdOption serverId = V6ServerIdOption.Factory.newInstance();
 			serverId.setOpaqueData(OpaqueDataUtil.generateDUID_LLT());
-			config.setServerIdOption(serverId);
+			config.setV6ServerIdOption(serverId);
 			
 			V4ServerIdOption v4ServerId = V4ServerIdOption.Factory.newInstance();
 			String myIp = ipv4Address.getHostAddress();
@@ -145,10 +170,10 @@ public class GenerateTestConfig {
 			v6Link.setName("Test IPv6 Client Link");
 			String myIf = networkInterface.getName();
 			v6Link.setInterface(myIf);
-			ConfigOptionsType v6Options = v6Link.addNewMsgConfigOptions();
-			v6Options.addNewDnsServersOption().addIpAddress("2001:db8:1::1");
-			v6Options.addNewDomainSearchListOption().addDomainName("jagornet.test.com");
-			AddressPoolsType v6Pools = v6Link.addNewNaAddrPools();
+			V6ConfigOptionsType v6Options = v6Link.addNewV6MsgConfigOptions();
+			v6Options.addNewV6DnsServersOption().addIpAddress("2001:db8:1::1");
+			v6Options.addNewV6DomainSearchListOption().addDomainName("jagornet.test.com");
+			V6AddressPoolsType v6Pools = v6Link.addNewV6NaAddrPools();
 			v6Pools.addNewPool().setRange("2001:db8:1::/64");
 			
 			config.setLinks(links);

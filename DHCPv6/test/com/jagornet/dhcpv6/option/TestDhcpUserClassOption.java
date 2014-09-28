@@ -32,19 +32,19 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.ClientClassExpression;
-import com.jagornet.dhcpv6.xml.Operator;
+import com.jagornet.dhcp.xml.ClientClassExpression;
+import com.jagornet.dhcp.xml.Operator;
 
 /**
  * The Class TestDhcpUserClassOption.
  */
 public class TestDhcpUserClassOption extends TestCase
 {
-	protected DhcpUserClassOption duco;
+	protected DhcpV6UserClassOption duco;
 	
 	public TestDhcpUserClassOption()
 	{
-		duco = new DhcpUserClassOption();
+		duco = new DhcpV6UserClassOption();
         duco.addOpaqueData("UserClass 1");   // 13 (len=2 bytes, data=11 bytes)
         duco.addOpaqueData("UserClass 2");   // 13 (len=2 bytes, data=11 bytes)		
 	}
@@ -82,7 +82,7 @@ public class TestDhcpUserClassOption extends TestCase
         bb.putShort((short)11);
         bb.put("UserClass 2".getBytes());
         bb.flip();
-        DhcpUserClassOption _duco = new DhcpUserClassOption();
+        DhcpV6UserClassOption _duco = new DhcpV6UserClassOption();
         _duco.decode(bb);
         List<BaseOpaqueData> userClasses = _duco.getOpaqueDataList();
         assertNotNull(userClasses);
@@ -94,8 +94,8 @@ public class TestDhcpUserClassOption extends TestCase
     public void testMatches() throws Exception
     {
         ClientClassExpression expression = ClientClassExpression.Factory.newInstance();
-        assertFalse(duco.matches((DhcpUserClassOption)expression.getUserClassOption(), Operator.EQUALS));
-        DhcpUserClassOption _duco = new DhcpUserClassOption(expression.getUserClassOption());
+        assertFalse(duco.matches((DhcpV6UserClassOption)expression.getV6UserClassOption(), Operator.EQUALS));
+        DhcpV6UserClassOption _duco = new DhcpV6UserClassOption(expression.getV6UserClassOption());
         assertFalse(duco.matches(_duco, Operator.EQUALS));
         _duco.addOpaqueData("UserClass 1");
         _duco.addOpaqueData("UserClass 2");

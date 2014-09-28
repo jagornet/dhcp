@@ -27,7 +27,7 @@ package com.jagornet.dhcpv6.server.request.binding;
 
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 
@@ -56,7 +56,7 @@ public interface V4AddrBindingManager extends StaticBindingManager
 	 * @return the binding
 	 */
 	public Binding findCurrentBinding(DhcpLink clientLink, byte[] macAddr, 
-			DhcpMessageInterface requestMsg);
+			DhcpMessage requestMsg);
 	
 	/**
 	 * Creates the solicit binding.
@@ -69,7 +69,7 @@ public interface V4AddrBindingManager extends StaticBindingManager
 	 * @return the binding
 	 */
 	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] macAddr, 
-			DhcpMessageInterface requestMsg, byte state);
+			DhcpMessage requestMsg, byte state);
 
 	/**
 	 * Update binding.
@@ -83,7 +83,7 @@ public interface V4AddrBindingManager extends StaticBindingManager
 	 * @return the binding
 	 */
 	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
-			byte[] macAddr, DhcpMessageInterface requestMsg, byte state);
+			byte[] macAddr, DhcpMessage requestMsg, byte state);
 
 	/**
 	 * Release ia address.

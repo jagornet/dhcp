@@ -27,7 +27,7 @@ package com.jagornet.dhcpv6.option.v4;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.V4VendorSpecificOption;
+import com.jagornet.dhcp.xml.V4VendorSpecificOption;
 
 /**
  * <p>Title: DhcpV4VendorSpecificOption </p>

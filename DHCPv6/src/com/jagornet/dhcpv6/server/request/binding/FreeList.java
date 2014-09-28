@@ -40,10 +40,7 @@ import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
  */
 public class FreeList
 {	
-	/** The start. */
 	protected BigInteger start;
-	
-	/** The end. */
 	protected BigInteger end;
 
 	/** 

@@ -74,39 +74,22 @@ import com.jagornet.dhcpv6.util.Util;
 
 public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 {
-	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BaseDhcpV4Processor.class);
 
-    /** The dhcp server config. */
     protected static DhcpServerConfiguration dhcpServerConfig = 
                                         DhcpServerConfiguration.getInstance();
     
     // wrap the configured V4ServerId option in a DhcpOption for the wire
-    /** The dhcp server id option. */
     protected static DhcpV4ServerIdOption dhcpV4ServerIdOption = 
-    	new DhcpV4ServerIdOption(dhcpServerConfig.getDhcpV6ServerConfig().getV4ServerIdOption());
+    	new DhcpV4ServerIdOption(dhcpServerConfig.getDhcpServerConfig().getV4ServerIdOption());
     
-    /** The request message. */
     protected final DhcpV4Message requestMsg;
-    
-    /** The reply message. */
     protected DhcpV4Message replyMsg;
-
-    /** The client link address. */
     protected final InetAddress clientLinkAddress;
-    
-    /** The configuration Link object for the client link. */
     protected DhcpLink clientLink;
-    
-    /** The list of Bindings for this request. */
     protected List<Binding> bindings = new ArrayList<Binding>();
-    
-    /** The recent msgs. */
     protected static Set<DhcpV4Message> recentMsgs = 
     	Collections.synchronizedSet(new HashSet<DhcpV4Message>());
-    
-    /** The recent msg pruner. */
     protected static Timer recentMsgPruner = new Timer("RecentMsgPruner");
     
     /**

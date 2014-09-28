@@ -40,11 +40,7 @@ import com.jagornet.dhcpv6.util.Util;
  */
 public class Range
 {
-	
-	/** The start address. */
 	protected InetAddress startAddress;
-	
-	/** The end address. */
 	protected InetAddress endAddress;
 
 	/**

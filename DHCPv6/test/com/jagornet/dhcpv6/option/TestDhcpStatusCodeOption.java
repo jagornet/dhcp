@@ -45,7 +45,7 @@ public class TestDhcpStatusCodeOption extends TestCase
      */
     public void testEncode() throws Exception
     {
-        DhcpStatusCodeOption dsco = new DhcpStatusCodeOption();
+        DhcpV6StatusCodeOption dsco = new DhcpV6StatusCodeOption();
         dsco.setStatusCode(DhcpConstants.STATUS_CODE_SUCCESS);
         dsco.setMessage("All is well");
         ByteBuffer bb = dsco.encode();
@@ -75,7 +75,7 @@ public class TestDhcpStatusCodeOption extends TestCase
         bb.putShort((short)DhcpConstants.STATUS_CODE_SUCCESS);
         bb.put("All is well".getBytes());
         bb.flip();
-        DhcpStatusCodeOption dsco = new DhcpStatusCodeOption();
+        DhcpV6StatusCodeOption dsco = new DhcpV6StatusCodeOption();
         dsco.decode(bb);
         assertEquals(13, dsco.getLength());
         assertEquals(DhcpConstants.STATUS_CODE_SUCCESS, 
@@ -90,7 +90,7 @@ public class TestDhcpStatusCodeOption extends TestCase
      */
     public void testToString() throws Exception
     {
-        DhcpStatusCodeOption dsco = new DhcpStatusCodeOption();
+        DhcpV6StatusCodeOption dsco = new DhcpV6StatusCodeOption();
         dsco.setStatusCode(DhcpConstants.STATUS_CODE_SUCCESS);
         dsco.setMessage("All is well");
     	System.out.println(dsco);

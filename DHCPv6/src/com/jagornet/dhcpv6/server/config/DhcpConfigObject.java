@@ -1,7 +1,7 @@
 package com.jagornet.dhcpv6.server.config;
 
-import com.jagornet.dhcpv6.xml.FiltersType;
-import com.jagornet.dhcpv6.xml.PoliciesType;
+import com.jagornet.dhcp.xml.FiltersType;
+import com.jagornet.dhcp.xml.PoliciesType;
 
 public interface DhcpConfigObject 
 {	

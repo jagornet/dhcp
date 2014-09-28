@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcpv6.db.DhcpOption;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.message.DhcpMessageInterface;
+import com.jagornet.dhcpv6.message.DhcpMessage;
 import com.jagornet.dhcpv6.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcpv6.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
@@ -50,13 +50,13 @@ import com.jagornet.dhcpv6.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcpv6.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcpv6.server.request.ddns.DhcpV4DdnsComplete;
 import com.jagornet.dhcpv6.util.DhcpConstants;
-import com.jagornet.dhcpv6.xml.Link;
-import com.jagornet.dhcpv6.xml.LinkFilter;
-import com.jagornet.dhcpv6.xml.LinkFiltersType;
-import com.jagornet.dhcpv6.xml.V4AddressBinding;
-import com.jagornet.dhcpv6.xml.V4AddressBindingsType;
-import com.jagornet.dhcpv6.xml.V4AddressPool;
-import com.jagornet.dhcpv6.xml.V4AddressPoolsType;
+import com.jagornet.dhcp.xml.Link;
+import com.jagornet.dhcp.xml.LinkFilter;
+import com.jagornet.dhcp.xml.LinkFiltersType;
+import com.jagornet.dhcp.xml.V4AddressBinding;
+import com.jagornet.dhcp.xml.V4AddressBindingsType;
+import com.jagornet.dhcp.xml.V4AddressPool;
+import com.jagornet.dhcp.xml.V4AddressPoolsType;
 
 /**
  * The Class V4AddrBindingManagerImpl.
@@ -67,7 +67,6 @@ public class V4AddrBindingManagerImpl
 		extends BaseAddrBindingManager 
 		implements V4AddrBindingManager
 {
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(V4AddrBindingManagerImpl.class);
 	
 	/**
@@ -81,13 +80,13 @@ public class V4AddrBindingManagerImpl
 	}
     
     /**
-     * Build the list of AddressBindingPools from the list of configured AddressPools
-     * for the given configuration Link container object. The list of AddressBindingPools
-     * starts with the filtered AddressPools followed by non-filtered AddressPools.
+     * Build the list of V4AddressBindingPools from the list of configured V4AddressPools
+     * for the given configuration Link container object. The list of V4AddressBindingPools
+     * starts with the filtered V4AddressPools followed by non-filtered V4AddressPools.
      * 
      * @param link the configuration Link object
      * 
-     * @return the list of AddressBindingPools (<? extends BindingPool>)
+     * @return the list of V4AddressBindingPools (<? extends BindingPool>)
      * 
      * @throws DhcpServerConfigException if there is a problem parsing a configured range
      */
@@ -107,7 +106,7 @@ public class V4AddrBindingManagerImpl
 		    			List<V4AddressPool> pools = poolsType.getPoolList();
 		    			if ((pools != null) && !pools.isEmpty()) {
 		    				for (V4AddressPool pool : pools) {
-		    					V4AddressBindingPool abp = buildBindingPool(pool, link, linkFilter);
+		    					V4AddressBindingPool abp = buildV4BindingPool(pool, link, linkFilter);
 								bindingPools.add(abp);
 		    				}
 		    			}
@@ -127,7 +126,7 @@ public class V4AddrBindingManagerImpl
 			List<V4AddressPool> pools = poolsType.getPoolList();
 			if ((pools != null) && !pools.isEmpty()) {
 				for (V4AddressPool pool : pools) {
-					V4AddressBindingPool abp = buildBindingPool(pool, link);
+					V4AddressBindingPool abp = buildV4BindingPool(pool, link);
 					bindingPools.add(abp);
 				}
 			}
@@ -146,9 +145,9 @@ public class V4AddrBindingManagerImpl
     
     /**
      * Reconcile pools.  Delete any IaAddress objects not contained
-     * within the given list of AddressBindingPools.
+     * within the given list of V4AddressBindingPools.
      * 
-     * @param bindingPools the list of AddressBindingPools
+     * @param bindingPools the list of V4AddressBindingPools
      */
     protected void reconcilePools(List<V4AddressBindingPool> bindingPools)
     {
@@ -165,23 +164,23 @@ public class V4AddrBindingManagerImpl
     /**
      * Builds a binding pool from an V4AddressPool using the given link.
      * 
-     * @param pool the V4AddressPool to wrap as an AddressBindingPool
+     * @param pool the V4AddressPool to wrap as an V4AddressBindingPool
      * @param link the link
      * 
      * @return the binding pool
      * 
      * @throws DhcpServerConfigException if there is a problem parsing the configured range
      */
-    protected V4AddressBindingPool buildBindingPool(V4AddressPool pool, Link link) 
+    protected V4AddressBindingPool buildV4BindingPool(V4AddressPool pool, Link link) 
     		throws DhcpServerConfigException
     {
-    	return buildBindingPool(pool, link, null);
+    	return buildV4BindingPool(pool, link, null);
     }
 
     /**
      * Builds a binding pool from an V4AddressPool using the given link and filter.
      * 
-     * @param pool the V4AddressPool to wrap as an AddressBindingPool
+     * @param pool the V4AddressPool to wrap as an V4AddressBindingPool
      * @param link the link
      * @param linkFilter the link filter
      * 
@@ -189,7 +188,7 @@ public class V4AddrBindingManagerImpl
      * 
      * @throws DhcpServerConfigException if there is a problem parsing the configured range
      */
-    protected V4AddressBindingPool buildBindingPool(V4AddressPool pool, Link link, 
+    protected V4AddressBindingPool buildV4BindingPool(V4AddressPool pool, Link link, 
     		LinkFilter linkFilter) throws DhcpServerConfigException
     {
     	V4AddressBindingPool bp = new V4AddressBindingPool(pool);
@@ -215,13 +214,13 @@ public class V4AddrBindingManagerImpl
     protected List<? extends StaticBinding> buildStaticBindings(Link link) 
 			throws DhcpServerConfigException
 	{
-		List<StaticV4AddressBinding> staticBindings = new ArrayList<StaticV4AddressBinding>();
+		List<V4StaticAddressBinding> staticBindings = new ArrayList<V4StaticAddressBinding>();
 		V4AddressBindingsType bindingsType = link.getV4AddrBindings();
 		if (bindingsType != null) {
 			List<V4AddressBinding> bindings = bindingsType.getBindingList();
 			if ((bindings != null) && !bindings.isEmpty()) {
 				for (V4AddressBinding binding : bindings) {
-					StaticV4AddressBinding sab = buildStaticBinding(binding, link);
+					V4StaticAddressBinding sab = buildV4StaticBinding(binding, link);
 					staticBindings.add(sab);
 				}
 			}
@@ -230,12 +229,12 @@ public class V4AddrBindingManagerImpl
 		return staticBindings;
 	}
 	
-	protected StaticV4AddressBinding buildStaticBinding(V4AddressBinding binding, Link link) 
+	protected V4StaticAddressBinding buildV4StaticBinding(V4AddressBinding binding, Link link) 
 			throws DhcpServerConfigException
 	{
 		try {
 			InetAddress inetAddr = InetAddress.getByName(binding.getIpAddress());
-			StaticV4AddressBinding sb = new StaticV4AddressBinding(binding);
+			V4StaticAddressBinding sb = new V4StaticAddressBinding(binding);
 			setIpAsUsed(link, inetAddr);
 			return sb;
 		}
@@ -245,23 +244,17 @@ public class V4AddrBindingManagerImpl
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManager#findCurrentBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage)
-	 */
 	@Override
 	public Binding findCurrentBinding(DhcpLink clientLink, byte[] macAddr, 
-			DhcpMessageInterface requestMsg) {
+			DhcpMessage requestMsg) {
 		
 		return super.findCurrentBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
 				0, requestMsg);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager#createSolicitBinding(com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage, boolean)
-	 */
 	@Override
 	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] macAddr, 
-			DhcpMessageInterface requestMsg, byte state)
+			DhcpMessage requestMsg, byte state)
 	{
 		StaticBinding staticBinding = 
 			findStaticBinding(clientLink.getLink(), macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
@@ -276,12 +269,9 @@ public class V4AddrBindingManagerImpl
 		}		
 	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager#updateBinding(com.jagornet.dhcpv6.server.request.binding.Binding, com.jagornet.dhcpv6.xml.Link, com.jagornet.dhcpv6.option.DhcpClientIdOption, com.jagornet.dhcpv6.option.DhcpIaNaOption, com.jagornet.dhcpv6.message.DhcpMessage, byte)
-	 */
 	@Override
 	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
-			byte[] macAddr, DhcpMessageInterface requestMsg, byte state) {
+			byte[] macAddr, DhcpMessage requestMsg, byte state) {
 
 		StaticBinding staticBinding = 
 			findStaticBinding(clientLink.getLink(), macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
@@ -304,7 +294,7 @@ public class V4AddrBindingManagerImpl
 	 * @return a list of InetAddresses containing the requested IP, or null if none requested or
 	 *         if the requested IP is bogus
 	 */
-	private List<InetAddress> getInetAddrs(DhcpMessageInterface requestMsg)
+	private List<InetAddress> getInetAddrs(DhcpMessage requestMsg)
 	{
 		List<InetAddress> inetAddrs = null;
 		DhcpV4RequestedIpAddressOption reqIpOption = (DhcpV4RequestedIpAddressOption)
@@ -333,7 +323,7 @@ public class V4AddrBindingManagerImpl
 	 * @return the binding
 	 */
 	protected Binding buildBindingFromIa(IdentityAssoc ia, DhcpLink clientLink,
-			DhcpMessageInterface requestMsg)
+			DhcpMessage requestMsg)
 	{
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
@@ -351,11 +341,11 @@ public class V4AddrBindingManagerImpl
         					ia.getIatype(), ia.getIaid(), requestMsg);
         		if (staticBinding != null) {
         			bindingAddr = 
-        				buildStaticBindingFromIaAddr(iaAddr, staticBinding);
+        				buildV4StaticBindingFromIaAddr(iaAddr, staticBinding);
         		}
         		else {
         			bindingAddr =
-        				buildBindingAddrFromIaAddr(iaAddr, clientLink.getLink(), requestMsg);
+        				buildV4BindingAddressFromIaAddr(iaAddr, clientLink.getLink(), requestMsg);
         		}
 				if (bindingAddr != null)
 					bindingAddrs.add(bindingAddr);
@@ -370,7 +360,7 @@ public class V4AddrBindingManagerImpl
 	}
 
 	/**
-	 * Create a BindingAddress given an IaAddress loaded from the database.
+	 * Create a V4BindingAddress given an IaAddress loaded from the database.
 	 * 
 	 * @param iaAddr the ia addr
 	 * @param clientLink the client link
@@ -378,8 +368,8 @@ public class V4AddrBindingManagerImpl
 	 * 
 	 * @return the binding address
 	 */
-	private V4BindingAddress buildBindingAddrFromIaAddr(IaAddress iaAddr, 
-			Link clientLink, DhcpMessageInterface requestMsg)
+	private V4BindingAddress buildV4BindingAddressFromIaAddr(IaAddress iaAddr, 
+			Link clientLink, DhcpMessage requestMsg)
 	{
 		InetAddress inetAddr = iaAddr.getIpAddress();
 		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
@@ -396,7 +386,7 @@ public class V4AddrBindingManagerImpl
 		return null;
 	}
 	
-	private V4BindingAddress buildStaticBindingFromIaAddr(IaAddress iaAddr, 
+	private V4BindingAddress buildV4StaticBindingFromIaAddr(IaAddress iaAddr, 
 			StaticBinding staticBinding)
 	{
 		V4BindingAddress bindingAddr = new V4BindingAddress(iaAddr, staticBinding);
@@ -405,7 +395,7 @@ public class V4AddrBindingManagerImpl
 
 	@Override
 	protected BindingObject buildBindingObject(InetAddress inetAddr,
-			DhcpLink clientLink, DhcpMessageInterface requestMsg)
+			DhcpLink clientLink, DhcpMessage requestMsg)
 	{
 		V4AddressBindingPool bp = 
 			(V4AddressBindingPool) findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
@@ -454,11 +444,11 @@ public class V4AddrBindingManagerImpl
 			        					ia.getIatype(), ia.getIaid(), null);
 			        		if (staticBinding != null) {
 			        			bindingAddr = 
-			        				buildStaticBindingFromIaAddr(iaAddr, staticBinding);
+			        				buildV4StaticBindingFromIaAddr(iaAddr, staticBinding);
 			        		}
 			        		else {
 			        			bindingAddr =
-			        				buildBindingAddrFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+			        				buildV4BindingAddressFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
 			        		}
 			        		if (bindingAddr != null) {
 			        			

@@ -30,7 +30,7 @@ import java.net.InetSocketAddress;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
-import com.jagornet.dhcpv6.message.DhcpMessage;
+import com.jagornet.dhcpv6.message.DhcpV6Message;
 
 /**
  * The Class DhcpUnicastChannelDecoder.
@@ -55,10 +55,10 @@ public class DhcpUnicastChannelDecoder extends DhcpChannelDecoder
 	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
 	{
 		Object obj = super.decode(ctx, channel, msg);
-		if (obj instanceof DhcpMessage) {
+		if (obj instanceof DhcpV6Message) {
 			// this decoder is in the pipeline for unicast
 			// channels only, so this must be a unicast packet
-			((DhcpMessage)obj).setUnicast(true);
+			((DhcpV6Message)obj).setUnicast(true);
 		}
 		return obj;
 	}

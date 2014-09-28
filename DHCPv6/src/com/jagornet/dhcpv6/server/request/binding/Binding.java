@@ -42,11 +42,7 @@ import com.jagornet.dhcpv6.server.config.DhcpLink;
  */
 public class Binding extends IdentityAssoc
 {
-	
-	/** The orig ia. */
 	private IdentityAssoc origIa;
-	
-	/** The link. */
 	private DhcpLink dhcpLink;
 	
 	/**

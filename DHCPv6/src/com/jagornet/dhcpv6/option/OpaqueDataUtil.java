@@ -35,10 +35,10 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.OpaqueData;
-import com.jagornet.dhcpv6.xml.OpaqueDataOptionType;
-import com.jagornet.dhcpv6.xml.Operator;
-import com.jagornet.dhcpv6.xml.OptionExpression;
+import com.jagornet.dhcp.xml.OpaqueData;
+import com.jagornet.dhcp.xml.OpaqueDataOptionType;
+import com.jagornet.dhcp.xml.Operator;
+import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * <p>Title: OpaqueDataUtil </p>

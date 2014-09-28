@@ -45,7 +45,7 @@ public class TestDhcpPreferenceOption extends TestCase
      */
     public void testEncode() throws Exception
     {
-        DhcpPreferenceOption dpo = new DhcpPreferenceOption();
+        DhcpV6PreferenceOption dpo = new DhcpV6PreferenceOption();
         dpo.setUnsignedByte((byte)2);
         ByteBuffer bb = dpo.encode();
         assertNotNull(bb);
@@ -70,7 +70,7 @@ public class TestDhcpPreferenceOption extends TestCase
         bb.putShort((short)1);  // length
         bb.put((byte)2);
         bb.flip();
-        DhcpPreferenceOption dpo = new DhcpPreferenceOption();
+        DhcpV6PreferenceOption dpo = new DhcpV6PreferenceOption();
         dpo.decode(bb);
         assertEquals(1, dpo.getLength());
         assertEquals(2, dpo.getUnsignedByte());
@@ -81,7 +81,7 @@ public class TestDhcpPreferenceOption extends TestCase
      */
     public void testToString()
     {
-        DhcpPreferenceOption dpo = new DhcpPreferenceOption();
+        DhcpV6PreferenceOption dpo = new DhcpV6PreferenceOption();
         dpo.setUnsignedByte((byte)2);
         System.out.println(dpo);
     }

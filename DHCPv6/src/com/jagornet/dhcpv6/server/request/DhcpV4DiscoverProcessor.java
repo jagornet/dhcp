@@ -38,7 +38,7 @@ import com.jagornet.dhcpv6.server.request.binding.Binding;
 import com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
-import com.jagornet.dhcpv6.xml.Link;
+import com.jagornet.dhcp.xml.Link;
 
 /**
  * Title: DhcpV4DiscoverProcessor

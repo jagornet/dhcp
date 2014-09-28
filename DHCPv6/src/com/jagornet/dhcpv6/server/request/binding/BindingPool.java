@@ -4,11 +4,11 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 
 import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
-import com.jagornet.dhcpv6.xml.LinkFilter;
+import com.jagornet.dhcp.xml.LinkFilter;
 
 /**
  * Interface BindingPool.  
- * Common interface for AddressBindingPool, PrefixBindingPool and V4AddressBindingPool
+ * Common interface for V6AddressBindingPool, V6PrefixBindingPool and V4AddressBindingPool
  * 
  * @author A. Gregory Rabil
  */
