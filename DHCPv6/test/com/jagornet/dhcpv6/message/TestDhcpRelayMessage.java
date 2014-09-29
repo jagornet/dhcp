@@ -8,8 +8,8 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.V6InterfaceIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6InterfaceIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6RelayOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6InterfaceIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 public class TestDhcpRelayMessage extends TestCase

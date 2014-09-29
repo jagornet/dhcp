@@ -31,6 +31,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.jagornet.dhcpv6.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 // TODO: Auto-generated Javadoc

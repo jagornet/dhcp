@@ -46,7 +46,7 @@ import com.jagornet.dhcpv6.db.DhcpOption;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.option.DhcpV6ClientFqdnOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcpv6.server.config.DhcpConfigObject;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;

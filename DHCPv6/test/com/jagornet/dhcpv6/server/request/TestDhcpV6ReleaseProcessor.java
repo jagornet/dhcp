@@ -26,7 +26,7 @@
 package com.jagornet.dhcpv6.server.request;
 
 import com.jagornet.dhcpv6.message.DhcpV6Message;
-import com.jagornet.dhcpv6.option.DhcpV6ServerIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 // TODO: Auto-generated Javadoc

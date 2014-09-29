@@ -28,8 +28,8 @@ package com.jagornet.dhcpv6.server.request.binding;
 import com.jagornet.dhcpv6.db.IaAddress;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaNaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfigException;
 

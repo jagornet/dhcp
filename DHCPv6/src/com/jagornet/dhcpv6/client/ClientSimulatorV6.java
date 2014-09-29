@@ -65,11 +65,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV6Message;
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6ElapsedTimeOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaNaOption;
-import com.jagornet.dhcpv6.server.netty.DhcpChannelDecoder;
-import com.jagornet.dhcpv6.server.netty.DhcpChannelEncoder;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ElapsedTimeOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcpv6.server.netty.DhcpV6ChannelDecoder;
+import com.jagornet.dhcpv6.server.netty.DhcpV6ChannelEncoder;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 
@@ -298,8 +298,8 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     	
 		ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("logger", new LoggingHandler());
-        pipeline.addLast("encoder", new DhcpChannelEncoder());
-        pipeline.addLast("decoder", new DhcpChannelDecoder(client, false));
+        pipeline.addLast("encoder", new DhcpV6ChannelEncoder());
+        pipeline.addLast("decoder", new DhcpV6ChannelDecoder(client, false));
         pipeline.addLast("executor", new ExecutionHandler(
         		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
         pipeline.addLast("handler", this);

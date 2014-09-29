@@ -33,11 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV6Message;
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaNaOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaPdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaTaOption;
-import com.jagornet.dhcpv6.option.DhcpV6ServerIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaPdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaTaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcpv6.server.request.binding.Binding;
 import com.jagornet.dhcpv6.server.request.binding.V6BindingAddress;
 import com.jagornet.dhcpv6.server.request.binding.BindingObject;

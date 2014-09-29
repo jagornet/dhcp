@@ -28,8 +28,6 @@ package com.jagornet.dhcpv6.option.v4;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.jagornet.dhcpv6.option.DhcpV6ConfigOptions;
-import com.jagornet.dhcpv6.option.base.DhcpOption;
 import com.jagornet.dhcp.xml.V4BootFileNameOption;
 import com.jagornet.dhcp.xml.V4ConfigOptionsType;
 import com.jagornet.dhcp.xml.V4DomainNameOption;
@@ -42,6 +40,8 @@ import com.jagornet.dhcp.xml.V4TftpServerNameOption;
 import com.jagornet.dhcp.xml.V4TimeOffsetOption;
 import com.jagornet.dhcp.xml.V4TimeServersOption;
 import com.jagornet.dhcp.xml.V4VendorSpecificOption;
+import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.option.generic.GenericOptionFactory;
 
 /**
  * The Class DhcpV4ConfigOptions.
@@ -180,7 +180,7 @@ public class DhcpV4ConfigOptions
 		}
 		
 		if (configOptions.isSetOtherOptions()) {
-			optionMap.putAll(DhcpV6ConfigOptions.genericOptions(configOptions.getOtherOptions()));
+			optionMap.putAll(GenericOptionFactory.genericOptions(configOptions.getOtherOptions()));
 		}
 		
 		return optionMap;

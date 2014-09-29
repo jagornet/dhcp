@@ -11,12 +11,12 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.V6ServerIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6DnsServersOption;
-import com.jagornet.dhcpv6.option.DhcpV6OptionRequestOption;
-import com.jagornet.dhcpv6.option.DhcpV6ServerIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6UserClassOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6DnsServersOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6OptionRequestOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6UserClassOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 public class TestDhcpMessage extends TestCase

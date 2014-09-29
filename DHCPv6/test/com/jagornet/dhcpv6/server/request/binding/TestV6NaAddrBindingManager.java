@@ -32,8 +32,8 @@ import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.V6ClientIdOption;
 import com.jagornet.dhcpv6.db.BaseTestCase;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaNaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcpv6.server.config.DhcpLink;
 
 // TODO: Auto-generated Javadoc

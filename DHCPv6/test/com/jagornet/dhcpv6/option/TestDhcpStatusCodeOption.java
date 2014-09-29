@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
+import com.jagornet.dhcpv6.option.v6.DhcpV6StatusCodeOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 // TODO: Auto-generated Javadoc

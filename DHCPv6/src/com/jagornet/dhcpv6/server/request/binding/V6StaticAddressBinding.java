@@ -3,7 +3,7 @@ package com.jagornet.dhcpv6.server.request.binding;
 import java.util.Arrays;
 
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.option.DhcpV6ConfigOptions;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ConfigOptions;
 import com.jagornet.dhcpv6.server.config.DhcpV6OptionConfigObject;
 import com.jagornet.dhcpv6.util.Util;
 import com.jagornet.dhcp.xml.V6AddressBinding;

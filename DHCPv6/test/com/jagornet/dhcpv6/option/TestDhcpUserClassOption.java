@@ -31,6 +31,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.option.base.BaseOpaqueData;
+import com.jagornet.dhcpv6.option.v6.DhcpV6UserClassOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcp.xml.ClientClassExpression;
 import com.jagornet.dhcp.xml.Operator;

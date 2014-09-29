@@ -29,11 +29,11 @@ import java.net.InetAddress;
 import java.util.Collection;
 
 import com.jagornet.dhcpv6.message.DhcpV6Message;
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaAddrOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaNaOption;
-import com.jagornet.dhcpv6.option.DhcpV6ServerIdOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaAddrOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 // TODO: Auto-generated Javadoc

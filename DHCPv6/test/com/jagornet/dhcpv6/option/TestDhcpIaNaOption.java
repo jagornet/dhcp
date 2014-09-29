@@ -33,6 +33,10 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.jagornet.dhcpv6.option.base.BaseDomainNameOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6DnsServersOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6DomainSearchListOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaAddrOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcpv6.server.JagornetDhcpServer;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.util.DhcpConstants;

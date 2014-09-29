@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpV6Message;
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaNaOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaPdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaTaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaPdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies;
 import com.jagornet.dhcpv6.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcpv6.server.request.binding.Binding;

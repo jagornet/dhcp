@@ -1,6 +1,6 @@
 package com.jagornet.dhcpv6.server.request.ddns;
 
-import com.jagornet.dhcpv6.option.DhcpV6ClientFqdnOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcpv6.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcpv6.server.request.binding.V6BindingAddress;
 

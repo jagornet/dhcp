@@ -37,15 +37,15 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaNaOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaPdOption;
-import com.jagornet.dhcpv6.option.DhcpV6IaTaOption;
-import com.jagornet.dhcpv6.option.DhcpV6OptionFactory;
-import com.jagornet.dhcpv6.option.DhcpV6OptionRequestOption;
-import com.jagornet.dhcpv6.option.DhcpV6RelayOption;
-import com.jagornet.dhcpv6.option.DhcpV6ServerIdOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaPdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6IaTaOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6OptionFactory;
+import com.jagornet.dhcpv6.option.v6.DhcpV6OptionRequestOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6RelayOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 

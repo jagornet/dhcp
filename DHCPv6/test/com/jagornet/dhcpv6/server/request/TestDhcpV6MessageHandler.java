@@ -9,9 +9,9 @@ import com.jagornet.dhcpv6.db.BaseTestCase;
 import com.jagornet.dhcpv6.message.DhcpV6Message;
 import com.jagornet.dhcpv6.message.DhcpV6RelayMessage;
 import com.jagornet.dhcpv6.message.TestDhcpRelayMessage;
-import com.jagornet.dhcpv6.option.DhcpV6ClientIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6InterfaceIdOption;
-import com.jagornet.dhcpv6.option.DhcpV6RelayOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6InterfaceIdOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 public class TestDhcpV6MessageHandler extends BaseTestCase

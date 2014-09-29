@@ -6,7 +6,7 @@ import com.jagornet.dhcp.xml.PoliciesType;
 import com.jagornet.dhcp.xml.V6PrefixBinding;
 import com.jagornet.dhcpv6.db.IdentityAssoc;
 import com.jagornet.dhcpv6.message.DhcpMessage;
-import com.jagornet.dhcpv6.option.DhcpV6ConfigOptions;
+import com.jagornet.dhcpv6.option.v6.DhcpV6ConfigOptions;
 import com.jagornet.dhcpv6.server.config.DhcpV6OptionConfigObject;
 import com.jagornet.dhcpv6.util.Util;
 

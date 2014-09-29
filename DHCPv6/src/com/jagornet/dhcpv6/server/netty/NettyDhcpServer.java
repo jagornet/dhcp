@@ -163,13 +163,13 @@ public class NettyDhcpServer
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v6Port); 
 	        		ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
-		            pipeline.addLast("decoder", new DhcpUnicastChannelDecoder(sockAddr, ignoreSelfPackets));
-		            pipeline.addLast("encoder", new DhcpChannelEncoder());
+		            pipeline.addLast("decoder", new DhcpV6UnicastChannelDecoder(sockAddr, ignoreSelfPackets));
+		            pipeline.addLast("encoder", new DhcpV6ChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
 		            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
 		            												maxChannelMemorySize,
 		            												maxTotalMemorySize)));
-		            pipeline.addLast("handler", new DhcpChannelHandler());
+		            pipeline.addLast("handler", new DhcpV6ChannelHandler());
 	        		
 		            String io = null;
 		            DatagramChannelFactory factory = null;
@@ -218,13 +218,13 @@ public class NettyDhcpServer
 		            InetSocketAddress sockAddr = new InetSocketAddress(addr, v6Port); 
 		            ChannelPipeline pipeline = Channels.pipeline();
 		            pipeline.addLast("logger", new LoggingHandler());
-		            pipeline.addLast("decoder", new DhcpChannelDecoder(sockAddr, ignoreSelfPackets));
-		            pipeline.addLast("encoder", new DhcpChannelEncoder());
+		            pipeline.addLast("decoder", new DhcpV6ChannelDecoder(sockAddr, ignoreSelfPackets));
+		            pipeline.addLast("encoder", new DhcpV6ChannelEncoder());
 		            pipeline.addLast("executor", new ExecutionHandler(
 		            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
 																	maxChannelMemorySize,
 																	maxTotalMemorySize)));
-		            pipeline.addLast("handler", new DhcpChannelHandler());
+		            pipeline.addLast("handler", new DhcpV6ChannelHandler());
 	
 		        	// Use OioDatagramChannels for IPv6 multicast interfaces
 		            DatagramChannelFactory factory =

@@ -35,8 +35,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcpv6.option.DhcpV6RelayOption;
 import com.jagornet.dhcpv6.option.base.DhcpOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 import com.jagornet.dhcpv6.util.Util;
 

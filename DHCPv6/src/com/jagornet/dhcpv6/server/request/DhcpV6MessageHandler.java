@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcpv6.message.DhcpV6Message;
 import com.jagornet.dhcpv6.message.DhcpV6RelayMessage;
-import com.jagornet.dhcpv6.option.DhcpV6RelayOption;
+import com.jagornet.dhcpv6.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcpv6.util.DhcpConstants;
 
 /**
