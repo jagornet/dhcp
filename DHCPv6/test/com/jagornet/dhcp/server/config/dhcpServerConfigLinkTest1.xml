@@ -1,100 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dhc:dhcpV6ServerConfig xmlns:dhc="http://ietf.org/dhc/dhcpv6">
-
-	<serverIdOption>
-		<opaqueData>
-			<hexValue>abcdef0123456789</hexValue>
-		</opaqueData>
-	</serverIdOption>
-	
-	<policies>
-		<policy>
-			<name>sendRequestedOptionsOnly</name>
-			<value>true</value>
-		</policy>
-	</policies>
-
-	<msgConfigOptions>
-		<dnsServersOption>
-			<ipAddress>3ffe::0001</ipAddress>
-			<ipAddress>3ffe::0002</ipAddress>
-			<ipAddress>3ffe::0003</ipAddress>
-		</dnsServersOption>
-		<domainSearchListOption>
-			<domainName>foo.com.</domainName>
-			<domainName>bar.com.</domainName>
-			<domainName>yuk.com.</domainName>
-		</domainSearchListOption>
-	</msgConfigOptions>
-
-	<filters>
-	  <filter>
-		<name>UserClass Filter Group 1</name>
-		<filterExpressions>
-			<filterExpression>
-				<optionExpression code="15">
-					<opaqueDataOption>
-						<opaqueData>
-							<asciiValue>FilterUserClass</asciiValue>
-						</opaqueData>
-					</opaqueDataOption>
-				</optionExpression>
-			</filterExpression>
-		</filterExpressions>
-		<msgConfigOptions>
-			<domainSearchListOption>
-				<domainName>filter.com.</domainName>
-			</domainSearchListOption>
-		</msgConfigOptions>
-	  </filter>
-	</filters>
-	
-	<links>
-		<link>
-			<name>Client Link 1</name>
-			<address>2001:DB8:1::/48</address>
-			<msgConfigOptions>
-				<dnsServersOption>
-					<ipAddress>2001:DB8:1::1</ipAddress>
-				</dnsServersOption>
-			</msgConfigOptions>
-		</link>
-		<link>
-			<name>Client Link 2</name>
-			<address>2001:DB8:2::/48</address>
-			<msgConfigOptions>
-				<dnsServersOption>
-					<ipAddress>2001:DB8:2::1</ipAddress>
-				</dnsServersOption>
-			</msgConfigOptions>
-		</link>
-		<link>
-			<name>Client Link 3</name>
-			<address>2001:DB8:3::/48</address>
-			<msgConfigOptions>
-				<dnsServersOption>
-					<ipAddress>2001:DB8:3::1</ipAddress>
-				</dnsServersOption>
-			</msgConfigOptions>
-		</link>
-		<link>
-			<name>Client Link 4</name>
-			<address>2001:DB8:4::/48</address>
-			<msgConfigOptions>
-				<dnsServersOption>
-					<ipAddress>2001:DB8:4::1</ipAddress>
-				</dnsServersOption>
-			</msgConfigOptions>
-		</link>
-		<link>
-			<name>Client Link 5</name>
-			<address>2001:DB8:5::/48</address>
-			<msgConfigOptions>
-				<dnsServersOption>
-					<ipAddress>2001:DB8:5::1</ipAddress>
-				</dnsServersOption>
-			</msgConfigOptions>
-		</link>
-	</links>
-
-</dhc:dhcpV6ServerConfig>
+<dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml">
+    <v6ServerIdOption>
+        <opaqueData>
+            <hexValue>abcdef0123456789</hexValue>
+        </opaqueData>
+    </v6ServerIdOption>
+    <v4ServerIdOption>
+        <ipAddress>192.168.0.4</ipAddress>
+    </v4ServerIdOption>
+    <policies>
+        <policy>
+            <name>sendRequestedOptionsOnly</name>
+            <value>true</value>
+        </policy>
+    </policies>
+    <v6MsgConfigOptions>
+        <v6DnsServersOption>
+            <ipAddress>3ffe::0001</ipAddress>
+            <ipAddress>3ffe::0002</ipAddress>
+            <ipAddress>3ffe::0003</ipAddress>
+        </v6DnsServersOption>
+        <v6DomainSearchListOption>
+            <domainName>foo.com.</domainName>
+            <domainName>bar.com.</domainName>
+            <domainName>yuk.com.</domainName>
+        </v6DomainSearchListOption>
+    </v6MsgConfigOptions>
+    <filters>
+        <filter>
+            <name>UserClass Filter Group 1</name>
+            <filterExpressions>
+                <filterExpression>
+                    <optionExpression code="15">
+                        <opaqueDataOption>
+                            <opaqueData>
+                                <asciiValue>FilterUserClass</asciiValue>
+                            </opaqueData>
+                        </opaqueDataOption>
+                    </optionExpression>
+                </filterExpression>
+            </filterExpressions>
+            <v6MsgConfigOptions>
+                <v6DomainSearchListOption>
+                    <domainName>filter.com.</domainName>
+                </v6DomainSearchListOption>
+            </v6MsgConfigOptions>
+        </filter>
+    </filters>
+    <links>
+        <link>
+            <name>Client Link 1</name>
+            <address>2001:DB8:1::/48</address>
+            <v6MsgConfigOptions>
+                <v6DnsServersOption>
+                    <ipAddress>2001:DB8:1::1</ipAddress>
+                </v6DnsServersOption>
+            </v6MsgConfigOptions>
+        </link>
+        <link>
+            <name>Client Link 2</name>
+            <address>2001:DB8:2::/48</address>
+            <v6MsgConfigOptions>
+                <v6DnsServersOption>
+                    <ipAddress>2001:DB8:2::1</ipAddress>
+                </v6DnsServersOption>
+            </v6MsgConfigOptions>
+        </link>
+        <link>
+            <name>Client Link 3</name>
+            <address>2001:DB8:3::/48</address>
+            <v6MsgConfigOptions>
+                <v6DnsServersOption>
+                    <ipAddress>2001:DB8:3::1</ipAddress>
+                </v6DnsServersOption>
+            </v6MsgConfigOptions>
+        </link>
+        <link>
+            <name>Client Link 4</name>
+            <address>2001:DB8:4::/48</address>
+            <v6MsgConfigOptions>
+                <v6DnsServersOption>
+                    <ipAddress>2001:DB8:4::1</ipAddress>
+                </v6DnsServersOption>
+            </v6MsgConfigOptions>
+        </link>
+        <link>
+            <name>Client Link 5</name>
+            <address>2001:DB8:5::/48</address>
+            <v6MsgConfigOptions>
+                <v6DnsServersOption>
+                    <ipAddress>2001:DB8:5::1</ipAddress>
+                </v6DnsServersOption>
+            </v6MsgConfigOptions>
+        </link>
+    </links>
+</dhc:dhcpServerConfig>

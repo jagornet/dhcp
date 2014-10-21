@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Jagornet Technologies, LLC.  All Rights Reserved.
+ * Copyright 2009-2014 Jagornet Technologies, LLC.  All Rights Reserved.
  *
  * This software is the proprietary information of Jagornet Technologies, LLC. 
  * Use is subject to license terms.
@@ -7,20 +7,20 @@
  */
 
 /*
- *   This file BaseDbTestCase.java is part of DHCPv6.
+ *   This file BaseTestCase.java is part of Jagornet DHCP.
  *
- *   DHCPv6 is free software: you can redistribute it and/or modify
+ *   Jagornet DHCP is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation, either version 3 of the License, or
  *   (at your option) any later version.
  *
- *   DHCPv6 is distributed in the hope that it will be useful,
+ *   Jagornet DHCP is distributed in the hope that it will be useful,
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU General Public License for more details.
  *
  *   You should have received a copy of the GNU General Public License
- *   along with DHCPv6.  If not, see <http://www.gnu.org/licenses/>.
+ *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 package com.jagornet.dhcp.db;
@@ -54,7 +54,7 @@ public class BaseTestCase extends TestCase
 	public static final int DEFAULT_SCHEMA_VERSION = 2;
 	
 	/** The config filename. */
-	public static String configFilename = "test/dhcpv6server-basetest.xml";
+	public static String configFilename = "test/dhcpserver-basetest.xml";
 
 	/** The config. */
 	protected static DhcpServerConfiguration config;
@@ -105,20 +105,20 @@ public class BaseTestCase extends TestCase
 				iaMgr.init();
 				config.setIaMgr(iaMgr);
 
-				V6NaAddrBindingManager naAddrBindingMgr = 
-						(V6NaAddrBindingManager) ctx.getBean("naAddrBindingManager");
-				naAddrBindingMgr.init();
-				config.setNaAddrBindingMgr(naAddrBindingMgr);
+				V6NaAddrBindingManager v6NaAddrBindingMgr = 
+						(V6NaAddrBindingManager) ctx.getBean("v6NaAddrBindingManager");
+				v6NaAddrBindingMgr.init();
+				config.setNaAddrBindingMgr(v6NaAddrBindingMgr);
 
-				V6TaAddrBindingManager taAddrBindingMgr = 
-						(V6TaAddrBindingManager) ctx.getBean("taAddrBindingManager");
-				taAddrBindingMgr.init();
-				config.setTaAddrBindingMgr(taAddrBindingMgr);
+				V6TaAddrBindingManager v6TaAddrBindingMgr = 
+						(V6TaAddrBindingManager) ctx.getBean("v6TaAddrBindingManager");
+				v6TaAddrBindingMgr.init();
+				config.setTaAddrBindingMgr(v6TaAddrBindingMgr);
 				
-				V6PrefixBindingManager prefixBindingMgr = 
-						(V6PrefixBindingManager) ctx.getBean("prefixBindingManager");
-				prefixBindingMgr.init();
-				config.setPrefixBindingMgr(prefixBindingMgr);
+				V6PrefixBindingManager v6PrefixBindingMgr = 
+						(V6PrefixBindingManager) ctx.getBean("v6PrefixBindingManager");
+				v6PrefixBindingMgr.init();
+				config.setPrefixBindingMgr(v6PrefixBindingMgr);
 				
 				V4AddrBindingManager v4AddrBindingMgr = 
 						(V4AddrBindingManager) ctx.getBean("v4AddrBindingManager");

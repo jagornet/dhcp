@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dhc:dhcpV6ServerConfig xmlns:dhc="http://jagornet.com/dhcpv6/xml"
-						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-						xsi:schemaLocation="http://jagornet.com/dhcpv6server.xsd">
+<dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="http://jagornet.com/dhcpserver.xsd">
 
-	<serverIdOption>
+	<v6ServerIdOption>
 		<opaqueData>
 			<hexValue>abcdef0123456789</hexValue>
 		</opaqueData>
-	</serverIdOption>
+	</v6ServerIdOption>
 	
 	<v4ServerIdOption>
 		<ipAddress>192.168.0.10</ipAddress>
@@ -20,18 +20,18 @@
 		</policy>
 	</policies>
 
-	<msgConfigOptions>
-		<dnsServersOption>
+	<v6MsgConfigOptions>
+		<v6DnsServersOption>
 			<ipAddress>3ffe::0001</ipAddress>
 			<ipAddress>3ffe::0002</ipAddress>
 			<ipAddress>3ffe::0003</ipAddress>
-		</dnsServersOption>
-		<domainSearchListOption>
+		</v6DnsServersOption>
+		<v6DomainSearchListOption>
 			<domainName>foo.com.</domainName>
 			<domainName>bar.com.</domainName>
 			<domainName>yuk.com.</domainName>
-		</domainSearchListOption>
-	</msgConfigOptions>
+		</v6DomainSearchListOption>
+	</v6MsgConfigOptions>
 
 	<filters>
 	  <!-- Global server level filters applied to all clients that match -->
@@ -48,13 +48,13 @@
 				</optionExpression>
 			</filterExpression>
 		</filterExpressions>
-		<msgConfigOptions>
+		<v6MsgConfigOptions>
 			<!-- Clients that match the filter will receive this DomainListOption
 				 instead of the one defined globally -->
-			<domainSearchListOption>
+			<v6DomainSearchListOption>
 				<domainName>filter.com.</domainName>
-			</domainSearchListOption>
-		</msgConfigOptions>
+			</v6DomainSearchListOption>
+		</v6MsgConfigOptions>
 	  </filter>
 	</filters>
 	
@@ -62,21 +62,21 @@
 		<link>
 			<name>Client Link 1</name>
 			<address>2001:DB8:1::/48</address>
-			<iaNaConfigOptions>
-				<dnsServersOption>
+			<v6IaNaConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:DB8:1::1</ipAddress>
-				</dnsServersOption>
-			</iaNaConfigOptions>
-			<naAddrPools>
+				</v6DnsServersOption>
+			</v6IaNaConfigOptions>
+			<v6NaAddrPools>
 				<pool>
 					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
 					<addrConfigOptions>
-						<sipServerAddressesOption>
+						<v6SipServerAddressesOption>
 							<ipAddress>2001:DB8:1::1:1</ipAddress>
-						</sipServerAddressesOption>
+						</v6SipServerAddressesOption>
 					</addrConfigOptions>
 				</pool>
-			</naAddrPools>
+			</v6NaAddrPools>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Reconfigure</name>
@@ -87,27 +87,27 @@
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>
-					<naAddrPools>
+					<v6NaAddrPools>
 						<pool>
 							<range>2001:DB8:1::10A-2001:DB8:1::1FF</range>
 							<addrConfigOptions>
-								<sipServerAddressesOption>
+								<v6SipServerAddressesOption>
 									<ipAddress>2001:DB8:1::1:1</ipAddress>
-								</sipServerAddressesOption>
+								</v6SipServerAddressesOption>
 							</addrConfigOptions>
 						</pool>
-					</naAddrPools>
+					</v6NaAddrPools>
 			  	</linkFilter>
 			</linkFilters>
 		</link>
 		<link>
 			<name>Client Link 2</name>
 			<address>2001:DB8:2::/48</address>
-			<iaNaConfigOptions>
-				<dnsServersOption>
+			<v6IaNaConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:DB8:2::1</ipAddress>
-				</dnsServersOption>
-			</iaNaConfigOptions>
+				</v6DnsServersOption>
+			</v6IaNaConfigOptions>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Reconfigure</name>
@@ -118,45 +118,45 @@
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>
-					<naAddrPools>
+					<v6NaAddrPools>
 						<pool>
 							<range>2001:DB8:2::10A-2001:DB8:2::1FF</range>
 							<addrConfigOptions>
-								<sipServerAddressesOption>
+								<v6SipServerAddressesOption>
 									<ipAddress>2001:DB8:2::1:1</ipAddress>
-								</sipServerAddressesOption>
+								</v6SipServerAddressesOption>
 							</addrConfigOptions>
 						</pool>
-					</naAddrPools>
+					</v6NaAddrPools>
 			  	</linkFilter>
 			</linkFilters>
 		</link>
 		<link>
 			<name>Client Link 3</name>
 			<address>2001:DB8:3::/48</address>
-			<iaNaConfigOptions>
-				<dnsServersOption>
+			<v6IaNaConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:DB8:3::1</ipAddress>
-				</dnsServersOption>
-			</iaNaConfigOptions>
+				</v6DnsServersOption>
+			</v6IaNaConfigOptions>
 		</link>
 		<link>
 			<name>Client Link 4</name>
 			<address>2001:DB8:4::/48</address>
-			<iaNaConfigOptions>
-				<dnsServersOption>
+			<v6IaNaConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:DB8:4::1</ipAddress>
-				</dnsServersOption>
-			</iaNaConfigOptions>
+				</v6DnsServersOption>
+			</v6IaNaConfigOptions>
 		</link>
 		<link>
 			<name>Client Link 5</name>
 			<address>2001:DB8:5::/48</address>
-			<iaNaConfigOptions>
-				<dnsServersOption>
+			<v6IaNaConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:DB8:5::1</ipAddress>
-				</dnsServersOption>
-			</iaNaConfigOptions>
+				</v6DnsServersOption>
+			</v6IaNaConfigOptions>
 		</link>
         <link>
             <name>V4 Client Link 1</name>
@@ -183,4 +183,4 @@
         </link>
 	</links>
 
-</dhc:dhcpV6ServerConfig>
+</dhc:dhcpServerConfig>

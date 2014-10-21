@@ -2,7 +2,7 @@
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
 <book>
   <bookinfo>
-    <title>Jagornet DHCPv6 Server User Guide - Community Edition 2.0.0 Release Candidate 1</title>
+    <title>Jagornet DHCP Server User Guide - Community Edition v2.0.0</title>
     <author>
       <firstname>A. Gregory</firstname>
       <surname>Rabil</surname>
@@ -12,28 +12,27 @@
         </orgname>
       </affiliation>
     </author>
-    <pubdate>8/23/2013</pubdate>
+    <pubdate>10/21/2014</pubdate>
   </bookinfo>
   <chapter>
     <title>Introduction</title>
     <section>
       <title>Welcome</title>
-      <para>Welcome to Jagornet DHCPv6 Server Community Edition Version 2.0.0
-      Beta. Please visit these links for the latest news and information on
-      Jagornet DHCPv6 Server.</para>
+      <para>Welcome to Jagornet DHCP Server Community Edition Version 2.0.0. Please visit these links for the latest news and information on
+      Jagornet DHCP Server.</para>
       <itemizedlist>
         <listitem>
           <para>Jagornet Technologies Website: <ulink url="http://www.jagornet.com">http://www.jagornet.com</ulink></para>
         </listitem>
         <listitem>
-          <para>Jagornet DHCPv6 Community Server on Google Project Hosting:
-          <ulink url="http://code.google.com/p/jagornet-dhcpv6">http://code.google.com/p/jagornet-dhcpv6</ulink></para>
+          <para>Jagornet DHCP Community Server on Google Project Hosting:
+          <ulink url="http://code.google.com/p/jagornet-dhcp">http://code.google.com/p/jagornet-dhcp</ulink></para>
         </listitem>
       </itemizedlist>
     </section>
     <section>
       <title>Features</title>
-      <para>Jagornet DHCPv6 Server is an open source Dynamic Host
+      <para>Jagornet DHCP Server is an open source Dynamic Host
       Configuration Protocol server for IPv6 (DHCPv6) and IPv4 (DHCPv4)
       implemented in Java. The server supports the following features:</para>
       <itemizedlist>
@@ -93,19 +92,19 @@
     <title>Getting Started</title>
     <section>
       <title>System requirements</title>
-      <para>Jagornet DHCPv6 Server requires any platform with a certified Java
+      <para>Jagornet DHCP Server requires any platform with a certified Java
       6 runtime environment.</para>
       <para>The server has been successfully tested on multiple flavors of
       Linux (including RHEL/CentOS, Ubuntu), Solaris, and Windows (including
       XP SP2, 2003, 7, 2008) using the Sun/Oracle JRE6 for the respective
       platforms. The server has also been successfully tested on OS X
-      10.5/10.6 running Apple&apos;s Java 6 runtime and FreeBSD running the OpenJDK
+      10.x running Apple&apos;s Java 6 runtime and FreeBSD running the OpenJDK
       6 runtime.</para>
     </section>
     <section>
       <title>Installation</title>
       <para>Java 6 runtime must be available on the host where the Jagornet
-      DHCPv6 server will be installed. The JAVA_HOME environment variable
+      DHCP server will be installed. The JAVA_HOME environment variable
       should be set to the home directory of your Java 6 JRE.</para>
       <orderedlist>
         <listitem>
@@ -121,10 +120,10 @@
                 </listitem>
                 <listitem>
                   <para>Compressed install file:
-                  <code>jagornet-dhcpv6-2.0.0-beta.tar.gz</code></para>
+                  <code>jagornet-dhcpserver-2.0.0.tar.gz</code></para>
                 </listitem>
                 <listitem>
-                  <para><code>DHCPV6_HOME=/opt/jagornet/jagornet-dhcpv6-2.0.0-beta</code></para>
+                  <para><code>JAGORNET_DHCP_HOME=/opt/jagornet/jagornet-dhcpserver-2.0.0</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -136,41 +135,41 @@
                 </listitem>
                 <listitem>
                   <para>Compressed install file:
-                  <code>jagornet-dhcpv6-2.0.0-beta.zip</code></para>
+                  <code>jagornet-dhcpserver-2.0.0.zip</code></para>
                 </listitem>
                 <listitem>
-                  <para><code>DHCPV6_HOME=C:\jagornet\jagornet-dhcpv6-2.0.0-beta</code></para>
+                  <para><code>JAGORNET_DHCP_HOME=C:\jagornet\jagornet-dhcpserver-2.0.0</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
           </itemizedlist>
         </listitem>
         <listitem>
-          <para>After extracting the compressed files, a dhcpv6 directory will
+          <para>After extracting the compressed files, a jagornet-dhcpserver-2.0.0 directory will
           be created in the installation folder, with the following
           contents.</para>
           <itemizedlist>
             <listitem>
-              <para><code>DHCPV6_HOME/bin</code> - executable command line
+              <para><code>JAGORNET_DHCP_HOME/bin</code> - executable command line
               files. See the section on <link linkend="running_server">Running the Server</link>.</para>
             </listitem>
             <listitem>
-              <para><code>DHCPV6_HOME/conf</code> - configuration files. See
+              <para><code>JAGORNET_DHCP_HOME/conf</code> - configuration files. See
               the section on <link linkend="config">Configuration</link>.</para>
             </listitem>
             <listitem>
-              <para><code>DHCPV6_HOME/db</code> - database directory. See the
+              <para><code>JAGORNET_DHCP_HOME/db</code> - database directory. See the
               section on <link linkend="binding_db">Binding Database</link>.</para>
             </listitem>
             <listitem>
-              <para><code>DHCPV6_HOME/docs</code> - documentation
+              <para><code>JAGORNET_DHCP_HOME/docs</code> - documentation
               files.</para>
             </listitem>
             <listitem>
-              <para><code>DHCPV6_HOME/lib</code> - Java library files.</para>
+              <para><code>JAGORNET_DHCP_HOME/lib</code> - Java library files.</para>
             </listitem>
             <listitem>
-              <para><code>DHCPV6_HOME/log</code> - server output files. See
+              <para><code>JAGORNET_DHCP_HOME/log</code> - server output files. See
               the section on <link linkend="logging">Logging</link>.</para>
             </listitem>
           </itemizedlist>
@@ -181,49 +180,62 @@
       <title>Running the Server</title>
       <anchor id="running_server"/>
       <note>
-        <para>To start the Jagornet DHCPv6 Server, you must have superuser or
+        <para>To start the Jagornet DHCP Server, you must have superuser or
         administrator access rights on the host system because the server must
         bind to privileged port numbers 67 for DHCPv4 and 547 for DHCPv6 to
         service client requests. Optionally, the server can be instructed to
         bind to a different port numbers for testing purposes only. See the
         <link linkend="startup_options">Startup Options</link> for more
         information.</para>
+        <para>Please also note that your host system&apos;s firewall must be configured to enable inbound and outbound traffic for the UDP ports of the DHCPv4 and DHCPv6 server.</para>
       </note>
       <section>
         <title>Startup Options</title>
         <anchor id="startup_options"/>
-        <para>The main Java class of the Jagornet DHCPv6 Server supports the
+        <para>The main Java class of the Jagornet DHCP Server supports the
         following usage:</para>
-        <para><synopsis>usage: com.jagornet.dhcpv6.server.DhcpV6Server [options]
-Jagornet DHCPv6 Community Edition 2.0.0-beta1
-Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
-  -4b,--v4bcast &lt;interface&gt;         DHCPv4 broadcast support (default = none).
-                                    Use this option to specify the interface for the server to receive and send
-                                    broadcast DHCPv4 packets. Only one interface may be specified. All other
-                                    interfaces on the host will only receive and send unicast traffic.  The default
-                                    IPv4 address on the specified interface will be used for determining the DHCPv4
-                                    client link within the server configuration file.
-  -4p,--v4port &lt;v4portnum&gt;          DHCPv4 Port number (default = 67).
-  -4u,--v4ucast &lt;addresses&gt;         DHCPv4 Unicast addresses (default = all IPv4
-                                    addresses). Use this option to instruct the server to bind to a specific list of
-                                    IPv4 addresses, separated by spaces. These addresses should be configured on one
-                                    or more DHCPv4 relay agents connected to DHCPv4 client links.
-  -?,--help                         Show this help page.
-  -c,--configfile &lt;filename&gt;        Configuration file (default =
-                                    $DHCPV6_HOME/conf/dhcpv6server.xml).
-  -li,--list-interfaces             Show detailed host interface list, then exit.
-  -m,--mcast &lt;interfaces&gt;           DHCPv6 Multicast support (default = none).
-                                    Use this option without arguments to instruct the server to bind to all
-                                    multicast-enabled IPv6 interfaces on the host. Optionally, use arguments to list
+        <para><synopsis>usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
+Jagornet DHCP Server Community Edition 2.0.0
+Copyright Jagornet Technologies, LLC 2009-2014.  All Rights Reserved.  
+-4b,--v4bcast &lt;interface&gt;         DHCPv4 broadcast support (default = none).
+                                    Use this option to specify the interface for
+                                    the server to receive and send broadcast
+                                    DHCPv4 packets. Only one interface may be
+                                    specified. All other interfaces on the host
+                                    will only receive and send unicast traffic.
+                                    The default IPv4 address on the specified
+                                    interface will be used for determining the
+                                    DHCPv4 client link within the server
+                                    configuration file.
+-4p,--v4port &lt;portnum&gt;            DHCPv4 Port number (default = 67).
+-4u,--v4ucast &lt;addresses&gt;         DHCPv4 Unicast addresses (default = all IPv4
+                                    addresses). Use this option to instruct the
+                                    server to bind to a specific list of IPv4
+                                    addresses, separated by spaces. These
+                                    addresses should be configured on one or
+                                    more DHCPv4 relay agents connected to DHCPv4
+                                    client links.
+-6m,--v6mcast &lt;interfaces&gt;        DHCPv6 Multicast support (default = none).
+                                    Use this option without arguments to
+                                    instruct the server to bind to all
+                                    multicast-enabled IPv6 interfaces on the
+                                    host. Optionally, use arguments to list
                                     specific interfaces, separated by spaces.
-  -p,--port &lt;portnum&gt;               DHCPv6 Port number (default = 547).
-  -tc,--test-configfile &lt;filename&gt;  Test configuration file, then exit.
-  -u,--ucast &lt;addresses&gt;            DHCPv6 Unicast addresses (default = all IPv6
-                                    addresses). Use this option to instruct the server to bind to a specific list of
-                                    global IPv6 addresses, separated by spaces. These addresses should be configured
-                                    on one or more DHCPv6 relay agents connected to DHCPv6 client links.
-  -v,--version                      Show version information, then exit.
-
+-6p,--v6port &lt;portnum&gt;            DHCPv6 Port number (default = 547).
+-6u,--v6ucast &lt;addresses&gt;         DHCPv6 Unicast addresses (default = all IPv6
+                                    addresses). Use this option to instruct the
+                                    server to bind to a specific list of global
+                                    IPv6 addresses, separated by spaces. These
+                                    addresses should be configured on one or
+                                    more DHCPv6 relay agents connected to DHCPv6
+                                    client links.
+-?,--help                         Show this help page.
+-c,--configfile &lt;filename&gt;        Configuration file (default = 
+                                    $JAGORNET_DHCP_HOME/conf/dhcpserver.xml).
+-li,--list-interfaces             Show detailed host interface list, then
+                                    exit.
+-tc,--test-configfile &lt;filename&gt;  Test configuration file, then exit.
+-v,--version                      Show version information, then exit.
 </synopsis></para>
         <para><note>
             <para>Users should NOT directly invoke the main Java class, but
@@ -234,7 +246,7 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
       </section>
       <section>
         <title>Linux/Unix/Mac</title>
-        <para>The $DHCPV6_HOME/bin/dhcpv6 script can be used to operate the
+        <para>The $JAGORNET_DHCP_HOME/bin/dhcpserver script can be used to operate the
         server from a command shell. This script supports the following
         options:</para>
         <itemizedlist>
@@ -276,13 +288,13 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
               following):</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 version</code></para>
+                  <para><code>&gt; $JAGORNET_DHCP_HOME/bin/dhcpserver version</code></para>
                 </listitem>
                 <listitem>
-                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start -v</code></para>
+                  <para><code>&gt; $JAGORNET_DHCP_HOME/bin/dhcpserver start -v</code></para>
                 </listitem>
                 <listitem>
-                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start --version</code></para>
+                  <para><code>&gt; $JAGORNET_DHCP_HOME/bin/dhcpserver start --version</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -292,7 +304,7 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
               interfaces, no DHCPv4 broadcast):</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start</code></para>
+                  <para><code>&gt; $JAGORNET_DHCP_HOME/bin/dhcpserver start</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -301,7 +313,7 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
               on all IPv6 multicast-enabled interfaces:</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start -p 10547 -m</code></para>
+                  <para><code>&gt; $JAGORNET_DHCP_HOME/bin/dhcpserver start -6p 10547 -6m</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -311,7 +323,7 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
               named &apos;eth1&apos;:</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start -m eth0 -4b eth1</code></para>
+                  <para><code>&gt; $JAGORNET_DHCP_HOME/bin/dhcpserver start -6m eth0 -4b eth1</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -321,7 +333,7 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
               interfaces:</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; $DHCPV6_HOME/bin/dhcpv6 start -c conf/my-dhcpv6server.xml -u 2001:db8::1 -m eth0 eth1</code></para>
+                  <para><code>&gt; $JAGORNET_DHCP_HOME/bin/dhcpserver start -c conf/my-dhcpserver.xml -6u 2001:db8::1 -6m eth0 eth1</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -331,10 +343,10 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
         <title>Windows</title>
         <section>
           <title>Windows Service</title>
-          <para>Jagornet DHCPv6 Server can operate as a Microsoft Windows
+          <para>Jagornet DHCP Server can operate as a Microsoft Windows
           Service courtesy of <ulink url="http://yajsw.sourceforge.net/">Yet Another Java Service Wrapper (YAJSW)</ulink>. Startup options
           <emphasis>must</emphasis> be provided in
-          <code>DHCPV6_HOME\bin\yajsw-stable-11.0\conf\wrapper.conf.</code>
+          <code>JAGORNET_DHCP_HOME\bin\yajsw-stable-11.0\conf\wrapper.conf.</code>
           Edit this file using a standard text editor (i.e. notepad.exe), and
           locate the following set of commented properties:</para>
           <synopsis># Application parameters.  Add parameters as needed starting from 1
@@ -349,14 +361,14 @@ Copyright Jagornet Technologies, LLC 2009-2012.  All Rights Reserved.
             <listitem>
               <para>Start the server on a test port with support for multicast
               on all IPv6 multicast-enabled interfaces:</para>
-              <synopsis>wrapper.app.parameter.1=-p
+              <synopsis>wrapper.app.parameter.1=-6p
 wrapper.app.parameter.2=10547
-wrapper.app.parameter.3=-m</synopsis>
+wrapper.app.parameter.3=-6m</synopsis>
             </listitem>
             <listitem>
               <para>Start the server with support for DHCPv6 multicast on one
               interface and DHCPv4 broadcast on another interface:</para>
-              <synopsis>wrapper.app.parameter.1=-m
+              <synopsis>wrapper.app.parameter.1=-6m
 wrapper.app.parameter.2=eth0
 wrapper.app.parameter.3=-4b
 wrapper.app.parameter.4=eth1</synopsis>
@@ -367,40 +379,40 @@ wrapper.app.parameter.4=eth1</synopsis>
               interfaces:</para>
               <synopsis>wrapper.app.parameter.1=-c
 wrapper.app.parameter.2=conf\my-dhcpserver.xml
-wrapper.app.parameter.3=-u
+wrapper.app.parameter.3=-6u
 wrapper.app.parameter.4=2001:db8::1
-wrapper.app.parameter.5=-m
+wrapper.app.parameter.5=-6m
 wrapper.app.parameter.6=eth0
 wrapper.app.parameter.7=eth1</synopsis>
             </listitem>
           </orderedlist>
           <para>The following batch files are provided for operating the
-          Jagornet DHCPv6 Server as a Windows Service.</para>
+          Jagornet DHCP Server as a Windows Service.</para>
           <itemizedlist>
             <listitem condition="li4">
-              <para><code>%DHCPV6_HOME%\bin\JagornetDhcpv6.bat</code> - run
+              <para><code>JAGORNET_DHCP_HOME%\bin\JagornetDhcpServer.bat</code> - run
               the server in the command window. Use Ctrl+C to stop.</para>
             </listitem>
             <listitem condition="li4">
-              <para><code>%DHCPV6_HOME%\bin\InstallJagornetDhcpv6.bat</code> -
-              install the Jagornet DHCPv6 Server as a Windows Service.
+              <para><code>JAGORNET_DHCP_HOME%\bin\InstallJagornetDhcp</code><code>Server.bat</code> -
+              install the Jagornet DHCP Server as a Windows Service.
               <emphasis>On Windows 7 / Server 2008 this must be &quot;Run As Administrator&quot;.</emphasis></para>
             </listitem>
             <listitem condition="li4">
-              <para><code>%DHCPV6_HOME%\bin\UninstallJagornetDhcpv6.bat</code>
-              - remove the Jagornet DHCPv6 Server as a Windows Service.
+              <para><code>JAGORNET_DHCP_HOME%\bin\UninstallJagornetDhcpServer.bat</code>
+              - remove the Jagornet DHCP Server as a Windows Service.
               <emphasis>On Windows 7 / Server 2008 this must be &quot;Run As Administrator&quot;.</emphasis></para>
             </listitem>
             <listitem condition="li4">
-              <para><code>%DHCPV6_HOME%\bin\StartJagornetDhcpv6.bat</code> -
-              start the Jagornet DHCPv6 Server as a Windows Service. The
+              <para><code>JAGORNET_DHCP_HOME%\bin\StartJagornetDhcpServer.bat</code> -
+              start the Jagornet DHCP Server as a Windows Service. The
               server can also be started using Windows Control Panel -&gt;
               Administrative Tools -&gt; System or the Microsoft Management
               Console (MMC) Services controller.</para>
             </listitem>
             <listitem condition="li4">
-              <para><code>%DHCPV6_HOME%\bin\StopJagornetDhcpv6.bat</code> -
-              stop the Jagornet DHCPv6 Server as a Windows Service. The server
+              <para><code>JAGORNET_DHCP_HOME%\bin\StopJagornetDhcpServer.bat</code> -
+              stop the Jagornet DHCP Server as a Windows Service. The server
               can also be stopped using Windows Control Panel -&gt;
               Administrative Tools -&gt; System or the Microsoft Management
               Console (MMC) Services controller.</para>
@@ -409,8 +421,8 @@ wrapper.app.parameter.7=eth1</synopsis>
         </section>
         <section>
           <title>Command Shell</title>
-          <para>As an alternative to running Jagornet DHCPv6 Server as a
-          Windows Service, the <code>%DHCPV6_HOME%\bin\dhcpv6.bat</code> batch
+          <para>As an alternative to running Jagornet DHCP Server as a
+          Windows Service, the <code>JAGORNET_DHCP_HOME%\bin\dhcpserver.bat</code> batch
           file can be used to operate the server from a command shell. Provide
           any desired <link linkend="startup_options">startup options</link>
           on the command line. Enter &lt;Ctrl+C&gt; in the command shell
@@ -422,13 +434,13 @@ wrapper.app.parameter.7=eth1</synopsis>
               following):</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 version</code></para>
+                  <para><code>&gt; %JAGORNET_DHCP_HOME\bin\dhcpserver version</code></para>
                 </listitem>
                 <listitem>
-                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start -v</code></para>
+                  <para><code>&gt; %JAGORNET_DHCP_HOME\bin\dhcpserver start -v</code></para>
                 </listitem>
                 <listitem>
-                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start --version</code></para>
+                  <para><code>&gt; %JAGORNET_DHCP_HOME\bin\dhcpserver start --version</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -438,7 +450,7 @@ wrapper.app.parameter.7=eth1</synopsis>
               interfaces, no DHCPv4 broadcast):</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start</code></para>
+                  <para><code>&gt; %JAGORNET_DHCP_HOME\bin\dhcpserver start</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -447,7 +459,7 @@ wrapper.app.parameter.7=eth1</synopsis>
               on all IPv6 multicast-enabled interfaces:</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start -p 10547 -m</code></para>
+                  <para><code>&gt; %JAGORNET_DHCP_HOME\bin\dhcpserver start -6p 10547 -6m</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -457,7 +469,7 @@ wrapper.app.parameter.7=eth1</synopsis>
               named &apos;eth1&apos;:</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start -m eth0 -4b eth1</code></para>
+                  <para><code>&gt; %JAGORNET_DHCP_HOME\bin\dhcpserver start -6m eth0 -4b eth1</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -467,7 +479,7 @@ wrapper.app.parameter.7=eth1</synopsis>
               interfaces:</para>
               <itemizedlist>
                 <listitem>
-                  <para><code>&gt; %DHCPV6_HOME\bin\dhcpv6 start -c conf\my-dhcpv6server.xml -u 2001:db8::1 -m eth0 eth1</code></para>
+                  <para><code>&gt; %JAGORNET_DHCP_HOME\bin\dhcpserver start -c conf\my-dhcpserver.xml -6u 2001:db8::1 -6m eth0 eth1</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -482,11 +494,11 @@ wrapper.app.parameter.7=eth1</synopsis>
     <anchor id="config"/>
     <section>
       <title>Hierarchy</title>
-      <para>The Jagornet DHCPv6 server is configured via the
-      <code>conf/dhcpv6server.xml</code> XML document. See the <link linkend="startup_options">Startup Options</link> to change the name and
+      <para>The Jagornet DHCP server is configured via the
+      <code>conf/dhcpserver.xml</code> XML document. See the <link linkend="startup_options">Startup Options</link> to change the name and
       location of the configuration file. The XML schema which defines all
       server configuration elements is available at
-      <code>conf/dhcpv6server.xsd</code>. The configuration file has this
+      <code>conf/dhcpserver.xsd</code>. The configuration file has this
       general hierarchical structure:</para>
       <itemizedlist>
         <listitem condition="li4">
@@ -507,7 +519,7 @@ wrapper.app.parameter.7=eth1</synopsis>
               <para>link policies and options</para>
             </listitem>
             <listitem>
-              <para>address/prefix/v4 pools</para>
+              <para>v6address/v6prefix/v4 pools</para>
               <itemizedlist>
                 <listitem>
                   <para>pool policies and options</para>
@@ -529,7 +541,7 @@ wrapper.app.parameter.7=eth1</synopsis>
                   <para>link filter policies and options</para>
                 </listitem>
                 <listitem>
-                  <para>link filter address/prefix/v4 pools</para>
+                  <para>link filter v6address/v6prefix/v4 pools</para>
                   <para><itemizedlist>
                       <listitem>
                         <para>link filter pool policies and options</para>
@@ -562,7 +574,7 @@ wrapper.app.parameter.7=eth1</synopsis>
 ...
 &lt;/policies&gt;</synopsis>
       <para>The table below describes the policies available for the Jagornet
-      DHCPv6 Server. The Hierarchy Support column indicates which levels of
+      DHCP Server. The Hierarchy Support column indicates which levels of
       the configuration hierarchy the policy is supported. For policies that
       are supported at &apos;all&apos; levels, the lower level policy overrides the
       value of any matching higher level policy.</para>
@@ -592,26 +604,22 @@ wrapper.app.parameter.7=eth1</synopsis>
               <entry>
                 <code>dhcp.database.schemaType</code>
               </entry>
-              <entry>
-                <code>jdbc</code>
-              </entry>
-              <entry>The binding database schema type.<para><itemizedlist>
+              <entry><code>jdbc</code>-derby</entry>
+              <entry>The binding database schema type, which can be one of the following:<para><itemizedlist>
                     <listitem>
-                      <para><code>jdbc</code> - the default schema type supports most databases with an available JDBC driver.  Jagornet DHCPv6 includes support for the following JDBC accessible databases (see <code>config/jdbc.properties</code>):</para>
-                      <para><itemizedlist>
-                          <listitem>
-                            <para>Apache Derby</para>
-                          </listitem>
-                          <listitem>
-                            <para>H2 Database</para>
-                          </listitem>
-                          <listitem>
-                            <para>SQLite (via JDBC)</para>
-                          </listitem>
-                        </itemizedlist></para>
+                      <para><code>jdbc-derby</code> - the default schema type uses JDBC to access  an embedded Apache Derby database for lease bindings.</para>
                     </listitem>
                     <listitem>
-                      <para><code>sqlite</code> - this schema type uses a JNI wrapper to provide direct access to the SQLite native interfaces.</para>
+                      <para><code>jdbc-h2</code> - this schema type uses JDBC to access an embedded H2 database for lease bindings.</para>
+                    </listitem>
+                    <listitem>
+                      <para><code>jdbc-sqlite</code> - this schema type uses JDBC to access an embedded SQLite database for lease bindings.</para>
+                    </listitem>
+                    <listitem>
+                      <para><code>sqlite</code> -  this shema type uses JNI to access an embedded SQLite database for lease bindings.</para>
+                    </listitem>
+                    <listitem>
+                      <para><code>mongo</code> - this schema type uses a Java client library to access a Mongo database for lease bindings.  Note that Mongo DB cannot be embedded and must be installed separately. </para>
                     </listitem>
                   </itemizedlist></para></entry>
               <entry>
@@ -629,39 +637,10 @@ wrapper.app.parameter.7=eth1</synopsis>
               <entry valign="top">
                 <code>2</code>
               </entry>
-              <entry valign="top">The binding database schema version. Version 1 schema uses a relational model. Version 2 uses a single table model.</entry>
+              <entry valign="top">The binding database schema version. Version 1 schema uses a relational model, and can only be used with the jdbc-* schemaTypes. Version 2 uses a single table model and can be used with all schemaTypes..</entry>
               <entry valign="top">
                 <para><itemizedlist>
                     <listitem condition="li4">
-                      <para>global</para>
-                    </listitem>
-                  </itemizedlist></para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <code>dhcp.database.schemaFilename</code>
-              </entry>
-              <entry>
-                <code>DHCPV6HOME/db/jagornet-dhcpv6-schema-derby-v2.schema</code>
-              </entry>
-              <entry>The database schema file corresponding to the schemaType and schemaVersion policies. Four(4) schema files are available in the <code>DHCPV6HOME/db</code> directory:<para><itemizedlist>
-                    <listitem>
-                      <para><code>jagornet-dhcpv6-schema.sql</code> - the version 1 schema file for use with  JDBC accessible databases (H2, SQLite).</para>
-                    </listitem>
-                    <listitem>
-                      <para><code>jagornet-dhcpv6-schema-derby.sql</code> - the version 1 schema file for use with the Apache Derby JDBC accessible database.</para>
-                    </listitem>
-                    <listitem>
-                      <para><code>jagornet-dhcpv6-schema-v2.sql</code> - the version 2 schema file for use with JDBC accessible databases (H2, SQLite), or native SQLite.</para>
-                    </listitem>
-                    <listitem>
-                      <para><code>jagornet-dhcpv6-schema-derby-v2.sql</code> - the version 2 schema file for use with the Apache Derby JDBC accessible database.</para>
-                    </listitem>
-                  </itemizedlist></para> </entry>
-              <entry>
-                <para><itemizedlist>
-                    <listitem>
                       <para>global</para>
                     </listitem>
                   </itemizedlist></para>
@@ -746,7 +725,7 @@ wrapper.app.parameter.7=eth1</synopsis>
               <entry valign="top">
                 <para>Number of milliseconds for background
               thread to wait before checking for expired leases at server
-              startup.</para>
+              startup.  Note that bindings are always expired when needed to free them for assignment.</para>
               </entry>
               <entry valign="top">
                 <para><itemizedlist>
@@ -765,7 +744,7 @@ wrapper.app.parameter.7=eth1</synopsis>
               </entry>
               <entry valign="top">
                 <para>Number of milliseconds for background
-              thread to wait between checks for expired leases.</para>
+              thread to wait between checks for expired leases. Note that bindings are always expired when needed to free them for assignment.</para>
               </entry>
               <entry valign="top">
                 <para><itemizedlist>
@@ -1108,7 +1087,7 @@ wrapper.app.parameter.7=eth1</synopsis>
               <entry valign="top">
                 <para>Flag to indicate if the server should
               synchronize DDNS updates with issuing of leases.&#160; That is, the
-              DHCPv6 Reply message will not be sent to the client until the
+              DHCP Reply message will not be sent to the client until the
               DDNS update completes.</para>
               </entry>
               <entry valign="top">
@@ -1581,62 +1560,62 @@ wrapper.app.parameter.7=eth1</synopsis>
     </section>
     <section>
       <title>DHCP Options</title>
-      <para>DHCPv6 options are configured using the <code>options</code>
+      <para>DHCP options are configured using the <code>options</code>
       element. Each option is specified by an element with a name of the
-      option, for example <code>dnsServersOption</code>. The Jagornet DHCPv6
+      option, for example <code>dnsServersOption</code>. The Jagornet DHCP
       server supports all options defined in RFC 3315, as well as other DHCPv6
-      options defined in additional RFCs.</para>
+      options defined in additional RFCs.  In addition the Jagornet DHCP server supports the most common DHCPv4 options.</para>
       <section>
         <title>DHCPv6 Server Identifier Option</title>
         <para>The Server Identifier Option is required by the DHCPv6 protocol
         for the server to include in reply packets. The
-        <code>serverIdOption</code> must be specified in the
-        <code>conf/dhcpv6server.xml</code> file. The default
-        <code>conf/dhcpv6server.xml</code> file supplied with the Jagornet
-        DHCPv6 server specifies an empty DHCPv6 server identifier option as
+        <code>v6ServerIdOption</code> must be specified in the
+        <code>conf/dhcpserver.xml</code> file. The default
+        <code>conf/dhcpserver.xml</code> file supplied with the Jagornet
+        DHCP server specifies an empty DHCPv6 server identifier option as
         follows:</para>
         <synopsis>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 
-&lt;dhc:dhcpV6ServerConfig xmlns:dhc=&quot;http://ietf.org/dhc/dhcpv6&quot;&gt;
+&lt;dhc:dhcpServerConfig xmlns:dhc=&quot;http://jagornet.com/dhcp/xml&quot;&gt;
 
-    &lt;serverIdOption&gt;
+    &lt;v6ServerIdOption&gt;
         &lt;opaqueData&gt;
             &lt;hexValue/&gt;
         &lt;/opaqueData&gt;
-    &lt;/serverIdOption&gt;
+    &lt;/v6ServerIdOption&gt;
 
-&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+&lt;/dhc:dhcpServerConfig&gt;</synopsis>
         <para>Using this default configuration, a DUID-LLT, as defined by
         section 9.2 of RFC 3315, will be automatically generated by the
-        Jagornet DHCPv6 server upon initial startup. This will cause the
-        <code>conf/dhcpv6server.xml</code> file to be rewritten with the
+        Jagornet DHCP server upon initial startup. This will cause the
+        <code>conf/dhcpserver.xml</code> file to be rewritten with the
         generated <code>serverIdOption</code>, for example:</para>
         <synopsis>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 
-&lt;dhc:dhcpV6ServerConfig xmlns:dhc=&quot;http://ietf.org/dhc/dhcpv6&quot;&gt;
+&lt;dhc:dhcpServerConfig xmlns:dhc=&quot;http://jagornet.com/dhcp/xml&quot;&gt;
 
-  &lt;serverIdOption&gt;
+  &lt;v6ServerIdOption&gt;
     &lt;opaqueData&gt;
         &lt;hexValue&gt;0001000149EFC509001E52C94D49&lt;/hexValue&gt;
     &lt;/opaqueData&gt;
-  &lt;/serverIdOption&gt;
+  &lt;/v6ServerIdOption&gt;
 
-&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+&lt;/dhc:dhcpServerConfig&gt;</synopsis>
         <para>This is the recommended way to create a server identifier.
-        Optionally, the <code>serverIdOption</code> can be specified using the
+        Optionally, the <code>v6ServerIdOption</code> can be specified using the
         <code>asciiValue</code> of an opaque data option type, for
         example:</para>
         <synopsis>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 
-&lt;dhc:dhcpV6ServerConfig xmlns:dhc=&quot;http://ietf.org/dhc/dhcpv6&quot;&gt;
+&lt;dhc:dhcpServerConfig xmlns:dhc=&quot;http://jagornet.com/dhcp/xml&quot;&gt;
 
-    &lt;serverIdOption&gt;
+    &lt;v6ServerIdOption&gt;
         &lt;opaqueData&gt;
             &lt;asciiValue&gt;Jagornet-DHCPv6&lt;/asciiValue&gt;
         &lt;/opaqueData&gt;
-    &lt;/serverIdOption&gt;
+    &lt;/v6ServerIdOption&gt;
 
-&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+&lt;/dhc:dhcpServerConfig&gt;</synopsis>
         <para>Whichever method is chosen to create the server identifier, it
         should not be changed once it has been created.</para>
       </section>
@@ -1646,45 +1625,45 @@ wrapper.app.parameter.7=eth1</synopsis>
         for the server to include in reply packets. The identifier is an IPv4
         address which DHCPv4 clients will send unicast requests to. The
         <code>v4ServerIdOption</code> must be specified in the
-        <code>conf/dhcpv6server.xml</code> file. The default
-        <code>conf/dhcpv6server.xml</code> file supplied with the Jagornet
-        DHCPv6 server specifies an empty DHCPv4 server identifier option as
+        <code>conf/dhcpserver.xml</code> file. The default
+        <code>conf/dhcpserver.xml</code> file supplied with the Jagornet
+        DHCP server specifies an empty DHCPv4 server identifier option as
         follows:</para>
         <synopsis>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 
-&lt;dhc:dhcpV6ServerConfig xmlns:dhc=&quot;http://ietf.org/dhc/dhcpv6&quot;&gt;
+&lt;dhc:dhcpServerConfig xmlns:dhc=&quot;http://jagornet.com/dhcp/xml&quot;&gt;
 
     &lt;v4ServerIdOption&gt;
         &lt;ipAddress/&gt;
     &lt;/v4ServerIdOption&gt;
 
-&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+&lt;/dhc:dhcpServerConfig&gt;</synopsis>
         <para>Using this default configuration, the default IP address of the
         host will be set for the DHCPv4 server identifier by the Jagornet
-        DHCPv6 server upon initial startup. This will cause the
-        <code>conf/dhcpv6server.xml</code> file to be rewritten with the
+        DHCP server upon initial startup. This will cause the
+        <code>conf/dhcpserver.xml</code> file to be rewritten with the
         populated <code>v4ServerIdOption</code>, for example:</para>
         <synopsis>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 
-&lt;dhc:dhcpV6ServerConfig xmlns:dhc=&quot;http://ietf.org/dhc/dhcpv6&quot;&gt;
+&lt;dhc:dhcpServerConfig xmlns:dhc=&quot;http://jagornet.com/dhcp/xml&quot;&gt;
 
-  &lt;serverIdOption&gt;
+  &lt;v4ServerIdOption&gt;
     &lt;ipAddress&gt;10.10.10.10&lt;/ipAddress&gt;
-  &lt;/serverIdOption&gt;
+  &lt;/v4ServerIdOption&gt;
 
-&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+&lt;/dhc:dhcpServerConfig&gt;</synopsis>
         <para>This is the recommended way to create a server identifier.
         Optionally, the <code>V4ServerIdOption</code> can be specified using
         the <code>ipAddress</code> element, for example:</para>
         <synopsis>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 
-&lt;dhc:dhcpV6ServerConfig xmlns:dhc=&quot;http://ietf.org/dhc/dhcpv6&quot;&gt;
+&lt;dhc:dhcpServerConfig xmlns:dhc=&quot;http://jagornet.com/dhcp/xml&quot;&gt;
 
-    &lt;serverIdOption&gt;
+    &lt;v4ServerIdOption&gt;
         &lt;ipAddress&gt;11.11.11.11&lt;ipAddress&gt;
-    &lt;/serverIdOption&gt;
+    &lt;/v4ServerIdOption&gt;
 
-&lt;/dhc:dhcpV6ServerConfig&gt;</synopsis>
+&lt;/dhc:dhcpServerConfig&gt;</synopsis>
         <para>Whichever method is chosen to create the server identifier, it
         should not be changed once it has been created because this address
         will be used by clients when renewing their lease.</para>
@@ -1701,13 +1680,13 @@ wrapper.app.parameter.7=eth1</synopsis>
           returned DHCPv6 reply packet.</para>
           <para><orderedlist>
               <listitem condition="li4">
-                <para><code>msgConfigOptions</code> - Message configuration
+                <para><code>v6MsgConfigOptions</code> - Message configuration
                 options will be returned to the client at the outermost layer
                 of the DHCPv6 packet. For Info-Request messages, only message
                 configuration options are returned to the client.  All known configuration options are returned to the client at the message level.</para>
               </listitem>
               <listitem condition="li4">
-                <para><code>iaNaConfigOptions/iaTaConfigOptions/iaPdConfigOptions</code>
+                <para><code>v6IaNaConfigOptions/v6IaTaConfigOptions/v6IaPdConfigOptions</code>
                 - Identity association configuration options will be returned
                 to the client inside the Identity Association (IA) option
                 within the reply message. Separate configuration options
@@ -1715,7 +1694,7 @@ wrapper.app.parameter.7=eth1</synopsis>
                 IA_NA, IA_TA, and IA_PD options.  No known configuration options are returned to the client at the IA level, therefore these elements are for experimental and future use.</para>
               </listitem>
               <listitem condition="li4">
-                <para><code>naAddrConfigOptions/taAddrConfigOptions/prefixConfigOptions</code>
+                <para><code>v6NaAddrConfigOptions/v6TaAddrConfigOptions/v6PrefixConfigOptions</code>
                 - Address configuration options will be returned to the client
                 inside the address or prefix option within the IA option
                 within the reply message. Separate configuration options
@@ -1741,14 +1720,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>7</code>
                     </entry>
                     <entry>
-                      <code>preferenceOption</code>
+                      <code>v6PreferenceOption</code>
                       <para>(Section 22.8
                     of <ulink url="http://www.ietf.org/rfc/rfc3315.txt">RFC 3315)</ulink> </para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;preferenceOption&gt;
+                      <synopsis>&lt;v6PreferenceOption&gt;
   &lt;unsignedByte&gt;10&lt;/unsignedByte&gt;
-&lt;/preferenceOption&gt;</synopsis>
+&lt;/v6PreferenceOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1756,13 +1735,13 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>12</code>
                     </entry>
                     <entry valign="middle">
-                      <code>serverUnicastOption</code>
+                      <code>v6ServerUnicastOption</code>
                       <para>(Section 22.8 of <ulink url="http://www.ietf.org/rfc/rfc3315.txt">RFC 3315)</ulink> </para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;serverUnicastOption&gt;
+                      <synopsis>&lt;v6ServerUnicastOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
-&lt;/serverUnicastOption&gt;</synopsis>
+&lt;/v6ServerUnicastOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1770,15 +1749,15 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>13</code>
                     </entry>
                     <entry>
-                      <code>statusCodeOption</code>
+                      <code>v6StatusCodeOption</code>
                       <para>(Section 22.13
                     of <ulink url="http://www.ietf.org/rfc/rfc3315.txt">RFC 3315)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;statusCodeOption&gt;
+                      <synopsis>&lt;v6StatusCodeOption&gt;
   &lt;code&gt;5&lt;/code&gt;
   &lt;message&gt;UseMulticast&lt;/message&gt;
-&lt;/statusCodeOption&gt;</synopsis>
+&lt;/v6StatusCodeOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1786,12 +1765,12 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>17</code>
                     </entry>
                     <entry>
-                      <code>vendorInfoOption</code>
+                      <code>v6VendorInfoOption</code>
                       <para>Section 22.16
                     of <ulink url="http://www.ietf.org/rfc/rfc3315.txt">RFC 3315</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;vendorInfoOption&gt;
+                      <synopsis>&lt;v6VendorInfoOption&gt;
   &lt;enterpriseNumber&gt;999&lt;/enterpriseNumber&gt;
   &lt;subOptionList&gt;
     &lt;optionDef code=&quot;1&quot; name=&quot;VendorSubopt1&quot;&gt;
@@ -1805,7 +1784,7 @@ wrapper.app.parameter.7=eth1</synopsis>
       &lt;/ipAddressOption&gt;
     &lt;/optionDef&gt;
   &lt;/subOptionList&gt;
-&lt;/vendorInfoOption&gt;</synopsis>
+&lt;/v6VendorInfoOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1813,14 +1792,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>21</code>
                     </entry>
                     <entry>
-                      <code>sipServerDomainNamesOption</code>
+                      <code>v6SipServerDomainNamesOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc3319.txt">(RFC 3319)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;sipServerDomainNamesOption&gt;
+                      <synopsis>&lt;v6SipServerDomainNamesOption&gt;
   &lt;domainName&gt;sip.foo.com.&lt;/domainName&gt;
   &lt;domainName&gt;sip.bar.com.&lt;/domainName&gt;
-&lt;/sipServerDomainNamesOption&gt;</synopsis>
+&lt;/v6SipServerDomainNamesOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1828,14 +1807,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>22</code>
                     </entry>
                     <entry>
-                      <code>sipServerAddressesOption</code>
+                      <code>v6SipServerAddressesOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc3319.txt">(RFC 3319)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;sipServerAddressesOption&gt;
+                      <synopsis>&lt;v6SipServerAddressesOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/sipServerAddressesOption&gt;</synopsis>
+&lt;/v6SipServerAddressesOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1843,14 +1822,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>23</code>
                     </entry>
                     <entry>
-                      <code>dnsServersOption</code>
+                      <code>v6DnsServersOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc3646.txt">(RFC 3646)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;dnsServersOption&gt;
+                      <synopsis>&lt;v6DnsServersOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/dnsServersOption&gt;</synopsis>
+&lt;/v6DnsServersOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1858,14 +1837,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>24</code>
                     </entry>
                     <entry>
-                      <code>domainSearchListOption</code>
+                      <code>v6DomainSearchListOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc3646.txt">(RFC 3646)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;domainSearchListOption&gt;
+                      <synopsis>&lt;v6DomainSearchListOption&gt;
   &lt;domainName&gt;foo.com.&lt;/domainName&gt;
   &lt;domainName&gt;bar.com.&lt;/domainName&gt;
-&lt;/domainSearchListOption&gt;</synopsis>
+&lt;/v6DomainSearchListOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1873,14 +1852,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>27</code>
                     </entry>
                     <entry>
-                      <code>nisServersOption</code>
+                      <code>v6NisServersOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc3898.txt">(RFC 3898)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;nisServersOption&gt;
+                      <synopsis>&lt;v6NisServersOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/nisServersOption&gt;</synopsis>
+&lt;/v6NisServersOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1888,14 +1867,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>28</code>
                     </entry>
                     <entry>
-                      <code>nisPlusServersOption</code>
+                      <code>v6NisPlusServersOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc3898.txt">(RFC 3898)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;nisPlusServersOption&gt;
+                      <synopsis>&lt;v6NisPlusServersOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/nisPlusServersOption&gt;</synopsis>
+&lt;/v6NisPlusServersOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1903,13 +1882,13 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>29</code>
                     </entry>
                     <entry>
-                      <code>nisDomainNameOption</code>
+                      <code>v6NisDomainNameOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc3898.txt">(RFC 3898)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;nisDomainNameOption&gt;
+                      <synopsis>&lt;v6NisDomainNameOption&gt;
   &lt;domainName&gt;foo.com.&lt;/domainName&gt;
-&lt;/nisDomainNameOption&gt;</synopsis>
+&lt;/v6NisDomainNameOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1917,13 +1896,13 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>30</code>
                     </entry>
                     <entry>
-                      <code>nisPlusDomainNameOption</code>
+                      <code>v6NisPlusDomainNameOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc3898.txt">(RFC 3898)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;nisPlusDomainNameOption&gt;
+                      <synopsis>&lt;v6NisPlusDomainNameOption&gt;
   &lt;domainName&gt;foo.com.&lt;/domainName&gt;
-&lt;/nisPlusDomainNameOption&gt;</synopsis>
+&lt;/v6NisPlusDomainNameOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1931,14 +1910,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>31</code>
                     </entry>
                     <entry>
-                      <code>sntpServersOption</code>
+                      <code>v6SntpServersOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc4075.txt">(RFC 4075)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;sntpServersOption&gt;
+                      <synopsis>&lt;v6SntpServersOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/sntpServersOption&gt;</synopsis>
+&lt;/v6SntpServersOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1946,13 +1925,13 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>32</code>
                     </entry>
                     <entry>
-                      <code>infoRefreshTimeOption</code>
+                      <code>v6InfoRefreshTimeOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc4242.txt">(RFC 4242)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;infoRefreshTimeOption&gt;
+                      <synopsis>&lt;v6InfoRefreshTimeOption&gt;
   &lt;unsignedInt&gt;3600&lt;/unsignedInt&gt;
-&lt;/infoRefreshTimeOption&gt;</synopsis>
+&lt;/v6InfoRefreshTimeOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1960,14 +1939,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>33</code>
                     </entry>
                     <entry>
-                      <code>bcmcsDomainNamesOption</code>
+                      <code>v6BcmcsDomainNamesOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc4280.txt">(RFC 4280)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;bcmcsDomainNamesOption&gt;
+                      <synopsis>&lt;v6BcmcsDomainNamesOption&gt;
   &lt;domainName&gt;bcmcs.foo.com.&lt;/domainName&gt;
   &lt;domainName&gt;bcmcs.bar.com.&lt;/domainName&gt;
-&lt;/bcmcsDomainNamesOption&gt;</synopsis>
+&lt;/v6BcmcsDomainNamesOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1975,14 +1954,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>34</code>
                     </entry>
                     <entry>
-                      <code>bcmcsAddressesOption</code>
+                      <code>v6BcmcsAddressesOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc4280.txt">(RFC 4280)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;bcmcsAddressesOption&gt;
+                      <synopsis>&lt;v6BcmcsAddressesOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/bcmcsAddressesOption&gt;</synopsis>
+&lt;/v6BcmcsAddressesOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -1990,11 +1969,11 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>36</code>
                     </entry>
                     <entry>
-                      <code>geoconfCivicOption</code>
+                      <code>v6GeoconfCivicOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc4776.txt">(RFC 4776)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;geoconfCivicOption&gt;
+                      <synopsis>&lt;v6GeoconfCivicOption&gt;
   &lt;what&gt;1&lt;/what&gt;
   &lt;countryCode&gt;US&lt;/countryCode&gt;
   &lt;civicAddressElement&gt;
@@ -2009,7 +1988,7 @@ wrapper.app.parameter.7=eth1</synopsis>
     &lt;caType&gt;1&lt;/caType&gt;
     &lt;caValue&gt;Bayern&lt;/caValue&gt;
   &lt;/civicAddressElement&gt;
-&lt;/geoconfCivicOption&gt;</synopsis>
+&lt;/v6GeoconfCivicOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -2017,14 +1996,14 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>40</code>
                     </entry>
                     <entry>
-                      <code>panaAgentAddressesOption</code>
+                      <code>v6PanaAgentAddressesOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc5192.txt">(RFC 5192)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;panaAgentAddressesOption&gt;
+                      <synopsis>&lt;v6PanaAgentAddressesOption&gt;
   &lt;ipAddress&gt;2001:db8::1&lt;/ipAddress&gt;
   &lt;ipAddress&gt;2001:db8::2&lt;/ipAddress&gt;
-&lt;/panaAgentAddressesOption&gt;</synopsis>
+&lt;/v6PanaAgentAddressesOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -2032,13 +2011,13 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>41</code>
                     </entry>
                     <entry>
-                      <code>newPosixTimezoneOption</code>
+                      <code>v6NewPosixTimezoneOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc4833.txt">(RFC 4833)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;newPosixTimezoneOption&gt;
+                      <synopsis>&lt;v6NewPosixTimezoneOption&gt;
   &lt;string&gt;EST5EDT4,M3.2.0/02:00,M11.1.0/02:00&lt;/string&gt;
-&lt;/newPosixTimezoneOption&gt;</synopsis>
+&lt;/v6NewPosixTimezoneOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -2046,13 +2025,13 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>42</code>
                     </entry>
                     <entry>
-                      <code>newTzdbTimezoneOption</code>
+                      <code>v6NewTzdbTimezoneOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc4833.txt">(RFC 4833)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;newTzdbTimezoneOption&gt;
+                      <synopsis>&lt;v6NewTzdbTimezoneOption&gt;
   &lt;string&gt;Europe/Zurich&lt;/string&gt;
-&lt;/newTzdbTimezoneOption&gt;</synopsis>
+&lt;/v6NewTzdbTimezoneOption&gt;</synopsis>
                     </entry>
                   </row>
                   <row>
@@ -2060,13 +2039,13 @@ wrapper.app.parameter.7=eth1</synopsis>
                       <code>51</code>
                     </entry>
                     <entry>
-                      <code>lostServerDomainNameOption</code>
+                      <code>v6LostServerDomainNameOption</code>
                       <para><ulink url="http://www.ietf.org/rfc/rfc5223.txt">(RFC 5223)</ulink></para>
                     </entry>
                     <entry>
-                      <synopsis>&lt;lostServerDomainNameOption&gt;
+                      <synopsis>&lt;v6LostServerDomainNameOption&gt;
   &lt;domainName&gt;lost.foo.com.&lt;/domainName&gt;
-&lt;/lostServerDomainNameOption&gt;</synopsis>
+&lt;/v6LostServerDomainNameOption&gt;</synopsis>
                     </entry>
                   </row>
                 </tbody>
@@ -2489,7 +2468,7 @@ wrapper.app.parameter.7=eth1</synopsis>
     </section>
     <section>
       <title>Filters</title>
-      <para>Filters are used to classify DHCPv6 clients so that specific
+      <para>Filters are used to classify DHCP clients so that specific
       configuration options can be supplied to certain classes of clients. A
       typical use of filters is to define a vendor class mapping to provide
       vendor specific information option data for clients that include the
@@ -2519,19 +2498,19 @@ wrapper.app.parameter.7=eth1</synopsis>
   &lt;filterExpressions&gt;
     &lt;filterExpression&gt;
       &lt;clientClassExpression operator=&quot;equals&quot;&gt;
-        &lt;userClassOption&gt;
+        &lt;v6UserClassOption&gt;
           &lt;opaqueData&gt;
             &lt;asciiValue&gt;MyUserClass&lt;/asciiValue&gt;
           &lt;/opaqueData&gt;
-        &lt;/userClassOption&gt;
+        &lt;/v6UserClassOption&gt;
       &lt;/clientClassExpression&gt;
     &lt;/filterExpression&gt;
   &lt;/filterExpressions&gt;
-  &lt;msgConfigOptions&gt;
-    &lt;domainSearchListOption&gt;
+  &lt;v6MsgConfigOptions&gt;
+    &lt;v6DomainSearchListOption&gt;
       &lt;domainName&gt;filter.com.&lt;/domainName&gt;
-    &lt;/domainSearchListOption&gt;
-  &lt;/msgConfigOptions&gt;
+    &lt;/v6DomainSearchListOption&gt;
+  &lt;/v6MsgConfigOptions&gt;
 &lt;/filter&gt;
 </synopsis>
           </section>
@@ -2543,17 +2522,17 @@ wrapper.app.parameter.7=eth1</synopsis>
   &lt;filterExpressions&gt;
     &lt;filterExpression&gt;
       &lt;clientClassExpression operator=&quot;equals&quot;&gt;
-        &lt;vendorClassOption&gt;
+        &lt;v6VendorClassOption&gt;
           &lt;opaqueData&gt;
             &lt;asciiValue&gt;VendorXYZ&lt;/asciiValue&gt;
           &lt;/opaqueData&gt;
           &lt;enterpriseNumber&gt;12345&lt;/enterpriseNumber&gt;
-        &lt;/vendorClassOption&gt;
+        &lt;/v6VendorClassOption&gt;
       &lt;/clientClassExpression&gt;
     &lt;/filterExpression&gt;
   &lt;/filterExpressions&gt;
-  &lt;msgConfigOptions&gt;
-    &lt;vendorInfoOption&gt;
+  &lt;v6MsgConfigOptions&gt;
+    &lt;v6VendorInfoOption&gt;
       &lt;enterpriseNumber&gt;12345&lt;/enterpriseNumber&gt;
       &lt;suboptionList&gt;
         &lt;optionDef code=&quot;1&quot;&gt;
@@ -2567,8 +2546,8 @@ wrapper.app.parameter.7=eth1</synopsis>
           &lt;/ipAddressOption&gt;
         &lt;/optionDef&gt;
       &lt;/suboptionList&gt;
-    &lt;/vendorInfoOption&gt;
-  &lt;/msgConfigOptions&gt;
+    &lt;/v6VendorInfoOption&gt;
+  &lt;/v6MsgConfigOptions&gt;
 &lt;/filter&gt;
 </synopsis>
           </section>
@@ -3029,7 +3008,7 @@ wrapper.app.parameter.7=eth1</synopsis>
         </section>
         <section>
           <title>Custom Expressions</title>
-          <para><emphasis>Custom expressions are used to define filter expressions that cannot be configured using standard option expressions. Currently, Jagornet DHCPv6 Server Community Edition does not support custom expressions.</emphasis></para>
+          <para><emphasis>Custom expressions are used to define filter expressions that cannot be configured using standard option expressions. Currently, Jagornet DHCP Server Community Edition does not support custom expressions.</emphasis></para>
         </section>
       </section>
     </section>
@@ -3037,7 +3016,7 @@ wrapper.app.parameter.7=eth1</synopsis>
       <title>Links</title>
       <para>A link defines a network segment for client requests. At least one
       DHCPv6 or DHCPv4 link is required proper server configuration. The
-      Jagornet DHCPv6 Server uses the link definition to classify each
+      Jagornet DHCP Server uses the link definition to classify each
       incoming client request. Once the client link is determined, the server
       will use the link definition to determine which addresses are available
       from the pools and/or bindings defined within the link. Additional
@@ -3100,18 +3079,18 @@ wrapper.app.parameter.7=eth1</synopsis>
     <section>
       <title>Pools</title>
       <para>Pools may be defined only within Links or Link Filters. The
-      Jagornet DHCPv6 Server supports four types of pools.</para>
+      Jagornet DHCP Server supports four types of pools.</para>
       <orderedlist>
         <listitem condition="li4">
-          <para><code>naAddrPools</code> - DHCPv6 Non-temporary address (NA)
+          <para><code>v6NaAddrPools</code> - DHCPv6 Non-temporary address (NA)
           pools</para>
         </listitem>
         <listitem condition="li4">
-          <para><code>taAddrPools</code> - DHCPv6 Temporary address (TA)
+          <para><code>v6TaAddrPools</code> - DHCPv6 Temporary address (TA)
           pools</para>
         </listitem>
         <listitem condition="li4">
-          <para><code>prefixPools</code> - DHCPv6 Prefix delegation (PD)
+          <para><code>v6PrefixPools</code> - DHCPv6 Prefix delegation (PD)
           pools</para>
         </listitem>
         <listitem>
@@ -3128,29 +3107,29 @@ wrapper.app.parameter.7=eth1</synopsis>
         example:<synopsis>&lt;link&gt;
     &lt;name&gt;Client Link 2&lt;/name&gt;
     &lt;address&gt;2001:DB8:2::/48&lt;/address&gt;
-    &lt;iaNaConfigOptions&gt;
-        &lt;dnsServersOption&gt;
+    &lt;v6IaNaConfigOptions&gt;
+        &lt;v6DnsServersOption&gt;
             &lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;
-        &lt;/dnsServersOption&gt;
-    &lt;/iaNaConfigOptions&gt;
-    &lt;naAddrPools&gt;
+        &lt;/v6DnsServersOption&gt;
+    &lt;/v6IaNaConfigOptions&gt;
+    &lt;v6NaAddrPools&gt;
         &lt;pool&gt;
             &lt;range&gt;2001:DB8:2::0A-2001:DB8:2::FF&lt;/range&gt;
             &lt;addrConfigOptions&gt;
-                &lt;sipServerAddressesOption&gt;
+                &lt;v6SipServerAddressesOption&gt;
                     &lt;ipAddress&gt;2001:DB8:2::1:1&lt;/ipAddress&gt;
-                &lt;/sipServerAddressesOption&gt;
+                &lt;/v6SipServerAddressesOption&gt;
             &lt;/addrConfigOptions&gt;
         &lt;/pool&gt;
         &lt;pool&gt;
             &lt;range&gt;2001:DB8:2:1::/64&lt;/range&gt;
             &lt;addrConfigOptions&gt;
-                &lt;sipServerAddressesOption&gt;
+                &lt;v6SipServerAddressesOption&gt;
                     &lt;ipAddress&gt;2001:DB8:2:1::1:1&lt;/ipAddress&gt;
-                &lt;/sipServerAddressesOption&gt;
+                &lt;/v6SipServerAddressesOption&gt;
             &lt;/addrConfigOptions&gt;
         &lt;/pool&gt;
-    &lt;/naAddrPools&gt;
+    &lt;/v6NaAddrPools&gt;
 &lt;/link&gt;</synopsis></para>
       </section>
       <section>
@@ -3164,12 +3143,12 @@ wrapper.app.parameter.7=eth1</synopsis>
         <synopsis>&lt;link&gt;
     &lt;name&gt;Prefix Delegation Link&lt;/name&gt;
     &lt;address&gt;2001:DB8:1::/48&lt;/address&gt;
-    &lt;iaPdConfigOptions&gt;
-        &lt;dnsServersOption&gt;
+    &lt;v6IaPdConfigOptions&gt;
+        &lt;v6DnsServersOption&gt;
             &lt;ipAddress&gt;2001:DB8:2::1&lt;/ipAddress&gt;
-        &lt;/dnsServersOption&gt;
-    &lt;/iaPdConfigOptions&gt;
-    &lt;prefixPools&gt;
+        &lt;/v6DnsServersOption&gt;
+    &lt;/v6IaPdConfigOptions&gt;
+    &lt;v6PrefixPools&gt;
         &lt;pool&gt;
             &lt;range&gt;2001:DB8:2::/48&lt;/range&gt;
             &lt;prefixLength&gt;64&lt;/prefixLength&gt;
@@ -3179,7 +3158,7 @@ wrapper.app.parameter.7=eth1</synopsis>
                 &lt;/sipServerAddressesOption&gt;
             &lt;/prefixConfigOptions&gt;
         &lt;/pool&gt;
-    &lt;/prefixPools&gt;
+    &lt;/v6PrefixPools&gt;
 &lt;/link&gt;</synopsis>
       </section>
       <section>
@@ -3225,18 +3204,18 @@ wrapper.app.parameter.7=eth1</synopsis>
       <title>Static Bindings</title>
       <para>Static bindings are used to reserve a specific IP address for a
       specific client. Bindings may be defined only within Links. The Jagornet
-      DHCPv6 Server supports four types of bindings.</para>
+      DHCP Server supports four types of bindings.</para>
       <orderedlist>
         <listitem condition="li4">
-          <para><code>naAddrBindings</code> - DHCPv6 Non-temporary address
+          <para><code>v6NaAddrBindings</code> - DHCPv6 Non-temporary address
           (NA) bindings</para>
         </listitem>
         <listitem condition="li4">
-          <para><code>taAddrBindings</code> - DHCPv6 Temporary address (TA)
+          <para><code>v6TaAddrBindings</code> - DHCPv6 Temporary address (TA)
           bindings</para>
         </listitem>
         <listitem condition="li4">
-          <para><code>prefixBindings</code> - DHCPv6 Prefix delegation (PD)
+          <para><code>v6PrefixBindings</code> - DHCPv6 Prefix delegation (PD)
           bindings</para>
         </listitem>
         <listitem>
@@ -3262,7 +3241,7 @@ wrapper.app.parameter.7=eth1</synopsis>
         assigned the specified IP address. This may be acceptable if the
         clients are known to have a single network interface. If the
         administrator understands the inherent risks with this configuration
-        feature, it may be used with caution. For example:<synopsis>&lt;naAddrBindings&gt;
+        feature, it may be used with caution. For example:<synopsis>&lt;v6NaAddrBindings&gt;
   &lt;binding&gt;
     &lt;ipAddress&gt;2001:db8:1::100&lt;/ipAddress&gt;
     &lt;!-- DHCPv6 &quot;binding&quot; is not really supported yet
@@ -3279,7 +3258,7 @@ wrapper.app.parameter.7=eth1</synopsis>
     ...
   &lt;/binding&gt;
   ...
-&lt;/naAddrBindings&gt;</synopsis></para>
+&lt;/v6NaAddrBindings&gt;</synopsis></para>
       </section>
       <section>
         <title>Prefix Bindings</title>
@@ -3290,7 +3269,7 @@ wrapper.app.parameter.7=eth1</synopsis>
         size of the prefixes to allocate to requesting router. The same
         caveats and cautions as DHCPv6 address bindings apply for prefix
         bindings as well. For example:</para>
-        <synopsis>&lt;prefixBindings&gt;
+        <synopsis>&lt;v6PrefixBindings&gt;
   &lt;binding&gt;
     &lt;prefix&gt;2001:db8:1::&lt;/prefix&gt;
     &lt;prefixLength&gt;64&lt;/prefixLength&gt;
@@ -3303,7 +3282,7 @@ wrapper.app.parameter.7=eth1</synopsis>
     ...
   &lt;/binding&gt;
   ...
-&lt;/prefixBindings&gt;</synopsis>
+&lt;/v6PrefixBindings&gt;</synopsis>
       </section>
       <section>
         <title>DHCPv4 Bindings</title>
@@ -3457,16 +3436,16 @@ wrapper.app.parameter.7=eth1</synopsis>
     <beginpage/>
     <title>Binding Database</title>
     <anchor id="binding_db"/>
-    <para>The Jagornet DHCPv6 server uses an embedded <ulink url="http://db.apache.org/derby/">Apache Derby</ulink> database server for
+    <para>The Jagornet DHCP server uses an embedded <ulink url="http://db.apache.org/derby/">Apache Derby</ulink> database server for
     managing the binding database by default. The database schema file is located in the
-    <code>db/jagornet-dhcpv6-schema-derby[-v2].sql</code> file. At initial startup, the
+    <code>db/jagornet-dhcp-schema-derby[-v2].sql</code> file. At initial startup, the
     server will create the database in the <code>db/derby</code> directory
     using the schema. When the server is stopped, the <code>db/derby</code>
     directory can be deleted (<emphasis role="bold">do not delete</emphasis>
     <code>db/*.sql</code>), and upon restart, the
-    Jagornet DHCPv6 server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
-    <para>Beginning with Jagornet DHCPv6 v2.0rc, the server can be configured to
-    use most any JDBC accessible database.  Jagornet DHCPv6 includes built-in support for the <ulink url="http://www.h2database.com/">H2 Database</ulink> and  <ulink url="http://www.sqlite.org/">SQLite</ulink>
+    Jagornet DHCP server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
+    <para>Beginning with Jagornet DHCP v2.0rc, the server can be configured to
+    use most any JDBC accessible database.  Jagornet DHCP includes built-in support for the <ulink url="http://www.h2database.com/">H2 Database</ulink> and  <ulink url="http://www.sqlite.org/">SQLite</ulink>
     using the JDBC interface. The JDBC database configuration is
     maintained in the <code>conf/jdbc.properties</code> file. The default
     configuration sets the <code>jdbc.user, jdbc.password, jdbc.driver, and jdbc.url</code> properties for Derby. To switch to H2 or SQLite, simply comment out
@@ -3474,34 +3453,35 @@ wrapper.app.parameter.7=eth1</synopsis>
     the corresponding properties in the H2 or SQLite section.  You must create the directory  <code>db/sqlite</code> before using this configuration. When the server is stopped, the contents of the <code>db/h2</code> or <code>db/sqlite</code> directory
     can be deleted (<emphasis role="bold">do not delete</emphasis>
     <code>db/*.sql</code>), and upon restart, the
-    Jagornet DHCPv6 server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
-    <para>Also beginning with Jagornet DHCPv6 v2.0rc, the server can be configured to use a Java Native Interface (JNI) wrapper to access the native SQLite interfaces.  Due to the nature of SQLite, this interface requires the use of the version 2 database schema (<code>db/jagornet-dhcpv6-schema-v2.sql</code>). You must create the directory  <code>db/sqlite</code> before using this configuration. When the server is stopped, the contents of the  <code>db/sqlite</code> directory
+    Jagornet DHCP server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
+    <para>Also beginning with Jagornet DHCP v2.0rc, the server can be configured to use a Java Native Interface (JNI) wrapper to access the native SQLite interfaces.  Due to the nature of SQLite, this interface requires the use of the version 2 database schema (<code>db/jagornet-dhcp-schema-v2.sql</code>). You must create the directory  <code>db/sqlite</code> before using this configuration. When the server is stopped, the contents of the  <code>db/sqlite</code> directory
     can be deleted (<emphasis role="bold">do not delete</emphasis>
     <code>db/*.sql</code>), and upon restart, the
-    Jagornet DHCPv6 server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
+    Jagornet DHCP server will recreate the database. <emphasis>Please note that deleting the database should only be performed in test environments, or when a backup copy of the database is being restored.</emphasis></para>
+    <para>Beginning with Jagornet DHCP v2.0rc2, the server can be configured to use a Java library to access a native Mongo database.  Although there is no schema used for Mongo DB, the data model is identical to the version 2 database schema.  <emphasis>Note that Mongo DB is not provided with the Jagornet DHCP Server distribution. It must be downloaded and installed separately. Setting the <code>database.schemaType</code> policy to &apos;mongo&apos; will cause the Jagornet DHCP server to attempt to connect to the Mongo DB on the localhost(127.0.0.1), using the default Mongo DB port(27017). Edit the <code>conf/mongo</code>.properties file to change the IP address and/or port of the Mongo database.</emphasis>   </para>
   </appendix>
   <appendix>
     <beginpage/>
     <title>Logging</title>
     <anchor id="logging"/>
-    <para>Logging for the Jagornet DHCPv6 server is performed using the <ulink url="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</ulink>
+    <para>Logging for the Jagornet DHCP server is performed using the <ulink url="http://logging.apache.org/log4j/1.2/index.html">Apache Log4J</ulink>
     logging service. The default Log4J configuration file is located in the
     <code>conf/log4j.properties</code> file. The server writes all initial
     startup messages to the standard output and error streams, which are
-    redirected by the <code>bin/dhcpv6</code> script to the
-    <code>log/dhcpv6server.out</code> file. After the server initialization,
+    redirected by the <code>bin/dhcp</code> script to the
+    <code>log/dhcpserver.out</code> file. After the server initialization,
     all messages are created via Log4J and configured by the
     <code>conf/log4j.properties</code> file. The default file outputs all
-    server messages to the <code>log/dhcpv6server.log</code> rolling file.
+    server messages to the <code>log/dhcpserver.log</code> rolling file.
     When the file reaches 10MB, it is &quot;rolled&quot; over to a new
-    <code>log/dhcpv6server.log.#</code> file up to ten files of logging
+    <code>log/dhcpserver.log.#</code> file up to ten files of logging
     history. These settings are controlled by the
     <code>log4j.appender.Logfile</code> properties.</para>
   </appendix>
   <appendix>
     <beginpage/>
     <title>Java Management Extensions (JMX)</title>
-    <para>The Jagornet DHCPv6 Server supports Java Management Extensions (JMX)
+    <para>The Jagornet DHCP Server supports Java Management Extensions (JMX)
     for dynamically configuring logging parameters and for monitoring server
     statistics. Support for JMX is available in Sun&apos;s JRE 6. For more
     information, please see the <ulink url="http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html">Java SE Management and Monitoring Guide</ulink> .</para>
@@ -3509,7 +3489,7 @@ wrapper.app.parameter.7=eth1</synopsis>
   <appendix>
     <beginpage/>
     <title>DHCPv4 Limitation</title>
-    <para>The Jagornet DHCPv6 Server supports Dynamic Host Configuration
+    <para>The Jagornet DHCP Server supports Dynamic Host Configuration
     Protocol for IPv4 (DHCPv4) with the limitation that only one host
     interface can be used to service locally connected DHCPv4 clients. DHCPv4
     clients will broadcast certain request messages, which are received by any

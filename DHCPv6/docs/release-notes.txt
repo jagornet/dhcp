@@ -1,3 +1,27 @@
+Issues fixed in 2.0.0
+---------------------
+"36","Defect","Duplicate","Medium","","","15 [New I/O datagram worker #1'-'1] ERROR TestClient - Exception caught: ","Priority-Medium, Type-Defect"
+"39","Enhancement","Fixed","Medium","","agrabil","Simplify database configuration and add support for Mongo DB","OpSys-All, Priority-Medium, Type-Enhancement"
+"40","Task","Fixed","Medium","","agrabil","Rewrite the client simulator","Priority-Medium, Type-Task"
+"41","Task","Fixed","Medium","","agrabil","Refactor unit tests to eliminate DBUnit","Priority-Medium, Type-Task"
+"42","Defect","Fixed","Medium","","agrabil","Pad outgoing DHCPv4 packets to 300 bytes to match old Bootp requirements","OpSys-All, Priority-Medium, Type-Defect"
+"43","Defect","Fixed","Low","","agrabil","Fix DHCPv4 packet decode problem with yiaddr/siaddr mixup","OpSys-All, Priority-Low, Type-Defect"
+"44","Defect","Fixed","Medium","","agrabil","Allow DHCPv6 serverId option to be optional to support DHCPv4-only mode","OpSys-All, Priority-Medium, Type-Defect"
+"45","Enhancement","Fixed","Medium","","agrabil","Add policies for channel resources such as thread pools and memory","OpSys-All, Priority-Medium, Type-Enhancement"
+"46","Defect","Fixed","Medium","","agrabil","Do NOT set reuseaddr on socket","OpSys-All, Priority-Medium, Type-Defect"
+"47","Defect","Fixed","Medium","","agrabil","Echo the DHCPv4 Relay Option in replies if one was found in the request","OpSys-All, Priority-Medium, Type-Defect"
+"48","Enhancement","Fixed","Medium","","agrabil","Strengthen check for bogus client MAC by ensuring 'hlen' does not make chaddr zero length","OpSys-All, Priority-Medium, Type-Enhancement"
+"49","Task","Fixed","Medium","","agrabil","Provide 'basic' and 'sample' configurations to help with getting started","Priority-Medium, Type-Task"
+"50","Task","Fixed","Medium","","agrabil","Logging updates to server startup","Priority-Medium, Type-Task"
+"51","Defect","Fixed","Medium","","agrabil","Database schema (v2) should not have unique index on duid/iatype/iaid tuple","OpSys-All, Priority-Medium, Type-Defect"
+"52","Defect","Fixed","Medium","","agrabil","Throw configuration exception for bad pool definition","OpSys-Windows, Priority-Medium, Type-Defect"
+"53","Defect","Fixed","Critical","","agrabil","Service wrapper fails to start on Windows 32-bit platforms","OpSys-Windows, Priority-Critical, Type-Defect"
+"54","Enhancement","Fixed","Medium","","agrabil","Client simulators should return zero(0) if successful, or one(1) otherwise","OpSys-All, Priority-Medium, Type-Enhancement"
+"55","Defect","Fixed","Critical","","agrabil","Implement new method for checking if DHCPv4/v6 ports are in use","OpSys-All, Priority-Critical, Type-Defect"
+"56","Defect","Fixed","High","","agrabil","Correct startup message to reflect interfaces and addresses used by server","OpSys-All, Priority-High, Type-Defect"
+"57","Task","Fixed","Critical","","agrabil","Rename from DHCPv6 to DHCP","Priority-Critical, Type-Task"
+
+
 Issues fixed in 2.0.0 RC
 ------------------------
 "14","Defect","Fixed","Medium","","","BufferUnderflowException in processing DhcpRemoteIdOption","Priority-Medium, Type-Defect"
@@ -24,3 +48,20 @@ Issues fixed in 2.0.0 RC
 "35","Defect","Fixed","Medium","","agrabil","Server should process FQDN option on Solicit/Discover","OpSys-All, Priority-Medium, Type-Defect"
 "37","Task","Fixed","Medium","","agrabil","Resize DUID field in database schemas","Priority-Medium, Type-Task"
 "38","Task","Fixed","Medium","","agrabil","Create a unique index on the DUID/IATYPE/IAID tuple","Priority-Medium, Type-Task"
+
+
+Issues fixed in 2.0.0 beta
+--------------------------
+"1","Defect","Invalid","Medium","","","Not picking the correct address pool to use","Priority-Medium, Type-Defect"
+"2","Defect","Fixed","Medium","","","<msgConfigOptions> appear to be required in the link section","OpSys-All, Priority-Medium, Type-Defect, Usability"
+"3","Defect","Fixed","Medium","","agrabil","User Guide: Getting Started - Running the Server section needs refresh","Component-Docs, OpSys-Windows, Priority-Medium, Type-Defect"
+"4","Enhancement","Fixed","Medium","","agrabil","Add support for H2 database","OpSys-All, Priority-Medium, Type-Enhancement"
+"5","Enhancement","Fixed","Medium","","agrabil","Add support for testing server configuration against schema","OpSys-All, Priority-Medium, Type-Enhancement"
+"6","Defect","Fixed","Medium","","agrabil","Sample XML configuration file is invalid","Component-Docs, OpSys-All, Priority-Medium, Type-Defect"
+"7","Enhancement","Fixed","Medium","","agrabil","Add support for listing host interfaces","OpSys-Windows, Priority-Medium, Type-Enhancement"
+"8","Defect","Fixed","High","","agrabil","Configuration file provided with distribution has hard-coded serverIdOption","OpSys-All, Priority-High, Type-Defect"
+"9","Defect","Fixed","High","","agrabil","Server continues startup even if socket binding fails","OpSys-All, Priority-High, Type-Defect"
+"10","Defect","Fixed","Medium","","agrabil","Enforce binding database created under dhcpv6.home","Component-Persistence, OpSys-All, Priority-Medium, Type-Defect"
+"11","Defect","Fixed","Medium","","agrabil","Vendor option decode problem","Priority-Medium, Type-Defect"
+"12","Defect","Fixed","Medium","","agrabil","Vendor option encode problem","Priority-Medium, Type-Defect"
+"13","Defect","Fixed","Medium","","agrabil","IA_PD decode problems","Priority-Medium, Type-Defect"
