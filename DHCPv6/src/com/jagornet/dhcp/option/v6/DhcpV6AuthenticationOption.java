@@ -72,7 +72,7 @@ public class DhcpV6AuthenticationOption extends BaseDhcpOption
         	replayDetection = authenticationOption.getReplayDetection();
         	authInfo = new BaseOpaqueData(authenticationOption.getAuthInfo());
         }
-        setCode(DhcpConstants.OPTION_AUTH);
+        setCode(DhcpConstants.V6OPTION_AUTH);
     }
 
     public short getProtocol() {

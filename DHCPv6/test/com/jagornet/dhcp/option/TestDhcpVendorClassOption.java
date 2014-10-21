@@ -63,7 +63,7 @@ public class TestDhcpVendorClassOption extends TestCase
         assertEquals(38, bb.capacity());    // +4 (code=2 bytes, len=2 bytes)
         assertEquals(38, bb.limit());
         assertEquals(0, bb.position());
-        assertEquals(DhcpConstants.OPTION_VENDOR_CLASS, bb.getShort());
+        assertEquals(DhcpConstants.V6OPTION_VENDOR_CLASS, bb.getShort());
         assertEquals((short)34, bb.getShort());   // length
         assertEquals(12345, bb.getInt());
         assertEquals((short)13, bb.getShort());

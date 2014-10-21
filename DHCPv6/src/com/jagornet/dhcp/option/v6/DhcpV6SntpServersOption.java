@@ -53,6 +53,6 @@ public class DhcpV6SntpServersOption extends BaseIpAddressListOption
 	public DhcpV6SntpServersOption(V6SntpServersOption sntpServersOption)
 	{
 		super(sntpServersOption);
-		setCode(DhcpConstants.OPTION_SNTP_SERVERS);
+		setCode(DhcpConstants.V6OPTION_SNTP_SERVERS);
 	}
 }

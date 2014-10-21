@@ -49,9 +49,9 @@ public class DhcpV4MessageHandler
     public static DhcpV4Message handleMessage(InetAddress localAddress, DhcpV4Message dhcpMessage)
     {
 		DhcpV4Message replyMessage = null;
-    	if (dhcpMessage.getOp() == DhcpConstants.OP_REQUEST) {
+    	if (dhcpMessage.getOp() == DhcpConstants.V4_OP_REQUEST) {
     		InetAddress linkAddress = null;
-    		if (dhcpMessage.getGiAddr().equals(DhcpConstants.ZEROADDR)) {
+    		if (dhcpMessage.getGiAddr().equals(DhcpConstants.ZEROADDR_V4)) {
     			linkAddress = localAddress;
 				log.info("Handling client request on local client link address: " +
 						linkAddress.getHostAddress());

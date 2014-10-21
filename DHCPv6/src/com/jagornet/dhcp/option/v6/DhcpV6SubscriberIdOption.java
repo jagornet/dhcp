@@ -53,6 +53,6 @@ public class DhcpV6SubscriberIdOption extends BaseOpaqueDataOption
 	public DhcpV6SubscriberIdOption(V6SubscriberIdOption subscriberIdOption)
 	{
 		super(subscriberIdOption);
-		setCode(DhcpConstants.OPTION_SUBSCRIBER_ID);
+		setCode(DhcpConstants.V6OPTION_SUBSCRIBER_ID);
 	}
 }

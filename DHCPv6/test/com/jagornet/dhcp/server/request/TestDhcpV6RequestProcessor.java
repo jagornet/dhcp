@@ -47,7 +47,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 	public void testSolicitAndRequest() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -57,7 +57,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 		assertNotNull(advertiseMsg);
 		
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -65,7 +65,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
 		checkReply(replyMsg, 
 				InetAddress.getByName("2001:DB8:1::A"),
@@ -80,7 +80,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 	public void testShouldMulticast() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.REQUEST);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -100,9 +100,9 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
-		checkReplyMsgStatus(replyMsg, DhcpConstants.STATUS_CODE_USEMULTICAST);
+		checkReplyMsgStatus(replyMsg, DhcpConstants.V6STATUS_CODE_USEMULTICAST);
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 	public void testRequestNotOnLink() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -128,7 +128,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 						setIpAddress("2001:DB8:2::1");
 		
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -136,9 +136,9 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
-		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_NOTONLINK);
+		checkReplyIaNaStatus(replyMsg, DhcpConstants.V6STATUS_CODE_NOTONLINK);
 	}
 
 }

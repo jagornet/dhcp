@@ -5,17 +5,17 @@
 
 <beans>
  
-	<bean id="naAddrBindingManager" 
-  		  class="com.jagornet.dhcpv6.server.request.binding.NaAddrBindingManagerImpl"
+	<bean id="v6NaAddrBindingManager" 
+  		  class="com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManagerImpl"
   		  autowire="byType"/>
-	<bean id="taAddrBindingManager" 
-  		  class="com.jagornet.dhcpv6.server.request.binding.TaAddrBindingManagerImpl"
+	<bean id="v6TaAddrBindingManager" 
+  		  class="com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManagerImpl"
   		  autowire="byType"/>
-	<bean id="prefixBindingManager" 
-  		  class="com.jagornet.dhcpv6.server.request.binding.PrefixBindingManagerImpl"
+	<bean id="v6PrefixBindingManager" 
+  		  class="com.jagornet.dhcp.server.request.binding.V6PrefixBindingManagerImpl"
   		  autowire="byType"/>
 	<bean id="v4AddrBindingManager" 
-  		  class="com.jagornet.dhcpv6.server.request.binding.V4AddrBindingManagerImpl"
+  		  class="com.jagornet.dhcp.server.request.binding.V4AddrBindingManagerImpl"
   		  autowire="byType"/>
 
 </beans>

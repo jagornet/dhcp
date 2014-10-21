@@ -494,7 +494,7 @@ public class DhcpServerConfiguration
     {
         DhcpLink link = null;
         if ((linkMap != null) && !linkMap.isEmpty()) {
-        	if (remote.equals(DhcpConstants.ZEROADDR)) {
+        	if (remote.equals(DhcpConstants.ZEROADDR_V4)) {
         		// if the remote address is zero, then the request was received
         		// from a client without an address on the broadcast channel, so
         		// use the local address to search the linkMap

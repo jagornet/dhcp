@@ -53,6 +53,6 @@ public class DhcpV6NewTzdbTimezoneOption extends BaseStringOption
 	public DhcpV6NewTzdbTimezoneOption(V6NewTzdbTimezoneOption newTzdbTimezoneOption)
 	{
 		super(newTzdbTimezoneOption);
-		setCode(DhcpConstants.OPTION_NEW_TZDB_TIMEZONE);
+		setCode(DhcpConstants.V6OPTION_NEW_TZDB_TIMEZONE);
 	}
 }

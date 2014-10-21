@@ -42,6 +42,6 @@ public class DhcpV6ReconfigureAcceptOption extends BaseEmptyOption
 	public DhcpV6ReconfigureAcceptOption()
 	{
 		super();
-		setCode(DhcpConstants.OPTION_RECONF_ACCEPT);
+		setCode(DhcpConstants.V6OPTION_RECONF_ACCEPT);
 	}
 }

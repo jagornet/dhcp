@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="DHCPv6" default="dist" basedir=".">
+<project name="Jagornet DHCP" default="dist" basedir=".">
     <description>
-        Ant build file for Jagornet DHCPv6 Server
+        Ant build file for Jagornet DHCP Server
     </description>
 	
   	<!-- set global properties for this build -->
@@ -51,7 +51,11 @@
   	<target name="compile" depends="init,schema"
         description="compile the source">
     	<!-- Compile the java code from ${src} into ${classes} -->
-	    <javac srcdir="${src}" destdir="${classes}" target="1.6" debug="true">
+	    <javac srcdir="${src}" 
+  				destdir="${classes}" 
+  				source="${build.java.version}" 
+  				target="${build.java.version}" 
+	    		debug="true">
 	    	<classpath>
 	        	<fileset dir="${lib}" includes="*.jar"/>
 	    	</classpath>
@@ -63,13 +67,13 @@
   	</target>
 	
 	<target name="jar" depends="compile"
-		description="build the dhcpv6.jar">
+		description="build the jagornet-dhcpserver.jar">
 		
-	  	<!-- Build the dhcpv6-x.y.z.jar file from the class files, but no properties -->
+	  	<!-- Build the jagornet-dhcpserver-x.y.z.jar file from the class files, but no properties -->
 	    <jar destfile="${build}/${product.version}.jar" basedir="${classes}" excludes="*.properties">
 	    	<!-- Add the manifest inline to the jar when it is created -->
 			<manifest>
-		        <attribute name="Main-Class" value="com.jagornet.dhcpv6.Version"/>
+		        <attribute name="Main-Class" value="com.jagornet.dhcp.Version"/>
 		    	<attribute name="Specification-Title" value="${title}"/>
 				<attribute name="Specification-Version" value="${version}"/>
 				<attribute name="Specification-Vendor" value="${vendor}"/>
@@ -79,7 +83,7 @@
 			</manifest>
 		</jar>
 		
-		<!-- Remove any previous versions of the jagornet-dhcpv6-x.y.z.jar -->
+		<!-- Remove any previous versions of the jagornet-dhcpserver-x.y.z.jar -->
 		<delete>
 			<fileset dir="${lib}" includes="${product}*.jar"/>
 		</delete>
@@ -136,9 +140,10 @@
 	    
 	    <mkdir dir="${dist}/log"/>
 	
-		<tar destfile="${dist}/${product.version}.tar">
+		<tar destfile="${dist}/${product.version}.tar.gz"
+			compression="gzip">
 		  	<tarfileset dir="${dist}" prefix="${product.version}" mode="755">
-			    <include name="bin/dhcpv6"/>
+			    <include name="bin/dhcpserver"/>
 		  	</tarfileset>
 		  	<tarfileset dir="${dist}" prefix="${product.version}">
 			    <include name="**/*"/>
@@ -149,15 +154,13 @@
 			    <exclude name="*.zip"/>
 		  	</tarfileset>
 		</tar>
-		
-		<gzip destfile="${dist}/${product.version}.tar.gz" src="${dist}/${product.version}.tar"/>
 	
 		<zip destfile="${dist}/${product.version}.zip">
 			<zipfileset dir="${dist}" prefix="${product.version}">
 			    <include name="**/*"/>
 				<exclude name="lib/*.so"/>
 				<exclude name="lib/*.jnilib"/>
-				<exclude name="bin/dhcpv6"/>
+				<exclude name="bin/dhcpserver"/>
 				<exclude name="*.tar"/>
 			    <exclude name="*.gz"/>
 			    <exclude name="*.zip"/>

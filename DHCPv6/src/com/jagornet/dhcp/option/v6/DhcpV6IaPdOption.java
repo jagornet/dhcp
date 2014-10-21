@@ -82,7 +82,7 @@ public class DhcpV6IaPdOption extends BaseDhcpOption
 			t1 = iaPdOption.getT1();
 			t1 = iaPdOption.getT2();
 		}
-		setCode(DhcpConstants.OPTION_IA_PD);
+		setCode(DhcpConstants.V6OPTION_IA_PD);
 	}
 
 	public long getIaId() {

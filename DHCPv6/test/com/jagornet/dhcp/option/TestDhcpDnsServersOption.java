@@ -83,7 +83,7 @@ public class TestDhcpDnsServersOption extends TestCase
         assertEquals(36, bb.capacity());    // +4 (code=2bytes, len=2bytes)
         assertEquals(36, bb.limit());
         assertEquals(0, bb.position());
-        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, bb.getShort());
+        assertEquals(DhcpConstants.V6OPTION_DNS_SERVERS, bb.getShort());
         assertEquals((short)32, bb.getShort());   // length
         byte[] buf = new byte[16];
         bb.get(buf);

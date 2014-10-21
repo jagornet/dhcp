@@ -47,7 +47,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 	public void testSolicit() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor processor = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -56,7 +56,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.ADVERTISE, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_ADVERTISE, replyMsg.getMessageType());
 		
 		checkReply(replyMsg,
 				InetAddress.getByName("2001:DB8:1::A"),
@@ -72,7 +72,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr,
 													"2001:DB8:2::1");
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor processor = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -81,7 +81,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.ADVERTISE, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_ADVERTISE, replyMsg.getMessageType());
 		
 		checkReply(replyMsg,
 				InetAddress.getByName("2001:DB8:1::A"),
@@ -96,7 +96,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 	public void testSolicitReconfigureAccept() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 		
 		DhcpV6ReconfigureAcceptOption reconfigAcceptOption = new DhcpV6ReconfigureAcceptOption();
 		requestMsg.putDhcpOption(reconfigAcceptOption);
@@ -108,7 +108,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.ADVERTISE, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_ADVERTISE, replyMsg.getMessageType());
 		
 		checkReply(replyMsg,
 				InetAddress.getByName("2001:DB8:1::10A"),
@@ -123,7 +123,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 	public void testSolicitNoReconfigureAccept() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(InetAddress.getByName("2001:DB8:2::1"));
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor processor = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -132,11 +132,11 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.ADVERTISE, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_ADVERTISE, replyMsg.getMessageType());
 		
 //	TAHI tests want this at the message level
 //		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
-		checkReplyMsgStatus(replyMsg, DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		checkReplyMsgStatus(replyMsg, DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 	}
 	
 	

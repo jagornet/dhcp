@@ -79,7 +79,7 @@ public class DhcpV4ChannelDecoder extends OneToOneDecoder
     {
     	if (DhcpConstants.IS_WINDOWS &&
     		!(this instanceof DhcpV4UnicastChannelDecoder) &&
-    		!remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR)) {
+    		!remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR_V4)) {
         	// we ignore packets from 0.0.0.0 in the DhcpV4UnicastChannelDecoder, so if this is NOT
         	// that decoder, then this is the broadcast decoder, in which case we want to ignore
         	// packets that are NOT from 0.0.0.0.  This is to workaround Windows implementation which

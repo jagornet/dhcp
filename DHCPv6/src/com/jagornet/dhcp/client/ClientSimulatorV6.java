@@ -93,8 +93,8 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     protected NetworkInterface mcastNetIf = null;
    	protected InetAddress DEFAULT_ADDR;
     protected InetAddress serverAddr;
-    protected int serverPort = DhcpConstants.SERVER_PORT;
-    protected int clientPort = DhcpConstants.CLIENT_PORT;
+    protected int serverPort = DhcpConstants.V6_SERVER_PORT;
+    protected int clientPort = DhcpConstants.V6_CLIENT_PORT;
     protected boolean rapidCommit = false;
     protected int numRequests = 100;
     protected AtomicInteger solicitsSent = new AtomicInteger();
@@ -259,12 +259,12 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
             if (cmd.hasOption("cp")) {
             	clientPort = 
             			parseIntegerOption("client port", cmd.getOptionValue("cp"), 
-            								DhcpConstants.CLIENT_PORT);
+            								DhcpConstants.V6_CLIENT_PORT);
             }
             if (cmd.hasOption("sp")) {
             	serverPort = 
             			parseIntegerOption("server port", cmd.getOptionValue("sp"), 
-            								DhcpConstants.SERVER_PORT);
+            								DhcpConstants.V6_SERVER_PORT);
             }
             if (cmd.hasOption("r")) {
             	rapidCommit = true;
@@ -423,17 +423,17 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 					startTime = System.currentTimeMillis();
 					log.info("Starting at: " + startTime);
 				}
-				if (msg.getMessageType() == DhcpConstants.SOLICIT) {
+				if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_SOLICIT) {
 					solicitsSent.getAndIncrement();
 					log.info("Succesfully sent solicit message duid=" + duid +
 							" cnt=" + solicitsSent);
 				}
-				else if (msg.getMessageType() == DhcpConstants.REQUEST) {
+				else if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_REQUEST) {
 					requestsSent.getAndIncrement();
 					log.info("Succesfully sent request message duid=" + duid +
 							" cnt=" + requestsSent);
 				}
-				else if (msg.getMessageType() == DhcpConstants.RELEASE) {
+				else if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_RELEASE) {
 					released = true;
 					releasesSent.getAndIncrement();
 					log.info("Succesfully sent release message duid=" + duid +
@@ -497,7 +497,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         dhcpElapsedTime.setUnsignedShort(1);
         msg.putDhcpOption(dhcpElapsedTime);
         
-    	msg.setMessageType(DhcpConstants.SOLICIT);
+    	msg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
         DhcpV6IaNaOption dhcpIaNa = new DhcpV6IaNaOption();
         dhcpIaNa.setIaId(1);
         msg.putDhcpOption(dhcpIaNa);
@@ -512,7 +512,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         msg.setTransactionId(advertisement.getTransactionId());
         msg.putDhcpOption(advertisement.getDhcpClientIdOption());
         msg.putDhcpOption(advertisement.getDhcpServerIdOption());
-        msg.setMessageType(DhcpConstants.REQUEST);
+        msg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
         msg.putDhcpOption(advertisement.getIaNaOptions().get(0));
         
         return msg;
@@ -525,7 +525,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         msg.setTransactionId(reply.getTransactionId());
         msg.putDhcpOption(reply.getDhcpClientIdOption());
         msg.putDhcpOption(reply.getDhcpServerIdOption());
-        msg.setMessageType(DhcpConstants.RELEASE);
+        msg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RELEASE);
         msg.putDhcpOption(reply.getIaNaOptions().get(0));
         
         return msg;
@@ -547,7 +547,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
             else
             	log.info("Received: " + dhcpMessage.toString());
             
-            if (dhcpMessage.getMessageType() == DhcpConstants.ADVERTISE) {
+            if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_ADVERTISE) {
 	            ClientMachine client = 
 	            		clientMap.get(dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
 	            if (client != null) {
@@ -559,7 +559,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 	            			dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
 	            }
             }
-            else if (dhcpMessage.getMessageType() == DhcpConstants.REPLY) {
+            else if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_REPLY) {
             	String key = dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii();
 	            ClientMachine client = clientMap.get(key);
 	            if (client != null) {

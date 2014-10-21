@@ -88,7 +88,7 @@ public class MongoLeaseManager extends LeaseManager
 		ServerAddress serverAddress = null;
 		FileInputStream fis = null;
 		try {
-			fis = new FileInputStream(DhcpConstants.DHCPV6_HOME + File.separator + 
+			fis = new FileInputStream(DhcpConstants.JAGORNET_DHCP_HOME + File.separator + 
 										"conf/mongo.properties");
 			Properties props = new Properties();
 			props.load(fis);

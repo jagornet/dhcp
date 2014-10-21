@@ -76,7 +76,7 @@ public class DhcpV6MessageHandler
     {
 		DhcpV6Message replyMessage = null;
 	    if (dhcpMessage instanceof DhcpV6RelayMessage) {
-	    	if (dhcpMessage.getMessageType() == DhcpConstants.RELAY_FORW) {
+	    	if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_RELAY_FORW) {
 		        DhcpV6RelayMessage relayMessage = (DhcpV6RelayMessage) dhcpMessage;
 		        replyMessage = handleRelayForward(relayMessage);
 		    }
@@ -114,7 +114,7 @@ public class DhcpV6MessageHandler
                         (DhcpV6RelayMessage)relayOptionMessage;
                     // flip this inner relay_forward into a relay_reply,
                     // because we reuse the relay message "stack" for the reply
-                    anotherRelayMessage.setMessageType(DhcpConstants.RELAY_REPL);
+                    anotherRelayMessage.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RELAY_REPL);
                     // reset the client link reference
                     linkAddr = anotherRelayMessage.getLinkAddress();
                     // reset the current relay option reference to the
@@ -134,7 +134,7 @@ public class DhcpV6MessageHandler
                         // the relayed message with the generated Reply message
                         relayOption.setDhcpMessage(replyMessage);
                         // flip the outer-most relay_foward into a relay_reply
-                        relayMessage.setMessageType(DhcpConstants.RELAY_REPL);
+                        relayMessage.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RELAY_REPL);
                         // return the relay message we started with, 
                         // with each relay "layer" flipped from a relay_forward
                         // to a relay_reply, and the lowest level relayOption
@@ -164,28 +164,28 @@ public class DhcpV6MessageHandler
     {
     	DhcpV6MessageProcessor processor = null;
     	switch (dhcpMessage.getMessageType()) {        
-	        case DhcpConstants.SOLICIT:
+	        case DhcpConstants.V6MESSAGE_TYPE_SOLICIT:
 	        	processor = new DhcpV6SolicitProcessor(dhcpMessage, linkAddress);
 	        	break;
-	        case DhcpConstants.REQUEST:
+	        case DhcpConstants.V6MESSAGE_TYPE_REQUEST:
 	        	processor = new DhcpV6RequestProcessor(dhcpMessage, linkAddress);
 	        	break;
-	        case DhcpConstants.CONFIRM:
+	        case DhcpConstants.V6MESSAGE_TYPE_CONFIRM:
 	        	processor = new DhcpV6ConfirmProcessor(dhcpMessage, linkAddress);
 	        	break;
-	        case DhcpConstants.RENEW:
+	        case DhcpConstants.V6MESSAGE_TYPE_RENEW:
 	        	processor = new DhcpV6RenewProcessor(dhcpMessage, linkAddress);
 	        	break;
-	        case DhcpConstants.REBIND:
+	        case DhcpConstants.V6MESSAGE_TYPE_REBIND:
 	        	processor = new DhcpV6RebindProcessor(dhcpMessage, linkAddress);
 	        	break;
-	        case DhcpConstants.RELEASE:
+	        case DhcpConstants.V6MESSAGE_TYPE_RELEASE:
 	        	processor = new DhcpV6ReleaseProcessor(dhcpMessage, linkAddress);
 	        	break;
-	        case DhcpConstants.DECLINE:
+	        case DhcpConstants.V6MESSAGE_TYPE_DECLINE:
 	        	processor = new DhcpV6DeclineProcessor(dhcpMessage, linkAddress);
 	        	break;
-	        case DhcpConstants.INFO_REQUEST:
+	        case DhcpConstants.V6MESSAGE_TYPE_INFO_REQUEST:
 	        	processor = new DhcpV6InfoRequestProcessor(dhcpMessage, linkAddress);
 	        	break;
 	        default:

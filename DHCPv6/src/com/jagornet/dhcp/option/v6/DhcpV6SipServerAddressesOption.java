@@ -53,6 +53,6 @@ public class DhcpV6SipServerAddressesOption extends BaseIpAddressListOption
 	public DhcpV6SipServerAddressesOption(V6SipServerAddressesOption sipServerAddressesOption)
 	{
 		super(sipServerAddressesOption);
-		setCode(DhcpConstants.OPTION_SIP_SERVERS_ADDRESS_LIST);
+		setCode(DhcpConstants.V6OPTION_SIP_SERVERS_ADDRESS_LIST);
 	}
 }

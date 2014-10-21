@@ -53,6 +53,6 @@ public class DhcpV6NisDomainNameOption extends BaseDomainNameOption
 	public DhcpV6NisDomainNameOption(V6NisDomainNameOption nisDomainNameOption)
 	{
 		super(nisDomainNameOption);
-		setCode(DhcpConstants.OPTION_NIS_DOMAIN_NAME);
+		setCode(DhcpConstants.V6OPTION_NIS_DOMAIN_NAME);
 	}
 }

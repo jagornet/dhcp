@@ -53,6 +53,6 @@ public class DhcpV6InterfaceIdOption extends BaseOpaqueDataOption
     public DhcpV6InterfaceIdOption(V6InterfaceIdOption interfaceIdOption)
     {
     	super(interfaceIdOption);
-    	setCode(DhcpConstants.OPTION_INTERFACE_ID);
+    	setCode(DhcpConstants.V6OPTION_INTERFACE_ID);
     }
 }

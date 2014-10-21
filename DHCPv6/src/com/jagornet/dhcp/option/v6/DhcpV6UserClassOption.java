@@ -54,7 +54,7 @@ public class DhcpV6UserClassOption extends BaseOpaqueDataListOption
 	public DhcpV6UserClassOption(V6UserClassOption userClassOption)
 	{
 		super(userClassOption);
-		setCode(DhcpConstants.OPTION_USER_CLASS);
+		setCode(DhcpConstants.V6OPTION_USER_CLASS);
 	}
     
     public boolean matches(DhcpV6UserClassOption that, Operator.Enum op)

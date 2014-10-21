@@ -248,12 +248,12 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
             if (cmd.hasOption("cp")) {
             	clientPort = 
             			parseIntegerOption("client port", cmd.getOptionValue("cp"), 
-            								DhcpConstants.CLIENT_PORT);
+            								DhcpConstants.V6_CLIENT_PORT);
             }
             if (cmd.hasOption("sp")) {
             	serverPort = 
             			parseIntegerOption("server port", cmd.getOptionValue("sp"), 
-            								DhcpConstants.SERVER_PORT);
+            								DhcpConstants.V6_SERVER_PORT);
             }
             if (cmd.hasOption("r")) {
             	rapidCommit = true;
@@ -486,7 +486,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     {
         DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
 
-        msg.setOp((short)DhcpConstants.OP_REQUEST);
+        msg.setOp((short)DhcpConstants.V4_OP_REQUEST);
         msg.setTransactionId(random.nextLong());
         msg.setHtype((short)1);	// ethernet
         msg.setHlen((byte)6);
@@ -505,7 +505,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     	
         DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
 
-        msg.setOp((short)DhcpConstants.OP_REQUEST);
+        msg.setOp((short)DhcpConstants.V4_OP_REQUEST);
         msg.setTransactionId(offer.getTransactionId());
         msg.setHtype((short)1);	// ethernet
         msg.setHlen((byte)6);
@@ -528,7 +528,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     	
         DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
 
-        msg.setOp((short)DhcpConstants.OP_REQUEST);
+        msg.setOp((short)DhcpConstants.V4_OP_REQUEST);
         msg.setTransactionId(ack.getTransactionId());
         msg.setHtype((short)1);	// ethernet
         msg.setHlen((byte)6);

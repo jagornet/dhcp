@@ -63,7 +63,7 @@ public class DhcpV6RemoteIdOption extends BaseOpaqueDataOption
     	if (remoteIdOption != null) {
     		enterpriseNumber = remoteIdOption.getEnterpriseNumber();
     	}
-    	setCode(DhcpConstants.OPTION_REMOTE_ID);
+    	setCode(DhcpConstants.V6OPTION_REMOTE_ID);
 	}
 	
     public long getEnterpriseNumber() {

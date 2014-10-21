@@ -23,12 +23,12 @@ public class TestDhcpV6MessageHandler extends BaseTestCase
 		DhcpV6RelayMessage relayMessage = TestDhcpRelayMessage.buildMockDhcpRelayMessage();
 		
 		// change the mock relay_reply message to a relay_forward
-		relayMessage.setMessageType(DhcpConstants.RELAY_FORW);
+		relayMessage.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RELAY_FORW);
 		
         DhcpV6Message dhcpMessage = 
-        	new DhcpV6Message(new InetSocketAddress("2001:db8:1::1", DhcpConstants.SERVER_PORT),
-        			new InetSocketAddress("fe80::1", DhcpConstants.CLIENT_PORT));
-        dhcpMessage.setMessageType(DhcpConstants.INFO_REQUEST);    // 1 byte
+        	new DhcpV6Message(new InetSocketAddress("2001:db8:1::1", DhcpConstants.V6_SERVER_PORT),
+        			new InetSocketAddress("fe80::1", DhcpConstants.V6_CLIENT_PORT));
+        dhcpMessage.setMessageType(DhcpConstants.V6MESSAGE_TYPE_INFO_REQUEST);    // 1 byte
         dhcpMessage.setTransactionId(90599);                // 3 bytes
 
         OpaqueData opaque = OpaqueData.Factory.newInstance();
@@ -47,7 +47,7 @@ public class TestDhcpV6MessageHandler extends BaseTestCase
 		DhcpV6Message replyMessage = 
 			DhcpV6MessageHandler.handleMessage(InetAddress.getByName("3ffe::1"), relayMessage);
 		DhcpV6InterfaceIdOption ifIdOption = 
-			(DhcpV6InterfaceIdOption) replyMessage.getDhcpOption(DhcpConstants.OPTION_INTERFACE_ID);
+			(DhcpV6InterfaceIdOption) replyMessage.getDhcpOption(DhcpConstants.V6OPTION_INTERFACE_ID);
 		assertNotNull(ifIdOption);
 	}
 }

@@ -62,7 +62,7 @@ public class TestDhcpUserClassOption extends TestCase
         assertEquals(30, bb.capacity());    // +4 (code=2 bytes, len=2 bytes)
         assertEquals(30, bb.limit());
         assertEquals(0, bb.position());
-        assertEquals(DhcpConstants.OPTION_USER_CLASS, bb.getShort());
+        assertEquals(DhcpConstants.V6OPTION_USER_CLASS, bb.getShort());
         assertEquals((short)26, bb.getShort());   // length
         assertEquals((short)11, bb.getShort());
     }

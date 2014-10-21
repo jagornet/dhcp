@@ -72,7 +72,7 @@ public class DhcpV6ClientFqdnOption extends BaseDomainNameOption
 	public DhcpV6ClientFqdnOption(V6ClientFqdnOption clientFqdnOption)
 	{
 		super(clientFqdnOption);
-		setCode(DhcpConstants.OPTION_CLIENT_FQDN);
+		setCode(DhcpConstants.V6OPTION_CLIENT_FQDN);
 	}
 	
     public short getFlags() {

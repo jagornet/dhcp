@@ -53,7 +53,7 @@ public class TestDhcpV4DiscoverProcessor extends BaseTestDhcpV4Processor
 		DhcpV4Message replyMsg = processor.processMessage();
 		
 		assertNotNull(replyMsg);
-		assertEquals(DhcpConstants.OP_REPLY, replyMsg.getOp());
+		assertEquals(DhcpConstants.V4_OP_REPLY, replyMsg.getOp());
 		assertEquals(requestMsg.getChAddr(), replyMsg.getChAddr());
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
 		assertEquals(DhcpConstants.V4MESSAGE_TYPE_OFFER, replyMsg.getMessageType());

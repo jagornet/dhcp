@@ -53,6 +53,6 @@ public class DhcpV6ElapsedTimeOption extends BaseUnsignedShortOption
 	public DhcpV6ElapsedTimeOption(V6ElapsedTimeOption elapsedTimeOption)
 	{
 		super(elapsedTimeOption);
-		setCode(DhcpConstants.OPTION_ELAPSED_TIME);
+		setCode(DhcpConstants.V6OPTION_ELAPSED_TIME);
 	}
 }

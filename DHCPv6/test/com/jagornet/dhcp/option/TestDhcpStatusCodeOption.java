@@ -47,16 +47,16 @@ public class TestDhcpStatusCodeOption extends TestCase
     public void testEncode() throws Exception
     {
         DhcpV6StatusCodeOption dsco = new DhcpV6StatusCodeOption();
-        dsco.setStatusCode(DhcpConstants.STATUS_CODE_SUCCESS);
+        dsco.setStatusCode(DhcpConstants.V6STATUS_CODE_SUCCESS);
         dsco.setMessage("All is well");
         ByteBuffer bb = dsco.encode();
         assertNotNull(bb);
         assertEquals(17, bb.capacity());
         assertEquals(17, bb.limit());
         assertEquals(0, bb.position());
-        assertEquals(DhcpConstants.OPTION_STATUS_CODE, bb.getShort());
+        assertEquals(DhcpConstants.V6OPTION_STATUS_CODE, bb.getShort());
         assertEquals((short)13, bb.getShort());   // length
-        assertEquals(DhcpConstants.STATUS_CODE_SUCCESS, bb.getShort());
+        assertEquals(DhcpConstants.V6STATUS_CODE_SUCCESS, bb.getShort());
         byte[] buf = new byte[11];
         bb.get(buf);
         assertEquals("All is well", new String(buf));
@@ -73,13 +73,13 @@ public class TestDhcpStatusCodeOption extends TestCase
         // _after_ the option code itself
         ByteBuffer bb = ByteBuffer.allocate(15);
         bb.putShort((short)13);  // length
-        bb.putShort((short)DhcpConstants.STATUS_CODE_SUCCESS);
+        bb.putShort((short)DhcpConstants.V6STATUS_CODE_SUCCESS);
         bb.put("All is well".getBytes());
         bb.flip();
         DhcpV6StatusCodeOption dsco = new DhcpV6StatusCodeOption();
         dsco.decode(bb);
         assertEquals(13, dsco.getLength());
-        assertEquals(DhcpConstants.STATUS_CODE_SUCCESS, 
+        assertEquals(DhcpConstants.V6STATUS_CODE_SUCCESS, 
                      dsco.getStatusCode());
         assertEquals("All is well", dsco.getMessage());
     }
@@ -92,7 +92,7 @@ public class TestDhcpStatusCodeOption extends TestCase
     public void testToString() throws Exception
     {
         DhcpV6StatusCodeOption dsco = new DhcpV6StatusCodeOption();
-        dsco.setStatusCode(DhcpConstants.STATUS_CODE_SUCCESS);
+        dsco.setStatusCode(DhcpConstants.V6STATUS_CODE_SUCCESS);
         dsco.setMessage("All is well");
     	System.out.println(dsco);
     }

@@ -53,6 +53,6 @@ public class DhcpV6NisPlusServersOption extends BaseIpAddressListOption
 	public DhcpV6NisPlusServersOption(V6NisPlusServersOption nisPlusServersOption)
 	{
 		super(nisPlusServersOption);
-		setCode(DhcpConstants.OPTION_NISPLUS_SERVERS);
+		setCode(DhcpConstants.V6OPTION_NISPLUS_SERVERS);
 	}
 }

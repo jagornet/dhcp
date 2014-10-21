@@ -94,7 +94,7 @@ public class DhcpV6RelayOption extends BaseDhcpOption
         // we can assume that address is logically a server port
         InetSocketAddress relayMsgLocalAddr = 
         	new InetSocketAddress(relayMessage.getLinkAddress(),
-        			DhcpConstants.SERVER_PORT);
+        			DhcpConstants.V6_SERVER_PORT);
         // the peerAddr of the relay message is the source address of
         // the message which it received and is forwarding, thus the
         // peerAddress is either another relay or the client itself,
@@ -156,7 +156,7 @@ public class DhcpV6RelayOption extends BaseDhcpOption
      */
     public int getCode()
     {
-        return DhcpConstants.OPTION_RELAY_MSG;
+        return DhcpConstants.V6OPTION_RELAY_MSG;
     }
 
     /* (non-Javadoc)

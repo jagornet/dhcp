@@ -83,7 +83,7 @@ public class DhcpV6IaPrefixOption extends BaseDhcpOption
 			preferredLifetime = iaPrefixOption.getPreferredLifetime();
 			validLifetime = iaPrefixOption.getValidLifetime();
 		}
-		setCode(DhcpConstants.OPTION_IA_PD_PREFIX);
+		setCode(DhcpConstants.V6OPTION_IA_PD_PREFIX);
 	}
 
 	public short getPrefixLength() {

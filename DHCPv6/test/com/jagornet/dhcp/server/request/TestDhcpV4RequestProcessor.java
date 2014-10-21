@@ -47,7 +47,7 @@ public class TestDhcpV4RequestProcessor extends BaseTestDhcpV4Processor
 	public void testDiscoverAndRequest() throws Exception
 	{
 		DhcpV4Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV4DiscoverProcessor dProc = 
 			new DhcpV4DiscoverProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -61,7 +61,7 @@ public class TestDhcpV4RequestProcessor extends BaseTestDhcpV4Processor
 		DhcpV4RequestedIpAddressOption requestedIpOption = new DhcpV4RequestedIpAddressOption();
 		requestedIpOption.setIpAddress(offerMsg.getYiAddr().getHostAddress());
 		offerMsg.putDhcpOption(requestedIpOption);
-		offerMsg.setYiAddr(DhcpConstants.ZEROADDR);
+		offerMsg.setYiAddr(DhcpConstants.ZEROADDR_V4);
 		DhcpV4RequestProcessor rProc = 
 			new DhcpV4RequestProcessor(offerMsg, offerMsg.getRemoteAddress().getAddress());
 
@@ -75,14 +75,14 @@ public class TestDhcpV4RequestProcessor extends BaseTestDhcpV4Processor
 		// convert the reply into a renew request
 		replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_REQUEST);
 		replyMsg.setCiAddr(replyMsg.getYiAddr());
-		replyMsg.setYiAddr(DhcpConstants.ZEROADDR);
+		replyMsg.setYiAddr(DhcpConstants.ZEROADDR_V4);
 		
 		DhcpV4RequestProcessor nProc =
 			new DhcpV4RequestProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());
 		
 		replyMsg = nProc.processMessage();
 
-		assertEquals(DhcpConstants.OP_REPLY, replyMsg.getOp());
+		assertEquals(DhcpConstants.V4_OP_REPLY, replyMsg.getOp());
 		assertEquals(requestMsg.getChAddr(), replyMsg.getChAddr());
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
 		assertEquals(DhcpConstants.V4MESSAGE_TYPE_ACK, replyMsg.getMessageType());

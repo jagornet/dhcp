@@ -75,7 +75,7 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     	}
     	
     	InetAddress ciAddr = requestMsg.getCiAddr();
-    	if (!ciAddr.equals(DhcpConstants.ZEROADDR)) {
+    	if (!ciAddr.equals(DhcpConstants.ZEROADDR_V4)) {
     		log.warn("Ignoring Discover message: " +
     				"ciAddr field is non-zero: " +
     				ciAddr);

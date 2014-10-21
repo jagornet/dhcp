@@ -78,7 +78,7 @@ public class GenerateTestConfig {
 	private void setupOptions()
     {
 		Option filenameOption = new Option("f", "filename", true, 
-				"Output configuration filename [dhcpv6server-test-config.xml");
+				"Output configuration filename [dhcpserver-test-config.xml");
 		options.addOption(filenameOption);
 
 		Option interfaceOption = new Option("i", "interface", true,
@@ -100,7 +100,7 @@ public class GenerateTestConfig {
 				filename = cmd.getOptionValue("f");
 			}
 			else {
-				filename = "dhcpv6server-test-config.xml";
+				filename = "dhcpserver-test-config.xml";
 			}
 			if (cmd.hasOption("i")) {
 				networkInterface = NetworkInterface.getByName(cmd.getOptionValue("i"));

@@ -53,6 +53,6 @@ public class DhcpV6SipServerDomainNamesOption extends BaseDomainNameListOption
 	public DhcpV6SipServerDomainNamesOption(V6SipServerDomainNamesOption sipServerDomainNamesOption)
 	{
 		super(sipServerDomainNamesOption);
-		setCode(DhcpConstants.OPTION_SIP_SERVERS_DOMAIN_LIST);
+		setCode(DhcpConstants.V6OPTION_SIP_SERVERS_DOMAIN_LIST);
 	}
 }

@@ -143,12 +143,12 @@ public class DhcpV6ConfirmProcessor extends BaseDhcpV6Processor
     	if (sendReply) {
 			// TAHI tests want the status at the message level
     		if (allOnLink) {
-    			setReplyStatus(DhcpConstants.STATUS_CODE_SUCCESS);
+    			setReplyStatus(DhcpConstants.V6STATUS_CODE_SUCCESS);
     		}
     		else {
-    			setReplyStatus(DhcpConstants.STATUS_CODE_NOTONLINK);
+    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOTONLINK);
     		}
-            replyMsg.setMessageType(DhcpConstants.REPLY);
+            replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
     	}
 		return sendReply;    	
     }

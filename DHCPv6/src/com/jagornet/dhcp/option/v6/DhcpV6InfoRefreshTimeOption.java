@@ -53,6 +53,6 @@ public class DhcpV6InfoRefreshTimeOption extends BaseUnsignedIntOption
 	public DhcpV6InfoRefreshTimeOption(V6InfoRefreshTimeOption infoRefreshTimeOption)
 	{
 		super(infoRefreshTimeOption);
-		setCode(DhcpConstants.OPTION_INFO_REFRESH_TIME);
+		setCode(DhcpConstants.V6OPTION_INFO_REFRESH_TIME);
 	}
 }

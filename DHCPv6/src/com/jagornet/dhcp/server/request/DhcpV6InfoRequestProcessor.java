@@ -127,7 +127,7 @@ public class DhcpV6InfoRequestProcessor extends BaseDhcpV6Processor
 //    	   parameters appropriate to the client, based on the server
 //    	   configuration policies known to the server.
 
-    	replyMsg.setMessageType(DhcpConstants.REPLY);
+    	replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
     	populateReplyMsgOptions(clientLink);
 
     	return true;

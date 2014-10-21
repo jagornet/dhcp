@@ -114,10 +114,10 @@ public class DhcpV4Message implements DhcpMessage
     protected long transactionId = 0;   	// need a long to hold unsigned int
     protected int secs = 0;
     protected int flags = 0;
-    protected InetAddress ciAddr = DhcpConstants.ZEROADDR;
-    protected InetAddress yiAddr = DhcpConstants.ZEROADDR;
-    protected InetAddress siAddr = DhcpConstants.ZEROADDR;
-    protected InetAddress giAddr = DhcpConstants.ZEROADDR;
+    protected InetAddress ciAddr = DhcpConstants.ZEROADDR_V4;
+    protected InetAddress yiAddr = DhcpConstants.ZEROADDR_V4;
+    protected InetAddress siAddr = DhcpConstants.ZEROADDR_V4;
+    protected InetAddress giAddr = DhcpConstants.ZEROADDR_V4;
     protected byte[] chAddr;
     protected String sName;
     protected String file;
@@ -531,7 +531,7 @@ public class DhcpV4Message implements DhcpMessage
     {
         StringBuffer sb = new StringBuffer();
         sb.append(DhcpConstants.getV4MessageString(getMessageType()));
-        if (this.getOp() == DhcpConstants.OP_REPLY)
+        if (this.getOp() == DhcpConstants.V4_OP_REPLY)
         	sb.append(" to ");
         else
         	sb.append(" from ");

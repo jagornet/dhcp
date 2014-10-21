@@ -53,6 +53,6 @@ public class DhcpV6NewPosixTimezoneOption extends BaseStringOption
 	public DhcpV6NewPosixTimezoneOption(V6NewPosixTimezoneOption newPosixTimezoneOption)
 	{
 		super(newPosixTimezoneOption); 
-		setCode(DhcpConstants.OPTION_NEW_POSIX_TIMEZONE);
+		setCode(DhcpConstants.V6OPTION_NEW_POSIX_TIMEZONE);
 	}
 }

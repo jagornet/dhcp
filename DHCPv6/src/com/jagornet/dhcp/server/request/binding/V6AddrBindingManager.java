@@ -297,7 +297,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 	    		Collection<DhcpOption> opts = iaAddr.getDhcpOptions();
 	    		if (opts != null) {
 	    			for (DhcpOption opt : opts) {
-	    				if (opt.getCode() == DhcpConstants.OPTION_CLIENT_FQDN) {
+	    				if (opt.getCode() == DhcpConstants.V6OPTION_CLIENT_FQDN) {
 	    					clientFqdnOption = new DhcpV6ClientFqdnOption();
 	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
 	    					break;

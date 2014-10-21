@@ -60,7 +60,7 @@ public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
 	{
-    	if (remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR)) {
+    	if (remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR_V4)) {
         	// can't unicast to 0.0.0.0, so a broadcast channel is needed
         	// this is a workaround for Windows implementation which will
         	// see duplicate packets on the unicast and broadcast channels

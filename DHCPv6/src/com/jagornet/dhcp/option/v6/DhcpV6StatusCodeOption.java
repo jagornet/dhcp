@@ -66,7 +66,7 @@ public class DhcpV6StatusCodeOption extends BaseDhcpOption implements DhcpCompar
         	statusCode = statusCodeOption.getCode();
             message = statusCodeOption.getMessage();
         }
-        setCode(DhcpConstants.OPTION_STATUS_CODE);
+        setCode(DhcpConstants.V6OPTION_STATUS_CODE);
     }
 
     public int getStatusCode() {

@@ -5,6 +5,6 @@
 
 <beans>
 
-	<bean id="iaManager" class="com.jagornet.dhcpv6.db.SqliteLeaseManager" init-method="init"/>
+	<bean id="iaManager" class="com.jagornet.dhcp.db.SqliteLeaseManager" init-method="init"/>
 
 </beans>

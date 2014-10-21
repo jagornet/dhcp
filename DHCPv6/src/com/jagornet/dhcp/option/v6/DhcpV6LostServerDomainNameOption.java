@@ -53,6 +53,6 @@ public class DhcpV6LostServerDomainNameOption extends BaseDomainNameOption
 	public DhcpV6LostServerDomainNameOption(V6LostServerDomainNameOption lostServerDomainNameOption)
 	{
 		super(lostServerDomainNameOption); 
-		setCode(DhcpConstants.OPTION_LOST_SERVER_DOMAIN_NAME);
+		setCode(DhcpConstants.V6OPTION_LOST_SERVER_DOMAIN_NAME);
 	}
 }

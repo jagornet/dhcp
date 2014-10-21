@@ -80,7 +80,7 @@ public class DhcpV6IaAddrOption extends BaseDhcpOption
 			this.preferredLifetime = iaAddrOption.getPreferredLifetime();
 			this.validLifetime = iaAddrOption.getValidLifetime();
 		}
-		setCode(DhcpConstants.OPTION_IAADDR);
+		setCode(DhcpConstants.V6OPTION_IAADDR);
 	}
 
 	public String getIpAddress() {

@@ -129,8 +129,8 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
 //      option from the client message, and no other options.
     	
     	if (shouldMulticast()) {
-    		replyMsg.setMessageType(DhcpConstants.REPLY);
-    		setReplyStatus(DhcpConstants.STATUS_CODE_USEMULTICAST);
+    		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
+    		setReplyStatus(DhcpConstants.V6STATUS_CODE_USEMULTICAST);
     		return true;
     	}
     	
@@ -173,13 +173,13 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
 							}
 							else {
 								addIaNaOptionStatusToReply(dhcpIaNaOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
 						}
 					}
 					else {
 						addIaNaOptionStatusToReply(dhcpIaNaOption,
-	    						DhcpConstants.STATUS_CODE_NOBINDING);
+	    						DhcpConstants.V6STATUS_CODE_NOBINDING);
 					}
 				}
     		}
@@ -212,13 +212,13 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
 							}
 							else {
 								addIaTaOptionStatusToReply(dhcpIaTaOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
 						}
 					}
 					else {
 						addIaTaOptionStatusToReply(dhcpIaTaOption,
-	    						DhcpConstants.STATUS_CODE_NOBINDING);
+	    						DhcpConstants.V6STATUS_CODE_NOBINDING);
 					}
 				}
     		}
@@ -251,13 +251,13 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
 							}
 							else {
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
-			    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 							}
 						}
 					}
 					else {
 						addIaPdOptionStatusToReply(dhcpIaPdOption,
-	    						DhcpConstants.STATUS_CODE_NOBINDING);
+	    						DhcpConstants.V6STATUS_CODE_NOBINDING);
 					}
 				}
     		}
@@ -268,7 +268,7 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
     	}
     	
     	if (sendReply) {
-            replyMsg.setMessageType(DhcpConstants.REPLY);
+            replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
             if (!bindings.isEmpty()) {
             	populateReplyMsgOptions(clientLink);
     			processDdnsUpdates(true);

@@ -109,7 +109,7 @@ public class BaseTestDhcpV4Processor extends BaseTestCase
 		InetSocketAddress remoteSocketAddr = 
 			new InetSocketAddress(linkAddress, DhcpConstants.V4_CLIENT_PORT);
 		InetSocketAddress localSocketAddr = 
-			new InetSocketAddress(DhcpConstants.LOCALHOST, DhcpConstants.V4_SERVER_PORT);
+			new InetSocketAddress(DhcpConstants.LOCALHOST_V4, DhcpConstants.V4_SERVER_PORT);
 		
 		DhcpV4Message requestMsg = new DhcpV4Message(localSocketAddr, remoteSocketAddr);
 		requestMsg.setHtype((short)1);

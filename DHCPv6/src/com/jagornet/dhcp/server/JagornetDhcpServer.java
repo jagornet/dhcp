@@ -96,35 +96,36 @@ public class JagornetDhcpServer
     protected HelpFormatter formatter;
     
     /** The default config filename. */
-    public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.DHCPV6_HOME != null ? 
-    	(DhcpConstants.DHCPV6_HOME + "/conf/dhcpv6server.xml") : "conf/dhcpv6server.xml";
+    public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
+    	(DhcpConstants.JAGORNET_DHCP_HOME + "/conf/dhcpserver.xml") : "conf/dhcpserver.xml";
 	
     /** The configuration filename. */
     protected String configFilename = DEFAULT_CONFIG_FILENAME;
 
     /** The application context filename. */
-    public static String APP_CONTEXT_FILENAME = "com/jagornet/dhcpv6/context.xml";
-    public static String APP_CONTEXT_JDBC_DATASOURCE_FILENAME = "com/jagornet/dhcpv6/context_jdbc_datasource.xml";
-    public static String APP_CONTEXT_JDBC_DERBY_FILENAME = "com/jagornet/dhcpv6/context_jdbc_derby.xml";
-    public static String APP_CONTEXT_JDBC_H2_FILENAME = "com/jagornet/dhcpv6/context_jdbc_h2.xml";
-    public static String APP_CONTEXT_JDBC_SQLITE_FILENAME = "com/jagornet/dhcpv6/context_jdbc_sqlite.xml";
-    public static String APP_CONTEXT_JDBC_FILENAME = "com/jagornet/dhcpv6/context_jdbc.xml";
-    public static String APP_CONTEXT_JDBC_V1SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_jdbc_v1schema.xml";
-    public static String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_jdbc_v2schema.xml";    
-    public static String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_sqlite_v2schema.xml";    
-    public static String APP_CONTEXT_MONGO_V2SCHEMA_FILENAME = "com/jagornet/dhcpv6/context_mongo_v2schema.xml";    
+    public static String APP_CONTEXT_FILENAME = "com/jagornet/dhcp/context.xml";
+    public static String APP_CONTEXT_JDBC_DATASOURCE_FILENAME = "com/jagornet/dhcp/context_jdbc_datasource.xml";
+    public static String APP_CONTEXT_JDBC_DERBY_FILENAME = "com/jagornet/dhcp/context_jdbc_derby.xml";
+    public static String APP_CONTEXT_JDBC_H2_FILENAME = "com/jagornet/dhcp/context_jdbc_h2.xml";
+    public static String APP_CONTEXT_JDBC_SQLITE_FILENAME = "com/jagornet/dhcp/context_jdbc_sqlite.xml";
+    public static String APP_CONTEXT_JDBC_FILENAME = "com/jagornet/dhcp/context_jdbc.xml";
+    public static String APP_CONTEXT_JDBC_V1SCHEMA_FILENAME = "com/jagornet/dhcp/context_jdbc_v1schema.xml";
+    public static String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "com/jagornet/dhcp/context_jdbc_v2schema.xml";    
+    public static String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "com/jagornet/dhcp/context_sqlite_v2schema.xml";    
+    public static String APP_CONTEXT_MONGO_V2SCHEMA_FILENAME = "com/jagornet/dhcp/context_mongo_v2schema.xml";    
     
-    /** The server port number. */
-    protected int portNumber = DhcpConstants.SERVER_PORT;
+    /** DHCPv6 Multicast interfaces */
+    protected List<NetworkInterface> v6McastNetIfs = null;
+    /** DHCPv6 Unicast addresses */
+    protected List<InetAddress> v6UcastAddrs = null;
+    /** DHCPv6 Server port number */
+    protected int v6PortNumber = DhcpConstants.V6_SERVER_PORT;
     
-    /** The multicast network interfaces. */
-    protected List<NetworkInterface> mcastNetIfs = null;
-    
-    /** The unicast IP addresses. */
-    protected List<InetAddress> ucastAddrs = null;
-    
+    /** DHCPv4 Broadcast interface */
     protected NetworkInterface v4BcastNetIf = null;
+    /** DHCPv4 Unicast addresses */
     protected List<InetAddress> v4UcastAddrs = null;
+    /** DHCPv4 Server port number */
     protected int v4PortNumber = DhcpConstants.V4_SERVER_PORT;
     
     protected DhcpServerConfiguration serverConfig = null;
@@ -143,14 +144,18 @@ public class JagornetDhcpServer
 
         if(!parseOptions(args)) {
         	System.err.println("Invalid command line options: " + Arrays.toString(args));
-            formatter = new HelpFormatter();
-            String cliName = this.getClass().getName();
-//            formatter.printHelp(cliName, options);
-            PrintWriter stderr = new PrintWriter(System.err, true);	// auto-flush=true
-            formatter.printHelp(stderr, 80, cliName + " [options]", 
-            				    Version.getVersion(), options, 2, 2, null);
+        	showHelp();
             System.exit(0);
         }        
+    }
+    
+    public void showHelp() {
+        formatter = new HelpFormatter();
+        String cliName = this.getClass().getName();
+//        formatter.printHelp(cliName, options);
+        PrintWriter stderr = new PrintWriter(System.err, true);	// auto-flush=true
+        formatter.printHelp(stderr, 80, cliName + " [options]", 
+        				    Version.getVersion(), options, 2, 2, null);    	
     }
     
     /**
@@ -163,7 +168,7 @@ public class JagornetDhcpServer
      */
     protected void start() throws Exception
     {
-    	log.info("Starting Jagornet DHCPv6 Server");
+    	log.info("Starting Jagornet DHCP Server");
     	log.info(Version.getVersion());
     	int cores = Runtime.getRuntime().availableProcessors();
     	log.info("Number of available core processors: " + cores);
@@ -201,21 +206,21 @@ public class JagornetDhcpServer
         
         // by default, all non-loopback, non-linklocal,
         // IPv6 addresses are selected for unicast
-        if (ucastAddrs == null) {
-        	ucastAddrs = getFilteredIPv6Addrs();
+        if (v6UcastAddrs == null) {
+        	v6UcastAddrs = getFilteredIPv6Addrs();
         }
-        msg = "DHCPv6 Unicast addresses: " + Arrays.toString(ucastAddrs.toArray());
+        msg = "DHCPv6 Unicast addresses: " + Arrays.toString(v6UcastAddrs.toArray());
         System.out.println(msg);
         log.info(msg);
         
         // for now, the mcast interfaces MUST be listed at
         // startup to get the mcast behavior at all... but
         // we COULD default to use all IPv6 interfaces 
-        if (mcastNetIfs != null) {
+        if (v6McastNetIfs != null) {
 //        	msg = "DHCPv6 Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
         	StringBuilder sb = new StringBuilder();
         	sb.append("DHCPv6 Multicast interfaces: [");
-        	for (NetworkInterface mcastNetIf : mcastNetIfs) {
+        	for (NetworkInterface mcastNetIf : v6McastNetIfs) {
 				sb.append(mcastNetIf.getName());
 				sb.append(", ");
 			}
@@ -231,7 +236,7 @@ public class JagornetDhcpServer
         	log.info(msg);
         }
         
-        msg = "DHCPv6 Port number: " + portNumber;
+        msg = "DHCPv6 Port number: " + v6PortNumber;
         System.out.println(msg);
         log.info(msg);
 
@@ -260,7 +265,7 @@ public class JagornetDhcpServer
         System.out.println(msg);
         log.info(msg);
         
-    	NettyDhcpServer nettyServer = new NettyDhcpServer(ucastAddrs, mcastNetIfs, portNumber, 
+    	NettyDhcpServer nettyServer = new NettyDhcpServer(v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
     														v4UcastAddrs, v4BcastNetIf, v4PortNumber);
     	nettyServer.start();
     }
@@ -335,55 +340,55 @@ public class JagornetDhcpServer
 		
 		log.info("Loading managers from context...");
 		
-		V6NaAddrBindingManager naAddrBindingMgr = 
-			(V6NaAddrBindingManager) context.getBean("naAddrBindingManager");
-		if (naAddrBindingMgr != null) {
+		V6NaAddrBindingManager v6NaAddrBindingMgr = 
+			(V6NaAddrBindingManager) context.getBean("v6NaAddrBindingManager");
+		if (v6NaAddrBindingMgr != null) {
 			try {
-				log.info("Initializing NA Address Binding Manager");
-				naAddrBindingMgr.init();
-				serverConfig.setNaAddrBindingMgr(naAddrBindingMgr);
+				log.info("Initializing V6 NA Address Binding Manager");
+				v6NaAddrBindingMgr.init();
+				serverConfig.setNaAddrBindingMgr(v6NaAddrBindingMgr);
 			}
 			catch (Exception ex) {
-				log.error("Failed initialize NA Address Binding Manager", ex);
+				log.error("Failed initialize V6 NA Address Binding Manager", ex);
 				throw ex;
 			}
 		}
 		else {
-			log.warn("No NA Address Binding Manager available");
+			log.warn("No V6 NA Address Binding Manager available");
 		}
 		
-		V6TaAddrBindingManager taAddrBindingMgr = 
-			(V6TaAddrBindingManager) context.getBean("taAddrBindingManager");
-		if (taAddrBindingMgr != null) {
+		V6TaAddrBindingManager v6TaAddrBindingMgr = 
+			(V6TaAddrBindingManager) context.getBean("v6TaAddrBindingManager");
+		if (v6TaAddrBindingMgr != null) {
 			try {
-				log.info("Initializing TA Address Binding Manager");
-				taAddrBindingMgr.init();
-				serverConfig.setTaAddrBindingMgr(taAddrBindingMgr);
+				log.info("Initializing V6 TA Address Binding Manager");
+				v6TaAddrBindingMgr.init();
+				serverConfig.setTaAddrBindingMgr(v6TaAddrBindingMgr);
 			}
 			catch (Exception ex) {
-				log.error("Failed initialize TA Address Binding Manager", ex);
+				log.error("Failed initialize V6 TA Address Binding Manager", ex);
 				throw ex;
 			}
 		}
 		else {
-			log.warn("No TA Address Binding Manager available");
+			log.warn("No V6 TA Address Binding Manager available");
 		}
 		
-		V6PrefixBindingManager prefixBindingMgr = 
-			(V6PrefixBindingManager) context.getBean("prefixBindingManager");
-		if (prefixBindingMgr != null) {
+		V6PrefixBindingManager v6PrefixBindingMgr = 
+			(V6PrefixBindingManager) context.getBean("v6PrefixBindingManager");
+		if (v6PrefixBindingMgr != null) {
 			try {
-				log.info("Initializing Prefix Binding Manager");
-				prefixBindingMgr.init();
-				serverConfig.setPrefixBindingMgr(prefixBindingMgr);
+				log.info("Initializing V6 Prefix Binding Manager");
+				v6PrefixBindingMgr.init();
+				serverConfig.setPrefixBindingMgr(v6PrefixBindingMgr);
 			}
 			catch (Exception ex) {
-				log.error("Failed initialize Prefix Binding Manager", ex);
+				log.error("Failed initialize V6 Prefix Binding Manager", ex);
 				throw ex;
 			}
 		}
 		else {
-			log.warn("No Prefix Binding Manager available");
+			log.warn("No V6 Prefix Binding Manager available");
 		}
 		
 		V4AddrBindingManager v4AddrBindingMgr = 
@@ -423,32 +428,32 @@ public class JagornetDhcpServer
         Option configFileOption =
         	OptionBuilder.withLongOpt("configfile")
         	.withArgName("filename")
-        	.withDescription("Configuration file (default = $DHCPV6_HOME/conf/dhcpv6server.xml).")
+        	.withDescription("Configuration file (default = " + DEFAULT_CONFIG_FILENAME + ").")
         	.hasArg()
         	.create("c");
         options.addOption(configFileOption);
         
         Option portOption =
-        	OptionBuilder.withLongOpt("port")
+        	OptionBuilder.withLongOpt("v6port")
         	.withArgName("portnum")
         	.withDescription("DHCPv6 Port number (default = 547).")
         	.hasArg()
-        	.create("p");
+        	.create("6p");
         options.addOption(portOption);
 
         Option mcastOption =
-        	OptionBuilder.withLongOpt("mcast")
+        	OptionBuilder.withLongOpt("v6mcast")
         	.withArgName("interfaces")
         	.withDescription("DHCPv6 Multicast support (default = none). " +
         			"Use this option without arguments to instruct the server to bind to all " +
         			"multicast-enabled IPv6 interfaces on the host. Optionally, use arguments " +
         			"to list specific interfaces, separated by spaces.")
         	.hasOptionalArgs()
-        	.create("m");
+        	.create("6m");
         options.addOption(mcastOption);
 
         Option ucastOption =
-        	OptionBuilder.withLongOpt("ucast")
+        	OptionBuilder.withLongOpt("v6ucast")
         	.withArgName("addresses")
         	.withDescription("DHCPv6 Unicast addresses (default = all IPv6 addresses). " +
         			"Use this option to instruct the server to bind to a specific list " +
@@ -456,7 +461,7 @@ public class JagornetDhcpServer
         			"should be configured on one or more DHCPv6 relay agents connected " +
         			"to DHCPv6 client links.")
         	.hasOptionalArgs()
-        	.create("u");        				 
+        	.create("6u");        				 
         options.addOption(ucastOption);
         
         Option v4BcastOption = 
@@ -487,7 +492,7 @@ public class JagornetDhcpServer
         
         Option v4PortOption =
         	OptionBuilder.withLongOpt("v4port")
-        	.withArgName("v4portnum")
+        	.withArgName("portnum")
         	.withDescription("DHCPv4 Port number (default = 67).")
         	.hasArg()
         	.create("4p");
@@ -525,40 +530,41 @@ public class JagornetDhcpServer
         try {
             CommandLine cmd = parser.parse(options, args);
             if (cmd.hasOption("?")) {
-                return false;
+                showHelp();
+                System.exit(0);
             }
             if (cmd.hasOption("c")) {
                 configFilename = cmd.getOptionValue("c");
             }
-            if (cmd.hasOption("p")) {
-            	String p = cmd.getOptionValue("p");
+            if (cmd.hasOption("6p")) {
+            	String p = cmd.getOptionValue("6p");
             	try {
-            		portNumber = Integer.parseInt(p);
+            		v6PortNumber = Integer.parseInt(p);
             	}
             	catch (NumberFormatException ex) {
-            		portNumber = DhcpConstants.SERVER_PORT;
+            		v6PortNumber = DhcpConstants.V6_SERVER_PORT;
             		System.err.println("Invalid port number: '" + p +
-            							"' using default: " + portNumber +
+            							"' using default: " + v6PortNumber +
             							" Exception=" + ex);
             	}
             }
-            if (cmd.hasOption("m")) {
-            	String[] ifnames = cmd.getOptionValues("m");
+            if (cmd.hasOption("6m")) {
+            	String[] ifnames = cmd.getOptionValues("6m");
             	if ((ifnames == null) || (ifnames.length < 1)) {
             		ifnames = new String[] { "*" };
             	}
-        		mcastNetIfs = getIPv6NetIfs(ifnames);
-        		if ((mcastNetIfs == null) || mcastNetIfs.isEmpty()) {
+        		v6McastNetIfs = getIPv6NetIfs(ifnames);
+        		if ((v6McastNetIfs == null) || v6McastNetIfs.isEmpty()) {
         			return false;
         		}
             }
-            if (cmd.hasOption("u")) {
-            	String[] addrs = cmd.getOptionValues("u");
+            if (cmd.hasOption("6u")) {
+            	String[] addrs = cmd.getOptionValues("6u");
             	if ((addrs == null) || (addrs.length < 1)) {
             		addrs = new String[] { "*" };
             	}
-        		ucastAddrs = getIpAddrs(addrs);
-        		if ((ucastAddrs == null) || ucastAddrs.isEmpty()) {
+        		v6UcastAddrs = getIpAddrs(addrs);
+        		if ((v6UcastAddrs == null) || v6UcastAddrs.isEmpty()) {
         			return false;
         		}
             }

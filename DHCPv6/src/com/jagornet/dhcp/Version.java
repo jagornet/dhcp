@@ -38,7 +38,7 @@ public class Version
 	
 	public static String getVersion()
 	{
-		Package pkg = Package.getPackage("com.jagornet.dhcpv6"); 
+		Package pkg = Package.getPackage("com.jagornet.dhcp"); 
 		StringBuilder sb = new StringBuilder();
 		sb.append(pkg.getImplementationTitle());
 		sb.append(' ');

@@ -5,7 +5,7 @@
 
 <beans>
 
-	<bean id="iaManager" class="com.jagornet.dhcpv6.db.JdbcLeaseManager" init-method="init">
+	<bean id="iaManager" class="com.jagornet.dhcp.db.JdbcLeaseManager" init-method="init">
     
 		<property name="dataSource">
 			<ref bean="dataSource"/>

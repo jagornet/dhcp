@@ -202,7 +202,7 @@ public class DhcpV6RelayMessage extends DhcpV6Message
                     
                     if (buf.hasRemaining()) {
                         Map<Integer,DhcpOption> options = decodeOptions(buf);
-                    	DhcpOption dhcpOption = options.get(DhcpConstants.OPTION_RELAY_MSG);
+                    	DhcpOption dhcpOption = options.get(DhcpConstants.V6OPTION_RELAY_MSG);
                     	if ((dhcpOption != null) && (dhcpOption instanceof DhcpV6RelayOption)) {
                     		relayOption = (DhcpV6RelayOption) dhcpOption;
                             setDhcpOptionMap(options);                            

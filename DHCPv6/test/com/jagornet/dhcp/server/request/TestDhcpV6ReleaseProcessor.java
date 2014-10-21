@@ -47,7 +47,7 @@ public class TestDhcpV6ReleaseProcessor extends BaseTestDhcpV6Processor
 	public void testSolicitAndRequestAndRelease() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -57,7 +57,7 @@ public class TestDhcpV6ReleaseProcessor extends BaseTestDhcpV6Processor
 		assertNotNull(advertiseMsg);
 		
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -69,7 +69,7 @@ public class TestDhcpV6ReleaseProcessor extends BaseTestDhcpV6Processor
 		Thread.sleep(2000);
 
 		// convert the reply into a release request
-		replyMsg.setMessageType(DhcpConstants.RELEASE);
+		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RELEASE);
 		
 		DhcpV6ReleaseProcessor lProc =
 			new DhcpV6ReleaseProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());
@@ -78,9 +78,9 @@ public class TestDhcpV6ReleaseProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
-		checkReplyMsgStatus(replyMsg, DhcpConstants.STATUS_CODE_SUCCESS);
+		checkReplyMsgStatus(replyMsg, DhcpConstants.V6STATUS_CODE_SUCCESS);
 	}
 	
 	/**
@@ -91,7 +91,7 @@ public class TestDhcpV6ReleaseProcessor extends BaseTestDhcpV6Processor
 	public void testReleaseNoBinding() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.RELEASE);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RELEASE);
 		DhcpV6ServerIdOption dhcpServerId = 
 			new DhcpV6ServerIdOption(config.getDhcpServerConfig().getV6ServerIdOption());
 		requestMsg.putDhcpOption(dhcpServerId);
@@ -103,10 +103,10 @@ public class TestDhcpV6ReleaseProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
-		checkReplyMsgStatus(replyMsg, DhcpConstants.STATUS_CODE_SUCCESS);
+		checkReplyMsgStatus(replyMsg, DhcpConstants.V6STATUS_CODE_SUCCESS);
 		
-		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_NOBINDING);
+		checkReplyIaNaStatus(replyMsg, DhcpConstants.V6STATUS_CODE_NOBINDING);
 	}
 }

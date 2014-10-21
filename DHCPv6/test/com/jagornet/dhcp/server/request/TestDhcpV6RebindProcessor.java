@@ -56,7 +56,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 	public void testSolicitAndRequestAndRebind() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -66,7 +66,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		assertNotNull(advertiseMsg);
 		
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -78,9 +78,9 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		Thread.sleep(2000);
 		
 		// convert the reply into a rebind request
-		replyMsg.setMessageType(DhcpConstants.REBIND);
+		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REBIND);
 		// null out the ServerId option for a rebind
-		replyMsg.getDhcpOptionMap().remove(DhcpConstants.OPTION_SERVERID);
+		replyMsg.getDhcpOptionMap().remove(DhcpConstants.V6OPTION_SERVERID);
 		
 		DhcpV6RebindProcessor nProc =
 			new DhcpV6RebindProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());
@@ -89,7 +89,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
 		checkReply(replyMsg, 
 				InetAddress.getByName("2001:DB8:1::A"),
@@ -107,7 +107,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "false");
 		
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.REBIND);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REBIND);
 		
 		DhcpV6RebindProcessor processor =
 			new DhcpV6RebindProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -128,7 +128,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "true");
 
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.REBIND);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REBIND);
 		DhcpV6IaAddrOption dhcpIaAddr = new DhcpV6IaAddrOption();
 		dhcpIaAddr.setIpAddress("2001:DB8:2::1");
 		requestMsg.getIaNaOptions().iterator().next().getIaAddrOptions().add(dhcpIaAddr);
@@ -140,18 +140,18 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
 		Collection<DhcpOption> dhcpOptions = replyMsg.getDhcpOptions();
 		assertNotNull(dhcpOptions);
 		assertEquals(2, dhcpOptions.size());
 		
 		DhcpV6ClientIdOption _clientIdOption = 
-			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_CLIENTID);	
+			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENTID);	
 		assertNotNull(_clientIdOption);
 		
 		DhcpV6ServerIdOption _serverIdOption = 
-			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_SERVERID);	
+			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_SERVERID);	
 		assertNotNull(_serverIdOption);
 		
 		DhcpV6IaNaOption _iaNaOption = replyMsg.getIaNaOptions().get(0);
@@ -173,7 +173,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 	public void testZeroLifetimes() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -183,7 +183,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		assertNotNull(advertiseMsg);
 		
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -195,9 +195,9 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		Thread.sleep(2000);
 
 		// convert the reply into a rebind request
-		replyMsg.setMessageType(DhcpConstants.REBIND);
+		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REBIND);
 		// null out the ServerId option for a rebind
-		replyMsg.getDhcpOptionMap().remove(DhcpConstants.OPTION_SERVERID);
+		replyMsg.getDhcpOptionMap().remove(DhcpConstants.V6OPTION_SERVERID);
 		// hack the returned reply to request an off-link address
 		replyMsg.getIaNaOptions().iterator().next().
 				getIaAddrOptions().iterator().next().
@@ -213,7 +213,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
 //		checkReply(replyMsg, null, null, 0);
 		Collection<DhcpOption> dhcpOptions = replyMsg.getDhcpOptions();
@@ -221,11 +221,11 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		assertEquals(2, dhcpOptions.size());
 		
 		DhcpV6ClientIdOption _clientIdOption = 
-			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_CLIENTID);	
+			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENTID);	
 		assertNotNull(_clientIdOption);
 		
 		DhcpV6ServerIdOption _serverIdOption = 
-			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_SERVERID);	
+			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_SERVERID);	
 		assertNotNull(_serverIdOption);
 		
 		DhcpV6IaNaOption _iaNaOption = replyMsg.getIaNaOptions().get(0);

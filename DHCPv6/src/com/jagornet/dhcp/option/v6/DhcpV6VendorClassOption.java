@@ -65,7 +65,7 @@ public class DhcpV6VendorClassOption extends BaseOpaqueDataListOption
     	if (vendorClassOption != null) {
     		enterpriseNumber = vendorClassOption.getEnterpriseNumber();
     	}
-    	setCode(DhcpConstants.OPTION_VENDOR_CLASS);
+    	setCode(DhcpConstants.V6OPTION_VENDOR_CLASS);
 	}
     
     public long getEnterpriseNumber() {

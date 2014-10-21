@@ -53,6 +53,6 @@ public class DhcpV6DnsServersOption extends BaseIpAddressListOption
 	public DhcpV6DnsServersOption(V6DnsServersOption dnsServersOption)
 	{
 		super(dnsServersOption);
-		setCode(DhcpConstants.OPTION_DNS_SERVERS);
+		setCode(DhcpConstants.V6OPTION_DNS_SERVERS);
 	}
 }

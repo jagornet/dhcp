@@ -47,140 +47,140 @@ public class DhcpV6OptionFactory
     {
         DhcpOption option = null;
         switch(code) {
-            case DhcpConstants.OPTION_CLIENTID:	// 1
+            case DhcpConstants.V6OPTION_CLIENTID:	// 1
                 option = new DhcpV6ClientIdOption();
                 break;
-            case DhcpConstants.OPTION_SERVERID:	// 2
+            case DhcpConstants.V6OPTION_SERVERID:	// 2
                 option = new DhcpV6ServerIdOption();
                 break;
-            case DhcpConstants.OPTION_IA_NA:	// 3
+            case DhcpConstants.V6OPTION_IA_NA:	// 3
                 option = new DhcpV6IaNaOption();
                 break;
-            case DhcpConstants.OPTION_IA_TA:	// 4
+            case DhcpConstants.V6OPTION_IA_TA:	// 4
                 option = new DhcpV6IaTaOption();
                 break;
-            case DhcpConstants.OPTION_IAADDR:	// 5
+            case DhcpConstants.V6OPTION_IAADDR:	// 5
             	option = new DhcpV6IaAddrOption();
             	break;
-            case DhcpConstants.OPTION_ORO:	// 6
+            case DhcpConstants.V6OPTION_ORO:	// 6
                 option = new DhcpV6OptionRequestOption();
                 break;
-            case DhcpConstants.OPTION_PREFERENCE:	// 7
+            case DhcpConstants.V6OPTION_PREFERENCE:	// 7
                 option = new DhcpV6PreferenceOption();
                 break;
-            case DhcpConstants.OPTION_ELAPSED_TIME:	// 8
+            case DhcpConstants.V6OPTION_ELAPSED_TIME:	// 8
                 option = new DhcpV6ElapsedTimeOption();
                 break;
-            case DhcpConstants.OPTION_RELAY_MSG:	// 9
+            case DhcpConstants.V6OPTION_RELAY_MSG:	// 9
                 option = new DhcpV6RelayOption();
                 break;
                 
                 // option code 10 is unassigned
                 
-            case DhcpConstants.OPTION_AUTH:		// 11
+            case DhcpConstants.V6OPTION_AUTH:		// 11
             	option = new DhcpV6AuthenticationOption();
             	break;
-            case DhcpConstants.OPTION_UNICAST:	// 12
+            case DhcpConstants.V6OPTION_UNICAST:	// 12
             	option = new DhcpV6ServerUnicastOption();
             	break;
-            case DhcpConstants.OPTION_STATUS_CODE:	// 13
+            case DhcpConstants.V6OPTION_STATUS_CODE:	// 13
                 option = new DhcpV6StatusCodeOption();
                 break;
-            case DhcpConstants.OPTION_RAPID_COMMIT:	// 14
+            case DhcpConstants.V6OPTION_RAPID_COMMIT:	// 14
             	option = new DhcpV6RapidCommitOption();
             	break;
-            case DhcpConstants.OPTION_USER_CLASS:	// 15
+            case DhcpConstants.V6OPTION_USER_CLASS:	// 15
                 option = new DhcpV6UserClassOption();
                 break;
-            case DhcpConstants.OPTION_VENDOR_CLASS:	// 16
+            case DhcpConstants.V6OPTION_VENDOR_CLASS:	// 16
                 option = new DhcpV6VendorClassOption();
                 break;
-            case DhcpConstants.OPTION_VENDOR_OPTS:	// 17
+            case DhcpConstants.V6OPTION_VENDOR_OPTS:	// 17
                 option = new DhcpV6VendorInfoOption();
                 break;
-            case DhcpConstants.OPTION_INTERFACE_ID:	// 18
+            case DhcpConstants.V6OPTION_INTERFACE_ID:	// 18
                 option = new DhcpV6InterfaceIdOption();
                 break;
-            case DhcpConstants.OPTION_RECONF_MSG:	// 19
+            case DhcpConstants.V6OPTION_RECONF_MSG:	// 19
             	option = new DhcpV6ReconfigureMessageOption();
             	break;
-            case DhcpConstants.OPTION_RECONF_ACCEPT:	// 20
+            case DhcpConstants.V6OPTION_RECONF_ACCEPT:	// 20
             	option = new DhcpV6ReconfigureAcceptOption();
                 break;
-            case DhcpConstants.OPTION_SIP_SERVERS_DOMAIN_LIST:	// 21
+            case DhcpConstants.V6OPTION_SIP_SERVERS_DOMAIN_LIST:	// 21
             	option = new DhcpV6SipServerDomainNamesOption();
             	break;
-            case DhcpConstants.OPTION_SIP_SERVERS_ADDRESS_LIST:	// 22
+            case DhcpConstants.V6OPTION_SIP_SERVERS_ADDRESS_LIST:	// 22
             	option = new DhcpV6SipServerAddressesOption();
             	break;
-            case DhcpConstants.OPTION_DNS_SERVERS:	// 23
+            case DhcpConstants.V6OPTION_DNS_SERVERS:	// 23
                 option = new DhcpV6DnsServersOption();
                 break;
-            case DhcpConstants.OPTION_DOMAIN_SEARCH_LIST:	// 24
+            case DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST:	// 24
                 option = new DhcpV6DomainSearchListOption();
                 break;
-            case DhcpConstants.OPTION_IA_PD:	// 25
+            case DhcpConstants.V6OPTION_IA_PD:	// 25
             	option = new DhcpV6IaPdOption();
             	break;
-            case DhcpConstants.OPTION_IA_PD_PREFIX:	// 26
+            case DhcpConstants.V6OPTION_IA_PD_PREFIX:	// 26
             	option = new DhcpV6IaPrefixOption();
             	break;
-            case DhcpConstants.OPTION_NIS_SERVERS:	// 27
+            case DhcpConstants.V6OPTION_NIS_SERVERS:	// 27
                 option = new DhcpV6NisServersOption();
                 break;
-            case DhcpConstants.OPTION_NISPLUS_SERVERS:	// 28
+            case DhcpConstants.V6OPTION_NISPLUS_SERVERS:	// 28
                 option = new DhcpV6NisPlusServersOption();
                 break;
-            case DhcpConstants.OPTION_NIS_DOMAIN_NAME:	// 29
+            case DhcpConstants.V6OPTION_NIS_DOMAIN_NAME:	// 29
                 option = new DhcpV6NisDomainNameOption();
                 break;
-            case DhcpConstants.OPTION_NISPLUS_DOMAIN_NAME:	// 30
+            case DhcpConstants.V6OPTION_NISPLUS_DOMAIN_NAME:	// 30
                 option = new DhcpV6NisPlusDomainNameOption();
                 break;
-            case DhcpConstants.OPTION_SNTP_SERVERS:	// 31
+            case DhcpConstants.V6OPTION_SNTP_SERVERS:	// 31
                 option = new DhcpV6SntpServersOption();
                 break;
-            case DhcpConstants.OPTION_INFO_REFRESH_TIME:	// 32
+            case DhcpConstants.V6OPTION_INFO_REFRESH_TIME:	// 32
                 option = new DhcpV6InfoRefreshTimeOption();
                 break;
-            case DhcpConstants.OPTION_BCMCS_DOMAIN_NAMES:	// 33
+            case DhcpConstants.V6OPTION_BCMCS_DOMAIN_NAMES:	// 33
             	option = new DhcpV6BcmcsDomainNamesOption();
             	break;
-            case DhcpConstants.OPTION_BCMCS_ADDRESSES:	// 34
+            case DhcpConstants.V6OPTION_BCMCS_ADDRESSES:	// 34
             	option = new DhcpV6BcmcsAddressesOption();
             	break;
             	
             	// option code 35 is unassigned
             	
-            case DhcpConstants.OPTION_GEOCONF_CIVIC:	// 36
+            case DhcpConstants.V6OPTION_GEOCONF_CIVIC:	// 36
             	option = new DhcpV6GeoconfCivicOption();
             	break;
-            case DhcpConstants.OPTION_REMOTE_ID:	// 37
+            case DhcpConstants.V6OPTION_REMOTE_ID:	// 37
             	option = new DhcpV6RemoteIdOption();
             	break;
-            case DhcpConstants.OPTION_SUBSCRIBER_ID:	// 38
+            case DhcpConstants.V6OPTION_SUBSCRIBER_ID:	// 38
             	option = new DhcpV6SubscriberIdOption();
             	break;
-            case DhcpConstants.OPTION_CLIENT_FQDN:	// 39
+            case DhcpConstants.V6OPTION_CLIENT_FQDN:	// 39
             	option = new DhcpV6ClientFqdnOption();
             	break;
-            case DhcpConstants.OPTION_PANA_AGENT_ADDRESSES:	// 40
+            case DhcpConstants.V6OPTION_PANA_AGENT_ADDRESSES:	// 40
             	option = new DhcpV6PanaAgentAddressesOption();
             	break;
-            case DhcpConstants.OPTION_NEW_POSIX_TIMEZONE:	// 41
+            case DhcpConstants.V6OPTION_NEW_POSIX_TIMEZONE:	// 41
             	option = new DhcpV6NewPosixTimezoneOption();
             	break;
-            case DhcpConstants.OPTION_NEW_TZDB_TIMEZONE:	// 42
+            case DhcpConstants.V6OPTION_NEW_TZDB_TIMEZONE:	// 42
             	option = new DhcpV6NewTzdbTimezoneOption();
             	break;
-            case DhcpConstants.OPTION_ECHO_REQUEST:	// 43
+            case DhcpConstants.V6OPTION_ECHO_REQUEST:	// 43
             	option = new DhcpV6EchoRequestOption();
             	break;
             	
             	// option codes 44-48 for Lease Query RFCs
             	// option codes 49-50 for Mobile IPv6 Home Information draft
             	
-            case DhcpConstants.OPTION_LOST_SERVER_DOMAIN_NAME:	// 51
+            case DhcpConstants.V6OPTION_LOST_SERVER_DOMAIN_NAME:	// 51
             	option = new DhcpV6LostServerDomainNameOption();
             	break; 
             default:

@@ -53,7 +53,7 @@ public class DhcpV6ClientIdOption extends BaseOpaqueDataOption
 	public DhcpV6ClientIdOption(V6ClientIdOption clientIdOption)
 	{
 		super(clientIdOption);
-		setCode(DhcpConstants.OPTION_CLIENTID);
+		setCode(DhcpConstants.V6OPTION_CLIENTID);
 	}
     
     /**

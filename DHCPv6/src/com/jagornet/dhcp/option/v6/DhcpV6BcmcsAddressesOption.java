@@ -53,6 +53,6 @@ public class DhcpV6BcmcsAddressesOption extends BaseIpAddressListOption
 	public DhcpV6BcmcsAddressesOption(V6BcmcsAddressesOption bcmcsAddressesOption)
 	{
 		super(bcmcsAddressesOption);
-		setCode(DhcpConstants.OPTION_BCMCS_ADDRESSES);
+		setCode(DhcpConstants.V6OPTION_BCMCS_ADDRESSES);
 	}
 }

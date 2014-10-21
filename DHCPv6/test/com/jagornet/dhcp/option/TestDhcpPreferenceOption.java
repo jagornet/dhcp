@@ -53,7 +53,7 @@ public class TestDhcpPreferenceOption extends TestCase
         assertEquals(5, bb.capacity());
         assertEquals(5, bb.limit());
         assertEquals(0, bb.position());
-        assertEquals(DhcpConstants.OPTION_PREFERENCE, bb.getShort());
+        assertEquals(DhcpConstants.V6OPTION_PREFERENCE, bb.getShort());
         assertEquals((short)1, bb.getShort());   // length
         assertEquals((byte)2, bb.get());
     }

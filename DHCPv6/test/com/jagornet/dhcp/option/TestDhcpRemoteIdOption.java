@@ -54,7 +54,7 @@ public class TestDhcpRemoteIdOption extends TestCase
         assertEquals(32, bb.capacity());    // +4 (code=2bytes, len=2bytes)
         assertEquals(32, bb.limit());
         assertEquals(0, bb.position());
-        assertEquals(DhcpConstants.OPTION_REMOTE_ID, bb.getShort());
+        assertEquals(DhcpConstants.V6OPTION_REMOTE_ID, bb.getShort());
         assertEquals((short)28, bb.getShort());   // length
         assertEquals(9999, bb.getInt());	  // enterprise num
         byte[] b = new byte[24];

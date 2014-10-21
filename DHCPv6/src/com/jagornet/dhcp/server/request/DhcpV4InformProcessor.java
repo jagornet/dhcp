@@ -73,7 +73,7 @@ public class DhcpV4InformProcessor extends BaseDhcpV4Processor
     		return false;
     	}
     	
-    	if (requestMsg.getCiAddr().equals(DhcpConstants.ZEROADDR)) {
+    	if (requestMsg.getCiAddr().equals(DhcpConstants.ZEROADDR_V4)) {
     		log.warn("Ignoring Inform message: " +
 					"ciAddr is zero");
     	}

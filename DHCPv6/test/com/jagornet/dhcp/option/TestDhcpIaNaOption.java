@@ -119,14 +119,14 @@ public class TestDhcpIaNaOption extends TestCase
         assertEquals(len, buf.limit());
         assertEquals(0, buf.position());
 
-        assertEquals(DhcpConstants.OPTION_IA_NA, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.V6OPTION_IA_NA, Util.getUnsignedShort(buf));
         assertEquals(len-4, Util.getUnsignedShort(buf));   // length
         
         assertEquals((long)0xdebb1e, Util.getUnsignedInt(buf));
         assertEquals((long)10000, Util.getUnsignedInt(buf));
         assertEquals((long)20000, Util.getUnsignedInt(buf));
         
-        assertEquals(DhcpConstants.OPTION_IAADDR, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.V6OPTION_IAADDR, Util.getUnsignedShort(buf));
         assertEquals(60, Util.getUnsignedShort(buf));
         
         byte[] ia = new byte[16];
@@ -134,28 +134,28 @@ public class TestDhcpIaNaOption extends TestCase
         assertEquals(InetAddress.getByName("3ffe::1"), InetAddress.getByAddress(ia));
         assertEquals((long)11000, Util.getUnsignedInt(buf));
         assertEquals((long)12000, Util.getUnsignedInt(buf));
-        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.V6OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
         assertEquals(32, Util.getUnsignedShort(buf));
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::1:1"), InetAddress.getByAddress(ia));
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::1:2"), InetAddress.getByAddress(ia));
 
-        assertEquals(DhcpConstants.OPTION_IAADDR, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.V6OPTION_IAADDR, Util.getUnsignedShort(buf));
         assertEquals(60, Util.getUnsignedShort(buf));
         
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::2"), InetAddress.getByAddress(ia));
         assertEquals((long)21000, Util.getUnsignedInt(buf));
         assertEquals((long)22000, Util.getUnsignedInt(buf));
-        assertEquals(DhcpConstants.OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.V6OPTION_DNS_SERVERS, Util.getUnsignedShort(buf));
         assertEquals(32, Util.getUnsignedShort(buf));
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::2:1"), InetAddress.getByAddress(ia));
         buf.get(ia);
         assertEquals(InetAddress.getByName("3ffe::2:2"), InetAddress.getByAddress(ia));
 
-        assertEquals(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, Util.getUnsignedShort(buf));
+        assertEquals(DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST, Util.getUnsignedShort(buf));
         assertEquals(18, Util.getUnsignedShort(buf));
         assertEquals("foo.com.", BaseDomainNameOption.decodeDomainName(buf, buf.position()+9));
         assertEquals("bar.com.", BaseDomainNameOption.decodeDomainName(buf, buf.position()+9));
@@ -178,27 +178,27 @@ public class TestDhcpIaNaOption extends TestCase
 		bb.putInt(10000);
 		bb.putInt(20000);
 		
-		bb.putShort((short)DhcpConstants.OPTION_IAADDR);
+		bb.putShort((short)DhcpConstants.V6OPTION_IAADDR);
 		bb.putShort((short)60);
 		bb.put(InetAddress.getByName("3ffe::1").getAddress());
 		bb.putInt(11000);
 		bb.putInt(12000);
-		bb.putShort((short)DhcpConstants.OPTION_DNS_SERVERS);
+		bb.putShort((short)DhcpConstants.V6OPTION_DNS_SERVERS);
 		bb.putShort((short)32);
 		bb.put(InetAddress.getByName("3ffe::1:1").getAddress());
 		bb.put(InetAddress.getByName("3ffe::1:2").getAddress());
 		
-		bb.putShort((short)DhcpConstants.OPTION_IAADDR);
+		bb.putShort((short)DhcpConstants.V6OPTION_IAADDR);
 		bb.putShort((short)60);
 		bb.put(InetAddress.getByName("3ffe::2").getAddress());
 		bb.putInt(21000);
 		bb.putInt(22000);
-		bb.putShort((short)DhcpConstants.OPTION_DNS_SERVERS);
+		bb.putShort((short)DhcpConstants.V6OPTION_DNS_SERVERS);
 		bb.putShort((short)32);
 		bb.put(InetAddress.getByName("3ffe::2:1").getAddress());
 		bb.put(InetAddress.getByName("3ffe::2:2").getAddress());
 		
-		bb.putShort((short)DhcpConstants.OPTION_DOMAIN_SEARCH_LIST);
+		bb.putShort((short)DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST);
 		bb.putShort((short)18);
 		BaseDomainNameOption.encodeDomainName(bb, "foo.com.");
 		BaseDomainNameOption.encodeDomainName(bb, "bar.com.");

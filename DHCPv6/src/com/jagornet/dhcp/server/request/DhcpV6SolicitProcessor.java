@@ -166,7 +166,7 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 // TAHI tests want this status at the message level
 //	    				addIaNaOptionStatusToReply(dhcpIaNaOption, 
 //	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
-		    			setReplyStatus(DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 					}
 	    		}
     		}
@@ -203,7 +203,7 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 // TAHI tests want this status at the message level
 //	    				addIaTaOptionStatusToReply(dhcpIaTaOption, 
 //	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
-		    			setReplyStatus(DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 					}
 	    		}
     		}
@@ -240,7 +240,7 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 // TAHI tests want this status at the message level
 //	    				addIaPdOptionStatusToReply(dhcpIaPdOption, 
 //	    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
-		    			setReplyStatus(DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
+		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 					}
 	    		}
     		}
@@ -252,10 +252,10 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
     	
     	if (sendReply) {
     		if (rapidCommit) {
-    			replyMsg.setMessageType(DhcpConstants.REPLY);
+    			replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
     		}
     		else {
-    	        replyMsg.setMessageType(DhcpConstants.ADVERTISE);
+    	        replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_ADVERTISE);
     		}
     		if (!bindings.isEmpty()) {
     			populateReplyMsgOptions(clientLink);
@@ -280,7 +280,7 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 	 */
 	private boolean isRapidCommit(DhcpV6Message requestMsg, Link clientLink)
 	{
-		if (requestMsg.hasOption(DhcpConstants.OPTION_RAPID_COMMIT) && 
+		if (requestMsg.hasOption(DhcpConstants.V6OPTION_RAPID_COMMIT) && 
 				DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg, clientLink, 
 						Property.SUPPORT_RAPID_COMMIT)) {
 			return true;

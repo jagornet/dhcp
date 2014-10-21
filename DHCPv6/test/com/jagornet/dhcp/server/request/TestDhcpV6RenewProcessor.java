@@ -54,7 +54,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	public void testSolicitAndRequestAndRenew() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -64,7 +64,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 		assertNotNull(advertiseMsg);
 		
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -76,7 +76,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 		Thread.sleep(2000);
 
 		// convert the reply into a renew request
-		replyMsg.setMessageType(DhcpConstants.RENEW);
+		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RENEW);
 		
 		DhcpV6RenewProcessor nProc =
 			new DhcpV6RenewProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());
@@ -85,7 +85,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
 		checkReply(replyMsg, 
 				InetAddress.getByName("2001:DB8:1::A"),
@@ -100,7 +100,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	public void testRenewNoBinding() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.RENEW);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RENEW);
 		DhcpV6ServerIdOption dhcpServerId = 
 			new DhcpV6ServerIdOption(config.getDhcpServerConfig().getV6ServerIdOption());
 		requestMsg.putDhcpOption(dhcpServerId);
@@ -112,9 +112,9 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
-		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_NOBINDING);
+		checkReplyIaNaStatus(replyMsg, DhcpConstants.V6STATUS_CODE_NOBINDING);
 	}
 	
 	/**
@@ -125,7 +125,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	public void testZeroLifetimes() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -135,7 +135,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 		assertNotNull(advertiseMsg);
 		
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -147,7 +147,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 		Thread.sleep(2000);
 
 		// convert the reply into a renew request
-		replyMsg.setMessageType(DhcpConstants.RENEW);
+		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RENEW);
 		// hack the returned reply to request an off-link address
 		replyMsg.getIaNaOptions().iterator().next().
 				getIaAddrOptions().iterator().next().
@@ -160,7 +160,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
 //		checkReply(replyMsg, null, null, 0);
 		Collection<DhcpOption> dhcpOptions = replyMsg.getDhcpOptions();
@@ -168,11 +168,11 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 		assertEquals(2, dhcpOptions.size());
 		
 		DhcpV6ClientIdOption _clientIdOption = 
-			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_CLIENTID);	
+			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENTID);	
 		assertNotNull(_clientIdOption);
 		
 		DhcpV6ServerIdOption _serverIdOption = 
-			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_SERVERID);	
+			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_SERVERID);	
 		assertNotNull(_serverIdOption);
 		
 		DhcpV6IaNaOption _iaNaOption = replyMsg.getIaNaOptions().get(0);

@@ -46,7 +46,7 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 	public void testSolicitAndRequestAndConfirm() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -56,7 +56,7 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 		assertNotNull(advertiseMsg);
 		
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -68,9 +68,9 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 		Thread.sleep(2000);
 
 		// convert the reply into a confirm request
-		replyMsg.setMessageType(DhcpConstants.CONFIRM);
+		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_CONFIRM);
 		// null out the ServerId option for a confirm
-		replyMsg.getDhcpOptionMap().remove(DhcpConstants.OPTION_SERVERID);
+		replyMsg.getDhcpOptionMap().remove(DhcpConstants.V6OPTION_SERVERID);
 		
 		DhcpV6ConfirmProcessor cProc =
 			new DhcpV6ConfirmProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());
@@ -79,11 +79,11 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
 //	TAHI tests want the status at the message level
 //		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_SUCCESS);
-		checkReplyMsgStatus(replyMsg, DhcpConstants.STATUS_CODE_SUCCESS);
+		checkReplyMsgStatus(replyMsg, DhcpConstants.V6STATUS_CODE_SUCCESS);
 	}
 	
 	/**
@@ -94,7 +94,7 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 	public void testRequestNotOnLink() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.SOLICIT);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
 			new DhcpV6SolicitProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
@@ -104,7 +104,7 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 		assertNotNull(advertiseMsg);
 
 		// use the ADVERTISE message to create the REQUEST message
-		advertiseMsg.setMessageType(DhcpConstants.REQUEST);
+		advertiseMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
 		DhcpV6RequestProcessor rProc = 
 			new DhcpV6RequestProcessor(advertiseMsg, advertiseMsg.getRemoteAddress().getAddress());
 
@@ -114,9 +114,9 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 		Thread.sleep(2000);
 
 		// convert the reply into a confirm request
-		replyMsg.setMessageType(DhcpConstants.CONFIRM);
+		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_CONFIRM);
 		// null out the ServerId option for a confirm
-		replyMsg.getDhcpOptionMap().remove(DhcpConstants.OPTION_SERVERID);
+		replyMsg.getDhcpOptionMap().remove(DhcpConstants.V6OPTION_SERVERID);
 		// hack the returned reply to request an off-link address
 		replyMsg.getIaNaOptions().iterator().next().
 				getIaAddrOptions().iterator().next().
@@ -129,11 +129,11 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 		
 		assertNotNull(replyMsg);
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
-		assertEquals(DhcpConstants.REPLY, replyMsg.getMessageType());
+		assertEquals(DhcpConstants.V6MESSAGE_TYPE_REPLY, replyMsg.getMessageType());
 		
 //	TAHI tests want the status at the message level
 //		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_NOTONLINK);
-		checkReplyMsgStatus(replyMsg, DhcpConstants.STATUS_CODE_NOTONLINK);
+		checkReplyMsgStatus(replyMsg, DhcpConstants.V6STATUS_CODE_NOTONLINK);
 	}
 	
 	/**
@@ -144,9 +144,9 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 	public void testConfirmNoAddrs() throws Exception
 	{
 		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.CONFIRM);
+		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_CONFIRM);
 		// null out the ServerId option for a confirm
-		requestMsg.getDhcpOptionMap().remove(DhcpConstants.OPTION_SERVERID);
+		requestMsg.getDhcpOptionMap().remove(DhcpConstants.V6OPTION_SERVERID);
 		
 		DhcpV6ConfirmProcessor cProc =
 			new DhcpV6ConfirmProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());

@@ -53,6 +53,6 @@ public class DhcpV6DomainSearchListOption extends BaseDomainNameListOption
 	public DhcpV6DomainSearchListOption(V6DomainSearchListOption domainSearchListOption)
 	{
 		super(domainSearchListOption);
-		setCode(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST);
+		setCode(DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST);
 	}
 }

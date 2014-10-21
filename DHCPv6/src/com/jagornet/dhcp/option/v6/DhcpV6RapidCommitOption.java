@@ -42,6 +42,6 @@ public class DhcpV6RapidCommitOption extends BaseEmptyOption
 	public DhcpV6RapidCommitOption()
 	{
 		super();
-		setCode(DhcpConstants.OPTION_RAPID_COMMIT);
+		setCode(DhcpConstants.V6OPTION_RAPID_COMMIT);
 	}
 }

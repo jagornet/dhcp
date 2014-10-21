@@ -246,12 +246,12 @@ public class DhcpV6Message implements DhcpMessage
             if (log.isDebugEnabled())
                 log.debug("Message type byte=" + msgtype);
 
-            if ( (msgtype >= DhcpConstants.SOLICIT) &&
-            		(msgtype <= DhcpConstants.INFO_REQUEST) ) {
+            if ( (msgtype >= DhcpConstants.V6MESSAGE_TYPE_SOLICIT) &&
+            		(msgtype <= DhcpConstants.V6MESSAGE_TYPE_INFO_REQUEST) ) {
             	dhcpMessage = new DhcpV6Message(localAddr, remoteAddr);
             }
-            else if ( (msgtype >= DhcpConstants.RELAY_FORW) &&
-            		(msgtype <= DhcpConstants.RELAY_REPL) ) {
+            else if ( (msgtype >= DhcpConstants.V6MESSAGE_TYPE_RELAY_FORW) &&
+            		(msgtype <= DhcpConstants.V6MESSAGE_TYPE_RELAY_REPL) ) {
             	// note that it doesn't make much sense to be decoding
             	// a relay-reply message unless we implement a relay
             	dhcpMessage = new DhcpV6RelayMessage(localAddr, remoteAddr);
@@ -329,7 +329,7 @@ public class DhcpV6Message implements DhcpMessage
         if ((buf != null) && buf.hasRemaining()) {
             setMessageType(Util.getUnsignedByte(buf));
             if (log.isDebugEnabled())
-                log.debug("MessageType=" + DhcpConstants.getMessageString(messageType));
+                log.debug("MessageType=" + DhcpConstants.getV6MessageString(messageType));
         }
         else {
             String errmsg = "Failed to decode message type: buffer is empty";
@@ -581,7 +581,7 @@ public class DhcpV6Message implements DhcpMessage
 		if (dhcpClientIdOption == null) {
 			if (dhcpOptions != null) {
 				dhcpClientIdOption = 
-					(DhcpV6ClientIdOption) dhcpOptions.get(DhcpConstants.OPTION_CLIENTID);
+					(DhcpV6ClientIdOption) dhcpOptions.get(DhcpConstants.V6OPTION_CLIENTID);
 			}
 		}
 		return dhcpClientIdOption;
@@ -596,7 +596,7 @@ public class DhcpV6Message implements DhcpMessage
 		if (dhcpServerIdOption == null) {
 			if (dhcpOptions != null) {
 				dhcpServerIdOption = 
-					(DhcpV6ServerIdOption) dhcpOptions.get(DhcpConstants.OPTION_SERVERID);
+					(DhcpV6ServerIdOption) dhcpOptions.get(DhcpConstants.V6OPTION_SERVERID);
 			}
 		}
 		return dhcpServerIdOption;
@@ -611,7 +611,7 @@ public class DhcpV6Message implements DhcpMessage
 		if (requestedOptionCodes == null) {
 			if (dhcpOptions != null) {
 	        	DhcpV6OptionRequestOption oro = 
-	        		(DhcpV6OptionRequestOption) dhcpOptions.get(DhcpConstants.OPTION_ORO);
+	        		(DhcpV6OptionRequestOption) dhcpOptions.get(DhcpConstants.V6OPTION_ORO);
 	        	if (oro != null) {
         			requestedOptionCodes = oro.getUnsignedShortList();
 	        	}
@@ -623,13 +623,13 @@ public class DhcpV6Message implements DhcpMessage
 	public String toString()
     {
         StringBuffer sb = new StringBuffer();
-        sb.append(DhcpConstants.getMessageString(getMessageType()));
+        sb.append(DhcpConstants.getV6MessageString(getMessageType()));
         sb.append(" (xactId=");
         sb.append(getTransactionId());
         sb.append(')');
-        if ((this.messageType == DhcpConstants.ADVERTISE) ||
-        		(this.messageType == DhcpConstants.REPLY) ||
-        		(this.messageType == DhcpConstants.RECONFIGURE))
+        if ((this.messageType == DhcpConstants.V6MESSAGE_TYPE_ADVERTISE) ||
+        		(this.messageType == DhcpConstants.V6MESSAGE_TYPE_REPLY) ||
+        		(this.messageType == DhcpConstants.V6MESSAGE_TYPE_RECONFIGURE))
         	sb.append(" to ");
         else
         	sb.append(" from ");

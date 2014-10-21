@@ -58,8 +58,8 @@ public class DbSchemaManager
     public static String SCHEMATYPE_SQLITE = "sqlite";
     public static String SCHEMATYPE_MONGO = "mongo";
 
-    public static String DB_HOME = DhcpConstants.DHCPV6_HOME != null ? 
-        							(DhcpConstants.DHCPV6_HOME + "/db/") : "db/";
+    public static String DB_HOME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
+        							(DhcpConstants.JAGORNET_DHCP_HOME + "/db/") : "db/";
         							
     public static String SCHEMA_FILENAME = DB_HOME + "jagornet-dhcpv6-schema.sql";
 	public static String SCHEMA_DERBY_FILENAME = DB_HOME + "jagornet-dhcpv6-schema-derby.sql";

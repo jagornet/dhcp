@@ -53,6 +53,6 @@ public class DhcpV6BcmcsDomainNamesOption extends BaseDomainNameListOption
 	public DhcpV6BcmcsDomainNamesOption(V6BcmcsDomainNamesOption bcmcsDomainNamesOption)
 	{
 		super(bcmcsDomainNamesOption);
-		setCode(DhcpConstants.OPTION_BCMCS_DOMAIN_NAMES);
+		setCode(DhcpConstants.V6OPTION_BCMCS_DOMAIN_NAMES);
 	}
 }

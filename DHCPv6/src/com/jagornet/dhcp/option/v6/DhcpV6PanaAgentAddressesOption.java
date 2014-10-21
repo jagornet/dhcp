@@ -53,6 +53,6 @@ public class DhcpV6PanaAgentAddressesOption extends BaseIpAddressListOption
 	public DhcpV6PanaAgentAddressesOption(V6PanaAgentAddressesOption panaAgentAddressesOption)
 	{
 		super(panaAgentAddressesOption);
-		setCode(DhcpConstants.OPTION_PANA_AGENT_ADDRESSES);
+		setCode(DhcpConstants.V6OPTION_PANA_AGENT_ADDRESSES);
 	}
 }

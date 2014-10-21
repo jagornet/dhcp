@@ -114,9 +114,9 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 	protected DhcpV6Message buildRequestMessage(InetAddress linkAddress, String requestedAddr)
 	{
 		InetSocketAddress remoteSocketAddr = 
-			new InetSocketAddress(linkAddress, DhcpConstants.CLIENT_PORT);
+			new InetSocketAddress(linkAddress, DhcpConstants.V6_CLIENT_PORT);
 		InetSocketAddress localSocketAddr = 
-			new InetSocketAddress(DhcpConstants.LOCALHOST_V6, DhcpConstants.SERVER_PORT);
+			new InetSocketAddress(DhcpConstants.LOCALHOST_V6, DhcpConstants.V6_SERVER_PORT);
 		
 		DhcpV6Message requestMsg = new DhcpV6Message(localSocketAddr, remoteSocketAddr);
 		requestMsg.putDhcpOption(clientIdOption);
@@ -190,19 +190,19 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 		assertEquals(4, dhcpOptions.size());
 		
 		DhcpV6ClientIdOption _clientIdOption = 
-			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_CLIENTID);	
+			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENTID);	
 		assertNotNull(_clientIdOption);
 		
 		DhcpV6ServerIdOption _serverIdOption = 
-			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_SERVERID);	
+			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_SERVERID);	
 		assertNotNull(_serverIdOption);
 		
 		DhcpV6DnsServersOption _dnsServersOption = 
-			(DhcpV6DnsServersOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_DNS_SERVERS);	
+			(DhcpV6DnsServersOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_DNS_SERVERS);	
 		assertNotNull(_dnsServersOption);
 		
 		DhcpV6DomainSearchListOption _domainSearchListOption = 
-			(DhcpV6DomainSearchListOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST);	
+			(DhcpV6DomainSearchListOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST);	
 		assertNotNull(_domainSearchListOption);
 		
 		DhcpV6IaNaOption _iaNaOption = replyMsg.getIaNaOptions().get(0);
@@ -222,14 +222,14 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 		assertNotNull(optMap);
 		
 		DhcpV6SipServerAddressesOption _sipServersOption = 
-			(DhcpV6SipServerAddressesOption) optMap.get(DhcpConstants.OPTION_SIP_SERVERS_ADDRESS_LIST);
+			(DhcpV6SipServerAddressesOption) optMap.get(DhcpConstants.V6OPTION_SIP_SERVERS_ADDRESS_LIST);
 		assertNotNull(_sipServersOption);
 		
 		optMap = _iaNaOption.getDhcpOptionMap();
 		assertNotNull(optMap);
 		
 		_dnsServersOption = 
-			(DhcpV6DnsServersOption) optMap.get(DhcpConstants.OPTION_DNS_SERVERS);
+			(DhcpV6DnsServersOption) optMap.get(DhcpConstants.V6OPTION_DNS_SERVERS);
 		assertNotNull(_dnsServersOption);
 	}	
 
@@ -248,15 +248,15 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 		assertEquals(3, dhcpOptions.size());
 		
 		DhcpV6ClientIdOption _clientIdOption = 
-			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_CLIENTID);	
+			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENTID);	
 		assertNotNull(_clientIdOption);
 		
 		DhcpV6ServerIdOption _serverIdOption = 
-			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_SERVERID);	
+			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_SERVERID);	
 		assertNotNull(_serverIdOption);
 				
 		DhcpV6StatusCodeOption _statusCodeOption = 
-			(DhcpV6StatusCodeOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_STATUS_CODE);
+			(DhcpV6StatusCodeOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_STATUS_CODE);
 		assertNotNull(_statusCodeOption);
 		assertEquals(status, _statusCodeOption.getStatusCode());
 	}	
@@ -276,11 +276,11 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 //		assertEquals(2, dhcpOptions.size());
 		
 		DhcpV6ClientIdOption _clientIdOption = 
-			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_CLIENTID);	
+			(DhcpV6ClientIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENTID);	
 		assertNotNull(_clientIdOption);
 		
 		DhcpV6ServerIdOption _serverIdOption = 
-			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.OPTION_SERVERID);	
+			(DhcpV6ServerIdOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_SERVERID);	
 		assertNotNull(_serverIdOption);
 		
 		DhcpV6IaNaOption _iaNaOption = replyMsg.getIaNaOptions().get(0);
@@ -291,7 +291,7 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 		assertEquals(1, optMap.size());
 		
 		DhcpV6StatusCodeOption _statusCodeOption = 
-			(DhcpV6StatusCodeOption) optMap.get(DhcpConstants.OPTION_STATUS_CODE);
+			(DhcpV6StatusCodeOption) optMap.get(DhcpConstants.V6OPTION_STATUS_CODE);
 		assertNotNull(_statusCodeOption);
 		assertEquals(status, _statusCodeOption.getStatusCode());
 	}	

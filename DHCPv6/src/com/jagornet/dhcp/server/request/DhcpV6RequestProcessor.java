@@ -129,8 +129,8 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 //      option from the client message, and no other options.
 
     	if (shouldMulticast()) {
-    		replyMsg.setMessageType(DhcpConstants.REPLY);
-    		setReplyStatus(DhcpConstants.STATUS_CODE_USEMULTICAST);
+    		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
+    		setReplyStatus(DhcpConstants.V6STATUS_CODE_USEMULTICAST);
     		return true;
     	}
 
@@ -155,7 +155,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 	    			log.info("Processing IA_NA Request: " + dhcpIaNaOption.toString());
 		    		if (!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
 		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
-		    					DhcpConstants.STATUS_CODE_NOTONLINK);
+		    					DhcpConstants.V6STATUS_CODE_NOTONLINK);
 		    		}
 		    		else {
 						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
@@ -170,7 +170,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 							}
 							else {
 								addIaNaOptionStatusToReply(dhcpIaNaOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
 						}
 						else {
@@ -181,7 +181,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 							// assume that if we have no binding, then there were
 							// no addresses available to be given out on solicit
 							addIaNaOptionStatusToReply(dhcpIaNaOption,
-		    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 						}
 		    		}
 				}
@@ -200,7 +200,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 	    			log.info("Processing IA_TA Request: " + dhcpIaTaOption.toString());
 		    		if (!allIaAddrsOnLink(dhcpIaTaOption, clientLink)) {
 		    			addIaTaOptionStatusToReply(dhcpIaTaOption,
-		    					DhcpConstants.STATUS_CODE_NOTONLINK);
+		    					DhcpConstants.V6STATUS_CODE_NOTONLINK);
 		    		}
 		    		else {
 						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
@@ -215,7 +215,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 							}
 							else {
 								addIaTaOptionStatusToReply(dhcpIaTaOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
 						}
 						else {
@@ -226,7 +226,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 							// assume that if we have no binding, then there were
 							// no addresses available to be given out on solicit
 							addIaTaOptionStatusToReply(dhcpIaTaOption,
-		    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 						}
 		    		}
 				}
@@ -246,7 +246,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 		    		if (!allIaPrefixesOnLink(dhcpIaPdOption, clientLink)) {
 		    			// for PD return NoPrefixAvail instead of NotOnLink
 		    			addIaPdOptionStatusToReply(dhcpIaPdOption,
-		    					DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
+		    					DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 		    		}
 		    		else {
 						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
@@ -262,7 +262,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 							else {
 				    			// for PD return NoPrefixAvail instead of NotOnLink
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
-			    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 							}
 						}
 						else {
@@ -273,7 +273,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
 							// assume that if we have no binding, then there were
 							// no prefixes available to be given out on solicit
 							addIaPdOptionStatusToReply(dhcpIaPdOption,
-		    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
+		    						DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 						}
 		    		}
 				}
@@ -285,7 +285,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
     	}
     	
     	if (sendReply) {
-            replyMsg.setMessageType(DhcpConstants.REPLY);
+            replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
             if (!bindings.isEmpty()) {
             	populateReplyMsgOptions(clientLink);
     			processDdnsUpdates(true);

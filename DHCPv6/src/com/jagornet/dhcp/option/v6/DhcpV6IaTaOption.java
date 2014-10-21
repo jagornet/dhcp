@@ -80,7 +80,7 @@ public class DhcpV6IaTaOption extends BaseDhcpOption
 		if (iaTaOption != null) {
 			iaId = iaTaOption.getIaId();
 		}
-		setCode(DhcpConstants.OPTION_IA_TA);
+		setCode(DhcpConstants.V6OPTION_IA_TA);
 	}
 
 	public long getIaId() {

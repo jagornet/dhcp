@@ -79,7 +79,7 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
     		return false;
     	}
     	
-    	if (requestMsg.getCiAddr().equals(DhcpConstants.ZEROADDR)) {
+    	if (requestMsg.getCiAddr().equals(DhcpConstants.ZEROADDR_V4)) {
     		log.warn("Ignoring Release message: " +
 					"ciAddr is zero");
     	}

@@ -532,7 +532,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
         	Map<Integer, DhcpOption> effectiveMsgOptions = 
     	      	dhcpServerConfig.effectiveMsgOptions(requestMsg, clientLink);
         	if ((effectiveMsgOptions == null) ||
-        			!effectiveMsgOptions.containsKey(DhcpConstants.OPTION_UNICAST)) {
+        			!effectiveMsgOptions.containsKey(DhcpConstants.V6OPTION_UNICAST)) {
             	// if the server has not explicitly told the client to unicast,
         		// then tell the client that it should send multicast packets
     			return true;
@@ -983,7 +983,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 	protected void processDdnsUpdates(boolean sendUpdates)
 	{
 		DhcpV6ClientFqdnOption clientFqdnOption = 
-			(DhcpV6ClientFqdnOption) requestMsg.getDhcpOption(DhcpConstants.OPTION_CLIENT_FQDN);
+			(DhcpV6ClientFqdnOption) requestMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENT_FQDN);
 		if (clientFqdnOption == null) {
 			//TODO allow name generation?
 			log.debug("No Client FQDN option in request.  Skipping DDNS update processing.");
@@ -992,7 +992,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		
 		boolean includeFqdnOptionInReply = false;
 		if ((requestMsg.getRequestedOptionCodes() != null) &&
-				requestMsg.getRequestedOptionCodes().contains(DhcpConstants.OPTION_CLIENT_FQDN)) {
+				requestMsg.getRequestedOptionCodes().contains(DhcpConstants.V6OPTION_CLIENT_FQDN)) {
 			// RFC 4704 section 6 says:
 			//   Servers MUST only include a Client FQDN option in ADVERTISE and REPLY
 			//   messages if the client included a Client FQDN option and the Client

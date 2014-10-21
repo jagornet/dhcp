@@ -53,6 +53,6 @@ public class DhcpV6EchoRequestOption extends BaseUnsignedShortListOption
 	public DhcpV6EchoRequestOption(V6EchoRequestOption echoRequestOption)
 	{
 		super(echoRequestOption);
-		setCode(DhcpConstants.OPTION_ECHO_REQUEST);
+		setCode(DhcpConstants.V6OPTION_ECHO_REQUEST);
 	}
 }

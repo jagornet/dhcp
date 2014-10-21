@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dhc:dhcpV6ServerConfig xmlns:dhc="http://jagornet.com/dhcpv6/xml"
-						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-						xsi:schemaLocation="http://jagornet.com/dhcpv6server.xsd">
+<dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="http://jagornet.com/dhcpserver.xsd">
 
-	<serverIdOption>
+	<v6ServerIdOption>
 		<!-- DHCPv6 ServerID should be auto-generated hex data -->
 		<opaqueData>
 			<asciiValue>Jagornet</asciiValue>
 		</opaqueData>
-	</serverIdOption>
+	</v6ServerIdOption>
 	
 	<v4ServerIdOption>
 		<!--  DHCPv4 ServerID must be a local IP address -->
@@ -47,20 +47,20 @@
 		</policy>
 	</policies>
 
-	<msgConfigOptions>
+	<v6MsgConfigOptions>
 		<!-- Global server level options to be put at the message level
 			 for reply messages sent to DHCPv6 clients -->
-		<dnsServersOption>
+		<v6DnsServersOption>
 			<ipAddress>2001:db8::1</ipAddress>
 			<ipAddress>2001:db8::2</ipAddress>
 			<ipAddress>2001:db8::3</ipAddress>
-		</dnsServersOption>
-		<domainSearchListOption>
+		</v6DnsServersOption>
+		<v6DomainSearchListOption>
 			<domainName>foo.com.</domainName>
 			<domainName>bar.com.</domainName>
 			<domainName>yuk.com.</domainName>
-		</domainSearchListOption>
-	</msgConfigOptions>
+		</v6DomainSearchListOption>
+	</v6MsgConfigOptions>
 
 	<filters>
 	  <!-- Global server level filters applied to all clients that match -->
@@ -69,19 +69,19 @@
 		<filterExpressions>
 			<filterExpression>
 				<clientClassExpression operator="equals">
-					<userClassOption>
+					<v6UserClassOption>
 						<opaqueData>
 							<asciiValue>MyUserClass</asciiValue>
           				</opaqueData>
-        			</userClassOption>
+        			</v6UserClassOption>
       			</clientClassExpression>
     		</filterExpression>
   		</filterExpressions>
-  		<msgConfigOptions>
-    		<domainSearchListOption>
+  		<v6MsgConfigOptions>
+    		<v6DomainSearchListOption>
       			<domainName>filter.com.</domainName>
-    		</domainSearchListOption>
-  		</msgConfigOptions>
+    		</v6DomainSearchListOption>
+  		</v6MsgConfigOptions>
       </filter>
       
       <filter>
@@ -89,17 +89,17 @@
   		<filterExpressions>
    			<filterExpression>
       			<clientClassExpression operator="equals">
-        			<vendorClassOption>
+        			<v6VendorClassOption>
           				<opaqueData>
             				<asciiValue>VendorXYZ</asciiValue>
           				</opaqueData>
           				<enterpriseNumber>12345</enterpriseNumber>
-        			</vendorClassOption>
+        			</v6VendorClassOption>
       			</clientClassExpression>
     		</filterExpression>
   		</filterExpressions>
-  		<msgConfigOptions>
-    		<vendorInfoOption>
+  		<v6MsgConfigOptions>
+    		<v6VendorInfoOption>
       			<enterpriseNumber>12345</enterpriseNumber>
       			<suboptionList>
         			<optionDef code="1">
@@ -113,8 +113,8 @@
           				</ipAddressOption>
         			</optionDef>
       			</suboptionList>
-    		</vendorInfoOption>
-  		</msgConfigOptions>
+    		</v6VendorInfoOption>
+  		</v6MsgConfigOptions>
       </filter>
       
       <filter>
@@ -195,20 +195,20 @@
 					<value>600</value>
 				</policy>
 			</policies>
-			<msgConfigOptions>
-				<dnsServersOption>
+			<v6MsgConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:db8:1::1</ipAddress>
-				</dnsServersOption>
-			</msgConfigOptions>
-			<naAddrPools>
+				</v6DnsServersOption>
+			</v6MsgConfigOptions>
+			<v6NaAddrPools>
 				<!-- Clients that don't support Rapid Commit requesting non-temporary
 					addresses, will get an address from this pool with the
 					address level options provided -->
 				<pool>
 					<range>2001:db8:1::0A-2001:db8:1::FF</range>
 				</pool>
-			</naAddrPools>
-			<naAddrBindings>
+			</v6NaAddrPools>
+			<v6NaAddrBindings>
 				<binding>
 					<ipAddress>2001:db8:1::100</ipAddress>
 					<!-- DHCPv6 "binding" is not really supported yet
@@ -223,7 +223,7 @@
 					<iaid>0</iaid>
 					-->
 				</binding>
-			</naAddrBindings>
+			</v6NaAddrBindings>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Rapid Commit</name>
@@ -234,13 +234,13 @@
 							</optionExpression>
 						</filterExpression>
 					</filterExpressions>
-					<naAddrPools>
+					<v6NaAddrPools>
 						<!-- Clients that support Rapid Commit requesting non-temporary
 							addresses, will get an address from this pool -->
 						<pool>
 							<range>2001:db8:1::10A-2001:db8:1::1FF</range>
 						</pool>
-					</naAddrPools>
+					</v6NaAddrPools>
 			  	</linkFilter>
 			</linkFilters>
 		</link>
@@ -248,17 +248,17 @@
 			<name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
 			<!-- Remote DHCPv6 links are defined in CIDR notation -->
 			<address>2001:db8:2::/48</address>
-			<msgConfigOptions>
-				<dnsServersOption>
+			<v6MsgConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:db8:2::1</ipAddress>
-				</dnsServersOption>
-			</msgConfigOptions>
-			<naAddrPools>
+				</v6DnsServersOption>
+			</v6MsgConfigOptions>
+			<v6NaAddrPools>
 				<pool>
 					<range>2001:db8:2::0A-2001:db8:2::FF</range>
 				</pool>
-			</naAddrPools>
+			</v6NaAddrPools>
 		</link>
 	</links>
 
-</dhc:dhcpV6ServerConfig>
+</dhc:dhcpServerConfig>

@@ -53,6 +53,6 @@ public class DhcpV6ReconfigureMessageOption extends BaseUnsignedByteOption
 	public DhcpV6ReconfigureMessageOption(V6ReconfigureMessageOption reconfigureMessageOption)
 	{
 		super(reconfigureMessageOption);
-		setCode(DhcpConstants.OPTION_RECONF_MSG);
+		setCode(DhcpConstants.V6OPTION_RECONF_MSG);
 	}
 }

@@ -158,7 +158,7 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 							}
 							else {
 								addIaNaOptionStatusToReply(dhcpIaNaOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
 						}
 					}
@@ -201,7 +201,7 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 							}
 							else {
 								addIaTaOptionStatusToReply(dhcpIaTaOption,
-			    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
 						}
 					}
@@ -244,7 +244,7 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 							}
 							else {
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
-			    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
+			    						DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 							}
 						}
 					}
@@ -271,7 +271,7 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 		}
 
 	    if (sendReply) {
-            replyMsg.setMessageType(DhcpConstants.REPLY);
+            replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
             if (!bindings.isEmpty()) {
             	populateReplyMsgOptions(clientLink);
     			processDdnsUpdates(true);

@@ -2,10 +2,10 @@ echo on
 if "%OS%"=="Windows_NT" @setlocal
 
 rem %~dp0 is expanded pathname of the current script under NT
-set DEFAULT_DHCPV6_HOME=%~dp0..
+set DEFAULT_JAGORNET_DHCP_HOME=%~dp0..
 
-if "%DHCPV6_HOME%"=="" set DHCPV6_HOME=%DEFAULT_DHCPV6_HOME%
-set DEFAULT_DHCPV6_HOME=
+if "%JAGORNET_DHCP_HOME%"=="" set JAGORNET_DHCP_HOME=%DEFAULT_JAGORNET_DHCP_HOME%
+set DEFAULT_JAGORNET_DHCP_HOME=
 
 :checkJava
 set _JAVACMD=%JAVACMD%
@@ -22,4 +22,4 @@ echo Warning: JAVA_HOME environment variable is not set.
 echo.
 
 :runApp
-"%_JAVACMD%" -cp "%DHCPV6_HOME%\conf";"%DHCPV6_HOME%\lib\*" -Ddhcpv6.home="%DHCPV6_HOME%" com.jagornet.dhcpv6.server.DhcpV6Server %*
+"%_JAVACMD%" -cp "%JAGORNET_DHCP_HOME%\conf";"%JAGORNET_DHCP_HOME%\lib\*" -Djagornet.dhcp.home="%JAGORNET_DHCP_HOME%" com.jagornet.dhcp.server.JagornetDhcpServer %*

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<dhc:dhcpV6ServerConfig xmlns:dhc="http://jagornet.com/dhcpv6/xml"
-						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-						xsi:schemaLocation="http://jagornet.com/dhcpv6server.xsd">
+<dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="http://jagornet.com/dhcpserver.xsd">
 
-	<serverIdOption>
+	<v6ServerIdOption>
 		<!-- DHCPv6 ServerID should be auto-generated hex data -->
 		<opaqueData>
 			<asciiValue>Jagornet</asciiValue>
 		</opaqueData>
-	</serverIdOption>
+	</v6ServerIdOption>
 	
 	<v4ServerIdOption>
 		<!--  DHCPv4 ServerID must be a local IP address -->
@@ -42,38 +42,38 @@
 			<name>Local IPv6 Client Link (Multicast traffic)</name>
 			<!-- Local DHCPv6 links are defined by interface name -->
 			<interface>eth2</interface>
-			<msgConfigOptions>
-				<dnsServersOption>
+			<v6MsgConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:db8:1::1</ipAddress>
-				</dnsServersOption>
-				<domainSearchListOption>
+				</v6DnsServersOption>
+				<v6DomainSearchListOption>
 					<domainName>foo.com.</domainName>
-				</domainSearchListOption>
-			</msgConfigOptions>
-			<naAddrPools>
+				</v6DomainSearchListOption>
+			</v6MsgConfigOptions>
+			<v6NaAddrPools>
 				<pool>
 					<range>2001:db8:1::0A-2001:db8:1::FF</range>
 				</pool>
-			</naAddrPools>
+			</v6NaAddrPools>
 		</link>
 		<link>
 			<name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
 			<!-- Remote DHCPv6 links are defined in CIDR notation -->
 			<address>2001:db8:2::/48</address>
-			<msgConfigOptions>
-				<dnsServersOption>
+			<v6MsgConfigOptions>
+				<v6DnsServersOption>
 					<ipAddress>2001:db8:2::1</ipAddress>
-				</dnsServersOption>
-				<domainSearchListOption>
+				</v6DnsServersOption>
+				<v6DomainSearchListOption>
 					<domainName>bar.com.</domainName>
-				</domainSearchListOption>
-			</msgConfigOptions>
-			<naAddrPools>
+				</v6DomainSearchListOption>
+			</v6MsgConfigOptions>
+			<v6NaAddrPools>
 				<pool>
 					<range>2001:db8:2::0A-2001:db8:2::FF</range>
 				</pool>
-			</naAddrPools>
+			</v6NaAddrPools>
 		</link>
 	</links>
 
-</dhc:dhcpV6ServerConfig>
+</dhc:dhcpServerConfig>

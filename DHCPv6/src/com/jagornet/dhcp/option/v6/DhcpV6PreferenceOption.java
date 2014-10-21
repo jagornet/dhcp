@@ -53,6 +53,6 @@ public class DhcpV6PreferenceOption extends BaseUnsignedByteOption
 	public DhcpV6PreferenceOption(V6PreferenceOption preferenceOption)
 	{
 		super(preferenceOption);
-		setCode(DhcpConstants.OPTION_PREFERENCE);
+		setCode(DhcpConstants.V6OPTION_PREFERENCE);
 	}
 }

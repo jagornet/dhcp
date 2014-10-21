@@ -82,7 +82,7 @@ public class TestDhcpDomainSearchListOption extends TestCase
         assertEquals(36, bb.capacity());    // +4 (code=2bytes, len=2bytes)
         assertEquals(36, bb.limit());
         assertEquals(0, bb.position());
-        assertEquals(DhcpConstants.OPTION_DOMAIN_SEARCH_LIST, bb.getShort());
+        assertEquals(DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST, bb.getShort());
         assertEquals((short)32, bb.getShort());   // length
         assertEquals((byte)8, bb.get());
         byte[] buf = new byte[8];

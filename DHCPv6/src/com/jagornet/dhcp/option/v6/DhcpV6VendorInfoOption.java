@@ -80,7 +80,7 @@ public class DhcpV6VendorInfoOption extends BaseDhcpOption
     			}
     		}
     	}
-    	setCode(DhcpConstants.OPTION_VENDOR_OPTS);
+    	setCode(DhcpConstants.V6OPTION_VENDOR_OPTS);
     }
     
     public long getEnterpriseNumber() {

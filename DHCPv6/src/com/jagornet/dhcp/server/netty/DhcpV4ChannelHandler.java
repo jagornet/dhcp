@@ -85,7 +85,7 @@ public class DhcpV4ChannelHandler extends SimpleChannelHandler
             
             if (replyMessage != null) {
             	if ((broadcastSendChannel != null) &&
-            		(replyMessage.getRemoteAddress().getAddress().equals(DhcpConstants.ZEROADDR))) {
+            		(replyMessage.getRemoteAddress().getAddress().equals(DhcpConstants.ZEROADDR_V4))) {
         			if (log.isDebugEnabled())
         				log.debug("Client request received from zero address," +
         							" replying to broadcast address.");

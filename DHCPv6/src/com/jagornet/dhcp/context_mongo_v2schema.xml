@@ -5,6 +5,6 @@
 
 <beans>
 
-	<bean id="iaManager" class="com.jagornet.dhcpv6.db.MongoLeaseManager" init-method="init"/>
+	<bean id="iaManager" class="com.jagornet.dhcp.db.MongoLeaseManager" init-method="init"/>
 
 </beans>

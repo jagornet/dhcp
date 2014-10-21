@@ -6,16 +6,16 @@
 <beans>
   		
 	<bean id="identityAssocDAO" 
-		  class="com.jagornet.dhcpv6.db.JdbcIdentityAssocDAO" 
+		  class="com.jagornet.dhcp.db.JdbcIdentityAssocDAO" 
 		  autowire="byType"/>
 	<bean id="iaAddressDAO" 
-		  class="com.jagornet.dhcpv6.db.JdbcIaAddressDAO" 
+		  class="com.jagornet.dhcp.db.JdbcIaAddressDAO" 
 		  autowire="byType"/>
 	<bean id="iaPrefixDAO" 
-		  class="com.jagornet.dhcpv6.db.JdbcIaPrefixDAO" 
+		  class="com.jagornet.dhcp.db.JdbcIaPrefixDAO" 
 		  autowire="byType"/>
 	<bean id="dhcpOptionDAO" 
-		  class="com.jagornet.dhcpv6.db.JdbcDhcpOptionDAO" 
+		  class="com.jagornet.dhcp.db.JdbcDhcpOptionDAO" 
 		  autowire="byType"/>
 
 
@@ -40,7 +40,7 @@
 		</property>
     
 		<property name="target">
-			<bean class="com.jagornet.dhcpv6.db.JdbcIaManager" singleton="true" init-method="init">
+			<bean class="com.jagornet.dhcp.db.JdbcIaManager" singleton="true" init-method="init">
 				<property name="dataSource">
 					<ref bean="dataSource"/>
 				</property>

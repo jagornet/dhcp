@@ -53,6 +53,6 @@ public class DhcpV6ServerIdOption extends BaseOpaqueDataOption
 	public DhcpV6ServerIdOption(V6ServerIdOption serverIdOption)
 	{
 		super(serverIdOption);
-		setCode(DhcpConstants.OPTION_SERVERID);
+		setCode(DhcpConstants.V6OPTION_SERVERID);
 	}
 }

@@ -84,7 +84,7 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
         						requestMsg.getDhcpOption(DhcpConstants.V4OPTION_REQUESTED_IP);
 
         // first determine what KIND of request we are dealing with
-    	if (requestMsg.getCiAddr().equals(DhcpConstants.ZEROADDR)) {
+    	if (requestMsg.getCiAddr().equals(DhcpConstants.ZEROADDR_V4)) {
     		// the ciAddr MUST be 0.0.0.0 for Init-Reboot and Selecting
             if (requestedServerIdOption == null) {
             	// init-reboot MUST NOT have server-id option

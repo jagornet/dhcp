@@ -3,7 +3,7 @@
 		   xmlns="http://jagornet.com/dhcp/xml"
 		   targetNamespace="http://jagornet.com/dhcp/xml">
 		   
-	<!-- The top-level schema element for the DHCPv6 Server Configuration -->
+	<!-- The top-level schema element for the DHCP Server Configuration -->
 	<xs:element name="dhcpServerConfig">
 		<xs:annotation>
 			<xs:documentation>DHCP Server Configuration Schema</xs:documentation>

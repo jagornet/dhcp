@@ -53,6 +53,6 @@ public class DhcpV6ServerUnicastOption extends BaseIpAddressOption
 	public DhcpV6ServerUnicastOption(V6ServerUnicastOption serverUnicastOption)
 	{
 		super(serverUnicastOption);
-		setCode(DhcpConstants.OPTION_UNICAST);
+		setCode(DhcpConstants.V6OPTION_UNICAST);
 	}
 }

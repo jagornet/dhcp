@@ -184,7 +184,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 	        // build a reply message using the local and remote sockets from the request
 	        replyMsg = new DhcpV4Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
 	        
-	        replyMsg.setOp((short)DhcpConstants.OP_REPLY);
+	        replyMsg.setOp((short)DhcpConstants.V4_OP_REPLY);
 	        // copy fields from request to reply
 	        replyMsg.setHtype(requestMsg.getHtype());
 	        replyMsg.setHlen(requestMsg.getHlen());
