@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns:dhcpServerConfig xmlns:ns="http://jagornet.com/dhcp/xml">
+    <v6ServerIdOption>
+        <opaqueData>
+            <hexValue>000100015446C3C8E0F8470C742E</hexValue>
+        </opaqueData>
+    </v6ServerIdOption>
+    <policies>
+        <policy>
+            <name>sendRequestedOptionsOnly</name>
+            <value>true</value>
+        </policy>
+    </policies>
+</ns:dhcpServerConfig>
