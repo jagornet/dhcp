@@ -13,7 +13,10 @@ Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configu
 * Static bindings (reservations)
 
 ## Documentation
-[Jagornet DHCP Server Community Edition v2.0.0](http://www.jagornet.com/products/dhcp-server/docs)
+[Jagornet DHCP Server Community Edition v2.0.0 User Guide](http://www.jagornet.com/products/dhcp-server/docs)
+
+## Downloads
+[Jagornet DHCP Server Community Edition v2.0.0 Releases](https://github.com/jagornet/dhcp/releases)
 
 ## Website
 [Visit us at Jagornet Technologies](http://www.jagornet.com)
