@@ -12,5 +12,8 @@ Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configu
 * IPv6 Prefix Delegation
 * Static bindings (reservations)
 
+## Documentation
+[Jagornet DHCP Server Community Edition v2.0.0](http://www.jagornet.com/products/dhcp-server/docs)
+
 ## Website
 [Visit us at Jagornet Technologies](http://www.jagornet.com)
