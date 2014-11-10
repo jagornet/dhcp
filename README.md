@@ -20,5 +20,8 @@ Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configu
 ## Downloads
 [Jagornet DHCP Server Community Edition v2.0.0 Releases](https://github.com/jagornet/dhcp/releases)
 
+## User Forum
+[Jagornet DHCP Server Users Forum](https://groups.google.com/forum/#!forum/jagornet-dhcpv6-users)
+
 ## Website
 [Visit us at Jagornet Technologies](http://www.jagornet.com)
