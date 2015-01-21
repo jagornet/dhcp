@@ -1,0 +1,27 @@
+#das ist ein kommentar
+lease 10.1.222.51 {
+  starts 3 2015/01/21 07:34:38;
+  ends 4 2015/01/22 07:34:38;
+  cltt 3 2015/01/21 07:34:38;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:16:3e:43:42:bf;
+  set ddns-fwd-name = "web-0d-prod.v110";
+  set ddns-txt = "00b3a88972cece8bd0a2c935ba628eadc3";
+  set ddns-rev-name = "51.222.1.10.in-addr.arpa.";
+  client-hostname "web-0d-prod";
+}
+lease 10.1.222.52 {
+  starts 3 2015/01/21 07:34:38;
+  ends 4 2015/01/22 07:34:38;
+  cltt 3 2015/01/21 07:34:38;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:16:3e:43:42:be;
+  set ddns-fwd-name = "web-0d-stage.v110";
+  set ddns-txt = "00b3a88972cece8bd0a2c935ba628eadc3";
+  set ddns-rev-name = "52.222.1.10.in-addr.arpa.";
+  client-hostname "web-0d-stage";
+}
