@@ -1,6 +1,9 @@
 # Jagornet DHCP Server
 An open source DHCPv4/DHCPv6 Server in Java
 
+I plan to remove all current backends and build the dhcp engine around the configuration service
+called zookeeper. The goal of this fork is to build a clusterable and shared dhcpserver infrastruktur.
+
 ## Description
 Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configuration Protocol Server for IPv4 and IPv6.
 
