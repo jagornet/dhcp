@@ -1,0 +1,18 @@
+yajsw-stable-11.0
+
+    Bug: System tray icon causes exception
+    Bug: genConfig: does not handle jdk 6 wildcard in classpath.
+    Bug: error resolving wild cards in case classpath is "lib/ folder/*"
+    Bug: Specifying java command in environment: better logging if command not found.
+    Bug: Not equals configuration under Windows and Unix: replaced in unix batches yajsw with wrapper !!
+    Change: wrapper.java.customProcName: if this is an absolute path, the given path is used.
+    Change: wrapper.java.command must be a file: Windows: if .exe is missing it is automatically added. 
+    Change: Enhanced logging when determining java command.
+    Change: update to jna release 3.4.0
+    Change: update to netty release 3.3.1
+    New: Configuration property wrapper.save_interpolation, default: value true
+    New: Configuration properties for windows services: wrapper.ntservice.delayed_autostart, wrapper.ntservice.failure_actions.reset_period, wrapper.ntservice.failure_actions.reboot_msg, wrapper.ntservice.failure_actions.command, wrapper.ntservice.failure_actions.action, wrapper.ntservice.failure_actions.action_delay
+    New: property wrapper.ntservice.java.command for running the service with a java command different then wrapper.java.command.
+
+
+NOTE: JBoss 7: runs only with java version prior to 6_17 or higher than 7_0. 

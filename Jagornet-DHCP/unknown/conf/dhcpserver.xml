@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="http://jagornet.com/dhcpserver.xsd">
+    <v6ServerIdOption>
+        <opaqueData>
+            <hexValue/>
+        </opaqueData>
+    </v6ServerIdOption>
+</dhc:dhcpServerConfig>

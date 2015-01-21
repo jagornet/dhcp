@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC
+	"-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+ 
+	<bean id="v6NaAddrBindingManager" 
+  		  class="com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManagerImpl"
+  		  autowire="byType"/>
+	<bean id="v6TaAddrBindingManager" 
+  		  class="com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManagerImpl"
+  		  autowire="byType"/>
+	<bean id="v6PrefixBindingManager" 
+  		  class="com.jagornet.dhcp.server.request.binding.V6PrefixBindingManagerImpl"
+  		  autowire="byType"/>
+	<bean id="v4AddrBindingManager" 
+  		  class="com.jagornet.dhcp.server.request.binding.V4AddrBindingManagerImpl"
+  		  autowire="byType"/>
+
+</beans>

@@ -1,0 +1,45 @@
+/*
+ * Condition Script for checking presence of a file.
+ * 
+ * Checks that the application is running while the file is present
+ * Stops the application if the file does not exist
+ * 
+ * Arguments: 
+ * - fileName
+ * 
+ * Example Configuration:
+ * 
+ * wrapper.condition.script=scripts/fileCondition.gv
+ * wrapper.condition.script.args=anchor.txt
+ */
+
+if (this.args == null || this.args.length != 1)
+{
+	println "error in script fileCondition.gv missing arguments. check configuration"
+	return;
+}
+
+
+// on first call file is not be bound
+if (callCount == 0)
+	file = new File(this.args[0])
+
+processState = process.getStringState()
+
+if (file.exists())
+{
+   if ("IDLE".equals(processState))
+   {
+	  println "starting process"
+	  process.start();
+   }
+}
+else
+{
+   if ("RUNNING".equals(processState))
+   {
+	   println "stopping process"
+	   process.stop();
+   }
+
+}
