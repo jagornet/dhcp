@@ -38,6 +38,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import com.jagornet.dhcp.db.DhcpOption;
+
 /**
  * The JdbcDhcpOptionDAO implementation class for DhcpOptionDAO interface.
  * 

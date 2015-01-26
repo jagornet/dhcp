@@ -27,6 +27,8 @@ package com.jagornet.dhcp.db;
 
 import java.util.List;
 
+import com.jagornet.dhcp.db.DhcpOption;
+
 /**
  * The Interface DhcpOptionDAO.
  * 

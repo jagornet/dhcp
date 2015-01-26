@@ -2,9 +2,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.jagornet</groupId>
-  <artifactId>server</artifactId>
+  <artifactId>dhcp-server</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>jagornet dhcp-server</name>
+  <name>dhcp-server</name>
 
   <parent>
     <groupId>com.jagornet</groupId>
@@ -19,6 +19,23 @@
 
   <dependencies>
 
+    <dependency>
+      <groupId>com.jagornet</groupId>
+      <artifactId>dhcp-util</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.jagornet</groupId>
+      <artifactId>dhcp-message</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.jagornet</groupId>
+      <artifactId>dhcp-config</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>
