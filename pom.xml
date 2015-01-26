@@ -14,6 +14,10 @@
   <modules>
     <module>xmlbeans</module>
     <module>server</module>
+    <module>client</module>
+    <module>config</module>
+    <module>message</module>
+    <module>util</module>
   </modules>
 
 
