@@ -40,283 +40,274 @@ import org.xbill.DNS.TSIG;
 import org.xbill.DNS.TextParseException;
 
 /**
- * The Class DdnsUpdate. The abstract base class for handling DDNS updates
+ * The Class DdnsUpdate.  The abstract base class for handling DDNS updates
  * according to RFC 4703 and RFC 4704.
  * 
  * @author A. Gregory Rabil
  */
-public abstract class DdnsUpdate {
+public abstract class DdnsUpdate
+{
+	
+	/** The log. */
+	private static Logger log = LoggerFactory.getLogger(DdnsUpdate.class);
 
-  /** The log. */
-  private static final Logger log = LoggerFactory.getLogger(DdnsUpdate.class);
+	/** The sha256 msg digest. */
+	protected static MessageDigest sha256MsgDigest;
+	
+	/** The fqdn. */
+	protected String fqdn;
+	
+	/** The inet addr. */
+	protected InetAddress inetAddr;
+	
+	/** The data. */
+	protected byte[] data;
+	
+	/** The server. */
+	protected String server;
+	
+	/** The ttl. */
+	protected long ttl;
+	
+	/** The zone. */
+	protected String zone;
+	
+	/** The tsig key name. */
+	protected String tsigKeyName;
+	
+	/** The tsig algorithm. */
+	protected String tsigAlgorithm;
+	
+	/** The tsig key data. */
+	protected String tsigKeyData;
+	
+	/**
+	 * Instantiates a new ddns update.
+	 * 
+	 * @param fqdn the fqdn
+	 * @param inetAddr the inet addr
+	 * @param duid the duid
+	 */
+	public DdnsUpdate(String fqdn, InetAddress inetAddr, byte[] duid)
+	{
+		this.fqdn = fqdn;
+		this.inetAddr = inetAddr;
+		
+		byte[] buf = new byte[duid.length + fqdn.getBytes().length];
+		System.arraycopy(duid, 0, buf, 0, duid.length);
+		System.arraycopy(fqdn.getBytes(), 0, buf, duid.length, fqdn.getBytes().length);
+		
+		MessageDigest md = getSha256MsgDigest();
+		if (md != null) {
+			byte[] hash = md.digest(buf);
+			
+			this.data = new byte[3 + hash.length];
+			data[0] = (byte)0x00;
+			data[1] = (byte)0x02;
+			data[2] = (byte)0x01;
+			System.arraycopy(hash, 0, data, 3, hash.length);
+		}
+	}
+	
+	/**
+	 * Creates the resolver.
+	 * 
+	 * @return the resolver
+	 * 
+	 * @throws UnknownHostException the unknown host exception
+	 * @throws TextParseException the text parse exception
+	 */
+	protected Resolver createResolver() throws UnknownHostException, TextParseException 
+	{
+		Resolver res = new SimpleResolver(server);
+		if ((tsigKeyName != null) && (tsigKeyName.length() > 0)) {
+			TSIG tsig = null;
+			if (tsigAlgorithm != null) {
+				tsig = new TSIG(new Name(tsigAlgorithm), tsigKeyName, tsigKeyData);
+			}
+			else {
+				tsig = new TSIG(tsigKeyName, tsigKeyData);
+			}
+			res.setTSIGKey(tsig);
+		}
+		return res;
+	}
+	
+	/**
+	 * Send add.
+	 * 
+	 * @throws TextParseException the text parse exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public abstract boolean sendAdd() throws TextParseException, IOException;
+	
+	/**
+	 * Send delete.
+	 * 
+	 * @throws TextParseException the text parse exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public abstract boolean sendDelete() throws TextParseException, IOException;
+	
+	/**
+	 * Gets the server.
+	 * 
+	 * @return the server
+	 */
+	public String getServer() {
+		return server;
+	}
 
-  /** The sha256 msg digest. */
-  protected static MessageDigest sha256MsgDigest;
+	/**
+	 * Sets the server.
+	 * 
+	 * @param server the new server
+	 */
+	public void setServer(String server) {
+		this.server = server;
+	}
 
-  /** The fqdn. */
-  protected String fqdn;
+	/**
+	 * Gets the ttl.
+	 * 
+	 * @return the ttl
+	 */
+	public long getTtl() {
+		return ttl;
+	}
 
-  /** The inet addr. */
-  protected InetAddress inetAddr;
+	/**
+	 * Sets the ttl.
+	 * 
+	 * @param ttl the new ttl
+	 */
+	public void setTtl(long ttl) {
+		this.ttl = ttl;
+	}
 
-  /** The data. */
-  protected byte[] data;
+	/**
+	 * Gets the zone.
+	 * 
+	 * @return the zone
+	 */
+	public String getZone() {
+		return zone;
+	}
 
-  /** The server. */
-  protected String server;
+	/**
+	 * Sets the zone.
+	 * 
+	 * @param zone the new zone
+	 */
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
 
-  /** The ttl. */
-  protected long ttl;
+	/**
+	 * Gets the tsig key name.
+	 * 
+	 * @return the tsig key name
+	 */
+	public String getTsigKeyName() {
+		return tsigKeyName;
+	}
 
-  /** The zone. */
-  protected String zone;
+	/**
+	 * Sets the tsig key name.
+	 * 
+	 * @param tsigKeyName the new tsig key name
+	 */
+	public void setTsigKeyName(String tsigKeyName) {
+		this.tsigKeyName = tsigKeyName;
+	}
 
-  /** The tsig key name. */
-  protected String tsigKeyName;
+	/**
+	 * Gets the tsig algorithm.
+	 * 
+	 * @return the tsig algorithm
+	 */
+	public String getTsigAlgorithm() {
+		return tsigAlgorithm;
+	}
 
-  /** The tsig algorithm. */
-  protected String tsigAlgorithm;
+	/**
+	 * Sets the tsig algorithm.
+	 * 
+	 * @param tsigAlgorithm the new tsig algorithm
+	 */
+	public void setTsigAlgorithm(String tsigAlgorithm) {
+		this.tsigAlgorithm = tsigAlgorithm;
+	}
 
-  /** The tsig key data. */
-  protected String tsigKeyData;
+	/**
+	 * Gets the tsig key data.
+	 * 
+	 * @return the tsig key data
+	 */
+	public String getTsigKeyData() {
+		return tsigKeyData;
+	}
 
-  /**
-   * Instantiates a new ddns update.
-   * 
-   * @param fqdn
-   *          the fqdn
-   * @param inetAddr
-   *          the inet addr
-   * @param duid
-   *          the duid
-   */
-  public DdnsUpdate(String fqdn, InetAddress inetAddr, byte[] duid) {
-    this.fqdn = fqdn;
-    this.inetAddr = inetAddr;
+	/**
+	 * Sets the tsig key data.
+	 * 
+	 * @param tsigKeyData the new tsig key data
+	 */
+	public void setTsigKeyData(String tsigKeyData) {
+		this.tsigKeyData = tsigKeyData;
+	}
 
-    byte[] buf = new byte[duid.length + fqdn.getBytes().length];
-    System.arraycopy(duid, 0, buf, 0, duid.length);
-    System.arraycopy(fqdn.getBytes(), 0, buf, duid.length, fqdn.getBytes().length);
+	/**
+	 * The main method.
+	 * 
+	 * @param args the arguments
+	 */
+	public static void main(String[] args)
+	{
+		try {
+			String fqdn = args[0];
+			long ttl = Long.parseLong(args[1]);
+			InetAddress inetAddr = InetAddress.getByName(args[2]);
+			byte[] duid = args[3].getBytes();
+			String server = args[4];
+			
+			ForwardDdnsUpdate fwd = new ForwardDdnsUpdate(fqdn, inetAddr, duid);
+			fwd.setServer(server);
+			fwd.setTtl(ttl);
+			fwd.setTsigKeyName("macbook-ubuntu.");
+			fwd.setTsigAlgorithm("hmac-sha256.");
+			fwd.setTsigKeyData("3BE05CzQLXTm5ouGljhJeQ==");
+			fwd.sendAdd();
+			
+			ReverseDdnsUpdate rev = new ReverseDdnsUpdate(fqdn, inetAddr, duid);
+			rev.setRevZoneBitLength(48);
+			rev.setServer(server);
+			rev.setTtl(ttl);
+			rev.setTsigKeyName("macbook-ubuntu.");
+			rev.setTsigAlgorithm("hmac-sha256.");
+			rev.setTsigKeyData("3BE05CzQLXTm5ouGljhJeQ==");
+			rev.sendAdd();
 
-    MessageDigest md = getSha256MsgDigest();
-    if (md != null) {
-      byte[] hash = md.digest(buf);
-
-      this.data = new byte[3 + hash.length];
-      data[0] = (byte) 0x00;
-      data[1] = (byte) 0x02;
-      data[2] = (byte) 0x01;
-      System.arraycopy(hash, 0, data, 3, hash.length);
-    }
-  }
-
-  /**
-   * Creates the resolver.
-   * 
-   * @return the resolver
-   * 
-   * @throws UnknownHostException
-   *           the unknown host exception
-   * @throws TextParseException
-   *           the text parse exception
-   */
-  protected Resolver createResolver() throws UnknownHostException, TextParseException {
-    Resolver res = new SimpleResolver(server);
-    if ((tsigKeyName != null) && (tsigKeyName.length() > 0)) {
-      TSIG tsig = null;
-      if (tsigAlgorithm != null) {
-        tsig = new TSIG(new Name(tsigAlgorithm), tsigKeyName, tsigKeyData);
-      } else {
-        tsig = new TSIG(tsigKeyName, tsigKeyData);
-      }
-      res.setTSIGKey(tsig);
-    }
-    return res;
-  }
-
-  /**
-   * Send add.
-   * 
-   * @throws TextParseException
-   *           the text parse exception
-   * @throws IOException
-   *           Signals that an I/O exception has occurred.
-   */
-  public abstract boolean sendAdd() throws TextParseException, IOException;
-
-  /**
-   * Send delete.
-   * 
-   * @throws TextParseException
-   *           the text parse exception
-   * @throws IOException
-   *           Signals that an I/O exception has occurred.
-   */
-  public abstract boolean sendDelete() throws TextParseException, IOException;
-
-  /**
-   * Gets the server.
-   * 
-   * @return the server
-   */
-  public String getServer() {
-    return server;
-  }
-
-  /**
-   * Sets the server.
-   * 
-   * @param server
-   *          the new server
-   */
-  public void setServer(String server) {
-    this.server = server;
-  }
-
-  /**
-   * Gets the ttl.
-   * 
-   * @return the ttl
-   */
-  public long getTtl() {
-    return ttl;
-  }
-
-  /**
-   * Sets the ttl.
-   * 
-   * @param ttl
-   *          the new ttl
-   */
-  public void setTtl(long ttl) {
-    this.ttl = ttl;
-  }
-
-  /**
-   * Gets the zone.
-   * 
-   * @return the zone
-   */
-  public String getZone() {
-    return zone;
-  }
-
-  /**
-   * Sets the zone.
-   * 
-   * @param zone
-   *          the new zone
-   */
-  public void setZone(String zone) {
-    this.zone = zone;
-  }
-
-  /**
-   * Gets the tsig key name.
-   * 
-   * @return the tsig key name
-   */
-  public String getTsigKeyName() {
-    return tsigKeyName;
-  }
-
-  /**
-   * Sets the tsig key name.
-   * 
-   * @param tsigKeyName
-   *          the new tsig key name
-   */
-  public void setTsigKeyName(String tsigKeyName) {
-    this.tsigKeyName = tsigKeyName;
-  }
-
-  /**
-   * Gets the tsig algorithm.
-   * 
-   * @return the tsig algorithm
-   */
-  public String getTsigAlgorithm() {
-    return tsigAlgorithm;
-  }
-
-  /**
-   * Sets the tsig algorithm.
-   * 
-   * @param tsigAlgorithm
-   *          the new tsig algorithm
-   */
-  public void setTsigAlgorithm(String tsigAlgorithm) {
-    this.tsigAlgorithm = tsigAlgorithm;
-  }
-
-  /**
-   * Gets the tsig key data.
-   * 
-   * @return the tsig key data
-   */
-  public String getTsigKeyData() {
-    return tsigKeyData;
-  }
-
-  /**
-   * Sets the tsig key data.
-   * 
-   * @param tsigKeyData
-   *          the new tsig key data
-   */
-  public void setTsigKeyData(String tsigKeyData) {
-    this.tsigKeyData = tsigKeyData;
-  }
-
-  /**
-   * The main method.
-   * 
-   * @param args
-   *          the arguments
-   */
-  public static void main(String[] args) {
-    try {
-      String fqdn = args[0];
-      long ttl = Long.parseLong(args[1]);
-      InetAddress inetAddr = InetAddress.getByName(args[2]);
-      byte[] duid = args[3].getBytes();
-      String server = args[4];
-
-      ForwardDdnsUpdate fwd = new ForwardDdnsUpdate(fqdn, inetAddr, duid);
-      fwd.setServer(server);
-      fwd.setTtl(ttl);
-      fwd.setTsigKeyName("macbook-ubuntu.");
-      fwd.setTsigAlgorithm("hmac-sha256.");
-      fwd.setTsigKeyData("3BE05CzQLXTm5ouGljhJeQ==");
-      fwd.sendAdd();
-
-      ReverseDdnsUpdate rev = new ReverseDdnsUpdate(fqdn, inetAddr, duid);
-      rev.setRevZoneBitLength(48);
-      rev.setServer(server);
-      rev.setTtl(ttl);
-      rev.setTsigKeyName("macbook-ubuntu.");
-      rev.setTsigAlgorithm("hmac-sha256.");
-      rev.setTsigKeyData("3BE05CzQLXTm5ouGljhJeQ==");
-      rev.sendAdd();
-
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-  }
-
-  /**
-   * Gets the sha256 msg digest.
-   * 
-   * @return the sha256 msg digest
-   */
-  protected MessageDigest getSha256MsgDigest() {
-    if (sha256MsgDigest == null) {
-      try {
-        sha256MsgDigest = MessageDigest.getInstance("SHA-256");
-      } catch (NoSuchAlgorithmException ex) {
-        log.error("Failed to get MessageDigest for SHA-256", ex);
-      }
-    }
-    return sha256MsgDigest;
-  }
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Gets the sha256 msg digest.
+	 * 
+	 * @return the sha256 msg digest
+	 */
+	protected MessageDigest getSha256MsgDigest() {
+		if (sha256MsgDigest == null) {
+			try {
+				sha256MsgDigest = MessageDigest.getInstance("SHA-256");
+			}
+			catch (NoSuchAlgorithmException ex) {
+				log.error("Failed to get MessageDigest for SHA-256", ex);
+			}
+		}
+		return sha256MsgDigest;
+	}
 }

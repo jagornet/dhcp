@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-import com.jagornet.dhcp.db.DhcpOption;
 import com.jagornet.dhcp.util.Util;
 
 /**

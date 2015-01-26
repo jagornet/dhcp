@@ -41,7 +41,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-import com.jagornet.dhcp.model.DhcpOption;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Range;
@@ -284,7 +283,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 //			DhcpOption dbOption = iaAddr.getDhcpOption(baseOption.getCode());
 			DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
 			if (dbOption == null) {
-				dbOption = new com.jagornet.dhcp.model.DhcpOption();
+				dbOption = new com.jagornet.dhcp.db.DhcpOption();
 				dbOption.setCode(baseOption.getCode());
 				dbOption.setValue(newVal);
 				addDhcpOption(iaAddr, dbOption);

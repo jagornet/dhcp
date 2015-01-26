@@ -12,11 +12,7 @@
   </properties>
 
   <modules>
-    <module>util</module>
     <module>xmlbeans</module>
-    <module>message</module>
-    <module>config</module>
-    <module>client</module>
     <module>server</module>
   </modules>
 

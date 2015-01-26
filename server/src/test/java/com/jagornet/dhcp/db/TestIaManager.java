@@ -35,10 +35,10 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.db.DhcpOption;
 import com.jagornet.dhcp.db.IaAddress;
 import com.jagornet.dhcp.db.IaManager;
 import com.jagornet.dhcp.db.IdentityAssoc;
-import com.jagornet.dhcp.model.DhcpOption;
 
 // TODO: Auto-generated Javadoc
 /**

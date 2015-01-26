@@ -2,8 +2,3 @@
 .project
 /lease-parser/target
 /lease-parser/.settings
-dependency-reduced-pom.xml
-**/.idea
-**/target/
-*.iml
-**/.settings/

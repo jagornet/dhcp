@@ -39,8 +39,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.db.DhcpOption;
-
 public abstract class LeaseManager implements IaManager {
 	
 	private static Logger log = LoggerFactory.getLogger(LeaseManager.class);

@@ -27,7 +27,6 @@ package com.jagornet.dhcp.db;
 
 import java.util.Collection;
 
-import com.jagornet.dhcp.db.DhcpOption;
 import com.jagornet.dhcp.util.Util;
 
 
