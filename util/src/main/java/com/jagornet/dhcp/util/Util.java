@@ -51,12 +51,12 @@ public class Util
 	public static boolean IS_WINDOWS =
 		System.getProperty("os.name", "").startsWith("Windows") ? true : false;
 	
-	public static String LINE_SEPARATOR = System.getProperty("line.separator");
+	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-	public static TimeZone GMT_TIMEZONE = TimeZone.getTimeZone("GMT");
-    public static Calendar GMT_CALENDAR = Calendar.getInstance(GMT_TIMEZONE);
+	public static final TimeZone GMT_TIMEZONE = TimeZone.getTimeZone("GMT");
+    public static final Calendar GMT_CALENDAR = Calendar.getInstance(GMT_TIMEZONE);
 	
-    public static DateFormat GMT_DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    public static final DateFormat GMT_DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     /**
      * To hex string.

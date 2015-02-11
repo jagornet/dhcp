@@ -67,7 +67,7 @@ import com.jagornet.dhcp.option.v4.DhcpV4MsgTypeOption;
 import com.jagornet.dhcp.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.server.netty.DhcpV4ChannelDecoder;
 import com.jagornet.dhcp.server.netty.DhcpV4ChannelEncoder;
-import com.jagornet.dhcp.util.DhcpConstants;
+import com.jagornet.dhcp.constants.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
 
 /**

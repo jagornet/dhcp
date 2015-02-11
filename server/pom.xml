@@ -1,10 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.jagornet</groupId>
-  <artifactId>server</artifactId>
+  <artifactId>dhcp-db</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>jagornet dhcp-server</name>
+  <name>jagornet dhcp-db</name>
 
   <parent>
     <groupId>com.jagornet</groupId>
@@ -18,7 +20,6 @@
   </properties>
 
   <dependencies>
-
 
     <dependency>
       <groupId>junit</groupId>
@@ -81,7 +82,6 @@
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -99,6 +99,7 @@
       <artifactId>log4j-over-slf4j</artifactId>
       <version>1.7.10</version>
     </dependency>
+
   </dependencies>
 
   <build>
@@ -112,61 +113,6 @@
           <source>1.7</source>
           <target>1.7</target>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>xmlbeans-maven-plugin</artifactId>
-        <version>2.3.3</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>xmlbeans</goal>
-            </goals>
-          </execution>
-        </executions>
-        <inherited>true</inherited>
-        <configuration>
-          <javaSource>1.6</javaSource>
-          <schemaDirectory>src/main/xsd</schemaDirectory>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.3</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-              <transformers>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.adviser.yuul.web.Main</mainClass>
-                </transformer>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                  <resource>META-INF/services/org/apache/camel/TypeConverter</resource>
-                </transformer>
-
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
     </plugins>

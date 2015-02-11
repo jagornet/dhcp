@@ -2,3 +2,6 @@
 .project
 /lease-parser/target
 /lease-parser/.settings
+**/*.iml
+.idea
+**/target/
