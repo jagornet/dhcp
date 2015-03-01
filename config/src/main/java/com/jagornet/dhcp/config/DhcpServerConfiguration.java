@@ -25,39 +25,13 @@
  */
 package com.jagornet.dhcp.config;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-//import com.jagornet.dhcp.binding.V4AddrBindingManager;
-//import com.jagornet.dhcp.binding.V6NaAddrBindingManager;
-//import com.jagornet.dhcp.binding.V6PrefixBindingManager;
-//import com.jagornet.dhcp.binding.V6TaAddrBindingManager;
+import com.jagornet.dhcp.constants.DhcpConstants;
 import com.jagornet.dhcp.exception.DhcpServerConfigException;
-import com.jagornet.dhcp.model.IaManager;
-import com.jagornet.dhcp.model.Range;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlValidationError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 import com.jagornet.dhcp.message.DhcpMessage;
 import com.jagornet.dhcp.message.DhcpV4Message;
 import com.jagornet.dhcp.message.DhcpV6Message;
+import com.jagornet.dhcp.model.IaManager;
+import com.jagornet.dhcp.model.Range;
 import com.jagornet.dhcp.option.DhcpComparableOption;
 import com.jagornet.dhcp.option.OpaqueDataUtil;
 import com.jagornet.dhcp.option.base.DhcpOption;
@@ -66,30 +40,28 @@ import com.jagornet.dhcp.option.v4.DhcpV4VendorClassOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ConfigOptions;
 import com.jagornet.dhcp.option.v6.DhcpV6UserClassOption;
 import com.jagornet.dhcp.option.v6.DhcpV6VendorClassOption;
-import com.jagornet.dhcp.constants.DhcpConstants;
 import com.jagornet.dhcp.util.Subnet;
-import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.ClientClassExpression;
-import com.jagornet.dhcp.xml.DhcpServerConfigDocument;
+import com.jagornet.dhcp.xml.*;
 import com.jagornet.dhcp.xml.DhcpServerConfigDocument.DhcpServerConfig;
-import com.jagornet.dhcp.xml.Filter;
-import com.jagornet.dhcp.xml.FilterExpression;
-import com.jagornet.dhcp.xml.FilterExpressionsType;
-import com.jagornet.dhcp.xml.FiltersType;
-import com.jagornet.dhcp.xml.Link;
-import com.jagornet.dhcp.xml.LinkFilter;
-import com.jagornet.dhcp.xml.LinkFiltersType;
-import com.jagornet.dhcp.xml.LinksType;
-import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.OptionExpression;
-import com.jagornet.dhcp.xml.V4AddressPool;
-import com.jagornet.dhcp.xml.V4AddressPoolsType;
-import com.jagornet.dhcp.xml.V4ServerIdOption;
-import com.jagornet.dhcp.xml.V6AddressPool;
-import com.jagornet.dhcp.xml.V6AddressPoolsType;
-import com.jagornet.dhcp.xml.V6PrefixPool;
-import com.jagornet.dhcp.xml.V6PrefixPoolsType;
-import com.jagornet.dhcp.xml.V6ServerIdOption;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlValidationError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.*;
+
+//import com.jagornet.dhcp.binding.V4AddrBindingManager;
+//import com.jagornet.dhcp.binding.V6NaAddrBindingManager;
+//import com.jagornet.dhcp.binding.V6PrefixBindingManager;
+//import com.jagornet.dhcp.binding.V6TaAddrBindingManager;
 
 /**
  * Title: DhcpServerConfiguration

@@ -1,7 +1,7 @@
 /*
  * Copyright 2009-2014 Jagornet Technologies, LLC.  All Rights Reserved.
  *
- * This software is the proprietary information of Jagornet Technologies, LLC. 
+ * This software is the proprietary information of Jagornet Technologies, LLC.
  * Use is subject to license terms.
  *
  */
@@ -29,6 +29,7 @@ import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +37,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Title: Subnet
  * Description: A utility class for managing IPv6 subnets.
- * 
+ *
  * TODO: Refactor to use java.net.InterfaceAddress?
- * 
+ *
  * @author A. Gregory Rabil
  */
 public class Subnet implements Comparable<Subnet>
@@ -48,16 +49,16 @@ public class Subnet implements Comparable<Subnet>
 
     /** The subnet address. */
     private InetAddress subnetAddress;
-    
+
     /** The prefix length. */
     private int prefixLength;
 
     /**
      * Instantiates a new subnet.
-     * 
+     *
      * @param subnetAddress the subnet address
      * @param prefixLength the prefix length
-     * 
+     *
      * @throws UnknownHostException the unknown host exception
      * @throws NumberFormatException the number format exception
      */
@@ -69,10 +70,10 @@ public class Subnet implements Comparable<Subnet>
 
     /**
      * Instantiates a new subnet.
-     * 
+     *
      * @param subnetAddress the subnet address
      * @param prefixLength the prefix length
-     * 
+     *
      * @throws UnknownHostException the unknown host exception
      * @throws NumberFormatException the number format exception
      */
@@ -81,10 +82,10 @@ public class Subnet implements Comparable<Subnet>
     {
         this(InetAddress.getByName(subnetAddress), prefixLength);
     }
-    
+
     /**
      * Instantiates a new subnet.
-     * 
+     *
      * @param subnetAddress the subnet address
      * @param prefixLength the prefix length
      */
@@ -96,7 +97,7 @@ public class Subnet implements Comparable<Subnet>
 
     /**
      * Gets the subnet address.
-     * 
+     *
      * @return the subnet address
      */
     public InetAddress getSubnetAddress()
@@ -106,7 +107,7 @@ public class Subnet implements Comparable<Subnet>
 
     /**
      * Sets the subnet address.
-     * 
+     *
      * @param subnetAddress the new subnet address
      */
     public void setSubnetAddress(InetAddress subnetAddress)
@@ -116,7 +117,7 @@ public class Subnet implements Comparable<Subnet>
 
     /**
      * Gets the prefix length.
-     * 
+     *
      * @return the prefix length
      */
     public int getPrefixLength()
@@ -126,17 +127,17 @@ public class Subnet implements Comparable<Subnet>
 
     /**
      * Sets the prefix length.
-     * 
+     *
      * @param prefixLength the new prefix length
      */
     public void setPrefixLength(int prefixLength)
     {
         this.prefixLength = prefixLength;
     }
-    
+
     /**
      * Gets the end address.
-     * 
+     *
      * @return the end address
      */
     public InetAddress getEndAddress()
@@ -164,12 +165,12 @@ public class Subnet implements Comparable<Subnet>
         }
         return endAddr;
     }
-    
+
     /**
      * Contains.  Test if an IP address falls within a subnet.
-     * 
+     *
      * @param inetAddr the IP address to check
-     * 
+     *
      * @return true, if subnet contains the IP address
      */
     public boolean contains(InetAddress inetAddr)
@@ -204,8 +205,26 @@ public class Subnet implements Comparable<Subnet>
             // the standard compare for the address
             return thisAddr.compareTo(thatAddr);
         }
-	}    
-    
+	}
+
+    public String network() {
+        return (subnetAddress.getHostAddress()+"/"+prefixLength);
+    }
+
+    public boolean equals(Object o) {
+        if (o instanceof Subnet) {
+            return this.network().equals(((Subnet) o).network());
+        } else if (o instanceof String) {
+            return this.network().equals(o);
+        }
+        return o == this;
+    }
+
+    public int hashCode() {
+        //log.debug("hashCode:"+network()+":"+network().hashCode());
+        return network().hashCode();
+    }
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

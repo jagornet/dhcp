@@ -23,7 +23,7 @@ public class Copy2Zk implements Watcher {
 
     private static final Logger log = LoggerFactory.getLogger(DhcpServerConfiguration.class);
 
-    private static class StringSerializer implements ZkSerializer {
+    protected static class StringSerializer implements ZkSerializer {
 
         @Override
         public byte[] serialize(Object o) throws ZkMarshallingError {
