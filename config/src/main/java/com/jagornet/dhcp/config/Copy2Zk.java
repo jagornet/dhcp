@@ -1,16 +1,16 @@
 package com.jagornet.dhcp.config;
 
 import com.jagornet.dhcp.util.Subnet;
-import org.I0Itec.zkclient.ZkClient;
-import org.I0Itec.zkclient.exception.ZkMarshallingError;
-import org.I0Itec.zkclient.serialize.BytesPushThroughSerializer;
-import org.I0Itec.zkclient.serialize.ZkSerializer;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -23,35 +23,25 @@ public class Copy2Zk implements Watcher {
 
     private static final Logger log = LoggerFactory.getLogger(DhcpServerConfiguration.class);
 
-    protected static class StringSerializer implements ZkSerializer {
 
-        @Override
-        public byte[] serialize(Object o) throws ZkMarshallingError {
-            return ((String)o).getBytes();
-        }
-
-        @Override
-        public Object deserialize(byte[] bytes) throws ZkMarshallingError {
-            return new String(bytes);
-        }
-    }
-
-    private Copy2Zk(DhcpServerConfiguration dsc, String zkServers, String zkRoot, boolean reset) throws IOException, KeeperException, InterruptedException {
-        final ZkClient zk = new ZkClient(zkServers, 3600, Integer.MAX_VALUE);
-        zk.setZkSerializer(new StringSerializer());
-        if (!zk.exists(zkRoot)) {
-            zk.createPersistent(zkRoot);
+    private Copy2Zk(DhcpServerConfiguration dsc, String zkServers, String zkRoot, boolean reset) throws Exception {
+        final CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zkServers, new ExponentialBackoffRetry(1000, 3));
+        curatorFramework.start();
+        if (curatorFramework.checkExists().forPath(zkRoot) == null) {
+            curatorFramework.create().creatingParentsIfNeeded().forPath(zkRoot);
         }
         zkRoot += "/config";
         if (reset) {
-            log.debug("delete-config=>"+zkRoot);
-            zk.deleteRecursive(zkRoot);
+            log.debug("delete-config=>" + zkRoot);
+            if (curatorFramework.checkExists().forPath(zkRoot) != null) {
+                curatorFramework.delete().deletingChildrenIfNeeded().forPath(zkRoot);
+            }
         }
-        if (!zk.exists(zkRoot)) {
-            zk.createPersistent(zkRoot);
+        if (curatorFramework.checkExists().forPath(zkRoot) == null) {
+            curatorFramework.create().forPath(zkRoot);
         }
-        final Set<String> to_delete = new HashSet<String>();
-        for(String name : zk.getChildren(zkRoot)) {
+        final Set<String> to_delete = new HashSet<>();
+        for(String name : curatorFramework.getChildren().forPath(zkRoot)) {
           to_delete.add(zkRoot + "/" + name);
         }
         for (Entry<Subnet, DhcpLink> entry : dsc.getLinkMap().entrySet())  {
@@ -59,31 +49,34 @@ public class Copy2Zk implements Watcher {
             log.debug("subnetFile =>"+subnetFile);
             to_delete.remove(subnetFile);
             String xml = "";
-            if (zk.exists(subnetFile)) {
-                xml = zk.readData(subnetFile);
-            } else {
-                zk.createPersistent(subnetFile);
-            }
             final String write_xml = entry.getValue().toXml();
+            if (curatorFramework.checkExists().forPath(subnetFile) != null) {
+                xml = new String(curatorFramework.getData().forPath(subnetFile));
+            } else {
+                curatorFramework.create().forPath(subnetFile, write_xml.getBytes());
+                xml = write_xml;
+            }
             //log.debug("xml=>"+xml+" wri=>"+write_xml);
             if (!xml.equals(write_xml)) {
                 log.debug("write-xml=>"+subnetFile);
-                zk.writeData(subnetFile, write_xml);
-
+                curatorFramework.setData().forPath(subnetFile, write_xml.getBytes());
             }
         }
         for (String network_dir : to_delete) {
             log.debug("delete=>"+network_dir);
-            zk.delete(network_dir);
+            curatorFramework.delete().deletingChildrenIfNeeded().forPath(network_dir);
         }
-        zk.close();
+        curatorFramework.close();
     }
 
-    public static Copy2Zk start(DhcpServerConfiguration dsc, String zkServers, String zkUrl, boolean reset) throws IOException, KeeperException, InterruptedException {
+    public static Copy2Zk start(DhcpServerConfiguration dsc, String zkServers, String zkUrl, boolean reset) throws Exception {
         return new Copy2Zk(dsc, zkServers, zkUrl, reset);
     }
-    public static void stop(String zkServers, String zkUrl) {
-        (new ZkClient(zkServers)).deleteRecursive(zkUrl);
+    public static void stop(String zkServers, String zkUrl) throws Exception {
+        final CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(zkServers, new ExponentialBackoffRetry(1000, 3));
+        curatorFramework.start();
+        curatorFramework.delete().deletingChildrenIfNeeded().forPath(zkUrl);
+        curatorFramework.close();
     }
 
     @Override

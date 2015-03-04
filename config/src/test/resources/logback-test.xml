@@ -10,7 +10,6 @@
 
     <logger name="com.jagornet.dhcp" level="DEBUG" />
     <logger name="org.apache.zookeeper" level="WARN" />
-    <logger name="org.I0Itec.zkclient" level="WARN" />
 
     <root level="INFO">
     <appender-ref ref="STDOUT" />
