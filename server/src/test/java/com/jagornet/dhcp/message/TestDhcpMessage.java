@@ -35,12 +35,12 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6DnsServersOption;
-import com.jagornet.dhcp.option.v6.DhcpV6OptionRequestOption;
-import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6UserClassOption;
+import com.jagornet.dhcp.model.option.base.DhcpOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6DnsServersOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6OptionRequestOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6UserClassOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.V6ServerIdOption;

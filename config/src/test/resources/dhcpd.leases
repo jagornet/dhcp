@@ -1,0 +1,53 @@
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.2.4
+
+lease 192.168.36.44 {
+  starts 2 2014/12/16 10:07:27;
+  ends 2 2014/12/16 10:09:27;
+  tstp 2 2014/12/16 10:09:27;
+  cltt 2 2014/12/16 10:07:27;
+  binding state free;
+  hardware ethernet 47:76:ba:a5:bc:ca;
+  uid "\001dv\272\245\274\312";
+  client-hostname "Gerds-Air-2";
+}
+
+
+lease 192.168.36.205 {
+  starts 3 2015/02/25 16:03:35;
+  ends 3 2015/02/25 16:33:35;
+  tstp 3 2015/02/25 16:33:35;
+  cltt 3 2015/02/25 16:03:35;
+  binding state free;
+  hardware ethernet 47:31:c1:ca:dd:56;
+  uid "\001x1\301\312\335V";
+  set ddns-rev-name = "205.36.168.192.in-addr.arpa.";
+  set ddns-txt = "31728b87d1cca6d6de2fb0d379dfb77b6c";
+  set ddns-fwd-name = "amitam-PC.guests.net.de";
+}
+
+
+lease 172.23.123.229 {
+  starts 3 2015/03/04 11:40:07;
+  ends 3 2015/03/04 13:40:07;
+  cltt 3 2015/03/04 11:40:07;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 47:de:48:ca:57:20;
+  client-hostname "srv1-master1.x-mesos.ham1.net";
+}
+
+lease 192.168.39.123 {
+  starts 3 2015/03/04 11:17:41;
+  ends 3 2015/03/04 11:47:41;
+  cltt 3 2015/03/04 11:17:41;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 47:f8:ae:e4:16:c8;
+  uid "\001\374\370\256\344\026\310";
+  set ddns-client-fqdn = "HAJN70010164.tuid.msds.insite";
+  set ddns-rev-name = "123.39.168.192.in-addr.arpa.";
+  client-hostname "HAJN70010164";
+}

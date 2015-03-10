@@ -26,8 +26,8 @@
 package com.jagornet.dhcp.netty.v4;
 
 import com.jagornet.dhcp.message.DhcpV4Message;
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v4.*;
+import com.jagornet.dhcp.model.option.base.DhcpOption;
+import com.jagornet.dhcp.model.option.v4.*;
 import com.jagornet.dhcp.server.config.*;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Binding;

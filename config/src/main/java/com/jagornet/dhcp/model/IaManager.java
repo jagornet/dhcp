@@ -146,7 +146,7 @@ public interface IaManager
 	 * @param option
 	 */
 	public void saveDhcpOption(IaAddress iaAddr, 
-								com.jagornet.dhcp.option.base.BaseDhcpOption option);
+								com.jagornet.dhcp.model.option.base.BaseDhcpOption option);
 
 	/**
 	 * Delete dhcp option associated with an iaAddr.
@@ -155,7 +155,7 @@ public interface IaManager
 	 * @param option
 	 */
 	public void deleteDhcpOption(IaAddress iaAddr, 
-								com.jagornet.dhcp.option.base.BaseDhcpOption option);
+								com.jagornet.dhcp.model.option.base.BaseDhcpOption option);
 	
 	/**
 	 * Update an IaAddress.

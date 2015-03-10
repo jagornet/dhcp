@@ -30,7 +30,7 @@ import java.util.SortedMap;
 
 import junit.framework.TestCase;
 
-import com.jagornet.dhcp.option.OpaqueDataUtil;
+import com.jagornet.dhcp.model.option.OpaqueDataUtil;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.util.DhcpConstants;

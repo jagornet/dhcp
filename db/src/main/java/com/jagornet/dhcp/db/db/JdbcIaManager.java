@@ -268,7 +268,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	}
 
 	public void saveDhcpOption(IaAddress iaAddr, 
-							   com.jagornet.dhcp.option.base.BaseDhcpOption baseOption)
+							   com.jagornet.dhcp.model.option.base.BaseDhcpOption baseOption)
 	{
 		try {
 			byte[] newVal = baseOption.encode().array();
@@ -302,7 +302,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	}
 
 	public void deleteDhcpOption(IaAddress iaAddr, 
-							   com.jagornet.dhcp.option.base.BaseDhcpOption baseOption)
+							   com.jagornet.dhcp.model.option.base.BaseDhcpOption baseOption)
 	{
 		DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
 		if (dbOption != null) {
@@ -311,7 +311,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	}
 
 	protected DhcpOption findIaAddressOption(IaAddress iaAddr,
-			com.jagornet.dhcp.option.base.BaseDhcpOption baseOption) 
+			com.jagornet.dhcp.model.option.base.BaseDhcpOption baseOption)
 	{
 		DhcpOption dbOption = null;
 		List<DhcpOption> iaAddrOptions = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());

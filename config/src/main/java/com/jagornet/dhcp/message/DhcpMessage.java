@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcp.message;
 
-import com.jagornet.dhcp.option.base.DhcpOption;
+import com.jagornet.dhcp.model.option.base.DhcpOption;
 
 /**
  * The Interface DhcpMessage.

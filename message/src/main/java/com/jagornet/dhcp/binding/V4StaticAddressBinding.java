@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 import com.jagornet.dhcp.db.IdentityAssoc;
 import com.jagornet.dhcp.message.DhcpMessage;
-import com.jagornet.dhcp.option.v4.DhcpV4ConfigOptions;
+import com.jagornet.dhcp.model.option.v4.DhcpV4ConfigOptions;
 import com.jagornet.dhcp.server.config.DhcpV4OptionConfigObject;
 import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.PoliciesType;

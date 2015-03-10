@@ -33,8 +33,8 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcp.message.DhcpV6Message;
 import com.jagornet.dhcp.message.DhcpV6RelayMessage;
-import com.jagornet.dhcp.option.v6.DhcpV6InterfaceIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6RelayOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6InterfaceIdOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.V6InterfaceIdOption;

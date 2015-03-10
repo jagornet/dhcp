@@ -39,11 +39,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v4.DhcpV4MsgTypeOption;
-import com.jagornet.dhcp.option.v4.DhcpV4OptionFactory;
-import com.jagornet.dhcp.option.v4.DhcpV4ParamRequestOption;
-import com.jagornet.dhcp.option.v4.DhcpV4ServerIdOption;
+import com.jagornet.dhcp.model.option.base.DhcpOption;
+import com.jagornet.dhcp.model.option.v4.DhcpV4MsgTypeOption;
+import com.jagornet.dhcp.model.option.v4.DhcpV4OptionFactory;
+import com.jagornet.dhcp.model.option.v4.DhcpV4ParamRequestOption;
+import com.jagornet.dhcp.model.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcp.constants.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
 

@@ -30,8 +30,8 @@ import java.util.Iterator;
 
 import com.jagornet.dhcp.db.BaseTestCase;
 import com.jagornet.dhcp.db.IdentityAssoc;
-import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.BindingObject;

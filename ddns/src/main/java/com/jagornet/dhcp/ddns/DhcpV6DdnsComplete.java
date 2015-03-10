@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcp.ddns;
 
-import com.jagornet.dhcp.option.v6.DhcpV6ClientFqdnOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.request.binding.V6BindingAddress;
 

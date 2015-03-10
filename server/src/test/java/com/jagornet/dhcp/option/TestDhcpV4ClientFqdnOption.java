@@ -23,13 +23,13 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.option;
+package com.jagornet.dhcp.model.option;
 
 import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
 
-import com.jagornet.dhcp.option.v4.DhcpV4ClientFqdnOption;
+import com.jagornet.dhcp.model.option.v4.DhcpV4ClientFqdnOption;
 
 // TODO: Auto-generated Javadoc
 /**

@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 
 /**

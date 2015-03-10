@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.db.IaAddress;
-import com.jagornet.dhcp.option.v4.DhcpV4ConfigOptions;
+import com.jagornet.dhcp.model.option.v4.DhcpV4ConfigOptions;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpV4OptionConfigObject;

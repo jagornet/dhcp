@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.option;
+package com.jagornet.dhcp.model.option;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -32,11 +32,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.jagornet.dhcp.option.base.BaseDomainNameOption;
-import com.jagornet.dhcp.option.v6.DhcpV6DnsServersOption;
-import com.jagornet.dhcp.option.v6.DhcpV6DomainSearchListOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcp.model.option.base.BaseDomainNameOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6DnsServersOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6DomainSearchListOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6IaAddrOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.util.DhcpConstants;

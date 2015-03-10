@@ -32,9 +32,9 @@ import java.util.List;
 
 import com.jagornet.dhcp.message.DhcpMessage;
 import com.jagornet.dhcp.model.IdentityAssoc;
-import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaTaOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6IaAddrOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.config.DhcpLink;
 import com.jagornet.dhcp.exception.DhcpServerConfigException;
 import com.jagornet.dhcp.xml.V6AddressBindingsType;

@@ -35,8 +35,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v6.DhcpV6RelayOption;
+import com.jagornet.dhcp.model.option.base.DhcpOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcp.constants.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
 

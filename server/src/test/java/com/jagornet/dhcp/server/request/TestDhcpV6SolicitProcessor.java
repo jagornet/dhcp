@@ -28,7 +28,7 @@ package com.jagornet.dhcp.server.request;
 import java.net.InetAddress;
 
 import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.v6.DhcpV6ReconfigureAcceptOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ReconfigureAcceptOption;
 import com.jagornet.dhcp.server.request.DhcpV6SolicitProcessor;
 import com.jagornet.dhcp.util.DhcpConstants;
 

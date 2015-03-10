@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.option;
+package com.jagornet.dhcp.model.option;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

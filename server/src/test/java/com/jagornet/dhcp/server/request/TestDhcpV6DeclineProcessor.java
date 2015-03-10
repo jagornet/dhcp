@@ -26,7 +26,7 @@
 package com.jagornet.dhcp.server.request;
 
 import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.server.request.DhcpV6DeclineProcessor;
 import com.jagornet.dhcp.server.request.DhcpV6RequestProcessor;
 import com.jagornet.dhcp.server.request.DhcpV6SolicitProcessor;

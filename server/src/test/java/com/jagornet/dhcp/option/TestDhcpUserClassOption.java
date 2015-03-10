@@ -23,15 +23,15 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.option;
+package com.jagornet.dhcp.model.option;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.jagornet.dhcp.option.base.BaseOpaqueData;
-import com.jagornet.dhcp.option.v6.DhcpV6UserClassOption;
+import com.jagornet.dhcp.model.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.model.option.v6.DhcpV6UserClassOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.xml.ClientClassExpression;
 import com.jagornet.dhcp.xml.Operator;

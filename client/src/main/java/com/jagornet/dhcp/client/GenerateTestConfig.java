@@ -39,7 +39,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.jagornet.dhcp.option.OpaqueDataUtil;
+import com.jagornet.dhcp.model.option.OpaqueDataUtil;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.xml.DhcpServerConfigDocument.DhcpServerConfig;
 import com.jagornet.dhcp.xml.Link;

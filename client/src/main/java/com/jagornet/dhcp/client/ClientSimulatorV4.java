@@ -63,8 +63,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.message.DhcpV4Message;
-import com.jagornet.dhcp.option.v4.DhcpV4MsgTypeOption;
-import com.jagornet.dhcp.option.v4.DhcpV4RequestedIpAddressOption;
+import com.jagornet.dhcp.model.option.v4.DhcpV4MsgTypeOption;
+import com.jagornet.dhcp.model.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.server.netty.DhcpV4ChannelDecoder;
 import com.jagornet.dhcp.server.netty.DhcpV4ChannelEncoder;
 import com.jagornet.dhcp.constants.DhcpConstants;

@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcp.config;
 
-import com.jagornet.dhcp.option.v4.DhcpV4ConfigOptions;
+import com.jagornet.dhcp.model.option.v4.DhcpV4ConfigOptions;
 
 public interface DhcpV4OptionConfigObject extends DhcpConfigObject 
 {

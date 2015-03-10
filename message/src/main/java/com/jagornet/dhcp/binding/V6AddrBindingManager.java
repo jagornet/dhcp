@@ -40,7 +40,7 @@ import com.jagornet.dhcp.model.DhcpOption;
 import com.jagornet.dhcp.model.IaAddress;
 import com.jagornet.dhcp.model.IdentityAssoc;
 import com.jagornet.dhcp.message.DhcpMessage;
-import com.jagornet.dhcp.option.v6.DhcpV6ClientFqdnOption;
+import com.jagornet.dhcp.model.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcp.config.DhcpConfigObject;
 import com.jagornet.dhcp.config.DhcpLink;
 import com.jagornet.dhcp.exception.DhcpServerConfigException;
