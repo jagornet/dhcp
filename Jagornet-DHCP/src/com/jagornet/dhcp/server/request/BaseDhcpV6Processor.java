@@ -463,15 +463,14 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     public boolean preProcess()
     {
     	InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
-    	InetSocketAddress remoteSocketAddr = requestMsg.getRemoteAddress();
     	
         clientLink = dhcpServerConfig.findDhcpLink(
         		(Inet6Address)localSocketAddr.getAddress(),
-        		(Inet6Address)remoteSocketAddr.getAddress());
+        		(Inet6Address)clientLinkAddress);
         if (clientLink == null) {
         	log.error("No Link configured for DHCPv6 client request: " +
         			" localAddress=" + localSocketAddr.getAddress().getHostAddress() +
-        			" remoteAddress=" + remoteSocketAddr.getAddress().getHostAddress());
+        			" clientLinkAddress=" + clientLinkAddress.getHostAddress());
         	return false;	// must configure link for server to reply
         }
 

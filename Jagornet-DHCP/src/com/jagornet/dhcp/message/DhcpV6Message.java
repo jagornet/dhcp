@@ -291,7 +291,8 @@ public class DhcpV6Message implements DhcpMessage
             decodeMessageType(buf);
             if (buf.hasRemaining()) {
                 setTransactionId(DhcpTransactionId.decode(buf));
-                log.debug("TransactionId=" + transactionId);
+                if (log.isDebugEnabled())
+        			log.debug("TransactionId=" + transactionId);
                 if (buf.hasRemaining()) {
                     decodeOptions(buf);
                 }
@@ -349,7 +350,8 @@ public class DhcpV6Message implements DhcpMessage
     {
         while (buf.hasRemaining()) {
             int code = Util.getUnsignedShort(buf);
-            log.debug("Option code=" + code);
+            if (log.isDebugEnabled())
+    			log.debug("Option code=" + code);
             DhcpOption option = DhcpV6OptionFactory.getDhcpOption(code);
             if (option != null) {
             	if ((option instanceof DhcpV6RelayOption) &&

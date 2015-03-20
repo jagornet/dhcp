@@ -227,7 +227,6 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     public boolean preProcess()
     {        
     	InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
-    	InetSocketAddress remoteSocketAddr = requestMsg.getRemoteAddress();
     	
     	byte chAddr[] = requestMsg.getChAddr();
     	if ((chAddr == null) || (chAddr.length == 0) || isIgnoredMac(chAddr)) {
@@ -238,11 +237,11 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     	
         clientLink = dhcpServerConfig.findDhcpLink(
         		(Inet4Address)localSocketAddr.getAddress(),
-        		(Inet4Address)remoteSocketAddr.getAddress());
+        		(Inet4Address)clientLinkAddress);
         if (clientLink == null) {
         	log.error("No Link configured for DHCPv4 client request: " +
         			" localAddress=" + localSocketAddr.getAddress().getHostAddress() +
-        			" remoteAddress=" + remoteSocketAddr.getAddress().getHostAddress());
+        			" clientLinkAddress=" + clientLinkAddress.getHostAddress());
         	return false;	// must configure link for server to reply
         }
 

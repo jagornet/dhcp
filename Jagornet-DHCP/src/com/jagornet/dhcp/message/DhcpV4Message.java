@@ -210,10 +210,12 @@ public class DhcpV4Message implements DhcpMessage
 
         buf.put(encodeOptions());
     	int msglen = buf.position();
-    	log.debug("DHCPv4 Message is " + msglen + " bytes");
+        if (log.isDebugEnabled())
+            log.debug("DHCPv4 Message is " + msglen + " bytes");
         if (msglen < 300) {
         	int pad = 300 - msglen;
-        	log.debug("Padding with " + pad + " bytes to 300 byte (Bootp) minimum");
+            if (log.isDebugEnabled())
+                log.debug("Padding with " + pad + " bytes to 300 byte (Bootp) minimum");
         	buf.put(new byte[pad]);
         }
         buf.flip();
@@ -322,42 +324,54 @@ public class DhcpV4Message implements DhcpMessage
 	        		// TODO
 	        	}
         		htype = buf.get();
-        		log.debug("htype=" + htype);
+        		if (log.isDebugEnabled())
+        			log.debug("htype=" + htype);
       			hlen = buf.get();
       			log.debug("hlen=" + hlen);
       			hops = buf.get();
-      			log.debug("hops=" + hops);
+      			if (log.isDebugEnabled())
+        			log.debug("hops=" + hops);
       			transactionId = buf.getInt();
-      			log.debug("xid=" + transactionId);
+      			if (log.isDebugEnabled())
+        			log.debug("xid=" + transactionId);
       			secs = buf.getShort();
-      			log.debug("secs=" + secs);
+      			if (log.isDebugEnabled())
+        			log.debug("secs=" + secs);
       			flags = buf.getShort();
-      			log.debug("flags=" + flags);
+      			if (log.isDebugEnabled())
+        			log.debug("flags=" + flags);
       			byte[] ipbuf = new byte[4];
       			buf.get(ipbuf);
       			ciAddr = InetAddress.getByAddress(ipbuf);
-      			log.debug("ciaddr=" + ciAddr.getHostAddress());
+      			if (log.isDebugEnabled())
+        			log.debug("ciaddr=" + ciAddr.getHostAddress());
       			buf.get(ipbuf);
       			yiAddr = InetAddress.getByAddress(ipbuf);
-      			log.debug("yiaddr=" + yiAddr.getHostAddress());
+      			if (log.isDebugEnabled())
+        			log.debug("yiaddr=" + yiAddr.getHostAddress());
       			buf.get(ipbuf);
       			siAddr = InetAddress.getByAddress(ipbuf);
-      			log.debug("siaddr=" + siAddr.getHostAddress());
+      			if (log.isDebugEnabled())
+        			log.debug("siaddr=" + siAddr.getHostAddress());
       			buf.get(ipbuf);
       			giAddr = InetAddress.getByAddress(ipbuf);
-      			log.debug("giaddr=" + giAddr.getHostAddress());
+      			if (log.isDebugEnabled())
+        			log.debug("giaddr=" + giAddr.getHostAddress());
       			byte[] chbuf = new byte[16];
       			buf.get(chbuf);
       			chAddr = Arrays.copyOf(chbuf, hlen);	// hlen defines len of chAddr
-      			log.debug("chaddr=" + Util.toHexString(chAddr));
+      			if (log.isDebugEnabled())
+        			log.debug("chaddr=" + Util.toHexString(chAddr));
       			byte[] sbuf = new byte[64];
       			buf.get(sbuf);
       			sName = new String(sbuf);
-      			log.debug("sname=" + sName);
+      			if (log.isDebugEnabled())
+        			log.debug("sname=" + sName);
       			byte[] fbuf = new byte[128];
       			buf.get(fbuf);
       			file = new String(fbuf);
-      			log.debug("file=" + file);
+      			if (log.isDebugEnabled())
+        			log.debug("file=" + file);
       			byte[] cookieBuf = new byte[4];
       			buf.get(cookieBuf);
       			if (!Arrays.equals(cookieBuf, magicCookie)) {
@@ -395,7 +409,8 @@ public class DhcpV4Message implements DhcpMessage
     {
         while (buf.hasRemaining()) {
             short code = Util.getUnsignedByte(buf);
-            log.debug("Option code=" + code);
+            if (log.isDebugEnabled())
+    			log.debug("Option code=" + code);
             DhcpOption option = DhcpV4OptionFactory.getDhcpOption(code);
             if (option != null) {
                 option.decode(buf);

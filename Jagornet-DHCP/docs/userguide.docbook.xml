@@ -3,6 +3,10 @@
 <book>
   <bookinfo>
     <title>Jagornet DHCP Server User Guide - Community Edition v2.0.0</title>
+    <copyright>
+      <year>2014 </year>
+      <holder>Jagornet Technologies, LLC</holder>
+    </copyright>
     <author>
       <firstname>A. Gregory</firstname>
       <surname>Rabil</surname>
@@ -13,6 +17,11 @@
       </affiliation>
     </author>
     <pubdate>10/21/2014</pubdate>
+    <revhistory>
+      <revision>
+        <date>03/03/2015 - Correct shemaType and schemaVersion policy names.</date>
+      </revision>
+    </revhistory>
   </bookinfo>
   <chapter>
     <title>Introduction</title>
@@ -602,7 +611,7 @@ wrapper.app.parameter.7=eth1</synopsis>
             </row>
             <row>
               <entry>
-                <code>dhcp.database.schemaType</code>
+                <code>database.schemaType</code>
               </entry>
               <entry><code>jdbc</code>-derby</entry>
               <entry>The binding database schema type, which can be one of the following:<para><itemizedlist>
@@ -632,7 +641,7 @@ wrapper.app.parameter.7=eth1</synopsis>
             </row>
             <row>
               <entry valign="top">
-                <code>dhcp.database.schemaVersion</code>
+                <code>database.schemaVersion</code>
               </entry>
               <entry valign="top">
                 <code>2</code>

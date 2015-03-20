@@ -12,7 +12,7 @@
 	
 	<v4ServerIdOption>
 		<!--  DHCPv4 ServerID must be a local IP address -->
-		<ipAddress>192.168.1.138</ipAddress>
+		<ipAddress>192.168.0.4</ipAddress>
 	</v4ServerIdOption>
 
 	<policies>
@@ -61,7 +61,7 @@
 			<v6NaAddrPools>
 				<pool>
 					<!-- <range>2001:db8:1::/64</range>  -->
-					<range>2001:db8:1::1:0-2001:db8:0::1:9</range>
+					<range>2001:db8:1::1:0-2001:db8:1::1:9</range>
 				</pool>
 			</v6NaAddrPools>
 		</link>
