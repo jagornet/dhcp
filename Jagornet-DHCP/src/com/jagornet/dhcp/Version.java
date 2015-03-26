@@ -25,6 +25,8 @@
  */
 package com.jagornet.dhcp;
 
+import java.util.Calendar;
+
 /**
  * @author A. Gregory Rabil
  *
@@ -46,7 +48,9 @@ public class Version
 		sb.append(System.getProperty("line.separator"));
 		sb.append("Copyright ");
 		sb.append(pkg.getImplementationVendor());
-		sb.append(" 2009-2014.  All Rights Reserved.");
+		sb.append(" 2009-");
+		sb.append(Calendar.getInstance().get(Calendar.YEAR));
+		sb.append(".  All Rights Reserved.");
 		return sb.toString();
 	}
 }

@@ -1,3 +1,8 @@
+*************************************************
+** Moved project from Google Code to GitHub.   **
+** See GitHub project for issues after v2.0.0. **
+*************************************************
+
 Issues fixed in 2.0.0
 ---------------------
 "36","Defect","Duplicate","Medium","","","15 [New I/O datagram worker #1'-'1] ERROR TestClient - Exception caught: ","Priority-Medium, Type-Defect"
