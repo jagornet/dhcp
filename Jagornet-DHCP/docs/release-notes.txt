@@ -1,3 +1,14 @@
+Changes in 2.0.1
+----------------
+    - Fixes #4: update 'dhcpserver' bash script to include jagornet.dhcp.home system variable
+    - Update Version class to 2.0.1 and runtime copyright date
+    - Update User Guide docs to 2.0.1
+    - Update release notes to "see GitHub issues"
+    - Performance: Add if-debug checks for frequent log messages.
+    - Fixes #2: UserGuide - Correct shemaType and schemaVersion policy names.
+    - Fixes #3: DHCPv4 - Fix relayed request handling for client link.
+
+
 *************************************************
 ** Moved project from Google Code to GitHub.   **
 ** See GitHub project for issues after v2.0.0. **
