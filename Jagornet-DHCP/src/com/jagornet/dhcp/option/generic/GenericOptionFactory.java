@@ -251,7 +251,12 @@ public class GenericOptionFactory
 							continue;
 						}
 					}
-										
+
+					if(optMap.get(code) instanceof BaseDhcpOption) {
+						if (optionDefType.isSetV4()) {
+							((BaseDhcpOption) optMap.get(code)).setV4(true);
+						}
+					}
 				}
 			}
 		}
