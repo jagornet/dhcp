@@ -32,6 +32,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.option.base.DhcpOption;
 import com.jagornet.dhcp.xml.DomainNameListOptionType;
 import com.jagornet.dhcp.xml.DomainNameOptionType;
@@ -251,7 +252,12 @@ public class GenericOptionFactory
 							continue;
 						}
 					}
-										
+
+					if(optMap.get(code) instanceof BaseDhcpOption) {
+						if (optionDefType.isSetV4()) {
+							((BaseDhcpOption) optMap.get(code)).setV4(true);
+						}
+					}
 				}
 			}
 		}
