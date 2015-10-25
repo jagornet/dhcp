@@ -53,7 +53,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testSolicitAndRequestAndRenew() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
@@ -99,7 +99,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testRenewNoBinding() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RENEW);
 		DhcpV6ServerIdOption dhcpServerId = 
 			new DhcpV6ServerIdOption(config.getDhcpServerConfig().getV6ServerIdOption());
@@ -124,7 +124,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testZeroLifetimes() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 

@@ -38,6 +38,8 @@ import com.jagornet.dhcp.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcp.option.v6.DhcpV6DomainSearchListOption;
 import com.jagornet.dhcp.option.v6.DhcpV6IaAddrOption;
 import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcp.option.v6.DhcpV6IaPdOption;
+import com.jagornet.dhcp.option.v6.DhcpV6IaPrefixOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.option.v6.DhcpV6SipServerAddressesOption;
 import com.jagornet.dhcp.option.v6.DhcpV6StatusCodeOption;
@@ -98,9 +100,9 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 	 * 
 	 * @return the dhcp message
 	 */
-	protected DhcpV6Message buildRequestMessage(InetAddress linkAddress)
+	protected DhcpV6Message buildNaRequestMessage(InetAddress linkAddress)
 	{
-		return buildRequestMessage(linkAddress, null);
+		return buildNaRequestMessage(linkAddress, null);
 	}
 	
 	/**
@@ -111,7 +113,7 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 	 * 
 	 * @return the dhcp message
 	 */
-	protected DhcpV6Message buildRequestMessage(InetAddress linkAddress, String requestedAddr)
+	protected DhcpV6Message buildNaRequestMessage(InetAddress linkAddress, String requestedAddr)
 	{
 		InetSocketAddress remoteSocketAddr = 
 			new InetSocketAddress(linkAddress, DhcpConstants.V6_CLIENT_PORT);
@@ -130,6 +132,45 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 			dhcpIaNa.getIaAddrOptions().add(dhcpIaAddr);
 		}
 		requestMsg.addIaNaOption(dhcpIaNa);
+		return requestMsg;
+	}
+	
+	protected DhcpV6Message buildNaPdRequestMessage(InetAddress linkAddress)
+	{
+		return buildNaPdRequestMessage(linkAddress, null, null, 64);
+	}
+
+	protected DhcpV6Message buildNaPdRequestMessage(InetAddress linkAddress, String requestedAddr,
+												String requestedPrefix, int prefixLen)
+	{
+		InetSocketAddress remoteSocketAddr = 
+			new InetSocketAddress(linkAddress, DhcpConstants.V6_CLIENT_PORT);
+		InetSocketAddress localSocketAddr = 
+			new InetSocketAddress(DhcpConstants.LOCALHOST_V6, DhcpConstants.V6_SERVER_PORT);
+		
+		DhcpV6Message requestMsg = new DhcpV6Message(localSocketAddr, remoteSocketAddr);
+		requestMsg.putDhcpOption(clientIdOption);
+		DhcpV6IaNaOption dhcpIaNa = new DhcpV6IaNaOption();
+		dhcpIaNa.setIaId(1);
+		dhcpIaNa.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
+		dhcpIaNa.setT2(0);
+		if (requestedAddr != null) {
+			DhcpV6IaAddrOption dhcpIaAddr = new DhcpV6IaAddrOption();
+			dhcpIaAddr.setIpAddress(requestedAddr);
+			dhcpIaNa.getIaAddrOptions().add(dhcpIaAddr);
+		}
+		requestMsg.addIaNaOption(dhcpIaNa);
+		DhcpV6IaPdOption dhcpIaPd = new DhcpV6IaPdOption();
+		dhcpIaPd.setIaId(1);
+		dhcpIaPd.setT1(0);	// client SHOULD set to zero RFC3315 - 18.1.2
+		dhcpIaPd.setT2(0);
+		if (requestedPrefix != null) {
+			DhcpV6IaPrefixOption dhcpIaPrefix = new DhcpV6IaPrefixOption();
+			dhcpIaPrefix.setIpAddress(requestedPrefix);
+			dhcpIaPrefix.setPrefixLength((short)prefixLen);
+			dhcpIaPd.getIaPrefixOptions().add(dhcpIaPrefix);
+		}
+		requestMsg.addIaPdOption(dhcpIaPd);
 		return requestMsg;
 	}
 	
@@ -169,7 +210,14 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 	protected void checkReply(DhcpV6Message replyMsg,
 			InetAddress poolStart, InetAddress poolEnd) throws Exception
 	{
-		checkReply(replyMsg, poolStart, poolEnd, 3600);
+		checkReply(replyMsg, poolStart, poolEnd, 3600, null, (short)0);
+	}
+	
+	protected void checkReply(DhcpV6Message replyMsg,
+			InetAddress poolStart, InetAddress poolEnd,
+			InetAddress prefixAddr, short prefixLength) throws Exception
+	{
+		checkReply(replyMsg, poolStart, poolEnd, 3600, prefixAddr, prefixLength);
 	}
 	
 	/**
@@ -183,7 +231,8 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 	 * @throws Exception the exception
 	 */
 	protected void checkReply(DhcpV6Message replyMsg,
-			InetAddress poolStart, InetAddress poolEnd, long lifetime) throws Exception
+			InetAddress poolStart, InetAddress poolEnd, long lifetime,
+			InetAddress prefixAddr, short prefixLength) throws Exception
 	{
 		Collection<DhcpOption> dhcpOptions = replyMsg.getDhcpOptions();
 		assertNotNull(dhcpOptions);
@@ -231,6 +280,21 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 		_dnsServersOption = 
 			(DhcpV6DnsServersOption) optMap.get(DhcpConstants.V6OPTION_DNS_SERVERS);
 		assertNotNull(_dnsServersOption);
+		
+		if (prefixAddr != null) {			
+			DhcpV6IaPdOption _iaPdOption = replyMsg.getIaPdOptions().get(0);
+			assertNotNull(_iaPdOption);
+
+			DhcpV6IaPrefixOption _iaPrefixOption = _iaPdOption.getIaPrefixOptions().get(0);
+			assertNotNull(_iaPrefixOption);
+			assertNotNull(_iaPrefixOption.getInetAddress());
+			// TODO: this assertTrue is a hack to allow the "next" prefix when this test is
+			//		 run as part of the AllTestsRequest suite
+			assertTrue(Util.compareInetAddrs(prefixAddr, _iaPrefixOption.getInetAddress()) <= 0);
+			assertEquals(prefixLength, _iaPrefixOption.getPrefixLength());
+			assertEquals(lifetime, _iaPrefixOption.getPreferredLifetime());
+			assertEquals(lifetime, _iaPrefixOption.getValidLifetime());
+		}
 	}	
 
 	/**

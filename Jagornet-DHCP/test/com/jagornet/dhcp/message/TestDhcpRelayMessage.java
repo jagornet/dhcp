@@ -45,14 +45,14 @@ public class TestDhcpRelayMessage extends TestCase
 		new InetSocketAddress("::1", DhcpConstants.V6_SERVER_PORT);
     // the relay closest to the client
     public static InetSocketAddress RELAY1_CLIENTSIDE_ADDR =
-        new InetSocketAddress("2001:DB8::1", DhcpConstants.V6_SERVER_PORT);
-    public static InetSocketAddress RELAY1_ADDR =
         new InetSocketAddress("2001:DB8:1::1", DhcpConstants.V6_SERVER_PORT);
+    public static InetSocketAddress RELAY1_ADDR =
+        new InetSocketAddress("2001:DB8:2::1", DhcpConstants.V6_SERVER_PORT);
     // when used, the relay closest to the server
     public static InetSocketAddress RELAY2_RELAY1SIDE_ADDR =
-        new InetSocketAddress("2001:DB8:1::2", DhcpConstants.V6_SERVER_PORT);
+        new InetSocketAddress("2001:DB8:2::2", DhcpConstants.V6_SERVER_PORT);
     public static InetSocketAddress RELAY2_ADDR =
-        new InetSocketAddress("2001:DB8:2::1", DhcpConstants.V6_SERVER_PORT);
+        new InetSocketAddress("2001:DB8:3::1", DhcpConstants.V6_SERVER_PORT);
     
     public static DhcpV6RelayMessage buildMockDhcpRelayMessage() throws Exception
     {

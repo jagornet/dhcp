@@ -77,6 +77,12 @@
 					</addrConfigOptions>
 				</pool>
 			</v6NaAddrPools>
+			<v6PrefixPools>
+				<pool>
+					<range>2001:DB8:1:4000::/50</range>
+					<prefixLength>56</prefixLength>
+				</pool>
+			</v6PrefixPools>
 			<linkFilters>
 			  	<linkFilter>
 					<name>Support Reconfigure</name>

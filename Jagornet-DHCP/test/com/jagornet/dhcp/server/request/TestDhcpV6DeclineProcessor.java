@@ -46,7 +46,7 @@ public class TestDhcpV6DeclineProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testSolicitAndRequestAndDecline() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
@@ -90,7 +90,7 @@ public class TestDhcpV6DeclineProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testDeclineNoBinding() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_DECLINE);
 		DhcpV6ServerIdOption dhcpServerId = 
 			new DhcpV6ServerIdOption(config.getDhcpServerConfig().getV6ServerIdOption());
