@@ -624,7 +624,7 @@ public class DhcpV6Message implements DhcpMessage
 	
 	public String toString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(DhcpConstants.getV6MessageString(getMessageType()));
         sb.append(" (xactId=");
         sb.append(getTransactionId());
@@ -641,7 +641,7 @@ public class DhcpV6Message implements DhcpMessage
     
     public String toStringWithOptions()
     {
-        StringBuffer sb = new StringBuffer(this.toString());
+        StringBuilder sb = new StringBuilder(this.toString());
         if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
             sb.append(Util.LINE_SEPARATOR);
         	sb.append("MSG_DHCPOPTIONS");

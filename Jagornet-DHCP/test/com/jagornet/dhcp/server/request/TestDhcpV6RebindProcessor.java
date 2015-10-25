@@ -55,7 +55,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testSolicitAndRequestAndRebind() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
@@ -106,7 +106,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		// set the default server policy
 		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "false");
 		
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REBIND);
 		
 		DhcpV6RebindProcessor processor =
@@ -127,7 +127,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 		// set the default server policy
 		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "true");
 
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REBIND);
 		DhcpV6IaAddrOption dhcpIaAddr = new DhcpV6IaAddrOption();
 		dhcpIaAddr.setIpAddress("2001:DB8:2::1");
@@ -172,7 +172,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testZeroLifetimes() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 

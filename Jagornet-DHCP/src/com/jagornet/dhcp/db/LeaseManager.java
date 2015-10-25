@@ -291,14 +291,26 @@ public abstract class LeaseManager implements IaManager {
 			ia.setIaid(lease.getIaid());
 			ia.setState(lease.getState());
 			ia.setDhcpOptions(lease.getIaDhcpOptions());
-			List<IaAddress> iaAddrs = new ArrayList<IaAddress>();
-			iaAddrs.add(toIaAddress(lease));
-			while (leaseIter.hasNext()) {
-				//TODO: should confirm that the duid/iatype/iaid/state still match
-				lease = leaseIter.next();
-				iaAddrs.add(toIaAddress(lease));
+			if (lease.getIatype() == IdentityAssoc.PD_TYPE) {
+				List<IaPrefix> iaPrefixes = new ArrayList<IaPrefix>();
+				iaPrefixes.add(toIaPrefix(lease));
+				while (leaseIter.hasNext()) {
+					//TODO: should confirm that the duid/iatype/iaid/state still match
+					lease = leaseIter.next();
+					iaPrefixes.add(toIaPrefix(lease));
+				}
+				ia.setIaAddresses(iaPrefixes);
 			}
-			ia.setIaAddresses(iaAddrs);
+			else {
+				List<IaAddress> iaAddrs = new ArrayList<IaAddress>();
+				iaAddrs.add(toIaAddress(lease));
+				while (leaseIter.hasNext()) {
+					//TODO: should confirm that the duid/iatype/iaid/state still match
+					lease = leaseIter.next();
+					iaAddrs.add(toIaAddress(lease));
+				}
+				ia.setIaAddresses(iaAddrs);
+			}
 		}
 		return ia;
 	}
@@ -420,6 +432,9 @@ public abstract class LeaseManager implements IaManager {
 		lease.setIaid(ia.getIaid());
 		lease.setIatype(ia.getIatype());
 		lease.setIpAddress(iaAddr.getIpAddress());
+		if (iaAddr instanceof IaPrefix) {
+			lease.setPrefixLength(((IaPrefix)iaAddr).getPrefixLength());
+		}
 		lease.setState(iaAddr.getState());
 		lease.setStartTime(iaAddr.getStartTime());
 		lease.setPreferredEndTime(iaAddr.getPreferredEndTime());

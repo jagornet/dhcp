@@ -83,19 +83,28 @@ public class BaseTestCase extends TestCase
 				DhcpServerPolicies.setProperty(Property.DATABASE_SCHEMA_TYTPE, schemaType);
 				DhcpServerPolicies.setProperty(Property.DATABASE_SCHEMA_VERSION, Integer.toString(schemaVersion));		
 				if (schemaType.contains("derby")) {
-					// start with a fresh database
-					System.out.println("Cleaning db/derby...");
-					FileUtils.cleanDirectory(new File("db/derby"));
+					File dbDerby = new File("db/derby");
+					if (dbDerby.exists() && dbDerby.isDirectory()) {
+						// start with a fresh database
+						System.out.println("Cleaning " + dbDerby + "...");
+						FileUtils.cleanDirectory(dbDerby);
+					}
 				}
 				else if (schemaType.contains("h2")) {
-					// start with a fresh database
-					System.out.println("Cleaning db/h2...");
-					FileUtils.cleanDirectory(new File("db/h2"));
+					File dbH2 = new File("db/h2");
+					if (dbH2.exists() && dbH2.isDirectory()) {
+						// start with a fresh database
+						System.out.println("Cleaning " + dbH2 + "...");
+						FileUtils.cleanDirectory(dbH2);
+					}
 				}
 				else if (schemaType.contains("sqlite")) {
-					// start with a fresh database
-					System.out.println("Cleaning db/sqlite...");
-					FileUtils.cleanDirectory(new File("db/sqlite"));
+					File dbSqlite = new File("db/sqlite");
+					if (dbSqlite.exists() && dbSqlite.isDirectory()) {
+						// start with a fresh database
+						System.out.println("Cleaning " + dbSqlite + "...");
+						FileUtils.cleanDirectory(dbSqlite);
+					}
 				}
 				String[] appContext = JagornetDhcpServer.getAppContextFiles(schemaType, schemaVersion);
 

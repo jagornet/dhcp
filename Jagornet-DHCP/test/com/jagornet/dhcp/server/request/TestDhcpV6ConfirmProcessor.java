@@ -45,7 +45,7 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testSolicitAndRequestAndConfirm() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
@@ -93,7 +93,7 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testRequestNotOnLink() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
 
 		DhcpV6SolicitProcessor sProc = 
@@ -143,7 +143,7 @@ public class TestDhcpV6ConfirmProcessor extends BaseTestDhcpV6Processor
 	 */
 	public void testConfirmNoAddrs() throws Exception
 	{
-		DhcpV6Message requestMsg = buildRequestMessage(firstPoolAddr);
+		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_CONFIRM);
 		// null out the ServerId option for a confirm
 		requestMsg.getDhcpOptionMap().remove(DhcpConstants.V6OPTION_SERVERID);
