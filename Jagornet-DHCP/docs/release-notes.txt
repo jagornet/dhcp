@@ -1,3 +1,9 @@
+Changes in 2.0.2
+----------------
+    - Update version and docs to 2.0.2 
+    - Fixes #7: Fix loading of IA_PD from DhcpLease database
+    - Merge pull request #5: Set v4 attribute for generic options
+
 Changes in 2.0.1
 ----------------
     - Fixes #4: update 'dhcpserver' bash script to include jagornet.dhcp.home system variable
