@@ -2,7 +2,7 @@
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
 <book>
   <bookinfo>
-    <title>Jagornet DHCP Server User Guide - Community Edition v2.0.1</title>
+    <title>Jagornet DHCP Server User Guide - Community Edition v2.0.2</title>
     <copyright>
       <year>2015</year>
       <holder>Jagornet Technologies, LLC</holder>
@@ -16,7 +16,7 @@
         </orgname>
       </affiliation>
     </author>
-    <pubdate>03/23/2015</pubdate>
+    <pubdate>10/25/2015</pubdate>
   </bookinfo>
   <chapter>
     <title>Introduction</title>
@@ -199,7 +199,7 @@
         <para>The main Java class of the Jagornet DHCP Server supports the
         following usage:</para>
         <para><synopsis>usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
-Jagornet DHCP Server Community Edition 2.0.1
+Jagornet DHCP Server Community Edition 2.0.2
 Copyright Jagornet Technologies, LLC 2009-2015.  All Rights Reserved.  
 -4b,--v4bcast &lt;interface&gt;         DHCPv4 broadcast support (default = none).
                                     Use this option to specify the interface for

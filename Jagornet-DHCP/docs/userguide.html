@@ -1,14 +1,14 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Jagornet DHCP Server User Guide - Community Edition v2.0.1</title>
+<title>Jagornet DHCP Server User Guide - Community Edition v2.0.2</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.68.1">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="book" lang="en">
 <div class="titlepage">
 <div>
 <div><h1 class="title">
-<a name="id53377"></a>Jagornet DHCP Server User Guide - Community Edition v2.0.1</h1></div>
+<a name="id1026041"></a>Jagornet DHCP Server User Guide - Community Edition v2.0.2</h1></div>
 <div><div class="author">
 <h3 class="author">
 <span class="firstname">A. Gregory</span> <span class="surname">Rabil</span>
@@ -18,101 +18,101 @@
         <br></span></div>
 </div></div>
 <div><p class="copyright">Copyright © 2015 Jagornet Technologies, LLC</p></div>
-<div><p class="pubdate">03/23/2015</p></div>
+<div><p class="pubdate">10/25/2015</p></div>
 </div>
 <hr>
 </div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="chapter"><a href="#id869565">1. Introduction</a></span></dt>
+<dt><span class="chapter"><a href="#id1026089">1. Introduction</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id869571">Welcome</a></span></dt>
-<dt><span class="section"><a href="#id869606">Features</a></span></dt>
+<dt><span class="section"><a href="#id1026094">Welcome</a></span></dt>
+<dt><span class="section"><a href="#id1026130">Features</a></span></dt>
 </dl></dd>
-<dt><span class="chapter"><a href="#id869781">2. Getting Started</a></span></dt>
+<dt><span class="chapter"><a href="#id1026307">2. Getting Started</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id869786">System requirements</a></span></dt>
-<dt><span class="section"><a href="#id869801">Installation</a></span></dt>
-<dt><span class="section"><a href="#id869997">Running the Server</a></span></dt>
+<dt><span class="section"><a href="#id1026312">System requirements</a></span></dt>
+<dt><span class="section"><a href="#id1026327">Installation</a></span></dt>
+<dt><span class="section"><a href="#id1026525">Running the Server</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id870037">Startup Options</a></span></dt>
-<dt><span class="section"><a href="#id870072">Linux/Unix/Mac</a></span></dt>
-<dt><span class="section"><a href="#id870319">Windows</a></span></dt>
-</dl></dd>
-</dl></dd>
-<dt><span class="chapter"><a href="#id870692">3. Configuration</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id870703">Hierarchy</a></span></dt>
-<dt><span class="section"><a href="#id870856">Server Policies</a></span></dt>
-<dt><span class="section"><a href="#id873434">DHCP Options</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id873456">DHCPv6 Server Identifier Option</a></span></dt>
-<dt><span class="section"><a href="#id856753">DHCPv4 Server Identifier Option</a></span></dt>
-<dt><span class="section"><a href="#id856659">Configuration Options</a></span></dt>
-<dt><span class="section"><a href="#id875266">Generic Options</a></span></dt>
-</dl></dd>
-<dt><span class="section"><a href="#id875668">Filters</a></span></dt>
-<dd><dl><dt><span class="section"><a href="#id875677">Filter Expressions</a></span></dt></dl></dd>
-<dt><span class="section"><a href="#id876581">Links</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id876589">DHCPv6 Links</a></span></dt>
-<dt><span class="section"><a href="#id876649">DHCPv4 Links</a></span></dt>
-</dl></dd>
-<dt><span class="section"><a href="#id876676">Pools</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id876736">Address Pools</a></span></dt>
-<dt><span class="section"><a href="#id876764">Prefix Pools</a></span></dt>
-<dt><span class="section"><a href="#id876762">DHCPv4 Pools</a></span></dt>
-</dl></dd>
-<dt><span class="section"><a href="#id876821">Static Bindings</a></span></dt>
-<dd><dl>
-<dt><span class="section"><a href="#id876884">Address Bindings</a></span></dt>
-<dt><span class="section"><a href="#id876928">Prefix Bindings</a></span></dt>
-<dt><span class="section"><a href="#id876961">DHCPv4 Bindings</a></span></dt>
+<dt><span class="section"><a href="#id1026564">Startup Options</a></span></dt>
+<dt><span class="section"><a href="#id1026600">Linux/Unix/Mac</a></span></dt>
+<dt><span class="section"><a href="#id1026846">Windows</a></span></dt>
 </dl></dd>
 </dl></dd>
-<dt><span class="chapter"><a href="#id876996">4. DHCPv6 Operational Models</a></span></dt>
+<dt><span class="chapter"><a href="#id1027219">3. Configuration</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id877169">Operational model using a DHCPv6 Relay Agent</a></span></dt>
-<dt><span class="section"><a href="#id877258">Operational model without a DHCPv6 Relay Agent</a></span></dt>
+<dt><span class="section"><a href="#id1027230">Hierarchy</a></span></dt>
+<dt><span class="section"><a href="#id1027383">Server Policies</a></span></dt>
+<dt><span class="section"><a href="#id1029962">DHCP Options</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id1029983">DHCPv6 Server Identifier Option</a></span></dt>
+<dt><span class="section"><a href="#id1030080">DHCPv4 Server Identifier Option</a></span></dt>
+<dt><span class="section"><a href="#id1030174">Configuration Options</a></span></dt>
+<dt><span class="section"><a href="#id1031793">Generic Options</a></span></dt>
 </dl></dd>
-<dt><span class="appendix"><a href="#id877335">A. Binding Database</a></span></dt>
-<dt><span class="appendix"><a href="#id877501">B. Logging</a></span></dt>
-<dt><span class="appendix"><a href="#id877557">C. Java Management Extensions (JMX)</a></span></dt>
-<dt><span class="appendix"><a href="#id877586">D. DHCPv4 Limitation</a></span></dt>
+<dt><span class="section"><a href="#id1032195">Filters</a></span></dt>
+<dd><dl><dt><span class="section"><a href="#id1032204">Filter Expressions</a></span></dt></dl></dd>
+<dt><span class="section"><a href="#id1033108">Links</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id1033116">DHCPv6 Links</a></span></dt>
+<dt><span class="section"><a href="#id1033175">DHCPv4 Links</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="#id1033202">Pools</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id1033263">Address Pools</a></span></dt>
+<dt><span class="section"><a href="#id1033291">Prefix Pools</a></span></dt>
+<dt><span class="section"><a href="#id1033289">DHCPv4 Pools</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="#id1033347">Static Bindings</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id1033410">Address Bindings</a></span></dt>
+<dt><span class="section"><a href="#id1033455">Prefix Bindings</a></span></dt>
+<dt><span class="section"><a href="#id1033488">DHCPv4 Bindings</a></span></dt>
+</dl></dd>
+</dl></dd>
+<dt><span class="chapter"><a href="#id1033522">4. DHCPv6 Operational Models</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="#id1033696">Operational model using a DHCPv6 Relay Agent</a></span></dt>
+<dt><span class="section"><a href="#id1033785">Operational model without a DHCPv6 Relay Agent</a></span></dt>
+</dl></dd>
+<dt><span class="appendix"><a href="#id1033862">A. Binding Database</a></span></dt>
+<dt><span class="appendix"><a href="#id1034028">B. Logging</a></span></dt>
+<dt><span class="appendix"><a href="#id1034083">C. Java Management Extensions (JMX)</a></span></dt>
+<dt><span class="appendix"><a href="#id1034113">D. DHCPv4 Limitation</a></span></dt>
 </dl>
 </div>
 <div class="list-of-tables">
 <p><b>List of Tables</b></p>
 <dl>
-<dt>3.1. <a href="#id870889">Policies</a>
+<dt>3.1. <a href="#id1027417">Policies</a>
 </dt>
-<dt>3.2. <a href="#id856572">DHCPv6 Configuration Options</a>
+<dt>3.2. <a href="#id1030261">DHCPv6 Configuration Options</a>
 </dt>
-<dt>3.3. <a href="#id874816">DHCPv4 Configuration Options</a>
+<dt>3.3. <a href="#id1013759">DHCPv4 Configuration Options</a>
 </dt>
-<dt>3.4. <a href="#id875303">Generic Option Definitions</a>
+<dt>3.4. <a href="#id1031830">Generic Option Definitions</a>
 </dt>
-<dt>3.5. <a href="#id875816">Filter Option Expressions</a>
+<dt>3.5. <a href="#id1032342">Filter Option Expressions</a>
 </dt>
-<dt>4.1. <a href="#id877047">DHCPv6 Operational Models</a>
+<dt>4.1. <a href="#id1033573">DHCPv6 Operational Models</a>
 </dt>
 </dl>
 </div>
 <div class="chapter" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id869565"></a>Chapter 1. Introduction</h2></div></div></div>
+<a name="id1026089"></a>Chapter 1. Introduction</h2></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="#id869571">Welcome</a></span></dt>
-<dt><span class="section"><a href="#id869606">Features</a></span></dt>
+<dt><span class="section"><a href="#id1026094">Welcome</a></span></dt>
+<dt><span class="section"><a href="#id1026130">Features</a></span></dt>
 </dl>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id869571"></a>Welcome</h2></div></div></div>
+<a name="id1026094"></a>Welcome</h2></div></div></div>
 <p>Welcome to Jagornet DHCP Server Community Edition Version 2.0.0. Please visit these links for the latest news and information on
       Jagornet DHCP Server.</p>
 <div class="itemizedlist"><ul type="disc">
@@ -123,7 +123,7 @@
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id869606"></a>Features</h2></div></div></div>
+<a name="id1026130"></a>Features</h2></div></div></div>
 <p>Jagornet DHCP Server is an open source Dynamic Host
       Configuration Protocol server for IPv6 (DHCPv6) and IPv4 (DHCPv4)
       implemented in Java. The server supports the following features:</p>
@@ -160,23 +160,23 @@
 </div>
 <div class="chapter" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id869781"></a>Chapter 2. Getting Started</h2></div></div></div>
+<a name="id1026307"></a>Chapter 2. Getting Started</h2></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="#id869786">System requirements</a></span></dt>
-<dt><span class="section"><a href="#id869801">Installation</a></span></dt>
-<dt><span class="section"><a href="#id869997">Running the Server</a></span></dt>
+<dt><span class="section"><a href="#id1026312">System requirements</a></span></dt>
+<dt><span class="section"><a href="#id1026327">Installation</a></span></dt>
+<dt><span class="section"><a href="#id1026525">Running the Server</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id870037">Startup Options</a></span></dt>
-<dt><span class="section"><a href="#id870072">Linux/Unix/Mac</a></span></dt>
-<dt><span class="section"><a href="#id870319">Windows</a></span></dt>
+<dt><span class="section"><a href="#id1026564">Startup Options</a></span></dt>
+<dt><span class="section"><a href="#id1026600">Linux/Unix/Mac</a></span></dt>
+<dt><span class="section"><a href="#id1026846">Windows</a></span></dt>
 </dl></dd>
 </dl>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id869786"></a>System requirements</h2></div></div></div>
+<a name="id1026312"></a>System requirements</h2></div></div></div>
 <p>Jagornet DHCP Server requires any platform with a certified Java
       6 runtime environment.</p>
 <p>The server has been successfully tested on multiple flavors of
@@ -188,7 +188,7 @@
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id869801"></a>Installation</h2></div></div></div>
+<a name="id1026327"></a>Installation</h2></div></div></div>
 <p>Java 6 runtime must be available on the host where the Jagornet
       DHCP server will be installed. The JAVA_HOME environment variable
       should be set to the home directory of your Java 6 JRE.</p>
@@ -240,7 +240,7 @@
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id869997"></a>Running the Server</h2></div></div></div>
+<a name="id1026525"></a>Running the Server</h2></div></div></div>
 <a name="running_server"></a><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Note</h3>
 <p>To start the Jagornet DHCP Server, you must have superuser or
@@ -254,11 +254,11 @@
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id870037"></a>Startup Options</h3></div></div></div>
+<a name="id1026564"></a>Startup Options</h3></div></div></div>
 <a name="startup_options"></a><p>The main Java class of the Jagornet DHCP Server supports the
         following usage:</p>
 <pre class="synopsis">usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
-Jagornet DHCP Server Community Edition 2.0.1
+Jagornet DHCP Server Community Edition 2.0.2
 Copyright Jagornet Technologies, LLC 2009-2015.  All Rights Reserved.  
 -4b,--v4bcast &lt;interface&gt;         DHCPv4 broadcast support (default = none).
                                     Use this option to specify the interface for
@@ -310,7 +310,7 @@ Copyright Jagornet Technologies, LLC 2009-2015.  All Rights Reserved.
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id870072"></a>Linux/Unix/Mac</h3></div></div></div>
+<a name="id1026600"></a>Linux/Unix/Mac</h3></div></div></div>
 <p>The $JAGORNET_DHCP_HOME/bin/dhcpserver script can be used to operate the
         server from a command shell. This script supports the following
         options:</p>
@@ -370,10 +370,10 @@ Copyright Jagornet Technologies, LLC 2009-2015.  All Rights Reserved.
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id870319"></a>Windows</h3></div></div></div>
+<a name="id1026846"></a>Windows</h3></div></div></div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id870324"></a>Windows Service</h4></div></div></div>
+<a name="id1026852"></a>Windows Service</h4></div></div></div>
 <p>Jagornet DHCP Server can operate as a Microsoft Windows
           Service courtesy of <a href="http://yajsw.sourceforge.net/" target="_top">Yet Another Java Service Wrapper (YAJSW)</a>. Startup options
           <span class="emphasis"><em>must</em></span> be provided in
@@ -442,7 +442,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id870518"></a>Command Shell</h4></div></div></div>
+<a name="id1027046"></a>Command Shell</h4></div></div></div>
 <p>As an alternative to running Jagornet DHCP Server as a
           Windows Service, the <code class="code">JAGORNET_DHCP_HOME%\bin\dhcpserver.bat</code> batch
           file can be used to operate the server from a command shell. Provide
@@ -490,43 +490,43 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="chapter" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id870692"></a>Chapter 3. Configuration</h2></div></div></div>
+<a name="id1027219"></a>Chapter 3. Configuration</h2></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="#id870703">Hierarchy</a></span></dt>
-<dt><span class="section"><a href="#id870856">Server Policies</a></span></dt>
-<dt><span class="section"><a href="#id873434">DHCP Options</a></span></dt>
+<dt><span class="section"><a href="#id1027230">Hierarchy</a></span></dt>
+<dt><span class="section"><a href="#id1027383">Server Policies</a></span></dt>
+<dt><span class="section"><a href="#id1029962">DHCP Options</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id873456">DHCPv6 Server Identifier Option</a></span></dt>
-<dt><span class="section"><a href="#id856753">DHCPv4 Server Identifier Option</a></span></dt>
-<dt><span class="section"><a href="#id856659">Configuration Options</a></span></dt>
-<dt><span class="section"><a href="#id875266">Generic Options</a></span></dt>
+<dt><span class="section"><a href="#id1029983">DHCPv6 Server Identifier Option</a></span></dt>
+<dt><span class="section"><a href="#id1030080">DHCPv4 Server Identifier Option</a></span></dt>
+<dt><span class="section"><a href="#id1030174">Configuration Options</a></span></dt>
+<dt><span class="section"><a href="#id1031793">Generic Options</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="#id875668">Filters</a></span></dt>
-<dd><dl><dt><span class="section"><a href="#id875677">Filter Expressions</a></span></dt></dl></dd>
-<dt><span class="section"><a href="#id876581">Links</a></span></dt>
+<dt><span class="section"><a href="#id1032195">Filters</a></span></dt>
+<dd><dl><dt><span class="section"><a href="#id1032204">Filter Expressions</a></span></dt></dl></dd>
+<dt><span class="section"><a href="#id1033108">Links</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id876589">DHCPv6 Links</a></span></dt>
-<dt><span class="section"><a href="#id876649">DHCPv4 Links</a></span></dt>
+<dt><span class="section"><a href="#id1033116">DHCPv6 Links</a></span></dt>
+<dt><span class="section"><a href="#id1033175">DHCPv4 Links</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="#id876676">Pools</a></span></dt>
+<dt><span class="section"><a href="#id1033202">Pools</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id876736">Address Pools</a></span></dt>
-<dt><span class="section"><a href="#id876764">Prefix Pools</a></span></dt>
-<dt><span class="section"><a href="#id876762">DHCPv4 Pools</a></span></dt>
+<dt><span class="section"><a href="#id1033263">Address Pools</a></span></dt>
+<dt><span class="section"><a href="#id1033291">Prefix Pools</a></span></dt>
+<dt><span class="section"><a href="#id1033289">DHCPv4 Pools</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="#id876821">Static Bindings</a></span></dt>
+<dt><span class="section"><a href="#id1033347">Static Bindings</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="#id876884">Address Bindings</a></span></dt>
-<dt><span class="section"><a href="#id876928">Prefix Bindings</a></span></dt>
-<dt><span class="section"><a href="#id876961">DHCPv4 Bindings</a></span></dt>
+<dt><span class="section"><a href="#id1033410">Address Bindings</a></span></dt>
+<dt><span class="section"><a href="#id1033455">Prefix Bindings</a></span></dt>
+<dt><span class="section"><a href="#id1033488">DHCPv4 Bindings</a></span></dt>
 </dl></dd>
 </dl>
 </div>
 <a name="config"></a><div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id870703"></a>Hierarchy</h2></div></div></div>
+<a name="id1027230"></a>Hierarchy</h2></div></div></div>
 <p>The Jagornet DHCP server is configured via the
       <code class="code">conf/dhcpserver.xml</code> XML document. See the <a href="#startup_options">Startup Options</a> to change the name and
       location of the configuration file. The XML schema which defines all
@@ -575,7 +575,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id870856"></a>Server Policies</h2></div></div></div>
+<a name="id1027383"></a>Server Policies</h2></div></div></div>
 <p>Server polices are configured using the <code class="code">polices</code>
       element. Each <code class="code">policy</code> is specified with <code class="code">name</code>
       and <code class="code">value</code> elements. For example:</p>
@@ -593,7 +593,7 @@ wrapper.app.parameter.7=eth1</pre>
       are supported at 'all' levels, the lower level policy overrides the
       value of any matching higher level policy.</p>
 <div class="table">
-<a name="id870889"></a><p class="title"><b>Table 3.1. Policies</b></p>
+<a name="id1027417"></a><p class="title"><b>Table 3.1. Policies</b></p>
 <table summary="Policies" border="1">
 <colgroup>
 <col>
@@ -1366,7 +1366,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id873434"></a>DHCP Options</h2></div></div></div>
+<a name="id1029962"></a>DHCP Options</h2></div></div></div>
 <p>DHCP options are configured using the <code class="code">options</code>
       element. Each option is specified by an element with a name of the
       option, for example <code class="code">dnsServersOption</code>. The Jagornet DHCP
@@ -1374,7 +1374,7 @@ wrapper.app.parameter.7=eth1</pre>
       options defined in additional RFCs.  In addition the Jagornet DHCP server supports the most common DHCPv4 options.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id873456"></a>DHCPv6 Server Identifier Option</h3></div></div></div>
+<a name="id1029983"></a>DHCPv6 Server Identifier Option</h3></div></div></div>
 <p>The Server Identifier Option is required by the DHCPv6 protocol
         for the server to include in reply packets. The
         <code class="code">v6ServerIdOption</code> must be specified in the
@@ -1429,7 +1429,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id856753"></a>DHCPv4 Server Identifier Option</h3></div></div></div>
+<a name="id1030080"></a>DHCPv4 Server Identifier Option</h3></div></div></div>
 <p>The Server Identifier Option is required by the DHCPv4 protocol
         for the server to include in reply packets. The identifier is an IPv4
         address which DHCPv4 clients will send unicast requests to. The
@@ -1479,14 +1479,14 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id856659"></a>Configuration Options</h3></div></div></div>
+<a name="id1030174"></a>Configuration Options</h3></div></div></div>
 <p>Configuration Options are those options that can be configured
         for the server to return to clients in reply messages. For example,
         most network clients will need to know the address of one or more
         Domain Name System (DNS) servers.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id856646"></a>DHCPv6 Configuration Options</h4></div></div></div>
+<a name="id1030187"></a>DHCPv6 Configuration Options</h4></div></div></div>
 <p>Options can be returned at three distinct "levels" within the
           returned DHCPv6 reply packet.</p>
 <div class="orderedlist"><ol type="1">
@@ -1508,7 +1508,7 @@ wrapper.app.parameter.7=eth1</pre>
                 type.  No known configuration options are returned to the client at the address level, therefore these elements are for experimental and future use.</p></li>
 </ol></div>
 <div class="table">
-<a name="id856572"></a><p class="title"><b>Table 3.2. DHCPv6 Configuration Options</b></p>
+<a name="id1030261"></a><p class="title"><b>Table 3.2. DHCPv6 Configuration Options</b></p>
 <table summary="DHCPv6 Configuration Options" border="1">
 <colgroup>
 <col>
@@ -1860,11 +1860,11 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id874805"></a>DHCPv4 Configuration Options</h4></div></div></div>
+<a name="id1013770"></a>DHCPv4 Configuration Options</h4></div></div></div>
 <p>Options are returned within the returned DHCPv4 reply
           packet.</p>
 <div class="table">
-<a name="id874816"></a><p class="title"><b>Table 3.3. DHCPv4 Configuration Options</b></p>
+<a name="id1013759"></a><p class="title"><b>Table 3.3. DHCPv4 Configuration Options</b></p>
 <table summary="DHCPv4 Configuration Options" border="1">
 <colgroup>
 <col>
@@ -2062,7 +2062,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id875266"></a>Generic Options</h3></div></div></div>
+<a name="id1031793"></a>Generic Options</h3></div></div></div>
 <p>Generic options are used to define new option types for
         experimental or future options. Generic options are defined using the
         <code class="code">optionDef</code> element. The <code class="code">otherOptions</code> element
@@ -2073,11 +2073,11 @@ wrapper.app.parameter.7=eth1</pre>
         in the table above.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id875292"></a>Option Definition Type</h4></div></div></div>
+<a name="id1031819"></a>Option Definition Type</h4></div></div></div>
 <p>The option definition type predefines several option types for
           use in creating new, experimental, or vendor options.</p>
 <div class="table">
-<a name="id875303"></a><p class="title"><b>Table 3.4. Generic Option Definitions</b></p>
+<a name="id1031830"></a><p class="title"><b>Table 3.4. Generic Option Definitions</b></p>
 <table summary="Generic Option Definitions" border="1">
 <colgroup>
 <col>
@@ -2266,7 +2266,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id875641"></a>Opaque Data Option</h4></div></div></div>
+<a name="id1032168"></a>Opaque Data Option</h4></div></div></div>
 <p>Opaque data options are those options which can contain
           opaque, binary data. Often, these options actually contain simple
           ASCII strings. Therefore, the <code class="code">opaqueData</code> element
@@ -2278,7 +2278,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id875668"></a>Filters</h2></div></div></div>
+<a name="id1032195"></a>Filters</h2></div></div></div>
 <p>Filters are used to classify DHCP clients so that specific
       configuration options can be supplied to certain classes of clients. A
       typical use of filters is to define a vendor class mapping to provide
@@ -2290,7 +2290,7 @@ wrapper.app.parameter.7=eth1</pre>
       options, and optional server policies.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id875677"></a>Filter Expressions</h3></div></div></div>
+<a name="id1032204"></a>Filter Expressions</h3></div></div></div>
 <p>If more than one filter expression is defined in a filter, then
         the client request must match <span class="emphasis"><em>all</em></span> of the
         expressions. That is, multiple filter expressions are logically
@@ -2299,11 +2299,11 @@ wrapper.app.parameter.7=eth1</pre>
         expression.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id875698"></a>Client Class Expression</h4></div></div></div>
+<a name="id1032225"></a>Client Class Expression</h4></div></div></div>
 <p>A client class expression defines criteria for matching all or part of a DHCPv6 user class or vendor class, or a DHCPv4 vendor class option provided in the client request.  The <code class="code">clientClassExpression</code> element must specify only one of the three supported client class options - DHCPv6 user or vendor class, or DHCPv4 vendor class - and the required <code class="code">operator</code> attribute, which defaults to <code class="code">'equals'</code> and  defines the match criteria.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="id875720"></a>DHCPv6 User Class Filter Example</h5></div></div></div>
+<a name="id1032246"></a>DHCPv6 User Class Filter Example</h5></div></div></div>
 <p>The following filter definition         matches clients which supply a specific DHCPv6 user class option value. This
         filter is configured to provide a specific DNS domain name for such
         clients.</p>
@@ -2330,7 +2330,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="id875742"></a>DHCPv6 Vendor Class Filter Example</h5></div></div></div>
+<a name="id1032269"></a>DHCPv6 Vendor Class Filter Example</h5></div></div></div>
 <p>The following filter definition matches client which supply a specific DHCPv6 vendor class option value.  This filter is configured to provide a vendor specific information option, which contains two suboptions, for such clients.</p>
 <pre class="synopsis">&lt;filter&gt;
   &lt;name&gt;DHCPv6 VendorClass Filter&lt;/name&gt;
@@ -2368,7 +2368,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="id875761"></a>DHCPv4 Vendor Class Filter Example</h5></div></div></div>
+<a name="id1032288"></a>DHCPv4 Vendor Class Filter Example</h5></div></div></div>
 <p>As another example, consider the following filter definition
         which matches DHCPv4 clients which supply a vendor class option
         beginning with the specified ASCII value. This filter is configured to
@@ -2400,7 +2400,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id875782"></a>Option Expression</h4></div></div></div>
+<a name="id1032309"></a>Option Expression</h4></div></div></div>
 <p>An option expression defines the criteria for matching all or
           part of an option provided in the client request using the generic
           option definition, along with a value and operator, which forms the
@@ -2410,7 +2410,7 @@ wrapper.app.parameter.7=eth1</pre>
           definition type above, and the required <code class="code">operator</code>
           attribute, which defaults to <code class="code">'equals'</code>.</p>
 <div class="table">
-<a name="id875816"></a><p class="title"><b>Table 3.5. Filter Option Expressions</b></p>
+<a name="id1032342"></a><p class="title"><b>Table 3.5. Filter Option Expressions</b></p>
 <table summary="Filter Option Expressions" border="1">
 <colgroup>
 <col>
@@ -2720,7 +2720,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id876533"></a>DHCPv4 Option Expression</h4></div></div></div>
+<a name="id1033060"></a>DHCPv4 Option Expression</h4></div></div></div>
 <p>DHCPv4 option expressions use the same syntax as DHCPv6 option
           expressions, but must identify the option as a DHCPv4 option using
           the <code class="code">v4</code> attribute. For example:</p>
@@ -2736,14 +2736,14 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id876565"></a>Custom Expressions</h4></div></div></div>
+<a name="id1033092"></a>Custom Expressions</h4></div></div></div>
 <p><span class="emphasis"><em>Custom expressions are used to define filter expressions that cannot be configured using standard option expressions. Currently, Jagornet DHCP Server Community Edition does not support custom expressions.</em></span></p>
 </div>
 </div>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id876581"></a>Links</h2></div></div></div>
+<a name="id1033108"></a>Links</h2></div></div></div>
 <p>A link defines a network segment for client requests. At least one
       DHCPv6 or DHCPv4 link is required proper server configuration. The
       Jagornet DHCP Server uses the link definition to classify each
@@ -2754,7 +2754,7 @@ wrapper.app.parameter.7=eth1</pre>
       filters, policies, and options.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id876589"></a>DHCPv6 Links</h3></div></div></div>
+<a name="id1033116"></a>DHCPv6 Links</h3></div></div></div>
 <p>For DHCPv6, the link is determined by the server according to
         section 11 of RFC 3315. If the message is received directly and the
         source address is link-local, then the client is on the link attached
@@ -2766,7 +2766,7 @@ wrapper.app.parameter.7=eth1</pre>
         Therefore, DHCPv6 link definitions are either local or remote.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id876598"></a>Local DHCPv6 Link Example</h4></div></div></div>
+<a name="id1033125"></a>Local DHCPv6 Link Example</h4></div></div></div>
 <p>Local links require the <code class="code">interface</code> element to
           specify the name of the server interface.</p>
 <pre class="synopsis">&lt;link&gt;
@@ -2778,7 +2778,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id876553"></a>Remote DHCPv6 Link Example</h4></div></div></div>
+<a name="id1033147"></a>Remote DHCPv6 Link Example</h4></div></div></div>
 <p>Remote links require the <code class="code">address</code> element to
           specify the address of the remote link.</p>
 <pre class="synopsis">&lt;link&gt;
@@ -2791,14 +2791,14 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id876649"></a>DHCPv4 Links</h3></div></div></div>
+<a name="id1033175"></a>DHCPv4 Links</h3></div></div></div>
 <p>For DHCPv4, the link is determined by the 'giAddr' field of the
         DHCPv4 request header. If the 'giAddr' field is zero, then the link is
         determined by the IP address assigned to the IPv4 broadcast interface
         provided to the server at startup.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id876640"></a>DHCPv4 Link Example</h4></div></div></div>
+<a name="id1033166"></a>DHCPv4 Link Example</h4></div></div></div>
 <pre class="synopsis">&lt;link&gt;
   &lt;name&gt;IPv4 Client Link 1&lt;/name&gt;
   &lt;!-- All DHCPv4 links are defined in CIDR notation.
@@ -2813,7 +2813,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id876676"></a>Pools</h2></div></div></div>
+<a name="id1033202"></a>Pools</h2></div></div></div>
 <p>Pools may be defined only within Links or Link Filters. The
       Jagornet DHCP Server supports four types of pools.</p>
 <div class="orderedlist"><ol type="1">
@@ -2827,7 +2827,7 @@ wrapper.app.parameter.7=eth1</pre>
 </ol></div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id876736"></a>Address Pools</h3></div></div></div>
+<a name="id1033263"></a>Address Pools</h3></div></div></div>
 <p>Non-temporary and temporary address pools are defined by the
         <code class="code">addressPool</code> type. The address pool must contain a
         <code class="code">range</code> element to define the addresses available for
@@ -2864,7 +2864,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id876764"></a>Prefix Pools</h3></div></div></div>
+<a name="id1033291"></a>Prefix Pools</h3></div></div></div>
 <p>Prefix delegation pools are defined by the
         <code class="code">prefixPool</code> type. The prefix pool must contain a
         <code class="code">range</code> element to define the prefix available for
@@ -2894,7 +2894,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id876762"></a>DHCPv4 Pools</h3></div></div></div>
+<a name="id1033289"></a>DHCPv4 Pools</h3></div></div></div>
 <p>DHCPv4 address pools are defined by the
         <code class="code">v4AddressPool</code> type. The address pool must contain a
         <code class="code">range</code> element to define the addresses available for
@@ -2935,7 +2935,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id876821"></a>Static Bindings</h2></div></div></div>
+<a name="id1033347"></a>Static Bindings</h2></div></div></div>
 <p>Static bindings are used to reserve a specific IP address for a
       specific client. Bindings may be defined only within Links. The Jagornet
       DHCP Server supports four types of bindings.</p>
@@ -2951,7 +2951,7 @@ wrapper.app.parameter.7=eth1</pre>
 </ol></div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id876884"></a>Address Bindings</h3></div></div></div>
+<a name="id1033410"></a>Address Bindings</h3></div></div></div>
 <p>Non-temporary and temporary static address bindings are defined
         by the <code class="code">addressBinding</code> type. The address binding must
         contain the <code class="code">ipAddress</code> element to specify the IP address
@@ -2990,7 +2990,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id876928"></a>Prefix Bindings</h3></div></div></div>
+<a name="id1033455"></a>Prefix Bindings</h3></div></div></div>
 <p>Prefix delegation static prefix bindings are defined by the
         <code class="code">prefixBinding</code> type. The prefix binding must contain the
         <code class="code">prefix</code> element to define the prefix available for
@@ -3015,7 +3015,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id876961"></a>DHCPv4 Bindings</h3></div></div></div>
+<a name="id1033488"></a>DHCPv4 Bindings</h3></div></div></div>
 <p>DHCPv4 static address bindings are defined by the
         <code class="code">v4AddressBinding</code> type. The address binding must contain a
         <code class="code">ipAddress</code> element to specify the IP address reserved for
@@ -3038,12 +3038,12 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="chapter" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id876996"></a>Chapter 4. DHCPv6 Operational Models</h2></div></div></div>
+<a name="id1033522"></a>Chapter 4. DHCPv6 Operational Models</h2></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl>
-<dt><span class="section"><a href="#id877169">Operational model using a DHCPv6 Relay Agent</a></span></dt>
-<dt><span class="section"><a href="#id877258">Operational model without a DHCPv6 Relay Agent</a></span></dt>
+<dt><span class="section"><a href="#id1033696">Operational model using a DHCPv6 Relay Agent</a></span></dt>
+<dt><span class="section"><a href="#id1033785">Operational model without a DHCPv6 Relay Agent</a></span></dt>
 </dl>
 </div>
 <p>IPv6 capable hosts are notified via router advertisement (RA) flags
@@ -3063,7 +3063,7 @@ wrapper.app.parameter.7=eth1</pre>
 <p>The operation of the host with respect to these flags can be
     summarized as follows:</p>
 <div class="table">
-<a name="id877047"></a><p class="title"><b>Table 4.1. DHCPv6 Operational Models</b></p>
+<a name="id1033573"></a><p class="title"><b>Table 4.1. DHCPv6 Operational Models</b></p>
 <table summary="DHCPv6 Operational Models" border="1">
 <colgroup>
 <col>
@@ -3120,7 +3120,7 @@ wrapper.app.parameter.7=eth1</pre>
     and layer 3 switches which support IPv6.</p>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id877169"></a>Operational model using a DHCPv6 Relay Agent</h2></div></div></div>
+<a name="id1033696"></a>Operational model using a DHCPv6 Relay Agent</h2></div></div></div>
 <p>Most IPv6 networks will involve one or more IPv6 capable routers.
       Most IPv6 capable routers include an implementation of a DHCPv6 relay
       agent. Please consult your router vendor's documentation for details on
@@ -3151,7 +3151,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="section" lang="en">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="id877258"></a>Operational model without a DHCPv6 Relay Agent</h2></div></div></div>
+<a name="id1033785"></a>Operational model without a DHCPv6 Relay Agent</h2></div></div></div>
 <p>Some IPv6 networks may not utilize a DHCPv6 relay agent.</p>
 <p>In this operational model, multicast request messages sent by the
       DHCPv6 clients are received directly by one or more DHCPv6 servers which
@@ -3172,7 +3172,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="appendix" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id877335"></a>Appendix A. Binding Database</h2></div></div></div>
+<a name="id1033862"></a>Appendix A. Binding Database</h2></div></div></div>
 <a name="binding_db"></a><p>The Jagornet DHCP server uses an embedded <a href="http://db.apache.org/derby/" target="_top">Apache Derby</a> database server for
     managing the binding database by default. The database schema file is located in the
     <code class="code">db/jagornet-dhcp-schema-derby[-v2].sql</code> file. At initial startup, the
@@ -3199,7 +3199,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="appendix" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id877501"></a>Appendix B. Logging</h2></div></div></div>
+<a name="id1034028"></a>Appendix B. Logging</h2></div></div></div>
 <a name="logging"></a><p>Logging for the Jagornet DHCP server is performed using the <a href="http://logging.apache.org/log4j/1.2/index.html" target="_top">Apache Log4J</a>
     logging service. The default Log4J configuration file is located in the
     <code class="code">conf/log4j.properties</code> file. The server writes all initial
@@ -3216,7 +3216,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="appendix" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id877557"></a>Appendix C. Java Management Extensions (JMX)</h2></div></div></div>
+<a name="id1034083"></a>Appendix C. Java Management Extensions (JMX)</h2></div></div></div>
 <p>The Jagornet DHCP Server supports Java Management Extensions (JMX)
     for dynamically configuring logging parameters and for monitoring server
     statistics. Support for JMX is available in Sun's JRE 6. For more
@@ -3224,7 +3224,7 @@ wrapper.app.parameter.7=eth1</pre>
 </div>
 <div class="appendix" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="id877586"></a>Appendix D. DHCPv4 Limitation</h2></div></div></div>
+<a name="id1034113"></a>Appendix D. DHCPv4 Limitation</h2></div></div></div>
 <p>The Jagornet DHCP Server supports Dynamic Host Configuration
     Protocol for IPv4 (DHCPv4) with the limitation that only one host
     interface can be used to service locally connected DHCPv4 clients. DHCPv4
