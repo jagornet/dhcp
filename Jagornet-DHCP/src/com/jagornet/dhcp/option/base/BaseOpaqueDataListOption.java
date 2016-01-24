@@ -193,7 +193,7 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
         			for (int i=0; i<opaqueList.size(); i++) {
 	        			BaseOpaqueData opaque = new BaseOpaqueData(opaqueList.get(i));
 	        			boolean found = false;
-        				for (int j=0; j<opaqueDataList.size(); i++) {
+        				for (int j=0; j<opaqueDataList.size(); j++) {
     	        			BaseOpaqueData myOpaque = opaqueDataList.get(j);
     	        			if (OpaqueDataUtil.equals(opaque, myOpaque)) {
     	        				found = true;
@@ -243,7 +243,7 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
         			for (int i=0; i<opaqueList.size(); i++) {
 	        			BaseOpaqueData opaque = opaqueList.get(i);
 	        			boolean found = false;
-        				for (int j=0; j<opaqueDataList.size(); i++) {
+        				for (int j=0; j<opaqueDataList.size(); j++) {
     	        			BaseOpaqueData myOpaque = opaqueDataList.get(j);
     	        			if (OpaqueDataUtil.equals(opaque, myOpaque)) {
     	        				found = true;
