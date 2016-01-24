@@ -232,11 +232,12 @@ public abstract class BaseBindingManager
 		if ((allPools != null) && !allPools.isEmpty()) {
 			for (List<? extends BindingPool> bps : allPools) {
 				for (BindingPool bindingPool : bps) {
-					if (bindingPool.contains(inetAddr))
-						log.info("Found binding pool for address=" + 
+					if (bindingPool.contains(inetAddr)) {
+						log.info("Found binding pool for address=" +
 								inetAddr.getHostAddress() +
 								": " + bindingPool);
 						return bindingPool;
+					}
 				}
 			}
 		}
