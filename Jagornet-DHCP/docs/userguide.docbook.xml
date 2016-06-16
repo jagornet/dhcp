@@ -16,7 +16,7 @@
         </orgname>
       </affiliation>
     </author>
-    <pubdate>06/17/2016</pubdate>
+    <pubdate>06/15/2016</pubdate>
   </bookinfo>
   <chapter>
     <title>Introduction</title>
@@ -200,7 +200,7 @@
         following usage:</para>
         <para><synopsis>usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
 Jagornet DHCP Server Community Edition 2.0.3
-Copyright Jagornet Technologies, LLC 2009-2015.  All Rights Reserved.  
+Copyright Jagornet Technologies, LLC 2009-2016.  All Rights Reserved.  
 -4b,--v4bcast &lt;interface&gt;         DHCPv4 broadcast support (default = none).
                                     Use this option to specify the interface for
                                     the server to receive and send broadcast
