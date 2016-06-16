@@ -1,3 +1,12 @@
+Changes in 2.0.3
+----------------
+	- Fixes #8: Fix for loop incrementers to match loop variable.
+	- Fixes #9: Fix findBindingPool method to include brackets for conditional
+	  statements to match intended logic indicated by indented syntax.
+	- Fixes #13: Optimize getEndAddress method to calculate only the first 
+	   time it is called.
+	- Fixes #14: Replace needless byte[] array allocation with constant.
+	
 Changes in 2.0.2
 ----------------
     - Update version and docs to 2.0.2 
