@@ -172,25 +172,25 @@ public class DhcpV4Message implements DhcpMessage
         	buf.put(ciAddr.getAddress());
         }
         else {
-        	buf.put(new byte[4]);
+        	buf.put(DhcpConstants.ZEROADDR_V4.getAddress());
         }
         if (yiAddr != null) {
         	buf.put(yiAddr.getAddress());
         }
         else {
-        	buf.put(new byte[4]);
+        	buf.put(DhcpConstants.ZEROADDR_V4.getAddress());
         }
         if (siAddr != null) {
         	buf.put(siAddr.getAddress());
         }
         else {
-        	buf.put(new byte[4]);
+        	buf.put(DhcpConstants.ZEROADDR_V4.getAddress());
         }
         if (giAddr != null) {
         	buf.put(giAddr.getAddress());
         }
         else {
-        	buf.put(new byte[4]);
+        	buf.put(DhcpConstants.ZEROADDR_V4.getAddress());
         }
         buf.put(Arrays.copyOf(chAddr, 16));		// pad to 16 bytes for encoded packet
         
