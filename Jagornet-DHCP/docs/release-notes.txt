@@ -1,6 +1,8 @@
 Changes in 2.0.4
 ----------------
 	- Fixes #15: Update rebuilt xmltypes.jar with proper compiler settings.
+	- Fixes #16: Replace docs/userguide.docbook.html with docs/userguide.html
+	             in binary distribution packages.
 	
 Changes in 2.0.3
 ----------------
