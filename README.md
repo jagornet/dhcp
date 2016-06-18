@@ -15,10 +15,10 @@ Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configu
 * IPv6 Prefix Delegation
 
 ## Documentation
-[Jagornet DHCP Server Community Edition v2.0.3 User Guide](http://www.jagornet.com/products/dhcp-server/docs)
+[Jagornet DHCP Server Community Edition v2.0.4 User Guide](http://www.jagornet.com/products/dhcp-server/docs)
 
 ## Downloads
-[Jagornet DHCP Server Community Edition v2.0.3 Releases](https://github.com/jagornet/dhcp/releases)
+[Jagornet DHCP Server Community Edition v2.0.4 Releases](https://github.com/jagornet/dhcp/releases)
 
 ## User Forum
 [Jagornet DHCP Server Users Forum](https://groups.google.com/forum/#!forum/jagornet-dhcpv6-users)
