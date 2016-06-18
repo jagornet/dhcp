@@ -2,7 +2,7 @@
 <!-- This document was created with Syntext Serna Free. --><!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
 <book>
   <bookinfo>
-    <title>Jagornet DHCP Server User Guide - Community Edition v2.0.3</title>
+    <title>Jagornet DHCP Server User Guide - Community Edition v2.0.4</title>
     <copyright>
       <year>2016</year>
       <holder>Jagornet Technologies, LLC</holder>
@@ -16,13 +16,13 @@
         </orgname>
       </affiliation>
     </author>
-    <pubdate>06/15/2016</pubdate>
+    <pubdate>06/18/2016</pubdate>
   </bookinfo>
   <chapter>
     <title>Introduction</title>
     <section>
       <title>Welcome</title>
-      <para>Welcome to Jagornet DHCP Server Community Edition Version 2.0.3. Please visit these links for the latest news and information on
+      <para>Welcome to Jagornet DHCP Server Community Edition Version 2.0.4. Please visit these links for the latest news and information on
       Jagornet DHCP Server.</para>
       <itemizedlist>
         <listitem>
@@ -124,10 +124,10 @@
                 </listitem>
                 <listitem>
                   <para>Compressed install file:
-                  <code>jagornet-dhcpserver-2.0.3.tar.gz</code></para>
+                  <code>jagornet-dhcpserver-2.0.4.tar.gz</code></para>
                 </listitem>
                 <listitem>
-                  <para><code>JAGORNET_DHCP_HOME=/opt/jagornet/jagornet-dhcpserver-2.0.3</code></para>
+                  <para><code>JAGORNET_DHCP_HOME=/opt/jagornet/jagornet-dhcpserver-2.0.4</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
@@ -139,17 +139,17 @@
                 </listitem>
                 <listitem>
                   <para>Compressed install file:
-                  <code>jagornet-dhcpserver-2.0.3.zip</code></para>
+                  <code>jagornet-dhcpserver-2.0.4.zip</code></para>
                 </listitem>
                 <listitem>
-                  <para><code>JAGORNET_DHCP_HOME=C:\jagornet\jagornet-dhcpserver-2.0.3</code></para>
+                  <para><code>JAGORNET_DHCP_HOME=C:\jagornet\jagornet-dhcpserver-2.0.4</code></para>
                 </listitem>
               </itemizedlist>
             </listitem>
           </itemizedlist>
         </listitem>
         <listitem>
-          <para>After extracting the compressed files, a jagornet-dhcpserver-2.0.3 directory will
+          <para>After extracting the compressed files, a jagornet-dhcpserver-2.0.4 directory will
           be created in the installation folder, with the following
           contents.</para>
           <itemizedlist>
@@ -199,7 +199,7 @@
         <para>The main Java class of the Jagornet DHCP Server supports the
         following usage:</para>
         <para><synopsis>usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
-Jagornet DHCP Server Community Edition 2.0.3
+Jagornet DHCP Server Community Edition 2.0.4
 Copyright Jagornet Technologies, LLC 2009-2016.  All Rights Reserved.  
 -4b,--v4bcast &lt;interface&gt;         DHCPv4 broadcast support (default = none).
                                     Use this option to specify the interface for

@@ -1,3 +1,7 @@
+Changes in 2.0.4
+----------------
+	- Fixes #15: Update rebuilt xmltypes.jar with proper compiler settings.
+	
 Changes in 2.0.3
 ----------------
 	- Fixes #8: Fix for loop incrementers to match loop variable.
