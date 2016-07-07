@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.message.DhcpV6Message;
 import com.jagornet.dhcp.server.request.DhcpV6MessageHandler;
+import com.jagornet.dhcp.util.DhcpConstants;
 
 /**
  * Title: DhcpChannelHandler
@@ -68,7 +69,10 @@ public class DhcpV6ChannelHandler extends SimpleChannelHandler
             	log.info("Received: " + dhcpMessage.toString());
             
             SocketAddress remoteAddress = e.getRemoteAddress();
-            InetAddress localAddr = ((InetSocketAddress)e.getChannel().getLocalAddress()).getAddress(); 
+            InetAddress localAddr = ((InetSocketAddress)e.getChannel().getLocalAddress()).getAddress();
+            if (localAddr.equals(DhcpConstants.ZEROADDR_V4)) {
+            	localAddr = DhcpConstants.ZEROADDR_V6;
+            }
             DhcpV6Message replyMessage = 
             	DhcpV6MessageHandler.handleMessage(localAddr, dhcpMessage);
             

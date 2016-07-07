@@ -31,7 +31,6 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -237,7 +236,7 @@ public class NettyDhcpServer
 		            channel.getConfig().setSendBufferSize(sendBufSize);
 		            
 		            // must be bound in order to join multicast group
-		            SocketAddress wildAddr = new InetSocketAddress(v6Port);
+		            InetSocketAddress wildAddr = new InetSocketAddress(DhcpConstants.ZEROADDR_V6, v6Port);
 		            log.info("Binding New I/O multicast channel on IPv6 wildcard address: " + wildAddr);
 		            ChannelFuture future = channel.bind(wildAddr);
 		            future.await();
@@ -350,7 +349,7 @@ public class NettyDhcpServer
 			            channel.getConfig().setReceiveBufferSize(receiveBufSize);
 			            channel.getConfig().setSendBufferSize(sendBufSize);
 			            
-			            InetSocketAddress wildAddr = new InetSocketAddress(v4Port);
+			            InetSocketAddress wildAddr = new InetSocketAddress(DhcpConstants.ZEROADDR_V4, v4Port);
 			            log.info("Binding New I/O datagram channel on IPv4 wildcard address: " + wildAddr);
 			            ChannelFuture future = channel.bind(wildAddr);
 			            future.await();
