@@ -1,3 +1,8 @@
+Changes in 2.0.5
+----------------
+	- Fixes #17: Convert IPv4 wildcard address (0.0.0.0) to IPv6 wildcard (::)
+	             on DHCPv6 channel
+	             
 Changes in 2.0.4
 ----------------
 	- Fixes #15: Update rebuilt xmltypes.jar with proper compiler settings.
