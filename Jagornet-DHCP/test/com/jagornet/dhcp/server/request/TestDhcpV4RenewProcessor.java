@@ -47,7 +47,7 @@ public class TestDhcpV4RenewProcessor extends BaseTestDhcpV4Processor
 	public void testDiscoverAndRequestAndRenew() throws Exception
 	{
 		DhcpV4Message requestMsg = buildRequestMessage(firstPoolAddr);
-		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_SOLICIT);
+		requestMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_DISCOVER);
 
 		DhcpV4DiscoverProcessor dProc = 
 			new DhcpV4DiscoverProcessor(requestMsg, requestMsg.getRemoteAddress().getAddress());
