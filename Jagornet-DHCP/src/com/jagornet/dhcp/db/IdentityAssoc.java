@@ -313,4 +313,14 @@ public class IdentityAssoc
 		}
 		return s;
 	}
+	
+	public void copyFrom(IdentityAssoc ia) {
+		setId(ia.getId());
+		setDuid(ia.getDuid());
+		setIatype(ia.getIatype());
+		setIaid(ia.getIaid());
+		setState(ia.getState());
+		setIaAddresses(ia.getIaAddresses());
+		setDhcpOptions(ia.getDhcpOptions());
+	}
 }

@@ -25,8 +25,6 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
-import org.springframework.beans.BeanUtils;
-
 import com.jagornet.dhcp.db.IaAddress;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
@@ -50,7 +48,8 @@ public class V6BindingAddress extends IaAddress implements BindingObject
 	public V6BindingAddress(IaAddress iaAddr, DhcpConfigObject configObj)
 	{
 		// populate *this* IaAddress from the given one
-		BeanUtils.copyProperties(iaAddr, this);
+		//BeanUtils.copyProperties(iaAddr, this);
+		super.copyFrom(iaAddr);
 		this.configObj = configObj;
 	}
 

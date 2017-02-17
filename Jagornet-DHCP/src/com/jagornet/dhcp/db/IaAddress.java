@@ -376,4 +376,16 @@ public class IaAddress
 		}
 		return s;
 	}
+	
+	public void copyFrom(IaAddress iaAddr) {
+		setId(iaAddr.getId());
+		setIpAddress(iaAddr.getIpAddress());
+		setStartTime(iaAddr.getStartTime());
+		setPreferredEndTime(iaAddr.getPreferredEndTime());
+		setValidEndTime(iaAddr.getValidEndTime());
+		setState(iaAddr.getState());
+		setIdentityAssocId(iaAddr.getIdentityAssocId());
+		setDhcpOptions(iaAddr.getDhcpOptions());
+		
+	}
 }

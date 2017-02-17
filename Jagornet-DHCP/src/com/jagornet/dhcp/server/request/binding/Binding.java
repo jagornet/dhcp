@@ -28,8 +28,6 @@ package com.jagornet.dhcp.server.request.binding;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.springframework.beans.BeanUtils;
-
 import com.jagornet.dhcp.db.IaAddress;
 import com.jagornet.dhcp.db.IdentityAssoc;
 import com.jagornet.dhcp.server.config.DhcpLink;
@@ -54,7 +52,8 @@ public class Binding extends IdentityAssoc
 	public Binding(IdentityAssoc ia, DhcpLink dhcpLink)
 	{
 		this.origIa = ia;	// save a reference to the original IA
-		BeanUtils.copyProperties(ia, this);
+		//BeanUtils.copyProperties(ia, this);
+		super.copyFrom(ia);
 		this.dhcpLink = dhcpLink;
 	}
 	
