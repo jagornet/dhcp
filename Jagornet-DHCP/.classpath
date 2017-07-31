@@ -1,37 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="conf"/>
-	<classpathentry kind="src" path="test"/>
+	<classpathentry excluding="com/jagornet/dhcp/netty4/*|com/jagornet/dhcp/db/Mongo*|com/jagornet/dhcp/db/Redis*|com/jagornet/dhcp/db/Sqlite*" kind="src" output="target/classes" path="src/main/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="src/main/test/resources"/>
+	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="resources/" kind="src" path="src/main/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="lib" path="lib/jsr173_1.0_api.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
-	<classpathentry kind="lib" path="lib/xmltypes.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 7 [1.7.0_55]"/>
-	<classpathentry kind="lib" path="lib/org.springframework.aop-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/org.springframework.asm-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/org.springframework.beans-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/org.springframework.context-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/org.springframework.core-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/org.springframework.expression-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/org.springframework.jdbc-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/org.springframework.transaction-3.1.1.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib/netty-3.3.1.Final.jar"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/derby-10.8.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/derbyclient-10.8.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/dnsjava-2.1.3.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-api-1.6.4.jar"/>
-	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.4.jar"/>
-	<classpathentry kind="lib" path="lib/xbean-2.5.jar"/>
-	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-dbcp-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-pool-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/sqlite4java.jar"/>
-	<classpathentry kind="lib" path="lib/h2-1.3.170.jar"/>
-	<classpathentry kind="lib" path="lib/mongo-java-driver-2.9.3.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
-	<classpathentry kind="output" path="build/classes"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="com/jagornet/dhcp/netty4/*|com/jagornet/dhcp/db/Mongo*|com/jagornet/dhcp/db/Redis*|com/jagornet/dhcp/db/Sqlite*" kind="src" output="target/classes" path="target/generated-sources/jaxb">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
