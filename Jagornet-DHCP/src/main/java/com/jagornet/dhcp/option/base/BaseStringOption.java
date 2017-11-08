@@ -28,16 +28,7 @@ package com.jagornet.dhcp.option.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jagornet.dhcp.option.DhcpComparableOption;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.OpaqueDataOptionType;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.OptionExpression;
-import com.jagornet.dhcp.xml.StringOptionType;
 
 /**
  * Title: BaseStringOption
@@ -45,25 +36,18 @@ import com.jagornet.dhcp.xml.StringOptionType;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class BaseStringOption extends BaseDhcpOption implements DhcpComparableOption
+public abstract class BaseStringOption extends BaseDhcpOption
 {
-	private static Logger log = LoggerFactory.getLogger(BaseStringOption.class);
-
 	protected String string;
 	
-	public BaseStringOption()
-	{
+	public BaseStringOption() {
 		this(null);
 	}
 	
-	public BaseStringOption(StringOptionType stringOption)
-	{
-		super();
-		if (stringOption != null) {
-			string = stringOption.getString();
-		}
+	public BaseStringOption(String string) {
+		this.string = string;
 	}
-	
+		
     public String getString() {
 		return string;
 	}
@@ -73,9 +57,17 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
 		this.string = string;
 	}
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+	@Override
+    public int getLength()
+    {
+        int len = 0;
+        if (string != null) {
+            len = string.length();
+        }
+        return len;
+    }
+
+	@Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -85,9 +77,7 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+	@Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -98,83 +88,8 @@ public abstract class BaseStringOption extends BaseDhcpOption implements DhcpCom
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
-    public int getLength()
-    {
-        int len = 0;
-        if (string != null) {
-            len = string.length();
-        }
-        return len;
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-        if (string == null)
-        	return false;
-        
-        StringOptionType exprOption = expression.getStringOption();
-        if (exprOption != null) {
-        	String exprString = exprOption.getString();
-            Operator op = expression.getOperator();
-            if (op.equals(Operator.EQUALS)) {
-            	return string.equals(exprString);
-            }
-            else if (op.equals(Operator.STARTS_WITH)) {
-            	return string.startsWith(exprString);
-            }
-            else if (op.equals(Operator.ENDS_WITH)) {
-            	return string.endsWith(exprString);
-            }
-            else if (op.equals(Operator.CONTAINS)) {
-            	return string.contains(exprString);
-            }
-            else if (op.equals(Operator.REG_EXP)) {
-            	return string.matches(exprString);
-            }
-            else {
-            	log.warn("Unsupported expression operator: " + op);
-            }
-        }
-        
-        // then see if we have an opaque option
-        OpaqueDataOptionType opaqueOption = expression.getOpaqueDataOption();
-        if (opaqueOption != null) {
-	        OpaqueData opaque = opaqueOption.getOpaqueData();
-	        if (opaque != null) {
-	            String ascii = opaque.getAsciiValue();
-	            if (ascii != null) {
-	            	if (string.equals(ascii)) {
-	            		return true;
-	            	}
-	            }
-	            else {
-	                byte[] hex = opaque.getHexValue();
-	                if (hex != null) {
-	                	String hexString = new String(hex);
-	                	if (string.equals(hexString)) {
-	                        return true;
-	                    }
-	                }
-	            }
-	        }
-        }
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    public String toString()
+	@Override
+	public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());

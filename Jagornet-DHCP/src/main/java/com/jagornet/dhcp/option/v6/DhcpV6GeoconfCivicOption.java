@@ -31,9 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jagornet.dhcp.option.base.BaseDhcpOption;
+import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.CivicAddressElement;
-import com.jagornet.dhcp.xml.V6GeoconfCivicOption;
 
 /**
  * <p>Title: DhcpV6GeoconfCivicOption </p>
@@ -47,17 +46,15 @@ public class DhcpV6GeoconfCivicOption extends BaseDhcpOption
 	private String countryCode;
 	private List<CivicAddress> civicAddressList;
 	
-	class CivicAddress {
+	public static class CivicAddress {
 		short type;
 		String value;
 		public CivicAddress() {
-			this(null);
+			this((short)0, null);
 		}
-		public CivicAddress(CivicAddressElement caElement) {
-			if (caElement != null) {
-				type = caElement.getCaType();
-				value = caElement.getCaValue();
-			}
+		public CivicAddress(short type, String value) {
+			this.type = type;
+			this.value = value;
 		}
 	}
 	
@@ -66,7 +63,7 @@ public class DhcpV6GeoconfCivicOption extends BaseDhcpOption
      */
     public DhcpV6GeoconfCivicOption()
     {
-        this(null);
+        this((short)0, null, null);
     }
     
     /**
@@ -74,19 +71,13 @@ public class DhcpV6GeoconfCivicOption extends BaseDhcpOption
      * 
      * @param geoconfCivicOption the geoconf civic option
      */
-    public DhcpV6GeoconfCivicOption(V6GeoconfCivicOption geoconfCivicOption)
+    public DhcpV6GeoconfCivicOption(short what, String countryCode, List<CivicAddress> civicAddressList)
     {
         super();
-        if (geoconfCivicOption != null) {
-        	what = geoconfCivicOption.getWhat();
-        	countryCode = geoconfCivicOption.getCountryCode();
-        	List<CivicAddressElement> cas = geoconfCivicOption.getCivicAddressElement();
-        	if ((cas != null) && !cas.isEmpty()) {
-        		for (CivicAddressElement civicAddressElement : cas) {
-					addCivicAddress(new CivicAddress(civicAddressElement));
-				}
-        	}
-        }
+        setWhat(what);
+        setCountryCode(countryCode);
+        setCivicAddressList(civicAddressList);
+        setCode(DhcpConstants.V6OPTION_GEOCONF_CIVIC);
     }
 
     public short getWhat() {

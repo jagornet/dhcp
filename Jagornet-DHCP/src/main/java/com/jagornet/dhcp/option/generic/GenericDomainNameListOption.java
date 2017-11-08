@@ -25,8 +25,9 @@
  */
 package com.jagornet.dhcp.option.generic;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseDomainNameListOption;
-import com.jagornet.dhcp.xml.DomainNameListOptionType;
 
 /**
  * <p>Title: GenericDomainNameListOption </p>
@@ -54,10 +55,9 @@ public class GenericDomainNameListOption extends BaseDomainNameListOption
 	 * @param name the option name
 	 * @param domainNameListOption the domain name list option
 	 */
-	public GenericDomainNameListOption(int code, String name,
-									   DomainNameListOptionType domainNameListOption)
+	public GenericDomainNameListOption(int code, String name, List<String> domainNames)
 	{
-		super(domainNameListOption);
+		super(domainNames);
 		setCode(code);
 		setName(name);
 	}

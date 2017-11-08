@@ -29,10 +29,10 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import com.jagornet.dhcp.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcp.util.DhcpConstants;
+
+import junit.framework.TestCase;
 
 // TODO: Auto-generated Javadoc
 /**

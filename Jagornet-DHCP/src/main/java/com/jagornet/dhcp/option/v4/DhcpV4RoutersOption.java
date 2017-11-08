@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v4;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4RoutersOption;
 
 /**
  * <p>Title: DhcpV4RoutersOption </p>
@@ -50,9 +51,9 @@ public class DhcpV4RoutersOption extends BaseIpAddressListOption
 	 * 
 	 * @param v4RoutersOption the v4 routers option
 	 */
-	public DhcpV4RoutersOption(V4RoutersOption v4RoutersOption)
+	public DhcpV4RoutersOption(List<String> v4Routers)
 	{
-		super(v4RoutersOption);
+		super(v4Routers);
 		setCode(DhcpConstants.V4OPTION_ROUTERS);
 		setV4(true);
 	}

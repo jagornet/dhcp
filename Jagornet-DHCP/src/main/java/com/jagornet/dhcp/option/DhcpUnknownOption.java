@@ -26,7 +26,6 @@
 package com.jagornet.dhcp.option;
 
 import com.jagornet.dhcp.option.base.BaseOpaqueDataOption;
-import com.jagornet.dhcp.xml.OpaqueDataOptionType;
 
 /**
  * <p>Title: DhcpUnknownOption </p>
@@ -45,16 +44,7 @@ public class DhcpUnknownOption extends BaseOpaqueDataOption
 	 */
 	public DhcpUnknownOption()
 	{
-		this(null);
+		super();
 	}
-	
-	/**
-	 * Instantiates a new dhcp unknown option.
-	 * 
-	 * @param unknownOption the unknown option
-	 */
-	public DhcpUnknownOption(OpaqueDataOptionType unknownOption)
-	{
-		super(unknownOption);	
-	}
+
 }

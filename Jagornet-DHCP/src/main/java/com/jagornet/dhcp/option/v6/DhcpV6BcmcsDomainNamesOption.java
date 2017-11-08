@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseDomainNameListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6BcmcsDomainNamesOption;
 
 /**
  * <p>Title: DhcpV6BcmcsDomainNamesOption </p>
@@ -50,9 +51,9 @@ public class DhcpV6BcmcsDomainNamesOption extends BaseDomainNameListOption
 	 * 
 	 * @param bcmcsDomainNamesOption the bcmcs domain names option
 	 */
-	public DhcpV6BcmcsDomainNamesOption(V6BcmcsDomainNamesOption bcmcsDomainNamesOption)
+	public DhcpV6BcmcsDomainNamesOption(List<String> bcmcsDomainNames)
 	{
-		super(bcmcsDomainNamesOption);
+		super(bcmcsDomainNames);
 		setCode(DhcpConstants.V6OPTION_BCMCS_DOMAIN_NAMES);
 	}
 }

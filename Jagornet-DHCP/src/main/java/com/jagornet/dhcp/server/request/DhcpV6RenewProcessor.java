@@ -31,13 +31,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.db.IdentityAssoc;
 import com.jagornet.dhcp.message.DhcpV6Message;
 import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaPdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaPdOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaTaOption;
+import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
@@ -152,7 +152,7 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
 		
 		List<DhcpV6IaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
     	if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
-    		V6NaAddrBindingManager bindingMgr = dhcpServerConfig.getNaAddrBindingMgr();
+    		V6NaAddrBindingManager bindingMgr = dhcpServerConfig.getV6NaAddrBindingMgr();
     		if (bindingMgr != null) {
 	    		for (DhcpV6IaNaOption dhcpIaNaOption : iaNaOptions) {
 	    			log.info("Processing IA_NA Renew: " + dhcpIaNaOption.toString());
@@ -191,7 +191,7 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
     	
 		List<DhcpV6IaTaOption> iaTaOptions = requestMsg.getIaTaOptions();
     	if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
-    		V6TaAddrBindingManager bindingMgr = dhcpServerConfig.getTaAddrBindingMgr();
+    		V6TaAddrBindingManager bindingMgr = dhcpServerConfig.getV6TaAddrBindingMgr();
     		if (bindingMgr != null) {
 	    		for (DhcpV6IaTaOption dhcpIaTaOption : iaTaOptions) {
 	    			log.info("Processing IA_TA Renew: " + dhcpIaTaOption.toString());
@@ -230,7 +230,7 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
     	
 		List<DhcpV6IaPdOption> iaPdOptions = requestMsg.getIaPdOptions();
     	if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
-    		V6PrefixBindingManager bindingMgr = dhcpServerConfig.getPrefixBindingMgr();
+    		V6PrefixBindingManager bindingMgr = dhcpServerConfig.getV6PrefixBindingMgr();
     		if (bindingMgr != null) {
 	    		for (DhcpV6IaPdOption dhcpIaPdOption : iaPdOptions) {
 	    			log.info("Processing IA_PD Renew: " + dhcpIaPdOption.toString());

@@ -25,8 +25,8 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
-import com.jagornet.dhcp.db.IaAddress;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
+import com.jagornet.dhcp.server.db.IaAddress;
 
 /**
  * The Class V4BindingAddress.  A wrapper for an IaAddress object with

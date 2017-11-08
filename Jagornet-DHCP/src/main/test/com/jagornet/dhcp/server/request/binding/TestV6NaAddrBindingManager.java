@@ -28,17 +28,13 @@ package com.jagornet.dhcp.server.request.binding;
 import java.net.InetAddress;
 import java.util.Iterator;
 
-import com.jagornet.dhcp.db.BaseTestCase;
-import com.jagornet.dhcp.db.IdentityAssoc;
 import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
-import com.jagornet.dhcp.server.request.binding.Binding;
-import com.jagornet.dhcp.server.request.binding.BindingObject;
-import com.jagornet.dhcp.server.request.binding.V6BindingAddress;
-import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
+import com.jagornet.dhcp.server.config.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.server.db.BaseTestCase;
+import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.V6ClientIdOption;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -63,9 +59,7 @@ public class TestV6NaAddrBindingManager extends BaseTestCase
 		OpaqueData opaque = new OpaqueData();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });
-		V6ClientIdOption clientId = new V6ClientIdOption();
-		clientId.setOpaqueData(opaque);
-		clientIdOption = new DhcpV6ClientIdOption(clientId);
+		clientIdOption = new DhcpV6ClientIdOption(new BaseOpaqueData(opaque));
 	}
 	
 	/* (non-Javadoc)

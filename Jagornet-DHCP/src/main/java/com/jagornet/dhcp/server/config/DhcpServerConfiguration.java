@@ -49,19 +49,21 @@ import javax.xml.bind.helpers.DefaultValidationEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.db.IaManager;
 import com.jagornet.dhcp.message.DhcpMessage;
 import com.jagornet.dhcp.message.DhcpV4Message;
 import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.DhcpComparableOption;
-import com.jagornet.dhcp.option.OpaqueDataUtil;
 import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v4.DhcpV4ConfigOptions;
+import com.jagornet.dhcp.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcp.option.v4.DhcpV4VendorClassOption;
-import com.jagornet.dhcp.option.v6.DhcpV6ConfigOptions;
+import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.option.v6.DhcpV6UserClassOption;
 import com.jagornet.dhcp.option.v6.DhcpV6VendorClassOption;
-import com.jagornet.dhcp.server.JagornetDhcpServer;
+import com.jagornet.dhcp.server.config.option.DhcpComparableOption;
+import com.jagornet.dhcp.server.config.option.DhcpV4ConfigOptions;
+import com.jagornet.dhcp.server.config.option.DhcpV6ConfigOptions;
+import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
+import com.jagornet.dhcp.server.config.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.request.binding.Range;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
@@ -82,14 +84,18 @@ import com.jagornet.dhcp.xml.LinkFiltersType;
 import com.jagornet.dhcp.xml.LinksType;
 import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.OptionExpression;
+import com.jagornet.dhcp.xml.PoliciesType;
 import com.jagornet.dhcp.xml.V4AddressPool;
 import com.jagornet.dhcp.xml.V4AddressPoolsType;
 import com.jagornet.dhcp.xml.V4ServerIdOption;
+import com.jagornet.dhcp.xml.V4VendorClassOption;
 import com.jagornet.dhcp.xml.V6AddressPool;
 import com.jagornet.dhcp.xml.V6AddressPoolsType;
 import com.jagornet.dhcp.xml.V6PrefixPool;
 import com.jagornet.dhcp.xml.V6PrefixPoolsType;
 import com.jagornet.dhcp.xml.V6ServerIdOption;
+import com.jagornet.dhcp.xml.V6UserClassOption;
+import com.jagornet.dhcp.xml.V6VendorClassOption;
 
 /**
  * Title: DhcpServerConfiguration
@@ -102,31 +108,31 @@ public class DhcpServerConfiguration
 	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpServerConfiguration.class);
-    
-    /** The config filename. */
-    public static String configFilename = JagornetDhcpServer.DEFAULT_CONFIG_FILENAME;
 
 	/** The INSTANCE. */
 	private static DhcpServerConfiguration INSTANCE;
-	
-    /** The XML object representing the configuration. */
-    private DhcpServerConfig xmlServerConfig;
     
-    private DhcpV6ConfigOptions globalMsgConfigOptions;
-    private DhcpV6ConfigOptions globalIaNaConfigOptions;
-    private DhcpV6ConfigOptions globalNaAddrConfigOptions;
-    private DhcpV6ConfigOptions globalIaTaConfigOptions;
-    private DhcpV6ConfigOptions globalTaAddrConfigOptions;
-    private DhcpV6ConfigOptions globalIaPdConfigOptions;
-    private DhcpV6ConfigOptions globalPrefixConfigOptions;
+	private DhcpV6ServerIdOption dhcpV6ServerIdOption;
+	private DhcpV4ServerIdOption dhcpV4ServerIdOption;
+
+	private PoliciesType globalPolicies;
+	
+    private DhcpV6ConfigOptions globalV6MsgConfigOptions;
+    private DhcpV6ConfigOptions globalV6IaNaConfigOptions;
+    private DhcpV6ConfigOptions globalV6NaAddrConfigOptions;
+    private DhcpV6ConfigOptions globalV6IaTaConfigOptions;
+    private DhcpV6ConfigOptions globalV6TaAddrConfigOptions;
+    private DhcpV6ConfigOptions globalV6IaPdConfigOptions;
+    private DhcpV6ConfigOptions globalV6PrefixConfigOptions;
     private DhcpV4ConfigOptions globalV4ConfigOptions;
     
-    /** The link map. */
+    private FiltersType globalFilters;
+    
     private SortedMap<Subnet, DhcpLink> linkMap;
     
-    private V6NaAddrBindingManager naAddrBindingMgr;
-    private V6TaAddrBindingManager taAddrBindingMgr;
-    private V6PrefixBindingManager prefixBindingMgr;
+    private V6NaAddrBindingManager v6NaAddrBindingMgr;
+    private V6TaAddrBindingManager v6TaAddrBindingMgr;
+    private V6PrefixBindingManager v6PrefixBindingMgr;
     private V4AddrBindingManager v4AddrBindingMgr;
     private IaManager iaMgr;
     
@@ -138,12 +144,7 @@ public class DhcpServerConfiguration
     public static synchronized DhcpServerConfiguration getInstance()
     {
     	if (INSTANCE == null) {
-    		try {
-    			INSTANCE = new DhcpServerConfiguration();
-    		}
-    		catch (Exception ex) {
-    			log.error("Failed to initialize DhcpServerConfiguration", ex);
-    		}
+    		INSTANCE = new DhcpServerConfiguration();
     	}
     	return INSTANCE;
     }
@@ -153,34 +154,161 @@ public class DhcpServerConfiguration
      * 
      * @throws DhcpServerConfigException the exception
      */
-    private DhcpServerConfiguration() throws DhcpServerConfigException, JAXBException, IOException
+    private DhcpServerConfiguration()
     {
-    	xmlServerConfig = loadConfig(configFilename);
+    	// empty constructor
+    }
+    
+    public void init(String configFilename) throws DhcpServerConfigException, JAXBException, IOException
+    {
+    	DhcpServerConfig xmlServerConfig = loadConfig(configFilename);
     	if (xmlServerConfig != null) {
-	    	initServerIds();
-	    	globalMsgConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6MsgConfigOptions());
-	    	globalIaNaConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaNaConfigOptions());
-	    	globalNaAddrConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6NaAddrConfigOptions());
-	    	globalIaTaConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaTaConfigOptions());
-	    	globalTaAddrConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6TaAddrConfigOptions());
-	    	globalIaPdConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaPdConfigOptions());
-	    	globalPrefixConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6PrefixConfigOptions());
+    		boolean needWrite = false;
+        	V6ServerIdOption v6ServerId = xmlServerConfig.getV6ServerIdOption();
+        	if (v6ServerId == null) {
+        		v6ServerId = generateV6ServerId();
+        		xmlServerConfig.setV6ServerIdOption(v6ServerId);
+        		needWrite = true;
+        	}
+        	BaseOpaqueData baseOpaqueData = new BaseOpaqueData(v6ServerId.getOpaqueData());
+        	dhcpV6ServerIdOption = new DhcpV6ServerIdOption(baseOpaqueData);
+        	
+        	V4ServerIdOption v4ServerId = xmlServerConfig.getV4ServerIdOption();
+        	if (v4ServerId == null) {
+        		v4ServerId = generateV4ServerId();
+        		xmlServerConfig.setV4ServerIdOption(v4ServerId);
+        		needWrite = true;
+        	}
+        	dhcpV4ServerIdOption = new DhcpV4ServerIdOption(v4ServerId.getIpAddress());
+        	
+	    	globalV6MsgConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6MsgConfigOptions());
+	    	globalV6IaNaConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaNaConfigOptions());
+	    	globalV6NaAddrConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6NaAddrConfigOptions());
+	    	globalV6IaTaConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaTaConfigOptions());
+	    	globalV6TaAddrConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6TaAddrConfigOptions());
+	    	globalV6IaPdConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaPdConfigOptions());
+	    	globalV6PrefixConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6PrefixConfigOptions());
 	    	globalV4ConfigOptions = new DhcpV4ConfigOptions(xmlServerConfig.getV4ConfigOptions());
-	    	initLinkMap();
+	    	
+	    	globalFilters = xmlServerConfig.getFilters();
+	    	
+	    	initLinkMap(xmlServerConfig.getLinks());
+	    	
+	    	if (needWrite) {
+	    		saveConfig(xmlServerConfig, configFilename);
+	    	}
     	}
     	else {
     		throw new IllegalStateException("Failed to load configuration file: " + configFilename);
     	}
     }
     
-    
-    /**
+    public DhcpV6ServerIdOption getDhcpV6ServerIdOption() {
+		return dhcpV6ServerIdOption;
+	}
+
+	public void setDhcpV6ServerIdOption(DhcpV6ServerIdOption dhcpV6ServerIdOption) {
+		this.dhcpV6ServerIdOption = dhcpV6ServerIdOption;
+	}
+
+	public DhcpV4ServerIdOption getDhcpV4ServerIdOption() {
+		return dhcpV4ServerIdOption;
+	}
+
+	public void setDhcpV4ServerIdOption(DhcpV4ServerIdOption dhcpV4ServerIdOption) {
+		this.dhcpV4ServerIdOption = dhcpV4ServerIdOption;
+	}
+
+	public PoliciesType getGlobalPolicies() {
+		return globalPolicies;
+	}
+
+	public void setGlobalPolicies(PoliciesType globalPolicies) {
+		this.globalPolicies = globalPolicies;
+	}
+
+	public DhcpV6ConfigOptions getGlobalV6MsgConfigOptions() {
+		return globalV6MsgConfigOptions;
+	}
+
+	public void setGlobalV6MsgConfigOptions(DhcpV6ConfigOptions globalV6MsgConfigOptions) {
+		this.globalV6MsgConfigOptions = globalV6MsgConfigOptions;
+	}
+
+	public DhcpV6ConfigOptions getGlobalV6IaNaConfigOptions() {
+		return globalV6IaNaConfigOptions;
+	}
+
+	public void setGlobalV6IaNaConfigOptions(DhcpV6ConfigOptions globalV6IaNaConfigOptions) {
+		this.globalV6IaNaConfigOptions = globalV6IaNaConfigOptions;
+	}
+
+	public DhcpV6ConfigOptions getGlobalV6NaAddrConfigOptions() {
+		return globalV6NaAddrConfigOptions;
+	}
+
+	public void setGlobalV6NaAddrConfigOptions(DhcpV6ConfigOptions globalV6NaAddrConfigOptions) {
+		this.globalV6NaAddrConfigOptions = globalV6NaAddrConfigOptions;
+	}
+
+	public DhcpV6ConfigOptions getGlobalV6IaTaConfigOptions() {
+		return globalV6IaTaConfigOptions;
+	}
+
+	public void setGlobalV6IaTaConfigOptions(DhcpV6ConfigOptions globalV6IaTaConfigOptions) {
+		this.globalV6IaTaConfigOptions = globalV6IaTaConfigOptions;
+	}
+
+	public DhcpV6ConfigOptions getGlobalV6TaAddrConfigOptions() {
+		return globalV6TaAddrConfigOptions;
+	}
+
+	public void setGlobalV6TaAddrConfigOptions(DhcpV6ConfigOptions globalV6TaAddrConfigOptions) {
+		this.globalV6TaAddrConfigOptions = globalV6TaAddrConfigOptions;
+	}
+
+	public DhcpV6ConfigOptions getGlobalV6IaPdConfigOptions() {
+		return globalV6IaPdConfigOptions;
+	}
+
+	public void setGlobalV6IaPdConfigOptions(DhcpV6ConfigOptions globalV6IaPdConfigOptions) {
+		this.globalV6IaPdConfigOptions = globalV6IaPdConfigOptions;
+	}
+
+	public DhcpV6ConfigOptions getGlobalV6PrefixConfigOptions() {
+		return globalV6PrefixConfigOptions;
+	}
+
+	public void setGlobalV6PrefixConfigOptions(DhcpV6ConfigOptions globalV6PrefixConfigOptions) {
+		this.globalV6PrefixConfigOptions = globalV6PrefixConfigOptions;
+	}
+
+	public DhcpV4ConfigOptions getGlobalV4ConfigOptions() {
+		return globalV4ConfigOptions;
+	}
+
+	public void setGlobalV4ConfigOptions(DhcpV4ConfigOptions globalV4ConfigOptions) {
+		this.globalV4ConfigOptions = globalV4ConfigOptions;
+	}
+
+	public FiltersType getGlobalFilters() {
+		return globalFilters;
+	}
+
+	public void setGlobalFilters(FiltersType globalFilters) {
+		this.globalFilters = globalFilters;
+	}
+
+	/**
      * Initialize the server ids.
+     * 
+     * @return true if server ID(s) were generated
      * 
      * @throws IOException the exception
      */
-    protected void initServerIds() throws IOException
+    protected boolean initServerIds(DhcpServerConfig xmlServerConfig) throws IOException
     {
+    	boolean generated = false;
     	V6ServerIdOption v6ServerId = xmlServerConfig.getV6ServerIdOption();
     	if (v6ServerId == null) {
     		v6ServerId = new V6ServerIdOption();
@@ -195,7 +323,7 @@ public class DhcpServerConfiguration
     		}
     		v6ServerId.setOpaqueData(duid);
     		xmlServerConfig.setV6ServerIdOption(v6ServerId);
-    		saveConfig(xmlServerConfig, configFilename);
+    		generated = true;
     	}
     	
     	V4ServerIdOption v4ServerId = xmlServerConfig.getV4ServerIdOption();
@@ -206,8 +334,33 @@ public class DhcpServerConfiguration
 		if ((ip == null) || (ip.length() <= 0)) {
 			v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
 			xmlServerConfig.setV4ServerIdOption(v4ServerId);
-			saveConfig(xmlServerConfig, configFilename);
+			generated = true;
 		}
+		return generated;
+    }
+    
+    public static V6ServerIdOption generateV6ServerId() {
+    	V6ServerIdOption v6ServerId = new V6ServerIdOption();
+    	OpaqueData opaque = v6ServerId.getOpaqueData();
+    	if ( ( (opaque == null) ||
+    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().length() <= 0)) &&
+    		   ((opaque.getHexValue() == null) || (opaque.getHexValue().length <= 0)) ) ) {
+    		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
+    		if (duid == null) {
+    			throw new IllegalStateException("Failed to create ServerID");
+    		}
+    		v6ServerId.setOpaqueData(duid);
+    	}
+    	return v6ServerId;
+    }
+    
+    public static V4ServerIdOption generateV4ServerId() throws IOException {
+    	V4ServerIdOption v4ServerId = new V4ServerIdOption();
+		String ip = v4ServerId.getIpAddress();
+		if ((ip == null) || (ip.length() <= 0)) {
+			v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
+		}
+		return v4ServerId;
     }
     
     /**
@@ -215,11 +368,10 @@ public class DhcpServerConfiguration
      * 
      * @throws DhcpServerConfigException the exception
      */
-    protected void initLinkMap() throws DhcpServerConfigException
+    protected void initLinkMap(LinksType linksType) throws DhcpServerConfigException
     {
-    	LinksType linksType = xmlServerConfig.getLinks();
     	if (linksType != null) {
-        	List<Link> links = linksType.getLink();
+        	List<Link> links = linksType.getLinks();
             if ((links != null) && !links.isEmpty()) {
                 linkMap = new TreeMap<Subnet, DhcpLink>();
                 for (Link link : links) {
@@ -300,16 +452,6 @@ public class DhcpServerConfiguration
     }
     
     /**
-     * Gets the server configuration.
-     * 
-     * @return the DhcpV6ServerConfig object representing the server's configuration
-     */
-    public DhcpServerConfig getDhcpServerConfig()
-    {
-    	return xmlServerConfig;
-    }
-    
-    /**
      * Gets the link map.
      * 
      * @return the link map
@@ -319,28 +461,28 @@ public class DhcpServerConfiguration
         return linkMap;
     }
     
-    public V6NaAddrBindingManager getNaAddrBindingMgr() {
-		return naAddrBindingMgr;
+    public V6NaAddrBindingManager getV6NaAddrBindingMgr() {
+		return v6NaAddrBindingMgr;
 	}
 
-	public void setNaAddrBindingMgr(V6NaAddrBindingManager naAddrBindingMgr) {
-		this.naAddrBindingMgr = naAddrBindingMgr;
+	public void setV6NaAddrBindingMgr(V6NaAddrBindingManager v6NaAddrBindingMgr) {
+		this.v6NaAddrBindingMgr = v6NaAddrBindingMgr;
 	}
 
-	public V6TaAddrBindingManager getTaAddrBindingMgr() {
-		return taAddrBindingMgr;
+	public V6TaAddrBindingManager getV6TaAddrBindingMgr() {
+		return v6TaAddrBindingMgr;
 	}
 
-	public void setTaAddrBindingMgr(V6TaAddrBindingManager taAddrBindingMgr) {
-		this.taAddrBindingMgr = taAddrBindingMgr;
+	public void setV6TaAddrBindingMgr(V6TaAddrBindingManager v6TaAddrBindingMgr) {
+		this.v6TaAddrBindingMgr = v6TaAddrBindingMgr;
 	}
 
-	public V6PrefixBindingManager getPrefixBindingMgr() {
-		return prefixBindingMgr;
+	public V6PrefixBindingManager getV6PrefixBindingMgr() {
+		return v6PrefixBindingMgr;
 	}
 
-	public void setPrefixBindingMgr(V6PrefixBindingManager prefixBindingMgr) {
-		this.prefixBindingMgr = prefixBindingMgr;
+	public void setV6PrefixBindingMgr(V6PrefixBindingManager v6PrefixBindingMgr) {
+		this.v6PrefixBindingMgr = v6PrefixBindingMgr;
 	}
     
     public V4AddrBindingManager getV4AddrBindingMgr() {
@@ -761,11 +903,11 @@ public class DhcpServerConfiguration
     public Map<Integer, DhcpOption> effectiveMsgOptions(DhcpV6Message requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
-    	if (globalMsgConfigOptions != null) {
-    		optionMap.putAll(globalMsgConfigOptions.getDhcpOptionMap());
+    	if (globalV6MsgConfigOptions != null) {
+    		optionMap.putAll(globalV6MsgConfigOptions.getDhcpOptionMap());
     	}
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredMsgOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredMsgOptions(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -808,12 +950,12 @@ public class DhcpServerConfiguration
     public Map<Integer, DhcpOption> effectiveIaNaOptions(DhcpV6Message requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
-    	if (globalIaNaConfigOptions != null) {
-    		optionMap.putAll(globalIaNaConfigOptions.getDhcpOptionMap());
+    	if (globalV6IaNaConfigOptions != null) {
+    		optionMap.putAll(globalV6IaNaConfigOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredIaNaOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredIaNaOptions(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -856,12 +998,12 @@ public class DhcpServerConfiguration
     public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpV6Message requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
-    	if (globalNaAddrConfigOptions != null) {
-    		optionMap.putAll(globalNaAddrConfigOptions.getDhcpOptionMap());
+    	if (globalV6NaAddrConfigOptions != null) {
+    		optionMap.putAll(globalV6NaAddrConfigOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredNaAddrOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredNaAddrOptions(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -932,12 +1074,12 @@ public class DhcpServerConfiguration
     public Map<Integer, DhcpOption> effectiveIaTaOptions(DhcpV6Message requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
-    	if (globalIaTaConfigOptions != null) {
-    		optionMap.putAll(globalIaTaConfigOptions.getDhcpOptionMap());
+    	if (globalV6IaTaConfigOptions != null) {
+    		optionMap.putAll(globalV6IaTaConfigOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredIaTaOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredIaTaOptions(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -980,12 +1122,12 @@ public class DhcpServerConfiguration
     public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpV6Message requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
-    	if (globalTaAddrConfigOptions != null) {
-    		optionMap.putAll(globalTaAddrConfigOptions.getDhcpOptionMap());
+    	if (globalV6TaAddrConfigOptions != null) {
+    		optionMap.putAll(globalV6TaAddrConfigOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredNaAddrOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredNaAddrOptions(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -1056,12 +1198,12 @@ public class DhcpServerConfiguration
     public Map<Integer, DhcpOption> effectiveIaPdOptions(DhcpV6Message requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
-    	if (globalIaPdConfigOptions != null) {
-    		optionMap.putAll(globalIaPdConfigOptions.getDhcpOptionMap());
+    	if (globalV6IaPdConfigOptions != null) {
+    		optionMap.putAll(globalV6IaPdConfigOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredIaPdOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredIaPdOptions(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -1104,12 +1246,12 @@ public class DhcpServerConfiguration
     public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpV6Message requestMsg)
     {
     	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
-    	if (globalPrefixConfigOptions != null) {
-    		optionMap.putAll(globalPrefixConfigOptions.getDhcpOptionMap());
+    	if (globalV6PrefixConfigOptions != null) {
+    		optionMap.putAll(globalV6PrefixConfigOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredPrefixOptions(requestMsg, xmlServerConfig.getFilters());
+    		filteredPrefixOptions(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -1185,7 +1327,7 @@ public class DhcpServerConfiguration
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredV4Options(requestMsg, xmlServerConfig.getFilters());
+    		filteredV4Options(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -1258,7 +1400,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilter();
+    		List<Filter> filters = filtersType.getFilters();
     		return filteredMsgOptions(requestMsg, filters);
     	}
     	return null;
@@ -1320,7 +1462,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilter();
+    		List<Filter> filters = filtersType.getFilters();
     		return filteredIaNaOptions(requestMsg, filters);
     	}
     	return null;
@@ -1382,7 +1524,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilter();
+    		List<Filter> filters = filtersType.getFilters();
     		return filteredNaAddrOptions(requestMsg, filters);
     	}
     	return null;
@@ -1444,7 +1586,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilter();
+    		List<Filter> filters = filtersType.getFilters();
     		return filteredIaTaOptions(requestMsg, filters);
     	}
     	return null;
@@ -1506,7 +1648,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilter();
+    		List<Filter> filters = filtersType.getFilters();
     		return filteredTaAddrOptions(requestMsg, filters);
     	}
     	return null;
@@ -1568,7 +1710,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilter();
+    		List<Filter> filters = filtersType.getFilters();
     		return filteredIaPdOptions(requestMsg, filters);
     	}
     	return null;
@@ -1630,7 +1772,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilter();
+    		List<Filter> filters = filtersType.getFilters();
     		return filteredPrefixOptions(requestMsg, filters);
     	}
     	return null;
@@ -1692,7 +1834,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilter();
+    		List<Filter> filters = filtersType.getFilters();
     		return filteredV4Options(requestMsg, filters);
     	}
     	return null;
@@ -1820,37 +1962,39 @@ public class DhcpServerConfiguration
     		ClientClassExpression ccexpr)
     {
 		if (ccexpr.getV6UserClassOption() != null) {
+			V6UserClassOption ccexprOption = ccexpr.getV6UserClassOption();
 			DhcpV6UserClassOption ucOption = (DhcpV6UserClassOption) 
 					requestMsg.getDhcpOption(ccexpr.getV6UserClassOption().getCode());
 			if (ucOption != null) {
-				DhcpV6UserClassOption exprOption = new DhcpV6UserClassOption(ccexpr.getV6UserClassOption());
-				if (!ucOption.matches(exprOption, ccexpr.getOperator())) {
-					return false;
-				}
+				return OpaqueDataUtil.matches(ucOption.getOpaqueDataList(), 
+						ccexprOption.getOpaqueDataList(), ccexpr.getOperator());
 			}
 			else {
 				return false;
 			}
 		}
 		else if (ccexpr.getV6VendorClassOption() != null) {
+			V6VendorClassOption ccexprOption = ccexpr.getV6VendorClassOption();
 			DhcpV6VendorClassOption vcOption = (DhcpV6VendorClassOption) 
 					requestMsg.getDhcpOption(ccexpr.getV6VendorClassOption().getCode());
 			if (vcOption != null) {
-				DhcpV6VendorClassOption exprOption = new DhcpV6VendorClassOption(ccexpr.getV6VendorClassOption());
-				if (!vcOption.matches(exprOption, ccexpr.getOperator())) {
-					return false;
-				}
+				return OpaqueDataUtil.matches(vcOption.getOpaqueDataList(), 
+						ccexprOption.getOpaqueDataList(), ccexpr.getOperator());
 			}
 			else {
 				return false;
 			}
 		}
 		else if (ccexpr.getV4VendorClassOption() != null) {
+			V4VendorClassOption ccexprOption = ccexpr.getV4VendorClassOption();
 			DhcpV4VendorClassOption vcOption = (DhcpV4VendorClassOption) 
 					requestMsg.getDhcpOption(ccexpr.getV4VendorClassOption().getCode());
 			if (vcOption != null) {
-				if (!vcOption.matches(ccexpr.getV4VendorClassOption(), ccexpr.getOperator())) {
-					return false;
+				com.jagornet.dhcp.option.base.BaseOpaqueData baseOpaqueData = 
+						vcOption.getOpaqueData();
+				if (baseOpaqueData != null) {
+					return OpaqueDataUtil.matches(baseOpaqueData, 
+							ccexprOption.getOpaqueData(), ccexpr.getOperator());
 				}
 			}
 			else {

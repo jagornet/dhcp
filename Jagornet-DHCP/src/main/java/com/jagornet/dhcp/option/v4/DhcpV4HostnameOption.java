@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseStringOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4HostnameOption;
 
 /**
  * <p>Title: DhcpV4HostnameOption </p>
@@ -50,9 +49,9 @@ public class DhcpV4HostnameOption extends BaseStringOption
 	 * 
 	 * @param v4DomainNameOption the v4 hostname option
 	 */
-	public DhcpV4HostnameOption(V4HostnameOption v4HostnameOption)
+	public DhcpV4HostnameOption(String v4Hostname)
 	{
-		super(v4HostnameOption);
+		super(v4Hostname);
 		setCode(DhcpConstants.V4OPTION_HOSTNAME);
 		setV4(true);
 	}

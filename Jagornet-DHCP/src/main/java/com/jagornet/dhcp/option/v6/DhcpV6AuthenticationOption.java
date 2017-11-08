@@ -33,7 +33,6 @@ import com.jagornet.dhcp.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.V6AuthenticationOption;
 
 /**
  * <p>Title: DhcpV6AuthenticationOption </p>
@@ -54,7 +53,7 @@ public class DhcpV6AuthenticationOption extends BaseDhcpOption
      */
     public DhcpV6AuthenticationOption()
     {
-        this(null);
+        this((short)0, (short)0, (short)0, BigInteger.ZERO, null);
     }
     
     /**
@@ -62,17 +61,16 @@ public class DhcpV6AuthenticationOption extends BaseDhcpOption
      * 
      * @param authenticationOption the authentication option
      */
-    public DhcpV6AuthenticationOption(V6AuthenticationOption authenticationOption)
+    public DhcpV6AuthenticationOption(short protocol, short algorithm, short rdm,
+    								  BigInteger replayDetection, BaseOpaqueData authInfo)
     {
-        super();
-        if (authenticationOption != null) {
-        	protocol = authenticationOption.getProtocol();
-        	algorithm = authenticationOption.getAlgorithm();
-        	rdm = authenticationOption.getRdm();
-        	replayDetection = authenticationOption.getReplayDetection();
-        	authInfo = new BaseOpaqueData(authenticationOption.getAuthInfo());
-        }
-        setCode(DhcpConstants.V6OPTION_AUTH);
+    	super();
+    	this.setProtocol(protocol);
+    	this.setAlgorithm(algorithm);
+    	this.setRdm(rdm);
+    	this.setReplayDetection(replayDetection);
+    	this.setAuthInfo(authInfo);
+    	setCode(DhcpConstants.V6OPTION_AUTH);
     }
 
     public short getProtocol() {
@@ -115,9 +113,7 @@ public class DhcpV6AuthenticationOption extends BaseDhcpOption
 		this.authInfo = authInfo;
 	}
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
+	@Override
     public int getLength()
     {
     	int len = 3 + 8;	// size of protocol + algorithm + rdm + replayDetection
@@ -127,9 +123,7 @@ public class DhcpV6AuthenticationOption extends BaseDhcpOption
     	return len;
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+	@Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -143,9 +137,7 @@ public class DhcpV6AuthenticationOption extends BaseDhcpOption
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+	@Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -169,9 +161,7 @@ public class DhcpV6AuthenticationOption extends BaseDhcpOption
         }
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+	@Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);

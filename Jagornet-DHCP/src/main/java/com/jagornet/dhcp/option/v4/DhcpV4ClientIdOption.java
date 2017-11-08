@@ -25,8 +25,9 @@
  */
 package com.jagornet.dhcp.option.v4;
 
-import com.jagornet.dhcp.option.OpaqueDataUtil;
+import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.xml.Operator;
 import com.jagornet.dhcp.xml.V4ClientIdOption;
@@ -52,9 +53,9 @@ public class DhcpV4ClientIdOption extends BaseOpaqueDataOption
 	 * 
 	 * @param v4ClientIdOption the client id option
 	 */
-	public DhcpV4ClientIdOption(V4ClientIdOption v4ClientIdOption)
+	public DhcpV4ClientIdOption(BaseOpaqueData baseOpaqueData)
 	{
-		super(v4ClientIdOption);
+		super(baseOpaqueData);
 		setCode(DhcpConstants.V4OPTION_CLIENT_ID);
 		setV4(true);
 	}

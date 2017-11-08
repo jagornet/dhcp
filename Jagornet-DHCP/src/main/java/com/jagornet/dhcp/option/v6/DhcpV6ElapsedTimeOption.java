@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v6;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedShortOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6ElapsedTimeOption;
 
 /**
  * <p>Title: DhcpV6ElapsedTimeOption </p>
@@ -42,7 +41,7 @@ public class DhcpV6ElapsedTimeOption extends BaseUnsignedShortOption
 	 */
 	public DhcpV6ElapsedTimeOption()
 	{
-		this(null);
+		this((int)0);
 	}
 	
 	/**
@@ -50,9 +49,9 @@ public class DhcpV6ElapsedTimeOption extends BaseUnsignedShortOption
 	 * 
 	 * @param elapsedTimeOption the elapsed time option
 	 */
-	public DhcpV6ElapsedTimeOption(V6ElapsedTimeOption elapsedTimeOption)
+	public DhcpV6ElapsedTimeOption(int elapsedTime)
 	{
-		super(elapsedTimeOption);
+		super(elapsedTime);
 		setCode(DhcpConstants.V6OPTION_ELAPSED_TIME);
 	}
 }

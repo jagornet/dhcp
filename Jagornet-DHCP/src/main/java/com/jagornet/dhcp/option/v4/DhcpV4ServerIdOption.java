@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseIpAddressOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4ServerIdOption;
 
 /**
  * <p>Title: DhcpV4ServerIdOption </p>
@@ -50,9 +49,9 @@ public class DhcpV4ServerIdOption extends BaseIpAddressOption
 	 * 
 	 * @param serverIdOption the server id option
 	 */
-	public DhcpV4ServerIdOption(V4ServerIdOption serverIdOption)
+	public DhcpV4ServerIdOption(String serverId)
 	{
-		super(serverIdOption);
+		super(serverId);
 		setCode(DhcpConstants.V4OPTION_SERVERID);
 		setV4(true);
 	}

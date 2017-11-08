@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseIpAddressOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4SubnetMaskOption;
 
 /**
  * <p>Title: DhcpV4SubnetMaskOption </p>
@@ -50,9 +49,9 @@ public class DhcpV4SubnetMaskOption extends BaseIpAddressOption
 	 * 
 	 * @param v4SubnetMaskOption the v4 subnet mask option
 	 */
-	public DhcpV4SubnetMaskOption(V4SubnetMaskOption v4SubnetMaskOption)
+	public DhcpV4SubnetMaskOption(String v4SubnetMask)
 	{
-		super(v4SubnetMaskOption);
+		super(v4SubnetMask);
 		setCode(DhcpConstants.V4OPTION_SUBNET_MASK);
 		setV4(true);
 	}

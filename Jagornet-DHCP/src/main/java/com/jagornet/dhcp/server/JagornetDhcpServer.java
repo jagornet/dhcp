@@ -64,12 +64,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jagornet.dhcp.Version;
-import com.jagornet.dhcp.db.DbSchemaManager;
-import com.jagornet.dhcp.db.IaManager;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.db.DbSchemaManager;
+import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.netty.NettyDhcpServer;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
@@ -85,6 +85,9 @@ public class JagornetDhcpServer
 {
     /** The log. */
     private static Logger log = LoggerFactory.getLogger(JagornetDhcpServer.class);
+
+	/** The INSTANCE. */
+	private static JagornetDhcpServer INSTANCE;
 
     /** The command line options. */
     protected Options options;
@@ -130,6 +133,24 @@ public class JagornetDhcpServer
     
     protected DhcpServerConfiguration serverConfig = null;
     protected ApplicationContext context = null;
+    
+    public static synchronized JagornetDhcpServer getInstance() throws Exception
+    {
+    	if (INSTANCE == null) {
+    		try {
+    			INSTANCE = new JagornetDhcpServer();
+    		}
+    		catch (Exception ex) {
+    			log.error("Failed to initialize JagornetDhcpServer", ex);
+    			throw ex;
+    		}
+    	}
+    	return INSTANCE;
+    }
+    
+    private JagornetDhcpServer() {
+    	
+    }
     
     /**
      * Instantiates the DHCPv6 server.
@@ -180,12 +201,8 @@ public class JagornetDhcpServer
                 }
             });
     	
-        DhcpServerConfiguration.configFilename = configFilename;
         serverConfig = DhcpServerConfiguration.getInstance();
-        if (serverConfig == null) {
-        	throw new IllegalStateException("Failed to initialize server configuration file: " +
-        			configFilename);
-        }
+        serverConfig.init(configFilename);
         
         String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
     	int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DATABASE_SCHEMA_VERSION);
@@ -346,7 +363,7 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 NA Address Binding Manager");
 				v6NaAddrBindingMgr.init();
-				serverConfig.setNaAddrBindingMgr(v6NaAddrBindingMgr);
+				serverConfig.setV6NaAddrBindingMgr(v6NaAddrBindingMgr);
 			}
 			catch (Exception ex) {
 				log.error("Failed initialize V6 NA Address Binding Manager", ex);
@@ -363,7 +380,7 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 TA Address Binding Manager");
 				v6TaAddrBindingMgr.init();
-				serverConfig.setTaAddrBindingMgr(v6TaAddrBindingMgr);
+				serverConfig.setV6TaAddrBindingMgr(v6TaAddrBindingMgr);
 			}
 			catch (Exception ex) {
 				log.error("Failed initialize V6 TA Address Binding Manager", ex);
@@ -380,7 +397,7 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 Prefix Binding Manager");
 				v6PrefixBindingMgr.init();
-				serverConfig.setPrefixBindingMgr(v6PrefixBindingMgr);
+				serverConfig.setV6PrefixBindingMgr(v6PrefixBindingMgr);
 			}
 			catch (Exception ex) {
 				log.error("Failed initialize V6 Prefix Binding Manager", ex);
@@ -563,7 +580,7 @@ public class JagornetDhcpServer
             	if ((addrs == null) || (addrs.length < 1)) {
             		addrs = new String[] { "*" };
             	}
-        		v6UcastAddrs = getIpAddrs(addrs);
+        		v6UcastAddrs = getV6IpAddrs(addrs);
         		if ((v6UcastAddrs == null) || v6UcastAddrs.isEmpty()) {
         			return false;
         		}
@@ -649,7 +666,7 @@ public class JagornetDhcpServer
 	 * 
 	 * @throws SocketException the socket exception
 	 */
-	private List<NetworkInterface> getIPv6NetIfs(String[] ifnames) throws SocketException 
+	public static List<NetworkInterface> getIPv6NetIfs(String[] ifnames) throws SocketException 
 	{
 		List<NetworkInterface> netIfs = new ArrayList<NetworkInterface>();
 		for (String ifname : ifnames) {
@@ -712,7 +729,7 @@ public class JagornetDhcpServer
 	 * 
 	 * @return the list NetworkInterfaces
 	 */
-	private List<NetworkInterface> getAllIPv6NetIfs() throws SocketException
+	public static List<NetworkInterface> getAllIPv6NetIfs() throws SocketException
 	{
 		List<NetworkInterface> netIfs = new ArrayList<NetworkInterface>();
         Enumeration<NetworkInterface> localInterfaces =
@@ -739,7 +756,7 @@ public class JagornetDhcpServer
         return netIfs;
 	}
 	
-	private List<InetAddress> getIpAddrs(String[] addrs) throws UnknownHostException
+	public static List<InetAddress> getV6IpAddrs(String[] addrs) throws UnknownHostException
 	{
 		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
 		for (String addr : addrs) {
@@ -809,7 +826,7 @@ public class JagornetDhcpServer
 		return myV6Addrs;
 	}
 	
-	private NetworkInterface getIPv4NetIf(String ifname) throws SocketException 
+	public static NetworkInterface getIPv4NetIf(String ifname) throws SocketException 
 	{
 		NetworkInterface netIf = NetworkInterface.getByName(ifname);
 		if (netIf == null) {
@@ -860,7 +877,7 @@ public class JagornetDhcpServer
 		return netIf;
 	}
 	
-	private List<InetAddress> getV4IpAddrs(String[] addrs) throws UnknownHostException
+	public static List<InetAddress> getV4IpAddrs(String[] addrs) throws UnknownHostException
 	{
 		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
 		for (String addr : addrs) {
@@ -985,7 +1002,8 @@ public class JagornetDhcpServer
      */
     public static DhcpServerConfig getDhcpServerConfig()
     {
-        return DhcpServerConfiguration.getInstance().getDhcpServerConfig();
+//        return DhcpServerConfiguration.getInstance().getDhcpServerConfig();
+    	return null;
     }
         
     /**
@@ -1023,4 +1041,82 @@ public class JagornetDhcpServer
             log.error("Failure registering Log4J in JMX: " + ex);
         }
     }
+
+	public List<NetworkInterface> getV6McastNetIfs() {
+		return v6McastNetIfs;
+	}
+
+	public void setV6McastNetIfs(List<NetworkInterface> v6McastNetIfs) {
+		this.v6McastNetIfs = v6McastNetIfs;
+	}
+	
+	public void addV6McastNetIf(NetworkInterface v6McastNetIf) {
+		if (v6McastNetIfs == null) {
+			v6McastNetIfs = new ArrayList<NetworkInterface>();
+		}
+		v6McastNetIfs.add(v6McastNetIf);
+	}
+
+	public List<InetAddress> getV6UcastAddrs() {
+		return v6UcastAddrs;
+	}
+
+	public void setV6UcastAddrs(List<InetAddress> v6UcastAddrs) {
+		this.v6UcastAddrs = v6UcastAddrs;
+	}
+	
+	public void addV6UcastAddr(InetAddress v6UcastAddr) {
+		if (v6UcastAddrs == null) {
+			v6UcastAddrs = new ArrayList<InetAddress>();
+		}
+		v6UcastAddrs.add(v6UcastAddr);
+	}
+
+	public int getV6PortNumber() {
+		return v6PortNumber;
+	}
+
+	public void setV6PortNumber(int v6PortNumber) {
+		this.v6PortNumber = v6PortNumber;
+	}
+
+	public NetworkInterface getV4BcastNetIf() {
+		return v4BcastNetIf;
+	}
+
+	public void setV4BcastNetIf(NetworkInterface v4BcastNetIf) {
+		this.v4BcastNetIf = v4BcastNetIf;
+	}
+
+	public List<InetAddress> getV4UcastAddrs() {
+		return v4UcastAddrs;
+	}
+
+	public void setV4UcastAddrs(List<InetAddress> v4UcastAddrs) {
+		this.v4UcastAddrs = v4UcastAddrs;
+	}
+	
+	public void addV4UcastAddr(InetAddress v4UcastAddr) {
+		if (v4UcastAddrs == null) {
+			v4UcastAddrs = new ArrayList<InetAddress>();
+		}
+		v4UcastAddrs.add(v4UcastAddr);
+	}
+
+	public int getV4PortNumber() {
+		return v4PortNumber;
+	}
+
+	public void setV4PortNumber(int v4PortNumber) {
+		this.v4PortNumber = v4PortNumber;
+	}
+
+	public DhcpServerConfiguration getServerConfig() {
+		return serverConfig;
+	}
+
+	public void setServerConfig(DhcpServerConfiguration serverConfig) {
+		this.serverConfig = serverConfig;
+	}
+
 }

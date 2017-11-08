@@ -25,10 +25,11 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
+import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.option.base.BaseOpaqueDataListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.V6UserClassOption;
 
 /**
  * <p>Title: DhcpV6ClientIdOption </p>
@@ -51,19 +52,10 @@ public class DhcpV6UserClassOption extends BaseOpaqueDataListOption
 	 * 
 	 * @param userClassOption the user class option
 	 */
-	public DhcpV6UserClassOption(V6UserClassOption userClassOption)
+	public DhcpV6UserClassOption(List<BaseOpaqueData> baseOpaqueDataList)
 	{
-		super(userClassOption);
+		super(baseOpaqueDataList);
 		setCode(DhcpConstants.V6OPTION_USER_CLASS);
 	}
-    
-    public boolean matches(DhcpV6UserClassOption that, Operator op)
-    {
-        if (that == null)
-            return false;
-        if (that.getCode() != this.getCode())
-            return false;
 
-        return super.matches(that, op);
-    }
 }

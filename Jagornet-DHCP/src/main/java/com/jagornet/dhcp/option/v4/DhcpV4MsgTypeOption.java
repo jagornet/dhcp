@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedByteOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4MsgTypeOption;
 
 /**
  * <p>Title: DhcpV4MsgTypeOption </p>
@@ -42,7 +41,7 @@ public class DhcpV4MsgTypeOption extends BaseUnsignedByteOption
 	 */
 	public DhcpV4MsgTypeOption()
 	{
-		this(null);
+		this((short)0);
 	}
 	
 	/**
@@ -50,9 +49,9 @@ public class DhcpV4MsgTypeOption extends BaseUnsignedByteOption
 	 * 
 	 * @param v4MsgTypeOption the v4 message type option
 	 */
-	public DhcpV4MsgTypeOption(V4MsgTypeOption v4MsgTypeOption)
+	public DhcpV4MsgTypeOption(short v4MsgType)
 	{
-		super(v4MsgTypeOption);
+		super(v4MsgType);
 		setCode(DhcpConstants.V4OPTION_MESSAGE_TYPE);
 		setV4(true);
 	}

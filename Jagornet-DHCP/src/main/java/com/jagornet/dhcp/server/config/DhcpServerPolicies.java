@@ -208,7 +208,7 @@ public class DhcpServerPolicies
     public static String globalPolicy(Property prop)
     {
     	String policy = 
-    		getPolicy(DhcpServerConfiguration.getInstance().getDhcpServerConfig().getPolicies(),
+    		getPolicy(DhcpServerConfiguration.getInstance().getGlobalPolicies(),
     				prop.key());
     	if (policy != null) {
     		return policy;
@@ -277,9 +277,9 @@ public class DhcpServerPolicies
     	DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
     	String policy = null;
     	if (requestMsg != null) {
-    		FiltersType filtersType = config.getDhcpServerConfig().getFilters();
+    		FiltersType filtersType = config.getGlobalFilters();
     		if (filtersType != null) {
-    			List<Filter> filters = filtersType.getFilter();
+    			List<Filter> filters = filtersType.getFilters();
     			for (Filter filter : filters) {
 					if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
 						policy = getPolicy(filter.getPolicies(), prop.key());
@@ -295,7 +295,7 @@ public class DhcpServerPolicies
     	}
 		// client does not match a global filter 
 		// get the value of the global policy, if any
-    	policy = getPolicy(config.getDhcpServerConfig().getPolicies(), prop.key());
+    	policy = getPolicy(config.getGlobalPolicies(), prop.key());
     	if (policy != null) {
     		return policy;
     	}
@@ -623,7 +623,7 @@ public class DhcpServerPolicies
 		String policy = null;
 		if ((requestMsg != null) && (configObj != null)) {
 			if (configObj.getFilters() != null) {
-				List<Filter> filters = configObj.getFilters().getFilter();
+				List<Filter> filters = configObj.getFilters().getFilters();
 				if (filters != null) {
 					for (Filter filter : filters) {
 						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
@@ -721,7 +721,7 @@ public class DhcpServerPolicies
     protected static String getPolicy(PoliciesType policies, String name)
     {
 		if (policies != null) {
-			List<Policy> policyList = policies.getPolicy();
+			List<Policy> policyList = policies.getPolicies();
 			if (policyList != null) {
 				for (Policy policy : policyList) {
 					if (policy.getName().equalsIgnoreCase(name)) {

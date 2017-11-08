@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v4;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4DomainServersOption;
 
 /**
  * <p>Title: DhcpV4DomainServersOption </p>
@@ -50,9 +51,9 @@ public class DhcpV4DomainServersOption extends BaseIpAddressListOption
 	 * 
 	 * @param v4DomainServersOption the v4 domain servers option
 	 */
-	public DhcpV4DomainServersOption(V4DomainServersOption v4DomainServersOption)
+	public DhcpV4DomainServersOption(List<String> v4DomainServers)
 	{
-		super(v4DomainServersOption);
+		super(v4DomainServers);
 		setCode(DhcpConstants.V4OPTION_DOMAIN_SERVERS);
 		setV4(true);
 	}

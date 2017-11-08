@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedByteOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4NetbiosNodeTypeOption;
 
 /**
  * <p>Title: DhcpV4NetbiosNodeTypeOption </p>
@@ -42,7 +41,7 @@ public class DhcpV4NetbiosNodeTypeOption extends BaseUnsignedByteOption
 	 */
 	public DhcpV4NetbiosNodeTypeOption()
 	{
-		this(null);
+		this((short)0);
 	}
 	
 	/**
@@ -50,9 +49,9 @@ public class DhcpV4NetbiosNodeTypeOption extends BaseUnsignedByteOption
 	 * 
 	 * @param v4NetbiosNodeTypeOption the v4 netbios node type option
 	 */
-	public DhcpV4NetbiosNodeTypeOption(V4NetbiosNodeTypeOption v4NetbiosNodeTypeOption)
+	public DhcpV4NetbiosNodeTypeOption(short v4NetbiosNodeType)
 	{
-		super(v4NetbiosNodeTypeOption);
+		super(v4NetbiosNodeType);
 		setCode(DhcpConstants.V4OPTION_NETBIOS_NODE_TYPE);
 		setV4(true);
 	}

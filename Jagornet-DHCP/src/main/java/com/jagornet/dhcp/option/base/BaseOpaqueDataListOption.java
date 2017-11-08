@@ -30,16 +30,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jagornet.dhcp.option.DhcpComparableOption;
-import com.jagornet.dhcp.option.OpaqueDataUtil;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.OpaqueDataListOptionType;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: BaseOpaqueDataListOption
@@ -47,38 +38,19 @@ import com.jagornet.dhcp.xml.OptionExpression;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements DhcpComparableOption
+public abstract class BaseOpaqueDataListOption extends BaseDhcpOption
 {
-	private static Logger log = LoggerFactory.getLogger(BaseOpaqueDataListOption.class);
-	
     private List<BaseOpaqueData> opaqueDataList;
 
-    /**
-     * Instantiates a new opaque opaqueData list option.
-     */
-    public BaseOpaqueDataListOption()
-    {
+    public BaseOpaqueDataListOption() {
         this(null);
     }
     
-    /**
-     * Instantiates a new opaque opaqueData list option.
-     * 
-     * @param opaqueDataListOption the opaque opaqueData list option
-     */
-    public BaseOpaqueDataListOption(OpaqueDataListOptionType opaqueDataListOption)
-    {
-        super();
-        if (opaqueDataListOption != null) {
-        	List<OpaqueData> _opaqueDataList = opaqueDataListOption.getOpaqueData();
-        	if (_opaqueDataList != null) {
-        		for (OpaqueData opaqueData : _opaqueDataList) {
-					addOpaqueData(new BaseOpaqueData(opaqueData));
-				}
-        	}
-        }
-    }
-
+    public BaseOpaqueDataListOption(List<BaseOpaqueData> opaqueDataList) {
+    	super();
+		this.opaqueDataList = opaqueDataList;
+	}
+    
     public List<BaseOpaqueData> getOpaqueDataList() {
 		return opaqueDataList;
 	}
@@ -111,9 +83,7 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
         }
     }
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
+	@Override
     public int getLength()
     {
         int len = 0;
@@ -125,9 +95,7 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
         return len;
     }
     
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+    @Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -139,9 +107,7 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+    @Override
 	public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -155,119 +121,7 @@ public abstract class BaseOpaqueDataListOption extends BaseDhcpOption implements
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-
-        return matches(expression.getOpaqueDataListOption(), expression.getOperator());
-    }
-
-	public boolean matches(OpaqueDataListOptionType that, Operator op) 
-	{
-		if (that != null) {
-        	List<OpaqueData> opaqueList = that.getOpaqueData();
-        	if (opaqueList != null) {
-        		if (op.equals(Operator.EQUALS)) {
-	        		if (opaqueList.size() != opaqueDataList.size()) {
-	        			return false;
-	        		}
-	        		for (int i=0; i<opaqueList.size(); i++) {
-	        			BaseOpaqueData opaque = new BaseOpaqueData(opaqueList.get(i));
-	        			BaseOpaqueData myOpaque = opaqueDataList.get(i);
-	        			if (!OpaqueDataUtil.equals(opaque, myOpaque)) {
-	        				return false;
-	        			}
-	        		}
-	        		return true;
-        		}
-        		else if (op.equals(Operator.CONTAINS)) {
-        			if (opaqueList.size() > opaqueDataList.size()) {
-        				return false;
-        			}
-        			for (int i=0; i<opaqueList.size(); i++) {
-	        			BaseOpaqueData opaque = new BaseOpaqueData(opaqueList.get(i));
-	        			boolean found = false;
-        				for (int j=0; j<opaqueDataList.size(); j++) {
-    	        			BaseOpaqueData myOpaque = opaqueDataList.get(j);
-    	        			if (OpaqueDataUtil.equals(opaque, myOpaque)) {
-    	        				found = true;
-    	        				break;
-    	        			}        					
-        				}
-        				if (!found) {
-        					return false;        					
-        				}
-        			}
-        			return true;
-        		}
-        		else {
-                	log.warn("Unsupported expression operator: " + op);
-        		}
-        	}
-        }
-		
-		return false;
-	}
-
-	public boolean matches(BaseOpaqueDataListOption that, Operator op) 
-	{
-		if (opaqueDataList == null)
-        	return false;
-	
-		if (that != null) {
-        	List<BaseOpaqueData> opaqueList = that.getOpaqueDataList();
-        	if (opaqueList != null) {
-        		if (op.equals(Operator.EQUALS)) {
-	        		if (opaqueList.size() != opaqueDataList.size()) {
-	        			return false;
-	        		}
-	        		for (int i=0; i<opaqueList.size(); i++) {
-	        			BaseOpaqueData opaque = opaqueList.get(i);
-	        			BaseOpaqueData myOpaque = opaqueDataList.get(i);
-	        			if (!OpaqueDataUtil.equals(opaque, myOpaque)) {
-	        				return false;
-	        			}
-	        		}
-	        		return true;
-        		}
-        		else if (op.equals(Operator.CONTAINS)) {
-        			if (opaqueList.size() > opaqueDataList.size()) {
-        				return false;
-        			}
-        			for (int i=0; i<opaqueList.size(); i++) {
-	        			BaseOpaqueData opaque = opaqueList.get(i);
-	        			boolean found = false;
-        				for (int j=0; j<opaqueDataList.size(); j++) {
-    	        			BaseOpaqueData myOpaque = opaqueDataList.get(j);
-    	        			if (OpaqueDataUtil.equals(opaque, myOpaque)) {
-    	        				found = true;
-    	        				break;
-    	        			}        					
-        				}
-        				if (!found) {
-        					return false;        					
-        				}
-        			}
-        			return true;
-        		}
-        		else {
-                	log.warn("Unsupported expression operator: " + op);
-        		}
-        	}
-        }
-		
-		return false;
-	}
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);

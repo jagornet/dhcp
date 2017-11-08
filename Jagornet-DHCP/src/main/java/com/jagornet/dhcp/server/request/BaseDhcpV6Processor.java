@@ -45,11 +45,6 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcp.message.DhcpV6Message;
 import com.jagornet.dhcp.option.base.DhcpOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ClientFqdnOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaPdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaPrefixOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.option.v6.DhcpV6StatusCodeOption;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
@@ -58,6 +53,11 @@ import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaAddrOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaPdOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaPrefixOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaTaOption;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.BindingObject;
 import com.jagornet.dhcp.server.request.binding.V6BindingAddress;
@@ -85,7 +85,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     
     // wrap the configured ServerId option in a DhcpOption for the wire
     protected static DhcpV6ServerIdOption dhcpServerIdOption = 
-    	new DhcpV6ServerIdOption(dhcpServerConfig.getDhcpServerConfig().getV6ServerIdOption());
+    		dhcpServerConfig.getDhcpV6ServerIdOption();
     
     protected final DhcpV6Message requestMsg;
     protected DhcpV6Message replyMsg;

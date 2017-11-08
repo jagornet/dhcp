@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedIntOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4TimeOffsetOption;
 
 /**
  * <p>Title: DhcpV4TimeOffsetOption </p>
@@ -42,7 +41,7 @@ public class DhcpV4TimeOffsetOption extends BaseUnsignedIntOption
 	 */
 	public DhcpV4TimeOffsetOption()
 	{
-		this(null);
+		this((long)0);
 	}
 	
 	/**
@@ -50,9 +49,9 @@ public class DhcpV4TimeOffsetOption extends BaseUnsignedIntOption
 	 * 
 	 * @param v4TimeOffsetOption the v4 time offset option
 	 */
-	public DhcpV4TimeOffsetOption(V4TimeOffsetOption v4TimeOffsetOption)
+	public DhcpV4TimeOffsetOption(long v4TimeOffset)
 	{
-		super(v4TimeOffsetOption);
+		super(v4TimeOffset);
 		setCode(DhcpConstants.V4OPTION_TIME_OFFSET);
 		setV4(true);
 	}

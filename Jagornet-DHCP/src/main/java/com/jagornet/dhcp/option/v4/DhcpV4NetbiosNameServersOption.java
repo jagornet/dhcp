@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v4;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4NetbiosNameServersOption;
 
 /**
  * <p>Title: DhcpV4NetbiosNameServersOption </p>
@@ -50,9 +51,9 @@ public class DhcpV4NetbiosNameServersOption extends BaseIpAddressListOption
 	 * 
 	 * @param v4NetbiosNameServersOption the v4 netbios name servers option
 	 */
-	public DhcpV4NetbiosNameServersOption(V4NetbiosNameServersOption v4NetbiosNameServersOption)
+	public DhcpV4NetbiosNameServersOption(List<String> v4NetbiosNameServers)
 	{
-		super(v4NetbiosNameServersOption);
+		super(v4NetbiosNameServers);
 		setCode(DhcpConstants.V4OPTION_NETBIOS_NAME_SERVERS);
 		setV4(true);
 	}

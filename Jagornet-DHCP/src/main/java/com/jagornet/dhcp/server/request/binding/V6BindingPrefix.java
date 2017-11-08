@@ -27,9 +27,9 @@ package com.jagornet.dhcp.server.request.binding;
 
 import org.springframework.beans.BeanUtils;
 
-import com.jagornet.dhcp.db.IaPrefix;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
+import com.jagornet.dhcp.server.db.IaPrefix;
 
 /**
  * The Class V6BindingPrefix.  A wrapper for an IaPrefix object with

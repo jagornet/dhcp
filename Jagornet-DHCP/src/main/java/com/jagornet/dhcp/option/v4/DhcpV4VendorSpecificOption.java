@@ -25,9 +25,9 @@
  */
 package com.jagornet.dhcp.option.v4;
 
+import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4VendorSpecificOption;
 
 /**
  * <p>Title: DhcpV4VendorSpecificOption </p>
@@ -50,9 +50,9 @@ public class DhcpV4VendorSpecificOption extends BaseOpaqueDataOption
 	 * 
 	 * @param v4VendorSpecificOption the vendor info option
 	 */
-	public DhcpV4VendorSpecificOption(V4VendorSpecificOption v4VendorSpecificOption)
+	public DhcpV4VendorSpecificOption(BaseOpaqueData baseOpaqueData)
 	{
-		super(v4VendorSpecificOption);
+		super(baseOpaqueData);
 		setCode(DhcpConstants.V4OPTION_VENDOR_INFO);
 		setV4(true);
 	}

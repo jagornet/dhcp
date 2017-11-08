@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v4;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4TimeServersOption;
 
 /**
  * <p>Title: DhcpV4TimeServersOption </p>
@@ -50,9 +51,9 @@ public class DhcpV4TimeServersOption extends BaseIpAddressListOption
 	 * 
 	 * @param v4TimeServersOption the v4 time servers option
 	 */
-	public DhcpV4TimeServersOption(V4TimeServersOption v4TimeServersOption)
+	public DhcpV4TimeServersOption(List<String> v4TimeServers)
 	{
-		super(v4TimeServersOption);
+		super(v4TimeServers);
 		setCode(DhcpConstants.V4OPTION_TIME_SERVERS);
 		setV4(true);
 	}

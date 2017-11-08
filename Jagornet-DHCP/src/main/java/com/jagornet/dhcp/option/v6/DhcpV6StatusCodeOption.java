@@ -28,12 +28,10 @@ package com.jagornet.dhcp.option.v6;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.jagornet.dhcp.option.DhcpComparableOption;
 import com.jagornet.dhcp.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.OptionExpression;
-import com.jagornet.dhcp.xml.V6StatusCodeOption;
 
 /**
  * <p>Title: DhcpV6StatusCodeOption </p>
@@ -41,7 +39,7 @@ import com.jagornet.dhcp.xml.V6StatusCodeOption;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpV6StatusCodeOption extends BaseDhcpOption implements DhcpComparableOption
+public class DhcpV6StatusCodeOption extends BaseDhcpOption
 {    
     private int statusCode;
     private String message;
@@ -51,7 +49,7 @@ public class DhcpV6StatusCodeOption extends BaseDhcpOption implements DhcpCompar
      */
     public DhcpV6StatusCodeOption()
     {
-        this(null);
+        this((int)0, null);
     }
     
     /**
@@ -59,13 +57,11 @@ public class DhcpV6StatusCodeOption extends BaseDhcpOption implements DhcpCompar
      * 
      * @param statusCodeOption the status code option
      */
-    public DhcpV6StatusCodeOption(V6StatusCodeOption statusCodeOption)
+    public DhcpV6StatusCodeOption(int statusCode, String message)
     {
         super();
-        if (statusCodeOption != null) {
-        	statusCode = statusCodeOption.getCode();
-            message = statusCodeOption.getMessage();
-        }
+        setStatusCode(statusCode);
+        setMessage(message);
         setCode(DhcpConstants.V6OPTION_STATUS_CODE);
     }
 

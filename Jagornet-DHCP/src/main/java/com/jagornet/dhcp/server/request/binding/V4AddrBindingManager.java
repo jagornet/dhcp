@@ -25,11 +25,11 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
-import com.jagornet.dhcp.db.IaAddress;
-import com.jagornet.dhcp.db.IdentityAssoc;
 import com.jagornet.dhcp.message.DhcpMessage;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
+import com.jagornet.dhcp.server.db.IaAddress;
+import com.jagornet.dhcp.server.db.IdentityAssoc;
 
 /**
  * The Interface V4AddrBindingManager.  The interface for DHCPv4 type

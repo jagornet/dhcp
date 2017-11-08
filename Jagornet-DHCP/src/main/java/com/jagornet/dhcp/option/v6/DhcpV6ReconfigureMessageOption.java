@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v6;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedByteOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6ReconfigureMessageOption;
 
 /**
  * <p>Title: DhcpV6ReconfigureMessageOption </p>
@@ -42,7 +41,7 @@ public class DhcpV6ReconfigureMessageOption extends BaseUnsignedByteOption
 	 */
 	public DhcpV6ReconfigureMessageOption()
 	{
-		this(null);
+		this((short)0);
 	}
 	
 	/**
@@ -50,9 +49,9 @@ public class DhcpV6ReconfigureMessageOption extends BaseUnsignedByteOption
 	 * 
 	 * @param reconfigureMessageOption the reconfigure message option
 	 */
-	public DhcpV6ReconfigureMessageOption(V6ReconfigureMessageOption reconfigureMessageOption)
+	public DhcpV6ReconfigureMessageOption(short reconfigureMessage)
 	{
-		super(reconfigureMessageOption);
+		super(reconfigureMessage);
 		setCode(DhcpConstants.V6OPTION_RECONF_MSG);
 	}
 }

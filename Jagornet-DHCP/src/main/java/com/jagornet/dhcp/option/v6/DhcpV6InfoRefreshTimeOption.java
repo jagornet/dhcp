@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v6;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedIntOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6InfoRefreshTimeOption;
 
 /**
  * <p>Title: DhcpV6InfoRefreshTimeOption </p>
@@ -42,7 +41,7 @@ public class DhcpV6InfoRefreshTimeOption extends BaseUnsignedIntOption
 	 */
 	public DhcpV6InfoRefreshTimeOption()
 	{
-		this(null);
+		this((long)0);
 	}
 	
 	/**
@@ -50,9 +49,9 @@ public class DhcpV6InfoRefreshTimeOption extends BaseUnsignedIntOption
 	 * 
 	 * @param infoRefreshTimeOption the info refresh time option
 	 */
-	public DhcpV6InfoRefreshTimeOption(V6InfoRefreshTimeOption infoRefreshTimeOption)
+	public DhcpV6InfoRefreshTimeOption(long infoRefreshTime)
 	{
-		super(infoRefreshTimeOption);
+		super(infoRefreshTime);
 		setCode(DhcpConstants.V6OPTION_INFO_REFRESH_TIME);
 	}
 }

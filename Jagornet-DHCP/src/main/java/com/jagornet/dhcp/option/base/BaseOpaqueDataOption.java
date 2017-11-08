@@ -29,11 +29,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.jagornet.dhcp.option.DhcpComparableOption;
-import com.jagornet.dhcp.option.OpaqueDataUtil;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.OpaqueDataOptionType;
-import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: BaseOpaqueDataOption
@@ -41,34 +37,19 @@ import com.jagornet.dhcp.xml.OptionExpression;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements DhcpComparableOption
+public abstract class BaseOpaqueDataOption extends BaseDhcpOption
 {
 	protected BaseOpaqueData opaqueData;
 	
-    /**
-     * Instantiates a new opaque opaqueData option.
-     */
-    public BaseOpaqueDataOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new opaque opaqueData option.
-     * 
-     * @param opaqueDataOption the opaque opaqueData option
-     */
-    public BaseOpaqueDataOption(OpaqueDataOptionType opaqueDataOption)
-    {
-        super();
-        if ((opaqueDataOption != null) && (opaqueDataOption.getOpaqueData() != null)) {
-    		opaqueData = new BaseOpaqueData(opaqueDataOption.getOpaqueData());
-    	}
-        else {
-        	opaqueData = new BaseOpaqueData();
-        }
-    }
+	public BaseOpaqueDataOption() {
+		this(null);
+	}
 
+	public BaseOpaqueDataOption(BaseOpaqueData opaqueData) {
+		super();
+		this.opaqueData = opaqueData;
+	}
+	
 	public BaseOpaqueData getOpaqueData() {
 		return opaqueData;
 	}
@@ -77,14 +58,13 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
 		this.opaqueData = opaqueData;
 	}
 
+	@Override
 	public int getLength()
     {
         return opaqueData.getLength();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+	@Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -92,9 +72,7 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+	@Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf); 
@@ -105,24 +83,8 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
             }
         }
     }
-    
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
 
-        return OpaqueDataUtil.matches(expression, opaqueData);
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
+	@Override
     public boolean equals(Object obj)
     {
 		if (this == obj)
@@ -146,9 +108,7 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption implements Dhc
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+	@Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);

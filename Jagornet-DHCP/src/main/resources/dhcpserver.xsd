@@ -400,13 +400,15 @@
 	<xs:complexType name="opaqueData">
 		<xs:annotation>
 			<xs:documentation>
-				Opaque data can be specified as either ASCII text or
-				as binary data using hex characters for each byte.
+				Opaque data can be specified as either ASCII text,
+				as binary data using hex characters for each byte,
+				or as sub-options using the genericOptionsType.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:choice>
 			<xs:element name="asciiValue" type="xs:string"/>
 			<xs:element name="hexValue" type="xs:hexBinary"/>
+			<xs:element name="subOptions" type="genericOptionsType"/>
 		</xs:choice>
 	</xs:complexType>
 

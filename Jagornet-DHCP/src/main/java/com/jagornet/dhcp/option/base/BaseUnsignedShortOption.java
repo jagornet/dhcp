@@ -28,16 +28,7 @@ package com.jagornet.dhcp.option.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jagornet.dhcp.option.DhcpComparableOption;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.OpaqueDataOptionType;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.OptionExpression;
-import com.jagornet.dhcp.xml.UnsignedShortOptionType;
 
 /**
  * Title: BaseUnsignedShortOption
@@ -45,32 +36,18 @@ import com.jagornet.dhcp.xml.UnsignedShortOptionType;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements DhcpComparableOption
+public abstract class BaseUnsignedShortOption extends BaseDhcpOption
 { 
-	private static Logger log = LoggerFactory.getLogger(BaseUnsignedShortOption.class);
-
     protected int unsignedShort;
     
-    /**
-     * Instantiates a new unsigned short option.
-     */
-    public BaseUnsignedShortOption()
-    {
-        this(null);
-    }
+    public BaseUnsignedShortOption() {
+		this((int)0);
+	}
     
-    /**
-     * Instantiates a new unsigned short option.
-     * 
-     * @param uShortOption the elapsed time option
-     */
-    public BaseUnsignedShortOption(UnsignedShortOptionType uShortOption)
-    {
-        super();
-        if (uShortOption != null) {
-            unsignedShort = uShortOption.getUnsignedShort();
-        }
-    }
+    public BaseUnsignedShortOption(int unsignedShort) {
+    	super();
+		this.unsignedShort = unsignedShort;
+	}
 
     public int getUnsignedShort() {
 		return unsignedShort;
@@ -80,17 +57,13 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
 		this.unsignedShort = unsignedShort;
 	}
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
+	@Override
     public int getLength()
     {
         return 2;   // always two bytes (short)
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+	@Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -98,9 +71,7 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+	@Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -109,76 +80,8 @@ public abstract class BaseUnsignedShortOption extends BaseDhcpOption implements 
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-        
-        UnsignedShortOptionType exprOption = expression.getUShortOption();
-        if (exprOption != null) {
-        	int exprUshort = exprOption.getUnsignedShort();
-        	Operator op = expression.getOperator();
-        	if (op.equals(Operator.EQUALS)) {
-        		return (unsignedShort == exprUshort);
-        	}
-        	else if (op.equals(Operator.LESS_THAN)) {
-        		return (unsignedShort < exprUshort);
-        	}
-        	else if (op.equals(Operator.LESS_THAN_OR_EQUAL)) {
-        		return (unsignedShort <= exprUshort);
-        	}
-        	else if (op.equals(Operator.GREATER_THAN)) {
-        		return (unsignedShort > exprUshort);
-        	}
-        	else if (op.equals(Operator.GREATER_THAN_OR_EQUAL)) {
-        		return (unsignedShort >= exprUshort);
-        	}
-            else {
-            	log.warn("Unsupported expression operator: " + op);
-            }
-        }
-        
-        // then see if we have an opaque option
-        OpaqueDataOptionType opaqueOption = expression.getOpaqueDataOption();
-        if (opaqueOption != null) {
-	        OpaqueData opaque = opaqueOption.getOpaqueData();
-	        if (opaque != null) {
-	            String ascii = opaque.getAsciiValue();
-	            if (ascii != null) {
-	                try {
-	                	// need an Integer to handle unsigned short
-	                    if (unsignedShort == Integer.parseInt(ascii)) {
-	                        return true;
-	                    }
-	                }
-	                catch (NumberFormatException ex) { 
-	                	log.error("Invalid unsigned short ASCII value for OpaqueData: " + ascii, ex);
-	                }
-	            }
-	            else {
-	                byte[] hex = opaque.getHexValue();
-	                if ( (hex != null) && 
-	                     (hex.length >= 1) && (hex.length <= 2) ) {
-	                	int hexUnsignedShort = Integer.valueOf(Util.toHexString(hex), 16);
-	                    if (unsignedShort == hexUnsignedShort) {
-	                        return true;
-	                    }
-	                }
-	            }
-	        }
-        }
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    public String toString()
+	@Override
+	public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());

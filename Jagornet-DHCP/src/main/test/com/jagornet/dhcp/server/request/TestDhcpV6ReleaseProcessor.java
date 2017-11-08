@@ -92,8 +92,7 @@ public class TestDhcpV6ReleaseProcessor extends BaseTestDhcpV6Processor
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RELEASE);
-		DhcpV6ServerIdOption dhcpServerId = 
-			new DhcpV6ServerIdOption(config.getDhcpServerConfig().getV6ServerIdOption());
+		DhcpV6ServerIdOption dhcpServerId = config.getDhcpV6ServerIdOption();
 		requestMsg.putDhcpOption(dhcpServerId);
 		
 		DhcpV6ReleaseProcessor processor =

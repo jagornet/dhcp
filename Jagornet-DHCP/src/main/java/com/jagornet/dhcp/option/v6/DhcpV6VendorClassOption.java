@@ -33,8 +33,6 @@ import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.option.base.BaseOpaqueDataListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.V6VendorClassOption;
 
 /**
  * <p>Title: DhcpV6VendorClassOption </p>
@@ -51,7 +49,7 @@ public class DhcpV6VendorClassOption extends BaseOpaqueDataListOption
 	 */
 	public DhcpV6VendorClassOption()
 	{
-		this(null);
+		this((long)0, null);
 	}
 	
 	/**
@@ -59,12 +57,10 @@ public class DhcpV6VendorClassOption extends BaseOpaqueDataListOption
 	 * 
 	 * @param vendorClassOption the vendor class option
 	 */
-	public DhcpV6VendorClassOption(V6VendorClassOption vendorClassOption)
+	public DhcpV6VendorClassOption(long enterpriseNumber, List<BaseOpaqueData> baseOpaqueDataList)
 	{
-    	super(vendorClassOption);
-    	if (vendorClassOption != null) {
-    		enterpriseNumber = vendorClassOption.getEnterpriseNumber();
-    	}
+    	super(baseOpaqueDataList);
+    	setEnterpriseNumber(enterpriseNumber);
     	setCode(DhcpConstants.V6OPTION_VENDOR_CLASS);
 	}
     
@@ -76,18 +72,14 @@ public class DhcpV6VendorClassOption extends BaseOpaqueDataListOption
     	this.enterpriseNumber = enterpriseNumber;
     }
 	
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
+    @Override
     public int getLength()
     {
         int len = 4 + super.getLength();  // size of enterprise number (int)
         return len;
     }
     
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+    @Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -101,9 +93,7 @@ public class DhcpV6VendorClassOption extends BaseOpaqueDataListOption
         return (ByteBuffer) buf.flip();        
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+    @Override
 	public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -120,9 +110,7 @@ public class DhcpV6VendorClassOption extends BaseOpaqueDataListOption
         }
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(super.toString());
@@ -131,15 +119,4 @@ public class DhcpV6VendorClassOption extends BaseOpaqueDataListOption
         return sb.toString();
     }
 
-    public boolean matches(DhcpV6VendorClassOption that, Operator op)
-    {
-        if (that == null)
-            return false;
-        if (that.getCode() != this.getCode())
-            return false;
-        if (that.getEnterpriseNumber() != this.getEnterpriseNumber())
-        	return false;
-
-        return super.matches(that, op);
-    }    
 }

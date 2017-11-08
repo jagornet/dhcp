@@ -26,7 +26,6 @@
 package com.jagornet.dhcp.option.generic;
 
 import com.jagornet.dhcp.option.base.BaseStringOption;
-import com.jagornet.dhcp.xml.StringOptionType;
 
 /**
  * <p>Title: GenericStringOption </p>
@@ -54,10 +53,9 @@ public class GenericStringOption extends BaseStringOption
 	 * @param name the option name
 	 * @param stringOption the string option
 	 */
-	public GenericStringOption(int code, String name,
-							   StringOptionType stringOption)
+	public GenericStringOption(int code, String name, String string)
 	{
-		super(stringOption);
+		super(string);
 		setCode(code);
 		setName(name);
 	}

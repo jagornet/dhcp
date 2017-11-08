@@ -31,13 +31,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.IpAddressOptionType;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: BaseIpAddressOption
@@ -47,8 +41,6 @@ import com.jagornet.dhcp.xml.OptionExpression;
  */
 public abstract class BaseIpAddressOption extends BaseDhcpOption
 {
-	private static Logger log = LoggerFactory.getLogger(BaseIpAddressOption.class);
-
 	protected String ipAddress;
 	
 	public BaseIpAddressOption()
@@ -56,12 +48,9 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
 		this(null);
 	}
 	
-	public BaseIpAddressOption(IpAddressOptionType ipAddressOption)
-	{
+	public BaseIpAddressOption(String ipAddress) {
 		super();
-		if (ipAddressOption != null) {
-			ipAddress = ipAddressOption.getIpAddress();
-		}
+		this.ipAddress = ipAddress;
 	}
 	
     public String getIpAddress() {
@@ -72,9 +61,16 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
 		this.ipAddress = ipAddress;
 	}
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+    @Override
+    public int getLength()
+    {
+    	if (!super.isV4())
+    		return 16;		// 128-bit IPv6 address
+    	else
+    		return 4;		// 32-bit IPv4 address
+    }
+
+	@Override
     public ByteBuffer encode() throws IOException
     {
     	ByteBuffer buf = super.encodeCodeAndLength();
@@ -91,9 +87,7 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+    @Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -139,59 +133,7 @@ public abstract class BaseIpAddressOption extends BaseDhcpOption
         return inetAddr.getHostAddress();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
-    public int getLength()
-    {
-    	if (!super.isV4())
-    		return 16;		// 128-bit IPv6 address
-    	else
-    		return 4;		// 32-bit IPv4 address
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-        if (ipAddress == null)
-        	return false;
-        
-        IpAddressOptionType exprOption = expression.getIpAddressOption();
-        if (exprOption != null) {
-        	String exprIpAddress = exprOption.getIpAddress();
-            Operator op = expression.getOperator();
-            if (op.equals(Operator.EQUALS)) {
-            	return ipAddress.equals(exprIpAddress);
-            }
-            else if (op.equals(Operator.STARTS_WITH)) {
-            	return ipAddress.startsWith(exprIpAddress);
-            }
-            else if (op.equals(Operator.ENDS_WITH)) {
-            	return ipAddress.endsWith(exprIpAddress);
-            }
-            else if (op.equals(Operator.CONTAINS)) {
-            	return ipAddress.contains(exprIpAddress);
-            }
-            else if (op.equals(Operator.REG_EXP)) {
-            	return ipAddress.matches(exprIpAddress);
-            }
-            else {
-            	log.warn("Unsupported expression operator: " + op);
-            }
-        }
-        
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);

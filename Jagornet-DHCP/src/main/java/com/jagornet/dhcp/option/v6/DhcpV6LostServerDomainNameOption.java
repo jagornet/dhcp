@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v6;
 
 import com.jagornet.dhcp.option.base.BaseDomainNameOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6LostServerDomainNameOption;
 
 /**
  * <p>Title: DhcpV6LostServerDomainNameOption </p>
@@ -50,9 +49,9 @@ public class DhcpV6LostServerDomainNameOption extends BaseDomainNameOption
 	 * 
 	 * @param lostServerDomainNameOption the lost server domain name option
 	 */
-	public DhcpV6LostServerDomainNameOption(V6LostServerDomainNameOption lostServerDomainNameOption)
+	public DhcpV6LostServerDomainNameOption(String lostServerDomainName)
 	{
-		super(lostServerDomainNameOption); 
+		super(lostServerDomainName); 
 		setCode(DhcpConstants.V6OPTION_LOST_SERVER_DOMAIN_NAME);
 	}
 }

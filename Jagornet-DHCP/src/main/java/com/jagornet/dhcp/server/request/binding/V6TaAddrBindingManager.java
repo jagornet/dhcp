@@ -25,13 +25,13 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
-import com.jagornet.dhcp.db.IaAddress;
-import com.jagornet.dhcp.db.IdentityAssoc;
 import com.jagornet.dhcp.message.DhcpMessage;
 import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaTaOption;
+import com.jagornet.dhcp.server.db.IaAddress;
+import com.jagornet.dhcp.server.db.IdentityAssoc;
 
 /**
  * The Interface V6TaAddrBindingManager.  The interface for DHCPv6 IA_TA type

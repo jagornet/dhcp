@@ -26,7 +26,6 @@
 package com.jagornet.dhcp.option.generic;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedIntOption;
-import com.jagornet.dhcp.xml.UnsignedIntOptionType;
 
 /**
  * <p>Title: GenericUnsignedIntOption </p>
@@ -44,7 +43,7 @@ public class GenericUnsignedIntOption extends BaseUnsignedIntOption
 	 */
 	public GenericUnsignedIntOption(int code, String name)
 	{
-		this(code, name, null);
+		this(code, name, (long)0);
 	}
 	
 	/**
@@ -54,10 +53,9 @@ public class GenericUnsignedIntOption extends BaseUnsignedIntOption
 	 * @param name the option name
 	 * @param unsignedIntOption the unsigned int option
 	 */
-	public GenericUnsignedIntOption(int code, String name,
-									UnsignedIntOptionType unsignedIntOption)
+	public GenericUnsignedIntOption(int code, String name, long unsignedInt)
 	{
-		super(unsignedIntOption);
+		super(unsignedInt);
 		setCode(code);
 		setName(name);
 	}

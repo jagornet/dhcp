@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseStringOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4BootFileNameOption;
 
 /**
  * <p>Title: DhcpV4BootFileNameOption </p>
@@ -50,9 +49,9 @@ public class DhcpV4BootFileNameOption extends BaseStringOption
 	 * 
 	 * @param v4DomainNameOption the v4 boot file name option
 	 */
-	public DhcpV4BootFileNameOption(V4BootFileNameOption v4BootFileNameOption)
+	public DhcpV4BootFileNameOption(String v4BootFileName)
 	{
-		super(v4BootFileNameOption);
+		super(v4BootFileName);
 		setCode(DhcpConstants.V4OPTION_BOOT_FILE_NAME);
 		setV4(true);
 	}

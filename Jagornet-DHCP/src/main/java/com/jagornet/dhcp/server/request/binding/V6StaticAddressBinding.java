@@ -28,8 +28,8 @@ package com.jagornet.dhcp.server.request.binding;
 import java.util.Arrays;
 
 import com.jagornet.dhcp.message.DhcpMessage;
-import com.jagornet.dhcp.option.v6.DhcpV6ConfigOptions;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
+import com.jagornet.dhcp.server.config.option.DhcpV6ConfigOptions;
 import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.V6AddressBinding;
 import com.jagornet.dhcp.xml.PoliciesType;

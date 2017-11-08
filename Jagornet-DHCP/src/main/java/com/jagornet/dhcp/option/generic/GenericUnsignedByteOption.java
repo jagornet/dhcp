@@ -26,7 +26,6 @@
 package com.jagornet.dhcp.option.generic;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedByteOption;
-import com.jagornet.dhcp.xml.UnsignedByteOptionType;
 
 /**
  * <p>Title: GenericUnsignedByteOption </p>
@@ -44,7 +43,7 @@ public class GenericUnsignedByteOption extends BaseUnsignedByteOption
 	 */
 	public GenericUnsignedByteOption(int code, String name)
 	{
-		this(code, name, null);
+		this(code, name, (short)0);
 	}
 	
 	/**
@@ -54,10 +53,9 @@ public class GenericUnsignedByteOption extends BaseUnsignedByteOption
 	 * @param name the option name
 	 * @param unsignedByteOption the unsigned byte option
 	 */
-	public GenericUnsignedByteOption(int code, String name,
-									 UnsignedByteOptionType unsignedByteOption)
+	public GenericUnsignedByteOption(int code, String name, short unsignedByte)
 	{
-		super(unsignedByteOption);
+		super(unsignedByte);
 		setCode(code);
 		setName(name);
 	}

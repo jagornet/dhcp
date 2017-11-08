@@ -29,8 +29,8 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import com.jagornet.dhcp.option.OpaqueDataUtil;
 import com.jagornet.dhcp.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
 import com.jagornet.dhcp.util.Util;
 
 // TODO: Auto-generated Javadoc

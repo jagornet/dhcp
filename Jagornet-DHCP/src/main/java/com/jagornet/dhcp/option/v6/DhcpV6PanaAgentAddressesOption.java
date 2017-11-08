@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6PanaAgentAddressesOption;
 
 /**
  * <p>Title: DhcpV6PanaAgentAddressesOption </p>
@@ -50,9 +51,9 @@ public class DhcpV6PanaAgentAddressesOption extends BaseIpAddressListOption
 	 * 
 	 * @param panaAgentAddressesOption the pana agent addresses option
 	 */
-	public DhcpV6PanaAgentAddressesOption(V6PanaAgentAddressesOption panaAgentAddressesOption)
+	public DhcpV6PanaAgentAddressesOption(List<String> panaAgentAddresses)
 	{
-		super(panaAgentAddressesOption);
+		super(panaAgentAddresses);
 		setCode(DhcpConstants.V6OPTION_PANA_AGENT_ADDRESSES);
 	}
 }

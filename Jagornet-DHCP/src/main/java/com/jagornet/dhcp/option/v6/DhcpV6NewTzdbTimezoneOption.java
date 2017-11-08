@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v6;
 
 import com.jagornet.dhcp.option.base.BaseStringOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6NewTzdbTimezoneOption;
 
 /**
  * <p>Title: DhcpV6NewTzdbTimezoneOption </p>
@@ -50,9 +49,9 @@ public class DhcpV6NewTzdbTimezoneOption extends BaseStringOption
 	 * 
 	 * @param newTzdbTimezoneOption the new tzdb timezone option
 	 */
-	public DhcpV6NewTzdbTimezoneOption(V6NewTzdbTimezoneOption newTzdbTimezoneOption)
+	public DhcpV6NewTzdbTimezoneOption(String newTzdbTimezone)
 	{
-		super(newTzdbTimezoneOption);
+		super(newTzdbTimezone);
 		setCode(DhcpConstants.V6OPTION_NEW_TZDB_TIMEZONE);
 	}
 }

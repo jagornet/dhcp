@@ -26,7 +26,6 @@
 package com.jagornet.dhcp.option.generic;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedShortOption;
-import com.jagornet.dhcp.xml.UnsignedShortOptionType;
 
 /**
  * <p>Title: GenericUnsignedShortOption </p>
@@ -44,7 +43,7 @@ public class GenericUnsignedShortOption extends BaseUnsignedShortOption
 	 */
 	public GenericUnsignedShortOption(int code, String name)
 	{
-		this(code, name, null);
+		this(code, name, (int)0);
 	}
 	
 	/**
@@ -54,10 +53,9 @@ public class GenericUnsignedShortOption extends BaseUnsignedShortOption
 	 * @param name the option name
 	 * @param unsignedShortOption the unsigned short option
 	 */
-	public GenericUnsignedShortOption(int code, String name,
-									  UnsignedShortOptionType unsignedShortOption)
+	public GenericUnsignedShortOption(int code, String name, int unsignedShort)
 	{
-		super(unsignedShortOption);
+		super(unsignedShort);
 		setCode(code);
 		setName(name);
 	}

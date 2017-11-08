@@ -28,9 +28,7 @@ package com.jagornet.dhcp.option.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.jagornet.dhcp.option.DhcpComparableOption;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * <p>Title: BaseEmptyOption </p>
@@ -38,7 +36,7 @@ import com.jagornet.dhcp.xml.OptionExpression;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class BaseEmptyOption extends BaseDhcpOption implements DhcpComparableOption
+public abstract class BaseEmptyOption extends BaseDhcpOption
 {
     /**
      * Instantiates a new empty option.
@@ -48,46 +46,26 @@ public abstract class BaseEmptyOption extends BaseDhcpOption implements DhcpComp
         super();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
+    @Override
     public int getLength()
     {
         return 0;   // always zero bytes
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+    @Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+    @Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	super.decodeLength(buf);		// length is always zero
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-        return true;
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);

@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6SntpServersOption;
 
 /**
  * <p>Title: DhcpV6SntpServersOption </p>
@@ -50,9 +51,9 @@ public class DhcpV6SntpServersOption extends BaseIpAddressListOption
 	 * 
 	 * @param sntpServersOption the sntp servers option
 	 */
-	public DhcpV6SntpServersOption(V6SntpServersOption sntpServersOption)
+	public DhcpV6SntpServersOption(List<String> sntpServers)
 	{
-		super(sntpServersOption);
+		super(sntpServers);
 		setCode(DhcpConstants.V6OPTION_SNTP_SERVERS);
 	}
 }

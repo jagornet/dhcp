@@ -30,24 +30,24 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
 
-import com.jagornet.dhcp.db.BaseTestCase;
 import com.jagornet.dhcp.message.DhcpV6Message;
 import com.jagornet.dhcp.option.base.DhcpOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcp.option.v6.DhcpV6DomainSearchListOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaPdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaPrefixOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.option.v6.DhcpV6SipServerAddressesOption;
 import com.jagornet.dhcp.option.v6.DhcpV6StatusCodeOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaAddrOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaPdOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaPrefixOption;
+import com.jagornet.dhcp.server.config.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.server.db.BaseTestCase;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.V6ClientIdOption;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -65,7 +65,7 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 	
 	public BaseTestDhcpV6Processor() {
 		super();
-		manager = config.getNaAddrBindingMgr();
+		manager = config.getV6NaAddrBindingMgr();
 	}
 	
 	/* (non-Javadoc)
@@ -77,9 +77,7 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
 		OpaqueData opaque = new OpaqueData();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });
-		V6ClientIdOption clientId = new V6ClientIdOption();
-		clientId.setOpaqueData(opaque);
-		clientIdOption = new DhcpV6ClientIdOption(clientId);
+		clientIdOption = new DhcpV6ClientIdOption(new BaseOpaqueData(opaque));
 		firstPoolAddr = InetAddress.getByName("2001:DB8:1::a");
 	}
 	
@@ -189,8 +187,7 @@ public class BaseTestDhcpV6Processor extends BaseTestCase
         replyMsg.setTransactionId(requestMsg.getTransactionId());
 
         // MUST put Server Identifier DUID in ADVERTISE or REPLY message
-        DhcpV6ServerIdOption serverIdOption = 
-        	new DhcpV6ServerIdOption(config.getDhcpServerConfig().getV6ServerIdOption());
+        DhcpV6ServerIdOption serverIdOption = config.getDhcpV6ServerIdOption();
         replyMsg.putDhcpOption(serverIdOption);
 
         // copy Client Identifier DUID if given in client request message

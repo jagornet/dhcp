@@ -25,12 +25,12 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
-import com.jagornet.dhcp.db.IaPrefix;
 import com.jagornet.dhcp.message.DhcpMessage;
 import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaPdOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaPdOption;
+import com.jagornet.dhcp.server.db.IaPrefix;
 
 /**
  * The Interface V6PrefixBindingManager.  The interface for DHCPv6 IA_PD type

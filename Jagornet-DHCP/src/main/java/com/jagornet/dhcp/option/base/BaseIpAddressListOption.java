@@ -37,11 +37,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.option.DhcpComparableOption;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.IpAddressListOptionType;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: BaseIpAddressListOption
@@ -50,27 +46,21 @@ import com.jagornet.dhcp.xml.OptionExpression;
  * @author A. Gregory Rabil
  */
 
-public abstract class BaseIpAddressListOption extends BaseDhcpOption implements DhcpComparableOption
+public abstract class BaseIpAddressListOption extends BaseDhcpOption
 {
 	private static Logger log = LoggerFactory.getLogger(BaseIpAddressListOption.class);
-	
+
 	protected List<String> ipAddressList;
 	
-	public BaseIpAddressListOption()
-	{
+	public BaseIpAddressListOption() {
 		this(null);
 	}
 	
-	public BaseIpAddressListOption(IpAddressListOptionType ipAddressListOption)
-	{
+	public BaseIpAddressListOption(List<String> ipAddresses) {
 		super();
-		if (ipAddressListOption != null) {
-			if (ipAddressListOption.getIpAddress() != null) {
-				ipAddressList = ipAddressListOption.getIpAddress();
-			}
-		}
+		this.ipAddressList = ipAddresses;
 	}
-
+	
 	public List<String> getIpAddressList() {
 		return ipAddressList;
 	}
@@ -102,7 +92,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
             }
         }
         catch (UnknownHostException ex) {
-            log.error("Failed to add DnsServer: " + ex);
+            log.error("Failed to add IpAddress: " + ex);
         }
     }
 
@@ -118,9 +108,22 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
         }
     }
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+    @Override
+    public int getLength()
+    {
+        int len = 0;
+        if (ipAddressList != null) {
+        	if (!super.isV4()) {
+        		len += ipAddressList.size() * 16;   // each IPv6 address is 16 bytes
+        	}
+        	else {
+        		len += ipAddressList.size() * 4;	// each IPv4 address is 4 bytes
+        	}
+        }
+        return len;
+    }
+
+    @Override
     public ByteBuffer encode() throws IOException
     {
     	ByteBuffer buf = super.encodeCodeAndLength();
@@ -139,9 +142,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+    @Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf); 
@@ -162,57 +163,7 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
-    public int getLength()
-    {
-        int len = 0;
-        if (ipAddressList != null) {
-        	if (!super.isV4()) {
-        		len += ipAddressList.size() * 16;   // each IPv6 address is 16 bytes
-        	}
-        	else {
-        		len += ipAddressList.size() * 4;	// each IPv4 address is 4 bytes
-        	}
-        }
-        return len;
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-        if (ipAddressList == null)
-        	return false;
-
-        // first see if we have a ip address list option to compare to
-        IpAddressListOptionType exprOption = expression.getIpAddressListOption();
-        if (exprOption != null) {
-        	List<String> exprIpAddresses = exprOption.getIpAddress();
-            Operator op = expression.getOperator();
-            if (op.equals(Operator.EQUALS)) {
-            	return ipAddressList.equals(exprIpAddresses);
-            }
-            else if (op.equals(Operator.CONTAINS)) {
-            	return ipAddressList.containsAll(exprIpAddresses);
-            }
-            else {
-            	log.warn("Unsupported expression operator: " + op);
-            }
-        }
-        
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
@@ -227,4 +178,5 @@ public abstract class BaseIpAddressListOption extends BaseDhcpOption implements 
         }
         return sb.toString();
     }
+    
 }

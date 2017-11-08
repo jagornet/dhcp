@@ -30,14 +30,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jagornet.dhcp.option.DhcpComparableOption;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.OptionExpression;
-import com.jagornet.dhcp.xml.UnsignedByteListOptionType;
 
 /**
  * Title: BaseUnsignedByteListOption
@@ -45,35 +38,19 @@ import com.jagornet.dhcp.xml.UnsignedByteListOptionType;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implements DhcpComparableOption
+public abstract class BaseUnsignedByteListOption extends BaseDhcpOption
 {
-	private static Logger log = LoggerFactory.getLogger(BaseUnsignedByteListOption.class);
-
     protected List<Short> unsignedByteList;
 
-    /**
-     * Instantiates a new unsigned short list option.
-     */
-    public BaseUnsignedByteListOption()
-    {
-        this(null);
-    }
-    
-    /**
-     * Instantiates a new unsigned short list option.
-     * 
-     * @param uByteListOption the option request option
-     */
-    public BaseUnsignedByteListOption(UnsignedByteListOptionType uByteListOption)
-    {
-        super();
-        if (uByteListOption != null) {
-            if (uByteListOption.getUnsignedByte() != null) {
-            	unsignedByteList = uByteListOption.getUnsignedByte();
-            }
-        }
-    }
+    public BaseUnsignedByteListOption() {
+		this(null);
+	}
 
+    public BaseUnsignedByteListOption(List<Short> unsignedBytes) {
+    	super();
+		this.unsignedByteList = unsignedBytes;
+	}
+    
     public List<Short> getUnsignedByteList() {
 		return unsignedByteList;
 	}
@@ -89,9 +66,7 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
 		unsignedByteList.add(ubyte);
 	}
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+	@Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -103,9 +78,7 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
         return (ByteBuffer) buf.flip();
     }
     
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+	@Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -118,9 +91,7 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
+	@Override
     public int getLength()
     {
         int len = 0;
@@ -130,40 +101,8 @@ public abstract class BaseUnsignedByteListOption extends BaseDhcpOption implemen
         return len;
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-        if (unsignedByteList == null)
-        	return false;
-        
-        UnsignedByteListOptionType exprOption = expression.getUByteListOption();
-        if (exprOption != null) {
-        	List<Short> exprUbytes = exprOption.getUnsignedByte();
-            Operator op = expression.getOperator();
-            if (op.equals(Operator.EQUALS)) {
-            	return unsignedByteList.equals(exprUbytes);
-            }
-            else if (op.equals(Operator.CONTAINS)) {
-            	return unsignedByteList.containsAll(exprUbytes);
-            }
-            else {
-            	log.warn("Unsupported expression operator: " + op);
-            }
-        }
-        
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    public String toString()
+	@Override
+	public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());

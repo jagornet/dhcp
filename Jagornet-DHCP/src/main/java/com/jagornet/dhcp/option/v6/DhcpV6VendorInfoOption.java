@@ -33,7 +33,7 @@ import java.util.List;
 import com.jagornet.dhcp.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.option.base.DhcpOption;
 import com.jagornet.dhcp.option.generic.GenericOpaqueDataOption;
-import com.jagornet.dhcp.option.generic.GenericOptionFactory;
+import com.jagornet.dhcp.server.config.option.GenericOptionFactory;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.GenericOptionsType;
@@ -71,7 +71,7 @@ public class DhcpV6VendorInfoOption extends BaseDhcpOption
     		enterpriseNumber = vendorInfoOption.getEnterpriseNumber();
     		GenericOptionsType genericOptions = vendorInfoOption.getSuboptionList();
     		if (genericOptions != null) {
-    			List<OptionDefType> optdefs = genericOptions.getOptionDef();
+    			List<OptionDefType> optdefs = genericOptions.getOptionDefs();
     			if (optdefs != null) {
     				for (OptionDefType optdef : optdefs) {
 						DhcpOption subopt = GenericOptionFactory.getDhcpOption(optdef);

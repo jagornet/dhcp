@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseStringOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4TftpServerNameOption;
 
 /**
  * <p>Title: DhcpV4TftpServerNameOption </p>
@@ -50,9 +49,9 @@ public class DhcpV4TftpServerNameOption extends BaseStringOption
 	 * 
 	 * @param v4DomainNameOption the v4 tftp server name option
 	 */
-	public DhcpV4TftpServerNameOption(V4TftpServerNameOption v4TftpServerNameOption)
+	public DhcpV4TftpServerNameOption(String v4TftpServerName)
 	{
-		super(v4TftpServerNameOption); 
+		super(v4TftpServerName); 
 		setCode(DhcpConstants.V4OPTION_TFTP_SERVER_NAME);
 		setV4(true);
 	}

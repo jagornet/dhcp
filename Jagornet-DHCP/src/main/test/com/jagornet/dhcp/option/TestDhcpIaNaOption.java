@@ -35,10 +35,10 @@ import junit.framework.TestCase;
 import com.jagornet.dhcp.option.base.BaseDomainNameOption;
 import com.jagornet.dhcp.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcp.option.v6.DhcpV6DomainSearchListOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaAddrOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.PoliciesType;
@@ -57,14 +57,14 @@ public class TestDhcpIaNaOption extends TestCase
 	public void setUp() throws Exception
 	{
 		String configFilename = JagornetDhcpServer.DEFAULT_CONFIG_FILENAME;
-		DhcpServerConfiguration.configFilename = configFilename;
 		DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
+		config.init(configFilename);
 		PoliciesType policies = new PoliciesType();
 		Policy pcy = new Policy();
 		pcy.setName("sendRequestedOptionsOnly");
 		pcy.setValue("false");
-		policies.getPolicy().add(pcy);
-		config.getDhcpServerConfig().setPolicies(policies);
+		policies.getPolicies().add(pcy);
+		config.setGlobalPolicies(policies);
 	}
 	
 	/**

@@ -25,8 +25,8 @@
  */
 package com.jagornet.dhcp.option.generic;
 
+import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.option.base.BaseOpaqueDataOption;
-import com.jagornet.dhcp.xml.OpaqueDataOptionType;
 
 /**
  * <p>Title: GenericOpaqueDataOption </p>
@@ -54,10 +54,9 @@ public class GenericOpaqueDataOption extends BaseOpaqueDataOption
 	 * @param name the option name
 	 * @param opaqueDataOption the opaque opaqueData option
 	 */
-	public GenericOpaqueDataOption(int code, String name,
-								   OpaqueDataOptionType opaqueDataOption)
+	public GenericOpaqueDataOption(int code, String name, BaseOpaqueData opaqueData)
 	{
-		super(opaqueDataOption);
+		super(opaqueData);
 		setCode(code);
 		setName(name);
 	}

@@ -30,14 +30,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jagornet.dhcp.option.DhcpComparableOption;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.DomainNameListOptionType;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: BaseDomainNameListOption
@@ -45,33 +38,17 @@ import com.jagornet.dhcp.xml.OptionExpression;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class BaseDomainNameListOption extends BaseDhcpOption implements DhcpComparableOption
+public abstract class BaseDomainNameListOption extends BaseDhcpOption
 {
-	private static Logger log = LoggerFactory.getLogger(BaseDomainNameListOption.class);
-
 	protected List<String> domainNameList;
-	
-	/**
-	 * Instantiates a new base domain name list option.
-	 */
-	public BaseDomainNameListOption()
-	{
+
+	public BaseDomainNameListOption() {
 		this(null);
 	}
 	
-	/**
-	 * Instantiates a new base domain name list option.
-	 *
-	 * @param domainNameListOption the domain name list option
-	 */
-	public BaseDomainNameListOption(DomainNameListOptionType domainNameListOption)
-	{
+	public BaseDomainNameListOption(List<String> domainNames) {
 		super();
-		if (domainNameListOption != null) {
-			if (domainNameListOption.getDomainName() != null) {
-				domainNameList = domainNameListOption.getDomainName();
-			}
-		}
+		this.domainNameList = domainNames;
 	}
 	
 	public List<String> getDomainNameList() {
@@ -91,9 +68,7 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.base.Encodable#encode()
-	 */
+	@Override
 	public ByteBuffer encode() throws IOException
     {
     	ByteBuffer buf = super.encodeCodeAndLength();
@@ -105,9 +80,7 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+	@Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf); 
@@ -120,9 +93,7 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
+	@Override
     public int getLength()
     {
         int len = 0;
@@ -134,40 +105,7 @@ public abstract class BaseDomainNameListOption extends BaseDhcpOption implements
         return len;
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-        if (domainNameList == null)
-        	return false;
-        
-        // first see if we have a domain name list option to compare to
-        DomainNameListOptionType exprOption = expression.getDomainNameListOption();
-        if (exprOption != null) {
-        	List<String> exprDomainNames = exprOption.getDomainName();
-            Operator op = expression.getOperator();
-            if (op.equals(Operator.EQUALS)) {
-            	return domainNameList.equals(exprDomainNames);
-            }
-            else if (op.equals(Operator.CONTAINS)) {
-            	return domainNameList.containsAll(exprDomainNames);
-            }
-            else {
-            	log.warn("Unsupported expression operator: " + op);
-            }
-        }
-        
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+	@Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);

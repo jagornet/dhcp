@@ -27,10 +27,10 @@ package com.jagornet.dhcp.server.request.binding;
 
 import java.util.Arrays;
 
-import com.jagornet.dhcp.db.IdentityAssoc;
 import com.jagornet.dhcp.message.DhcpMessage;
-import com.jagornet.dhcp.option.v6.DhcpV6ConfigOptions;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
+import com.jagornet.dhcp.server.config.option.DhcpV6ConfigOptions;
+import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.PoliciesType;
 import com.jagornet.dhcp.xml.V6PrefixBinding;

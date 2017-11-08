@@ -28,11 +28,10 @@ package com.jagornet.dhcp.option.v6;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.OptionExpression;
-import com.jagornet.dhcp.xml.V6RemoteIdOption;
 
 /**
  * <p>Title: DhcpV6RemoteIdOption </p>
@@ -49,7 +48,7 @@ public class DhcpV6RemoteIdOption extends BaseOpaqueDataOption
 	 */
 	public DhcpV6RemoteIdOption()
 	{
-		this(null);
+		this((long)0, null);
 	}
 	
 	/**
@@ -57,12 +56,10 @@ public class DhcpV6RemoteIdOption extends BaseOpaqueDataOption
 	 * 
 	 * @param remoteIdOption the remote id option
 	 */
-	public DhcpV6RemoteIdOption(V6RemoteIdOption remoteIdOption)
+	public DhcpV6RemoteIdOption(long enterpriseNumber, BaseOpaqueData baseOpaqueData)
 	{
-    	super(remoteIdOption);
-    	if (remoteIdOption != null) {
-    		enterpriseNumber = remoteIdOption.getEnterpriseNumber();
-    	}
+    	super(baseOpaqueData);
+    	setEnterpriseNumber(enterpriseNumber);
     	setCode(DhcpConstants.V6OPTION_REMOTE_ID);
 	}
 	
@@ -74,18 +71,14 @@ public class DhcpV6RemoteIdOption extends BaseOpaqueDataOption
 		this.enterpriseNumber = enterpriseNumber;
 	}
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
+	@Override
     public int getLength()
     {
         int len = 4 + super.getLength();  // size of enterprise number (int)
         return len;
     }
     
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
-     */
+	@Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -94,9 +87,7 @@ public class DhcpV6RemoteIdOption extends BaseOpaqueDataOption
         return (ByteBuffer) buf.flip();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+	@Override
 	public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -111,22 +102,7 @@ public class DhcpV6RemoteIdOption extends BaseOpaqueDataOption
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(super.toString());

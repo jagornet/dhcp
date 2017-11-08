@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v4;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseUnsignedByteListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4ParamRequestOption;
 
 /**
  * <p>Title: DhcpV4ParamRequestOption </p>
@@ -50,9 +51,9 @@ public class DhcpV4ParamRequestOption extends BaseUnsignedByteListOption
 	 * 
 	 * @param optionRequestOption the v4 param request option
 	 */
-	public DhcpV4ParamRequestOption(V4ParamRequestOption paramRequestOption)
+	public DhcpV4ParamRequestOption(List<Short> paramRequest)
 	{
-		super(paramRequestOption);
+		super(paramRequest);
 		setCode(DhcpConstants.V4OPTION_PARAM_REQUEST_LIST);
 		setV4(true);
 	}

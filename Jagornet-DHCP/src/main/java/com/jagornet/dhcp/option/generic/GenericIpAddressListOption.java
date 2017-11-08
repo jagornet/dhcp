@@ -25,8 +25,9 @@
  */
 package com.jagornet.dhcp.option.generic;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
-import com.jagornet.dhcp.xml.IpAddressListOptionType;
 
 /**
  * <p>Title: GenericIpAddressListOption </p>
@@ -54,10 +55,9 @@ public class GenericIpAddressListOption extends BaseIpAddressListOption
 	 * @param name the option name
 	 * @param ipAddressListOption the ip address list option
 	 */
-	public GenericIpAddressListOption(int code, String name,
-									   IpAddressListOptionType ipAddressListOption)
+	public GenericIpAddressListOption(int code, String name, List<String> ipAddresses)
 	{
-		super(ipAddressListOption);
+		super(ipAddresses);
 		setCode(code);
 		setName(name);
 	}

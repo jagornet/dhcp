@@ -195,6 +195,7 @@
 	<build>
         <plugins>
 	        <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
 	            <artifactId>maven-compiler-plugin</artifactId>
 	            <configuration>
 	                <source>1.8</source>
@@ -221,6 +222,9 @@
 	            	<sources>
 	            		<source>src/main/resources/dhcpserver.xsd</source>
 	            	</sources>
+	            	<xjbSources>
+	            		<source>src/main/resources/dhcpserver.xjb</source>
+	            	</xjbSources>
 	                <!-- The package of your generated sources -->
 	                <packageName>com.jagornet.dhcp.xml</packageName>
 	            </configuration>
@@ -271,6 +275,7 @@
 	<build>
         <plugins>
 	        <plugin>
+	        	<groupId>org.apache.maven.plugins</groupId>
 	            <artifactId>maven-compiler-plugin</artifactId>
 	            <configuration>
 	                <source>1.8</source>
@@ -300,6 +305,9 @@
 	            	<sources>
 	            		<source>src/main/resources/dhcpserver.xsd</source>
 	            	</sources>
+	            	<xjbSources>
+	            		<source>src/main/resources/dhcpserver.xjb</source>
+	            	</xjbSources>
 	                <!-- The package of your generated sources -->
 	                <packageName>com.jagornet.dhcp.xml</packageName>
 	            </configuration>

@@ -81,7 +81,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     
     // wrap the configured V4ServerId option in a DhcpOption for the wire
     protected static DhcpV4ServerIdOption dhcpV4ServerIdOption = 
-    	new DhcpV4ServerIdOption(dhcpServerConfig.getDhcpServerConfig().getV4ServerIdOption());
+    		dhcpServerConfig.getDhcpV4ServerIdOption();
     
     protected final DhcpV4Message requestMsg;
     protected DhcpV4Message replyMsg;

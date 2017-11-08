@@ -25,9 +25,9 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6InterfaceIdOption;
 
 /**
  * <p>Title: DhcpV6InterfaceIdOption </p>
@@ -50,9 +50,9 @@ public class DhcpV6InterfaceIdOption extends BaseOpaqueDataOption
      * 
      * @param interfaceIdOption the interface id option
      */
-    public DhcpV6InterfaceIdOption(V6InterfaceIdOption interfaceIdOption)
+    public DhcpV6InterfaceIdOption(BaseOpaqueData baseOpaqueData)
     {
-    	super(interfaceIdOption);
+    	super(baseOpaqueData);
     	setCode(DhcpConstants.V6OPTION_INTERFACE_ID);
     }
 }

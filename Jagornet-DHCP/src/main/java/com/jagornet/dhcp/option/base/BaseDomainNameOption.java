@@ -28,13 +28,7 @@ package com.jagornet.dhcp.option.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.DomainNameOptionType;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * Title: BaseDomainNameOption
@@ -44,23 +38,17 @@ import com.jagornet.dhcp.xml.OptionExpression;
  */
 public abstract class BaseDomainNameOption extends BaseDhcpOption
 {
-	private static Logger log = LoggerFactory.getLogger(BaseDomainNameOption.class);
-
 	protected String domainName;
 	
-	public BaseDomainNameOption()
-	{
+	public BaseDomainNameOption() {
 		this(null);
 	}
 	
-	public BaseDomainNameOption(DomainNameOptionType domainNameOption)
-	{
+	public BaseDomainNameOption(String domainName) {
 		super();
-		if (domainNameOption != null) {
-			domainName = domainNameOption.getDomainName();
-		}
+		this.domainName = domainName;
 	}
-	
+		
     public String getDomainName() {
 		return domainName;
 	}
@@ -69,9 +57,43 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
 		this.domainName = domainName;
 	}
 
-	/* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Encodable#encode()
+    @Override
+    public int getLength()
+    {
+        int len = 0;
+        if (domainName != null) {
+            len = getDomainNameLength(domainName);
+        }
+        return len;
+    }
+
+    /**
+     * Gets the domain name length.
+     * 
+     * @param domainName the domain name
+     * 
+     * @return the domain name length
      */
+    public static int getDomainNameLength(String domainName)
+    {
+        int len = 0;
+        if (domainName != null) {
+        	boolean fqdn = domainName.endsWith(".");
+	        String[] labels = domainName.split("\\.");
+	        if (labels != null) {
+	            for (String label : labels) {
+	                // each label consists of a length byte and opaqueData
+	                len += 1 + label.length();
+	            }
+	        }
+            if (fqdn) {
+            	len += 1;   // one extra byte for the zero length terminator
+            }
+        }
+        return len;
+    }
+
+	@Override
     public ByteBuffer encode() throws IOException
     {
         ByteBuffer buf = super.encodeCodeAndLength();
@@ -114,9 +136,7 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
     	}
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.Decodable#decode(java.nio.ByteBuffer)
-     */
+    @Override
     public void decode(ByteBuffer buf) throws IOException
     {
     	int len = super.decodeLength(buf);
@@ -150,86 +170,7 @@ public abstract class BaseDomainNameOption extends BaseDhcpOption
         return domain.toString();
     }
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpOption#getLength()
-     */
-    public int getLength()
-    {
-        int len = 0;
-        if (domainName != null) {
-            len = getDomainNameLength(domainName);
-        }
-        return len;
-    }
-
-    /**
-     * Gets the domain name length.
-     * 
-     * @param domainName the domain name
-     * 
-     * @return the domain name length
-     */
-    public static int getDomainNameLength(String domainName)
-    {
-        int len = 0;
-        if (domainName != null) {
-        	boolean fqdn = domainName.endsWith(".");
-	        String[] labels = domainName.split("\\.");
-	        if (labels != null) {
-	            for (String label : labels) {
-	                // each label consists of a length byte and opaqueData
-	                len += 1 + label.length();
-	            }
-	        }
-            if (fqdn) {
-            	len += 1;   // one extra byte for the zero length terminator
-            }
-        }
-        return len;
-    }
-
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.option.DhcpComparableOption#matches(com.jagornet.dhcp.xml.OptionExpression)
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;        
-        if (domainName == null)
-        	return false;
-
-        DomainNameOptionType exprOption = expression.getDomainNameOption();
-        if (exprOption != null) {
-        	String exprDomainName = exprOption.getDomainName();
-            Operator op = expression.getOperator();
-            if (op.equals(Operator.EQUALS)) {
-            	return domainName.equals(exprDomainName);
-            }
-            else if (op.equals(Operator.STARTS_WITH)) {
-            	return domainName.startsWith(exprDomainName);
-            }
-            else if (op.equals(Operator.ENDS_WITH)) {
-            	return domainName.endsWith(exprDomainName);
-            }
-            else if (op.equals(Operator.CONTAINS)) {
-            	return domainName.contains(exprDomainName);
-            }
-            else if (op.equals(Operator.REG_EXP)) {
-            	return domainName.matches(exprDomainName);
-            }
-            else {
-            	log.warn("Unsupported expression operator: " + op);
-            }
-        }
-        
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);

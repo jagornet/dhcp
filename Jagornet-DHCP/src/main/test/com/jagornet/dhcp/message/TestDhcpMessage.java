@@ -32,18 +32,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
-import com.jagornet.dhcp.message.DhcpV6Message;
 import com.jagornet.dhcp.option.base.DhcpOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcp.option.v6.DhcpV6OptionRequestOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.option.v6.DhcpV6UserClassOption;
+import com.jagornet.dhcp.server.config.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.V6ServerIdOption;
+
+import junit.framework.TestCase;
 
 public class TestDhcpMessage extends TestCase
 {
@@ -67,9 +66,9 @@ public class TestDhcpMessage extends TestCase
         opaque.setAsciiValue("jagornet-dhcpv6");	// 15 bytes
 
         // MUST include server id in reply
-        V6ServerIdOption serverId = new V6ServerIdOption();     // 4 bytes (code + len)
-        serverId.setOpaqueData(opaque);
-        dhcpMessage.putDhcpOption(new DhcpV6ServerIdOption(serverId));
+        DhcpV6ServerIdOption serverId = new DhcpV6ServerIdOption();     // 4 bytes (code + len)
+        serverId.setOpaqueData(new BaseOpaqueData(opaque));
+        dhcpMessage.putDhcpOption(serverId);
 
         DhcpV6DnsServersOption dnsServers = new DhcpV6DnsServersOption();	// 4 bytes
         dnsServers.addIpAddress(DNS1);		// 16 bytes

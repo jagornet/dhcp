@@ -28,9 +28,9 @@ package com.jagornet.dhcp.server.request.binding;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.jagornet.dhcp.db.IaAddress;
-import com.jagornet.dhcp.db.IdentityAssoc;
 import com.jagornet.dhcp.server.config.DhcpLink;
+import com.jagornet.dhcp.server.db.IaAddress;
+import com.jagornet.dhcp.server.db.IdentityAssoc;
 
 /**
  * The Class Binding.  A wrapper class for a database IdentityAssoc object

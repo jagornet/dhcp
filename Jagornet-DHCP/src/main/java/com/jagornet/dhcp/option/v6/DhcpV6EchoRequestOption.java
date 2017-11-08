@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseUnsignedShortListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6EchoRequestOption;
 
 /**
  * <p>Title: DhcpV6EchoRequestOption </p>
@@ -50,9 +51,9 @@ public class DhcpV6EchoRequestOption extends BaseUnsignedShortListOption
 	 * 
 	 * @param echoRequestOption the echo request option
 	 */
-	public DhcpV6EchoRequestOption(V6EchoRequestOption echoRequestOption)
+	public DhcpV6EchoRequestOption(List<Integer> echoRequest)
 	{
-		super(echoRequestOption);
+		super(echoRequest);
 		setCode(DhcpConstants.V6OPTION_ECHO_REQUEST);
 	}
 }

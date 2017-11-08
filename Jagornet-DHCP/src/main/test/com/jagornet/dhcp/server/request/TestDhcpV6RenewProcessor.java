@@ -31,9 +31,9 @@ import java.util.Collection;
 import com.jagornet.dhcp.message.DhcpV6Message;
 import com.jagornet.dhcp.option.base.DhcpOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaAddrOption;
+import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
 import com.jagornet.dhcp.server.request.DhcpV6RenewProcessor;
 import com.jagornet.dhcp.server.request.DhcpV6RequestProcessor;
 import com.jagornet.dhcp.server.request.DhcpV6SolicitProcessor;
@@ -101,8 +101,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_RENEW);
-		DhcpV6ServerIdOption dhcpServerId = 
-			new DhcpV6ServerIdOption(config.getDhcpServerConfig().getV6ServerIdOption());
+		DhcpV6ServerIdOption dhcpServerId = config.getDhcpV6ServerIdOption();
 		requestMsg.putDhcpOption(dhcpServerId);
 		
 		DhcpV6RenewProcessor processor =

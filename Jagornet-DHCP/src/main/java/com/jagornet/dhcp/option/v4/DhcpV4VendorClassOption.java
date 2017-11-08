@@ -25,11 +25,9 @@
  */
 package com.jagornet.dhcp.option.v4;
 
-import com.jagornet.dhcp.option.OpaqueDataUtil;
+import com.jagornet.dhcp.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.Operator;
-import com.jagornet.dhcp.xml.V4VendorClassOption;
 
 /**
  * <p>Title: DhcpV4VendorClassOption </p>
@@ -52,22 +50,11 @@ public class DhcpV4VendorClassOption extends BaseOpaqueDataOption
 	 * 
 	 * @param v4VendorClassOption the vendor class option
 	 */
-	public DhcpV4VendorClassOption(V4VendorClassOption v4VendorClassOption)
+	public DhcpV4VendorClassOption(BaseOpaqueData baseOpaqueData)
 	{
-		super(v4VendorClassOption);
+		super(baseOpaqueData);
 		setCode(DhcpConstants.V4OPTION_VENDOR_CLASS);
 		setV4(true);
 	}
 
-    public boolean matches(V4VendorClassOption that, Operator op)
-    {
-        if (that == null)
-            return false;
-        if (that.getCode() != this.getCode())
-            return false;
-        if (that.getOpaqueData() == null)
-        	return false;
-
-        return OpaqueDataUtil.matches(opaqueData, that.getOpaqueData(), op);
-    }
 }

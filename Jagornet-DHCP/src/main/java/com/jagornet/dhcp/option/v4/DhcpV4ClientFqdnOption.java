@@ -31,7 +31,6 @@ import java.nio.ByteBuffer;
 import com.jagornet.dhcp.option.base.BaseDomainNameOption;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.V4ClientFqdnOption;
 
 /**
  * <p>Title: DhcpV4ClientFqdnOption </p>
@@ -79,9 +78,9 @@ public class DhcpV4ClientFqdnOption extends BaseDomainNameOption
 	 * 
 	 * @param clientFqdnOption the client fqdn option
 	 */
-	public DhcpV4ClientFqdnOption(V4ClientFqdnOption clientFqdnOption)
+	public DhcpV4ClientFqdnOption(String clientFqdn)
 	{
-		super(clientFqdnOption);
+		super(clientFqdn);
 		setCode(DhcpConstants.V4OPTION_CLIENT_FQDN);
 		setV4(true);
 	}

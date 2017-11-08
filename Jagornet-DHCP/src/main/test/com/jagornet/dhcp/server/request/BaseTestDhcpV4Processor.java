@@ -29,7 +29,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 
-import com.jagornet.dhcp.db.BaseTestCase;
 import com.jagornet.dhcp.message.DhcpV4Message;
 import com.jagornet.dhcp.option.base.DhcpOption;
 import com.jagornet.dhcp.option.v4.DhcpV4DomainNameOption;
@@ -40,6 +39,7 @@ import com.jagornet.dhcp.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.option.v4.DhcpV4RoutersOption;
 import com.jagornet.dhcp.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcp.option.v4.DhcpV4SubnetMaskOption;
+import com.jagornet.dhcp.server.db.BaseTestCase;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.util.Util;
@@ -144,8 +144,7 @@ public class BaseTestDhcpV4Processor extends BaseTestCase
         replyMsg.setGiAddr(requestMsg.getGiAddr());
 
         // MUST put Server Identifier DUID in ADVERTISE or REPLY message
-        DhcpV4ServerIdOption serverIdOption = 
-        	new DhcpV4ServerIdOption(config.getDhcpServerConfig().getV4ServerIdOption());
+        DhcpV4ServerIdOption serverIdOption = config.getDhcpV4ServerIdOption();
         replyMsg.putDhcpOption(serverIdOption);
 
         return replyMsg;

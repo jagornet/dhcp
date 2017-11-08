@@ -28,30 +28,17 @@ package com.jagornet.dhcp.option.base;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jagornet.dhcp.util.Util;
-import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.Operator;
 
 public class BaseOpaqueData {
 	
-	/** The log. */
-	private static Logger log = LoggerFactory.getLogger(BaseOpaqueData.class);
-	
 	private String ascii;
 	private  byte[] hex;
-	
+
 	public BaseOpaqueData() {
 		// empty constructor
 	}
-	public BaseOpaqueData(OpaqueData opaqueData) {
-		if (opaqueData != null) {
-			setAscii(opaqueData.getAsciiValue());
-			setHex(opaqueData.getHexValue());
-		}
-	}
+	
 	public BaseOpaqueData(String ascii) {
 		this.ascii = ascii;
 	}
@@ -116,108 +103,7 @@ public class BaseOpaqueData {
         }
 	}
 
-	// for expression matching
-    public boolean matches(OpaqueData that, Operator op)
-    {
-        if (that != null) {
-            String expAscii = that.getAsciiValue();
-            String myAscii = getAscii();
-            if ( (expAscii != null) && (myAscii != null) ) {
-                if (op.equals(Operator.EQUALS)) {
-                    return myAscii.equalsIgnoreCase(expAscii);
-                }
-                else if (op.equals(Operator.STARTS_WITH)) {
-                    return myAscii.startsWith(expAscii);
-                }
-                else if (op.equals(Operator.CONTAINS)) {
-                    return myAscii.contains(expAscii);
-                }
-                else if (op.equals(Operator.ENDS_WITH)) {
-                    return myAscii.endsWith(expAscii);
-                }
-                else if (op.equals(Operator.REG_EXP)) {
-                    return myAscii.matches(expAscii);
-                }
-                else {
-                    log.error("Unsupported expression operator: " + op);
-                    return false;
-                }
-            }
-            else if ( (expAscii == null) && (myAscii == null) ) {
-                byte[] expHex = that.getHexValue();
-                byte[] myHex = getHex();
-                if ( (expHex != null) && (myHex != null) ) {
-                    if (op.equals(Operator.EQUALS)) {
-                    	return Arrays.equals(myHex, expHex);
-                    }
-                    else if (op.equals(Operator.STARTS_WITH)) {
-                        if (myHex.length >= expHex.length) {
-                            for (int i=0; i<expHex.length; i++) {
-                                if (myHex[i] != expHex[i]) {
-                                    return false;
-                                }
-                            }
-                            return true;    // if we get here, it matches
-                        }
-                        else {
-                            return false;   // exp length too long
-                        }
-                    }
-                    else if (op.equals(Operator.CONTAINS)) {
-                        if (myHex.length >= expHex.length) {
-                            int j=0;
-                            for (int i=0; i<myHex.length; i++) {
-                                if (myHex[i] == expHex[j]) {
-                                    // found a potential match
-                                    j++;
-                                    boolean matches = true;
-                                    for (int ii=i+1; ii<myHex.length; ii++) {
-                                        if (myHex[ii] != expHex[j++]) {
-                                            matches = false;
-                                            break;
-                                        }
-                                    }
-                                    if (matches) {
-                                        return true;
-                                    }
-                                    j=0;    // reset to start of exp
-                                }
-                            }
-                            return false;    // if we get here, it didn't match
-                        }
-                        else {
-                            return false;   // exp length too long
-                        }
-                    }
-                    else if (op.equals(Operator.ENDS_WITH)) {
-                        if (myHex.length >= expHex.length) {
-                            for (int i=myHex.length-1; 
-                                 i>=myHex.length-expHex.length; 
-                                 i--) {
-                                if (myHex[i] != expHex[i]) {
-                                    return false;
-                                }
-                            }
-                            return true;    // if we get here, it matches
-                        }
-                        else {
-                            return false;   // exp length too long
-                        }
-                    }
-                    else if (op.equals(Operator.REG_EXP)) {
-                        log.error("Regular expression operator not valid for hex opaque opaqueData");
-                        return false;
-                    }
-                    else {
-                        log.error("Unsupported expression operator: " + op);
-                        return false;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-	
+	@Override
     public String toString() {
     	StringBuilder sb = new StringBuilder();
         if (ascii != null) {

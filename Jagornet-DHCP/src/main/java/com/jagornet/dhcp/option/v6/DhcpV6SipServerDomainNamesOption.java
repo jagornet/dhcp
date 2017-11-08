@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseDomainNameListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6SipServerDomainNamesOption;
 
 /**
  * <p>Title: DhcpV6SipServerDomainNamesOption </p>
@@ -50,9 +51,9 @@ public class DhcpV6SipServerDomainNamesOption extends BaseDomainNameListOption
 	 * 
 	 * @param sipServerDomainNamesOption the sip server domain names option
 	 */
-	public DhcpV6SipServerDomainNamesOption(V6SipServerDomainNamesOption sipServerDomainNamesOption)
+	public DhcpV6SipServerDomainNamesOption(List<String> sipServerDomainNames)
 	{
-		super(sipServerDomainNamesOption);
+		super(sipServerDomainNames);
 		setCode(DhcpConstants.V6OPTION_SIP_SERVERS_DOMAIN_LIST);
 	}
 }

@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6BcmcsAddressesOption;
 
 /**
  * <p>Title: DhcpV6BcmcsAddressesOption </p>
@@ -50,9 +51,9 @@ public class DhcpV6BcmcsAddressesOption extends BaseIpAddressListOption
 	 * 
 	 * @param bcmcsAddressesOption the bcmcs addresses option
 	 */
-	public DhcpV6BcmcsAddressesOption(V6BcmcsAddressesOption bcmcsAddressesOption)
+	public DhcpV6BcmcsAddressesOption(List<String> bcmcsAddresses)
 	{
-		super(bcmcsAddressesOption);
+		super(bcmcsAddresses);
 		setCode(DhcpConstants.V6OPTION_BCMCS_ADDRESSES);
 	}
 }

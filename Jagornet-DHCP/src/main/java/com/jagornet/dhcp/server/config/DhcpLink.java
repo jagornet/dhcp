@@ -25,8 +25,8 @@
  */
 package com.jagornet.dhcp.server.config;
 
-import com.jagornet.dhcp.option.v4.DhcpV4ConfigOptions;
-import com.jagornet.dhcp.option.v6.DhcpV6ConfigOptions;
+import com.jagornet.dhcp.server.config.option.DhcpV4ConfigOptions;
+import com.jagornet.dhcp.server.config.option.DhcpV6ConfigOptions;
 import com.jagornet.dhcp.util.Subnet;
 import com.jagornet.dhcp.xml.Link;
 

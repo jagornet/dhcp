@@ -26,7 +26,6 @@
 package com.jagornet.dhcp.option.generic;
 
 import com.jagornet.dhcp.option.base.BaseIpAddressOption;
-import com.jagornet.dhcp.xml.IpAddressOptionType;
 
 /**
  * <p>Title: GenericIpAddressOption </p>
@@ -54,19 +53,11 @@ public class GenericIpAddressOption extends BaseIpAddressOption
 	 * @param name the option name
 	 * @param ipAddressOption the ip address option
 	 */
-	public GenericIpAddressOption(int code, String name,
-								  IpAddressOptionType ipAddressOption)
+	public GenericIpAddressOption(int code, String name, String ipAddress)
 	{
-		super(ipAddressOption);
+		super(ipAddress);
 		setCode(code);
 		setName(name);
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.option.DhcpOption#getCode()
-	 */
-	public int getCode()
-	{
-		return code;
-	}
+
 }

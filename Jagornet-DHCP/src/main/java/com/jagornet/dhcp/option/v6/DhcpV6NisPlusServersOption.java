@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6NisPlusServersOption;
 
 /**
  * <p>Title: DhcpV6NisPlusServersOption </p>
@@ -50,9 +51,9 @@ public class DhcpV6NisPlusServersOption extends BaseIpAddressListOption
 	 * 
 	 * @param nisPlusServersOption the nis plus servers option
 	 */
-	public DhcpV6NisPlusServersOption(V6NisPlusServersOption nisPlusServersOption)
+	public DhcpV6NisPlusServersOption(List<String> nisPlusServers)
 	{
-		super(nisPlusServersOption);
+		super(nisPlusServers);
 		setCode(DhcpConstants.V6OPTION_NISPLUS_SERVERS);
 	}
 }

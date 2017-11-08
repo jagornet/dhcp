@@ -25,9 +25,10 @@
  */
 package com.jagornet.dhcp.option.v6;
 
+import java.util.List;
+
 import com.jagornet.dhcp.option.base.BaseIpAddressListOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V6SipServerAddressesOption;
 
 /**
  * <p>Title: DhcpV6SipServerAddressesOption </p>
@@ -50,9 +51,9 @@ public class DhcpV6SipServerAddressesOption extends BaseIpAddressListOption
 	 * 
 	 * @param sipServerAddressesOption the sip server addresses option
 	 */
-	public DhcpV6SipServerAddressesOption(V6SipServerAddressesOption sipServerAddressesOption)
+	public DhcpV6SipServerAddressesOption(List<String> sipServerAddresses)
 	{
-		super(sipServerAddressesOption);
+		super(sipServerAddresses);
 		setCode(DhcpConstants.V6OPTION_SIP_SERVERS_ADDRESS_LIST);
 	}
 }

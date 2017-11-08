@@ -27,7 +27,6 @@ package com.jagornet.dhcp.option.v4;
 
 import com.jagornet.dhcp.option.base.BaseUnsignedIntOption;
 import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.xml.V4LeaseTimeOption;
 
 /**
  * <p>Title: DhcpV4LeaseTimeOption </p>
@@ -42,7 +41,7 @@ public class DhcpV4LeaseTimeOption extends BaseUnsignedIntOption
 	 */
 	public DhcpV4LeaseTimeOption()
 	{
-		this(null);
+		this((long)0);
 	}
 	
 	/**
@@ -50,9 +49,9 @@ public class DhcpV4LeaseTimeOption extends BaseUnsignedIntOption
 	 * 
 	 * @param v4LeaseTimeOption the v4 lease time option
 	 */
-	public DhcpV4LeaseTimeOption(V4LeaseTimeOption v4LeaseTimeOption)
+	public DhcpV4LeaseTimeOption(long v4LeaseTime)
 	{
-		super(v4LeaseTimeOption);
+		super(v4LeaseTime);
 		setCode(DhcpConstants.V4OPTION_LEASE_TIME);
 		setV4(true);
 	}

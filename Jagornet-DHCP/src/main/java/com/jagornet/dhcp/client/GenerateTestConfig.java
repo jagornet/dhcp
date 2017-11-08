@@ -39,8 +39,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.jagornet.dhcp.option.OpaqueDataUtil;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
 import com.jagornet.dhcp.xml.DhcpServerConfig;
 import com.jagornet.dhcp.xml.Link;
 import com.jagornet.dhcp.xml.LinksType;
@@ -152,7 +152,7 @@ public class GenerateTestConfig {
 
 			PoliciesType policies = new PoliciesType();
 			Policy policy = new Policy();
-			policies.getPolicy().add(policy);
+			policies.getPolicies().add(policy);
 			policy.setName("dhcp.ignoreSelfPackets");
 			policy.setValue("false");
 			config.setPolicies(policies);
@@ -160,7 +160,7 @@ public class GenerateTestConfig {
 			LinksType links = new LinksType();
 			
 			Link v4Link = new Link();
-			links.getLink().add(v4Link);
+			links.getLinks().add(v4Link);
 			v4Link.setName("Test IPv4 Client Link");
 			// assume the client is on a /24 size IPv4 subnet
 			int p = myIp.lastIndexOf('.');
@@ -173,10 +173,10 @@ public class GenerateTestConfig {
 			v4Options.setV4SubnetMaskOption(smo);
 			// assume the router is at .1
 			V4RoutersOption ro = new V4RoutersOption();
-			ro.getIpAddress().add(myNet.concat("1"));
+			ro.getIpAddressList().add(myNet.concat("1"));
 			v4Options.setV4RoutersOption(ro);
 			V4DomainServersOption dso4 = new V4DomainServersOption();
-			dso4.getIpAddress().add("10.0.0.1");
+			dso4.getIpAddressList().add("10.0.0.1");
 			v4Options.setV4DomainServersOption(dso4);
 			V4DomainNameOption dno4 = new V4DomainNameOption();
 			dno4.setString("jagornet.test.com");
@@ -190,17 +190,17 @@ public class GenerateTestConfig {
 			v4Pools.getPool().add(v4pool);
 			
 			Link v6Link = new Link();
-			links.getLink().add(v6Link);
+			links.getLinks().add(v6Link);
 			v6Link.setName("Test IPv6 Client Link");
 			String myIf = networkInterface.getName();
 			v6Link.setInterface(myIf);
 			V6ConfigOptionsType v6Options = new V6ConfigOptionsType();
 			v6Link.setV6MsgConfigOptions(v6Options);
 			V6DnsServersOption dso6 = new V6DnsServersOption();
-			dso6.getIpAddress().add("2001:db8:1::1");
+			dso6.getIpAddressList().add("2001:db8:1::1");
 			v6Options.setV6DnsServersOption(dso6);
 			V6DomainSearchListOption dno6 = new V6DomainSearchListOption();
-			dno6.getDomainName().add("jagornet.test.com");
+			dno6.getDomainNameList().add("jagornet.test.com");
 			v6Options.setV6DomainSearchListOption(dno6);
 			
 			V6AddressPoolsType v6Pools = new V6AddressPoolsType();
