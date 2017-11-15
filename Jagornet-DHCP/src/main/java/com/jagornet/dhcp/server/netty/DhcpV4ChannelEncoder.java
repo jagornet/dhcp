@@ -35,7 +35,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpV4Message;
+import com.jagornet.dhcp.core.message.DhcpV4Message;
 
 /**
  * Title: DhcpV4ChannelEncoder

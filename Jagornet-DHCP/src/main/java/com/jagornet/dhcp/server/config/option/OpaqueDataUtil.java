@@ -34,10 +34,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// operations are done on the "base" BaseOpaqueData class because
-// the server config BaseOpaqueData class derives from that "base"
-import com.jagornet.dhcp.option.base.BaseOpaqueData;
-import com.jagornet.dhcp.util.Util;
+import com.jagornet.dhcp.core.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.OpaqueDataOptionType;
 import com.jagornet.dhcp.xml.Operator;
@@ -187,8 +185,8 @@ public class OpaqueDataUtil
         			return false;
         		}
         		for (int i=0; i<thatOpaqueDataList.size(); i++) {
-        			com.jagornet.dhcp.server.config.option.base.BaseOpaqueData thatOpaque = 
-        					new com.jagornet.dhcp.server.config.option.base.BaseOpaqueData(thatOpaqueDataList.get(i));
+        			BaseOpaqueData thatOpaque = 
+        					OpaqueDataUtil.toBaseOpaqueData(thatOpaqueDataList.get(i));
         			BaseOpaqueData myOpaque = myBaseOpaqueDataList.get(i);
         			if (!OpaqueDataUtil.equals(thatOpaque, myOpaque)) {
         				return false;
@@ -201,8 +199,8 @@ public class OpaqueDataUtil
     				return false;
     			}
     			for (int i=0; i<thatOpaqueDataList.size(); i++) {
-    				com.jagornet.dhcp.server.config.option.base.BaseOpaqueData thatOpaque = 
-    						new com.jagornet.dhcp.server.config.option.base.BaseOpaqueData(thatOpaqueDataList.get(i));
+    				BaseOpaqueData thatOpaque = 
+    						OpaqueDataUtil.toBaseOpaqueData(thatOpaqueDataList.get(i));
         			boolean found = false;
     				for (int j=0; j<myBaseOpaqueDataList.size(); j++) {
     					BaseOpaqueData myOpaque = myBaseOpaqueDataList.get(j);
@@ -299,6 +297,13 @@ public class OpaqueDataUtil
     		log.error("Failed to generate DUID-LLT: " + ex);
     	}
     	return opaque;
+    }
+    
+    public static BaseOpaqueData toBaseOpaqueData(OpaqueData opaque) {
+    	BaseOpaqueData baseOpaque = new BaseOpaqueData();
+    	baseOpaque.setAscii(opaque.getAsciiValue());
+    	baseOpaque.setHex(opaque.getHexValue());
+    	return baseOpaque;
     }
     
     /**

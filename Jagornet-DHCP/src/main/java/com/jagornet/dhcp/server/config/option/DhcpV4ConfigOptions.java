@@ -28,19 +28,18 @@ package com.jagornet.dhcp.server.config.option;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v4.DhcpV4BootFileNameOption;
-import com.jagornet.dhcp.option.v4.DhcpV4DomainNameOption;
-import com.jagornet.dhcp.option.v4.DhcpV4DomainServersOption;
-import com.jagornet.dhcp.option.v4.DhcpV4NetbiosNameServersOption;
-import com.jagornet.dhcp.option.v4.DhcpV4NetbiosNodeTypeOption;
-import com.jagornet.dhcp.option.v4.DhcpV4RoutersOption;
-import com.jagornet.dhcp.option.v4.DhcpV4SubnetMaskOption;
-import com.jagornet.dhcp.option.v4.DhcpV4TftpServerNameOption;
-import com.jagornet.dhcp.option.v4.DhcpV4TimeOffsetOption;
-import com.jagornet.dhcp.option.v4.DhcpV4TimeServersOption;
-import com.jagornet.dhcp.option.v4.DhcpV4VendorSpecificOption;
-import com.jagornet.dhcp.server.config.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4BootFileNameOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4DomainNameOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4DomainServersOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4NetbiosNameServersOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4NetbiosNodeTypeOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4RoutersOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4SubnetMaskOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4TftpServerNameOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4TimeOffsetOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4TimeServersOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4VendorSpecificOption;
 import com.jagornet.dhcp.xml.V4BootFileNameOption;
 import com.jagornet.dhcp.xml.V4ConfigOptionsType;
 import com.jagornet.dhcp.xml.V4DomainNameOption;
@@ -151,7 +150,8 @@ public class DhcpV4ConfigOptions
 			if (vendorSpecificOption != null) {
 				optionMap.put((int)vendorSpecificOption.getCode(),
 						new DhcpV4VendorSpecificOption(
-								new BaseOpaqueData(vendorSpecificOption.getOpaqueData())));
+								OpaqueDataUtil.toBaseOpaqueData(
+										vendorSpecificOption.getOpaqueData())));
 			}
 		}
 		

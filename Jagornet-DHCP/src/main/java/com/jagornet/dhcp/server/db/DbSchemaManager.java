@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.jagornet.dhcp.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.DhcpConstants;
 
 /**
  * The Class DbSchemaManager.

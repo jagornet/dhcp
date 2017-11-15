@@ -29,9 +29,9 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import com.jagornet.dhcp.core.util.Subnet;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
-import com.jagornet.dhcp.util.Subnet;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * The Class Range.

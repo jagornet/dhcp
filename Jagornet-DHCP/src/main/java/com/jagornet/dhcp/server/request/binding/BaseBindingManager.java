@@ -42,7 +42,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpMessage;
+import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Subnet;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
@@ -50,8 +52,6 @@ import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
-import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.util.Subnet;
 import com.jagornet.dhcp.xml.Link;
 import com.jagornet.dhcp.xml.LinkFilter;
 

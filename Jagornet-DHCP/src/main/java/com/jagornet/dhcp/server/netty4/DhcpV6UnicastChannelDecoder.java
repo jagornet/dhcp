@@ -28,7 +28,7 @@ package com.jagornet.dhcp.server.netty4;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import com.jagornet.dhcp.message.DhcpV6Message;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

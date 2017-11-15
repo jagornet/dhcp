@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-import com.jagornet.dhcp.util.Util;
+import com.jagornet.dhcp.core.util.Util;
 
 /**
  * The IaAddress POJO class for the DHCPLEASE database table.

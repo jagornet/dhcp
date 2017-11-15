@@ -4,8 +4,8 @@ import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
 
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.request.binding.Range;
-import com.jagornet.dhcp.util.Util;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;

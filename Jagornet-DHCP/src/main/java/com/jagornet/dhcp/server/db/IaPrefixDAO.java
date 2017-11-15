@@ -29,8 +29,8 @@ import java.net.InetAddress;
 import java.util.Date;
 import java.util.List;
 
+import com.jagornet.dhcp.core.util.Subnet;
 import com.jagornet.dhcp.server.request.binding.Range;
-import com.jagornet.dhcp.util.Subnet;
 
 /**
  * The Interface IaPrefixDAO.

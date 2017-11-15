@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcp.server.db;
 
-import com.jagornet.dhcp.util.Util;
+import com.jagornet.dhcp.core.util.Util;
 
 /**
  * The DhcpOption POJO class for the DHCPOPTION database table.

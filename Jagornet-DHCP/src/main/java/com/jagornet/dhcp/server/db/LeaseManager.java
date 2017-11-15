@@ -127,7 +127,7 @@ public abstract class LeaseManager implements IaManager {
 	}
 
 	public void saveDhcpOption(IaAddress iaAddr, 
-							   com.jagornet.dhcp.option.base.BaseDhcpOption baseOption)
+							   com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption)
 	{
 		try {
 			byte[] newVal = baseOption.encode().array();
@@ -161,7 +161,7 @@ public abstract class LeaseManager implements IaManager {
 	}
 
 	public void deleteDhcpOption(IaAddress iaAddr, 
-							   com.jagornet.dhcp.option.base.BaseDhcpOption baseOption)
+							   com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption)
 	{
 		DhcpLease lease = findDhcpLeaseForInetAddr(iaAddr.getIpAddress());
 		if (lease != null) {
@@ -183,7 +183,7 @@ public abstract class LeaseManager implements IaManager {
 	}
 	
 	protected DhcpOption findIaAddressOption(IaAddress iaAddr,
-			com.jagornet.dhcp.option.base.BaseDhcpOption baseOption) 
+			com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption) 
 	{
 		DhcpOption dbOption = null;
 		DhcpLease lease = findDhcpLeaseForInetAddr(iaAddr.getIpAddress());

@@ -28,7 +28,7 @@ package com.jagornet.dhcp.server.request.binding;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import com.jagornet.dhcp.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.xml.FiltersType;
 

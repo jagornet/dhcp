@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
-import com.jagornet.dhcp.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.xml.Link;
 
 public interface StaticBindingManager 

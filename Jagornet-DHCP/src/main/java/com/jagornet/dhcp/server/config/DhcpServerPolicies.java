@@ -31,7 +31,7 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Properties;
 
-import com.jagornet.dhcp.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.xml.Filter;
 import com.jagornet.dhcp.xml.FiltersType;
 import com.jagornet.dhcp.xml.Link;

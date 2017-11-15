@@ -41,10 +41,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Range;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * The JdbcIaManager implementation class for the IaManager interface.
@@ -268,7 +268,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	}
 
 	public void saveDhcpOption(IaAddress iaAddr, 
-							   com.jagornet.dhcp.option.base.BaseDhcpOption baseOption)
+							   com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption)
 	{
 		try {
 			byte[] newVal = baseOption.encode().array();
@@ -302,7 +302,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	}
 
 	public void deleteDhcpOption(IaAddress iaAddr, 
-							   com.jagornet.dhcp.option.base.BaseDhcpOption baseOption)
+							   com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption)
 	{
 		DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
 		if (dbOption != null) {
@@ -311,7 +311,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	}
 
 	protected DhcpOption findIaAddressOption(IaAddress iaAddr,
-			com.jagornet.dhcp.option.base.BaseDhcpOption baseOption) 
+			com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption) 
 	{
 		DhcpOption dbOption = null;
 		List<DhcpOption> iaAddrOptions = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());

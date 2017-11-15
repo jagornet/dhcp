@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcp.server.request;
 
-import com.jagornet.dhcp.message.DhcpV6Message;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
 
 /**
  * The Interface DhcpV6MessageProcessor.

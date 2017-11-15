@@ -36,9 +36,9 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpV6Message;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.request.DhcpV6MessageHandler;
-import com.jagornet.dhcp.util.DhcpConstants;
 
 /**
  * Title: DhcpChannelHandler

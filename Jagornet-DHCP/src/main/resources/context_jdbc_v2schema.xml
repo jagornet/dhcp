@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC
-	"-//SPRING//DTD BEAN//EN"
-	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
-<beans>
-
-	<bean id="iaManager" class="com.jagornet.dhcp.db.JdbcLeaseManager" init-method="init">
+	<bean id="iaManager" class="com.jagornet.dhcp.server.db.JdbcLeaseManager" init-method="init">
     
 		<property name="dataSource">
 			<ref bean="dataSource"/>

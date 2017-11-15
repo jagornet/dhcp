@@ -43,13 +43,15 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpV4Message;
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v4.DhcpV4ClientFqdnOption;
-import com.jagornet.dhcp.option.v4.DhcpV4HostnameOption;
-import com.jagornet.dhcp.option.v4.DhcpV4LeaseTimeOption;
-import com.jagornet.dhcp.option.v4.DhcpV4RequestedIpAddressOption;
-import com.jagornet.dhcp.option.v4.DhcpV4ServerIdOption;
+import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4HostnameOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4LeaseTimeOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
+import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
@@ -62,8 +64,6 @@ import com.jagornet.dhcp.server.request.binding.V4BindingAddress;
 import com.jagornet.dhcp.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcp.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcp.server.request.ddns.DhcpV4DdnsComplete;
-import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * Title: BaseDhcpV4Processor

@@ -25,9 +25,11 @@
  */
 package com.jagornet.dhcp.server.config;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -49,42 +51,67 @@ import javax.xml.bind.helpers.DefaultValidationEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpMessage;
-import com.jagornet.dhcp.message.DhcpV4Message;
-import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v4.DhcpV4ServerIdOption;
-import com.jagornet.dhcp.option.v4.DhcpV4VendorClassOption;
-import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6UserClassOption;
-import com.jagornet.dhcp.option.v6.DhcpV6VendorClassOption;
-import com.jagornet.dhcp.server.config.option.DhcpComparableOption;
+import com.jagornet.dhcp.core.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.option.base.BaseDomainNameListOption;
+import com.jagornet.dhcp.core.option.base.BaseDomainNameOption;
+import com.jagornet.dhcp.core.option.base.BaseEmptyOption;
+import com.jagornet.dhcp.core.option.base.BaseIpAddressListOption;
+import com.jagornet.dhcp.core.option.base.BaseIpAddressOption;
+import com.jagornet.dhcp.core.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.core.option.base.BaseOpaqueDataListOption;
+import com.jagornet.dhcp.core.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcp.core.option.base.BaseStringOption;
+import com.jagornet.dhcp.core.option.base.BaseUnsignedByteListOption;
+import com.jagornet.dhcp.core.option.base.BaseUnsignedByteOption;
+import com.jagornet.dhcp.core.option.base.BaseUnsignedIntOption;
+import com.jagornet.dhcp.core.option.base.BaseUnsignedShortListOption;
+import com.jagornet.dhcp.core.option.base.BaseUnsignedShortOption;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4VendorClassOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6UserClassOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6VendorClassOption;
+import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Subnet;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.option.DhcpV4ConfigOptions;
 import com.jagornet.dhcp.server.config.option.DhcpV6ConfigOptions;
 import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
-import com.jagornet.dhcp.server.config.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.request.binding.Range;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManager;
-import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.util.Subnet;
-import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.ClientClassExpression;
 import com.jagornet.dhcp.xml.DhcpServerConfig;
+import com.jagornet.dhcp.xml.DomainNameListOptionType;
+import com.jagornet.dhcp.xml.DomainNameOptionType;
 import com.jagornet.dhcp.xml.Filter;
 import com.jagornet.dhcp.xml.FilterExpression;
 import com.jagornet.dhcp.xml.FilterExpressionsType;
 import com.jagornet.dhcp.xml.FiltersType;
+import com.jagornet.dhcp.xml.IpAddressListOptionType;
+import com.jagornet.dhcp.xml.IpAddressOptionType;
 import com.jagornet.dhcp.xml.Link;
 import com.jagornet.dhcp.xml.LinkFilter;
 import com.jagornet.dhcp.xml.LinkFiltersType;
 import com.jagornet.dhcp.xml.LinksType;
 import com.jagornet.dhcp.xml.OpaqueData;
+import com.jagornet.dhcp.xml.OpaqueDataListOptionType;
+import com.jagornet.dhcp.xml.OpaqueDataOptionType;
+import com.jagornet.dhcp.xml.Operator;
 import com.jagornet.dhcp.xml.OptionExpression;
 import com.jagornet.dhcp.xml.PoliciesType;
+import com.jagornet.dhcp.xml.StringOptionType;
+import com.jagornet.dhcp.xml.UnsignedByteListOptionType;
+import com.jagornet.dhcp.xml.UnsignedByteOptionType;
+import com.jagornet.dhcp.xml.UnsignedIntOptionType;
+import com.jagornet.dhcp.xml.UnsignedShortListOptionType;
+import com.jagornet.dhcp.xml.UnsignedShortOptionType;
 import com.jagornet.dhcp.xml.V4AddressPool;
 import com.jagornet.dhcp.xml.V4AddressPoolsType;
 import com.jagornet.dhcp.xml.V4ServerIdOption;
@@ -170,7 +197,8 @@ public class DhcpServerConfiguration
         		xmlServerConfig.setV6ServerIdOption(v6ServerId);
         		needWrite = true;
         	}
-        	BaseOpaqueData baseOpaqueData = new BaseOpaqueData(v6ServerId.getOpaqueData());
+        	BaseOpaqueData baseOpaqueData = 
+        			OpaqueDataUtil.toBaseOpaqueData(v6ServerId.getOpaqueData());
         	dhcpV6ServerIdOption = new DhcpV6ServerIdOption(baseOpaqueData);
         	
         	V4ServerIdOption v4ServerId = xmlServerConfig.getV4ServerIdOption();
@@ -181,6 +209,7 @@ public class DhcpServerConfiguration
         	}
         	dhcpV4ServerIdOption = new DhcpV4ServerIdOption(v4ServerId.getIpAddress());
         	
+        	globalPolicies = xmlServerConfig.getPolicies();
 	    	globalV6MsgConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6MsgConfigOptions());
 	    	globalV6IaNaConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaNaConfigOptions());
 	    	globalV6NaAddrConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6NaAddrConfigOptions());
@@ -845,19 +874,30 @@ public class DhcpServerConfiguration
     		throws DhcpServerConfigException, JAXBException, IOException
     {
     	DhcpServerConfig config = null;
-    	FileInputStream fis = null;
+    	InputStream inputStream = null;
     	try {
-	        fis = new FileInputStream(filename);
+    		File file = new File(filename);
+    		if (file.exists() || filename.contains(File.separator)) {
+    			// if filename is qualified, assume it is on the file
+    			// system and relative to the working directory
+    			inputStream = new FileInputStream(filename);
+    		}
+    		else {
+    			// if filename is not qualified, assume it is on the
+    			// classpath, as would be the case for unit tests
+    			filename = File.separator + filename;
+    			inputStream = DhcpServerConfig.class.getResourceAsStream(filename);
+    		}
 	        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
 	        Unmarshaller unmarshaller = jc.createUnmarshaller();
 	        //TODO: consider VEC or ValidationEventHandler implementation
 	        //ValidationEventCollector vec = new ValidationEventCollector();
 	        unmarshaller.setEventHandler(new DefaultValidationEventHandler());
-	        config = (DhcpServerConfig) unmarshaller.unmarshal(fis);
+	        config = (DhcpServerConfig) unmarshaller.unmarshal(inputStream);
     	}
     	finally {
-    		if (fis != null) {
-    			fis.close();
+    		if (inputStream != null) {
+    			inputStream.close();
     		}
     	}
     	return config;
@@ -1945,18 +1985,252 @@ public class DhcpServerConfiguration
      */
     protected static boolean evaluateExpression(OptionExpression expression, DhcpOption option)
     {
-        boolean matches = false;
-        if (option instanceof DhcpComparableOption) {
-        	if (option.isV4() == expression.isV4()) {
-        		matches = ((DhcpComparableOption)option).matches(expression);
+        if (option.isV4() == expression.isV4()) {
+        	if (option.getCode() == expression.getCode()) {
+        		if (option instanceof BaseEmptyOption) {
+        			return true;
+        		}
+        		else if (option instanceof BaseDomainNameOption) {
+        			String domainName = ((BaseDomainNameOption)option).getDomainName();
+        	        DomainNameOptionType exprOption = expression.getDomainNameOption();
+        	        if (exprOption != null) {
+        	            return compareStringOption(domainName, exprOption.getDomainName(),
+        	            		expression.getOperator());
+        	        }
+        		}
+        		else if (option instanceof BaseDomainNameListOption) {
+        			List<String> domainNameList = ((BaseDomainNameListOption)option).getDomainNameList();
+        	        DomainNameListOptionType exprOption = expression.getDomainNameListOption();
+        	        if (exprOption != null) {   	
+        	            return compareStringListOption(domainNameList, exprOption.getDomainNameList(),
+        	            		expression.getOperator());
+        	        }
+        		}
+        		else if (option instanceof BaseIpAddressOption) {
+        			String ipAddress = ((BaseIpAddressOption)option).getIpAddress();
+        	        IpAddressOptionType exprOption = expression.getIpAddressOption();
+        	        if (exprOption != null) {
+        	            return compareStringOption(ipAddress, exprOption.getIpAddress(),
+        	            		expression.getOperator());
+        	        }
+        		}
+        		else if (option instanceof BaseIpAddressListOption) {
+        			List<String> ipAddressList = ((BaseIpAddressListOption)option).getIpAddressList();
+        	        IpAddressListOptionType exprOption = expression.getIpAddressListOption();
+        	        if (exprOption != null) {
+        	            return compareStringListOption(ipAddressList, exprOption.getIpAddressList(),
+        	            		expression.getOperator());
+        	        }        			
+        		}
+        		else if (option instanceof BaseOpaqueDataOption) {
+        			com.jagornet.dhcp.core.option.base.BaseOpaqueData opaqueData = 
+        					((BaseOpaqueDataOption)option).getOpaqueData();
+        	        return OpaqueDataUtil.matches(expression, opaqueData);
+        		}
+        		else if (option instanceof BaseOpaqueDataListOption) {
+        			List<com.jagornet.dhcp.core.option.base.BaseOpaqueData> opaqueDataList =
+        					((BaseOpaqueDataListOption)option).getOpaqueDataList();
+        			OpaqueDataListOptionType exprOpaqueDataListOption = 
+        					expression.getOpaqueDataListOption();
+        			if (exprOpaqueDataListOption != null) {
+        	        	List<OpaqueData> exprOpaqueDataList = 
+        	        			exprOpaqueDataListOption.getOpaqueDataList();
+                    	return OpaqueDataUtil.matches(opaqueDataList, exprOpaqueDataList,
+                    			expression.getOperator());
+        				
+        			}
+        		}
+        		else if (option instanceof BaseStringOption) {
+        			String string = ((BaseStringOption)option).getString();
+        	        StringOptionType exprOption = expression.getStringOption();
+        	        if (exprOption != null) {
+        	            return compareStringOption(string, exprOption.getString(),
+        	            		expression.getOperator());
+        	        }
+        		}
+        		else if (option instanceof BaseUnsignedByteOption) {
+        			short unsignedByte = ((BaseUnsignedByteOption)option).getUnsignedByte();
+        	        UnsignedByteOptionType exprOption = expression.getUByteOption();
+        	        if (exprOption != null) {
+        	        	return compareNumberOption(unsignedByte, exprOption.getUnsignedByte(),
+        	        			expression.getOperator());
+        	        }
+        		}
+        		else if (option instanceof BaseUnsignedByteListOption) {
+        			List<Short> unsignedByteList =
+        					((BaseUnsignedByteListOption)option).getUnsignedByteList();
+        	        UnsignedByteListOptionType exprOption = expression.getUByteListOption();
+        	        if (exprOption != null) {
+        	            return compareNumberListOption(unsignedByteList, 
+        	            		exprOption.getUnsignedByteList(), expression.getOperator());
+        	        }
+        		}
+        		else if (option instanceof BaseUnsignedIntOption) {
+        			long unsignedInt = ((BaseUnsignedIntOption)option).getUnsignedInt();
+        	        UnsignedIntOptionType exprOption = expression.getUIntOption();
+        	        if (exprOption != null) {
+        	        	return compareNumberOption(unsignedInt, exprOption.getUnsignedInt(),
+        	        			expression.getOperator());
+        	        }
+        	        
+        	        // then see if we have an opaque option
+        	        OpaqueDataOptionType opaqueOption = expression.getOpaqueDataOption();
+        	        if (opaqueOption != null) {
+        		        OpaqueData opaque = opaqueOption.getOpaqueData();
+        		        if (opaque != null) {
+        		            String ascii = opaque.getAsciiValue();
+        		            if (ascii != null) {
+        		                try {
+        		                	// need a long to handle unsigned int
+        		                    if (unsignedInt == Long.parseLong(ascii)) {
+        		                        return true;
+        		                    }
+        		                }
+        		                catch (NumberFormatException ex) {
+        		                	log.error("Invalid unsigned byte ASCII value for OpaqueData: " + ascii, ex);
+        		                }
+        		            }
+        		            else {
+        		                byte[] hex = opaque.getHexValue();
+        		                if ( (hex != null) && 
+        		                     (hex.length >= 1) && (hex.length <= 4) ) {
+        		                	long hexLong = Long.valueOf(Util.toHexString(hex), 16);
+        		                    if (unsignedInt == hexLong) {
+        		                        return true;
+        		                    }
+        		                }
+        		            }
+        		        }
+        	        }
+        		}
+        		else if (option instanceof BaseUnsignedShortOption) {
+        			int unsignedShort = ((BaseUnsignedShortOption)option).getUnsignedShort();
+        	        UnsignedShortOptionType exprOption = expression.getUShortOption();
+        	        if (exprOption != null) {
+        	        	return compareNumberOption(unsignedShort, exprOption.getUnsignedShort(),
+        	        			expression.getOperator());
+        	        }
+        	        
+        	        // then see if we have an opaque option
+        	        OpaqueDataOptionType opaqueOption = expression.getOpaqueDataOption();
+        	        if (opaqueOption != null) {
+        		        OpaqueData opaque = opaqueOption.getOpaqueData();
+        		        if (opaque != null) {
+        		            String ascii = opaque.getAsciiValue();
+        		            if (ascii != null) {
+        		                try {
+        		                	// need an Integer to handle unsigned short
+        		                    if (unsignedShort == Integer.parseInt(ascii)) {
+        		                        return true;
+        		                    }
+        		                }
+        		                catch (NumberFormatException ex) { 
+        		                	log.error("Invalid unsigned short ASCII value for OpaqueData: " + ascii, ex);
+        		                }
+        		            }
+        		            else {
+        		                byte[] hex = opaque.getHexValue();
+        		                if ( (hex != null) && 
+        		                     (hex.length >= 1) && (hex.length <= 2) ) {
+        		                	int hexUnsignedShort = Integer.valueOf(Util.toHexString(hex), 16);
+        		                    if (unsignedShort == hexUnsignedShort) {
+        		                        return true;
+        		                    }
+        		                }
+        		            }
+        		        }
+        	        }
+        		}
+        		else if (option instanceof BaseUnsignedShortListOption) {
+        			List<Integer> unsignedShortList = 
+        					((BaseUnsignedShortListOption)option).getUnsignedShortList();
+        	        UnsignedShortListOptionType exprOption = expression.getUShortListOption();
+        	        if (exprOption != null) {
+        	            return compareNumberListOption(unsignedShortList, 
+        	            		exprOption.getUnsignedShortList(), expression.getOperator());
+        	        }
+        		}
+        		else {
+        			log.error("Unable to compare unknown option class: " +
+        						option.getClass().getName());
+        		}
         	}
+        	
         }
-        else {
-            log.error("Configured option expression is not comparable:" +
-                      " code=" + expression.getCode());
-        }
-        return matches;
+        return false;
     }
+
+	private static boolean compareStringOption(String optString, String exprString, Operator op) {
+		if (op.equals(Operator.EQUALS)) {
+			return optString.equals(exprString);
+		}
+		else if (op.equals(Operator.STARTS_WITH)) {
+			return optString.startsWith(exprString);
+		}
+		else if (op.equals(Operator.ENDS_WITH)) {
+			return optString.endsWith(exprString);
+		}
+		else if (op.equals(Operator.CONTAINS)) {
+			return optString.contains(exprString);
+		}
+		else if (op.equals(Operator.REG_EXP)) {
+			return optString.matches(exprString);
+		}
+		else {
+			log.warn("Unsupported expression operator: " + op);
+		}
+		return false;
+	}
+
+	private static boolean compareStringListOption(List<String> optDomainNameList,
+			List<String> exprDomainNameList, Operator op) {
+		if (op.equals(Operator.EQUALS)) {
+			return optDomainNameList.equals(exprDomainNameList);
+		}
+		else if (op.equals(Operator.CONTAINS)) {
+			return optDomainNameList.containsAll(exprDomainNameList);
+		}
+		else {
+			log.warn("Unsupported expression operator: " + op);
+		}
+		return false;
+	}
+
+	private static boolean compareNumberOption(Number optNumber, Number exprNumber, Operator op) {
+		if (op.equals(Operator.EQUALS)) {
+			return (optNumber.longValue() == exprNumber.longValue());
+		}
+		else if (op.equals(Operator.LESS_THAN)) {
+			return (optNumber.longValue() < exprNumber.longValue());
+		}
+		else if (op.equals(Operator.LESS_THAN_OR_EQUAL)) {
+			return (optNumber.longValue() <= exprNumber.longValue());
+		}
+		else if (op.equals(Operator.GREATER_THAN)) {
+			return (optNumber.longValue() > exprNumber.longValue());
+		}
+		else if (op.equals(Operator.GREATER_THAN_OR_EQUAL)) {
+			return (optNumber.longValue() >= exprNumber.longValue());
+		}
+		else {
+			log.warn("Unsupported expression operator: " + op);
+		}
+		return false;
+	}
+
+	private static boolean compareNumberListOption(List<? extends Number> optNumberList, 
+			List<? extends Number> exprNumberList, Operator op) {
+		if (op.equals(Operator.EQUALS)) {
+			return optNumberList.equals(exprNumberList);
+		}
+		else if (op.equals(Operator.CONTAINS)) {
+			return optNumberList.containsAll(exprNumberList);
+		}
+		else {
+			log.warn("Unsupported expression operator: " + op);
+		}
+		return false;
+	}
     
     protected static boolean msgMatchesClientClass(DhcpMessage requestMsg, 
     		ClientClassExpression ccexpr)
@@ -1990,7 +2264,7 @@ public class DhcpServerConfiguration
 			DhcpV4VendorClassOption vcOption = (DhcpV4VendorClassOption) 
 					requestMsg.getDhcpOption(ccexpr.getV4VendorClassOption().getCode());
 			if (vcOption != null) {
-				com.jagornet.dhcp.option.base.BaseOpaqueData baseOpaqueData = 
+				com.jagornet.dhcp.core.option.base.BaseOpaqueData baseOpaqueData = 
 						vcOption.getOpaqueData();
 				if (baseOpaqueData != null) {
 					return OpaqueDataUtil.matches(baseOpaqueData, 
@@ -2007,3 +2281,139 @@ public class DhcpServerConfiguration
 		return true;
     }
 }
+
+
+/*
+ * 
+package com.jagornet.dhcp.server.config.option.base;
+
+import java.util.Arrays;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jagornet.dhcp.xml.OpaqueData;
+import com.jagornet.dhcp.xml.Operator;
+
+public class BaseOpaqueData 
+		extends com.jagornet.dhcp.core.option.base.BaseOpaqueData
+{
+	private static Logger log = LoggerFactory.getLogger(BaseOpaqueData.class);
+
+	public BaseOpaqueData() {
+		this(null);
+	}
+	
+	public BaseOpaqueData(OpaqueData opaqueData) {
+		super();
+		if (opaqueData != null) {
+			super.setAscii(opaqueData.getAsciiValue());
+			super.setHex(opaqueData.getHexValue());
+		}
+	}
+
+	// for expression matching
+    public boolean matches(OpaqueData that, Operator op)
+    {
+        if (that != null) {
+            String expAscii = that.getAsciiValue();
+            String myAscii = getAscii();
+            if ( (expAscii != null) && (myAscii != null) ) {
+                if (op.equals(Operator.EQUALS)) {
+                    return myAscii.equalsIgnoreCase(expAscii);
+                }
+                else if (op.equals(Operator.STARTS_WITH)) {
+                    return myAscii.startsWith(expAscii);
+                }
+                else if (op.equals(Operator.CONTAINS)) {
+                    return myAscii.contains(expAscii);
+                }
+                else if (op.equals(Operator.ENDS_WITH)) {
+                    return myAscii.endsWith(expAscii);
+                }
+                else if (op.equals(Operator.REG_EXP)) {
+                    return myAscii.matches(expAscii);
+                }
+                else {
+                    log.error("Unsupported expression operator: " + op);
+                    return false;
+                }
+            }
+            else if ( (expAscii == null) && (myAscii == null) ) {
+                byte[] expHex = that.getHexValue();
+                byte[] myHex = getHex();
+                if ( (expHex != null) && (myHex != null) ) {
+                    if (op.equals(Operator.EQUALS)) {
+                    	return Arrays.equals(myHex, expHex);
+                    }
+                    else if (op.equals(Operator.STARTS_WITH)) {
+                        if (myHex.length >= expHex.length) {
+                            for (int i=0; i<expHex.length; i++) {
+                                if (myHex[i] != expHex[i]) {
+                                    return false;
+                                }
+                            }
+                            return true;    // if we get here, it matches
+                        }
+                        else {
+                            return false;   // exp length too long
+                        }
+                    }
+                    else if (op.equals(Operator.CONTAINS)) {
+                        if (myHex.length >= expHex.length) {
+                            int j=0;
+                            for (int i=0; i<myHex.length; i++) {
+                                if (myHex[i] == expHex[j]) {
+                                    // found a potential match
+                                    j++;
+                                    boolean matches = true;
+                                    for (int ii=i+1; ii<myHex.length; ii++) {
+                                        if (myHex[ii] != expHex[j++]) {
+                                            matches = false;
+                                            break;
+                                        }
+                                    }
+                                    if (matches) {
+                                        return true;
+                                    }
+                                    j=0;    // reset to start of exp
+                                }
+                            }
+                            return false;    // if we get here, it didn't match
+                        }
+                        else {
+                            return false;   // exp length too long
+                        }
+                    }
+                    else if (op.equals(Operator.ENDS_WITH)) {
+                        if (myHex.length >= expHex.length) {
+                            for (int i=myHex.length-1; 
+                                 i>=myHex.length-expHex.length; 
+                                 i--) {
+                                if (myHex[i] != expHex[i]) {
+                                    return false;
+                                }
+                            }
+                            return true;    // if we get here, it matches
+                        }
+                        else {
+                            return false;   // exp length too long
+                        }
+                    }
+                    else if (op.equals(Operator.REG_EXP)) {
+                        log.error("Regular expression operator not valid for hex opaque opaqueData");
+                        return false;
+                    }
+                    else {
+                        log.error("Unsupported expression operator: " + op);
+                        return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+}
+
+
+*/

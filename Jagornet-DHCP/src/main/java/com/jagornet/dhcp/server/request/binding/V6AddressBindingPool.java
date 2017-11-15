@@ -33,11 +33,11 @@ import java.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
 import com.jagornet.dhcp.server.config.option.DhcpV6ConfigOptions;
 import com.jagornet.dhcp.server.db.IaAddress;
-import com.jagornet.dhcp.util.Util;
 import com.jagornet.dhcp.xml.V6AddressPool;
 import com.jagornet.dhcp.xml.FiltersType;
 import com.jagornet.dhcp.xml.LinkFilter;

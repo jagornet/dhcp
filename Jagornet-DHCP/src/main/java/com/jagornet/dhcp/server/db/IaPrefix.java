@@ -27,7 +27,7 @@ package com.jagornet.dhcp.server.db;
 
 import java.util.Collection;
 
-import com.jagornet.dhcp.util.Util;
+import com.jagornet.dhcp.core.util.Util;
 
 
 /**

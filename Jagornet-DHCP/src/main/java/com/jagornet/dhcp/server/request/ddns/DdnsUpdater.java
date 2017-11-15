@@ -32,7 +32,7 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;

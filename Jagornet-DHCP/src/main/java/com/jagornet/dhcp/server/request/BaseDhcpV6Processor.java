@@ -42,11 +42,12 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.v6.DhcpV6ClientFqdnOption;
-import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6StatusCodeOption;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ClientFqdnOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6StatusCodeOption;
+import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
@@ -65,7 +66,6 @@ import com.jagornet.dhcp.server.request.binding.V6BindingPrefix;
 import com.jagornet.dhcp.server.request.ddns.DdnsCallback;
 import com.jagornet.dhcp.server.request.ddns.DdnsUpdater;
 import com.jagornet.dhcp.server.request.ddns.DhcpV6DdnsComplete;
-import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.xml.V6AddressPool;
 import com.jagornet.dhcp.xml.V6PrefixPool;
 

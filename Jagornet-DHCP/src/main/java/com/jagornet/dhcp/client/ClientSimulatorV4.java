@@ -62,13 +62,13 @@ import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpV4Message;
-import com.jagornet.dhcp.option.v4.DhcpV4MsgTypeOption;
-import com.jagornet.dhcp.option.v4.DhcpV4RequestedIpAddressOption;
+import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.option.v4.DhcpV4MsgTypeOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
+import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.netty.DhcpV4ChannelDecoder;
 import com.jagornet.dhcp.server.netty.DhcpV4ChannelEncoder;
-import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * A test client that sends discover/request/release messages 

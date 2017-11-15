@@ -33,20 +33,20 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.option.base.BaseDhcpOption;
-import com.jagornet.dhcp.option.base.DhcpOption;
-import com.jagornet.dhcp.option.generic.GenericDomainNameListOption;
-import com.jagornet.dhcp.option.generic.GenericDomainNameOption;
-import com.jagornet.dhcp.option.generic.GenericIpAddressListOption;
-import com.jagornet.dhcp.option.generic.GenericIpAddressOption;
-import com.jagornet.dhcp.option.generic.GenericOpaqueDataListOption;
-import com.jagornet.dhcp.option.generic.GenericOpaqueDataOption;
-import com.jagornet.dhcp.option.generic.GenericStringOption;
-import com.jagornet.dhcp.option.generic.GenericUnsignedByteOption;
-import com.jagornet.dhcp.option.generic.GenericUnsignedIntOption;
-import com.jagornet.dhcp.option.generic.GenericUnsignedShortListOption;
-import com.jagornet.dhcp.option.generic.GenericUnsignedShortOption;
-import com.jagornet.dhcp.server.config.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.core.option.base.BaseDhcpOption;
+import com.jagornet.dhcp.core.option.base.BaseOpaqueData;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.generic.GenericDomainNameListOption;
+import com.jagornet.dhcp.core.option.generic.GenericDomainNameOption;
+import com.jagornet.dhcp.core.option.generic.GenericIpAddressListOption;
+import com.jagornet.dhcp.core.option.generic.GenericIpAddressOption;
+import com.jagornet.dhcp.core.option.generic.GenericOpaqueDataListOption;
+import com.jagornet.dhcp.core.option.generic.GenericOpaqueDataOption;
+import com.jagornet.dhcp.core.option.generic.GenericStringOption;
+import com.jagornet.dhcp.core.option.generic.GenericUnsignedByteOption;
+import com.jagornet.dhcp.core.option.generic.GenericUnsignedIntOption;
+import com.jagornet.dhcp.core.option.generic.GenericUnsignedShortListOption;
+import com.jagornet.dhcp.core.option.generic.GenericUnsignedShortOption;
 import com.jagornet.dhcp.xml.GenericOptionsType;
 import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.OptionDefType;
@@ -82,11 +82,14 @@ public class DhcpConfigOptionFactory
 		}
 		else if (optionDef.getOpaqueDataListOption() != null) {
 			List<OpaqueData> opaqueDataList = optionDef.getOpaqueDataListOption().getOpaqueDataList();
-			List<com.jagornet.dhcp.option.base.BaseOpaqueData> baseOpaqueDataList = null;
+			List<com.jagornet.dhcp.core.option.base.BaseOpaqueData> baseOpaqueDataList = null;
 			if (opaqueDataList != null) {
-				baseOpaqueDataList = new ArrayList<com.jagornet.dhcp.option.base.BaseOpaqueData>();
+				baseOpaqueDataList = new ArrayList<com.jagornet.dhcp.core.option.base.BaseOpaqueData>();
 				for (OpaqueData opaqueData : opaqueDataList) {
-					baseOpaqueDataList.add(new BaseOpaqueData(opaqueData));
+					BaseOpaqueData baseOpaque = new BaseOpaqueData();
+					baseOpaque.setAscii(opaqueData.getAsciiValue());
+					baseOpaque.setHex(opaqueData.getHexValue());;
+					baseOpaqueDataList.add(baseOpaque);
 				}
 			}
 			return new GenericOpaqueDataListOption(code, name, baseOpaqueDataList);
@@ -95,7 +98,9 @@ public class DhcpConfigOptionFactory
 			OpaqueData opaqueData = optionDef.getOpaqueDataOption().getOpaqueData();
 			BaseOpaqueData baseOpaqueData = null;
 			if (opaqueData != null) {
-				baseOpaqueData = new BaseOpaqueData(opaqueData);
+				baseOpaqueData = new BaseOpaqueData();
+				baseOpaqueData.setAscii(opaqueData.getAsciiValue());
+				baseOpaqueData.setHex(opaqueData.getHexValue());
 			}
 			return new GenericOpaqueDataOption(code, name, baseOpaqueData); 
 		}

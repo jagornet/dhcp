@@ -39,10 +39,10 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Range;
-import com.jagornet.dhcp.util.DhcpConstants;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;

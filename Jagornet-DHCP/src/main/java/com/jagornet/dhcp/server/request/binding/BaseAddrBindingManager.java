@@ -33,11 +33,11 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * The Class BaseAddressBindingManager.

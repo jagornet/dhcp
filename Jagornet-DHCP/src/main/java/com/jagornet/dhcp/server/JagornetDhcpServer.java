@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.jagornet.dhcp.Version;
+import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
@@ -75,7 +75,6 @@ import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManager;
-import com.jagornet.dhcp.util.DhcpConstants;
 import com.jagornet.dhcp.xml.DhcpServerConfig;
 
 /**
@@ -100,7 +99,7 @@ public class JagornetDhcpServer
     
     /** The default config filename. */
     public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
-    	(DhcpConstants.JAGORNET_DHCP_HOME + "/conf/dhcpserver.xml") : "conf/dhcpserver.xml";
+    	(DhcpConstants.JAGORNET_DHCP_HOME + "/config/dhcpserver.xml") : "config/dhcpserver.xml";
 	
     /** The configuration filename. */
     protected String configFilename = DEFAULT_CONFIG_FILENAME;

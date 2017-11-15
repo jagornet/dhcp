@@ -31,7 +31,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
-import com.jagornet.dhcp.message.DhcpV6Message;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
 
 /**
  * The Class DhcpUnicastChannelDecoder.

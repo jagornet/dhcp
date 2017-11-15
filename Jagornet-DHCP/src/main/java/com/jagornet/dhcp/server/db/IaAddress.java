@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-import com.jagornet.dhcp.util.Util;
+import com.jagornet.dhcp.core.util.Util;
 
 /**
  * The IaAddress POJO class for the IAADDRESS database table.

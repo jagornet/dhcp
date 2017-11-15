@@ -64,14 +64,14 @@ import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6ElapsedTimeOption;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ElapsedTimeOption;
+import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
 import com.jagornet.dhcp.server.netty.DhcpV6ChannelDecoder;
 import com.jagornet.dhcp.server.netty.DhcpV6ChannelEncoder;
-import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * A test client that sends solict/request/release messages 

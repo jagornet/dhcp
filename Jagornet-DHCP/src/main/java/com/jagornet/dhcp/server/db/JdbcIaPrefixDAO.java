@@ -45,9 +45,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
+import com.jagornet.dhcp.core.util.Subnet;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.request.binding.Range;
-import com.jagornet.dhcp.util.Subnet;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * The JdbcIaPrefixDAO implementation class for the IaPrefixDAO interface.

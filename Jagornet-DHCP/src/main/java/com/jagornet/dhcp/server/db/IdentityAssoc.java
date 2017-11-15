@@ -28,7 +28,7 @@ package com.jagornet.dhcp.server.db;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.jagornet.dhcp.util.Util;
+import com.jagornet.dhcp.core.util.Util;
 
 /**
  * The IdentityAssoc POJO class for the IDENTITYASSOC database table.

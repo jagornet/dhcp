@@ -46,10 +46,10 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Range;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * The JdbcLeaseManager implementation class for the IaManager interface.

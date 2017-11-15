@@ -25,7 +25,7 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
-import com.jagornet.dhcp.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.db.IaAddress;

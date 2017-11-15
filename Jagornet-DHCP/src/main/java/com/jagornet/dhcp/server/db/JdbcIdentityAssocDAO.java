@@ -40,7 +40,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
-import com.jagornet.dhcp.util.Util;
+import com.jagornet.dhcp.core.util.Util;
 
 /**
  * The JdbcIdentityAssocDAO implementation class for the IdentityAssocDAO interface.

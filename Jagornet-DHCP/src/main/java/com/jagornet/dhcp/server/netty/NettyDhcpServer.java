@@ -57,11 +57,11 @@ import org.jboss.netty.logging.Log4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * This is a JBoss Netty based DHCPv6 server that uses

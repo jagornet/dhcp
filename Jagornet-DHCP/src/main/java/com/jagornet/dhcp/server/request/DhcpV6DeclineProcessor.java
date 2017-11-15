@@ -32,9 +32,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpV6Message;
-import com.jagornet.dhcp.option.v6.DhcpV6ClientIdOption;
-import com.jagornet.dhcp.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
 import com.jagornet.dhcp.server.config.option.DhcpV6IaPdOption;
 import com.jagornet.dhcp.server.config.option.DhcpV6IaTaOption;
@@ -45,7 +46,6 @@ import com.jagornet.dhcp.server.request.binding.V6BindingPrefix;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManager;
-import com.jagornet.dhcp.util.DhcpConstants;
 
 /**
  * Title: DhcpV6DeclineProcessor

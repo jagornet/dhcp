@@ -30,14 +30,14 @@ import java.net.InetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.message.DhcpV4Message;
-import com.jagornet.dhcp.option.v4.DhcpV4RequestedIpAddressOption;
-import com.jagornet.dhcp.option.v4.DhcpV4ServerIdOption;
+import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
+import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
-import com.jagornet.dhcp.util.DhcpConstants;
-import com.jagornet.dhcp.util.Util;
 
 /**
  * Title: DhcpV4RequestProcessor
