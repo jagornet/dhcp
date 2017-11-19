@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.core.option;
+package com.jagornet.dhcp.server.config;
 
 import java.util.Arrays;
 
@@ -31,9 +31,8 @@ import junit.framework.TestCase;
 
 import com.jagornet.dhcp.core.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
+import com.jagornet.dhcp.server.config.OpaqueDataUtil;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestOpaqueDataUtil.
  */

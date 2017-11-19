@@ -31,10 +31,10 @@ import java.util.List;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaAddrOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaTaOption;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.xml.V6AddressBindingsType;
 import com.jagornet.dhcp.xml.V6AddressPoolsType;

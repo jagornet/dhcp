@@ -29,14 +29,13 @@ import java.net.InetAddress;
 import java.util.Iterator;
 
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
-import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
+import com.jagornet.dhcp.server.config.OpaqueDataUtil;
 import com.jagornet.dhcp.server.db.BaseTestCase;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.xml.OpaqueData;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestBindingManager.
  */

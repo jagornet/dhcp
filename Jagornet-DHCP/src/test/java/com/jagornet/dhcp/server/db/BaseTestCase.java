@@ -54,7 +54,7 @@ public class BaseTestCase extends TestCase
 	public static final int DEFAULT_SCHEMA_VERSION = 2;
 	
 	/** The config filename. */
-	public static String configFilename = "config/dhcpserver-basetest.xml";
+	public static String configFilename = "dhcpserver-basetest.xml";
 
 	/** The config. */
 	protected static DhcpServerConfiguration config;

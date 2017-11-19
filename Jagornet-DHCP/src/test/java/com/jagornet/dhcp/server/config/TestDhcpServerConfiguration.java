@@ -31,8 +31,6 @@ import java.util.SortedMap;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Subnet;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.server.config.option.DhcpV6ConfigOptions;
-import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
 import com.jagornet.dhcp.xml.DhcpServerConfig;
 import com.jagornet.dhcp.xml.OpaqueData;
 import com.jagornet.dhcp.xml.PoliciesType;

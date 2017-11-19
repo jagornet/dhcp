@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.server.config.option;
+package com.jagornet.dhcp.server.config;
 
 import java.util.Map;
 import java.util.TreeMap;

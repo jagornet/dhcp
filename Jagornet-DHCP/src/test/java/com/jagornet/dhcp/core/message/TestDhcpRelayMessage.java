@@ -29,11 +29,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
+import com.jagornet.dhcp.core.option.base.BaseOpaqueData;
 import com.jagornet.dhcp.core.option.v6.DhcpV6InterfaceIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
-import com.jagornet.dhcp.xml.OpaqueData;
 
 import junit.framework.TestCase;
 
@@ -76,9 +75,9 @@ public class TestDhcpRelayMessage extends TestCase
     
     public static DhcpV6InterfaceIdOption buildMockInterfaceIdOption()
     {
-        OpaqueData opaque = new OpaqueData();
-        opaque.setHexValue(new byte[] { 0x01, 0x02, 0x03, 0x04 } );
-    	return new DhcpV6InterfaceIdOption(OpaqueDataUtil.toBaseOpaqueData(opaque));
+        BaseOpaqueData baseOpaqueData = new BaseOpaqueData();
+        baseOpaqueData.setHex(new byte[] { 0x01, 0x02, 0x03, 0x04 } );
+    	return new DhcpV6InterfaceIdOption(baseOpaqueData);
     }
 
     public static void checkEncodedMockDhcpRelayMessage(ByteBuffer bb) throws Exception

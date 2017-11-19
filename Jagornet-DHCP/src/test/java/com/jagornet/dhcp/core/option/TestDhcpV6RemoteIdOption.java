@@ -36,7 +36,7 @@ import com.jagornet.dhcp.core.util.DhcpConstants;
 /**
  * The Class TestDhcpUserClassOption.
  */
-public class TestDhcpRemoteIdOption extends TestCase
+public class TestDhcpV6RemoteIdOption extends TestCase
 {
     
     /**

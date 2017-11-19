@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaPdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaPrefixOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaPdOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaPrefixOption;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IaPrefix;
 import com.jagornet.dhcp.server.db.IdentityAssoc;

@@ -40,8 +40,6 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6OptionRequestOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6UserClassOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
-import com.jagornet.dhcp.xml.OpaqueData;
 
 import junit.framework.TestCase;
 
@@ -63,12 +61,12 @@ public class TestDhcpMessage extends TestCase
         dhcpMessage.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);    // 1 byte
         dhcpMessage.setTransactionId(90599);                // 3 bytes
 
-        OpaqueData opaque = new OpaqueData();
-        opaque.setAsciiValue("jagornet-dhcpv6");	// 15 bytes
+        BaseOpaqueData baseOpaqueData = new BaseOpaqueData();
+        baseOpaqueData.setAscii("jagornet-dhcpv6");	// 15 bytes
 
         // MUST include server id in reply
         DhcpV6ServerIdOption serverId = new DhcpV6ServerIdOption();     // 4 bytes (code + len)
-        serverId.setOpaqueData(OpaqueDataUtil.toBaseOpaqueData(opaque));
+        serverId.setOpaqueData(baseOpaqueData);
         dhcpMessage.putDhcpOption(serverId);
 
         DhcpV6DnsServersOption dnsServers = new DhcpV6DnsServersOption();	// 4 bytes

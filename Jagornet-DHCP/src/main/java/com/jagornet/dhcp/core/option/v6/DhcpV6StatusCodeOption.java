@@ -31,7 +31,6 @@ import java.nio.ByteBuffer;
 import com.jagornet.dhcp.core.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.xml.OptionExpression;
 
 /**
  * <p>Title: DhcpV6StatusCodeOption </p>
@@ -125,49 +124,6 @@ public class DhcpV6StatusCodeOption extends BaseDhcpOption
 	            }
             }
         }
-    }
-
-    /**
-     * Matches only the status code, not the message text.
-     * 
-     * @param expression the expression
-     * 
-     * @return true, if matches
-     */
-    public boolean matches(OptionExpression expression)
-    {
-        if (expression == null)
-            return false;
-        if (expression.getCode() != this.getCode())
-            return false;
-
-        
-/*
-        OpaqueData opaque = expression.getData();
-        if (opaque != null) {
-            String ascii = opaque.getAsciiValue();
-            if (ascii != null) {
-                try {
-                	// need an int to handle unsigned short
-                    if (statusCodeOption.getStatusCode() == Integer.parseInt(ascii)) {
-                        return true;
-                    }
-                }
-                catch (NumberFormatException ex) { }
-            }
-            else {
-                byte[] hex = opaque.getHexValue();
-                if ( (hex != null) && 
-                     (hex.length >= 1) && (hex.length <= 2) ) {
-                	int hexInt = Integer.parseInt(Util.toHexString(hex));
-                    if (statusCodeOption.getStatusCode() == hexInt) {
-                        return true;
-                    }
-                }
-            }
-        }
-*/
-        return false;
     }
 
     /* (non-Javadoc)

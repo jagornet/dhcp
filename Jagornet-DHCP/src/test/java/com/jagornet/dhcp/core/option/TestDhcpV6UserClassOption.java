@@ -37,11 +37,11 @@ import junit.framework.TestCase;
 /**
  * The Class TestDhcpUserClassOption.
  */
-public class TestDhcpUserClassOption extends TestCase
+public class TestDhcpV6UserClassOption extends TestCase
 {
 	protected DhcpV6UserClassOption duco;
 	
-	public TestDhcpUserClassOption()
+	public TestDhcpV6UserClassOption()
 	{
 		duco = new DhcpV6UserClassOption();
         duco.addOpaqueData("UserClass 1");   // 13 (len=2 bytes, data=11 bytes)

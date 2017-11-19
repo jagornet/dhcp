@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.server.config.option;
+package com.jagornet.dhcp.core.option.v6;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -37,10 +37,8 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
-import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.xml.V6IaPdOption;
 
 /**
  * The Class DhcpV6IaPdOption.
@@ -49,7 +47,6 @@ import com.jagornet.dhcp.xml.V6IaPdOption;
  */
 public class DhcpV6IaPdOption extends BaseDhcpOption
 {		
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpV6IaPdOption.class);
 	
 	protected long iaId;
@@ -62,28 +59,18 @@ public class DhcpV6IaPdOption extends BaseDhcpOption
 	/** The ia prefix options. */
 	private List<DhcpV6IaPrefixOption> iaPrefixOptions = new ArrayList<DhcpV6IaPrefixOption>();
 
-	/**
-	 * Instantiates a new dhcp ia pd option.
-	 */
 	public DhcpV6IaPdOption()
 	{
-		this(null);
+		this((long)0, (long)0, (long)0);
 	}
 	
-	/**
-	 * Instantiates a new dhcp ia pd option.
-	 * 
-	 * @param iaPdOption the ia pd option
-	 */
-	public DhcpV6IaPdOption(V6IaPdOption iaPdOption)
+	public DhcpV6IaPdOption(long iaId, long t1, long t2)
 	{
 		super();
-		if (iaPdOption != null) {
-			iaId = iaPdOption.getIaId();
-			t1 = iaPdOption.getT1();
-			t1 = iaPdOption.getT2();
-		}
-		setCode(DhcpConstants.V6OPTION_IA_PD);
+		this.iaId = iaId;
+		this.t1 = t1;
+		this.t2 = t2;
+		setCode(DhcpConstants.V6OPTION_IA_NA);
 	}
 
 	public long getIaId() {

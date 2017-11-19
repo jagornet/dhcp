@@ -28,11 +28,6 @@ package com.jagornet.dhcp.core.option.v6;
 import com.jagornet.dhcp.core.option.DhcpUnknownOption;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaPdOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaPrefixOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaTaOption;
 
 /**
  * A factory for creating DhcpOption objects.

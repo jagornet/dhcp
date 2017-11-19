@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.server.config.option;
+package com.jagornet.dhcp.core.option.v6;
 
 import java.io.IOException;
 import java.net.Inet6Address;
@@ -39,10 +39,8 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcp.core.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.core.option.base.BaseIpAddressOption;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
-import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.xml.V6IaPrefixOption;
 
 /**
  * The Class DhcpV6IaPrefixOption.
@@ -51,7 +49,6 @@ import com.jagornet.dhcp.xml.V6IaPrefixOption;
  */
 public class DhcpV6IaPrefixOption extends BaseDhcpOption
 {	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpV6IaPrefixOption.class);
 	
 	private short prefixLength;
@@ -62,28 +59,19 @@ public class DhcpV6IaPrefixOption extends BaseDhcpOption
 	/** The dhcp options inside this ia prefix option. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 
-	/**
-	 * Instantiates a new dhcp ia prefix option.
-	 */
 	public DhcpV6IaPrefixOption()
 	{
-		this(null);
+		this((short)0, null, (long)0, (long)0);
 	}
 	
-	/**
-	 * Instantiates a new dhcp ia prefix option.
-	 * 
-	 * @param iaPrefixOption the ia prefix option
-	 */
-	public DhcpV6IaPrefixOption(V6IaPrefixOption iaPrefixOption)
+	public DhcpV6IaPrefixOption(short prefixLength, String ipv6Prefix,
+			long preferredLifetime, long validLifetime)
 	{
 		super();
-		if (iaPrefixOption != null) {
-			prefixLength = iaPrefixOption.getPrefixLength();
-			ipAddress = iaPrefixOption.getIpv6Prefix();
-			preferredLifetime = iaPrefixOption.getPreferredLifetime();
-			validLifetime = iaPrefixOption.getValidLifetime();
-		}
+		this.prefixLength = prefixLength;
+		this.ipAddress = ipv6Prefix;
+		this.preferredLifetime = preferredLifetime;
+		this.validLifetime = validLifetime;
 		setCode(DhcpConstants.V6OPTION_IA_PD_PREFIX);
 	}
 

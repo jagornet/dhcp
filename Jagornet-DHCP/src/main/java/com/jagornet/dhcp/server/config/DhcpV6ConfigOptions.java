@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.server.config.option;
+package com.jagornet.dhcp.server.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +53,8 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6SntpServersOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6StatusCodeOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6VendorInfoOption;
 import com.jagornet.dhcp.xml.CivicAddressElement;
+import com.jagornet.dhcp.xml.GenericOptionsType;
+import com.jagornet.dhcp.xml.OptionDefType;
 import com.jagornet.dhcp.xml.V6BcmcsAddressesOption;
 import com.jagornet.dhcp.xml.V6BcmcsDomainNamesOption;
 import com.jagornet.dhcp.xml.V6ConfigOptionsType;
@@ -297,8 +299,21 @@ public class DhcpV6ConfigOptions
 		if (configOptions.getV6VendorInfoOption() != null) {
 			V6VendorInfoOption vendorInfoOption = configOptions.getV6VendorInfoOption();
 			if (vendorInfoOption != null) {
+	    		long enterpriseNumber = vendorInfoOption.getEnterpriseNumber();
+	    		List<DhcpOption> suboptionList = null;
+	    		GenericOptionsType genericOptions = vendorInfoOption.getSuboptionList();
+	    		if (genericOptions != null) {
+	    			suboptionList = new ArrayList<DhcpOption>();
+	    			List<OptionDefType> optdefs = genericOptions.getOptionDefs();
+	    			if (optdefs != null) {
+	    				for (OptionDefType optdef : optdefs) {
+							DhcpOption subopt = GenericOptionFactory.getDhcpOption(optdef);
+							suboptionList.add(subopt);
+						}
+	    			}
+	    		}
 				optionMap.put(vendorInfoOption.getCode(),
-						new DhcpV6VendorInfoOption(vendorInfoOption));
+						new DhcpV6VendorInfoOption(enterpriseNumber, suboptionList));
 			}
 		}
 		

@@ -37,11 +37,11 @@ import junit.framework.TestCase;
 /**
  * The Class TestDhcpVendorClassOption.
  */
-public class TestDhcpVendorClassOption extends TestCase
+public class TestDhcpV6VendorClassOption extends TestCase
 {
 	protected DhcpV6VendorClassOption dvco;
 	
-	public TestDhcpVendorClassOption()
+	public TestDhcpV6VendorClassOption()
 	{
 		dvco = new DhcpV6VendorClassOption();
 		dvco.setEnterpriseNumber(12345);

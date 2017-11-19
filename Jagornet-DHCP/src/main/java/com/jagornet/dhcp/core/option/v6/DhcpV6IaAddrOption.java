@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.server.config.option;
+package com.jagornet.dhcp.core.option.v6;
 
 import java.io.IOException;
 import java.net.Inet6Address;
@@ -39,10 +39,8 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcp.core.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.core.option.base.BaseIpAddressOption;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
-import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.xml.V6IaAddrOption;
 
 /**
  * The Class DhcpV6IaAddrOption.
@@ -51,7 +49,6 @@ import com.jagornet.dhcp.xml.V6IaAddrOption;
  */
 public class DhcpV6IaAddrOption extends BaseDhcpOption
 {		
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpV6IaAddrOption.class);
 	
 	private String ipAddress;
@@ -61,26 +58,17 @@ public class DhcpV6IaAddrOption extends BaseDhcpOption
 	/** The dhcp options inside this ia addr option. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 
-	/**
-	 * Instantiates a new dhcp ia addr option.
-	 */
 	public DhcpV6IaAddrOption()
 	{
-		this(null);
+		this(null, (long)0, (long)0);
 	}
 	
-	/**
-	 * Instantiates a new dhcp ia addr option.
-	 * 
-	 * @param iaAddrOption the ia addr option
-	 */
-	public DhcpV6IaAddrOption(V6IaAddrOption iaAddrOption)
+	public DhcpV6IaAddrOption(String ipv6Address, long preferredLifetime, long validLifetime)
 	{
-		if (iaAddrOption != null) {
-			this.ipAddress = iaAddrOption.getIpv6Address();
-			this.preferredLifetime = iaAddrOption.getPreferredLifetime();
-			this.validLifetime = iaAddrOption.getValidLifetime();
-		}
+		super();
+		this.ipAddress = ipv6Address;
+		this.preferredLifetime = preferredLifetime;
+		this.validLifetime = validLifetime;
 		setCode(DhcpConstants.V6OPTION_IAADDR);
 	}
 

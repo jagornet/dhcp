@@ -36,7 +36,7 @@ import com.jagornet.dhcp.core.util.DhcpConstants;
 /**
  * The Class TestDhcpStatusCodeOption.
  */
-public class TestDhcpStatusCodeOption extends TestCase
+public class TestDhcpV6StatusCodeOption extends TestCase
 {
     
     /**

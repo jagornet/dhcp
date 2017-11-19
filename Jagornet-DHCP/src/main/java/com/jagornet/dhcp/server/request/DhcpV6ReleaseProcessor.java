@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaPdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaPdOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaTaOption;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.BindingObject;
 import com.jagornet.dhcp.server.request.binding.V6BindingAddress;

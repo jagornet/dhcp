@@ -77,9 +77,6 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6VendorClassOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Subnet;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.server.config.option.DhcpV4ConfigOptions;
-import com.jagornet.dhcp.server.config.option.DhcpV6ConfigOptions;
-import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
 import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.request.binding.Range;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
@@ -877,7 +874,7 @@ public class DhcpServerConfiguration
     	InputStream inputStream = null;
     	try {
     		File file = new File(filename);
-    		if (file.exists() || filename.contains(File.separator)) {
+    		if (filename.contains(File.separator) && file.exists()) {
     			// if filename is qualified, assume it is on the file
     			// system and relative to the working directory
     			inputStream = new FileInputStream(filename);

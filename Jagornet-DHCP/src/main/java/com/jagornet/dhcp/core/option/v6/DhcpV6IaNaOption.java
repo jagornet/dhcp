@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpV6IaTaOption.java is part of Jagornet DHCP.
+ *   This file DhcpV6IaNaOption.java is part of Jagornet DHCP.
  *
  *   Jagornet DHCP is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.server.config.option;
+package com.jagornet.dhcp.core.option.v6;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -37,51 +37,40 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
-import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.xml.V6IaTaOption;
 
 /**
- * The Class DhcpV6IaTaOption.
+ * The Class DhcpV6IaNaOption.
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpV6IaTaOption extends BaseDhcpOption
-{	
-	//TODO: create a superclass for IaNa and IaTa and IaPd options
-	
-	/** The log. */
-	private static Logger log = LoggerFactory.getLogger(DhcpV6IaTaOption.class);
+public class DhcpV6IaNaOption extends BaseDhcpOption
+{		
+	private static Logger log = LoggerFactory.getLogger(DhcpV6IaNaOption.class);
 	
 	protected long iaId;
+	protected long t1;
+	protected long t2;
     
-	/** The dhcp options inside this ia ta option, _NOT_ including any ia addr options. */
+	/** The dhcp options inside this ia na option, _NOT_ including any ia addr options. */
 	protected Map<Integer, DhcpOption> dhcpOptions = new HashMap<Integer, DhcpOption>();
 	
 	/** The ia addr options. */
 	private List<DhcpV6IaAddrOption> iaAddrOptions = new ArrayList<DhcpV6IaAddrOption>();
 
-	/**
-	 * Instantiates a new dhcp ia ta option.
-	 */
-	public DhcpV6IaTaOption()
+	public DhcpV6IaNaOption()
 	{
-		this(null);
+		this((long)0, (long)0, (long)0);
 	}
 	
-	/**
-	 * Instantiates a new dhcp ia ta option.
-	 * 
-	 * @param iaTaOption the ia ta option
-	 */
-	public DhcpV6IaTaOption(V6IaTaOption iaTaOption)
+	public DhcpV6IaNaOption(long iaId, long t1, long t2)
 	{
 		super();
-		if (iaTaOption != null) {
-			iaId = iaTaOption.getIaId();
-		}
-		setCode(DhcpConstants.V6OPTION_IA_TA);
+		this.iaId = iaId;
+		this.t1 = t1;
+		this.t2 = t2;
+		setCode(DhcpConstants.V6OPTION_IA_NA);
 	}
 
 	public long getIaId() {
@@ -90,6 +79,22 @@ public class DhcpV6IaTaOption extends BaseDhcpOption
 
 	public void setIaId(long iaId) {
 		this.iaId = iaId;
+	}
+
+	public long getT1() {
+		return t1;
+	}
+
+	public void setT1(long t1) {
+		this.t1 = t1;
+	}
+
+	public long getT2() {
+		return t2;
+	}
+
+	public void setT2(long t2) {
+		this.t2 = t2;
 	}
 
 	/**
@@ -162,7 +167,7 @@ public class DhcpV6IaTaOption extends BaseDhcpOption
      */
     public int getDecodedLength()
     {
-    	int len = 4;	// iaId
+    	int len = 4 + 4 + 4;	// iaId + t1 + t2
     	if (iaAddrOptions != null) {
     		for (DhcpV6IaAddrOption iaAddrOption : iaAddrOptions) {
     			// code(short) + len(short) + data_len
@@ -185,6 +190,8 @@ public class DhcpV6IaTaOption extends BaseDhcpOption
     {
         ByteBuffer buf = super.encodeCodeAndLength();
         buf.putInt((int)iaId);
+        buf.putInt((int)t1);
+        buf.putInt((int)t2);
 
         if (iaAddrOptions != null) {
         	for (DhcpV6IaAddrOption iaAddrOption : iaAddrOptions) {
@@ -219,9 +226,15 @@ public class DhcpV6IaTaOption extends BaseDhcpOption
             int eof = buf.position() + len;
             if (buf.position() < eof) {
             	iaId = Util.getUnsignedInt(buf);
-    			if (buf.position() < eof) {
-    				decodeOptions(buf, eof);
-    			}
+            	if (buf.position() < eof) {
+            		t1 = Util.getUnsignedInt(buf);
+            		if (buf.position() < eof) {
+            			t1 = Util.getUnsignedInt(buf);
+            			if (buf.position() < eof) {
+            				decodeOptions(buf, eof);
+            			}
+            		}
+            	}
             }
         }
     }
@@ -270,6 +283,10 @@ public class DhcpV6IaTaOption extends BaseDhcpOption
         sb.append(super.getName());
         sb.append(": iaId=");
         sb.append(iaId);
+        sb.append(" t1=");
+        sb.append(t1);
+        sb.append(" t2=");
+        sb.append(t2);
         if ((dhcpOptions != null) && !dhcpOptions.isEmpty()) {
             sb.append(Util.LINE_SEPARATOR);
         	sb.append("IA_DHCPOPTIONS");

@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file TestDhcpDomainSearchListOption.java is part of Jagornet DHCP.
+ *   This file TestDhcpDnsServersOption.java is part of Jagornet DHCP.
  *
  *   Jagornet DHCP is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,26 +25,27 @@
  */
 package com.jagornet.dhcp.core.option;
 
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import com.jagornet.dhcp.core.option.v6.DhcpV6DomainSearchListOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
+
+import junit.framework.TestCase;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class TestDhcpDomainSearchListOption.
+ * The Class TestDhcpDnsServersOption.
  */
-public class TestDhcpDomainSearchListOption extends TestCase
+public class TestDhcpV6DnsServersOption extends TestCase
 {
 	
-	/** The domain1. */
-	String domain1;
+	/** The dns1. */
+	InetAddress dns1 = null;
 	
-	/** The domain2. */
-	String domain2;
+	/** The dns2. */
+	InetAddress dns2 = null;
 	
     /* (non-Javadoc)
      * @see junit.framework.TestCase#setUp()
@@ -53,8 +54,8 @@ public class TestDhcpDomainSearchListOption extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
-		domain1 = "jagornet.com.";		// 08jagornet03com00 8+3+3 =  14
-		domain2 = "ipv6universe.com.";	// 0Cipv6universe03com00 12+3+3 = 18
+		dns1 = InetAddress.getByName("2001:db8::1");
+		dns2 = InetAddress.getByName("2001:db8::2");
 	}
 
 	/* (non-Javadoc)
@@ -63,8 +64,8 @@ public class TestDhcpDomainSearchListOption extends TestCase
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		domain1 = null;
-		domain2 = null;
+		dns1 = null;
+		dns2 = null;
 	}
 
 	/**
@@ -74,35 +75,21 @@ public class TestDhcpDomainSearchListOption extends TestCase
 	 */
 	public void testEncode() throws Exception
     {
-        DhcpV6DomainSearchListOption dslo = new DhcpV6DomainSearchListOption();
-        dslo.addDomainName(domain1);
-        dslo.addDomainName(domain2);
-        ByteBuffer bb = dslo.encode();
+        DhcpV6DnsServersOption dso = new DhcpV6DnsServersOption();
+        dso.addIpAddress(dns1);    // 16 bytes
+        dso.addIpAddress(dns2);    // 16 bytes
+        ByteBuffer bb = dso.encode();
         assertNotNull(bb);
         assertEquals(36, bb.capacity());    // +4 (code=2bytes, len=2bytes)
         assertEquals(36, bb.limit());
         assertEquals(0, bb.position());
-        assertEquals(DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST, bb.getShort());
+        assertEquals(DhcpConstants.V6OPTION_DNS_SERVERS, bb.getShort());
         assertEquals((short)32, bb.getShort());   // length
-        assertEquals((byte)8, bb.get());
-        byte[] buf = new byte[8];
+        byte[] buf = new byte[16];
         bb.get(buf);
-        assertEquals("jagornet", new String(buf));
-        assertEquals((byte)3, bb.get());
-        buf = new byte[3];
+        assertEquals(dns1, InetAddress.getByAddress(buf));
         bb.get(buf);
-        assertEquals("com", new String(buf));
-        assertEquals((byte)0, bb.get());
-        
-        assertEquals((byte)12, bb.get());
-        buf = new byte[12];
-        bb.get(buf);
-        assertEquals("ipv6universe", new String(buf));
-        assertEquals((byte)3, bb.get());
-        buf = new byte[3];
-        bb.get(buf);
-        assertEquals("com", new String(buf));
-        assertEquals((byte)0, bb.get());
+        assertEquals(dns2, InetAddress.getByAddress(buf));
     }
 
     /**
@@ -116,23 +103,17 @@ public class TestDhcpDomainSearchListOption extends TestCase
         // _after_ the option code itself
         ByteBuffer bb = ByteBuffer.allocate(34);
         bb.putShort((short)32);     // length of option
-        bb.put((byte)8);
-        bb.put("jagornet".getBytes());
-        bb.put((byte)3);
-        bb.put("com".getBytes());
-        bb.put((byte)0);
-        bb.put((byte)12);
-        bb.put("ipv6universe".getBytes());
-        bb.put((byte)3);
-        bb.put("com".getBytes());
-        bb.put((byte)0);
+        bb.put(dns1.getAddress());
+        bb.put(dns2.getAddress());
         bb.flip();
-        DhcpV6DomainSearchListOption dslo = new DhcpV6DomainSearchListOption();
-        dslo.decode(bb);
-        assertEquals(2, dslo.getDomainNameList().size());
-        List<String> domainNames = dslo.getDomainNameList();
-        assertEquals(domain1, domainNames.get(0)); 
-        assertEquals(domain2, domainNames.get(1)); 
+        DhcpV6DnsServersOption dso = new DhcpV6DnsServersOption();
+        dso.decode(bb);
+        assertEquals(2, dso.getIpAddressList().size());
+        List<String> dnsServers = dso.getIpAddressList();
+        assertEquals(dns1, 
+                     InetAddress.getByName(dnsServers.get(0)));
+        assertEquals(dns2, 
+                     InetAddress.getByName(dnsServers.get(1)));
     }
     
     /**
@@ -140,9 +121,9 @@ public class TestDhcpDomainSearchListOption extends TestCase
      */
     public void testToString()
     {
-        DhcpV6DomainSearchListOption dslo = new DhcpV6DomainSearchListOption();
-        dslo.addDomainName(domain1);
-        dslo.addDomainName(domain2);
-        System.out.println(dslo);
+        DhcpV6DnsServersOption dso = new DhcpV6DnsServersOption();
+        dso.addIpAddress(dns1);    // 16 bytes
+        dso.addIpAddress(dns2);    // 16 bytes
+    	System.out.println(dso);
     }
 }

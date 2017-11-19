@@ -35,7 +35,7 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6InterfaceIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.config.option.OpaqueDataUtil;
+import com.jagornet.dhcp.server.config.OpaqueDataUtil;
 import com.jagornet.dhcp.server.db.BaseTestCase;
 import com.jagornet.dhcp.xml.OpaqueData;
 

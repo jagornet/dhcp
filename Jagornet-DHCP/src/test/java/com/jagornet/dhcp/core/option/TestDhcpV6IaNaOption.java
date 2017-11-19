@@ -23,32 +23,28 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.server.config.option;
+package com.jagornet.dhcp.core.option;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import com.jagornet.dhcp.core.option.base.BaseDomainNameOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6DomainSearchListOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaAddrOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.server.JagornetDhcpServer;
-import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaAddrOption;
-import com.jagornet.dhcp.server.config.option.DhcpV6IaNaOption;
-import com.jagornet.dhcp.xml.PoliciesType;
-import com.jagornet.dhcp.xml.Policy;
+
+import junit.framework.TestCase;
 
 // TODO: Auto-generated Javadoc
 /**
  * The Class TestDhcpIaNaOption.
  */
-public class TestDhcpIaNaOption extends TestCase
+public class TestDhcpV6IaNaOption extends TestCase
 {
 	
 	/* (non-Javadoc)
@@ -56,15 +52,7 @@ public class TestDhcpIaNaOption extends TestCase
 	 */
 	public void setUp() throws Exception
 	{
-		String configFilename = JagornetDhcpServer.DEFAULT_CONFIG_FILENAME;
-		DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
-		config.init(configFilename);
-		PoliciesType policies = new PoliciesType();
-		Policy pcy = new Policy();
-		pcy.setName("sendRequestedOptionsOnly");
-		pcy.setValue("false");
-		policies.getPolicies().add(pcy);
-		config.setGlobalPolicies(policies);
+		super.setUp();
 	}
 	
 	/**

@@ -35,10 +35,6 @@ import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.option.generic.GenericOpaqueDataOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.server.config.option.GenericOptionFactory;
-import com.jagornet.dhcp.xml.GenericOptionsType;
-import com.jagornet.dhcp.xml.OptionDefType;
-import com.jagornet.dhcp.xml.V6VendorInfoOption;
 
 /**
  * <p>Title: DhcpV6VendorInfoOption </p>
@@ -51,35 +47,16 @@ public class DhcpV6VendorInfoOption extends BaseDhcpOption
 	private long enterpriseNumber;	// long for unsigned int
 	private List<DhcpOption> suboptionList;
 
-    /**
-     * Instantiates a new dhcp vendor info option.
-     */
     public DhcpV6VendorInfoOption()
     {
-        this(null);
+        this((long)0, null);
     }
     
-    /**
-     * Instantiates a new dhcp vendor info option.
-     * 
-     * @param vendorInfoOption the vendor info option
-     */
-    public DhcpV6VendorInfoOption(V6VendorInfoOption vendorInfoOption)
+    public DhcpV6VendorInfoOption(long enterpriseNumber, List<DhcpOption> suboptionList)
     {
     	super();
-    	if (vendorInfoOption != null) {
-    		enterpriseNumber = vendorInfoOption.getEnterpriseNumber();
-    		GenericOptionsType genericOptions = vendorInfoOption.getSuboptionList();
-    		if (genericOptions != null) {
-    			List<OptionDefType> optdefs = genericOptions.getOptionDefs();
-    			if (optdefs != null) {
-    				for (OptionDefType optdef : optdefs) {
-						DhcpOption subopt = GenericOptionFactory.getDhcpOption(optdef);
-						addSuboption(subopt);
-					}
-    			}
-    		}
-    	}
+    	this.enterpriseNumber = enterpriseNumber;
+    	this.suboptionList = suboptionList;
     	setCode(DhcpConstants.V6OPTION_VENDOR_OPTS);
     }
     
