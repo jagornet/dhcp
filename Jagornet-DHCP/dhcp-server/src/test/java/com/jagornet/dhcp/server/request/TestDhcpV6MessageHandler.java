@@ -25,8 +25,12 @@
  */
 package com.jagornet.dhcp.server.request;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+
+import org.junit.Test;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.message.DhcpV6RelayMessage;
@@ -41,7 +45,7 @@ import com.jagornet.dhcp.server.db.BaseTestCase;
 
 public class TestDhcpV6MessageHandler extends BaseTestCase
 {
-	
+	@Test
 	public void testHandleMessage() throws Exception
 	{
 		DhcpV6RelayMessage relayMessage = TestDhcpRelayMessage.buildMockDhcpRelayMessage();

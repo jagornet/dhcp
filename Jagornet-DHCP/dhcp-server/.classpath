@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="config"/>
-	<classpathentry excluding="com/jagornet/dhcp/netty4/*|com/jagornet/dhcp/db/Mongo*|com/jagornet/dhcp/db/Redis*|com/jagornet/dhcp/db/Sqlite*" kind="src" output="target/classes" path="target/generated-sources/jaxb">
+	<classpathentry excluding="com/jagornet/dhcp/netty4/*" kind="src" output="target/classes" path="target/generated-sources/jaxb">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="com/jagornet/dhcp/netty4/*|com/jagornet/dhcp/db/Mongo*|com/jagornet/dhcp/db/Redis*|com/jagornet/dhcp/db/Sqlite*" kind="src" output="target/classes" path="src/main/java">
+	<classpathentry excluding="com/jagornet/dhcp/netty4/*" kind="src" output="target/classes" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>

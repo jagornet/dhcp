@@ -25,6 +25,11 @@
  */
 package com.jagornet.dhcp.server.db;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,15 +37,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.server.db.DhcpOption;
-import com.jagornet.dhcp.server.db.IaAddress;
-import com.jagornet.dhcp.server.db.IaManager;
-import com.jagornet.dhcp.server.db.IdentityAssoc;
-
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestJdbcIaManager.
  * 
@@ -48,69 +51,41 @@ import com.jagornet.dhcp.server.db.IdentityAssoc;
  */
 public class TestIaManager extends BaseTestCase
 {
-	
-	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(TestIaManager.class);
 	
-	/** The ia mgr. */
-	protected IaManager iaMgr;
-	
-	/** The ia. */
+	protected static IaManager iaMgr;	
 	protected IdentityAssoc ia;
 
-	/** The duid. */
 	byte[] duid;
-	
-	/** The iatype. */
 	byte iatype;
-	
-	/** The iaid. */
 	long iaid;
-	
-	/** The onehour. */
 	long onehour;
-	
-	/** The twohours. */
 	long twohours;
-	
-	/** The ip1. */
 	IaAddress ip1;
-	
-	/** The now1. */
 	Date now1;
-	
-	/** The p1. */
 	Date p1;
-	
-	/** The v1. */
 	Date v1;
-	
-	/** The ip2. */
 	IaAddress ip2;
-	
-	/** The now2. */
 	Date now2;
-	
-	/** The p2. */
 	Date p2;
-	
-	/** The v2. */
 	Date v2;
-	
-	/**
-	 * Instantiates a new test jdbc ia manager.
-	 */
-	public TestIaManager() throws Exception
+
+	@BeforeClass
+	public static void oneTimeSetUp() throws Exception
 	{
-		super("jdbc-derby", 2);
+		initializeContext("jdbc-derby", 2);
 		iaMgr = (IaManager) ctx.getBean("iaManager");
 	}
+
+	@AfterClass
+	public static void oneTimeTearDown() throws Exception
+	{
+		closeContext();
+	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.BaseDbTestCase#setUp()
-	 */
+	@Before
 	@Override
-	protected void setUp() throws Exception
+	public void setUp() throws Exception
 	{
 		super.setUp();
 		
@@ -254,6 +229,7 @@ public class TestIaManager extends BaseTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testCreateReadDeleteIA() throws Exception
 	{	
 		log.info("Creating IA");
@@ -288,6 +264,7 @@ public class TestIaManager extends BaseTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testUpdateIaAddr() throws Exception
 	{
 		log.info("Creating IA");
@@ -332,6 +309,7 @@ public class TestIaManager extends BaseTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testUpdateAllIaAddrs() throws Exception
 	{
 		log.info("Creating IA");
@@ -396,6 +374,7 @@ public class TestIaManager extends BaseTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testDeleteIaAddr() throws Exception
 	{
 		log.info("Creating IA");
@@ -427,20 +406,21 @@ public class TestIaManager extends BaseTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testDeleteAllIaAddrs() throws Exception
 	{
 		log.info("Creating IA");
 		iaMgr.createIA(ia);
 
 		Iterator<? extends IaAddress> iaAddrIter = ia.getIaAddresses().iterator();
+		IaAddress addr1 = iaAddrIter.next();
+		IaAddress addr2 = iaAddrIter.next();
 		
 		// delete the first address
-		IaAddress addr1 = iaAddrIter.next();
 		iaMgr.deleteIaAddr(addr1);
 		
 		// delete the second address, which should trigger
 		// a delete of the IdentityAssoc
-		IaAddress addr2 = iaAddrIter.next();
 		iaMgr.deleteIaAddr(addr2);
 		
 		log.info("Locating IA");

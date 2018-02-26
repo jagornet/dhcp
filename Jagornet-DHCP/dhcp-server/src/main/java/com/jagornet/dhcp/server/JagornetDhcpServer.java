@@ -72,6 +72,7 @@ import com.jagornet.dhcp.server.config.xml.DhcpServerConfig;
 import com.jagornet.dhcp.server.db.DbSchemaManager;
 import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.netty.NettyDhcpServer;
+import com.jagornet.dhcp.server.request.binding.BaseBindingManager;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
@@ -115,6 +116,7 @@ public class JagornetDhcpServer
     public static String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "context_jdbc_v2schema.xml";    
     public static String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "context_sqlite_v2schema.xml";    
     public static String APP_CONTEXT_MONGO_V2SCHEMA_FILENAME = "context_mongo_v2schema.xml";    
+    public static String APP_CONTEXT_FILE_V2SCHEMA_FILENAME = "context_file_v2schema.xml";    
     
     /** DHCPv6 Multicast interfaces */
     protected List<NetworkInterface> v6McastNetIfs = null;
@@ -284,6 +286,9 @@ public class JagornetDhcpServer
     	NettyDhcpServer nettyServer = new NettyDhcpServer(v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
     														v4UcastAddrs, v4BcastNetIf, v4PortNumber);
     	nettyServer.start();
+//    	NioDhcpServer nioServer = new NioDhcpServer(v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
+//				v4UcastAddrs, v4BcastNetIf, v4PortNumber);
+//    	nioServer.start();
     }
     
     public static String[] getAppContextFiles(String schemaType, int schemaVersion) throws Exception {
@@ -342,6 +347,10 @@ public class JagornetDhcpServer
         }
         else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_MONGO)) {
         	appContexts.add(APP_CONTEXT_MONGO_V2SCHEMA_FILENAME);
+        	appContexts.add(APP_CONTEXT_FILENAME);
+        }
+        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_FILE)) {
+        	appContexts.add(APP_CONTEXT_FILE_V2SCHEMA_FILENAME);
         	appContexts.add(APP_CONTEXT_FILENAME);
         }
         else {
@@ -423,6 +432,23 @@ public class JagornetDhcpServer
 		else {
 			log.warn("No V4 Address Binding Manager available");
 		}
+
+    	Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+            	  if (v6NaAddrBindingMgr != null) {
+            		  ((BaseBindingManager) v6NaAddrBindingMgr).close();
+            	  }
+            	  if (v6TaAddrBindingMgr != null) {
+            		  ((BaseBindingManager) v6TaAddrBindingMgr).close();
+            	  }
+            	  if (v6PrefixBindingMgr != null) {
+            		  ((BaseBindingManager) v6PrefixBindingMgr).close();
+            	  }
+            	  if (v4AddrBindingMgr != null) {
+            		  ((BaseBindingManager) v4AddrBindingMgr).close();
+            	  }
+                }
+            });
         
 		IaManager iaMgr = (IaManager) context.getBean("iaManager");		
 		if (iaMgr != null) {

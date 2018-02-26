@@ -1,0 +1,26 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+  <id>derby-dist</id>
+  <formats>
+    <format>zip</format>
+    <format>tar.gz</format>
+  </formats>
+  <!-- 
+  <componentDescriptors>
+    <componentDescriptor>src/assembly/base-component-assembly.xml</componentDescriptor>
+  </componentDescriptors>
+   -->
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>${project.basedir}/dist/lib</outputDirectory>
+      <excludes>
+        <exclude>com.h2database:h2</exclude>
+        <exclude>org.xerial:sqlite-jdbc</exclude>
+        <exclude>com.almworks.sqlite4java:sqlite4java</exclude>
+        <exclude>org.mongodb:mongo-java-driver</exclude>
+        <exclude>redis.client:jedis</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>

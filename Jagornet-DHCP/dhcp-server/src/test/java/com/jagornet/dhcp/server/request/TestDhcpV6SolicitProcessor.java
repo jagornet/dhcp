@@ -25,25 +25,28 @@
  */
 package com.jagornet.dhcp.server.request;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.net.InetAddress;
+
+import org.junit.Test;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ReconfigureAcceptOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.request.DhcpV6SolicitProcessor;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestDhcpV6SolicitProcessor.
  */
 public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
-{
-	
+{	
 	/**
 	 * Test solicit.
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testNaSolicit() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
@@ -63,6 +66,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 				InetAddress.getByName("2001:DB8:1::FF"));
 	}
 	
+	@Test
 	public void testNaPdSolicit() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaPdRequestMessage(firstPoolAddr, null,
@@ -91,6 +95,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testNaSolicitRequestOffLinkAddress() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr,
@@ -116,6 +121,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testNaSolicitReconfigureAccept() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
@@ -143,6 +149,7 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testNaSolicitNoReconfigureAccept() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(InetAddress.getByName("2001:DB8:2::1"));

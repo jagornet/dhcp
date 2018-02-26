@@ -25,8 +25,13 @@
  */
 package com.jagornet.dhcp.server.request;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.net.InetAddress;
 import java.util.Collection;
+
+import org.junit.Test;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
@@ -35,11 +40,7 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6IaAddrOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.request.DhcpV6RenewProcessor;
-import com.jagornet.dhcp.server.request.DhcpV6RequestProcessor;
-import com.jagornet.dhcp.server.request.DhcpV6SolicitProcessor;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestDhcpV6RenewProcessor.
  */
@@ -51,6 +52,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testSolicitAndRequestAndRenew() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
@@ -97,6 +99,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testRenewNoBinding() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
@@ -121,6 +124,7 @@ public class TestDhcpV6RenewProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testZeroLifetimes() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);

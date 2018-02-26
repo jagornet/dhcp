@@ -35,8 +35,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.BasicParser;
@@ -96,6 +99,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     protected int serverPort = DhcpConstants.V6_SERVER_PORT;
     protected int clientPort = DhcpConstants.V6_CLIENT_PORT;
     protected boolean rapidCommit = false;
+    protected boolean sendRelease = false;
     protected int numRequests = 100;
     protected AtomicInteger solicitsSent = new AtomicInteger();
     protected AtomicInteger advertisementsReceived = new AtomicInteger();
@@ -108,7 +112,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     protected long endTime = 0;
     protected long timeout = 0;
     protected int poolSize = 0;
-    protected Object syncDone = new Object();
+    protected CountDownLatch doneLatch = null;
 
     protected InetSocketAddress server = null;
     protected InetSocketAddress client = null;
@@ -188,6 +192,10 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         Option psOption = new Option("ps", "poolsize", true,
         							"Size of the pool; wait for release after this many requests");
         options.addOption(psOption);
+        
+        Option xOption = new Option("x", "release", false,
+        							"Send release");
+        options.addOption(xOption);
         
         Option helpOption = new Option("?", "help", false, "Show this help page.");
         
@@ -277,6 +285,9 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
             	poolSize = 
             			parseIntegerOption("pool size", cmd.getOptionValue("ps"), 0);
             }
+            if (cmd.hasOption("x")) {
+            	sendRelease = true;
+            }
         }
         catch (ParseException pe) {
             System.err.println("Command line option parsing failure: " + pe);
@@ -312,15 +323,13 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     		executor.execute(new ClientMachine(i));
     	}
 
-    	synchronized (syncDone) {
-    		long ms = timeout * 1000;
-        	try {
-        		log.info("Waiting total of " + timeout + " milliseconds for completion");
-        		syncDone.wait(ms);
-        	}
-        	catch (InterruptedException ex) {
-        		log.error("Interrupted", ex);
-        	}
+    	doneLatch = new CountDownLatch(numRequests);
+    	try {
+    		log.info("Waiting total of " + timeout + " seconds for completion");
+			doneLatch.await(timeout, TimeUnit.SECONDS);
+			endTime = System.currentTimeMillis();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 
 		log.info("Complete: solicitsSent=" + solicitsSent +
@@ -356,6 +365,10 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     	int id;
     	String duid;
     	boolean released;
+    	Semaphore replySemaphore;
+    	DhcpV6Message advertiseMsg;
+    	DhcpV6Message requestReplyMsg;
+    	boolean retry;
     	
     	/**
 	     * Instantiates a new client machine.
@@ -367,6 +380,8 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     		this.id = id;
     		this.duid = buildDuid(id);
     		this.released = false;
+    		this.replySemaphore = new Semaphore(1);
+    		this.retry = true;	// configure to retry
     	}
 		
 		/* (non-Javadoc)
@@ -398,18 +413,79 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 			msg = buildSolicitMessage(duid); 
 			ChannelFuture future = channel.write(msg, server);
 			future.addListener(this);
+			replySemaphore.drainPermits();
+			waitForAdvertise();
 		}
+	    
+	    public void waitForAdvertise() {
+	    	try {
+				if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
+					if (retry) {
+						retry = false;
+						solicit();
+					}
+				}
+				else {
+					request();
+				}
+			} catch (InterruptedException e) {
+				log.warn(e.getMessage());
+			}
+	    }
+	    
+	    public void advertiseReceived(DhcpV6Message advertiseMsg) {
+	    	this.advertiseMsg = advertiseMsg;
+	    	replySemaphore.release();
+	    }
 		
-		public void request(DhcpV6Message advertiseMsg) {
-        	msg = buildRequestMessage(advertiseMsg);
-			ChannelFuture future = channel.write(msg, server);
-			future.addListener(this);
+		public void request() {
+			if (advertiseMsg != null) {
+	        	msg = buildRequestMessage(advertiseMsg);
+				ChannelFuture future = channel.write(msg, server);
+				future.addListener(this);
+				waitForRequestReply();
+			}
+			else {
+				log.error("No advertise to request!");
+			}
 		}
+	    
+	    public void waitForRequestReply() {
+	    	try {
+	    		if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
+	    			if (retry) {
+	    				retry = false;
+	    				request();
+	    			}
+	    		}
+	    		else {
+	    			release();
+	    		}
+			} catch (InterruptedException e) {
+				log.warn(e.getMessage());
+			}
+	    }
+	    
+	    public void requestReplyReceived(DhcpV6Message requestReplyMsg) {
+	    	this.requestReplyMsg = requestReplyMsg;
+	    	replySemaphore.release();
+	    }
 		
-		public void release(DhcpV6Message confirmMsg) {
-        	msg = buildReleaseMessage(confirmMsg);
-			ChannelFuture future = channel.write(msg, server);
-			future.addListener(this);
+		public void release() {
+			if (sendRelease) {
+				if (requestReplyMsg != null) {
+		        	msg = buildReleaseMessage(requestReplyMsg);
+					ChannelFuture future = channel.write(msg, server);
+					future.addListener(this);
+				}
+				else {
+					log.error("No request reply to release!");
+				}
+			}
+			else {
+				clientMap.remove(duid);
+				doneLatch.countDown();
+			}
 		}
 		
 		/* (non-Javadoc)
@@ -552,7 +628,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 	            		clientMap.get(dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
 	            if (client != null) {
 	            	advertisementsReceived.getAndIncrement();
-	            	client.request(dhcpMessage);
+	            	client.advertiseReceived(dhcpMessage);
 	            }
 	            else {
 	            	log.error("Received advertise for client not found in map: duid=" + 
@@ -565,23 +641,12 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 	            if (client != null) {
 	            	if (!client.released) {
 		            	requestRepliesReceived.getAndIncrement();
-		            	client.release(dhcpMessage);
+		            	client.requestReplyReceived(dhcpMessage);
 	            	}
 	            	else {
 	            		releaseRepliesReceived.getAndIncrement();
-	            		clientMap.remove(key);	            		
-						if (releaseRepliesReceived.get() == numRequests) {
-							endTime = System.currentTimeMillis();
-							log.info("Ending at: " + endTime);
-							synchronized (syncDone) {
-								syncDone.notifyAll();
-							}
-						}
-						else if (poolSize > 0) {
-							synchronized (clientMap) {
-								clientMap.notify();
-							}
-						}
+						clientMap.remove(key);
+						doneLatch.countDown();
 	            	}
 	            }
 	            else {

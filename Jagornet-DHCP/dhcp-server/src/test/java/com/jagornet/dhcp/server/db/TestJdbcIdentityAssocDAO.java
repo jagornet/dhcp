@@ -25,12 +25,17 @@
  */
 package com.jagornet.dhcp.server.db;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 
-import com.jagornet.dhcp.server.db.IdentityAssoc;
-import com.jagornet.dhcp.server.db.IdentityAssocDAO;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestJdbcIdentityAssocDAO.
  * 
@@ -38,22 +43,25 @@ import com.jagornet.dhcp.server.db.IdentityAssocDAO;
  */
 public class TestJdbcIdentityAssocDAO extends BaseTestCase
 {
-	protected IdentityAssocDAO iaDao;
+	protected static IdentityAssocDAO iaDao;
 	
-	public TestJdbcIdentityAssocDAO() throws Exception 
+	@BeforeClass
+	public static void oneTimeSetUp() throws Exception 
 	{
-		super("jdbc-derby", 1);
+		initializeContext("jdbc-derby", 1);
 		iaDao = (IdentityAssocDAO) ctx.getBean("identityAssocDAO");
 	}
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+
+	@AfterClass
+	public static void oneTimeTearDown() throws Exception
+	{
+		closeContext();
 	}
 	
 	/**
 	 * Test create read delete.
 	 */
+	@Test
 	public void testCreateReadDelete()
 	{	
 		byte[] duid = new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e, (byte)0xde, (byte)0xbb, (byte)0x1e };

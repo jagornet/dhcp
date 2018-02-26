@@ -96,7 +96,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 */
 	protected void insertDhcpLease(final DhcpLease lease)
 	{
-		getJdbcTemplate().update("insert into dhcplease" +
+		int cnt = getJdbcTemplate().update("insert into dhcplease" +
 				" (ipaddress, duid, iatype, iaid, prefixlen, state," +
 				" starttime, preferredendtime, validendtime," +
 				" ia_options, ipaddr_options)" +
@@ -124,6 +124,7 @@ public class JdbcLeaseManager extends LeaseManager
 				ps.setBytes(11, encodeOptions(lease.getIaAddrDhcpOptions()));
 			}
 		});
+		log.debug("Inserted " + cnt + " dhcplease objects");
 	}
 	
 	/**
@@ -133,7 +134,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 */
 	protected void updateDhcpLease(final DhcpLease lease)
 	{
-		getJdbcTemplate().update("update dhcplease" +
+		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set state=?," +
 				" starttime=?," +
 				" preferredendtime=?," +
@@ -160,6 +161,7 @@ public class JdbcLeaseManager extends LeaseManager
 				ps.setBytes(7, lease.getIpAddress().getAddress());
 			}
 		});
+		log.debug("Updated " + cnt + " dhcplease objects");
 	}
 	
 	/**
@@ -169,7 +171,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 */
 	protected void deleteDhcpLease(final DhcpLease lease)
 	{
-		getJdbcTemplate().update("delete from dhcplease" +
+		int cnt = getJdbcTemplate().update("delete from dhcplease" +
 				" where ipaddress=?",
 				new PreparedStatementSetter() {
 			@Override
@@ -178,6 +180,7 @@ public class JdbcLeaseManager extends LeaseManager
 				ps.setBytes(1, lease.getIpAddress().getAddress());
 			}
 		});
+		log.debug("Deleted " + cnt + " dhcplease objects");
 	}
 	
 	/**
@@ -186,7 +189,7 @@ public class JdbcLeaseManager extends LeaseManager
 	protected void updateIaOptions(final InetAddress inetAddr, 
 									final Collection<DhcpOption> iaOptions)
 	{
-		getJdbcTemplate().update("update dhcplease" +
+		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set ia_options=?" +
 				" where ipaddress=?",
 				new PreparedStatementSetter() {
@@ -197,6 +200,7 @@ public class JdbcLeaseManager extends LeaseManager
 				ps.setBytes(2, inetAddr.getAddress());
 			}
 		});
+		log.debug("Updated ia_options in " + cnt + " dhcplease objects");
 	}
 	
 	/**
@@ -205,7 +209,7 @@ public class JdbcLeaseManager extends LeaseManager
 	protected void updateIpAddrOptions(final InetAddress inetAddr,
 									final Collection<DhcpOption> ipAddrOptions)
 	{
-		getJdbcTemplate().update("update dhcplease" +
+		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set ipaddr_options=?" +
 				" where ipaddress=?",
 				new PreparedStatementSetter() {
@@ -216,6 +220,7 @@ public class JdbcLeaseManager extends LeaseManager
 				ps.setBytes(2, inetAddr.getAddress());
 			}
 		});
+		log.debug("Updated ipaddr_options in " + cnt + " dhcplease objects");
 	}
 
 	/**
@@ -276,15 +281,14 @@ public class JdbcLeaseManager extends LeaseManager
         }
         return null;
 	}
-		
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#updateIaAddr(com.jagornet.dhcpv6.db.IaAddress)
-	 */
-	public void updateIaAddr(final IaAddress iaAddr)
-	{
-		getJdbcTemplate().update("update dhcplease" +
+
+	@Override
+	public void updateIpAddress(final InetAddress inetAddr, 
+								final byte state, final short prefixlen,
+								final Date start, final Date preferred, final Date valid) {
+		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set state = ?," +
-				((iaAddr instanceof IaPrefix) ? " prefixlen = ?," : "") + 
+				((prefixlen > 0) ? " prefixlen = ?," : "") + 
 				" starttime = ?," +
 				" preferredendtime = ?," +
 				" validendtime = ?" +
@@ -293,11 +297,10 @@ public class JdbcLeaseManager extends LeaseManager
 			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
 				int i = 1;
-				ps.setByte(i++, iaAddr.getState());
-				if (iaAddr instanceof IaPrefix) {
-					ps.setShort(i++, ((IaPrefix)iaAddr).getPrefixLength());
+				ps.setByte(i++, state);
+				if (prefixlen > 0) {
+					ps.setShort(i++, prefixlen);
 				}
-				Date start = iaAddr.getStartTime();
 				if (start != null) {
 					java.sql.Timestamp sts = new java.sql.Timestamp(start.getTime());
 					ps.setTimestamp(i++, sts, Util.GMT_CALENDAR);
@@ -305,7 +308,6 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
-				Date preferred = iaAddr.getPreferredEndTime();
 				if (preferred != null) {
 					java.sql.Timestamp pts = new java.sql.Timestamp(preferred.getTime());
 					ps.setTimestamp(i++, pts, Util.GMT_CALENDAR);
@@ -313,7 +315,6 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
-				Date valid = iaAddr.getValidEndTime();
 				if (valid != null) {
 					java.sql.Timestamp vts = new java.sql.Timestamp(valid.getTime());
 					ps.setTimestamp(i++, vts, Util.GMT_CALENDAR);
@@ -321,31 +322,29 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
-				ps.setBytes(i++, iaAddr.getIpAddress().getAddress());
+				ps.setBytes(i++, inetAddr.getAddress());
 			}
 		});
+		log.debug("Updated ipAddress in " + cnt + " dhcplease objects");
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#deleteIaAddr(com.jagornet.dhcpv6.db.IaAddress)
-	 */
-	public void deleteIaAddr(final IaAddress iaAddr)
+
+	@Override
+	public void deleteIpAddress(final InetAddress inetAddr)
 	{
-		getJdbcTemplate().update("delete from dhcplease" +
+		int cnt = getJdbcTemplate().update("delete from dhcplease" +
 				" where ipaddress = ?",
 				new PreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setBytes(1, iaAddr.getIpAddress().getAddress());
+				ps.setBytes(1, inetAddr.getAddress());
 			}
 		});
+		log.info("Deleted " + cnt + " dhcplease objects by ipAddress");
 	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findExistingIPs(java.net.InetAddress, java.net.InetAddress)
-	 */
 	@Override
-	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr)
+	public List<InetAddress> findExistingLeaseIPs(final InetAddress startAddr, 
+													final InetAddress endAddr)
 	{
         return getJdbcTemplate().query(
                 "select ipaddress from dhcplease" +
@@ -374,11 +373,8 @@ public class JdbcLeaseManager extends LeaseManager
                 });
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaAddresses(java.net.InetAddress, java.net.InetAddress)
-	 */
 	@Override
-	public List<IaAddress> findUnusedIaAddresses(final InetAddress startAddr, final InetAddress endAddr)
+	public List<DhcpLease> findUnusedLeases(final InetAddress startAddr, final InetAddress endAddr)
 	{
 		long offerExpireMillis = 
 			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
@@ -401,7 +397,7 @@ public class JdbcLeaseManager extends LeaseManager
 					}                	
                 },
                 new DhcpLeaseRowMapper());
-		return toIaAddresses(leases);
+		return leases;
 	}
 
 	protected List<DhcpLease> findExpiredLeases(final byte iatype) {
@@ -421,58 +417,8 @@ public class JdbcLeaseManager extends LeaseManager
                 new DhcpLeaseRowMapper());
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaPrefixes(java.net.InetAddress, java.net.InetAddress)
-	 */
 	@Override
-	public List<IaPrefix> findUnusedIaPrefixes(final InetAddress startAddr, final InetAddress endAddr) {
-		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
-        List<DhcpLease> leases = getJdbcTemplate().query(
-                "select * from dhcplease" +
-                " where ((state=" + IaPrefix.ADVERTISED +
-                " and starttime <= ?)" +
-                " or (state=" + IaPrefix.EXPIRED +
-                " or state=" + IaPrefix.RELEASED + "))" +
-                " and ipaddress >= ? and ipaddress <= ?" +
-                " order by state, validendtime, ipaddress",
-                new PreparedStatementSetter() {
-					@Override
-					public void setValues(PreparedStatement ps) throws SQLException {
-						java.sql.Timestamp ts = new java.sql.Timestamp(offerExpiration);
-						ps.setTimestamp(1, ts);
-						ps.setBytes(2, startAddr.getAddress());
-						ps.setBytes(3, endAddr.getAddress());
-					}                	
-                },
-                new DhcpLeaseRowMapper());
-		return toIaPrefixes(leases);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaPrefixes()
-	 */
-	@Override
-	public List<IaPrefix> findExpiredIaPrefixes() {
-        List<DhcpLease> leases = getJdbcTemplate().query(
-                "select * from dhcplease" +
-                " where iatype = " + IdentityAssoc.PD_TYPE +
-                " and validendtime < ? order by validendtime",
-                new PreparedStatementSetter() {
-            		@Override
-            		public void setValues(PreparedStatement ps) throws SQLException {
-            			java.sql.Timestamp ts = new java.sql.Timestamp(new Date().getTime());
-            			ps.setTimestamp(1, ts, Util.GMT_CALENDAR);
-            		}
-                },
-                new DhcpLeaseRowMapper());
-		return toIaPrefixes(leases);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#reconcileIaAddresses(java.util.List)
-	 */
-	@Override
-	public void reconcileIaAddresses(List<Range> ranges) {
+	public void reconcileLeases(final List<Range> ranges) {
 		List<byte[]> args = new ArrayList<byte[]>();
 		StringBuilder query = new StringBuilder();
 		query.append("delete from dhcplease where ipaddress");
@@ -540,7 +486,8 @@ public class JdbcLeaseManager extends LeaseManager
 	/**
 	 * For unit tests only
 	 */
-	public void deleteAllIAs() {
+    @Override
+	public void deleteAllLeases() {
 		int cnt = getJdbcTemplate().update("delete from dhcplease");
 		log.info("Deleted all " + cnt + " dhcpleases");
 	}

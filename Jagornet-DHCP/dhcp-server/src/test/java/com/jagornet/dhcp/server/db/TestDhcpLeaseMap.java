@@ -6,13 +6,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.jagornet.dhcp.server.db.DhcpLease;
-import com.jagornet.dhcp.server.db.IdentityAssoc;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestDhcpLeaseMap extends TestCase {
+public class TestDhcpLeaseMap {
 	
+	@Test
 	public void testSize() {
 
 		InetAddress inetAddr = null;

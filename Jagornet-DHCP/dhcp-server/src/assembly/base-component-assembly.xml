@@ -1,0 +1,24 @@
+<component>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>${project.basedir}/dist/lib</outputDirectory>
+      <includes>
+        <include>com.jagornet:dhcp-core</include>
+        <include>com.jagornet:dhcp-server</include>
+        <include>commons-cli:commons-cli</include>
+        <include>org.apache.commons:commons-dbcp2</include>
+        <include>commons-io:commons-io</include>
+        <include>org.apache.commons:commons-pool2</include>
+        <include>dnsjava:dnsjava</include>
+        <include>io.netty:netty</include>
+        <include>org.springframework:spring-aop</include>
+        <include>org.springframework:spring-beans</include>
+        <include>org.springframework:spring-context</include>
+        <include>org.springframework:spring-core</include>
+        <include>org.springframework:spring-expression</include>
+        <include>org.springframework:spring-jdbc</include>
+        <include>org.springframework:spring-tx</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+</component>

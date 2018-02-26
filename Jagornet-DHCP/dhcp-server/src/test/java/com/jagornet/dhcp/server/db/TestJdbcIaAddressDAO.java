@@ -25,8 +25,18 @@
  */
 package com.jagornet.dhcp.server.db;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.net.InetAddress;
 import java.util.Date;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 
 // TODO: Auto-generated Javadoc
 /**
@@ -36,17 +46,25 @@ import java.util.Date;
  */
 public class TestJdbcIaAddressDAO extends BaseTestCase
 {
-    protected IdentityAssocDAO iaDao;
-	protected IaAddressDAO iaAddrDao;
+    protected static IdentityAssocDAO iaDao;
+	protected static IaAddressDAO iaAddrDao;
 	protected IdentityAssoc ia;
 	
-	public TestJdbcIaAddressDAO() throws Exception 
+	@BeforeClass
+	public static void oneTimeSetUp() 
 	{
-		super("jdbc-derby", 1);	
+		initializeContext("jdbc-derby", 1);	
 		iaDao = (IdentityAssocDAO) ctx.getBean("identityAssocDAO");		
 		iaAddrDao = (IaAddressDAO) ctx.getBean("iaAddressDAO");
 	}
+
+	@AfterClass
+	public static void oneTimeTearDown() throws Exception
+	{
+		closeContext();
+	}
 	
+	@Before
 	@Override
 	public void setUp() throws Exception
 	{
@@ -64,13 +82,15 @@ public class TestJdbcIaAddressDAO extends BaseTestCase
 		iaDao.create(ia);
 	}
 	
+	@After
 	@Override
-	protected void tearDown() throws Exception
+	public void tearDown() throws Exception
 	{
 		super.tearDown();
 		iaDao.deleteById(ia.getId());
 	}	
 	
+	@Test
 	public void testCreateIPv6Address() throws Exception
 	{
 		InetAddress ipv6Addr = InetAddress.getByName("db80::1");
@@ -90,6 +110,7 @@ public class TestJdbcIaAddressDAO extends BaseTestCase
 		assertEquals(ipv6Addr.getHostAddress(), iaaddr2.getIpAddress().getHostAddress());
 	}
 	
+	@Test
 	public void testCreateIPv4Address() throws Exception
 	{
 		InetAddress ipv4Addr = InetAddress.getByName("10.0.0.1");

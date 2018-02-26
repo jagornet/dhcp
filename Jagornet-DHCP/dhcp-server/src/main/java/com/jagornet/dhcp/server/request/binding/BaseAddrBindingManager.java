@@ -66,6 +66,12 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 		reaper = new Timer("BindingReaper");
 		reaper.schedule(new ReaperTimerTask(), reaperStartupDelay, reaperRunPeriod);
 	}
+	
+	protected void stopReaper()
+	{
+		reaper.cancel();
+		reaper.purge();
+	}
     
     /**
      * Perform the DDNS delete processing when a lease is released or expired.

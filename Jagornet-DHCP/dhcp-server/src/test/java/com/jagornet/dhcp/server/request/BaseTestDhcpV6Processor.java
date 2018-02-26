@@ -25,10 +25,19 @@
  */
 package com.jagornet.dhcp.server.request;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
@@ -49,30 +58,35 @@ import com.jagornet.dhcp.server.config.xml.OpaqueData;
 import com.jagornet.dhcp.server.db.BaseTestCase;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class BaseTestDhcpV6Processor.
  */
 public abstract class BaseTestDhcpV6Processor extends BaseTestCase
 {
 	/** The manager. */
-	protected V6NaAddrBindingManager manager;
+	protected static V6NaAddrBindingManager manager;
 	
 	/** The client id option. */
 	protected DhcpV6ClientIdOption clientIdOption;
 	
 	protected InetAddress firstPoolAddr;
 	
-	public BaseTestDhcpV6Processor() {
-		super();
+	@BeforeClass
+	public static void oneTimeSetUp() throws Exception
+	{
+		initializeContext();
 		manager = config.getV6NaAddrBindingMgr();
 	}
+
+	@AfterClass
+	public static void oneTimeTearDown() throws Exception
+	{
+		closeContext();
+	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.BaseDbTestCase#setUp()
-	 */
+	@Before
 	@Override
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
 		config.getIaMgr().deleteAllIAs();
 		OpaqueData opaque = new OpaqueData();
@@ -82,11 +96,9 @@ public abstract class BaseTestDhcpV6Processor extends BaseTestCase
 		firstPoolAddr = InetAddress.getByName("2001:DB8:1::a");
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.dbunit.DatabaseTestCase#tearDown()
-	 */
+	@After
 	@Override
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		super.tearDown();
 		clientIdOption = null;
 		firstPoolAddr = null;

@@ -86,21 +86,6 @@
         <version>4.3.6.RELEASE</version>
     </dependency>
 	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-api</artifactId>
-	    <version>1.7.23</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-log4j12</artifactId>
-	    <version>1.7.23</version>
-	</dependency>
-	<dependency>
-	    <groupId>log4j</groupId>
-	    <artifactId>log4j</artifactId>
-	    <version>1.2.17</version>
-	</dependency>
-	<dependency>
 	    <groupId>org.apache.derby</groupId>
 	    <artifactId>derby</artifactId>
 	    <version>10.13.1.1</version>
@@ -175,25 +160,19 @@
 		<type>test-jar</type>
 		<scope>test</scope>
   	</dependency>
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
-        <scope>test</scope>
-    </dependency>
   </dependencies>
-  
+
+<!--   
   <profiles>
     <profile>
     <id>all-db</id>
+-->
 	<build>
         <plugins>
 	        <plugin>
 	            <groupId>org.apache.maven.plugins</groupId>
 	            <artifactId>maven-compiler-plugin</artifactId>
 	            <configuration>
-	                <source>1.8</source>
-	                <target>1.8</target>
 	                <excludes>
 	                	<exclude>com/jagornet/dhcp/netty4/*</exclude>
 	                </excludes>
@@ -223,6 +202,10 @@
 	                <packageName>com.jagornet.dhcp.server.config.xml</packageName>
 	            </configuration>
 	        </plugin>
+
+	        
+<!-- Shade plugin creates an uber jar with dependencies
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -234,7 +217,7 @@
                           <goal>shade</goal>
                         </goals>
                         <configuration>
-<!-- 
+- 
                           <minimizeJar>true</minimizeJar>
 			              <filters>
 			                <filter>
@@ -250,7 +233,7 @@
 			                   </includes>
 			                </filter>
 			              </filters>
- -->
+-
  						  <artifactSet>
  						    <excludes>
  						      <exclude>io.netty:netty-all</exclude>
@@ -260,19 +243,49 @@
                     </execution>
                 </executions>
             </plugin>
+-->
+		    <plugin>
+	        	<groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-assembly-plugin</artifactId>
+		        <version>3.1.0</version>
+		        <configuration>
+		          <!-- 
+		          <descriptorRefs>
+		            <descriptorRef>jar-with-dependencies</descriptorRef>
+		          </descriptorRefs>
+		          -->
+		          <descriptors>
+		            <descriptor>src/assembly/all-db-dist-assembly.xml</descriptor>
+		            <descriptor>src/assembly/derby-dist-assembly.xml</descriptor>
+		          </descriptors>
+		        </configuration>
+		        <executions>
+		          <execution>
+		            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+		            <phase>package</phase> <!-- bind to the packaging phase -->
+		            <goals>
+		              <goal>single</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+		    </plugin>
 	      	<plugin>
 	        	<groupId>org.apache.maven.plugins</groupId>
 	        	<artifactId>maven-surefire-plugin</artifactId>
 	        	<version>2.20.1</version>
 	        	<configuration>
-	          		<systemProperties>
-	            		<property>
-	            			<name>jagornet.dhcp.home</name>
-	            			<value>${project.basedir}</value>
-	            		</property>
-	          		</systemProperties>
+			        <systemPropertyVariables>
+			            <jagornet.dhcp.home>${project.basedir}</jagornet.dhcp.home>
+			        </systemPropertyVariables>
 	        	</configuration>
+               <executions>
+                    <execution>
+                        <phase>test</phase>
+                    </execution>
+               </executions>
 	    	</plugin>
+	    	
+	    	<!-- TODO: remove this, superseded by assembly plugin, right? -->
 		    <plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-dependency-plugin</artifactId>
@@ -295,6 +308,8 @@
 		    </plugin>
         </plugins>
     </build>
+
+<!-- 
     </profile>
     
     <profile>
@@ -305,8 +320,6 @@
 	        	<groupId>org.apache.maven.plugins</groupId>
 	            <artifactId>maven-compiler-plugin</artifactId>
 	            <configuration>
-	                <source>1.8</source>
-	                <target>1.8</target>
 	                <excludes>
 	                	<exclude>com/jagornet/dhcp/netty4/*</exclude>
 	                	<exclude>com/jagornet/dhcp/db/Mongo*</exclude>
@@ -335,7 +348,6 @@
 	            	<xjbSources>
 	            		<source>src/main/resources/dhcpserver.xjb</source>
 	            	</xjbSources>
-	                <!-- The package of your generated sources -->
 	                <packageName>com.jagornet.dhcp.server.config.xml</packageName>
 	            </configuration>
 	        </plugin>
@@ -415,5 +427,6 @@
     </build>
     </profile>
   </profiles>   
-
+-->
+ 
 </project>

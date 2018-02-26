@@ -45,7 +45,6 @@ import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Range;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -310,36 +309,32 @@ public class MongoLeaseManagerV3 extends LeaseManager
         return lease;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#updateIaAddr(com.jagornet.dhcpv6.db.IaAddress)
-	 */
-	public void updateIaAddr(final IaAddress iaAddr)
+	@Override
+	public void updateIpAddress(final InetAddress inetAddr, 
+								final byte state, final short prefixlen,
+								final Date start, final Date preferred, final Date valid)
 	{
-		DBObject query = ipAddressQuery(iaAddr.getIpAddress());
-		BasicDBObject update = new BasicDBObject("state", iaAddr.getState());
-		if (iaAddr instanceof IaPrefix) {
-			update.append("prefixLength", ((IaPrefix)iaAddr).getPrefixLength());
+		DBObject query = ipAddressQuery(inetAddr);
+		BasicDBObject update = new BasicDBObject("state", state);
+		if (prefixlen > 0) {
+			update.append("prefixLength", prefixlen);
 		}
-		update.append("startTime", iaAddr.getStartTime()).
-				append("preferredEndTime", iaAddr.getPreferredEndTime()).
-				append("validEndTime", iaAddr.getValidEndTime());
+		update.append("startTime", start).
+				append("preferredEndTime", preferred).
+				append("validEndTime", valid);
 		
 //		dhcpLeases.update(query, new BasicDBObject("$set", update));
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#deleteIaAddr(com.jagornet.dhcpv6.db.IaAddress)
-	 */
-	public void deleteIaAddr(final IaAddress iaAddr)
+	@Override
+	public void deleteIpAddress(final InetAddress inetAddr)
 	{
-//		dhcpLeases.remove(ipAddressQuery(iaAddr.getIpAddress()));
+//		dhcpLeases.remove(ipAddressQuery(inetAddr));
 	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findExistingIPs(java.net.InetAddress, java.net.InetAddress)
-	 */
 	@Override
-	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr)
+	public List<InetAddress> findExistingLeaseIPs(final InetAddress startAddr, 
+													final InetAddress endAddr)
 	{
 		List<InetAddress> inetAddrs = new ArrayList<InetAddress>();
 
@@ -363,11 +358,9 @@ public class MongoLeaseManagerV3 extends LeaseManager
 		return inetAddrs;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaAddresses(java.net.InetAddress, java.net.InetAddress)
-	 */
+	
 	@Override
-	public List<IaAddress> findUnusedIaAddresses(final InetAddress startAddr, final InetAddress endAddr)
+	public List<DhcpLease> findUnusedLeases(final InetAddress startAddr, final InetAddress endAddr)
 	{
 		long offerExpireMillis = 
 			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
@@ -402,7 +395,7 @@ public class MongoLeaseManagerV3 extends LeaseManager
 //				while (cursor.hasNext()) {
 //					leases.add(convertDBObject(cursor.next()));
 //				}
-//				return toIaAddresses(leases);
+//				return leases;
 //			}
 //		}
 //		finally {
@@ -412,6 +405,7 @@ public class MongoLeaseManagerV3 extends LeaseManager
 		return null;
 	}
 
+	@Override
 	protected List<DhcpLease> findExpiredLeases(final byte iatype) {
 		List<DhcpLease> leases = null;
 		DBObject query = new BasicDBObject("iatype", iatype).
@@ -432,82 +426,8 @@ public class MongoLeaseManagerV3 extends LeaseManager
 		return leases;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaPrefixes(java.net.InetAddress, java.net.InetAddress)
-	 */
 	@Override
-	public List<IaPrefix> findUnusedIaPrefixes(final InetAddress startAddr, final InetAddress endAddr) {
-		long offerExpireMillis = 
-				DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
-			final Date offerExpiration = new Date(new Date().getTime() - offerExpireMillis);
-
-			BasicDBList ipAdvBetw = new BasicDBList();
-			ipAdvBetw.add(new BasicDBObject("state", IaPrefix.ADVERTISED));
-			ipAdvBetw.add(new BasicDBObject("startTime", new BasicDBObject("$lte", offerExpiration)));
-			ipAdvBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$gte", startAddr.getAddress())));
-			ipAdvBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$lte", endAddr.getAddress())));
-			
-			BasicDBList ipExpRel = new BasicDBList();
-			ipExpRel.add(IaPrefix.EXPIRED);
-			ipExpRel.add(IaPrefix.RELEASED);
-			
-			BasicDBList ipExpRelBetw = new BasicDBList();
-			ipExpRelBetw.add(new BasicDBObject("state", new BasicDBObject("$in", ipExpRel)));
-			ipExpRelBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$gte", startAddr.getAddress())));
-			ipExpRelBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$lte", endAddr.getAddress())));
-			
-			BasicDBList ipBetw = new BasicDBList();
-			ipBetw.add(new BasicDBObject("$and", ipAdvBetw));
-			ipBetw.add(new BasicDBObject("$and", ipExpRelBetw));
-			
-			DBObject query = new BasicDBObject("$or", ipBetw); 
-//			DBCursor cursor = dhcpLeases.find(query).sort(new BasicDBObject("state", 1))
-//													.sort(new BasicDBObject("validEndTime", 1))
-//													.sort(new BasicDBObject("ipAddress", 1));
-//			try {
-//				if (cursor.count() > 0) {
-//					List<DhcpLease> leases = new ArrayList<DhcpLease>();
-//					while (cursor.hasNext()) {
-//						leases.add(convertDBObject(cursor.next()));
-//					}
-//					return toIaPrefixes(leases);
-//				}
-//			}
-//			finally {
-//				cursor.close();
-//			}
-			
-			return null;
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaPrefixes()
-	 */
-	@Override
-	public List<IaPrefix> findExpiredIaPrefixes() {
-		List<DhcpLease> leases = null;
-		DBObject query = new BasicDBObject("iatype", IdentityAssoc.PD_TYPE).
-									append("validEndTime", new BasicDBObject("$lt", new Date()));
-//		DBCursor cursor = dhcpLeases.find(query).sort(new BasicDBObject("validEndTime", 1));
-//		try {
-//			if (cursor.count() > 0) {
-//				leases = new ArrayList<DhcpLease>();
-//				while (cursor.hasNext()) {
-//					leases.add(convertDBObject(cursor.next()));
-//				}
-//			}
-//		}
-//		finally {
-//			cursor.close();
-//		}
-		return toIaPrefixes(leases);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#reconcileIaAddresses(java.util.List)
-	 */
-	@Override
-	public void reconcileIaAddresses(List<Range> ranges) {
+	public void reconcileLeases(List<Range> ranges) {
 		
 		BasicDBList ipBetwList = new BasicDBList();
 		for (Range range : ranges) {
@@ -526,7 +446,8 @@ public class MongoLeaseManagerV3 extends LeaseManager
 	/**
 	 * For unit tests only
 	 */
-	public void deleteAllIAs() {
+	@Override
+	public void deleteAllLeases() {
 //		DBCursor cursor = dhcpLeases.find();
 //		try {
 //			if (cursor.count() > 0) {

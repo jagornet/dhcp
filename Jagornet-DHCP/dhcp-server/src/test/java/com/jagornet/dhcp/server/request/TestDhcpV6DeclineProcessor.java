@@ -25,14 +25,15 @@
  */
 package com.jagornet.dhcp.server.request;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.request.DhcpV6DeclineProcessor;
-import com.jagornet.dhcp.server.request.DhcpV6RequestProcessor;
-import com.jagornet.dhcp.server.request.DhcpV6SolicitProcessor;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestDhcpV6DeclineProcessor.
  */
@@ -44,6 +45,7 @@ public class TestDhcpV6DeclineProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testSolicitAndRequestAndDecline() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
@@ -88,6 +90,7 @@ public class TestDhcpV6DeclineProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testDeclineNoBinding() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);

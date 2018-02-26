@@ -25,9 +25,18 @@
  */
 package com.jagornet.dhcp.server.request;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
@@ -44,30 +53,35 @@ import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.db.BaseTestCase;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class BaseTestDhcpProcessor.
  */
 public abstract class BaseTestDhcpV4Processor extends BaseTestCase
 {
 	/** The manager. */
-	protected V4AddrBindingManager manager;
+	protected static V4AddrBindingManager manager;
 	
 	/** The client mac address. */
 	protected byte[] clientMacAddr;
 	
 	protected InetAddress firstPoolAddr;
 
-	public BaseTestDhcpV4Processor() {
-		super();
+	@BeforeClass
+	public static void oneTimeSetUp() throws Exception
+	{
+		initializeContext();
 		manager = config.getV4AddrBindingMgr();
 	}
+
+	@AfterClass
+	public static void oneTimeTearDown() throws Exception
+	{
+		closeContext();
+	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.BaseDbTestCase#setUp()
-	 */
+	@Before
 	@Override
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
 		config.getIaMgr().deleteAllIAs();
 		clientMacAddr = new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
@@ -75,11 +89,9 @@ public abstract class BaseTestDhcpV4Processor extends BaseTestCase
 		firstPoolAddr = InetAddress.getByName("192.168.0.1");
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.dbunit.DatabaseTestCase#tearDown()
-	 */
+	@After
 	@Override
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		super.tearDown();
 		clientMacAddr = null;
 		firstPoolAddr = null;

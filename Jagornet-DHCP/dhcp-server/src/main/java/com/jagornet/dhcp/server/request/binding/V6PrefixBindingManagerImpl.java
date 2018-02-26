@@ -86,6 +86,11 @@ public class V6PrefixBindingManagerImpl
 		reaper.schedule(new ReaperTimerTask(), reaperStartupDelay, reaperRunPeriod);
 	}
     
+	protected void stopReaper()
+	{
+		reaper.cancel();
+		reaper.purge();
+	}
     
     /**
      * Build the list of PrefixBindingPools from the list of configured PrefixPools

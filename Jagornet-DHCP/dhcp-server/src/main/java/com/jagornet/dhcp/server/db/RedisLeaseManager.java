@@ -2,6 +2,7 @@ package com.jagornet.dhcp.server.db;
 
 import java.net.InetAddress;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import com.jagornet.dhcp.core.util.Util;
@@ -24,49 +25,39 @@ public class RedisLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	public void updateIaAddr(IaAddress iaAddr) {
+	public void updateIpAddress(final InetAddress inetAddr, 
+			final byte state, final short prefixlen,
+			final Date start, final Date preferred, final Date valid) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void deleteIaAddr(IaAddress iaAddr) {
+	public void deleteIpAddress(final InetAddress inetAddr) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public List<InetAddress> findExistingIPs(InetAddress startAddr, InetAddress endAddr) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<IaAddress> findUnusedIaAddresses(InetAddress startAddr, InetAddress endAddr) {
+	public List<InetAddress> findExistingLeaseIPs(InetAddress startAddr, InetAddress endAddr) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<IaPrefix> findUnusedIaPrefixes(InetAddress startAddr, InetAddress endAddr) {
+	public List<DhcpLease> findUnusedLeases(InetAddress startAddr, InetAddress endAddr) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<IaPrefix> findExpiredIaPrefixes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void reconcileIaAddresses(List<Range> ranges) {
+	public void reconcileLeases(List<Range> ranges) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void deleteAllIAs() {
+	public void deleteAllLeases() {
 		// TODO Auto-generated method stub
 
 	}

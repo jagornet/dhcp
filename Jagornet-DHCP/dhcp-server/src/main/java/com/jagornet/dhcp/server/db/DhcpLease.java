@@ -388,26 +388,77 @@ public class DhcpLease
 		return "DhcpLease [ipAddress=" + ipAddress + 
 				", duid=" + Arrays.toString(duid) + 
 				", iatype=" + iatype + ", iaid=" + iaid + ", state=" + state + 
-				", startTime=" + Util.GMT_DATEFORMAT.format(startTime) +
-				", preferredEndTime=" + Util.GMT_DATEFORMAT.format(preferredEndTime) + 
-				", validEndTime=" + Util.GMT_DATEFORMAT.format(validEndTime) + 
+				", startTime=" + 
+					(startTime == null ? "" : Util.GMT_DATEFORMAT.format(startTime)) +
+				", preferredEndTime=" + 
+					(preferredEndTime == null ? "" : Util.GMT_DATEFORMAT.format(preferredEndTime)) +
+				", validEndTime=" +  
+					(validEndTime == null ? "" : Util.GMT_DATEFORMAT.format(validEndTime)) +
 				", iaDhcpOptions=" + iaDhcpOptions + 
 				", iaAddrDhcpOptions=" + iaAddrDhcpOptions + "]";
 	}
 	
 	public String toJson() {
 		return "{ "+
-				// ipAddress is the key, but should not be a problem to have in value also
-				"\"ipAddress\":\"" + ipAddress + "\", " +
-				"\"duid\":\"" + Arrays.toString(duid) + "\", " + 
-				"\"iatype\":\"" + iatype + "\", " +
-				"\"iaid\":\"" + iaid + "\", " +
-				"\"state\":\"" + state + "\", " + 
-				"\"startTime\":\"" + Util.GMT_DATEFORMAT.format(startTime) + "\", " +
-				"\"preferredEndTime\":\"" + Util.GMT_DATEFORMAT.format(preferredEndTime) + "\", " + 
-				"\"validEndTime\":\"" + Util.GMT_DATEFORMAT.format(validEndTime) + "\", " +
-				"\"iaDhcpOptions\": " + iaDhcpOptions + "\", " +
-				"\"iaAddrDhcpOptions\": " + iaAddrDhcpOptions + "\" " + 
+				"'ipAddress':'" + ipAddress.getHostAddress() + "', " +
+				"'duid':'" + Util.toHexString(duid) + "', " + 
+				"'iatype':'" + iatype + "', " +
+				"'iaid':'" + iaid + "', " +
+				"'state':'" + state + "', " + 
+				"'startTime':'" + 
+					(startTime == null ? "" : startTime.getTime()) + "', " +
+				"'preferredEndTime':'" + 
+					(preferredEndTime == null ? "" : preferredEndTime.getTime()) + "', " + 
+				"'validEndTime':'" + 
+					(validEndTime == null ? "" : validEndTime.getTime()) + "', " +
+				"'iaDhcpOptions': " + 
+					Util.toHexString(LeaseManager.encodeOptions(iaDhcpOptions)) + "', " +
+				"'iaAddrDhcpOptions': " + 
+					Util.toHexString(LeaseManager.encodeOptions(iaAddrDhcpOptions)) + "' " + 
 				"}";
+	}
+	
+	public static DhcpLease fromJson(String json) {
+		DhcpLease dhcpLease = new DhcpLease();
+		try {
+			dhcpLease.setIpAddress(InetAddress.getByName(getJsonAttrValue(json, "ipAddress")));
+			dhcpLease.setDuid(Util.fromHexString(getJsonAttrValue(json, "duid")));
+			dhcpLease.setIatype(Byte.parseByte(getJsonAttrValue(json, "iatype")));
+			dhcpLease.setIaid(Long.parseLong(getJsonAttrValue(json, "iaid")));
+			dhcpLease.setState(Byte.parseByte(getJsonAttrValue(json, "state")));
+			String time = getJsonAttrValue(json, "startTime");
+			if ((time != null) && !time.isEmpty()) {
+				dhcpLease.setStartTime(new Date(Long.parseLong(time)));
+			}
+			time = getJsonAttrValue(json, "preferredEndTime");
+			if ((time != null) && !time.isEmpty()) {
+				dhcpLease.setPreferredEndTime(new Date(Long.parseLong(time)));
+			}
+			time = getJsonAttrValue(json, "validEndTime");
+			if ((time != null) && !time.isEmpty()) {
+				dhcpLease.setValidEndTime(new Date(Long.parseLong(time)));
+			}
+			dhcpLease.setIaDhcpOptions(
+					LeaseManager.decodeOptions(Util.fromHexString(getJsonAttrValue(json, "iaDhcpOptions"))));
+			dhcpLease.setIaAddrDhcpOptions(
+					LeaseManager.decodeOptions(Util.fromHexString(getJsonAttrValue(json, "iaAddrDhcpOptions"))));
+			return dhcpLease;
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+	
+	private static String getJsonAttrValue(String json, String attr) {
+		String key = "'" + attr + "'" + ":'";
+		int p = json.indexOf(key);
+		if (p >= 0) {
+			p = p + key.length();
+			if (json.length() > p) {
+				return json.substring(p, json.indexOf("'", p));
+			}
+		}
+		return null;
 	}
 }

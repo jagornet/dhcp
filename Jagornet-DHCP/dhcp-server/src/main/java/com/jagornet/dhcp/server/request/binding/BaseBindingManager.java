@@ -100,6 +100,11 @@ public abstract class BaseBindingManager
 		startReaper();
 	}
 	
+	public void close()
+	{
+		stopReaper();
+	}
+	
     /**
      * Initialize the pool map.  Read through the link map from the server's
      * configuration and build the pool map keyed by link address with a
@@ -177,6 +182,7 @@ public abstract class BaseBindingManager
 	 * Start a reaper thread to check for expired bindings.
 	 */
 	protected abstract void startReaper();
+	protected abstract void stopReaper();
 
 	/**
 	 * Find binding pool for address in a message received on the given link.

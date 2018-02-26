@@ -350,10 +350,10 @@ public class SqliteLeaseManager extends LeaseManager
         return null;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#updateIaAddr(com.jagornet.dhcpv6.db.IaAddress)
-	 */
-	public void updateIaAddr(final IaAddress iaAddr)
+	@Override
+	public void updateIpAddress(final InetAddress inetAddr, 
+								final byte state, final short prefixlen,
+								final Date start, final Date preferred, final Date valid)
 	{
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
@@ -361,38 +361,35 @@ public class SqliteLeaseManager extends LeaseManager
 			connection = getSQLiteConnection();
 			statement = connection.prepare("update dhcplease" +
 					" set state = ?," +
-					((iaAddr instanceof IaPrefix) ? " prefixlen = ?," : "") + 
+					((prefixlen > 0) ? " prefixlen = ?," : "") + 
 					" starttime = ?," +
 					" preferredendtime = ?," +
 					" validendtime = ?" +
 					" where ipaddress = ?");
 			int i=1;
-			statement.bind(i++, iaAddr.getState());
-			if (iaAddr instanceof IaPrefix) {
-				statement.bind(i++, ((IaPrefix)iaAddr).getPrefixLength());
+			statement.bind(i++, state);
+			if (prefixlen > 0) {
+				statement.bind(i++, prefixlen);
 			}
-			Date start = iaAddr.getStartTime();
 			if (start != null) {
 				statement.bind(i++, start.getTime());
 			}
 			else {
 				statement.bindNull(i++);
 			}
-			Date preferred = iaAddr.getPreferredEndTime();
 			if (preferred != null) {
 				statement.bind(i++, preferred.getTime());
 			}
 			else {
 				statement.bindNull(i++);
 			}
-			Date valid = iaAddr.getValidEndTime();
 			if (valid != null) {
 				statement.bind(i++, valid.getTime());
 			}
 			else {
 				statement.bindNull(i++);
 			}
-			statement.bind(i++, iaAddr.getIpAddress().getAddress());
+			statement.bind(i++, inetAddr.getAddress());
 			
 			while(statement.step()) {
 				log.debug("updateIaAddr: step=true");
@@ -408,10 +405,8 @@ public class SqliteLeaseManager extends LeaseManager
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#deleteIaAddr(com.jagornet.dhcpv6.db.IaAddress)
-	 */
-	public void deleteIaAddr(final IaAddress iaAddr)
+	@Override
+	public void deleteIpAddress(final InetAddress inetAddr)
 	{
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
@@ -419,7 +414,7 @@ public class SqliteLeaseManager extends LeaseManager
 			connection = getSQLiteConnection();
 			statement = connection.prepare("delete from dhcplease" +
 						" where ipaddress = ?");
-			statement.bind(1, iaAddr.getIpAddress().getAddress());
+			statement.bind(1, inetAddr.getAddress());
 			
 			while(statement.step()) {
 				log.debug("deleteIaAddr: step=true");
@@ -435,11 +430,9 @@ public class SqliteLeaseManager extends LeaseManager
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findExistingIPs(java.net.InetAddress, java.net.InetAddress)
-	 */
 	@Override
-	public List<InetAddress> findExistingIPs(final InetAddress startAddr, final InetAddress endAddr)
+	public List<InetAddress> findExistingLeaseIPs(final InetAddress startAddr, 
+													final InetAddress endAddr)
 	{
 		List<InetAddress> inetAddrs = new ArrayList<InetAddress>();
 		SQLiteConnection connection = null;
@@ -475,11 +468,8 @@ public class SqliteLeaseManager extends LeaseManager
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaAddresses(java.net.InetAddress, java.net.InetAddress)
-	 */
 	@Override
-	public List<IaAddress> findUnusedIaAddresses(final InetAddress startAddr, final InetAddress endAddr)
+	public List<DhcpLease> findUnusedLeases(final InetAddress startAddr, final InetAddress endAddr)
 	{
 		long offerExpireMillis = 
 			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
@@ -502,7 +492,7 @@ public class SqliteLeaseManager extends LeaseManager
 			statement.bind(3, endAddr.getAddress());
 			
 			List<DhcpLease> leases = mapLeases(statement);
-			return toIaAddresses(leases);
+			return leases;
 		}
 		catch (SQLiteException ex) {
 			log.error("findUnusedIaAddresses failed", ex);
@@ -539,76 +529,8 @@ public class SqliteLeaseManager extends LeaseManager
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findUnusedIaPrefixes(java.net.InetAddress, java.net.InetAddress)
-	 */
 	@Override
-	public List<IaPrefix> findUnusedIaPrefixes(final InetAddress startAddr, final InetAddress endAddr) {
-		long offerExpireMillis = 
-			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
-		final long offerExpiration = new Date().getTime() - offerExpireMillis;
-		
-		SQLiteConnection connection = null;
-		SQLiteStatement statement = null;
-		try {
-			connection = getSQLiteConnection();
-			statement = connection.prepare(
-		                "select * from dhcplease" +
-		                " where ((state=" + IaPrefix.ADVERTISED +
-		                " and starttime <= ?)" +
-		                " or (state=" + IaPrefix.EXPIRED +
-		                " or state=" + IaPrefix.RELEASED + "))" +
-		                " and ipaddress >= ? and ipaddress <= ?" +
-		                " order by state, validendtime, ipaddress");
-			statement.bind(1, offerExpiration);
-			statement.bind(2, startAddr.getAddress());
-			statement.bind(3, endAddr.getAddress());
-			
-			List<DhcpLease> leases = mapLeases(statement);
-			return toIaPrefixes(leases);
-		}
-		catch (SQLiteException ex) {
-			log.error("findUnusedIaPrefixes failed", ex);
-			throw new RuntimeException(ex);
-		}
-		finally {
-			closeStatement(statement);
-			closeConnection(connection);
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaPrefixes()
-	 */
-	@Override
-	public List<IaPrefix> findExpiredIaPrefixes() {
-		SQLiteConnection connection = null;
-		SQLiteStatement statement = null;
-		try {
-			connection = getSQLiteConnection();
-			statement = connection.prepare(
-						"select * from dhcplease" +
-		                " where iatype = " + IdentityAssoc.PD_TYPE +
-		                " and validendtime < ? order by validendtime");
-            statement.bind(1, new Date().getTime());
-            List<DhcpLease> leases = mapLeases(statement);
-            return toIaPrefixes(leases);
-		}
-		catch (SQLiteException ex) {
-			log.error("findExpiredIaPrefixes failed", ex);
-			throw new RuntimeException(ex);
-		}
-		finally {
-			closeStatement(statement);
-			closeConnection(connection);
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.IaManager#reconcileIaAddresses(java.util.List)
-	 */
-	@Override
-	public void reconcileIaAddresses(List<Range> ranges) {
+	public void reconcileLeases(List<Range> ranges) {
 		List<byte[]> args = new ArrayList<byte[]>();
 		StringBuilder query = new StringBuilder();
 		query.append("delete from dhcplease where ipaddress");
@@ -694,7 +616,8 @@ public class SqliteLeaseManager extends LeaseManager
     /**
      * For unit tests only
      */
-	public void deleteAllIAs() {
+    @Override
+	public void deleteAllLeases() {
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {

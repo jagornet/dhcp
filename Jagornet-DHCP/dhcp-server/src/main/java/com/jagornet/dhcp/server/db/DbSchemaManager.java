@@ -57,6 +57,7 @@ public class DbSchemaManager
     public static String SCHEMATYPE_JDBC_SQLITE = "jdbc-sqlite";
     public static String SCHEMATYPE_SQLITE = "sqlite";
     public static String SCHEMATYPE_MONGO = "mongo";
+    public static String SCHEMATYPE_FILE = "file";
 
     public static String DB_HOME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
         							(DhcpConstants.JAGORNET_DHCP_HOME + "/db/") : "db/";

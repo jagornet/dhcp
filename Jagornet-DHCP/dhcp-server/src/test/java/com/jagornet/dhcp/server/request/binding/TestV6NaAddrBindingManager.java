@@ -25,8 +25,18 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.net.InetAddress;
 import java.util.Iterator;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
@@ -42,32 +52,39 @@ import com.jagornet.dhcp.server.db.IdentityAssoc;
 public class TestV6NaAddrBindingManager extends BaseTestCase
 {
 	/** The manager. */
-	private V6NaAddrBindingManager manager;
+	private static V6NaAddrBindingManager manager;
 	
 	/** The client id option. */
 	private DhcpV6ClientIdOption clientIdOption;
+
+	@BeforeClass
+	public static void oneTimeSetUp() throws Exception
+	{
+		initializeContext();
+		manager = config.getV6NaAddrBindingMgr();
+	}
+
+	@AfterClass
+	public static void oneTimeTearDown() throws Exception
+	{
+		closeContext();
+	}
 	
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.db.BaseDbTestCase#setUp()
-	 */
+	@Before
 	@Override
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
-		manager = (V6NaAddrBindingManager) ctx.getBean("v6NaAddrBindingManager");
-		manager.init();
+		config.getIaMgr().deleteAllIAs();
 		OpaqueData opaque = new OpaqueData();
 		opaque.setHexValue(new byte[] { (byte)0xde, (byte)0xbb, (byte)0x1e,
 				(byte)0xde, (byte)0xbb, (byte)0x1e });
 		clientIdOption = new DhcpV6ClientIdOption(OpaqueDataUtil.toBaseOpaqueData(opaque));
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.dbunit.DatabaseTestCase#tearDown()
-	 */
+	@After
 	@Override
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		super.tearDown();
-		manager = null;
 		clientIdOption = null;
 	}
 	
@@ -76,6 +93,7 @@ public class TestV6NaAddrBindingManager extends BaseTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testFindNoCurrentBinding() throws Exception {
 		DhcpV6IaNaOption dhcpIaNa = new DhcpV6IaNaOption();
 		dhcpIaNa.setIaId(1);
@@ -93,6 +111,7 @@ public class TestV6NaAddrBindingManager extends BaseTestCase
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testCreateSolicitBinding() throws Exception {
 		DhcpV6IaNaOption dhcpIaNa = new DhcpV6IaNaOption();
 		dhcpIaNa.setIaId(1);

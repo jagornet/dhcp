@@ -25,25 +25,27 @@
  */
 package com.jagornet.dhcp.server.request;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.net.InetAddress;
+
+import org.junit.Test;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.request.DhcpV6RequestProcessor;
-import com.jagornet.dhcp.server.request.DhcpV6SolicitProcessor;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestDhcpV6RequestProcessor.
  */
 public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 {
-	
 	/**
 	 * Test solicit and request.
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testNaSolicitAndRequest() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
@@ -72,6 +74,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 				InetAddress.getByName("2001:DB8:1::FF"));
 	}
 	
+	@Test
 	public void testNaPdSolicitAndRequest() throws Exception
 	{
 		System.out.println("Running testNaPdSolicitAndRequest");
@@ -111,6 +114,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testShouldMulticast() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
@@ -144,6 +148,7 @@ public class TestDhcpV6RequestProcessor extends BaseTestDhcpV6Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testRequestNotOnLink() throws Exception
 	{
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);

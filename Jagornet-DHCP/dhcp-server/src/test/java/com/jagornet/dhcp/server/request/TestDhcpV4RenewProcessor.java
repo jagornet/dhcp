@@ -25,13 +25,16 @@
  */
 package com.jagornet.dhcp.server.request;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.net.InetAddress;
+
+import org.junit.Test;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.request.DhcpV4DiscoverProcessor;
-import com.jagornet.dhcp.server.request.DhcpV4RequestProcessor;
 
 /**
  * The Class TestDhcpV4RequestProcessor.
@@ -44,6 +47,7 @@ public class TestDhcpV4RenewProcessor extends BaseTestDhcpV4Processor
 	 * 
 	 * @throws Exception the exception
 	 */
+	@Test
 	public void testDiscoverAndRequestAndRenew() throws Exception
 	{
 		DhcpV4Message requestMsg = buildRequestMessage(firstPoolAddr);

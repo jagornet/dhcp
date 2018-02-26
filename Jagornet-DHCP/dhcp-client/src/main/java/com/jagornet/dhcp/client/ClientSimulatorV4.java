@@ -33,8 +33,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.BasicParser;
@@ -92,6 +95,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     protected InetAddress clientAddr;
     protected int clientPort = DhcpConstants.V4_SERVER_PORT;	// the test client acts as a relay
     protected boolean rapidCommit = false;
+    protected boolean sendRelease = false;
     protected int numRequests = 100;
     protected AtomicInteger discoversSent = new AtomicInteger();
     protected AtomicInteger offersReceived = new AtomicInteger();
@@ -103,7 +107,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     protected long endTime = 0;
     protected long timeout = 0;
     protected int poolSize = 0;
-    protected Object syncDone = new Object();
+    protected CountDownLatch doneLatch = null;
 
     protected InetSocketAddress server = null;
     protected InetSocketAddress client = null;
@@ -182,6 +186,10 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
         Option psOption = new Option("ps", "poolsize", true,
         							"Size of the pool; wait for release after this many requests");
         options.addOption(psOption);
+        
+        Option xOption = new Option("x", "release", false,
+        							"Send release");
+        options.addOption(xOption);
         
         Option helpOption = new Option("?", "help", false, "Show this help page.");
         
@@ -266,6 +274,9 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
             	poolSize = 
             			parseIntegerOption("pool size", cmd.getOptionValue("ps"), 0);
             }
+            if (cmd.hasOption("x")) {
+            	sendRelease = true;
+            }
         }
         catch (ParseException pe) {
             System.err.println("Command line option parsing failure: " + pe);
@@ -300,17 +311,15 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     		executor.execute(new ClientMachine(i));
     	}
 
-    	synchronized (syncDone) {
-    		long ms = timeout * 1000;
-        	try {
-        		log.info("Waiting total of " + timeout + " milliseconds for completion");
-        		syncDone.wait(ms);
-        	}
-        	catch (InterruptedException ex) {
-        		log.error("Interrupted", ex);
-        	}
+    	doneLatch = new CountDownLatch(numRequests);
+    	try {
+    		log.info("Waiting total of " + timeout + " seconds for completion");
+			doneLatch.await(timeout, TimeUnit.SECONDS);
+			endTime = System.currentTimeMillis();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-
+    	
 		log.info("Complete: discoversSent=" + discoversSent +
 				" offersReceived=" + offersReceived +
 				" requestsSent=" + requestsSent +
@@ -343,6 +352,10 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     	int id;
     	byte[] mac;
     	BigInteger key;
+    	Semaphore replySemaphore;
+    	DhcpV4Message offerMsg;
+    	DhcpV4Message ackMsg;
+    	boolean retry;
     	
     	/**
 	     * Instantiates a new client machine.
@@ -354,6 +367,8 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     		this.id = id;
     		this.mac = buildChAddr(id);
     		this.key = new BigInteger(mac);
+    		this.replySemaphore = new Semaphore(1);
+    		this.retry = true;	// configure to retry
     	}
 		
 		/* (non-Javadoc)
@@ -385,18 +400,79 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 			msg = buildDiscoverMessage(mac); 
 			ChannelFuture future = channel.write(msg, server);
 			future.addListener(this);
+			replySemaphore.drainPermits();
+			waitForOffer();
 		}
+	    
+	    public void waitForOffer() {
+	    	try {
+				if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
+					if (retry) {
+						retry = false;
+						discover();
+					}
+				}
+				else {
+					request();
+				}
+			} catch (InterruptedException e) {
+				log.warn(e.getMessage());
+			}
+	    }
+	    
+	    public void offerReceived(DhcpV4Message offerMsg) {
+	    	this.offerMsg = offerMsg;
+	    	replySemaphore.release();
+	    }
 		
-		public void request(DhcpV4Message offerMsg) {
-        	msg = buildRequestMessage(offerMsg);
-			ChannelFuture future = channel.write(msg, server);
-			future.addListener(this);
+		public void request() {
+			if (offerMsg != null) {
+	        	msg = buildRequestMessage(offerMsg);
+				ChannelFuture future = channel.write(msg, server);
+				future.addListener(this);
+				waitForAck();
+			}
+			else {
+				log.error("No offer to request!");
+			}
 		}
+	    
+	    public void waitForAck() {
+	    	try {
+	    		if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
+	    			if (retry) {
+	    				retry = false;
+	    				request();
+	    			}
+	    		}
+	    		else {
+	    			release();
+	    		}
+			} catch (InterruptedException e) {
+				log.warn(e.getMessage());
+			}
+	    }
+	    
+	    public void ackReceived(DhcpV4Message ackMsg) {
+	    	this.ackMsg = ackMsg;
+	    	replySemaphore.release();
+	    }
 		
-		public void release(DhcpV4Message ackMsg) {
-        	msg = buildReleaseMessage(ackMsg);
-			ChannelFuture future = channel.write(msg, server);
-			future.addListener(this);
+		public void release() {
+			if (sendRelease) {
+				if (ackMsg != null) {
+		        	msg = buildReleaseMessage(ackMsg);
+					ChannelFuture future = channel.write(msg, server);
+					future.addListener(this);
+				}
+				else {
+					log.error("No ack to release!");
+				}
+			}
+			else {
+				clientMap.remove(key);
+				doneLatch.countDown();
+			}
 		}
 		
 		/* (non-Javadoc)
@@ -421,22 +497,11 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 							" cnt=" + requestsSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
-					clientMap.remove(key);
 					releasesSent.getAndIncrement();
 					log.info("Succesfully sent release message mac=" + Util.toHexString(mac) +
 							" cnt=" + releasesSent);
-					if (releasesSent.get() == numRequests) {
-						endTime = System.currentTimeMillis();
-						log.info("Ending at: " + endTime);
-						synchronized (syncDone) {
-							syncDone.notifyAll();
-						}
-					}
-					else if (poolSize > 0) {
-						synchronized (clientMap) {
-							clientMap.notify();
-						}
-					}
+					clientMap.remove(key);
+					doneLatch.countDown();
 				}
 			}
 			else {
@@ -564,7 +629,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 	            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
 	            if (client != null) {
 	            	offersReceived.getAndIncrement();
-	            	client.request(dhcpMessage);
+	            	client.offerReceived(dhcpMessage);
 	            }
 	            else {
 	            	log.error("Received offer for client not found in map: mac=" + 
@@ -575,7 +640,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 	            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
 	            if (client != null) {
 	            	acksReceived.getAndIncrement();
-	            	client.release(dhcpMessage);
+	            	client.ackReceived(dhcpMessage);
 	            }
 	            else {
 	            	log.error("Received ack for client not found in map: mac=" + 
