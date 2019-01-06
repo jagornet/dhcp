@@ -161,22 +161,22 @@ public class FileLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	protected void insertDhcpLease(DhcpLease lease) {
+	public void insertDhcpLease(DhcpLease lease) {
 		store(lease);
 	}
 
 	@Override
-	protected void updateDhcpLease(DhcpLease lease) {
+	public void updateDhcpLease(DhcpLease lease) {
 		store(lease);
 	}
 
 	@Override
-	protected void deleteDhcpLease(DhcpLease lease) {
+	public void deleteDhcpLease(DhcpLease lease) {
 		remove(lease.getIpAddress());
 	}
 
 	@Override
-	protected void updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
+	public void updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
 		DhcpLease lease = load(inetAddr);
 		if (lease != null) {
 			lease.setIaDhcpOptions(iaOptions);
@@ -185,7 +185,7 @@ public class FileLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	protected void updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
+	public void updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
 		DhcpLease lease = load(inetAddr);
 		if (lease != null) {
 			lease.setIaAddrDhcpOptions(ipAddrOptions);
@@ -194,7 +194,7 @@ public class FileLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	protected List<DhcpLease> findDhcpLeasesForIA(byte[] duid, byte iatype, long iaid) {
+	public List<DhcpLease> findDhcpLeasesForIA(byte[] duid, byte iatype, long iaid) {
 		//TODO: brute force is no way to do this
 		List<DhcpLease> iaLeases = new ArrayList<DhcpLease>();
 		try {
@@ -222,12 +222,12 @@ public class FileLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	protected DhcpLease findDhcpLeaseForInetAddr(InetAddress inetAddr) {
+	public DhcpLease findDhcpLeaseForInetAddr(InetAddress inetAddr) {
 		return load(inetAddr);
 	}
 
 	@Override
-	protected List<DhcpLease> findExpiredLeases(byte iatype) {
+	public List<DhcpLease> findExpiredLeases(byte iatype) {
 		//TODO: brute force is no way to do this
 		List<DhcpLease> expiredLeases = new ArrayList<DhcpLease>();
 		try {

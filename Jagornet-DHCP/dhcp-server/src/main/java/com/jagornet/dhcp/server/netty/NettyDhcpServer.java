@@ -94,6 +94,9 @@ public class NettyDhcpServer
 	/** The DHCPv4 server port. */
 	private int v4Port;
 	
+	private List<InetAddress> failoverAddrs;
+	private int failoverPort;
+	
     /** The collection of channels this server listens on. */
     protected Collection<DatagramChannel> channels = new ArrayList<DatagramChannel>();
     
@@ -111,7 +114,14 @@ public class NettyDhcpServer
      * @param v4Port the port to listen on
      */
     public NettyDhcpServer(List<InetAddress> v6Addrs, List<NetworkInterface> v6NetIfs, int v6Port,
-    						List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port)
+			List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port)
+	{
+		this(v6Addrs, v6NetIfs, v6Port, v4Addrs, v4NetIf, v4Port, null, 0);
+	}
+    
+    public NettyDhcpServer(List<InetAddress> v6Addrs, List<NetworkInterface> v6NetIfs, int v6Port,
+    						List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port,
+    						List<InetAddress> failoverAddrs, int failoverPort)
     {
     	this.v6Addrs = v6Addrs;
     	this.v6NetIfs = v6NetIfs;
@@ -119,6 +129,8 @@ public class NettyDhcpServer
     	this.v4Addrs = v4Addrs;
     	this.v4NetIf = v4NetIf;
     	this.v4Port = v4Port;
+    	this.failoverAddrs = failoverAddrs;
+    	this.failoverPort = failoverPort;
     }
     
     /**
@@ -368,6 +380,55 @@ public class NettyDhcpServer
         			log.error(msg);
         			throw new DhcpServerConfigException(msg);
         		}
+        	}
+        	
+    		Map<InetAddress, Channel> failoverChannels = new HashMap<InetAddress, Channel>();
+        	if (failoverAddrs != null) {
+        		checkSocket(failoverPort);
+	        	for (InetAddress addr : failoverAddrs) {
+	        		// local address for packets received on this channel
+		            InetSocketAddress sockAddr = new InetSocketAddress(addr, failoverPort); 
+	        		ChannelPipeline pipeline = Channels.pipeline();
+		            pipeline.addLast("logger", new LoggingHandler());
+		            pipeline.addLast("decoder", new FailoverChannelDecoder(sockAddr, ignoreSelfPackets));
+		            pipeline.addLast("encoder", new FailoverChannelEncoder());
+		            pipeline.addLast("executor", new ExecutionHandler(
+		            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
+																	maxChannelMemorySize,
+																	maxTotalMemorySize)));
+		            pipeline.addLast("handler", new FailoverChannelHandler());
+	        		
+		            String io = null;
+		            DatagramChannelFactory factory = null;
+		            if (Util.IS_WINDOWS) {
+		            	// Use OioDatagramChannels for IPv4 unicast addresses on Windows
+		            	factory = new OioDatagramChannelFactory(executorService);
+		            	io = "Old I/O";
+		            }
+		            else {
+		            	// Use NioDatagramChannels for IPv4 unicast addresses on real OSes
+		                factory = new NioDatagramChannelFactory(executorService);
+		                io = "New I/O";
+		            }
+	
+		            // create an unbound channel
+		            DatagramChannel channel = factory.newChannel(pipeline);
+		            channel.getConfig().setReuseAddress(true);
+		            channel.getConfig().setBroadcast(false);
+		            channel.getConfig().setReceiveBufferSize(receiveBufSize);
+		            channel.getConfig().setSendBufferSize(sendBufSize);
+
+		            failoverChannels.put(addr, channel);
+		            
+		            log.info("Binding " + io + " datagram channel on Failover socket address: " + sockAddr);
+		            ChannelFuture future = channel.bind(sockAddr);
+		            future.await();
+		            if (!future.isSuccess()) {
+		            	log.error("Failed to bind to Failover channel: " + future.getCause());
+		            	throw new IOException(future.getCause());
+		            }
+		            channels.add(channel);
+	        	}
         	}
         }
         catch (Exception ex) {

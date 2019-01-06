@@ -94,7 +94,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	protected void insertDhcpLease(final DhcpLease lease)
+	public void insertDhcpLease(final DhcpLease lease)
 	{
 		int cnt = getJdbcTemplate().update("insert into dhcplease" +
 				" (ipaddress, duid, iatype, iaid, prefixlen, state," +
@@ -132,7 +132,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	protected void updateDhcpLease(final DhcpLease lease)
+	public void updateDhcpLease(final DhcpLease lease)
 	{
 		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set state=?," +
@@ -169,7 +169,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	protected void deleteDhcpLease(final DhcpLease lease)
+	public void deleteDhcpLease(final DhcpLease lease)
 	{
 		int cnt = getJdbcTemplate().update("delete from dhcplease" +
 				" where ipaddress=?",
@@ -186,7 +186,7 @@ public class JdbcLeaseManager extends LeaseManager
 	/**
 	 * Update ia options.
 	 */
-	protected void updateIaOptions(final InetAddress inetAddr, 
+	public void updateIaOptions(final InetAddress inetAddr, 
 									final Collection<DhcpOption> iaOptions)
 	{
 		int cnt = getJdbcTemplate().update("update dhcplease" +
@@ -206,7 +206,7 @@ public class JdbcLeaseManager extends LeaseManager
 	/**
 	 * Update ipaddr options.
 	 */
-	protected void updateIpAddrOptions(final InetAddress inetAddr,
+	public void updateIpAddrOptions(final InetAddress inetAddr,
 									final Collection<DhcpOption> ipAddrOptions)
 	{
 		int cnt = getJdbcTemplate().update("update dhcplease" +
@@ -231,7 +231,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 * @param iaid the iaid
 	 * @return the list
 	 */
-	protected List<DhcpLease> findDhcpLeasesForIA(final byte[] duid, final byte iatype, final long iaid)
+	public List<DhcpLease> findDhcpLeasesForIA(final byte[] duid, final byte iatype, final long iaid)
 	{
 		return getJdbcTemplate().query(
                 "select * from dhcplease" +
@@ -256,7 +256,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 * @param inetAddr the InetAddr
 	 * @return the DhcpLease
 	 */
-	protected DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr)
+	public DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr)
 	{
         List<DhcpLease> leases = getJdbcTemplate().query(
                 "select * from dhcplease" +
@@ -400,7 +400,7 @@ public class JdbcLeaseManager extends LeaseManager
 		return leases;
 	}
 
-	protected List<DhcpLease> findExpiredLeases(final byte iatype) {
+	public List<DhcpLease> findExpiredLeases(final byte iatype) {
         return getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where iatype = ?" +

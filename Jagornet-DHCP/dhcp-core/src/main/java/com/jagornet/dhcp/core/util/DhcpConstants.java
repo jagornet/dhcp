@@ -26,6 +26,7 @@
 package com.jagornet.dhcp.core.util;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ public class DhcpConstants
 	
 	public static boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 	
+	public static InetAddress WILDCARD_ADDR = null;
 	public static InetAddress ZEROADDR_V4 = null;
 	public static InetAddress ZEROADDR_V6 = null;
 	
@@ -58,6 +60,7 @@ public class DhcpConstants
 
     static {
 		try {
+			WILDCARD_ADDR = (new InetSocketAddress(0)).getAddress();
 			ZEROADDR_V4 = InetAddress.getByName("0.0.0.0");
 			ZEROADDR_V6 = InetAddress.getByName("::");
             LOCALHOST_V4 = InetAddress.getByName("127.0.0.1");
@@ -191,6 +194,16 @@ public class DhcpConstants
     public static final int V4MESSAGE_TYPE_NAK = 6;
     public static final int V4MESSAGE_TYPE_RELEASE = 7;
     public static final int V4MESSAGE_TYPE_INFORM = 8;
+    public static final int V4MESSAGE_TYPE_FORCE_RENEW = 9;
+    public static final int V4MESSAGE_TYPE_LEASE_QUERY = 10;
+    public static final int V4MESSAGE_TYPE_LEASE_UNASSIGNED = 11;
+    public static final int V4MESSAGE_TYPE_LEASE_UNKNOWN = 12;
+    public static final int V4MESSAGE_TYPE_LEASE_ACTIVE = 13;
+    public static final int V4MESSAGE_TYPE_BULK_LEASE_QUERY = 14;
+    public static final int V4MESSAGE_TYPE_LEASE_QUERY_DONE = 15;
+    public static final int V4MESSAGE_TYPE_ACTIVE_LEASE_QUERY = 16;
+    public static final int V4MESSAGE_TYPE_LEASE_QUERY_STATUS = 17;
+    public static final int V4MESSAGE_TYPE_TLS = 18;
     
     public static final String[] V4MESSAGE_STRING = { "Unknown",
 											        "Discover",
@@ -243,4 +256,5 @@ public class DhcpConstants
     public static final int V4OPTION_CLIENT_FQDN = 81;
     public static final int V4OPTION_RELAY_INFO = 82;
     public static final int V4OPTION_EOF = 255;
+    
 }

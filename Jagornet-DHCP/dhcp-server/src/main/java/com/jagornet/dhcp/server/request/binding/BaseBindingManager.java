@@ -494,7 +494,7 @@ public abstract class BaseBindingManager
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			// current binding has addresses, so update times
-			setBindingObjsTimes(bindingObjs);
+			setBindingObjsTimes(bindingObjs, state);
 			// the existing IaAddress binding objects will be updated
 			updateIaAddresses = binding.getIaAddresses();
 		}
@@ -903,7 +903,7 @@ public abstract class BaseBindingManager
 	 * 
 	 * @param bindingObjs the collection of binding objects to set lifetimes in
 	 */
-	protected void setBindingObjsTimes(Collection<BindingObject> bindingObjs) 
+	protected void setBindingObjsTimes(Collection<BindingObject> bindingObjs, byte state) 
 	{
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			for (BindingObject bindingObj : bindingObjs) {
@@ -911,6 +911,7 @@ public abstract class BaseBindingManager
 				setBindingObjectTimes(bindingObj, 
 						configObj.getPreferredLifetimeMs(), 
 						configObj.getValidLifetimeMs());
+				bindingObj.setState(state);
 				//TODO: if we store the options, and they have changed,
 				// 		then we must update those options here somehow
 			}

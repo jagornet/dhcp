@@ -68,28 +68,31 @@ public class DhcpV4ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
     }
     
     @Override
-    public boolean acceptInboundMessage(Object buf) throws Exception {
-    	if (DhcpConstants.IS_WINDOWS &&
-        		!(this instanceof DhcpV4UnicastChannelDecoder) &&
-        		!remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR_V4)) {
-            	// we ignore packets from 0.0.0.0 in the DhcpV4UnicastChannelDecoder, so if this is NOT
-            	// that decoder, then this is the broadcast decoder, in which case we want to ignore
-            	// packets that are NOT from 0.0.0.0.  This is to workaround Windows implementation which
-            	// will see duplicate packets on the unicast and broadcast channels
-            	log.debug("Ignoring packet from " + 
-            				remoteSocketAddress.getAddress().getHostAddress() + 
-            				" received on broadcast channel");
-            	return false;
-        	}
-        	
-        	if (ignoreSelfPackets) {
-    	    	if (JagornetDhcpServer.getAllIPv4Addrs().contains(remoteSocketAddress.getAddress())) {
-    	    		log.debug("Ignoring packet from self: address=" + 
-    	    					remoteSocketAddress.getAddress());
-    	    		return false;
-    	    	}
-        	}
-    	return true;
+    public boolean acceptInboundMessage(Object obj) throws Exception {
+    	boolean accept = super.acceptInboundMessage(obj);
+    	if (accept) {
+	    	if (DhcpConstants.IS_WINDOWS &&
+	        		!(this instanceof DhcpV4UnicastChannelDecoder) &&
+	        		!remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR_V4)) {
+	        	// we ignore packets from 0.0.0.0 in the DhcpV4UnicastChannelDecoder, so if this is NOT
+	        	// that decoder, then this is the broadcast decoder, in which case we want to ignore
+	        	// packets that are NOT from 0.0.0.0.  This is to workaround Windows implementation which
+	        	// will see duplicate packets on the unicast and broadcast channels
+	        	log.debug("Ignoring packet from " + 
+	        				remoteSocketAddress.getAddress().getHostAddress() + 
+	        				" received on broadcast channel");
+	        	accept = false;
+	    	}
+	    	
+	    	if (ignoreSelfPackets) {
+		    	if (JagornetDhcpServer.getAllIPv4Addrs().contains(remoteSocketAddress.getAddress())) {
+		    		log.debug("Ignoring packet from self: address=" + 
+		    					remoteSocketAddress.getAddress());
+		    		accept = false;
+		    	}
+	    	}
+    	}
+    	return accept;
     }
     
 	@Override
@@ -99,16 +102,29 @@ public class DhcpV4ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
         						 (InetSocketAddress) ctx.channel().remoteAddress());
         out.add(dhcpMessage);
     }
-    
-    /* (non-Javadoc)
-     * @see io.netty.handler.codec.oneone.OneToOneDecoder#handleUpstream(io.netty.channel.ChannelHandlerContext, io.netty.channel.ChannelEvent)
-     */
-//    @Override
-//    public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception
-//    {
-//    	if (evt instanceof MessageEvent) {
-//    		remoteSocketAddress = (InetSocketAddress) ((MessageEvent)evt).getRemoteAddress();
-//    	}
-//    	super.handleUpstream(ctx, evt);
-//    }
+
+	public InetSocketAddress getLocalSocketAddress() {
+		return localSocketAddress;
+	}
+
+	public void setLocalSocketAddress(InetSocketAddress localSocketAddress) {
+		this.localSocketAddress = localSocketAddress;
+	}
+
+	public InetSocketAddress getRemoteSocketAddress() {
+		return remoteSocketAddress;
+	}
+
+	public void setRemoteSocketAddress(InetSocketAddress remoteSocketAddress) {
+		this.remoteSocketAddress = remoteSocketAddress;
+	}
+
+	public boolean isIgnoreSelfPackets() {
+		return ignoreSelfPackets;
+	}
+
+	public void setIgnoreSelfPackets(boolean ignoreSelfPackets) {
+		this.ignoreSelfPackets = ignoreSelfPackets;
+	}
+	
 }

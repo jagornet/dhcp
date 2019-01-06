@@ -21,7 +21,7 @@
     	</policy>
     	<policy>
     		<name>database.schemaFilename</name>
-    		<value>db/jagornet-dhcpv6-schema-derby-v2.sql</value>
+    		<value>db/jagornet-dhcp-server-schema-derby-v2.sql</value>
     	</policy>
     	<policy>
     		<name>dhcp.ignoreSelfPackets</name>

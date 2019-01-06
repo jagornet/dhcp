@@ -42,11 +42,14 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.failover.FailoverMessage;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -60,6 +63,7 @@ import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
+import io.netty.handler.codec.DatagramPacketEncoder;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
@@ -96,6 +100,9 @@ public class NettyDhcpServer
 	
 	/** The DHCPv4 server port. */
 	private int v4Port;
+		
+	private List<InetAddress> failoverAddrs;
+	private int failoverPort;
 	
     /** The collection of channels this server listens on. */
     protected Collection<DatagramChannel> channels = new ArrayList<DatagramChannel>();
@@ -115,7 +122,8 @@ public class NettyDhcpServer
      * @param v4Port the port to listen on
      */
     public NettyDhcpServer(List<InetAddress> v6Addrs, List<NetworkInterface> v6NetIfs, int v6Port,
-    						List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port)
+    						List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port,
+    						List<InetAddress> failoverAddrs, int failoverPort)
     {
     	this.v6Addrs = v6Addrs;
     	this.v6NetIfs = v6NetIfs;
@@ -123,6 +131,8 @@ public class NettyDhcpServer
     	this.v4Addrs = v4Addrs;
     	this.v4NetIf = v4NetIf;
     	this.v4Port = v4Port;
+    	this.failoverAddrs = failoverAddrs;
+    	this.failoverPort = failoverPort;
     }
     
     /**
@@ -133,7 +143,7 @@ public class NettyDhcpServer
     public void start() throws Exception
     {
         try {
-        	InternalLoggerFactory.setDefaultFactory(new Log4JLoggerFactory());
+        	InternalLoggerFactory.setDefaultFactory(Log4JLoggerFactory.INSTANCE);
         	
         	final boolean ignoreSelfPackets = 
         			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_SELF_PACKETS);
@@ -189,15 +199,14 @@ public class NettyDhcpServer
 						protected void initChannel(DatagramChannel channel) throws Exception {
 			        		ChannelPipeline pipeline = channel.pipeline();
 				            pipeline.addLast("logger", new LoggingHandler());
-				            pipeline.addLast("decoder", new DhcpV6UnicastChannelDecoder(sockAddr, ignoreSelfPackets));
-// don't think the encoder is needed now that the handler send the reply directly
-//				            pipeline.addLast("encoder", new DhcpV6ChannelEncoder());
-// don't need executor because hander has executor group
-//				            pipeline.addLast("executor", new ExecutionHandler(
-//				            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
-//				            												maxChannelMemorySize,
-//				            												maxTotalMemorySize)));
-				            pipeline.addLast(eventExecutorGroup, "handler", new DhcpV6ChannelHandler());
+				            pipeline.addLast("decoder", 
+				            		new DhcpV6PacketDecoder(
+				            				new DhcpV6UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
+				            pipeline.addLast("encoder",  
+				            		new DatagramPacketEncoder<DhcpV6Message>(
+				            				new DhcpV6ChannelEncoder()));
+				            pipeline.addLast(eventExecutorGroup, "handler", 
+				            		new DhcpV6ChannelHandler());
 						}
 	            	});
 		            
@@ -208,7 +217,8 @@ public class NettyDhcpServer
 		            	log.error("Failed to bind to IPv6 unicast channel: " + future.cause());
 		            	throw new IOException(future.cause());
 		            }
-//TODO		            channels.add(channel);
+					DatagramChannel channel = (DatagramChannel)future.channel();
+					channels.add(channel);
 	        	}
         	}
         	
@@ -230,52 +240,61 @@ public class NettyDhcpServer
 
 		            Bootstrap bootstrap = new Bootstrap();
 		        	// Use OioDatagramChannels for IPv6 multicast interfaces
-		            //TODO: why Oio?
-	            	bootstrap.channel(OioDatagramChannel.class);
-	            	bootstrap.group(new OioEventLoopGroup());
+		            // Netty 3.5+ supports NIO UDP Multicast Channels
+		            // http://netty.io/news/2012/06/08/3-5-0-final.html
+	            	bootstrap.channel(NioDatagramChannel.class);
+	            	bootstrap.group(new NioEventLoopGroup());
 	            	bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 	            	bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufSize);
 	            	bootstrap.option(ChannelOption.SO_SNDBUF, sendBufSize);
+	            	bootstrap.option(ChannelOption.IP_MULTICAST_IF, netIf);
 	            	bootstrap.handler(new ChannelInitializer<DatagramChannel>() {
 						@Override
 						protected void initChannel(DatagramChannel channel) throws Exception {
 			        		ChannelPipeline pipeline = channel.pipeline();
 				            pipeline.addLast("logger", new LoggingHandler());
-				            pipeline.addLast("decoder", new DhcpV6ChannelDecoder(sockAddr, ignoreSelfPackets));
-// don't think the encoder is needed now that the handler send the reply directly
-//				            pipeline.addLast("encoder", new DhcpV6ChannelEncoder());
-// don't need executor because hander has executor group
-//				            pipeline.addLast("executor", new ExecutionHandler(
-//				            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
-//																			maxChannelMemorySize,
-//																			maxTotalMemorySize)));
-				            pipeline.addLast(eventExecutorGroup, "handler", new DhcpV6ChannelHandler());
+				            pipeline.addLast("decoder", 
+				            		new DhcpV6PacketDecoder(
+				            				new DhcpV6ChannelDecoder(sockAddr, ignoreSelfPackets)));
+				            pipeline.addLast("encoder",  
+				            		new DatagramPacketEncoder<DhcpV6Message>(
+				            				new DhcpV6ChannelEncoder()));
+				            pipeline.addLast(eventExecutorGroup, "handler", 
+				            		new DhcpV6ChannelHandler());
 						}
 	            	});
 	            	
 		            // must be bound in order to join multicast group
 		            InetSocketAddress wildAddr = new InetSocketAddress(DhcpConstants.ZEROADDR_V6, v6Port);
-		            //log.info("Binding New I/O multicast channel on IPv6 wildcard address: " + wildAddr);
-		            //TODO: why Oio?
-		            log.info("Binding Old I/O multicast channel on IPv6 wildcard address: " + wildAddr);
+		            log.info("Binding New I/O multicast channel on IPv6 wildcard address: " + wildAddr);
 		            ChannelFuture future = bootstrap.bind(wildAddr);
 		            future.await();
 		            if (!future.isSuccess()) {
 		            	log.error("Failed to bind to IPv6 multicast channel: " + future.cause());
 		            	throw new IOException(future.cause());
 		            }
+					DatagramChannel channel = (DatagramChannel)future.channel();
 		            InetSocketAddress relayGroup = 
 		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS, v6Port);
 		            log.info("Joining multicast group: " + relayGroup +
 		            		" on interface: " + netIf.getName());
-		            //TODO: get channel to join group
-//		            bootstrap.joinGroup(relayGroup, netIf);
-//		            InetSocketAddress serverGroup = 
-//		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS, v6Port); 
-//		            log.info("Joining multicast group: " + serverGroup +
-//		            		" on interface: " + netIf.getName());
-//		            bootstrap.joinGroup(serverGroup, netIf);
-//		            channels.add(channel);
+					future = channel.joinGroup(relayGroup, netIf);
+					future.await();
+		            if (!future.isSuccess()) {
+		            	log.error("Failed to join ALL_DHCP_RELAY_AGENTS_AND_SERVERS IPv6 multicast groups: " + future.cause());
+		            	throw new IOException(future.cause());
+		            }
+		            InetSocketAddress serverGroup = 
+		            	new InetSocketAddress(DhcpConstants.ALL_DHCP_SERVERS, v6Port); 
+		            log.info("Joining multicast group: " + serverGroup +
+		            		" on interface: " + netIf.getName());
+					future = channel.joinGroup(serverGroup, netIf);
+					future.await();
+		            if (!future.isSuccess()) {
+		            	log.error("Failed to join ALL_DHCP_SERVERS IPv6 multicast groups: " + future.cause());
+		            	throw new IOException(future.cause());
+		            }
+					channels.add(channel);
 	        	}
         	}
         	
@@ -313,20 +332,17 @@ public class NettyDhcpServer
 						protected void initChannel(DatagramChannel channel) throws Exception {
 			        		ChannelPipeline pipeline = channel.pipeline();
 				            pipeline.addLast("logger", new LoggingHandler());
-				            pipeline.addLast("decoder", new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets));
-// don't think the encoder is needed now that the handler send the reply directly
-//				            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
-// don't need executor because hander has executor group
-//				            pipeline.addLast("executor", new ExecutionHandler(
-//				            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
-//																			maxChannelMemorySize,
-//																			maxTotalMemorySize)));
-				            pipeline.addLast(eventExecutorGroup, "handler", new DhcpV4ChannelHandler(null));
+				            pipeline.addLast("decoder",
+				            		new DhcpV4PacketDecoder(
+				            				new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
+				            pipeline.addLast("encoder", 
+				            		new DatagramPacketEncoder<DhcpV4Message>(
+				            				new DhcpV4ChannelEncoder()));
+				            pipeline.addLast(eventExecutorGroup, "handler", 
+				            		new DhcpV4ChannelHandler(null));
 						}	        		
 	            	});
 
-//TODO		            v4UcastChannels.put(addr, channel);
-		            
 		            log.info("Binding " + io + " datagram channel on IPv4 socket address: " + sockAddr);
 		            ChannelFuture future = bootstrap.bind(sockAddr);
 		            future.await();
@@ -334,7 +350,9 @@ public class NettyDhcpServer
 		            	log.error("Failed to bind to IPv4 unicast channel: " + future.cause());
 		            	throw new IOException(future.cause());
 		            }
-//TODO		            channels.add(channel);
+		            DatagramChannel channel = (DatagramChannel)future.channel();
+		            v4UcastChannels.put(addr, channel);
+		            channels.add(channel);
 	        	}
         	}
         	
@@ -371,15 +389,14 @@ public class NettyDhcpServer
 							protected void initChannel(DatagramChannel channel) throws Exception {
 				        		ChannelPipeline pipeline = channel.pipeline();
 					            pipeline.addLast("logger", new LoggingHandler());
-					            pipeline.addLast("decoder", new DhcpV4ChannelDecoder(sockAddr, ignoreSelfPackets));
-// don't think the encoder is needed now that the handler send the reply directly
-//					            pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
-// don't need executor because hander has executor group
-//					            pipeline.addLast("executor", new ExecutionHandler(
-//					            		new OrderedMemoryAwareThreadPoolExecutor(corePoolSize, 
-//																				maxChannelMemorySize,
-//																				maxTotalMemorySize)));
-					            pipeline.addLast(eventExecutorGroup, "handler", new DhcpV4ChannelHandler(bcastChannel));
+					            pipeline.addLast("decoder",
+					            		new DhcpV4PacketDecoder(
+					            				new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
+					            pipeline.addLast("encoder",  
+					            		new DatagramPacketEncoder<DhcpV4Message>(
+					            				new DhcpV4ChannelEncoder()));
+					            pipeline.addLast(eventExecutorGroup, "handler",
+					            		new DhcpV4ChannelHandler(bcastChannel));
 							}
 		            	});
 			            
@@ -391,7 +408,8 @@ public class NettyDhcpServer
 			            	log.error("Failed to bind to IPv4 broadcast channel: " + future.cause());
 			            	throw new IOException(future.cause());
 			            }
-//TODO			            channels.add(channel);
+			            DatagramChannel channel = (DatagramChannel)future.channel();
+			            channels.add(channel);
 			            break; 	// no need to continue looking at IPs on the interface
         			}
         		}
@@ -400,6 +418,61 @@ public class NettyDhcpServer
         			log.error(msg);
         			throw new DhcpServerConfigException(msg);
         		}
+        	}
+        	
+        	if (failoverAddrs != null) {
+        		checkSocket(failoverPort);
+	        	for (InetAddress addr : failoverAddrs) {
+	        		// local address for packets received on this channel
+		            InetSocketAddress sockAddr = new InetSocketAddress(addr, failoverPort); 
+
+	        		Bootstrap bootstrap = new Bootstrap();
+		            String io = null;
+	            	EventLoopGroup group = null;
+	            	if (Util.IS_WINDOWS) {
+	            		// Use OioDatagramChannels for unicast addresses on Windows
+		            	bootstrap.channel(OioDatagramChannel.class);
+	            		group = new OioEventLoopGroup();
+		            	io = "Old I/O";
+	            	}
+	            	else {
+	            		// Use NioDatagramChannels for unicast addresses on real OSes
+		            	bootstrap.channel(NioDatagramChannel.class);
+	            		group = new NioEventLoopGroup();
+		            	io = "New I/O";
+	            	}	            	
+	            	bootstrap.group(group);
+	            	bootstrap.option(ChannelOption.SO_REUSEADDR, true);
+	            	bootstrap.option(ChannelOption.SO_BROADCAST, false);
+	            	bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufSize);
+	            	bootstrap.option(ChannelOption.SO_SNDBUF, sendBufSize);
+
+	            	bootstrap.handler(new ChannelInitializer<DatagramChannel>() {
+						@Override
+						protected void initChannel(DatagramChannel channel) throws Exception {
+			        		ChannelPipeline pipeline = channel.pipeline();
+				            pipeline.addLast("logger", new LoggingHandler());
+				            pipeline.addLast("decoder", 
+				            		new FailoverPacketDecoder(
+				            				new FailoverChannelDecoder(sockAddr, ignoreSelfPackets)));
+				            pipeline.addLast("encoder",  
+				            		new DatagramPacketEncoder<FailoverMessage>(
+				            				new FailoverChannelEncoder()));
+				            pipeline.addLast(eventExecutorGroup, "handler", 
+				            		new FailoverChannelHandler());
+						}
+	            	});
+		            
+		            log.info("Binding " + io + " datagram channel on Failover socket address: " + sockAddr);
+		            ChannelFuture future = bootstrap.bind(sockAddr);
+		            future.await();
+		            if (!future.isSuccess()) {
+		            	log.error("Failed to bind to Failover channel: " + future.cause());
+		            	throw new IOException(future.cause());
+		            }
+					DatagramChannel channel = (DatagramChannel)future.channel();
+					channels.add(channel);
+	        	}
         	}
         }
         catch (Exception ex) {

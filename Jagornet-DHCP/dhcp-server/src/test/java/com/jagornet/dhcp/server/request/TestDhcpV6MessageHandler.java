@@ -60,7 +60,7 @@ public class TestDhcpV6MessageHandler extends BaseTestCase
         dhcpMessage.setTransactionId(90599);                // 3 bytes
 
         OpaqueData opaque = new OpaqueData();
-        opaque.setAsciiValue("jagornet-dhcpv6");	// 15 bytes
+        opaque.setAsciiValue("jagornet-dhcp-server");	// 20 bytes
 
         dhcpMessage.putDhcpOption(new DhcpV6ClientIdOption(OpaqueDataUtil.toBaseOpaqueData(opaque)));
         

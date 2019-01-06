@@ -62,13 +62,13 @@ public class DbSchemaManager
     public static String DB_HOME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
         							(DhcpConstants.JAGORNET_DHCP_HOME + "/db/") : "db/";
         							
-    public static String SCHEMA_FILENAME = DB_HOME + "jagornet-dhcpv6-schema.sql";
-	public static String SCHEMA_DERBY_FILENAME = DB_HOME + "jagornet-dhcpv6-schema-derby.sql";
+    public static String SCHEMA_FILENAME = DB_HOME + "jagornet-dhcp-server-schema.sql";
+	public static String SCHEMA_DERBY_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby.sql";
 	
 	public static String[] TABLE_NAMES = { "DHCPOPTION", "IAADDRESS", "IAPREFIX", "IDENTITYASSOC" };
 
-	public static String SCHEMA_V2_FILENAME = DB_HOME + "jagornet-dhcpv6-schema-v2.sql";
-	public static String SCHEMA_DERBY_V2_FILENAME = DB_HOME + "jagornet-dhcpv6-schema-derby-v2.sql";
+	public static String SCHEMA_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-v2.sql";
+	public static String SCHEMA_DERBY_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby-v2.sql";
 
     public static String[] TABLE_NAMES_V2 = { "DHCPLEASE" };
 	

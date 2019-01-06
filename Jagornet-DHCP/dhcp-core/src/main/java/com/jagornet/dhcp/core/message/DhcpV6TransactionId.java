@@ -30,12 +30,12 @@ import java.nio.ByteBuffer;
 import com.jagornet.dhcp.core.util.Util;
 
 /**
- * Title: DhcpTransactionId
- * Description: A class representing the Transaction Id of a DhcpMessage.
+ * Title: DhcpV6TransactionId
+ * Description: A class representing the Transaction Id of a DhcpV6Message.
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpTransactionId
+public class DhcpV6TransactionId
 {
     
     /**

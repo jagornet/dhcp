@@ -109,7 +109,7 @@ public class SqliteLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	protected void insertDhcpLease(final DhcpLease lease)
+	public void insertDhcpLease(final DhcpLease lease)
 	{
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
@@ -151,7 +151,7 @@ public class SqliteLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	protected void updateDhcpLease(final DhcpLease lease)
+	public void updateDhcpLease(final DhcpLease lease)
 	{
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
@@ -192,7 +192,7 @@ public class SqliteLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	protected void deleteDhcpLease(final DhcpLease lease)
+	public void deleteDhcpLease(final DhcpLease lease)
 	{
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
@@ -219,7 +219,7 @@ public class SqliteLeaseManager extends LeaseManager
 	/**
 	 * Update ia options.
 	 */
-	protected void updateIaOptions(final InetAddress inetAddr, 
+	public void updateIaOptions(final InetAddress inetAddr, 
 									final Collection<DhcpOption> iaOptions)
 	{
 		SQLiteConnection connection = null;
@@ -249,7 +249,7 @@ public class SqliteLeaseManager extends LeaseManager
 	/**
 	 * Update ipaddr options.
 	 */
-	protected void updateIpAddrOptions(final InetAddress inetAddr,
+	public void updateIpAddrOptions(final InetAddress inetAddr,
 									final Collection<DhcpOption> ipAddrOptions)
 	{
 		SQLiteConnection connection = null;
@@ -284,7 +284,7 @@ public class SqliteLeaseManager extends LeaseManager
 	 * @param iaid the iaid
 	 * @return the list
 	 */
-	protected List<DhcpLease> findDhcpLeasesForIA(final byte[] duid, final byte iatype, final long iaid)
+	public List<DhcpLease> findDhcpLeasesForIA(final byte[] duid, final byte iatype, final long iaid)
 	{
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
@@ -315,7 +315,7 @@ public class SqliteLeaseManager extends LeaseManager
 	 * @param inetAddr the InetAddr
 	 * @return the DhcpLease
 	 */
-	protected DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr)
+	public DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr)
 	{
 		List<DhcpLease> leases = null;
 		SQLiteConnection connection = null;
@@ -504,7 +504,7 @@ public class SqliteLeaseManager extends LeaseManager
 		}
 	}
 
-	protected List<DhcpLease> findExpiredLeases(final byte iatype) {
+	public List<DhcpLease> findExpiredLeases(final byte iatype) {
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {

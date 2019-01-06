@@ -57,8 +57,8 @@ public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder
 	}
 
 	@Override
-	public boolean acceptInboundMessage(Object buf) throws Exception {
-		boolean accept = super.acceptInboundMessage(buf);
+	public boolean acceptInboundMessage(Object obj) throws Exception {
+		boolean accept = super.acceptInboundMessage(obj);
 		if (accept) {
 	    	if (remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR_V4)) {
 	        	// can't unicast to 0.0.0.0, so a broadcast channel is needed

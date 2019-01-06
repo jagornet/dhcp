@@ -63,7 +63,7 @@ public class RedisLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	protected void insertDhcpLease(DhcpLease lease) {
+	public void insertDhcpLease(DhcpLease lease) {
 		String ip = lease.getIpAddress().getHostAddress();
 		int expireSecs = (int)
 				((lease.getValidEndTime().getTime() - lease.getStartTime().getTime()) / 1000);
@@ -77,43 +77,43 @@ public class RedisLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	protected void updateDhcpLease(DhcpLease lease) {
+	public void updateDhcpLease(DhcpLease lease) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected void deleteDhcpLease(DhcpLease lease) {
+	public void deleteDhcpLease(DhcpLease lease) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected void updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
+	public void updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected void updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
+	public void updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	protected List<DhcpLease> findDhcpLeasesForIA(byte[] duid, byte iatype, long iaid) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected DhcpLease findDhcpLeaseForInetAddr(InetAddress inetAddr) {
+	public List<DhcpLease> findDhcpLeasesForIA(byte[] duid, byte iatype, long iaid) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected List<DhcpLease> findExpiredLeases(byte iatype) {
+	public DhcpLease findDhcpLeaseForInetAddr(InetAddress inetAddr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<DhcpLease> findExpiredLeases(byte iatype) {
 		// TODO Auto-generated method stub
 		return null;
 	}

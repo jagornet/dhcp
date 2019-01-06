@@ -84,16 +84,28 @@ public class DhcpV6ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
         						 (InetSocketAddress) ctx.channel().remoteAddress());
         out.add(dhcpMessage);
     }
-    
-    /* (non-Javadoc)
-     * @see io.netty.handler.codec.oneone.OneToOneDecoder#handleUpstream(io.netty.channel.ChannelHandlerContext, io.netty.channel.ChannelEvent)
-     */
-//    @Override
-//    public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception
-//    {
-//    	if (evt instanceof MessageEvent) {
-//    		remoteSocketAddress = (InetSocketAddress) ((MessageEvent)evt).getRemoteAddress();
-//    	}
-//    	super.handleUpstream(ctx, evt);
-//    }
+
+	public InetSocketAddress getLocalSocketAddress() {
+		return localSocketAddress;
+	}
+
+	public void setLocalSocketAddress(InetSocketAddress localSocketAddress) {
+		this.localSocketAddress = localSocketAddress;
+	}
+
+	public InetSocketAddress getRemoteSocketAddress() {
+		return remoteSocketAddress;
+	}
+
+	public void setRemoteSocketAddress(InetSocketAddress remoteSocketAddress) {
+		this.remoteSocketAddress = remoteSocketAddress;
+	}
+
+	public boolean isIgnoreSelfPackets() {
+		return ignoreSelfPackets;
+	}
+
+	public void setIgnoreSelfPackets(boolean ignoreSelfPackets) {
+		this.ignoreSelfPackets = ignoreSelfPackets;
+	}
 }

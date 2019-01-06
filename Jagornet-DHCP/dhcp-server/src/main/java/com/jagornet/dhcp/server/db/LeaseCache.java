@@ -59,11 +59,12 @@ public class LeaseCache {
 	}
 	
 	public List<DhcpLease> expiredLeases(byte iatype) {
+		long now = new Date().getTime();
 		return leaseCache.values().stream()
 			.filter(l -> 
 				(l.getIatype() == iatype) && 
 				(l.getState() != IaAddress.STATIC) &&
-				(l.getValidEndTime().getTime() < new Date().getTime()))
+				(l.getValidEndTime().getTime() < now))
 			.sorted(Comparator.comparing(DhcpLease::getValidEndTime))
 			.collect(Collectors.toList());
 	}

@@ -51,27 +51,27 @@ public abstract class LeaseManager implements IaManager {
 	
 	private static Logger log = LoggerFactory.getLogger(LeaseManager.class);
 
-	protected abstract void insertDhcpLease(final DhcpLease lease);
-	protected abstract void updateDhcpLease(final DhcpLease lease);
-	protected abstract void deleteDhcpLease(final DhcpLease lease);
-	protected abstract void updateIpAddress(final InetAddress inetAddr, 
+	public abstract void insertDhcpLease(final DhcpLease lease);
+	public abstract void updateDhcpLease(final DhcpLease lease);
+	public abstract void deleteDhcpLease(final DhcpLease lease);
+	public abstract void updateIpAddress(final InetAddress inetAddr, 
 			final byte state, final short prefixlen,
 			final Date start, final Date preferred, final Date valid);
-	protected abstract void deleteIpAddress(final InetAddress inetAddr);
-	protected abstract void updateIaOptions(final InetAddress inetAddr, 
+	public abstract void deleteIpAddress(final InetAddress inetAddr);
+	public abstract void updateIaOptions(final InetAddress inetAddr, 
 			final Collection<DhcpOption> iaOptions);
-	protected abstract void updateIpAddrOptions(final InetAddress inetAddr,
+	public abstract void updateIpAddrOptions(final InetAddress inetAddr,
 			final Collection<DhcpOption> ipAddrOptions);
-	protected abstract List<DhcpLease> findDhcpLeasesForIA(final byte[] duid, 
+	public abstract List<DhcpLease> findDhcpLeasesForIA(final byte[] duid, 
 			final byte iatype, final long iaid);
-	protected abstract DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr);
-	protected abstract List<InetAddress> findExistingLeaseIPs(final InetAddress startAddr, 
+	public abstract DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr);
+	public abstract List<InetAddress> findExistingLeaseIPs(final InetAddress startAddr, 
 			final InetAddress endAddr);
-	protected abstract List<DhcpLease> findUnusedLeases(final InetAddress startAddr, 
+	public abstract List<DhcpLease> findUnusedLeases(final InetAddress startAddr, 
 			final InetAddress endAddr);
-	protected abstract List<DhcpLease> findExpiredLeases(final byte iatype);
-	protected abstract void reconcileLeases(final List<Range> ranges);
-	protected abstract void deleteAllLeases();
+	public abstract List<DhcpLease> findExpiredLeases(final byte iatype);
+	public abstract void reconcileLeases(final List<Range> ranges);
+	public abstract void deleteAllLeases();
 	
 	protected IaCache iaCache = IaCache.getInstance();
 	protected LeaseCache leaseCache = LeaseCache.getInstance();

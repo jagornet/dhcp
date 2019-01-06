@@ -77,6 +77,7 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6VendorClassOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Subnet;
 import com.jagornet.dhcp.core.util.Util;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.xml.ClientClassExpression;
 import com.jagornet.dhcp.server.config.xml.DhcpServerConfig;
 import com.jagornet.dhcp.server.config.xml.DomainNameListOptionType;
@@ -115,6 +116,8 @@ import com.jagornet.dhcp.server.config.xml.V6ServerIdOption;
 import com.jagornet.dhcp.server.config.xml.V6UserClassOption;
 import com.jagornet.dhcp.server.config.xml.V6VendorClassOption;
 import com.jagornet.dhcp.server.db.IaManager;
+import com.jagornet.dhcp.server.failover.FailoverStateManager;
+import com.jagornet.dhcp.server.failover.FailoverStateManager.Role;
 import com.jagornet.dhcp.server.request.binding.Range;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
@@ -159,6 +162,8 @@ public class DhcpServerConfiguration
     private V6PrefixBindingManager v6PrefixBindingMgr;
     private V4AddrBindingManager v4AddrBindingMgr;
     private IaManager iaMgr;
+    
+    private FailoverStateManager failoverStateManager;
     
     /**
      * Gets the single instance of DhcpServerConfiguration.
@@ -217,6 +222,8 @@ public class DhcpServerConfiguration
 	    	globalV4ConfigOptions = new DhcpV4ConfigOptions(xmlServerConfig.getV4ConfigOptions());
 	    	
 	    	globalFilters = xmlServerConfig.getFilters();
+	    	
+	        initFailover();
 	    	
 	    	initLinkMap(xmlServerConfig.getLinks());
 	    	
@@ -387,6 +394,30 @@ public class DhcpServerConfiguration
 			v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
 		}
 		return v4ServerId;
+    }
+    
+    private void initFailover() throws DhcpServerConfigException {
+        String failoverRole = DhcpServerPolicies.globalPolicy(Property.FAILOVER_ROLE);
+        if (!failoverRole.isEmpty()) {
+        	if (failoverRole.equalsIgnoreCase("primary")) {
+        		failoverStateManager = new FailoverStateManager(Role.PRIMARY);
+        	}
+        	else if (failoverRole.equalsIgnoreCase("backup")) {
+        		failoverStateManager = new FailoverStateManager(Role.BACKUP);
+        	}
+        	else {
+        		throw new DhcpServerConfigException("Unknown " + Property.FAILOVER_ROLE.key() + 
+        											": " + failoverRole);
+        	}
+        }
+    }
+
+    public FailoverStateManager getFailoverStateManager() {
+    	return failoverStateManager;
+    }
+    
+    public void setFailoverState(FailoverStateManager failoverStateManager) {
+    	this.failoverStateManager = failoverStateManager;
     }
     
     /**

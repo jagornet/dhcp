@@ -102,7 +102,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
         if (!dhcpServerIdOption.equals(requestedServerIdOption)) {
             log.warn("Ignoring Request message: " +
                      "Requested ServerId: " + requestedServerIdOption +
-                     "My ServerId: " + dhcpServerIdOption);
+                     " My ServerId: " + dhcpServerIdOption);
             return false;
         }
     	

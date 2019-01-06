@@ -108,6 +108,14 @@ public class DhcpServerPolicies
 		V4_IGNORED_MACS("v4.ignoredMacAddrs", "000000000000, FFFFFFFFFFFF"),
 		V4_DEFAULT_LEASETIME("v4.defaultLeasetime", "3600"),
 		V4_PINGCHECK_TIMEOUT("v4.pingCheckTimeout", "0"),
+		FAILOVER_ROLE("failover.role", ""),
+		FAILOVER_PEER_SERVER("failover.peerServer", ""),
+		FAILOVER_PEER_PORT("failover.peerPort", "647"),
+		FAILOVER_POLL_SECONDS("failover.pollSeconds", "30"),
+		FAILOVER_POLL_REPLY_TIMEOUT("failover.pollReplyTimeout", "5"),
+		FAILOVER_POLL_REPLY_FAILURE_COUNT("failover.pollReplyFailureCount", "5"),
+		FAILOVER_CONTROL_RETURN_TIMEOUT("failover.controlReturnTimeout", "2"),
+		FAILOVER_CONTROL_RETURN_FAILURE_COUNT("failover.controlReturnFailureCount", "1")
 		;
 		
 	    /** The key. */

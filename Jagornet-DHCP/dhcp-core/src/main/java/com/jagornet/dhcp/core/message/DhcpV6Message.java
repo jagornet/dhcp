@@ -174,7 +174,7 @@ public class DhcpV6Message implements DhcpMessage
         
         ByteBuffer buf = ByteBuffer.allocate(1024);
         buf.put((byte)messageType);
-        buf.put(DhcpTransactionId.encode(transactionId));
+        buf.put(DhcpV6TransactionId.encode(transactionId));
         buf.put(encodeOptions());
         buf.flip();
         
@@ -290,7 +290,7 @@ public class DhcpV6Message implements DhcpMessage
         if ((buf != null) && buf.hasRemaining()) {
             decodeMessageType(buf);
             if (buf.hasRemaining()) {
-                setTransactionId(DhcpTransactionId.decode(buf));
+                setTransactionId(DhcpV6TransactionId.decode(buf));
                 if (log.isDebugEnabled())
         			log.debug("TransactionId=" + transactionId);
                 if (buf.hasRemaining()) {
