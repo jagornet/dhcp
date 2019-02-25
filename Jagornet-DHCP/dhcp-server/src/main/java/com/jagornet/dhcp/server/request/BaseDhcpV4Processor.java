@@ -62,6 +62,7 @@ import com.jagornet.dhcp.server.failover.FailoverBindingCallback;
 import com.jagornet.dhcp.server.failover.FailoverBindingUpdater;
 import com.jagornet.dhcp.server.failover.FailoverStateManager;
 import com.jagornet.dhcp.server.failover.FailoverStateManager.State;
+import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.BindingObject;
 import com.jagornet.dhcp.server.request.binding.V4BindingAddress;
@@ -506,6 +507,16 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				log.warn("Unable to process failover binding updates: " +
 						 "failover state=" + fsm.getState());
 			}
+		}
+	}
+	
+	protected void processHaBindingUpdates() {
+		HaPrimaryFSM fsm = dhcpServerConfig.getHaPrimaryFSM();
+		if (fsm != null) {
+			fsm.updateBindings(bindings);
+		}
+		else {
+			log.debug("Not configured as HA Primary.  Skipping HA binding update processing.");
 		}
 	}
 	

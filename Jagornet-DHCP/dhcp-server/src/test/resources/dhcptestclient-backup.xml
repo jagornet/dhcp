@@ -28,12 +28,12 @@
 		</policy>
 		
 		<policy>
-			<name>ha.role</name>
-			<value>primary</value>
+			<name>database.schemaType</name>
+			<value>jdbc-backup-derby</value>
 		</policy>
 		<policy>
-			<name>ha.bindingUpdateMode</name>
-			<value>async</value>
+			<name>ha.role</name>
+			<value>backup</value>
 		</policy>
 		<policy>
 			<name>ha.peerServer</name>
@@ -41,7 +41,7 @@
 		</policy>
 		<policy>
 			<name>ha.peerPort</name>
-			<value>9061</value> <!-- HTTPS port of Jersey REST server -->
+			<value>9060</value> <!-- HTTPS port of Jersey REST server -->
 		</policy>
 	</policies>
 	

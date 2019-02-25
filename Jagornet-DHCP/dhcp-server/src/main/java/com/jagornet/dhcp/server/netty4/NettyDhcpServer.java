@@ -58,6 +58,12 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollDatagramChannel;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.kqueue.KQueue;
+import io.netty.channel.kqueue.KQueueDatagramChannel;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
@@ -178,18 +184,24 @@ public class NettyDhcpServer
 	        		Bootstrap bootstrap = new Bootstrap();
 		            String io = null;
 	            	EventLoopGroup group = null;
-	            	if (Util.IS_WINDOWS) {
-	            		// Use OioDatagramChannels for IPv6 unicast addresses on Windows
-		            	bootstrap.channel(OioDatagramChannel.class);
-	            		group = new OioEventLoopGroup();
-		            	io = "Old I/O";
+	            	if (Epoll.isAvailable()) {
+		            	// Use EpollDatagramChannels for IPv6 unicast addresses on Linux
+		            	bootstrap.channel(EpollDatagramChannel.class);
+	            		group = new EpollEventLoopGroup();
+	            		io = "Epoll I/O";
+	            	}
+	            	else if (KQueue.isAvailable()) {
+		            	// Use KQueueDatagramChannels for IPv6 unicast addresses on BSD
+		            	bootstrap.channel(KQueueDatagramChannel.class);
+	            		group = new KQueueEventLoopGroup();
+	            		io = "KQueue I/O";
 	            	}
 	            	else {
-	            		// Use NioDatagramChannels for IPv6 unicast addresses on real OSes
+		            	// Use NioDatagramChannels for IPv6 unicast addresses on other
 		            	bootstrap.channel(NioDatagramChannel.class);
 	            		group = new NioEventLoopGroup();
 		            	io = "New I/O";
-	            	}	            	
+	            	}
 	            	bootstrap.group(group);
 	            	bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 	            	bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufSize);
@@ -310,18 +322,24 @@ public class NettyDhcpServer
 		            Bootstrap bootstrap = new Bootstrap();
 		            String io = null;
 	            	EventLoopGroup group = null;
-	            	if (Util.IS_WINDOWS) {
-		            	// Use OioDatagramChannels for IPv4 unicast addresses on Windows
-		            	bootstrap.channel(OioDatagramChannel.class);
-	            		group = new OioEventLoopGroup();
-		            	io = "Old I/O";
+	            	if (Epoll.isAvailable()) {
+		            	// Use EpollDatagramChannels for IPv4 unicast addresses on Linux
+		            	bootstrap.channel(EpollDatagramChannel.class);
+	            		group = new EpollEventLoopGroup();
+	            		io = "Epoll I/O";
+	            	}
+	            	else if (KQueue.isAvailable()) {
+		            	// Use KQueueDatagramChannels for IPv4 unicast addresses on BSD
+		            	bootstrap.channel(KQueueDatagramChannel.class);
+	            		group = new KQueueEventLoopGroup();
+	            		io = "KQueue I/O";
 	            	}
 	            	else {
-		            	// Use NioDatagramChannels for IPv4 unicast addresses on real OSes
+		            	// Use NioDatagramChannels for IPv4 unicast addresses on other
 		            	bootstrap.channel(NioDatagramChannel.class);
 	            		group = new NioEventLoopGroup();
 		            	io = "New I/O";
-	            	}	            	
+	            	}
 	            	bootstrap.group(group);
 	            	bootstrap.option(ChannelOption.SO_REUSEADDR, true);
 	            	bootstrap.option(ChannelOption.SO_BROADCAST, true);

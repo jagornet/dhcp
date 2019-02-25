@@ -115,7 +115,17 @@ public class DhcpServerPolicies
 		FAILOVER_POLL_REPLY_TIMEOUT("failover.pollReplyTimeout", "5"),
 		FAILOVER_POLL_REPLY_FAILURE_COUNT("failover.pollReplyFailureCount", "5"),
 		FAILOVER_CONTROL_RETURN_TIMEOUT("failover.controlReturnTimeout", "2"),
-		FAILOVER_CONTROL_RETURN_FAILURE_COUNT("failover.controlReturnFailureCount", "1")
+		FAILOVER_CONTROL_RETURN_FAILURE_COUNT("failover.controlReturnFailureCount", "1"),
+		HA_ROLE("ha.role", ""),
+		HA_BINDING_UPDATE_MODE("ha.bindingUpdateMode", "sync"),	// sync, async, database
+		HA_PEER_SERVER("ha.peerServer", ""),
+		HA_PEER_PORT("ha.peerPort", "9060"),
+		HA_POLL_SECONDS("ha.pollSeconds", "30"),
+		HA_POLL_REPLY_TIMEOUT("ha.pollReplyTimeout", "5"),
+		HA_POLL_REPLY_FAILURE_COUNT("ha.pollReplyFailureCount", "5"),
+		HA_CONTROL_RETURN_TIMEOUT("ha.controlReturnTimeout", "2"),
+		HA_CONTROL_RETURN_FAILURE_COUNT("ha.controlReturnFailureCount", "1")
+		
 		;
 		
 	    /** The key. */

@@ -143,6 +143,10 @@ public class JagornetDhcpServer
     protected List<InetAddress> failoverAddrs = null;
     protected int failoverPortNumber = FailoverConstants.FAILOVER_PORT;
     
+    /** HA Unicast addresses */
+    protected List<InetAddress> haAddrs = null;
+    protected int haPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
+    
     protected DhcpServerConfiguration serverConfig = null;
     protected ApplicationContext context = null;
     
@@ -354,8 +358,10 @@ public class JagornetDhcpServer
     	}
     	*/
     	
-    	//HttpServer jerseyHttpServer = JerseyServer.startServer();
-    	Channel jerseyHttpServer = JerseyRestServer.startNettyServer();
+    	if (serverConfig.isHA()) {
+	    	//HttpServer jerseyHttpServer = JerseyServer.startServer();
+	    	Channel jerseyHttpServer = JerseyRestServer.startNettyServer(haPortNumber);
+    	}
     }
     
     public static String[] getAppContextFiles(String schemaType, int schemaVersion) throws Exception {
@@ -364,9 +370,7 @@ public class JagornetDhcpServer
 
     	String dbDir = DbSchemaManager.DB_HOME;
     	
-    	if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_DERBY) ||
-    			schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_H2) ||
-    			schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_SQLITE)) {
+    	if (schemaType.startsWith("jdbc")) {
             String jdbcContext = null;
         	if (schemaVersion == 1) {
         		jdbcContext = APP_CONTEXT_JDBC_V1SCHEMA_FILENAME;
@@ -625,6 +629,24 @@ public class JagornetDhcpServer
         	.create("fp");
         options.addOption(fPortOption);
 
+        Option haAddrOption =
+        	OptionBuilder.withLongOpt("haaddr")
+        	.withArgName("addresses")
+        	.withDescription("HA addresses (default = all IPv4/IPv6 addresses). " +
+        			"Use this option to instruct the server to bind to a specific list " +
+        			"of IP addresses for DHCP server HA communications.")
+        	.hasOptionalArgs()
+        	.create("ha");        				 
+        options.addOption(haAddrOption);
+        
+        Option haPortOption =
+        	OptionBuilder.withLongOpt("haport")
+        	.withArgName("portnum")
+        	.withDescription("DHCP HA Port number (default = 9060).")
+        	.hasArg()
+        	.create("hp");
+        options.addOption(haPortOption);
+
         Option testConfigFileOption =
         	OptionBuilder.withLongOpt("test-configfile")
         	.withArgName("filename")
@@ -743,6 +765,28 @@ public class JagornetDhcpServer
             		failoverPortNumber = FailoverConstants.FAILOVER_PORT;
             		System.err.println("Invalid port number: '" + p +
             							"' using default: " + failoverPortNumber +
+            							" Exception=" + ex);
+            	}
+            }
+            if (cmd.hasOption("ha")) {
+            	String[] addrs = cmd.getOptionValues("ha");
+            	if ((addrs == null) || (addrs.length < 1)) {
+            		addrs = new String[] { "*" };
+            	}
+        		haAddrs = getHaIpAddrs(addrs);
+        		if ((haAddrs == null) || haAddrs.isEmpty()) {
+        			return false;
+        		}
+            }            
+            if (cmd.hasOption("hp")) {
+            	String p = cmd.getOptionValue("hp");
+            	try {
+            		haPortNumber = Integer.parseInt(p);
+            	}
+            	catch (NumberFormatException ex) {
+            		haPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
+            		System.err.println("Invalid port number: '" + p +
+            							"' using default: " + haPortNumber +
             							" Exception=" + ex);
             	}
             }
@@ -1080,6 +1124,22 @@ public class JagornetDhcpServer
 	}
 	
 	public static List<InetAddress> getFailoverIpAddrs(String[] addrs) throws UnknownHostException
+	{
+		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
+		for (String addr : addrs) {
+			if (addr.equals("*")) {
+				ipAddrs.clear();
+				ipAddrs.add(DhcpConstants.WILDCARD_ADDR);
+				return ipAddrs;
+			}
+			InetAddress ipAddr = InetAddress.getByName(addr);
+			// allow only IPv6 addresses?
+			ipAddrs.add(ipAddr);
+		}
+		return ipAddrs;
+	}
+	
+	public static List<InetAddress> getHaIpAddrs(String[] addrs) throws UnknownHostException
 	{
 		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
 		for (String addr : addrs) {

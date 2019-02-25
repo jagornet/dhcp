@@ -116,8 +116,10 @@ import com.jagornet.dhcp.server.config.xml.V6ServerIdOption;
 import com.jagornet.dhcp.server.config.xml.V6UserClassOption;
 import com.jagornet.dhcp.server.config.xml.V6VendorClassOption;
 import com.jagornet.dhcp.server.db.IaManager;
+import com.jagornet.dhcp.server.failover.FailoverConstants;
 import com.jagornet.dhcp.server.failover.FailoverStateManager;
-import com.jagornet.dhcp.server.failover.FailoverStateManager.Role;
+import com.jagornet.dhcp.server.ha.HaBackupFSM;
+import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
 import com.jagornet.dhcp.server.request.binding.Range;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
@@ -164,6 +166,9 @@ public class DhcpServerConfiguration
     private IaManager iaMgr;
     
     private FailoverStateManager failoverStateManager;
+    
+    private HaPrimaryFSM haPrimaryFSM;
+    private HaBackupFSM haBackupFSM;
     
     /**
      * Gets the single instance of DhcpServerConfiguration.
@@ -224,6 +229,7 @@ public class DhcpServerConfiguration
 	    	globalFilters = xmlServerConfig.getFilters();
 	    	
 	        initFailover();
+	        initHighAvailability();
 	    	
 	    	initLinkMap(xmlServerConfig.getLinks());
 	    	
@@ -400,10 +406,10 @@ public class DhcpServerConfiguration
         String failoverRole = DhcpServerPolicies.globalPolicy(Property.FAILOVER_ROLE);
         if (!failoverRole.isEmpty()) {
         	if (failoverRole.equalsIgnoreCase("primary")) {
-        		failoverStateManager = new FailoverStateManager(Role.PRIMARY);
+        		failoverStateManager = new FailoverStateManager(FailoverStateManager.Role.PRIMARY);
         	}
         	else if (failoverRole.equalsIgnoreCase("backup")) {
-        		failoverStateManager = new FailoverStateManager(Role.BACKUP);
+        		failoverStateManager = new FailoverStateManager(FailoverStateManager.Role.BACKUP);
         	}
         	else {
         		throw new DhcpServerConfigException("Unknown " + Property.FAILOVER_ROLE.key() + 
@@ -418,6 +424,62 @@ public class DhcpServerConfiguration
     
     public void setFailoverState(FailoverStateManager failoverStateManager) {
     	this.failoverStateManager = failoverStateManager;
+    }
+    
+    private void initHighAvailability() throws DhcpServerConfigException {
+        String haRole = DhcpServerPolicies.globalPolicy(Property.HA_ROLE);
+        if (!haRole.isEmpty()) {
+        	String peerAddress = null;
+        	String peerServer = DhcpServerPolicies.globalPolicy(Property.HA_PEER_SERVER);
+        	if ((peerServer == null) || peerServer.isEmpty()) {
+        		throw new DhcpServerConfigException(Property.HA_PEER_SERVER +
+        				" must be defined when " + Property.HA_ROLE + " is specified");
+        	}
+        	try {
+        		peerAddress = InetAddress.getByName(peerServer).getHostAddress();
+        		int peerPort = DhcpServerPolicies.globalPolicyAsInt(Property.HA_PEER_PORT);
+	        	if (haRole.equalsIgnoreCase("primary")) {
+	        		haPrimaryFSM = new HaPrimaryFSM(peerAddress, peerPort);
+	        		//TODO: read last state from file
+	        		haPrimaryFSM.init(HaPrimaryFSM.State.PRIMARY_INIT);
+	        	}
+	        	else if (haRole.equalsIgnoreCase("backup")) {
+	        		haBackupFSM = new HaBackupFSM(peerAddress, peerPort);
+	        		//TODO: read last state from file
+	        		haBackupFSM.init(HaBackupFSM.State.BACKUP_POLLING);
+	        	}
+	        	else {
+	        		throw new DhcpServerConfigException("Unknown " + Property.HA_ROLE.key() + 
+	        											": " + haRole);
+	        	}
+        	}
+        	catch (Exception ex) {
+        		throw new DhcpServerConfigException("Failed to initialize HA: ", ex);
+        	}
+        }
+    }
+
+    public boolean isHA() {
+    	if ((haPrimaryFSM != null) || (haBackupFSM != null)) {
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public HaPrimaryFSM getHaPrimaryFSM() {
+    	return haPrimaryFSM;
+    }
+    
+    public void setHaPrimaryFSM(HaPrimaryFSM haPrimaryFSM) {
+    	this.haPrimaryFSM = haPrimaryFSM;
+    }
+
+    public HaBackupFSM getHaBackupFSM() {
+    	return haBackupFSM;
+    }
+    
+    public void setHaBackupFSM(HaBackupFSM haBackupFSM) {
+    	this.haBackupFSM = haBackupFSM;
     }
     
     /**

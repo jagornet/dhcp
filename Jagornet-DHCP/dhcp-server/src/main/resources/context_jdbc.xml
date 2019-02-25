@@ -9,7 +9,9 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 	<bean id="propertyConfigurer" 
 		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location">
-			<value>classpath:jdbc.properties</value>
+			<!-- <value>classpath:jdbc.derby.properties</value> -->
+			<!-- This is a HACK to use this for the HA backup server - DO NOT COMMIT! -->
+			<value>file:${jagornet.dhcp.home}/config/jdbc.derby.backup.properties</value>
     	</property>
   	</bean>
   	

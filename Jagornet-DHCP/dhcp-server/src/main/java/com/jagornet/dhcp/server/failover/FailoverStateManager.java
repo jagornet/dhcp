@@ -109,7 +109,7 @@ public class FailoverStateManager implements Runnable {
 			startPollingTask();
 		}
 		else {
-			log.error("Unknown Failvoer Role!");
+			log.error("Unknown Failover Role!");
 		}	
 	}
 	

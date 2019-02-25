@@ -597,11 +597,11 @@ public abstract class LeaseManager implements IaManager {
 	 * @param leases the leases
 	 * @return the identity assoc
 	 */
-	protected static IdentityAssoc toIdentityAssoc(DhcpLease lease) {
+	public static IdentityAssoc toIdentityAssoc(DhcpLease lease) {
 		return toIdentityAssoc(Arrays.asList(lease));
 	}
 	
-	protected static IdentityAssoc toIdentityAssoc(Collection<DhcpLease> leases)
+	public static IdentityAssoc toIdentityAssoc(Collection<DhcpLease> leases)
 	{
 		IdentityAssoc ia = null;
 		if ((leases != null) && !leases.isEmpty()) {
@@ -637,7 +637,7 @@ public abstract class LeaseManager implements IaManager {
 		return ia;
 	}
 	
-	protected static List<IdentityAssoc> toIdentityAssocs(Collection<DhcpLease> leases)
+	public static List<IdentityAssoc> toIdentityAssocs(Collection<DhcpLease> leases)
 	{
 		List<IdentityAssoc> ias = null;
 		if ((leases != null) && !leases.isEmpty()) {
@@ -653,7 +653,7 @@ public abstract class LeaseManager implements IaManager {
 		return ias;
 	}
 
-	protected static List<IaAddress> toIaAddresses(List<DhcpLease> leases) 
+	public static List<IaAddress> toIaAddresses(List<DhcpLease> leases) 
 	{
 		List<IaAddress> addrs = null;
         if (leases != null) {
@@ -671,7 +671,7 @@ public abstract class LeaseManager implements IaManager {
 	 * @param lease the lease
 	 * @return the ia address
 	 */
-	protected static IaAddress toIaAddress(DhcpLease lease)
+	public static IaAddress toIaAddress(DhcpLease lease)
 	{
 		IaAddress iaAddr = new IaAddress();
 		iaAddr.setIpAddress(lease.getIpAddress());
@@ -684,7 +684,7 @@ public abstract class LeaseManager implements IaManager {
 	}
 
 
-	protected static List<IaPrefix> toIaPrefixes(List<DhcpLease> leases) 
+	public static List<IaPrefix> toIaPrefixes(List<DhcpLease> leases) 
 	{
 		List<IaPrefix> prefixes = null;
         if (leases != null) {
@@ -702,7 +702,7 @@ public abstract class LeaseManager implements IaManager {
 	 * @param lease the lease
 	 * @return the ia prefix
 	 */
-	protected static IaPrefix toIaPrefix(DhcpLease lease)
+	public static IaPrefix toIaPrefix(DhcpLease lease)
 	{
 		IaPrefix iaPrefix = new IaPrefix();
 		iaPrefix.setIpAddress(lease.getIpAddress());
@@ -721,7 +721,7 @@ public abstract class LeaseManager implements IaManager {
 	 * @param ia the ia
 	 * @return the list
 	 */
-	protected static List<DhcpLease> toDhcpLeases(IdentityAssoc ia)
+	public static List<DhcpLease> toDhcpLeases(IdentityAssoc ia)
 	{
 		if (ia != null) {
 			Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
@@ -747,7 +747,7 @@ public abstract class LeaseManager implements IaManager {
 	 * @param iaAddr the ia addr
 	 * @return the dhcp lease
 	 */
-	protected static DhcpLease toDhcpLease(IdentityAssoc ia, IaAddress iaAddr)
+	public static DhcpLease toDhcpLease(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		DhcpLease lease = new DhcpLease();
 		lease.setDuid(ia.getDuid());

@@ -8,8 +8,10 @@ import javax.ws.rs.core.MediaType;
 /**
  * Root resource (exposed at "dhcpserverstatus" path)
  */
-@Path("dhcpserverstatus")
+@Path(DhcpServerStatusResource.PATH)
 public class DhcpServerStatusResource {
+	
+	public static final String PATH = "dhcpserverstatus";
 	
 	private DhcpServerStatusService service;
 	
