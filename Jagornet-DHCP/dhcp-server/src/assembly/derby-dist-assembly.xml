@@ -6,14 +6,12 @@
     <format>zip</format>
     <format>tar.gz</format>
   </formats>
-  <!-- 
   <componentDescriptors>
     <componentDescriptor>src/assembly/base-component-assembly.xml</componentDescriptor>
   </componentDescriptors>
-   -->
   <dependencySets>
     <dependencySet>
-      <outputDirectory>${project.basedir}/dist/lib</outputDirectory>
+      <outputDirectory>lib</outputDirectory>
       <excludes>
         <exclude>com.h2database:h2</exclude>
         <exclude>org.xerial:sqlite-jdbc</exclude>

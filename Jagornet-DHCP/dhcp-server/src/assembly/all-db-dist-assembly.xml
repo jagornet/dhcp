@@ -6,14 +6,12 @@
     <format>zip</format>
     <format>tar.gz</format>
   </formats>
-  <!-- 
   <componentDescriptors>
     <componentDescriptor>src/assembly/base-component-assembly.xml</componentDescriptor>
   </componentDescriptors>
-   -->
   <dependencySets>
     <dependencySet>
-      <outputDirectory>${project.basedir}/dist/lib</outputDirectory>
+      <outputDirectory>lib</outputDirectory>
       <!-- all dependencies included by default,
       		so no need for component above nor
       		includes below

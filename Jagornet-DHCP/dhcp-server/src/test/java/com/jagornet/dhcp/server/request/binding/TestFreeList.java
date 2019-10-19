@@ -236,11 +236,13 @@ public class TestFreeList extends TestCase
 	{
 //		return new TestSuite(TestFreeList.class);
 		TestSuite suite = new TestSuite();
-//		suite.addTest(new TestFreeList("testGetManyFreeAddresses"));
 		suite.addTest(new TestFreeList("testSetLowIp"));
 		suite.addTest(new TestFreeList("testSetMidIp1"));
 		suite.addTest(new TestFreeList("testSetMidIp2"));
 		suite.addTest(new TestFreeList("testSetHighIp"));
+		suite.addTest(new TestFreeList("testGetNextFreeAddress"));
+		suite.addTest(new TestFreeList("testGetManyFreeAddresses"));
+		suite.addTest(new TestFreeList("testThreadedGetAddresses"));
 		return suite;
 	}
 }

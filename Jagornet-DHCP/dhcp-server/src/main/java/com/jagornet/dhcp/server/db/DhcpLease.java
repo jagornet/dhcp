@@ -26,6 +26,7 @@
 package com.jagornet.dhcp.server.db;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -419,9 +420,17 @@ public class DhcpLease
 	}
 	
 	public static DhcpLease fromJson(String json) {
+		InetAddress ipAddress = null;
+		try {
+			ipAddress = InetAddress.getByName(getJsonAttrValue(json, "ipAddress"));
+		}
+		catch (UnknownHostException ex) {
+			// this will be caught by ApplicationExceptionMapper
+			throw new RuntimeException(ex);
+		}
 		DhcpLease dhcpLease = new DhcpLease();
 		try {
-			dhcpLease.setIpAddress(InetAddress.getByName(getJsonAttrValue(json, "ipAddress")));
+			dhcpLease.setIpAddress(ipAddress);
 			dhcpLease.setDuid(Util.fromHexString(getJsonAttrValue(json, "duid")));
 			dhcpLease.setIatype(Byte.parseByte(getJsonAttrValue(json, "iatype")));
 			dhcpLease.setIaid(Long.parseLong(getJsonAttrValue(json, "iaid")));

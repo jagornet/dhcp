@@ -84,7 +84,7 @@ public class DhcpV4ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
 	        	accept = false;
 	    	}
 	    	
-	    	if (ignoreSelfPackets) {
+	    	if (accept && ignoreSelfPackets) {
 		    	if (JagornetDhcpServer.getAllIPv4Addrs().contains(remoteSocketAddress.getAddress())) {
 		    		log.debug("Ignoring packet from self: address=" + 
 		    					remoteSocketAddress.getAddress());
@@ -92,14 +92,17 @@ public class DhcpV4ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
 		    	}
 	    	}
     	}
+    	else {
+    		log.debug("Packet was not accepted by super class: " + this.getClass().getGenericSuperclass());
+    	}
     	return accept;
     }
     
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
+		// remoteSocketAddress is set by DhcpV4PacketDecoder.channelRead
         DhcpV4Message dhcpMessage = 
-        	DhcpV4Message.decode(buf.nioBuffer(), localSocketAddress, 
-        						 (InetSocketAddress) ctx.channel().remoteAddress());
+        	DhcpV4Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
         out.add(dhcpMessage);
     }
 

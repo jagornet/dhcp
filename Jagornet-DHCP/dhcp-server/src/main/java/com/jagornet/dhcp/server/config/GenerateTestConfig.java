@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.client;
+package com.jagornet.dhcp.server.config;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -39,8 +39,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
-import com.jagornet.dhcp.server.config.OpaqueDataUtil;
 import com.jagornet.dhcp.server.config.xml.DhcpServerConfig;
 import com.jagornet.dhcp.server.config.xml.Link;
 import com.jagornet.dhcp.server.config.xml.LinksType;
@@ -110,21 +108,30 @@ public class GenerateTestConfig {
 			else {
 				filename = "dhcpserver-test-config.xml";
 			}
+			String netIfName = null;
 			if (cmd.hasOption("i")) {
-				networkInterface = NetworkInterface.getByName(cmd.getOptionValue("i"));
+				netIfName = cmd.getOptionValue("i");
+				networkInterface = NetworkInterface.getByName(netIfName);
 			}
 			else {
+				netIfName = "default";
 				networkInterface = NetworkInterface.getNetworkInterfaces().nextElement();
 			}
 			
+			if (networkInterface == null) {
+				System.err.println("Network interface '" + netIfName + "' not found");
+			}
+			
 			Enumeration<InetAddress> ipAddrs = networkInterface.getInetAddresses();
-			while (ipAddrs.hasMoreElements()) {
-				InetAddress ipAddr = ipAddrs.nextElement();
-				if ((ipAddr instanceof Inet4Address) && 
-						!ipAddr.isLinkLocalAddress() &&
-						!ipAddr.isLoopbackAddress()) {
-					ipv4Address = ipAddr;
-					return true;
+			if (ipAddrs != null) {
+				while (ipAddrs.hasMoreElements()) {
+					InetAddress ipAddr = ipAddrs.nextElement();
+					if ((ipAddr instanceof Inet4Address) && 
+							!ipAddr.isLinkLocalAddress() &&
+							!ipAddr.isLoopbackAddress()) {
+						ipv4Address = ipAddr;
+						return true;
+					}
 				}
 			}
 			System.err.println("No IPv4 address found for interface: " + networkInterface.getName());

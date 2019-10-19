@@ -52,7 +52,7 @@ if [ -z "$JAGORNET_DHCP_HOME" ] ; then
     fi
   done
 
-  DHCPV6_HOME=`dirname "$PRG"`/..
+  JAGORNET_DHCP_HOME=`dirname "$PRG"`/..
 
   cd "$saveddir"
 
@@ -62,7 +62,7 @@ fi
 
 # Add the config directory to the beginning of the CLASSPATH
 # so that the server can find the log4j.properties file
-JAGORNET_DHCP_CLASSPATH="$JAGORNET_DHCP_HOME/conf"
+JAGORNET_DHCP_CLASSPATH="$JAGORNET_DHCP_HOME/config"
 
 # Add all .jar files in JAGORNET_DHCP_HOME/lib/ to the CLASSPATH
 JAGORNET_DHCP_CLASSPATH="$JAGORNET_DHCP_CLASSPATH:$JAGORNET_DHCP_HOME/lib/*"
@@ -75,7 +75,7 @@ JAGORNET_DHCP_MAIN="com.jagornet.dhcp.server.JagornetDhcpServer"
 # The "main" Java classes for the DHCP Test Clients
 DHCPV4TESTCLIENT_MAIN="com.jagornet.dhcp.client.ClientSimulatorV4"
 DHCPV6TESTCLIENT_MAIN="com.jagornet.dhcp.client.ClientSimulatorV6"
-GENTESTCONFIG_MAIN="com.jagornet.dhcp.client.GenerateTestConfig"
+GENTESTCONFIG_MAIN="com.jagornet.dhcp.server.config.GenerateTestConfig"
 
 # Note: log4j.configuration property references a file in the classpath (see above)
 #       the default is shown, change only if necessary
@@ -88,7 +88,7 @@ GENTESTCONFIG_MAIN="com.jagornet.dhcp.client.GenerateTestConfig"
 	 
 JAVA_OPTS="$JAVA_OPTS -server -Djava.awt.headless=true $LOG4J $JMX"
 
-JAGORNET_DHCP_PID="$JAGORNET_DHCP_HOME/dhcpv6server.pid"
+JAGORNET_DHCP_PID="$JAGORNET_DHCP_HOME/jdhcpserver.pid"
 
 isRunning() {
 
@@ -117,6 +117,7 @@ start() {
 			echo "$NAME started."
 		else
 		   echo "Failed to start $NAME."
+		   exit 1
 		fi
 	fi
 }
@@ -137,6 +138,7 @@ stop() {
 		      rm -f $JAGORNET_DHCP_PID
 		   else
 		      echo "Failed to stop $NAME."
+		      exit 1
 		   fi
 		fi
 	fi
@@ -148,6 +150,7 @@ status() {
 		echo "$NAME is running."
 	else
 		echo "$NAME is not running."
+		exit 1
 	fi
 }
 

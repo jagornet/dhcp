@@ -8,111 +8,133 @@
   </parent>
 
   <artifactId>dhcp-server</artifactId>
+  
+  <properties>
+  	<jagornet.dhcp.version>3.0.0-SNAPSHOT</jagornet.dhcp.version>
+  	<commons.cli.version>1.2</commons.cli.version>
+  	<commons.dbcp2.version>2.1.1</commons.dbcp2.version>
+  	<commons.io.version>2.5</commons.io.version>
+  	<commons.pool2.version>2.4.2</commons.pool2.version>
+  	<dnsjava.version>2.1.8</dnsjava.version>
+  	<netty3.version>3.10.6.Final</netty3.version>
+  	<netty4.version>4.1.28.Final</netty4.version>
+  	<spring.version>4.3.6.RELEASE</spring.version>
+  	<derby.version>10.13.1.1</derby.version>
+  	<h2.version>1.4.193</h2.version>
+  	<sqlite.jdbc.version>3.16.1</sqlite.jdbc.version>
+  	<sqlite4java.version>1.0.392</sqlite4java.version>
+  	<mongo.version>3.4.2</mongo.version>
+  	<jedis.version>2.9.0</jedis.version>
+  	<gson.version>2.8.4</gson.version>
+  	<jersey.version>2.27</jersey.version>
+  	<jaxb.version>2.2.11</jaxb.version>
+  	<activation.version>1.1.1</activation.version>
+  </properties>
 
   <dependencies>
   	<dependency>
   		<groupId>com.jagornet</groupId>
   		<artifactId>dhcp-core</artifactId>
-  		<version>3.0.0-SNAPSHOT</version>
+  		<version>${jagornet.dhcp.version}</version>
   	</dependency>
 	<dependency>
 	    <groupId>commons-cli</groupId>
 	    <artifactId>commons-cli</artifactId>
-	    <version>1.2</version>
+	    <version>${commons.cli.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-dbcp2</artifactId>
-	    <version>2.1.1</version>
+	    <version>${commons.dbcp2.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>commons-io</groupId>
 	    <artifactId>commons-io</artifactId>
-	    <version>2.5</version>
+	    <version>${commons.io.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-pool2</artifactId>
-	    <version>2.4.2</version>
+	    <version>${commons.pool2.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>dnsjava</groupId>
 	    <artifactId>dnsjava</artifactId>
-	    <version>2.1.8</version>
+	    <version>${dnsjava.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>io.netty</groupId>
 	    <artifactId>netty</artifactId>
-	    <version>3.10.6.Final</version>
+	    <version>${netty3.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>io.netty</groupId>
 	    <artifactId>netty-all</artifactId>
-	    <version>4.1.28.Final</version>
+	    <version>${netty4.version}</version>
 	</dependency>
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-aop</artifactId>
-        <version>4.3.6.RELEASE</version>
+        <version>${spring.version}</version>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
-        <version>4.3.6.RELEASE</version>
+        <version>${spring.version}</version>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>4.3.6.RELEASE</version>
+        <version>${spring.version}</version>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
-        <version>4.3.6.RELEASE</version>
+        <version>${spring.version}</version>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-expression</artifactId>
-        <version>4.3.6.RELEASE</version>
+        <version>${spring.version}</version>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-jdbc</artifactId>
-        <version>4.3.6.RELEASE</version>
+        <version>${spring.version}</version>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-tx</artifactId>
-        <version>4.3.6.RELEASE</version>
+        <version>${spring.version}</version>
     </dependency>
 	<dependency>
 	    <groupId>org.apache.derby</groupId>
 	    <artifactId>derby</artifactId>
-	    <version>10.13.1.1</version>
+	    <version>${derby.version}</version>
         <scope>runtime</scope>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.derby</groupId>
 	    <artifactId>derbyclient</artifactId>
-	    <version>10.13.1.1</version>
+	    <version>${derby.version}</version>
         <scope>runtime</scope>
 	</dependency>
     <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.4.193</version>
+        <version>${h2.version}</version>
         <scope>runtime</scope>
     </dependency>
 	<dependency>
 	    <groupId>org.xerial</groupId>
 	    <artifactId>sqlite-jdbc</artifactId>
-	    <version>3.16.1</version>
+	    <version>${sqlite.jdbc.version}</version>
         <scope>runtime</scope>
 	</dependency>
 	<dependency>
 	    <groupId>com.almworks.sqlite4java</groupId>
 	    <artifactId>sqlite4java</artifactId>
-	    <version>1.0.392</version>
+	    <version>${sqlite4java.version}</version>
 	</dependency>
 <!-- 
 	<dependency>
@@ -138,12 +160,12 @@
 	<dependency>
 	    <groupId>org.mongodb</groupId>
 	    <artifactId>mongo-java-driver</artifactId>
-	    <version>3.4.2</version>
+	    <version>${mongo.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>redis.clients</groupId>
 	    <artifactId>jedis</artifactId>
-	    <version>2.9.0</version>
+	    <version>${jedis.version}</version>
 	</dependency>
 	<!-- 
 	<dependency>
@@ -156,39 +178,60 @@
   	<dependency>
   		<groupId>com.jagornet</groupId>
   		<artifactId>dhcp-core</artifactId>
-  		<version>3.0.0-SNAPSHOT</version>
+  		<version>${jagornet.dhcp.version}</version>
 		<type>test-jar</type>
 		<scope>test</scope>
   	</dependency>
   	<dependency>
   		<groupId>com.google.code.gson</groupId>
   		<artifactId>gson</artifactId>
-  		<version>2.8.4</version>
+  		<version>${gson.version}</version>
   	</dependency>
 	<dependency>
 	    <groupId>org.glassfish.jersey.containers</groupId>
 	    <artifactId>jersey-container-grizzly2-http</artifactId>
-	    <version>2.27</version>
+	    <version>${jersey.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.glassfish.jersey.containers</groupId>
 	    <artifactId>jersey-container-netty-http</artifactId>
-	    <version>2.27</version>
+	    <version>${jersey.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.glassfish.jersey.core</groupId>
 	    <artifactId>jersey-client</artifactId>
-	    <version>2.27</version>
+	    <version>${jersey.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.glassfish.jersey.inject</groupId>
 	    <artifactId>jersey-hk2</artifactId>
-	    <version>2.27</version>
+	    <version>${jersey.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.glassfish.jersey.connectors</groupId>
 	    <artifactId>jersey-apache-connector</artifactId>
-	    <version>2.27</version>
+	    <version>${jersey.version}</version>
+	</dependency>
+	<!-- JAXB and activation jars required for Java 11 -->
+	<dependency>
+	    <groupId>javax.xml.bind</groupId>
+	    <artifactId>jaxb-api</artifactId>
+	    <version>${jaxb.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.sun.xml.bind</groupId>
+	    <artifactId>jaxb-core</artifactId>
+	    <version>${jaxb.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.sun.xml.bind</groupId>
+	    <artifactId>jaxb-impl</artifactId>
+	    <version>${jaxb.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>javax.activation</groupId>
+	    <artifactId>activation</artifactId>
+	    <version>${activation.version}</version>
 	</dependency>
   </dependencies>
 
@@ -199,15 +242,16 @@
 -->
 	<build>
         <plugins>
-	        <plugin>
-	            <groupId>org.apache.maven.plugins</groupId>
-	            <artifactId>maven-compiler-plugin</artifactId>
-	            <configuration>
-	                <excludes>
-	                	<exclude>com/jagornet/dhcp/netty4/*</exclude>
-	                </excludes>
-	            </configuration>
-	        </plugin>
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-site-plugin</artifactId>
+			  <version>3.7.1</version>
+			</plugin>
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-project-info-reports-plugin</artifactId>
+			  <version>3.0.0</version>
+			</plugin>
 	        <plugin>
 	            <groupId>org.codehaus.mojo</groupId>
 	            <artifactId>jaxb2-maven-plugin</artifactId>
@@ -275,15 +319,21 @@
             </plugin>
 -->
 		    <plugin>
+		        <!-- NOTE: We don't need a groupId specification because the group is
+		             org.apache.maven.plugins ...which is assumed by default.
 	        	<groupId>org.apache.maven.plugins</groupId>
+		         -->
 		        <artifactId>maven-assembly-plugin</artifactId>
 		        <version>3.1.0</version>
 		        <configuration>
 		          <!-- 
+		          'bin' descriptorRef just creates server jar
+		          'jar-with-dependencies' is an uber jar
 		          <descriptorRefs>
+		            <descriptorRef>bin</descriptorRef>
 		            <descriptorRef>jar-with-dependencies</descriptorRef>
 		          </descriptorRefs>
-		          -->
+		           -->
 		          <descriptors>
 		            <descriptor>src/assembly/all-db-dist-assembly.xml</descriptor>
 		            <descriptor>src/assembly/derby-dist-assembly.xml</descriptor>
@@ -302,7 +352,7 @@
 	      	<plugin>
 	        	<groupId>org.apache.maven.plugins</groupId>
 	        	<artifactId>maven-surefire-plugin</artifactId>
-	        	<version>2.20.1</version>
+	        	<version>2.22.1</version>
 	        	<configuration>
 			        <systemPropertyVariables>
 			            <jagornet.dhcp.home>${project.basedir}</jagornet.dhcp.home>
@@ -315,7 +365,7 @@
                </executions>
 	    	</plugin>
 	    	
-	    	<!-- TODO: remove this, superseded by assembly plugin, right? -->
+	    	<!-- TODO: remove this, superseded by assembly plugin, right? 
 		    <plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-dependency-plugin</artifactId>
@@ -336,8 +386,19 @@
 		          </execution>
 		        </executions>
 		    </plugin>
+		    -->
         </plugins>
     </build>
+	   
+	<reporting>
+	  <plugins>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-surefire-report-plugin</artifactId>
+	      <version>2.22.1</version>
+	    </plugin>
+	  </plugins>
+	</reporting>
 
 <!-- 
     </profile>

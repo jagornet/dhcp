@@ -89,15 +89,6 @@ public class NettyDhcpServer
 {
 	private static Logger log = LoggerFactory.getLogger(NettyDhcpServer.class);
 	
-	/** The V6 unicast socket addresses */
-	private List<InetAddress> v6Addrs;
-	
-	/** The V6 mulitcast network interfaces */
-	private List<NetworkInterface> v6NetIfs;
-	
-	/** The DHCPv6 server port. */
-	private int v6Port;
-	
 	/** The V4 unicast socket addresses */
 	private List<InetAddress> v4Addrs;
 
@@ -106,6 +97,15 @@ public class NettyDhcpServer
 	
 	/** The DHCPv4 server port. */
 	private int v4Port;
+	
+	/** The V6 unicast socket addresses */
+	private List<InetAddress> v6Addrs;
+	
+	/** The V6 mulitcast network interfaces */
+	private List<NetworkInterface> v6NetIfs;
+	
+	/** The DHCPv6 server port. */
+	private int v6Port;
 		
 	private List<InetAddress> failoverAddrs;
 	private int failoverPort;
@@ -120,30 +120,30 @@ public class NettyDhcpServer
     /**
      * Create a NettyDhcpServer.
      * 
-     * @param v6Addrs the addresses to listen on for unicast traffic
-     * @param v6NetIfs the network interfaces to listen on for multicast traffic
-     * @param v6Port the port to listen on
      * @param v4Addrs the addresses to listen on for unicast traffic
      * @param v4NetIf the network interface to listen on for broadcast traffic
      * @param v4Port the port to listen on
+     * @param v6Addrs the addresses to listen on for unicast traffic
+     * @param v6NetIfs the network interfaces to listen on for multicast traffic
+     * @param v6Port the port to listen on
      */
-    public NettyDhcpServer(List<InetAddress> v6Addrs, List<NetworkInterface> v6NetIfs, int v6Port,
-    						List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port,
+    public NettyDhcpServer(List<InetAddress> v4Addrs, NetworkInterface v4NetIf, int v4Port,
+    						List<InetAddress> v6Addrs, List<NetworkInterface> v6NetIfs, int v6Port,
     						List<InetAddress> failoverAddrs, int failoverPort)
     {
-    	this.v6Addrs = v6Addrs;
-    	this.v6NetIfs = v6NetIfs;
-    	this.v6Port = v6Port;
     	this.v4Addrs = v4Addrs;
     	this.v4NetIf = v4NetIf;
     	this.v4Port = v4Port;
+    	this.v6Addrs = v6Addrs;
+    	this.v6NetIfs = v6NetIfs;
+    	this.v6Port = v6Port;
     	this.failoverAddrs = failoverAddrs;
     	this.failoverPort = failoverPort;
     }
     
     /**
      * Start the server.
-     * 
+     * O
      * @throws Exception the exception
      */
     public void start() throws Exception
@@ -170,6 +170,134 @@ public class NettyDhcpServer
         			" maxTotalMemorySize=" + maxTotalMemorySize + 
         			" receiveBufferSize=" + receiveBufSize +
         			" sendBufferSize=" + sendBufSize);
+        	
+        	boolean v4SocketChecked = false;
+    		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
+        	if (v4Addrs != null) {
+        		checkSocket(v4Port);
+        		v4SocketChecked = true;
+	        	for (InetAddress addr : v4Addrs) {
+	        		// local address for packets received on this channel
+		            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
+		            
+		            Bootstrap bootstrap = new Bootstrap();
+		            String io = null;
+	            	EventLoopGroup group = null;
+	            	if (Epoll.isAvailable()) {
+		            	// Use EpollDatagramChannels for IPv4 unicast addresses on Linux
+		            	bootstrap.channel(EpollDatagramChannel.class);
+	            		group = new EpollEventLoopGroup();
+	            		io = "Epoll I/O";
+	            	}
+	            	else if (KQueue.isAvailable()) {
+		            	// Use KQueueDatagramChannels for IPv4 unicast addresses on BSD
+		            	bootstrap.channel(KQueueDatagramChannel.class);
+	            		group = new KQueueEventLoopGroup();
+	            		io = "KQueue I/O";
+	            	}
+	            	else {
+		            	// Use NioDatagramChannels for IPv4 unicast addresses on other
+		            	bootstrap.channel(NioDatagramChannel.class);
+	            		group = new NioEventLoopGroup();
+		                io = "New I/O";
+	            	}
+	            	bootstrap.group(group);
+	            	bootstrap.option(ChannelOption.SO_REUSEADDR, true);
+	            	bootstrap.option(ChannelOption.SO_BROADCAST, true);
+	            	bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufSize);
+	            	bootstrap.option(ChannelOption.SO_SNDBUF, sendBufSize);
+	            	bootstrap.handler(new ChannelInitializer<DatagramChannel>() {
+						@Override
+						protected void initChannel(DatagramChannel channel) throws Exception {
+			        		ChannelPipeline pipeline = channel.pipeline();
+				            pipeline.addLast("logger", new LoggingHandler());
+				            pipeline.addLast("decoder",
+				            		new DhcpV4PacketDecoder(
+				            				new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
+				            pipeline.addLast("encoder", 
+				            		new DatagramPacketEncoder<DhcpV4Message>(
+				            				new DhcpV4ChannelEncoder()));
+				            pipeline.addLast(eventExecutorGroup, "handler", 
+				            		new DhcpV4ChannelHandler(null));
+						}	        		
+	            	});
+
+		            log.info("Binding " + io + " datagram channel on IPv4 socket address: " + sockAddr);
+		            ChannelFuture future = bootstrap.bind(sockAddr);
+		            future.await();
+		            if (!future.isSuccess()) {
+		            	log.error("Failed to bind to IPv4 unicast channel: " + future.cause());
+		            	throw new IOException(future.cause());
+		            }
+		            DatagramChannel channel = (DatagramChannel)future.channel();
+		            v4UcastChannels.put(addr, channel);
+		            channels.add(channel);
+	        	}
+        	}
+        	
+        	if (v4NetIf != null) {
+        		if (!v4SocketChecked) {
+        			// if in-use socket check has not been done yet, then do it
+        			checkSocket(v4Port);
+        		}
+        		boolean foundV4Addr = false;
+        		// get the first v4 address on the interface and bind to it
+        		Enumeration<InetAddress> addrs = v4NetIf.getInetAddresses();
+        		while (addrs.hasMoreElements()) {
+        			InetAddress addr = addrs.nextElement();
+        			if (addr instanceof Inet4Address) {
+        				Channel bcastChannel = v4UcastChannels.get(addr);
+        				if (bcastChannel == null) {
+                			String msg = "IPv4 address: " + addr.getHostAddress() + 
+                						" for broadcast interface: " + v4NetIf +
+                						" must be included in unicast IPv4 address list";
+                			log.error(msg);
+                			throw new DhcpServerConfigException(msg);        					
+        				}
+		        		foundV4Addr = true;
+			            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
+			            Bootstrap bootstrap = new Bootstrap();
+		            	bootstrap.channel(NioDatagramChannel.class);
+		            	bootstrap.group(new NioEventLoopGroup());
+		            	bootstrap.option(ChannelOption.SO_REUSEADDR, true);
+		            	bootstrap.option(ChannelOption.SO_BROADCAST, true);
+		            	bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufSize);
+		            	bootstrap.option(ChannelOption.SO_SNDBUF, sendBufSize);
+		            	bootstrap.handler(new ChannelInitializer<DatagramChannel>() {
+							@Override
+							protected void initChannel(DatagramChannel channel) throws Exception {
+				        		ChannelPipeline pipeline = channel.pipeline();
+					            pipeline.addLast("logger", new LoggingHandler());
+					            pipeline.addLast("decoder",
+					            		new DhcpV4PacketDecoder(
+					            				new DhcpV4ChannelDecoder(sockAddr, ignoreSelfPackets)));
+					            pipeline.addLast("encoder",  
+					            		new DatagramPacketEncoder<DhcpV4Message>(
+					            				new DhcpV4ChannelEncoder()));
+					            pipeline.addLast(eventExecutorGroup, "handler",
+					            		new DhcpV4ChannelHandler(bcastChannel));
+							}
+		            	});
+			            
+			            InetSocketAddress wildAddr = new InetSocketAddress(DhcpConstants.ZEROADDR_V4, v4Port);
+			            log.info("Binding New I/O datagram channel on IPv4 wildcard address: " + wildAddr);
+			            ChannelFuture future = bootstrap.bind(wildAddr);
+			            future.await();
+			            if (!future.isSuccess()) {
+			            	log.error("Failed to bind to IPv4 broadcast channel: " + future.cause());
+			            	throw new IOException(future.cause());
+			            }
+			            DatagramChannel channel = (DatagramChannel)future.channel();
+			            channels.add(channel);
+			            break; 	// no need to continue looking at IPs on the interface
+        			}
+        		}
+        		if (!foundV4Addr) {
+        			String msg = "No IPv4 addresses found on interface: " + v4NetIf;
+        			log.error(msg);
+        			throw new DhcpServerConfigException(msg);
+        		}
+        	}
         	
         	boolean v6SocketChecked = false;
         	if (v6Addrs != null) {
@@ -310,134 +438,6 @@ public class NettyDhcpServer
 	        	}
         	}
         	
-        	boolean v4SocketChecked = false;
-    		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
-        	if (v4Addrs != null) {
-        		checkSocket(v4Port);
-        		v4SocketChecked = true;
-	        	for (InetAddress addr : v4Addrs) {
-	        		// local address for packets received on this channel
-		            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
-		            
-		            Bootstrap bootstrap = new Bootstrap();
-		            String io = null;
-	            	EventLoopGroup group = null;
-	            	if (Epoll.isAvailable()) {
-		            	// Use EpollDatagramChannels for IPv4 unicast addresses on Linux
-		            	bootstrap.channel(EpollDatagramChannel.class);
-	            		group = new EpollEventLoopGroup();
-	            		io = "Epoll I/O";
-	            	}
-	            	else if (KQueue.isAvailable()) {
-		            	// Use KQueueDatagramChannels for IPv4 unicast addresses on BSD
-		            	bootstrap.channel(KQueueDatagramChannel.class);
-	            		group = new KQueueEventLoopGroup();
-	            		io = "KQueue I/O";
-	            	}
-	            	else {
-		            	// Use NioDatagramChannels for IPv4 unicast addresses on other
-		            	bootstrap.channel(NioDatagramChannel.class);
-	            		group = new NioEventLoopGroup();
-		            	io = "New I/O";
-	            	}
-	            	bootstrap.group(group);
-	            	bootstrap.option(ChannelOption.SO_REUSEADDR, true);
-	            	bootstrap.option(ChannelOption.SO_BROADCAST, true);
-	            	bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufSize);
-	            	bootstrap.option(ChannelOption.SO_SNDBUF, sendBufSize);
-	            	bootstrap.handler(new ChannelInitializer<DatagramChannel>() {
-						@Override
-						protected void initChannel(DatagramChannel channel) throws Exception {
-			        		ChannelPipeline pipeline = channel.pipeline();
-				            pipeline.addLast("logger", new LoggingHandler());
-				            pipeline.addLast("decoder",
-				            		new DhcpV4PacketDecoder(
-				            				new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
-				            pipeline.addLast("encoder", 
-				            		new DatagramPacketEncoder<DhcpV4Message>(
-				            				new DhcpV4ChannelEncoder()));
-				            pipeline.addLast(eventExecutorGroup, "handler", 
-				            		new DhcpV4ChannelHandler(null));
-						}	        		
-	            	});
-
-		            log.info("Binding " + io + " datagram channel on IPv4 socket address: " + sockAddr);
-		            ChannelFuture future = bootstrap.bind(sockAddr);
-		            future.await();
-		            if (!future.isSuccess()) {
-		            	log.error("Failed to bind to IPv4 unicast channel: " + future.cause());
-		            	throw new IOException(future.cause());
-		            }
-		            DatagramChannel channel = (DatagramChannel)future.channel();
-		            v4UcastChannels.put(addr, channel);
-		            channels.add(channel);
-	        	}
-        	}
-        	
-        	if (v4NetIf != null) {
-        		if (!v4SocketChecked) {
-        			// if in-use socket check has not been done yet, then do it
-        			checkSocket(v4Port);
-        		}
-        		boolean foundV4Addr = false;
-        		// get the first v4 address on the interface and bind to it
-        		Enumeration<InetAddress> addrs = v4NetIf.getInetAddresses();
-        		while (addrs.hasMoreElements()) {
-        			InetAddress addr = addrs.nextElement();
-        			if (addr instanceof Inet4Address) {
-        				final Channel bcastChannel = v4UcastChannels.get(addr);
-        				if (bcastChannel == null) {
-                			String msg = "IPv4 address: " + addr.getHostAddress() + 
-                						" for broadcast interface: " + v4NetIf +
-                						" must be included in unicast IPv4 address list";
-                			log.error(msg);
-                			throw new DhcpServerConfigException(msg);        					
-        				}
-		        		foundV4Addr = true;
-			            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
-			            Bootstrap bootstrap = new Bootstrap();
-		            	bootstrap.channel(NioDatagramChannel.class);
-		            	bootstrap.group(new NioEventLoopGroup());
-		            	bootstrap.option(ChannelOption.SO_REUSEADDR, true);
-		            	bootstrap.option(ChannelOption.SO_BROADCAST, true);
-		            	bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufSize);
-		            	bootstrap.option(ChannelOption.SO_SNDBUF, sendBufSize);
-		            	bootstrap.handler(new ChannelInitializer<DatagramChannel>() {
-							@Override
-							protected void initChannel(DatagramChannel channel) throws Exception {
-				        		ChannelPipeline pipeline = channel.pipeline();
-					            pipeline.addLast("logger", new LoggingHandler());
-					            pipeline.addLast("decoder",
-					            		new DhcpV4PacketDecoder(
-					            				new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
-					            pipeline.addLast("encoder",  
-					            		new DatagramPacketEncoder<DhcpV4Message>(
-					            				new DhcpV4ChannelEncoder()));
-					            pipeline.addLast(eventExecutorGroup, "handler",
-					            		new DhcpV4ChannelHandler(bcastChannel));
-							}
-		            	});
-			            
-			            InetSocketAddress wildAddr = new InetSocketAddress(DhcpConstants.ZEROADDR_V4, v4Port);
-			            log.info("Binding New I/O datagram channel on IPv4 wildcard address: " + wildAddr);
-			            ChannelFuture future = bootstrap.bind(wildAddr);
-			            future.await();
-			            if (!future.isSuccess()) {
-			            	log.error("Failed to bind to IPv4 broadcast channel: " + future.cause());
-			            	throw new IOException(future.cause());
-			            }
-			            DatagramChannel channel = (DatagramChannel)future.channel();
-			            channels.add(channel);
-			            break; 	// no need to continue looking at IPs on the interface
-        			}
-        		}
-        		if (!foundV4Addr) {
-        			String msg = "No IPv4 addresses found on interface: " + v4NetIf;
-        			log.error(msg);
-        			throw new DhcpServerConfigException(msg);
-        		}
-        	}
-        	
         	if (failoverAddrs != null) {
         		checkSocket(failoverPort);
 	        	for (InetAddress addr : failoverAddrs) {
@@ -498,6 +498,8 @@ public class NettyDhcpServer
             throw ex;
         }
 
+        log.info(channels.size() + " datagram channels configured");
+        
     	Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
             	  shutdown();

@@ -1009,6 +1009,7 @@ public class DhcpServerConfiguration
 	        fos = new FileOutputStream(filename);
 	        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
 	        Marshaller marshaller = jc.createMarshaller();
+	        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 	        marshaller.marshal(config, fos);
 	        log.info("Server configuration file saved.");
     	}

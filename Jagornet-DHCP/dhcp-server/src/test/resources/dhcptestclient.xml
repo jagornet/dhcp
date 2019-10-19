@@ -12,7 +12,7 @@
 	
 	<v4ServerIdOption>
 		<!--  DHCPv4 ServerID must be a local IP address -->
-		<ipAddress>10.10.10.228</ipAddress>
+		<ipAddress>10.10.10.216</ipAddress>
 	</v4ServerIdOption>
 
 	<policies>
@@ -33,7 +33,7 @@
 		</policy>
 		<policy>
 			<name>ha.bindingUpdateMode</name>
-			<value>async</value>
+			<value>sync</value>
 		</policy>
 		<policy>
 			<name>ha.peerServer</name>
@@ -72,7 +72,7 @@
 		<link>
 			<name>Local IPv6 Client Link (Multicast traffic)</name>
 			<!-- Local DHCPv6 links are defined by interface name -->
-			<interface>en1</interface>
+			<interface>en0</interface>
 			<v6MsgConfigOptions>
 				<v6DnsServersOption>
 					<ipAddress>2001:db8:1::1</ipAddress>

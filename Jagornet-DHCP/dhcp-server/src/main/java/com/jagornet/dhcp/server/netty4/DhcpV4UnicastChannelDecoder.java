@@ -73,6 +73,7 @@ public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder
     
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
+		// remoteSocketAddress is set by DhcpV4PacketDecoder.channelRead
         DhcpV4Message dhcpMessage = 
         	DhcpV4Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
         dhcpMessage.setUnicast(true);

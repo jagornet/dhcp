@@ -105,6 +105,8 @@ public class JagornetDhcpServer
     /** The help formatter. */
     protected HelpFormatter formatter;
     
+    public static String JAGORNET_DHCP_SERVER = "Jagornet DHCP Server";
+    
     /** The default config filename. */
     public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
     	(DhcpConstants.JAGORNET_DHCP_HOME + "/config/dhcpserver.xml") : "config/dhcpserver.xml";
@@ -147,6 +149,8 @@ public class JagornetDhcpServer
     protected List<InetAddress> haAddrs = null;
     protected int haPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
     
+    protected boolean useNetty3 = false;
+    
     protected DhcpServerConfiguration serverConfig = null;
     protected ApplicationContext context = null;
     
@@ -171,7 +175,7 @@ public class JagornetDhcpServer
     }
     
     /**
-     * Instantiates the DHCPv6 server.
+     * Instantiates the Jagornet DHCP server.
      * 
      * @param args the command line argument array
      */
@@ -205,17 +209,18 @@ public class JagornetDhcpServer
      * 
      * @throws Exception the exception
      */
-    protected void start() throws Exception
+    protected void start(String[] args) throws Exception
     {
-    	log.info("Starting Jagornet DHCP Server");
+    	log.info("Starting " + JAGORNET_DHCP_SERVER);
     	log.info(Version.getVersion());
+    	log.info("Arguments: " + Arrays.toString(args));
     	int cores = Runtime.getRuntime().availableProcessors();
     	log.info("Number of available core processors: " + cores);
 
     	Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-            	  log.info("Stopping Jagornet DHCPv6 Server");
-                  System.out.println("Stopping Jagornet DHCPv6 Server: " + new Date());
+            	  log.info("Stopping " + JAGORNET_DHCP_SERVER);
+                  System.out.println("Stopping " + JAGORNET_DHCP_SERVER + ": " + new Date());
                 }
             });
     	
@@ -238,6 +243,30 @@ public class JagornetDhcpServer
         registerLog4jInJmx();
 
         String msg = null;
+        
+        // by default, all non-loopback, non-linklocal,
+        // IPv4 addresses are selected for unicast
+        if (v4UcastAddrs == null) {
+        	v4UcastAddrs = getFilteredIPv4Addrs();
+        }
+        msg = "DHCPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
+        System.out.println(msg);
+        log.info(msg);
+        
+        if (v4BcastNetIf != null) {
+        	msg = "DHCPv4 Broadcast Interface: " + v4BcastNetIf.getName();
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        else {
+        	msg = "DHCPv4 Broadcast interface: none";
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        
+        msg = "DHCPv4 Port number: " + v4PortNumber;
+        System.out.println(msg);
+        log.info(msg);
         
         // by default, all non-loopback, non-linklocal,
         // IPv6 addresses are selected for unicast
@@ -274,30 +303,6 @@ public class JagornetDhcpServer
         msg = "DHCPv6 Port number: " + v6PortNumber;
         System.out.println(msg);
         log.info(msg);
-        
-        // by default, all non-loopback, non-linklocal,
-        // IPv4 addresses are selected for unicast
-        if (v4UcastAddrs == null) {
-        	v4UcastAddrs = getFilteredIPv4Addrs();
-        }
-        msg = "DHCPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
-        System.out.println(msg);
-        log.info(msg);
-        
-        if (v4BcastNetIf != null) {
-        	msg = "DHCPv4 Broadcast Interface: " + v4BcastNetIf.getName();
-        	System.out.println(msg);
-        	log.info(msg);
-        }
-        else {
-        	msg = "DHCPv4 Broadcast interface: none";
-        	System.out.println(msg);
-        	log.info(msg);
-        }
-        
-        msg = "DHCPv4 Port number: " + v4PortNumber;
-        System.out.println(msg);
-        log.info(msg);
 
         if (failoverAddrs != null) {
 	        msg = "Failover addresses: " + Arrays.toString(failoverAddrs.toArray());
@@ -328,10 +333,28 @@ public class JagornetDhcpServer
 	        }
         }
         
+        /*
+         * 
     	NettyDhcpServer nettyServer = new NettyDhcpServer(v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
     														v4UcastAddrs, v4BcastNetIf, v4PortNumber,
     														failoverAddrs, failoverPortNumber);
-    	nettyServer.start();
+         */
+        
+        if (useNetty3) {
+        	com.jagornet.dhcp.server.netty.NettyDhcpServer nettyServer = 
+        			new com.jagornet.dhcp.server.netty.NettyDhcpServer(
+        					v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
+        					v4UcastAddrs, v4BcastNetIf, v4PortNumber);
+        	nettyServer.start();
+        }
+        else {
+	    	NettyDhcpServer nettyServer = new NettyDhcpServer(
+	    			v4UcastAddrs, v4BcastNetIf, v4PortNumber,
+	    			v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
+					failoverAddrs, failoverPortNumber);
+	    	
+	    	nettyServer.start();
+        }
     	
     	//TODO: Need to change server behavior when receiving regular DHCP messages
     	//		based on the failover role.  E.g. when configured as backup, it needs
@@ -361,6 +384,10 @@ public class JagornetDhcpServer
     	if (serverConfig.isHA()) {
 	    	//HttpServer jerseyHttpServer = JerseyServer.startServer();
 	    	Channel jerseyHttpServer = JerseyRestServer.startNettyServer(haPortNumber);
+	    	log.info("HA server startup complete");
+    	}
+    	else {
+    		log.info("Standalone server startup complete");
     	}
     }
     
@@ -436,6 +463,23 @@ public class JagornetDhcpServer
 		
 		log.info("Loading managers from context...");
 		
+		V4AddrBindingManager v4AddrBindingMgr = 
+			(V4AddrBindingManager) context.getBean("v4AddrBindingManager");
+		if (v4AddrBindingMgr != null) {
+			try {
+				log.info("Initializing V4 Address Binding Manager");
+				v4AddrBindingMgr.init();
+				serverConfig.setV4AddrBindingMgr(v4AddrBindingMgr);
+			}
+			catch (Exception ex) {
+				log.error("Failed initialize V4 Address Binding Manager", ex);
+				throw ex;
+			}
+		}
+		else {
+			log.warn("No V4 Address Binding Manager available");
+		}
+		
 		V6NaAddrBindingManager v6NaAddrBindingMgr = 
 			(V6NaAddrBindingManager) context.getBean("v6NaAddrBindingManager");
 		if (v6NaAddrBindingMgr != null) {
@@ -486,26 +530,12 @@ public class JagornetDhcpServer
 		else {
 			log.warn("No V6 Prefix Binding Manager available");
 		}
-		
-		V4AddrBindingManager v4AddrBindingMgr = 
-			(V4AddrBindingManager) context.getBean("v4AddrBindingManager");
-		if (v4AddrBindingMgr != null) {
-			try {
-				log.info("Initializing V4 Address Binding Manager");
-				v4AddrBindingMgr.init();
-				serverConfig.setV4AddrBindingMgr(v4AddrBindingMgr);
-			}
-			catch (Exception ex) {
-				log.error("Failed initialize V4 Address Binding Manager", ex);
-				throw ex;
-			}
-		}
-		else {
-			log.warn("No V4 Address Binding Manager available");
-		}
 
     	Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
+	          	  if (v4AddrBindingMgr != null) {
+	        		  ((BaseBindingManager) v4AddrBindingMgr).close();
+	        	  }
             	  if (v6NaAddrBindingMgr != null) {
             		  ((BaseBindingManager) v6NaAddrBindingMgr).close();
             	  }
@@ -514,9 +544,6 @@ public class JagornetDhcpServer
             	  }
             	  if (v6PrefixBindingMgr != null) {
             		  ((BaseBindingManager) v6PrefixBindingMgr).close();
-            	  }
-            	  if (v4AddrBindingMgr != null) {
-            		  ((BaseBindingManager) v4AddrBindingMgr).close();
             	  }
                 }
             });
@@ -545,37 +572,6 @@ public class JagornetDhcpServer
         	.hasArg()
         	.create("c");
         options.addOption(configFileOption);
-        
-        Option portOption =
-        	OptionBuilder.withLongOpt("v6port")
-        	.withArgName("portnum")
-        	.withDescription("DHCPv6 Port number (default = 547).")
-        	.hasArg()
-        	.create("6p");
-        options.addOption(portOption);
-
-        Option mcastOption =
-        	OptionBuilder.withLongOpt("v6mcast")
-        	.withArgName("interfaces")
-        	.withDescription("DHCPv6 Multicast support (default = none). " +
-        			"Use this option without arguments to instruct the server to bind to all " +
-        			"multicast-enabled IPv6 interfaces on the host. Optionally, use arguments " +
-        			"to list specific interfaces, separated by spaces.")
-        	.hasOptionalArgs()
-        	.create("6m");
-        options.addOption(mcastOption);
-
-        Option ucastOption =
-        	OptionBuilder.withLongOpt("v6ucast")
-        	.withArgName("addresses")
-        	.withDescription("DHCPv6 Unicast addresses (default = all IPv6 addresses). " +
-        			"Use this option to instruct the server to bind to a specific list " +
-        			"of global IPv6 addresses, separated by spaces. These addresses " +
-        			"should be configured on one or more DHCPv6 relay agents connected " +
-        			"to DHCPv6 client links.")
-        	.hasOptionalArgs()
-        	.create("6u");        				 
-        options.addOption(ucastOption);
         
         Option v4BcastOption = 
         	OptionBuilder.withLongOpt("v4bcast")
@@ -610,6 +606,37 @@ public class JagornetDhcpServer
         	.hasArg()
         	.create("4p");
         options.addOption(v4PortOption);
+
+        Option mcastOption =
+        	OptionBuilder.withLongOpt("v6mcast")
+        	.withArgName("interfaces")
+        	.withDescription("DHCPv6 Multicast support (default = none). " +
+        			"Use this option without arguments to instruct the server to bind to all " +
+        			"multicast-enabled IPv6 interfaces on the host. Optionally, use arguments " +
+        			"to list specific interfaces, separated by spaces.")
+        	.hasOptionalArgs()
+        	.create("6m");
+        options.addOption(mcastOption);
+
+        Option ucastOption =
+        	OptionBuilder.withLongOpt("v6ucast")
+        	.withArgName("addresses")
+        	.withDescription("DHCPv6 Unicast addresses (default = all IPv6 addresses). " +
+        			"Use this option to instruct the server to bind to a specific list " +
+        			"of global IPv6 addresses, separated by spaces. These addresses " +
+        			"should be configured on one or more DHCPv6 relay agents connected " +
+        			"to DHCPv6 client links.")
+        	.hasOptionalArgs()
+        	.create("6u");        				 
+        options.addOption(ucastOption);
+        
+        Option portOption =
+        	OptionBuilder.withLongOpt("v6port")
+        	.withArgName("portnum")
+        	.withDescription("DHCPv6 Port number (default = 547).")
+        	.hasArg()
+        	.create("6p");
+        options.addOption(portOption);
 
         Option fAddrOption =
         	OptionBuilder.withLongOpt("faddr")
@@ -662,6 +689,10 @@ public class JagornetDhcpServer
         Option versionOption = new Option("v", "version", false, 
         		"Show version information, then exit.");
         options.addOption(versionOption);
+        
+        Option netty3Option = new Option("n3", "netty3", false,
+        		"Use Netty3 implementation.");
+        options.addOption(netty3Option);
         
         Option helpOption = new Option("?", "help", false, "Show this help page.");        
         options.addOption(helpOption);
@@ -817,6 +848,9 @@ public class JagornetDhcpServer
     				}
     			}
             	System.exit(0);
+            }
+            if (cmd.hasOption("n3")) {
+            	useNetty3 = true;
             }
         }
         catch (ParseException pe) {
@@ -1164,9 +1198,9 @@ public class JagornetDhcpServer
     {
         try {
             JagornetDhcpServer server = new JagornetDhcpServer(args);
-            System.out.println("Starting Jagornet DHCP Server: " + new Date());
+            System.out.println("Starting " + JAGORNET_DHCP_SERVER + ": " + new Date());
             System.out.println(Version.getVersion());
-            server.start();
+            server.start(args);
         }
         catch (Exception ex) {
             System.err.println("DhcpServer ABORT!");

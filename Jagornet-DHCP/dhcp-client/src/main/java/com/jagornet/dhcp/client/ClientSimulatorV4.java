@@ -488,17 +488,17 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 				}
 				if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_DISCOVER) {
 					discoversSent.getAndIncrement();
-					log.info("Succesfully sent discover message mac=" + Util.toHexString(mac) +
+					log.info("Successfully sent discover message mac=" + Util.toHexString(mac) +
 							" cnt=" + discoversSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_REQUEST) {
 					requestsSent.getAndIncrement();
-					log.info("Succesfully sent request message mac=" + Util.toHexString(mac) +
+					log.info("Successfully sent request message mac=" + Util.toHexString(mac) +
 							" cnt=" + requestsSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
 					releasesSent.getAndIncrement();
-					log.info("Succesfully sent release message mac=" + Util.toHexString(mac) +
+					log.info("Successfully sent release message mac=" + Util.toHexString(mac) +
 							" cnt=" + releasesSent);
 					clientMap.remove(key);
 					doneLatch.countDown();
@@ -620,9 +620,9 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
         if (message instanceof DhcpV4Message) {
             
             DhcpV4Message dhcpMessage = (DhcpV4Message) message;
-            if (log.isDebugEnabled())
-            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
-            else
+//            if (log.isDebugEnabled())
+//            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
+//            else
             	log.info("Received: " + dhcpMessage.toString());
             
             if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_OFFER) {

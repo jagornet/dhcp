@@ -61,8 +61,10 @@ public class DhcpV6ChannelHandler extends SimpleChannelInboundHandler<DhcpV6Mess
         else
         	log.info("Received: " + dhcpMessage.toString());
         
-        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        InetAddress localAddr = ((InetSocketAddress)ctx.channel().localAddress()).getAddress();
+//        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        InetSocketAddress remoteAddress = dhcpMessage.getRemoteAddress();
+//        InetAddress localAddr = ((InetSocketAddress)ctx.channel().localAddress()).getAddress();
+        InetAddress localAddr = dhcpMessage.getLocalAddress().getAddress();
         if (localAddr.equals(DhcpConstants.ZEROADDR_V4)) {
         	localAddr = DhcpConstants.ZEROADDR_V6;
         }

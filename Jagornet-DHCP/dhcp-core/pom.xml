@@ -10,24 +10,20 @@
   <artifactId>dhcp-core</artifactId>
 
   <build>
-  	<plugins>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-jar-plugin</artifactId>
-			<version>3.0.2</version>
-			<executions>
-				<execution>
-					<goals>
-						<goal>test-jar</goal>
-					</goals>
-				</execution>
-	    	</executions>
-		</plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-        </plugin>
-   	</plugins>
+    <plugins>
+      <plugin>
+        <!-- Need to specifically build the test jar for Maven job to work? -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
-
+ 
 </project>

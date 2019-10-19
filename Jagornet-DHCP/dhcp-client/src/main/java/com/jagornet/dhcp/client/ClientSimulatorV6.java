@@ -26,12 +26,14 @@
 package com.jagornet.dhcp.client;
 
 import java.math.BigInteger;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -94,8 +96,10 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 
     protected NetworkInterface DEFAULT_NETIF = null;
     protected NetworkInterface mcastNetIf = null;
-   	protected InetAddress DEFAULT_ADDR;
+   	protected InetAddress DEFAULT_SERVER_ADDR;
     protected InetAddress serverAddr;
+    protected InetAddress DEFAULT_CLIENT_ADDR;
+    protected InetAddress clientAddr;
     protected int serverPort = DhcpConstants.V6_SERVER_PORT;
     protected int clientPort = DhcpConstants.V6_CLIENT_PORT;
     protected boolean rapidCommit = false;
@@ -132,7 +136,24 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     public ClientSimulatorV6(String[] args) throws Exception 
     {
     	DEFAULT_NETIF = NetworkInterface.getNetworkInterfaces().nextElement();
-    	DEFAULT_ADDR = DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS;
+    	for (Enumeration<NetworkInterface> netIfs = NetworkInterface.getNetworkInterfaces();
+    			netIfs.hasMoreElements();) {
+    		NetworkInterface netIf = netIfs.nextElement();
+    		if (netIf.isUp() && netIf.supportsMulticast() && !netIf.isLoopback()) {
+    			DEFAULT_NETIF = netIf;
+    		}
+    	}
+    	
+    	DEFAULT_CLIENT_ADDR = DEFAULT_NETIF.getInetAddresses().nextElement();
+    	for (Enumeration<InetAddress> inetAddrs = DEFAULT_NETIF.getInetAddresses(); 
+    			inetAddrs.hasMoreElements();) {
+    		InetAddress inetAddr = inetAddrs.nextElement();
+    		if ((inetAddr instanceof Inet6Address) && inetAddr.isLinkLocalAddress()) {
+    			DEFAULT_CLIENT_ADDR = inetAddr;
+    		}
+    	}
+    	
+    	DEFAULT_SERVER_ADDR = DhcpConstants.ALL_DHCP_RELAY_AGENTS_AND_SERVERS;
     	
         setupOptions();
 
@@ -166,9 +187,14 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         								" [" + DEFAULT_NETIF.getName() + "]");
         options.addOption(miOption);
 		
+        Option caOption = new Option("ca", "clientaddress", true,
+        								"Address of DHCPv6 Client" +
+        								" [" + DEFAULT_CLIENT_ADDR + "]");		
+        options.addOption(caOption);
+		
         Option saOption = new Option("sa", "serveraddress", true,
         								"Address of DHCPv6 Server" +
-        								" [" + DEFAULT_ADDR + "]");		
+        								" [" + DEFAULT_SERVER_ADDR + "]");		
         options.addOption(saOption);
 
         Option cpOption = new Option("cp", "clientport", true,
@@ -259,10 +285,15 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 					return false;
 				}
             }
-            serverAddr = DEFAULT_ADDR;
+            clientAddr = DEFAULT_CLIENT_ADDR;
+            if (cmd.hasOption("ca")) {
+            	clientAddr = 
+            			parseIpAddressOption("client addr", cmd.getOptionValue("ca"), DEFAULT_CLIENT_ADDR);
+            }            
+            serverAddr = DEFAULT_SERVER_ADDR;
             if (cmd.hasOption("sa")) {
             	serverAddr = 
-            			parseIpAddressOption("server", cmd.getOptionValue("sa"), DEFAULT_ADDR);
+            			parseIpAddressOption("server addr", cmd.getOptionValue("sa"), DEFAULT_SERVER_ADDR);
             }
             if (cmd.hasOption("cp")) {
             	clientPort = 
@@ -305,7 +336,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     		new NioDatagramChannelFactory(Executors.newCachedThreadPool());
     	
     	server = new InetSocketAddress(serverAddr, serverPort);
-    	client = new InetSocketAddress(clientPort);
+    	client = new InetSocketAddress(clientAddr, clientPort);
     	
 		ChannelPipeline pipeline = Channels.pipeline();
         pipeline.addLast("logger", new LoggingHandler());
@@ -501,18 +532,18 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 				}
 				if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_SOLICIT) {
 					solicitsSent.getAndIncrement();
-					log.info("Succesfully sent solicit message duid=" + duid +
+					log.info("Successfully sent solicit message duid=" + duid +
 							" cnt=" + solicitsSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_REQUEST) {
 					requestsSent.getAndIncrement();
-					log.info("Succesfully sent request message duid=" + duid +
+					log.info("Successfully sent request message duid=" + duid +
 							" cnt=" + requestsSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_RELEASE) {
 					released = true;
 					releasesSent.getAndIncrement();
-					log.info("Succesfully sent release message duid=" + duid +
+					log.info("Successfully sent release message duid=" + duid +
 							" cnt=" + releasesSent);
 				}
 			}
@@ -618,9 +649,9 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         if (message instanceof DhcpV6Message) {
             
             DhcpV6Message dhcpMessage = (DhcpV6Message) message;
-            if (log.isDebugEnabled())
-            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
-            else
+//            if (log.isDebugEnabled())
+//            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
+//            else
             	log.info("Received: " + dhcpMessage.toString());
             
             if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_ADVERTISE) {

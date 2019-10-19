@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcp.server.netty4;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -66,22 +67,37 @@ public class DhcpV6ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
     }
     
     @Override
-    public boolean acceptInboundMessage(Object buf) throws Exception {
-    	if (ignoreSelfPackets) {
-	    	if (JagornetDhcpServer.getAllIPv6Addrs().contains(remoteSocketAddress.getAddress())) {
-	    		log.debug("Ignoring packet from self: address=" + 
-	    					remoteSocketAddress.getAddress());
-	    		return false;
+    public boolean acceptInboundMessage(Object obj) throws Exception {
+    	boolean accept = super.acceptInboundMessage(obj);
+    	if (accept) {
+    		InetAddress localAddr = localSocketAddress.getAddress();
+    		InetAddress remoteAddr = remoteSocketAddress.getAddress();
+    		if (localAddr.isLinkLocalAddress() !=  remoteAddr.isLinkLocalAddress()) {
+	        	log.debug("Ignoring packet from " + 
+        				remoteAddr.getHostAddress() +
+        				" (linkLocal=" + remoteAddr.isLinkLocalAddress() + ")" +
+        				" received on " +
+        				localAddr.getHostAddress() +
+        				" (linkLocal=" + localAddr.isLinkLocalAddress() + ")");
+	        	accept = false;
+    		}
+    		
+	    	if (accept && ignoreSelfPackets) {
+		    	if (JagornetDhcpServer.getAllIPv6Addrs().contains(remoteSocketAddress.getAddress())) {
+		    		log.debug("Ignoring packet from self: address=" + 
+		    					remoteSocketAddress.getAddress());
+		    		accept = false;
+		    	}
 	    	}
     	}
-    	return true;
+    	return accept;
     }
     
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
         DhcpV6Message dhcpMessage = 
-        	DhcpV6Message.decode(buf.nioBuffer(), localSocketAddress,
-        						 (InetSocketAddress) ctx.channel().remoteAddress());
+        	DhcpV6Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
+//        						 (InetSocketAddress) ctx.channel().remoteAddress());
         out.add(dhcpMessage);
     }
 
