@@ -154,11 +154,12 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 	public void expireIaAddress(IdentityAssoc ia, IaAddress iaAddr)
 	{
 		try {
-			log.info("Expiring: " + iaAddr.toString());
+			log.info("Expiring address: " + iaAddr.getIpAddress().getHostAddress());
 			ddnsDelete(ia, iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
-				log.debug("Deleting expired address: " + iaAddr.getIpAddress());
+				log.debug("Deleting expired address: " + 
+							iaAddr.getIpAddress().getHostAddress());
 				iaMgr.deleteIaAddr(iaAddr);
 				// free the address only if it is deleted from the db,
 				// otherwise, we will get a unique constraint violation
@@ -170,7 +171,8 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 				iaAddr.setPreferredEndTime(null);
 				iaAddr.setValidEndTime(null);
 				iaAddr.setState(IaAddress.EXPIRED);
-				log.debug("Updating expired address: " + iaAddr.getIpAddress());
+				log.debug("Updating expired address: " + 
+							iaAddr.getIpAddress().getHostAddress());
 				iaMgr.updateIaAddr(iaAddr);
 			}
 		}
@@ -214,7 +216,8 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 		 */
 		@Override
 		public void run() {
-//			log.debug("Expiring addresses...");
+			log.debug("Looking for expired addresses of type: " +
+					IdentityAssoc.iaTypeToString(getIaType()) + "...");
 			expireAddresses();
 		}
 	}

@@ -40,14 +40,15 @@ import com.jagornet.dhcp.core.util.Util;
  * @author A. Gregory Rabil
  */
 
-public class DhcpLease
+public class DhcpLease implements Cloneable
 {
+	protected static Date EPOCH = new Date(0);
 	protected InetAddress ipAddress;
 	protected byte[] duid;
 	protected byte iatype;
 	protected long iaid;		// need long to hold 32-bit unsigned integer
 	protected short prefixLength;
-	protected byte state;
+	protected byte state;		// states defined in IaAddress
 	protected Date startTime;
 	protected Date preferredEndTime;
 	protected Date validEndTime;
@@ -179,7 +180,10 @@ public class DhcpLease
 	 * @return the start time
 	 */
 	public Date getStartTime() {
-		return startTime;
+		if (startTime != null) {
+			return startTime;
+		}
+		return EPOCH;
 	}
 
 
@@ -199,7 +203,10 @@ public class DhcpLease
 	 * @return the preferred end time
 	 */
 	public Date getPreferredEndTime() {
-		return preferredEndTime;
+		if (preferredEndTime != null) {
+			return preferredEndTime;
+		}
+		return EPOCH;
 	}
 
 
@@ -219,7 +226,13 @@ public class DhcpLease
 	 * @return the valid end time
 	 */
 	public Date getValidEndTime() {
-		return validEndTime;
+		if (validEndTime != null) {
+			return validEndTime;
+		}
+		// ensure non null Date is returned, otherwise
+		// NullPointer will occur in lambda expressions
+		// in LeaseManager
+		return EPOCH;
 	}
 
 
@@ -298,6 +311,17 @@ public class DhcpLease
 		iaAddrDhcpOptions.add(iaDhcpOption);
 	}
 
+	public boolean isAvailable(long offerExpiration) {
+		return ((getState() == IaAddress.ADVERTISED && 
+				getStartTime().getTime() < offerExpiration) ||
+				getState() == IaAddress.EXPIRED ||
+				getState() == IaAddress.RELEASED);
+	}
+	
+	public boolean isInRange(InetAddress startAddr, InetAddress endAddr) {
+		return ((Util.compareInetAddrs(getIpAddress(), startAddr) >= 0) &&
+				(Util.compareInetAddrs(getIpAddress(), endAddr) <= 0));		
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -386,8 +410,8 @@ public class DhcpLease
 	 */
 	@Override
 	public String toString() {
-		return "DhcpLease [ipAddress=" + ipAddress + 
-				", duid=" + Arrays.toString(duid) + 
+		return "DhcpLease [ipAddress=" + ipAddress.getHostAddress() + 
+				", duid=" + Util.toHexString(duid) + 
 				", iatype=" + iatype + ", iaid=" + iaid + ", state=" + state + 
 				", startTime=" + 
 					(startTime == null ? "" : Util.GMT_DATEFORMAT.format(startTime)) +
@@ -412,10 +436,12 @@ public class DhcpLease
 					(preferredEndTime == null ? "" : preferredEndTime.getTime()) + "', " + 
 				"'validEndTime':'" + 
 					(validEndTime == null ? "" : validEndTime.getTime()) + "', " +
-				"'iaDhcpOptions': " + 
-					Util.toHexString(LeaseManager.encodeOptions(iaDhcpOptions)) + "', " +
-				"'iaAddrDhcpOptions': " + 
-					Util.toHexString(LeaseManager.encodeOptions(iaAddrDhcpOptions)) + "' " + 
+				"'iaDhcpOptions':'" + 
+					(iaDhcpOptions == null ? "" : 
+						 Util.toHexString(LeaseManager.encodeOptions(iaDhcpOptions))) +	"', " +
+				"'iaAddrDhcpOptions':'" + 
+					(iaAddrDhcpOptions == null ? "" : 
+						 Util.toHexString(LeaseManager.encodeOptions(iaAddrDhcpOptions))) +	"', " +
 				"}";
 	}
 	
@@ -469,5 +495,22 @@ public class DhcpLease
 			}
 		}
 		return null;
+	}
+	
+	@Override
+	public DhcpLease clone() throws CloneNotSupportedException {
+		DhcpLease clone = new DhcpLease();
+		clone.setIpAddress(this.getIpAddress());
+		clone.setDuid(this.getDuid());
+		clone.setIatype(this.getIatype());
+		clone.setIaid(this.getIaid());
+		clone.setPrefixLength(this.getPrefixLength());
+		clone.setState(this.getState());
+		clone.setStartTime(this.getStartTime());
+		clone.setPreferredEndTime(this.getPreferredEndTime());
+		clone.setValidEndTime(this.getPreferredEndTime());
+		clone.setIaDhcpOptions(this.getIaDhcpOptions());
+		clone.setIaAddrDhcpOptions(this.getIaAddrDhcpOptions());
+		return clone;
 	}
 }

@@ -418,6 +418,12 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 		return iaAddrDao.findUnusedByRange(startAddr, endAddr);
 	}
 	
+	@Override
+	public IaAddress findUnusedIaAddress(InetAddress startAddr, InetAddress endAddr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#findExpiredIaAddresses(byte)
 	 */

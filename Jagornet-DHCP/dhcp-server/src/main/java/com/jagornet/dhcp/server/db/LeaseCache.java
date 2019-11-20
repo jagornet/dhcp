@@ -10,32 +10,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class LeaseCache {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	private static LeaseCache instance = null;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+
+public class LeaseCache {
 	
-	private static int MAX_CACHE_SIZE = 1000;
-	private static Map<InetAddress, DhcpLease> leaseCache;
+	private static Logger log = LoggerFactory.getLogger(LeaseCache.class);
+
+	private Map<InetAddress, DhcpLease> leaseCache;
 	
-	protected LeaseCache() {
-		
-	}
-	
-	public static LeaseCache getInstance() {
-		if (instance == null) {
-			leaseCache = Collections.synchronizedMap(
-					new LinkedHashMap<InetAddress, DhcpLease>(16, 0.75f, true) {
-						private static final long serialVersionUID = 1L;
-						@Override
-					     protected boolean removeEldestEntry(
-					    		 Map.Entry<InetAddress, DhcpLease> eldest) {
-					        return (size() > MAX_CACHE_SIZE);
-					     }
-						
-					});
-			instance = new LeaseCache();
-		}
-		return instance;
+	public LeaseCache(int cacheSize) {
+		log.info("Creating Lease cache size=" + cacheSize);
+		leaseCache = Collections.synchronizedMap(
+				new LinkedHashMap<InetAddress, DhcpLease>(16, 0.75f, true) {
+					private static final long serialVersionUID = 1L;
+					@Override
+				     protected boolean removeEldestEntry(
+				    		 Map.Entry<InetAddress, DhcpLease> eldest) {
+				        return (size() > cacheSize);
+				     }
+					
+				});
 	}
 	
 	public void clear() {

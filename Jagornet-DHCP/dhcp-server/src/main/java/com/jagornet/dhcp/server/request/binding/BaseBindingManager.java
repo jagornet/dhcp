@@ -765,17 +765,22 @@ public abstract class BaseBindingManager
 	{
 		lock.lock();
 		try {
+/*
 			if (log.isDebugEnabled())
 				log.debug("Finding available addresses in pool: " +
 						bp.toString());
 			List<IaAddress> iaAddrs = 
 				iaMgr.findUnusedIaAddresses(bp.getStartAddress(), bp.getEndAddress());
 			if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
+				*
+				 * This can be too verbose 
+				 * 
 				if (log.isDebugEnabled()) {
 					for (IaAddress iaAddr : iaAddrs) {
 						log.debug("Found available address: " + iaAddr.toString());
 					}
 				}
+				*
 				// list is ordered by validendtime
 				// so the first one is the oldest one
 				IaAddress iaAddr = iaAddrs.get(0);
@@ -789,6 +794,17 @@ public abstract class BaseBindingManager
 //				for (int i=1; i<iaAddrs.size(); i++) {
 //					
 //				}
+			}
+*/
+			if (log.isDebugEnabled())
+				log.debug("Finding available address in pool: " +
+						bp.toString());
+			IaAddress iaAddr = 
+				iaMgr.findUnusedIaAddress(bp.getStartAddress(), bp.getEndAddress());
+			if (iaAddr != null) {
+				log.info("Deleting available address: " + iaAddr.toString());
+				iaMgr.deleteIaAddr(iaAddr);
+				return iaAddr.getIpAddress();
 			}
 		}
 		finally {

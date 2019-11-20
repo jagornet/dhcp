@@ -205,6 +205,16 @@ public interface IaManager
 	 * @return the list of IaAddress objects that are unused in the range
 	 */
 	public List<IaAddress> findUnusedIaAddresses(InetAddress startAddr, InetAddress endAddr);
+
+	/**
+	 * Find an unused IA Address within an inclusive address range.
+	 * 
+	 * @param startAddr the start address of the range
+	 * @param endAddr the end address of the range
+	 * 
+	 * @return an IaAddress object that is unused in the range
+	 */
+	public IaAddress findUnusedIaAddress(InetAddress startAddr, InetAddress endAddr);
 	
 	/**
 	 * Find the expired IA Addresses for the given IA type.

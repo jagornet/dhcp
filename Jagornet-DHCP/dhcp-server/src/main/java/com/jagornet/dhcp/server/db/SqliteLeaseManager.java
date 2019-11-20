@@ -471,8 +471,6 @@ public class SqliteLeaseManager extends LeaseManager
 	@Override
 	public List<DhcpLease> findUnusedLeases(final InetAddress startAddr, final InetAddress endAddr)
 	{
-		long offerExpireMillis = 
-			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
 		final long offerExpiration = new Date().getTime() - offerExpireMillis;
 		
 		SQLiteConnection connection = null;

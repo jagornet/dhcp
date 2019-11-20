@@ -463,6 +463,10 @@ public class JagornetDhcpServer
 		
 		log.info("Loading managers from context...");
 		
+		//TODO: Check if binding manager init method can be
+		//		done by Spring in the context.xml file?
+		//		Maybe init is here for error handling at startup?
+		
 		V4AddrBindingManager v4AddrBindingMgr = 
 			(V4AddrBindingManager) context.getBean("v4AddrBindingManager");
 		if (v4AddrBindingMgr != null) {

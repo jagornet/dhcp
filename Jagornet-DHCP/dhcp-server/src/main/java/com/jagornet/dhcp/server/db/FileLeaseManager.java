@@ -19,25 +19,30 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.server.config.DhcpServerPolicies;
-import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Range;
 
 public class FileLeaseManager extends LeaseManager {
 
-	private static final Path LEASES_DIR = Paths.get(DhcpConstants.JAGORNET_DHCP_HOME +
+	private static Logger log = LoggerFactory.getLogger(FileLeaseManager.class);
+	
+	protected static final Path LEASES_DIR = Paths.get(DhcpConstants.JAGORNET_DHCP_HOME +
 			File.separatorChar + "db/fileleases");
 	
-	private static IpFileChannels ipFileChannels = IpFileChannels.getInstance();
+	protected IpFileChannels ipFileChannels;
 	
 	@Override
 	public void init() throws Exception {
+		super.init();
 		if (!Files.isDirectory(LEASES_DIR, new LinkOption[] {})) {
 			Files.createDirectories(LEASES_DIR);
 		}
-
+		//TODO: expose this as a Property
+		ipFileChannels = new IpFileChannels(1000);
 	}
 
 	@Override
@@ -66,13 +71,16 @@ public class FileLeaseManager extends LeaseManager {
 	@Override
 	public List<InetAddress> findExistingLeaseIPs(InetAddress startAddr, InetAddress endAddr) {
 		try {
+//			log.info("findExistingLeaseIPs in dir=" + LEASES_DIR);
 			DirectoryStream<Path> ipFiles =
 					Files.newDirectoryStream(LEASES_DIR, new DirectoryStream.Filter<Path>() {
 			    public boolean accept(Path file) throws IOException {
 		            InetAddress ip = buildIpFromFilename(file.getFileName().toString());
 		            if (ip != null) {
+//		            	log.debug("findExistingLeaseIPs.ipFiles.accept.ip=" + ip.getHostAddress());
 		            	return (Util.inclusiveBetween(ip, startAddr, endAddr));
 		            }
+//	            	log.debug("findExistingLeaseIPs.ipFiles.accept.ip=null");
 		            return false;
 			    }
 			});
@@ -80,9 +88,14 @@ public class FileLeaseManager extends LeaseManager {
 			for (Path ipFile : ipFiles) {
 	            InetAddress ip = buildIpFromFilename(ipFile.getFileName().toString());
 	            if (ip != null) {
+//	            	log.debug("findExistingLeaseIPs.ipFiles.ip=" + ip.getHostAddress());
 	            	inetAddrs.add(ip);
 	            }
+	            else {
+//	            	log.debug("findExistingLeaseIPs.ipFiles.ip=null");
+	            }
 			}
+//			log.info("Found " + inetAddrs.size() + " inetAddrs");
 			return inetAddrs;
 		} 
 		catch (IOException e) {
@@ -97,17 +110,18 @@ public class FileLeaseManager extends LeaseManager {
 		List<DhcpLease> dhcpLeases = null;
 		List<InetAddress> inetAddrs = findExistingIPs(startAddr, endAddr);
 		if (inetAddrs != null) {
-			long offerExpireMillis = 
-					DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
-				final long offerExpiration = new Date().getTime() - offerExpireMillis;
+			final long offerExpiration = new Date().getTime() - offerExpireMillis;
+//			log.debug("Checking " + inetAddrs.size() + " leases for offerExpriation=" + new Date(offerExpiration));
 			dhcpLeases = new ArrayList<DhcpLease>();
 			for (InetAddress inetAddr : inetAddrs) {
 				DhcpLease lease = load(inetAddr);
 				if (lease != null) {
+//					log.debug("Checking lease: " + lease);
 					if ((lease.getState() == IaAddress.RELEASED) ||
 							(lease.getState() == IaAddress.EXPIRED) ||
 							((lease.getState() == IaAddress.ADVERTISED) && 
 									(lease.getStartTime().getTime() <= offerExpiration))) {
+//						log.debug("Found unused lease: " + lease);
 						dhcpLeases.add(lease);
 					}
 				}
@@ -240,7 +254,7 @@ public class FileLeaseManager extends LeaseManager {
 	            		if (lease.getIatype() == iatype) {
 	            			Date validEndTime = lease.getValidEndTime();
 	            			if (validEndTime != null) {
-	            				if (validEndTime.getTime() > new Date().getTime()) {
+	            				if (validEndTime.getTime() < new Date().getTime()) {
 	            					expiredLeases.add(lease);
 	            				}
 	            			}
@@ -257,13 +271,18 @@ public class FileLeaseManager extends LeaseManager {
 		return null;
 	}
 	
-	public static void store(DhcpLease lease) {
+	public void store(DhcpLease lease) {
 		try {
 			AsynchronousFileChannel fc = getAsyncFileChannel(lease.getIpAddress());
 			if (fc != null) {
 				ByteBuffer buf = ByteBuffer.wrap(lease.toJson().getBytes());
 				Future<Integer> future = fc.write(buf, 0);
 				int wrote = future.get();
+				fc.truncate(wrote);
+			}
+			else {
+				log.error("Could not get AsynchronousFileChannel for IP=" + 
+							lease.getIpAddress().getHostAddress());
 			}
 		} 
 		catch (Exception e) {
@@ -272,7 +291,7 @@ public class FileLeaseManager extends LeaseManager {
 		}
 	}
 	
-	public static DhcpLease load(InetAddress inetAddress) {
+	public DhcpLease load(InetAddress inetAddress) {
 		try {
 			AsynchronousFileChannel fc = getAsyncFileChannel(inetAddress);
 			if (fc != null) {
@@ -284,6 +303,10 @@ public class FileLeaseManager extends LeaseManager {
 				DhcpLease lease = DhcpLease.fromJson(new String(data));
 				return lease;
 			}
+			else {
+				log.error("Could not get AsynchronousFileChannel for IP=" + 
+							inetAddress.getHostAddress());
+			}
 		} 
 		catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -292,7 +315,7 @@ public class FileLeaseManager extends LeaseManager {
 		return null;
 	}
 	
-	public static void remove(InetAddress inetAddress) {
+	public void remove(InetAddress inetAddress) {
 		try {
 			ipFileChannels.removeIpFileChannel(inetAddress);
 			Path file = Paths.get(LEASES_DIR.toString() + File.separatorChar +
@@ -305,7 +328,7 @@ public class FileLeaseManager extends LeaseManager {
 		}		
 	}
 	
-	public static AsynchronousFileChannel getAsyncFileChannel(InetAddress inetAddress) throws IOException {
+	public AsynchronousFileChannel getAsyncFileChannel(InetAddress inetAddress) throws IOException {
 		AsynchronousFileChannel asyncFileChannel = ipFileChannels.getIpFileChannel(inetAddress);
 		if (asyncFileChannel == null) {
 			try {

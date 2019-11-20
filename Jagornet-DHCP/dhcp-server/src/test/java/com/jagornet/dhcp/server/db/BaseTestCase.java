@@ -28,7 +28,6 @@ package com.jagornet.dhcp.server.db;
 import java.io.File;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -116,13 +115,17 @@ public abstract class BaseTestCase
 					FileUtils.cleanDirectory(dbSqlite);
 				}
 			}
+			else if (schemaType.contains("file")) {
+				File dbFiles = new File("db/fileleases");
+				if (dbFiles.exists() && dbFiles.isDirectory()) {
+					// start with a fresh database
+					System.out.println("Cleaning " + dbFiles + "...");
+					FileUtils.cleanDirectory(dbFiles);
+				}
+			}
 			String[] appContext = JagornetDhcpServer.getAppContextFiles(schemaType, schemaVersion);
 
 			ctx = new ClassPathXmlApplicationContext(appContext);
-			
-			IaManager iaMgr = (IaManager)ctx.getBean("iaManager");
-			iaMgr.init();
-			config.setIaMgr(iaMgr);
 
 			V6NaAddrBindingManager v6NaAddrBindingMgr = 
 					(V6NaAddrBindingManager) ctx.getBean("v6NaAddrBindingManager");
@@ -143,6 +146,10 @@ public abstract class BaseTestCase
 					(V4AddrBindingManager) ctx.getBean("v4AddrBindingManager");
 			v4AddrBindingMgr.init();
 			config.setV4AddrBindingMgr(v4AddrBindingMgr);
+			
+			IaManager iaMgr = (IaManager)ctx.getBean("iaManager");
+			iaMgr.init();
+			config.setIaMgr(iaMgr);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Tue Oct 08 21:59:23 EDT 2019:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-016d-ae3e-0674-00000b937758 
-on database directory /Users/agrabil/opt/gitlocal/jagornet-dhcp/Jagornet-DHCP/dhcp-server/db/derby/jagornet-dhcp with class loader sun.misc.Launcher$AppClassLoader@659e0bfd 
+Tue Nov 19 19:33:10 EST 2019:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-016e-863a-2fe1-00000cd651b0 
+on database directory /Users/agrabil/opt/gitlocal/jagornet-dhcp/Jagornet-DHCP/dhcp-server/db/derby/jagornet-dhcp with class loader sun.misc.Launcher$AppClassLoader@e9e54c2 
 Loaded from file:/Users/agrabil/.m2/repository/org/apache/derby/derby/10.13.1.1/derby-10.13.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_60-b27
@@ -11,3 +11,9 @@ os.arch=x86_64
 os.version=10.14.6
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Tue Nov 19 19:33:23 EST 2019: Shutting down Derby engine
+----------------------------------------------------------------
+Tue Nov 19 19:33:23 EST 2019:
+Shutting down instance a816c00e-016e-863a-2fe1-00000cd651b0 on database directory /Users/agrabil/opt/gitlocal/jagornet-dhcp/Jagornet-DHCP/dhcp-server/db/derby/jagornet-dhcp with class loader sun.misc.Launcher$AppClassLoader@e9e54c2 
+----------------------------------------------------------------

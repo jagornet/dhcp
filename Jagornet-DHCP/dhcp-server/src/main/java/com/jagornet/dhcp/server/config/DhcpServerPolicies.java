@@ -42,7 +42,7 @@ import com.jagornet.dhcp.server.config.xml.Policy;
 
 /**
  * The Class DhcpServerPolicies.
- * Description: The class representing the DHCPv6 server policies.  Policy defaults
+ * Description: The class representing the DHCP server policies.  Policy defaults
  * are defined herein by the Property enum.  These defaults can be overridden by loading
  * a standard Java properties file.  At runtime, the value of any given property is taken
  * from the server's XML configuration file via the <policy> element with the corresponding
@@ -73,6 +73,8 @@ public class DhcpServerPolicies
 		BINDING_MANAGER_REAPER_RUN_PERIOD("binding.manager.reaper.runPeriod", "60000"),
 		BINDING_MANAGER_OFFER_EXPIRATION("binding.manager.offerExpiration", "12000"),
 		BINDING_MANAGER_DELETE_OLD_BINDINGS("binding.manager.deleteOldBindings", "false"),
+		BINDING_MANAGER_IA_CACHE_SIZE("binding.manager.iaCacheSize", "1000"),
+		BINDING_MANAGER_LEASE_CACHE_SIZE("binding.manager.leaseCacheSize", "1000"),
 		SEND_REQUESTED_OPTIONS_ONLY("sendRequestedOptionsOnly", "false"),
 		SUPPORT_RAPID_COMMIT("supportRapidCommit", "false"),
 		VERIFY_UNKNOWN_REBIND("verifyUnknownRebind", "false"),

@@ -362,8 +362,6 @@ public class MongoLeaseManagerV3 extends LeaseManager
 	@Override
 	public List<DhcpLease> findUnusedLeases(final InetAddress startAddr, final InetAddress endAddr)
 	{
-		long offerExpireMillis = 
-			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
 		final Date offerExpiration = new Date(new Date().getTime() - offerExpireMillis);
 
 		BasicDBList ipAdvBetw = new BasicDBList();

@@ -64,6 +64,10 @@ public class JdbcLeaseManager extends LeaseManager
 	protected DataSource dataSource;
 	protected JdbcTemplate jdbcTemplate;
 	
+	protected static String LIMIT_ONE_CLAUSE = 
+			DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE).equals("jdbc-derby") ?
+					" fetch first 1 rows only" : " limit 1";
+	
 	public DataSource getDataSource() {
 		return dataSource;
 	}
@@ -80,6 +84,7 @@ public class JdbcLeaseManager extends LeaseManager
 	
 	// Spring bean init-method
 	public void init() throws Exception {
+		super.init();
         String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
         if (schemaType.toLowerCase().endsWith("derby")) {
 			DbSchemaManager.validateSchema(dataSource, DbSchemaManager.SCHEMA_DERBY_V2_FILENAME, 2);
@@ -376,8 +381,6 @@ public class JdbcLeaseManager extends LeaseManager
 	@Override
 	public List<DhcpLease> findUnusedLeases(final InetAddress startAddr, final InetAddress endAddr)
 	{
-		long offerExpireMillis = 
-			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
 		final long offerExpiration = new Date().getTime() - offerExpireMillis;
         List<DhcpLease> leases = getJdbcTemplate().query(
                 "select * from dhcplease" +
@@ -391,7 +394,7 @@ public class JdbcLeaseManager extends LeaseManager
 					@Override
 					public void setValues(PreparedStatement ps) throws SQLException {
 						java.sql.Timestamp ts = new java.sql.Timestamp(offerExpiration);
-						ps.setTimestamp(1, ts);
+						ps.setTimestamp(1, ts, Util.GMT_CALENDAR);
 						ps.setBytes(2, startAddr.getAddress());
 						ps.setBytes(3, endAddr.getAddress());
 					}                	
@@ -400,12 +403,41 @@ public class JdbcLeaseManager extends LeaseManager
 		return leases;
 	}
 
+	@Override
+	public DhcpLease findUnusedLease(InetAddress startAddr, InetAddress endAddr) {
+		final long offerExpiration = new Date().getTime() - offerExpireMillis;
+        List<DhcpLease> leases = getJdbcTemplate().query(
+                "select * from dhcplease" +
+                " where ((state=" + IaAddress.ADVERTISED +
+                " and starttime <= ?)" +
+                " or (state=" + IaAddress.EXPIRED +
+                " or state=" + IaAddress.RELEASED + "))" +
+                " and ipaddress >= ? and ipaddress <= ?" +
+                LIMIT_ONE_CLAUSE,
+                new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						java.sql.Timestamp ts = new java.sql.Timestamp(offerExpiration);
+						ps.setTimestamp(1, ts, Util.GMT_CALENDAR);
+						ps.setBytes(2, startAddr.getAddress());
+						ps.setBytes(3, endAddr.getAddress());
+					}                	
+                },
+                new DhcpLeaseRowMapper());
+		if ((leases != null) && leases.size() > 0) {
+			return leases.get(0);
+		}
+		return null;
+		
+	}
+	
 	public List<DhcpLease> findExpiredLeases(final byte iatype) {
         return getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where iatype = ?" +
                 " and state != " + IaAddress.STATIC +
-                " and validendtime < ? order by validendtime",
+                " and (validendtime is null or validendtime < ?)" +
+                " order by validendtime",
                 new PreparedStatementSetter() {
             		@Override
             		public void setValues(PreparedStatement ps) throws SQLException {

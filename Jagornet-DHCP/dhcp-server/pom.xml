@@ -357,6 +357,9 @@
 			        <systemPropertyVariables>
 			            <jagornet.dhcp.home>${project.basedir}</jagornet.dhcp.home>
 			        </systemPropertyVariables>
+					<additionalClasspathElements>
+            			<additionalClasspathElement>${project.basedir}/config</additionalClasspathElement>
+          			</additionalClasspathElements>
 	        	</configuration>
                <executions>
                     <execution>

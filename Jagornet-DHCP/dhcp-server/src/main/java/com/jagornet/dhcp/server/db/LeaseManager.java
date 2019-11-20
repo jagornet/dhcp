@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -69,13 +70,49 @@ public abstract class LeaseManager implements IaManager {
 			final InetAddress endAddr);
 	public abstract List<DhcpLease> findUnusedLeases(final InetAddress startAddr, 
 			final InetAddress endAddr);
+	public DhcpLease findUnusedLease(final InetAddress startAddr, 
+			final InetAddress endAddr) {
+		//TODO: make this abstract and then implement in all LeaseManagers
+		return null;
+	}
 	public abstract List<DhcpLease> findExpiredLeases(final byte iatype);
 	public abstract void reconcileLeases(final List<Range> ranges);
 	public abstract void deleteAllLeases();
 	
-	protected IaCache iaCache = IaCache.getInstance();
-	protected LeaseCache leaseCache = LeaseCache.getInstance();
-	protected final boolean useCache = true;
+	protected long offerExpireMillis;
+	protected IaCache iaCache = null;
+	protected LeaseCache leaseCache = null;
+	
+	public void init() throws Exception {
+		
+		offerExpireMillis = DhcpServerPolicies.
+				globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
+		
+		int cacheSize = DhcpServerPolicies.
+				globalPolicyAsInt(Property.BINDING_MANAGER_IA_CACHE_SIZE);
+		if (cacheSize > 0) {
+			iaCache = new IaCache(cacheSize);
+		}
+		
+		cacheSize = DhcpServerPolicies.
+				globalPolicyAsInt(Property.BINDING_MANAGER_LEASE_CACHE_SIZE);
+		if (cacheSize > 0) {
+			leaseCache = new LeaseCache(cacheSize);
+		}
+	}
+	
+	// for unit testing
+	public long getOfferExpireMillis() {
+		return offerExpireMillis;
+	}
+	
+	protected boolean useIaCache() {
+		return iaCache != null;
+	}
+	
+	protected boolean useLeaseCache() {
+		return leaseCache != null;
+	}
 
 	@Override
 	public void createIA(IdentityAssoc ia) {
@@ -84,12 +121,12 @@ public abstract class LeaseManager implements IaManager {
 			if ((leases != null) && !leases.isEmpty()) {
 				for (final DhcpLease lease : leases) {
 					insertDhcpLease(lease);
-					if (useCache) {
+					if (useLeaseCache()) {
 						leaseCache.putLease(lease);
 					}
 				}
 			}
-			if (useCache) {
+			if (useIaCache()) {
 				iaCache.putIA(ia);
 			}
 		}
@@ -103,7 +140,7 @@ public abstract class LeaseManager implements IaManager {
 			for (IaAddress addAddr : addAddrs) {
 				DhcpLease lease = toDhcpLease(ia, addAddr);
 				insertDhcpLease(lease);
-				if (useCache) {
+				if (useLeaseCache()) {
 					leaseCache.putLease(lease);
 				}
 			}
@@ -112,7 +149,7 @@ public abstract class LeaseManager implements IaManager {
 			for (IaAddress updateAddr : updateAddrs) {
 				DhcpLease lease = toDhcpLease(ia, updateAddr);
 				updateDhcpLease(lease);
-				if (useCache) {
+				if (useLeaseCache()) {
 					leaseCache.putLease(lease);
 				}
 			}
@@ -121,12 +158,12 @@ public abstract class LeaseManager implements IaManager {
 			for (IaAddress delAddr : delAddrs) {
 				DhcpLease lease = toDhcpLease(ia, delAddr);
 				deleteDhcpLease(lease);
-				if (useCache) {
+				if (useLeaseCache()) {
 					leaseCache.removeLease(lease.getIpAddress());
 				}
 			}
 		}
-		if (useCache) {
+		if (useIaCache()) {
 			iaCache.putIA(ia);
 		}
 	}
@@ -139,12 +176,12 @@ public abstract class LeaseManager implements IaManager {
 			if ((leases != null) && !leases.isEmpty()) {
 				for (final DhcpLease lease : leases) {
 					deleteDhcpLease(lease);
-					if (useCache) {
+					if (useLeaseCache()) {
 						leaseCache.removeLease(lease.getIpAddress());
 					}
 				}
 			}
-			if (useCache) {
+			if (useIaCache()) {
 				iaCache.removeIA(ia);
 			}
 		}
@@ -153,8 +190,17 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public IdentityAssoc findIA(byte[] duid, byte iatype, long iaid) {
 		IdentityAssoc ia = null;
-		if (useCache) {
+		if (useIaCache()) {
 			ia = iaCache.getIA(duid, iatype, iaid);
+			if (log.isDebugEnabled()) {
+				String iaKey = IdentityAssoc.keyToString(duid, iatype, iaid);
+				if (ia != null) {
+					log.debug("IA Cache hit: " + iaKey);
+				}
+				else {
+					log.debug("IA Cache miss: " + iaKey);
+				}
+			}
 		}
 		if (ia == null) {
 			List<DhcpLease> leases = findDhcpLeasesForIA(duid, iatype, iaid);        
@@ -184,8 +230,16 @@ public abstract class LeaseManager implements IaManager {
 	{
 		IdentityAssoc ia = null;
         DhcpLease lease = null;
-        if (useCache) {
+        if (useLeaseCache()) {
         	lease = leaseCache.getLease(inetAddr);
+        	if (log.isDebugEnabled()) {
+				if (lease != null) {
+					log.debug("Lease Cache hit: " + inetAddr.getHostAddress());
+				}
+				else {
+					log.debug("Lease Cache miss: " + inetAddr.getHostAddress());
+				}
+        	}
         }
         if (lease == null) {
         	lease = findDhcpLeaseForInetAddr(inetAddr);
@@ -206,7 +260,7 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public List<IdentityAssoc> findExpiredIAs(byte iatype) {
 		List<IdentityAssoc> ias = null;
-		if (useCache) {
+		if (useLeaseCache()) {
 			// tempting to use parallelStream, but the thread overhead
 			// is not worth it with a cache size of only 1000 leases
 			ias = leaseCache.getAllLeases().stream()
@@ -217,8 +271,19 @@ public abstract class LeaseManager implements IaManager {
 							.sorted(Comparator.comparing(DhcpLease::getValidEndTime))
 							.map(LeaseManager::toIdentityAssoc)
 							.collect(Collectors.toList());
+			
+			if (log.isDebugEnabled()) {
+				if ((ias != null) && !ias.isEmpty()) {
+					log.debug("Found " + ias.size() + " expired IAs of type=" +
+							  IdentityAssoc.iaTypeToString(iatype) + " in Lease Cache");
+				}
+				else {
+					log.debug("Found no expired IAs of type=" +
+							  IdentityAssoc.iaTypeToString(iatype) + " in Lease Cache");
+				}
+			}
 		}
-		if (ias == null) {
+		if ((ias == null) || ias.isEmpty()) {
 			ias = toIdentityAssocs(findExpiredLeases(iatype));
 		}
 		return ias;
@@ -263,7 +328,7 @@ public abstract class LeaseManager implements IaManager {
 							   com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption)
 	{
 		DhcpLease lease = null;
-		if (useCache) {
+		if (useLeaseCache()) {
 			lease = leaseCache.getLease(iaAddr.getIpAddress());
 		}
 		if (lease == null) {
@@ -282,7 +347,7 @@ public abstract class LeaseManager implements IaManager {
 				}
 				if (deleted) {
 					updateIpAddrOptions(iaAddr.getIpAddress(), iaAddrOptions);
-					if (useCache) {
+					if (useIaCache()) {
 						lease.setIaAddrDhcpOptions(iaAddrOptions);
 // updated by reference, don't have to put it back
 //						leaseCache.putLease(lease);
@@ -316,7 +381,7 @@ public abstract class LeaseManager implements IaManager {
 					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime());
 			
 		}
-		if (useCache) {
+		if (useLeaseCache()) {
 			DhcpLease lease = leaseCache.getLease(iaAddr.getIpAddress());
 			if (lease != null) {
 				lease.setState(iaAddr.getState());
@@ -359,7 +424,7 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public void deleteIaAddr(IaAddress iaAddr) {
 		deleteIpAddress(iaAddr.getIpAddress());
-		if (useCache) {
+		if (useLeaseCache()) {
 			DhcpLease oldLease = leaseCache.removeLease(iaAddr.getIpAddress());
 			if (oldLease != null) {
 				IdentityAssoc ia = iaCache.getIA(oldLease.getDuid(),
@@ -399,7 +464,7 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public List<InetAddress> findExistingIPs(InetAddress startAddr, InetAddress endAddr) {
 		List<InetAddress> ips = null;
-		if (useCache) {
+		if (useLeaseCache()) {
 			ips = leaseCache.getAllLeases().stream()
 					.filter(l -> 
 							(Util.compareInetAddrs(l.getIpAddress(), startAddr) >= 0) && 
@@ -407,8 +472,23 @@ public abstract class LeaseManager implements IaManager {
 //					.sorted(Comparator.comparing(DhcpLease::getIpAddress))
 					.map(l -> l.getIpAddress())
 					.collect(Collectors.toList());
+			
+			if (log.isDebugEnabled()) {
+				if ((ips != null) && !ips.isEmpty()) {
+					log.debug("Found " + ips.size() + " existing IPs in range=" +
+							  startAddr.getHostAddress() + "-" + 
+							  endAddr.getHostAddress() +
+							  " in Lease Cache");
+				}
+				else {
+					log.debug("Found no existing IPs in range=" +
+							  startAddr.getHostAddress() + "-" + 
+							  endAddr.getHostAddress() +
+							  " in Lease Cache");
+				}
+			}
 		}
-		if (ips == null) {
+		if ((ips == null) || ips.isEmpty()) {
 			ips = findExistingLeaseIPs(startAddr, endAddr);
 		}
 		return ips;
@@ -417,9 +497,7 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public List<IaAddress> findUnusedIaAddresses(InetAddress startAddr, InetAddress endAddr) {
 		List<IaAddress> iaAddresses = null;
-		if (useCache) {
-			long offerExpireMillis = 
-					DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
+		if (useLeaseCache()) {
 			final long offerExpiration = new Date().getTime() - offerExpireMillis;
 			iaAddresses = leaseCache.getAllLeases().stream()
 					.filter(l -> 
@@ -433,17 +511,68 @@ public abstract class LeaseManager implements IaManager {
 					.sorted(Comparator.comparing(DhcpLease::getValidEndTime))
 					.map(LeaseManager::toIaAddress)
 					.collect(Collectors.toList());
+			
+			if (log.isDebugEnabled()) {
+				if ((iaAddresses != null) && !iaAddresses.isEmpty()) {
+					log.debug("Found " + iaAddresses.size() + 
+							  " ununsed iaAddresses in range=" +
+							  startAddr.getHostAddress() + "-" + 
+							  endAddr.getHostAddress() +
+							  " in Lease Cache");
+				}
+				else {
+					log.debug("Found no unused iaAddresses in range=" +
+							  startAddr.getHostAddress() + "-" + 
+							  endAddr.getHostAddress() +
+							  " in Lease Cache");
+				}
+			}
 		}
-		if (iaAddresses == null) {
+		if ((iaAddresses == null) || iaAddresses.isEmpty()) {
 			iaAddresses = toIaAddresses(findUnusedLeases(startAddr, endAddr));
 		}
 		return iaAddresses;
+	}
+	
+	@Override
+	public IaAddress findUnusedIaAddress(InetAddress startAddr, InetAddress endAddr) {
+		IaAddress iaAddress = null;
+		if (useLeaseCache()) {
+			final long offerExpiration = new Date().getTime() - offerExpireMillis;
+			Optional<IaAddress> cachedIaAddress = leaseCache.getAllLeases().stream()
+					.reduce((DhcpLease l1, DhcpLease l2) ->
+					((l1.isInRange(startAddr, endAddr) && l1.isAvailable(offerExpiration) &&
+					l2.isInRange(startAddr, endAddr) && l2.isAvailable(offerExpiration) &&
+					(l1.getValidEndTime().compareTo(l2.getValidEndTime()) <= 0)) ? l1 : l2))
+					.map(LeaseManager::toIaAddress);
+			if (cachedIaAddress.isPresent()) {
+				iaAddress = cachedIaAddress.get();
+				if (log.isDebugEnabled()) {
+					log.debug("Found an ununsed iaAddress in range=" +
+							  startAddr.getHostAddress() + "-" + 
+							  endAddr.getHostAddress() +
+							  " in Lease Cache");
+				}
+			}
+			else {
+				if (log.isDebugEnabled()) {
+					log.debug("Found no ununsed iaAddress in range=" +
+							  startAddr.getHostAddress() + "-" + 
+							  endAddr.getHostAddress() +
+							  " in Lease Cache");
+				}
+			}
+		}
+		if (iaAddress == null) {
+			iaAddress = toIaAddress(findUnusedLease(startAddr, endAddr));
+		}
+		return iaAddress;
 	}
 
 	@Override
 	public List<IaAddress> findExpiredIaAddresses(byte iatype) {
 		List<IaAddress> iaAddresses = null;
-		if (useCache) {
+		if (useLeaseCache()) {
 			iaAddresses = leaseCache.getAllLeases().stream()
 							.filter(l -> 
 									(l.getIatype() == iatype) && 
@@ -462,9 +591,7 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public List<IaPrefix> findUnusedIaPrefixes(InetAddress startAddr, InetAddress endAddr) {
 		List<IaPrefix> iaPrefixes = null;
-		if (useCache) {
-			long offerExpireMillis = 
-					DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_OFFER_EXPIRATION);
+		if (useLeaseCache()) {
 			final long offerExpiration = new Date().getTime() - offerExpireMillis;
 			iaPrefixes = leaseCache.getAllLeases().stream()
 					.filter(l -> 
@@ -488,7 +615,7 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public List<IaPrefix> findExpiredIaPrefixes() {
 		List<IaPrefix> iaPrefixes = null;
-		if (useCache) {
+		if (useLeaseCache()) {
 			iaPrefixes = leaseCache.getAllLeases().stream()
 							.filter(l -> 
 									(l.getIatype() == IdentityAssoc.PD_TYPE) && 
@@ -507,7 +634,7 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public void reconcileIaAddresses(List<Range> ranges) {
 		reconcileLeases(ranges);
-		if (useCache) {
+		if (useLeaseCache()) {
 // this methond is invoked only during startup, so there is nothing in the cache!
 //			leaseCache.getAllLeases().stream()
 //				.filter(l -> {
@@ -526,8 +653,10 @@ public abstract class LeaseManager implements IaManager {
 	@Override
 	public void deleteAllIAs() {
 		deleteAllLeases();
-		if (useCache) {
+		if (useIaCache()) {
 			iaCache.clear();
+		}
+		if (useLeaseCache()) {
 			leaseCache.clear();
 		}
 	}
@@ -538,7 +667,7 @@ public abstract class LeaseManager implements IaManager {
 	{
 		DhcpOption dbOption = null;
 		DhcpLease lease = null;
-		if (useCache) {
+		if (useLeaseCache()) {
 			lease = leaseCache.getLease(iaAddr.getIpAddress());
 		}
 		if (lease == null) {
@@ -562,7 +691,7 @@ public abstract class LeaseManager implements IaManager {
 	{
 		iaAddr.setDhcpOption(option);
 		updateIpAddrOptions(iaAddr.getIpAddress(), iaAddr.getDhcpOptions());
-		if (useCache) {
+		if (useLeaseCache()) {
 			// we only need to update the object in the lease cache
 			// because the iaPrefix in the IA will be updated directly
 			// via the reference object obtained from the IA cache
@@ -798,7 +927,7 @@ public abstract class LeaseManager implements IaManager {
 	public static Collection<DhcpOption> decodeOptions(byte[] buf)
 	{
 		Collection<DhcpOption> options = null;
-        if (buf != null) {
+        if ((buf != null) && (buf.length > 0)) {
         	ByteBuffer bb = ByteBuffer.wrap(buf);
         	options = new ArrayList<DhcpOption>();
         	while (bb.hasRemaining()) {
