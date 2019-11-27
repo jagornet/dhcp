@@ -384,10 +384,9 @@ public class JdbcLeaseManager extends LeaseManager
 		final long offerExpiration = new Date().getTime() - offerExpireMillis;
         List<DhcpLease> leases = getJdbcTemplate().query(
                 "select * from dhcplease" +
-                " where ((state=" + IaAddress.ADVERTISED +
-                " and starttime <= ?)" +
-                " or (state=" + IaAddress.EXPIRED +
-                " or state=" + IaAddress.RELEASED + "))" +
+                " where ((state=" + IaAddress.AVAILABLE + ")" +
+                " or (state=" + IaAddress.OFFERED +
+                " and starttime <= ?))" +
                 " and ipaddress >= ? and ipaddress <= ?" +
                 " order by state, validendtime, ipaddress",
                 new PreparedStatementSetter() {
@@ -408,11 +407,11 @@ public class JdbcLeaseManager extends LeaseManager
 		final long offerExpiration = new Date().getTime() - offerExpireMillis;
         List<DhcpLease> leases = getJdbcTemplate().query(
                 "select * from dhcplease" +
-                " where ((state=" + IaAddress.ADVERTISED +
-                " and starttime <= ?)" +
-                " or (state=" + IaAddress.EXPIRED +
-                " or state=" + IaAddress.RELEASED + "))" +
+                " where ((state=" + IaAddress.AVAILABLE + ")" +
+                " or (state=" + IaAddress.OFFERED +
+                " and starttime <= ?))" +
                 " and ipaddress >= ? and ipaddress <= ?" +
+//                " order by state, validendtime, ipaddress" + 
                 LIMIT_ONE_CLAUSE,
                 new PreparedStatementSetter() {
 					@Override
@@ -435,8 +434,8 @@ public class JdbcLeaseManager extends LeaseManager
         return getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where iatype = ?" +
-                " and state != " + IaAddress.STATIC +
-                " and (validendtime is null or validendtime < ?)" +
+                " and state = " + IaAddress.LEASED +
+                " and validendtime < ?" +
                 " order by validendtime",
                 new PreparedStatementSetter() {
             		@Override

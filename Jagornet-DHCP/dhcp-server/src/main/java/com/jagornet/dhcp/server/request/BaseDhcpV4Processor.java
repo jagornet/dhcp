@@ -202,7 +202,10 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 	        replyMsg.putDhcpOption(dhcpV4ServerIdOption);
 	
 	        if (!process()) {
-	        	log.warn("Message dropped by processor");
+	        	// don't log a warning for release, which has no reply message
+	        	if (!(requestMsg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE)) {
+	        		log.warn("Message dropped by processor");
+	        	}
 	        	return null;
 	        }
 	        
@@ -462,7 +465,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 
 		if (sendUpdates) {
 			for (Binding binding : bindings) {
-				if (binding.getState() == Binding.COMMITTED) {
+				if (binding.getState() == Binding.LEASED) {
 					Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 					if (bindingObjs != null) {
 						for (BindingObject bindingObj : bindingObjs) {
@@ -493,7 +496,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		if (fsm != null) {
 			if (fsm.getState().equals(State.PRIMARY_RUNNING)) {
 				for (Binding binding : bindings) {
-					if (binding.getState() == Binding.COMMITTED) {
+					if (binding.getState() == Binding.LEASED) {
 						FailoverBindingCallback bndCallback =
 								new FailoverBindingCallback(binding);
 						//TODO: calculate second param - isDelete

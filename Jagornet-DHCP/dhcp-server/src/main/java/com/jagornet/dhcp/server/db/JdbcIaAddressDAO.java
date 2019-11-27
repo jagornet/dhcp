@@ -271,7 +271,7 @@ public class JdbcIaAddressDAO extends JdbcDaoSupport implements IaAddressDAO
                 "select * from iaaddress a" +
                 " join identityassoc ia on ia.id=a.identityassoc_id" +
                 " where ia.iatype = ?" +
-                " and a.state != " + IaAddress.STATIC +
+                " and a.state != " + IaAddress.RESERVED +
                 " and a.validendtime < ? order by a.validendtime",
                 new PreparedStatementSetter() {
             		@Override
@@ -292,10 +292,9 @@ public class JdbcIaAddressDAO extends JdbcDaoSupport implements IaAddressDAO
 		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
         return getJdbcTemplate().query(
                 "select * from iaaddress" +
-                " where ((state=" + IaAddress.ADVERTISED +
-                " and starttime <= ?)" +
-                " or (state=" + IaAddress.EXPIRED +
-                " or state=" + IaAddress.RELEASED + "))" +
+                " where ((state=" + IaAddress.AVAILABLE + ")" +
+                " or (state=" + IaAddress.OFFERED +
+                " and starttime <= ?))" +
                 " and ipaddress >= ? and ipaddress <= ?" +
                 " order by state, validendtime, ipaddress",
                 new PreparedStatementSetter() {

@@ -464,7 +464,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	protected void expireIA(final Long id)
 	{	
 		getJdbcTemplate().update(
-				"update identityassoc set state=" + IdentityAssoc.EXPIRED +
+				"update identityassoc set state=" + IdentityAssoc.AVAILABLE +
 				" where id=?" +
 				" and not exists" +
 				" (select 1 from iaaddress" +
@@ -513,7 +513,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	protected void expireIAs()
 	{
 		getJdbcTemplate().update(
-				"update identityassoc set state=" + IdentityAssoc.EXPIRED +
+				"update identityassoc set state=" + IdentityAssoc.AVAILABLE +
 				" where exists (select 1 from iaaddress where identityassoc_id=identityassoc.id and validendtime<?)" +
 				" and not exists (select 1 from iaaddress where identityassoc_id=identityassoc.id and validendtime>=?)",
 				new PreparedStatementSetter() {

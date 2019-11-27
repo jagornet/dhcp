@@ -136,7 +136,7 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 
 		boolean sendReply = true;
 		boolean rapidCommit = isRapidCommit(requestMsg, clientLink.getLink());
-		byte state = rapidCommit ? IaAddress.COMMITTED : IaAddress.ADVERTISED;
+		byte state = rapidCommit ? IaAddress.LEASED : IaAddress.OFFERED;
 		DhcpV6ClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
 		
 		List<DhcpV6IaNaOption> iaNaOptions = requestMsg.getIaNaOptions();

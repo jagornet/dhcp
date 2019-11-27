@@ -163,7 +163,7 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
     															chAddr, requestMsg);
 				if (binding != null) {
 					binding = bindingMgr.updateBinding(binding, clientLink, 
-							chAddr, requestMsg, IdentityAssoc.COMMITTED);
+							chAddr, requestMsg, IdentityAssoc.LEASED);
 					if (binding != null) {
 						addBindingToReply(clientLink, binding);
 						bindings.add(binding);

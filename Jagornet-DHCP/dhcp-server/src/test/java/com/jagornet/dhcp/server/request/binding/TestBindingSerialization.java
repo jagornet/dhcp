@@ -48,7 +48,7 @@ public class TestBindingSerialization extends BaseTestCase {
 								(byte)0xde, (byte)0xbb, (byte)0x1e });
 		v4IA.setIatype(IdentityAssoc.V4_TYPE);
 		v4IA.setIaid(1);
-		v4IA.setState(IdentityAssoc.COMMITTED);
+		v4IA.setState(IdentityAssoc.LEASED);
 		
 		List<IaAddress> iaAddrs = new ArrayList<IaAddress>();
 		IaAddress iaAddr = new IaAddress();
@@ -60,7 +60,7 @@ public class TestBindingSerialization extends BaseTestCase {
 		Date expire = new Date(now.getTime() + 3600);
 		iaAddr.setPreferredEndTime(expire);
 		iaAddr.setValidEndTime(expire);
-		iaAddr.setState(IaAddress.COMMITTED);
+		iaAddr.setState(IaAddress.LEASED);
 		iaAddrs.add(iaAddr);
 		
 		v4IA.setIaAddresses(iaAddrs);

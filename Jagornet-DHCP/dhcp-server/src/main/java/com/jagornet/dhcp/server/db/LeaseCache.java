@@ -13,9 +13,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.server.config.DhcpServerPolicies;
-import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
-
 public class LeaseCache {
 	
 	private static Logger log = LoggerFactory.getLogger(LeaseCache.class);
@@ -61,7 +58,7 @@ public class LeaseCache {
 		return leaseCache.values().stream()
 			.filter(l -> 
 				(l.getIatype() == iatype) && 
-				(l.getState() != IaAddress.STATIC) &&
+				(l.getState() != IaAddress.RESERVED) &&
 				(l.getValidEndTime().getTime() < now))
 			.sorted(Comparator.comparing(DhcpLease::getValidEndTime))
 			.collect(Collectors.toList());

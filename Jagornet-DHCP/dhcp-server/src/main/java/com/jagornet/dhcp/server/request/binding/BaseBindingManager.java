@@ -423,12 +423,12 @@ public abstract class BaseBindingManager
 	{
 		Binding binding = null;		
 		if (staticBinding != null) {
-			binding = buildBinding(clientLink, duid, iatype, iaid, IaAddress.STATIC);
+			binding = buildBinding(clientLink, duid, iatype, iaid, IaAddress.RESERVED);
 			InetAddress inetAddr = staticBinding.getInetAddress();
 			if (inetAddr != null) {
 				IaAddress iaAddr = new IaAddress();
 				iaAddr.setIpAddress(inetAddr);
-				iaAddr.setState(IaAddress.STATIC);
+				iaAddr.setState(IaAddress.RESERVED);
 				V6BindingAddress bindingAddr = new V6BindingAddress(iaAddr, staticBinding);
 				setBindingObjectTimes(bindingAddr, 
 						staticBinding.getPreferredLifetimeMs(), 
@@ -577,7 +577,7 @@ public abstract class BaseBindingManager
 			log.error("StaticBindingObject is null");
 		}
 
-		binding.setState(IaAddress.STATIC);
+		binding.setState(IaAddress.RESERVED);
 		try {
 			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses);
 			return binding;	// if we get here, it worked

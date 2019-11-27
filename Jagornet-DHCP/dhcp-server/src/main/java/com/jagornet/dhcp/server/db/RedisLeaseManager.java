@@ -51,6 +51,12 @@ public class RedisLeaseManager extends LeaseManager {
 	}
 
 	@Override
+	public DhcpLease findUnusedLease(InetAddress startAddr, InetAddress endAddr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public void reconcileLeases(List<Range> ranges) {
 		// TODO Auto-generated method stub
 

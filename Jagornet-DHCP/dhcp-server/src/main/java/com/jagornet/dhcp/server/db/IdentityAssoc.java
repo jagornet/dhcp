@@ -45,9 +45,9 @@ public class IdentityAssoc
 	public static final byte PD_TYPE = 3;
 	
 	// states
-	public static final byte ADVERTISED = IaAddress.ADVERTISED;
-	public static final byte COMMITTED = IaAddress.COMMITTED;
-	public static final byte EXPIRED = IaAddress.EXPIRED;
+	public static final byte AVAILABLE = IaAddress.AVAILABLE;
+	public static final byte OFFERED = IaAddress.OFFERED;
+	public static final byte LEASED = IaAddress.LEASED;
 	
 	protected Long id;	// the database-generated object ID
 	protected byte[] duid;

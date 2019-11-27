@@ -481,7 +481,7 @@ public class V4AddrBindingManagerImpl
 					}
 	    		}
 	    		else {
-	    			log.warn("No Client FQDN option in current binding.  No DDNS deletes performed.");
+	    			log.info("No Client FQDN option in current binding.  No DDNS deletes performed.");
 	    		}
 	    	}
     	}

@@ -70,11 +70,8 @@ public abstract class LeaseManager implements IaManager {
 			final InetAddress endAddr);
 	public abstract List<DhcpLease> findUnusedLeases(final InetAddress startAddr, 
 			final InetAddress endAddr);
-	public DhcpLease findUnusedLease(final InetAddress startAddr, 
-			final InetAddress endAddr) {
-		//TODO: make this abstract and then implement in all LeaseManagers
-		return null;
-	}
+	public abstract DhcpLease findUnusedLease(final InetAddress startAddr, 
+			final InetAddress endAddr);
 	public abstract List<DhcpLease> findExpiredLeases(final byte iatype);
 	public abstract void reconcileLeases(final List<Range> ranges);
 	public abstract void deleteAllLeases();
@@ -266,7 +263,7 @@ public abstract class LeaseManager implements IaManager {
 			ias = leaseCache.getAllLeases().stream()
 							.filter(l -> 
 									(l.getIatype() == iatype) && 
-									(l.getState() != IaAddress.STATIC) &&
+									(l.getState() == IaAddress.LEASED) &&
 									(l.getValidEndTime().getTime() < new Date().getTime()))
 							.sorted(Comparator.comparing(DhcpLease::getValidEndTime))
 							.map(LeaseManager::toIdentityAssoc)
@@ -501,10 +498,10 @@ public abstract class LeaseManager implements IaManager {
 			final long offerExpiration = new Date().getTime() - offerExpireMillis;
 			iaAddresses = leaseCache.getAllLeases().stream()
 					.filter(l -> 
-								((l.getState() == IaAddress.ADVERTISED && 
-								l.getStartTime().getTime() < offerExpiration) ||
-								l.getState() == IaAddress.EXPIRED ||
-								l.getState() == IaAddress.RELEASED) &&
+								((l.getState() == IaAddress.AVAILABLE) ||
+								((l.getState() == IaAddress.OFFERED) && 
+								 (l.getStartTime().getTime() < offerExpiration))) 
+								&&
 								((Util.compareInetAddrs(l.getIpAddress(), startAddr) >= 0) &&
 								(Util.compareInetAddrs(l.getIpAddress(), endAddr) <= 0))
 							)
@@ -576,7 +573,7 @@ public abstract class LeaseManager implements IaManager {
 			iaAddresses = leaseCache.getAllLeases().stream()
 							.filter(l -> 
 									(l.getIatype() == iatype) && 
-									(l.getState() != IaAddress.STATIC) &&
+									(l.getState() != IaAddress.RESERVED) &&
 									(l.getValidEndTime().getTime() < new Date().getTime()))
 							.sorted(Comparator.comparing(DhcpLease::getValidEndTime))
 							.map(LeaseManager::toIaAddress)
@@ -595,10 +592,10 @@ public abstract class LeaseManager implements IaManager {
 			final long offerExpiration = new Date().getTime() - offerExpireMillis;
 			iaPrefixes = leaseCache.getAllLeases().stream()
 					.filter(l -> 
-								((l.getState() == IaAddress.ADVERTISED && 
-								l.getStartTime().getTime() < offerExpiration) ||
-								l.getState() == IaAddress.EXPIRED ||
-								l.getState() == IaAddress.RELEASED) &&
+								((l.getState() == IaAddress.AVAILABLE) ||
+								((l.getState() == IaAddress.OFFERED) && 
+								 (l.getStartTime().getTime() < offerExpiration))) 
+								&&
 								((Util.compareInetAddrs(l.getIpAddress(), startAddr) >= 0) &&
 								(Util.compareInetAddrs(l.getIpAddress(), endAddr) <= 0))
 							)
@@ -619,7 +616,7 @@ public abstract class LeaseManager implements IaManager {
 			iaPrefixes = leaseCache.getAllLeases().stream()
 							.filter(l -> 
 									(l.getIatype() == IdentityAssoc.PD_TYPE) && 
-									(l.getState() != IaAddress.STATIC) &&
+									(l.getState() != IaAddress.RESERVED) &&
 									(l.getValidEndTime().getTime() < new Date().getTime()))
 							.sorted(Comparator.comparing(DhcpLease::getValidEndTime))
 							.map(LeaseManager::toIaPrefix)

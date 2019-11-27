@@ -296,10 +296,9 @@ public class JdbcIaPrefixDAO extends JdbcDaoSupport implements IaPrefixDAO
 		final long offerExpiration = new Date().getTime() - 12000;	// 2 min = 120 sec = 12000 ms
         return getJdbcTemplate().query(
                 "select * from iaprefix" +
-                " where ((state=" + IaPrefix.ADVERTISED +
-                " and starttime <= ?)" +
-                " or (state=" + IaPrefix.EXPIRED +
-                " or state=" + IaPrefix.RELEASED + "))" +
+                " where ((state=" + IaPrefix.AVAILABLE + ")" +
+                " or (state=" + IaPrefix.OFFERED +
+                " and starttime <= ?))" +
                 " and prefixaddress >= ? and prefixaddress <= ?" +
                 " order by state, validendtime, ipaddress",
                 new PreparedStatementSetter() {

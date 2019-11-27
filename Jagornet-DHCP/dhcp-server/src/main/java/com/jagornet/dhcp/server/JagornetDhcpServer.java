@@ -382,7 +382,7 @@ public class JagornetDhcpServer
     	*/
     	
     	if (serverConfig.isHA()) {
-	    	//HttpServer jerseyHttpServer = JerseyServer.startServer();
+	    	//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
 	    	Channel jerseyHttpServer = JerseyRestServer.startNettyServer(haPortNumber);
 	    	log.info("HA server startup complete");
     	}

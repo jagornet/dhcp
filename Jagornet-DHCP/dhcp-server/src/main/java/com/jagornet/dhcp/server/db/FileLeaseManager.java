@@ -117,10 +117,9 @@ public class FileLeaseManager extends LeaseManager {
 				DhcpLease lease = load(inetAddr);
 				if (lease != null) {
 //					log.debug("Checking lease: " + lease);
-					if ((lease.getState() == IaAddress.RELEASED) ||
-							(lease.getState() == IaAddress.EXPIRED) ||
-							((lease.getState() == IaAddress.ADVERTISED) && 
-									(lease.getStartTime().getTime() <= offerExpiration))) {
+					if ((lease.getState() == IaAddress.AVAILABLE) ||
+						((lease.getState() == IaAddress.OFFERED) && 
+						(lease.getStartTime().getTime() <= offerExpiration))) {
 //						log.debug("Found unused lease: " + lease);
 						dhcpLeases.add(lease);
 					}
@@ -130,6 +129,30 @@ public class FileLeaseManager extends LeaseManager {
 		return dhcpLeases;
 	}
 
+	@Override
+	public DhcpLease findUnusedLease(InetAddress startAddr, InetAddress endAddr) {
+		DhcpLease dhcpLease = null;
+		List<InetAddress> inetAddrs = findExistingIPs(startAddr, endAddr);
+		if (inetAddrs != null) {
+			final long offerExpiration = new Date().getTime() - offerExpireMillis;
+//			log.debug("Checking " + inetAddrs.size() + " leases for offerExpriation=" + new Date(offerExpiration));
+			for (InetAddress inetAddr : inetAddrs) {
+				DhcpLease lease = load(inetAddr);
+				if (lease != null) {
+//					log.debug("Checking lease: " + lease);
+					if ((lease.getState() == IaAddress.AVAILABLE) ||
+						((lease.getState() == IaAddress.OFFERED) && 
+						(lease.getStartTime().getTime() <= offerExpiration))) {
+//						log.debug("Found unused lease: " + lease);
+						dhcpLease = lease;
+						break;
+					}
+				}
+			}
+		}
+		return dhcpLease;
+	}
+	
 	@Override
 	public void reconcileLeases(List<Range> ranges) {
 		try {

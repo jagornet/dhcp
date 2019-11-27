@@ -1074,7 +1074,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		
 		if (sendUpdates) {
 			for (Binding binding : bindings) {
-				if (binding.getState() == Binding.COMMITTED) {
+				if (binding.getState() == Binding.LEASED) {
 					Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 					if (bindingObjs != null) {
 						for (BindingObject bindingObj : bindingObjs) {

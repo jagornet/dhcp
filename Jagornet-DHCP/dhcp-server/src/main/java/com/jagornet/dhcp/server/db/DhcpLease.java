@@ -312,10 +312,9 @@ public class DhcpLease implements Cloneable
 	}
 
 	public boolean isAvailable(long offerExpiration) {
-		return ((getState() == IaAddress.ADVERTISED && 
-				getStartTime().getTime() < offerExpiration) ||
-				getState() == IaAddress.EXPIRED ||
-				getState() == IaAddress.RELEASED);
+		return ((getState() == IaAddress.AVAILABLE) || 
+				((getState() == IaAddress.OFFERED) && 
+				(getStartTime().getTime() < offerExpiration)));
 	}
 	
 	public boolean isInRange(InetAddress startAddr, InetAddress endAddr) {

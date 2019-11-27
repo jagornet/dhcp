@@ -109,10 +109,13 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 				freeAddress(iaAddr.getIpAddress());
 			}
 			else {
+				/* 
+				 * Leave the old start time for released addresses
 				iaAddr.setStartTime(null);
+				*/
 				iaAddr.setPreferredEndTime(null);
 				iaAddr.setValidEndTime(null);
-				iaAddr.setState(IaAddress.RELEASED);
+				iaAddr.setState(IaAddress.AVAILABLE);
 				iaMgr.updateIaAddr(iaAddr);
 				log.info("Address released: " + iaAddr.toString());
 			}
@@ -167,10 +170,13 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 				freeAddress(iaAddr.getIpAddress());
 			}
 			else {
+				/* 
+				 * Leave the old times for expired addresses
 				iaAddr.setStartTime(null);
 				iaAddr.setPreferredEndTime(null);
 				iaAddr.setValidEndTime(null);
-				iaAddr.setState(IaAddress.EXPIRED);
+				*/
+				iaAddr.setState(IaAddress.AVAILABLE);
 				log.debug("Updating expired address: " + 
 							iaAddr.getIpAddress().getHostAddress());
 				iaMgr.updateIaAddr(iaAddr);

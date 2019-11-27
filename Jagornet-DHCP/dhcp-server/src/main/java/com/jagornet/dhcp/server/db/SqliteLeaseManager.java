@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
-import com.jagornet.dhcp.server.config.DhcpServerPolicies;
-import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Range;
 
 /**
@@ -479,10 +477,9 @@ public class SqliteLeaseManager extends LeaseManager
 			connection = getSQLiteConnection();
 			statement = connection.prepare(
 		                "select * from dhcplease" +
-		                " where ((state=" + IaAddress.ADVERTISED +
-		                " and starttime <= ?)" +
-		                " or (state=" + IaAddress.EXPIRED +
-		                " or state=" + IaAddress.RELEASED + "))" +
+                        " where ((state=" + IaAddress.AVAILABLE + ")" +
+                        " or (state=" + IaAddress.OFFERED +
+                        " and starttime <= ?))" +
 		                " and ipaddress >= ? and ipaddress <= ?" +
 		                " order by state, validendtime, ipaddress");
 			statement.bind(1, offerExpiration);
@@ -491,6 +488,39 @@ public class SqliteLeaseManager extends LeaseManager
 			
 			List<DhcpLease> leases = mapLeases(statement);
 			return leases;
+		}
+		catch (SQLiteException ex) {
+			log.error("findUnusedIaAddresses failed", ex);
+			throw new RuntimeException(ex);
+		}
+		finally {
+			closeStatement(statement);
+			closeConnection(connection);
+		}
+	}
+	
+	@Override
+	public DhcpLease findUnusedLease(final InetAddress startAddr, final InetAddress endAddr)
+	{
+		final long offerExpiration = new Date().getTime() - offerExpireMillis;
+		
+		SQLiteConnection connection = null;
+		SQLiteStatement statement = null;
+		try {
+			connection = getSQLiteConnection();
+			statement = connection.prepare(
+		                "select * from dhcplease" +
+                        " where ((state=" + IaAddress.AVAILABLE + ")" +
+                        " or (state=" + IaAddress.OFFERED +
+                        " and starttime <= ?))" +
+		                " and ipaddress >= ? and ipaddress <= ?" +
+		                " limit 1");
+			statement.bind(1, offerExpiration);
+			statement.bind(2, startAddr.getAddress());
+			statement.bind(3, endAddr.getAddress());
+			
+			DhcpLease lease = mapLease(statement);
+			return lease;
 		}
 		catch (SQLiteException ex) {
 			log.error("findUnusedIaAddresses failed", ex);
@@ -510,8 +540,9 @@ public class SqliteLeaseManager extends LeaseManager
 			statement = connection.prepare(
 		                "select * from dhcplease" +
 		                " where iatype = ?" +
-		                " and state != " + IaAddress.STATIC +
-		                " and validendtime < ? order by validendtime");
+		                " and state == " + IaAddress.LEASED +
+		                " and validendtime < ?" +
+		                " order by validendtime");
 			statement.bind(1, iatype);
 			statement.bind(2, new Date().getTime());
 			
@@ -570,34 +601,38 @@ public class SqliteLeaseManager extends LeaseManager
     protected List<DhcpLease> mapLeases(SQLiteStatement statement) throws SQLiteException {
 		
     	List<DhcpLease> leases = new ArrayList<DhcpLease>();
-    	
 		while (statement.step()) {
-	    	DhcpLease lease = new DhcpLease();
-        	try {
-				lease.setIpAddress(InetAddress.getByAddress(statement.columnBlob(0)));
-			} 
-        	catch (UnknownHostException e) {
-				throw new RuntimeException("Unable to map dhcplease", e);
-			}
-	    	lease.setDuid(statement.columnBlob(1));
-	    	lease.setIatype((byte)statement.columnInt(2));
-	    	lease.setIaid(statement.columnLong(3));
-	    	lease.setPrefixLength((short)statement.columnInt(4));
-			lease.setState((byte)statement.columnInt(5));
-	    	long starttime;
-	    	starttime = statement.columnLong(6);
-			lease.setStartTime(new Date(starttime));
-	    	long preferredendtime;
-	    	preferredendtime = statement.columnLong(7);
-			lease.setPreferredEndTime(new Date(preferredendtime));
-	    	long validendtime;
-	    	validendtime = statement.columnLong(8);
-			lease.setValidEndTime(new Date(validendtime));
-			lease.setIaDhcpOptions(decodeOptions(statement.columnBlob(9)));
-			lease.setIaAddrDhcpOptions(decodeOptions(statement.columnBlob(10)));
+	    	DhcpLease lease = mapLease(statement);
 			leases.add(lease);
 		}
 		return leases;
+    }
+    
+    protected DhcpLease mapLease (SQLiteStatement statement) throws SQLiteException {
+    	DhcpLease lease = new DhcpLease();
+    	try {
+			lease.setIpAddress(InetAddress.getByAddress(statement.columnBlob(0)));
+		} 
+    	catch (UnknownHostException e) {
+			throw new RuntimeException("Unable to map dhcplease", e);
+		}
+    	lease.setDuid(statement.columnBlob(1));
+    	lease.setIatype((byte)statement.columnInt(2));
+    	lease.setIaid(statement.columnLong(3));
+    	lease.setPrefixLength((short)statement.columnInt(4));
+		lease.setState((byte)statement.columnInt(5));
+    	long starttime;
+    	starttime = statement.columnLong(6);
+		lease.setStartTime(new Date(starttime));
+    	long preferredendtime;
+    	preferredendtime = statement.columnLong(7);
+		lease.setPreferredEndTime(new Date(preferredendtime));
+    	long validendtime;
+    	validendtime = statement.columnLong(8);
+		lease.setValidEndTime(new Date(validendtime));
+		lease.setIaDhcpOptions(decodeOptions(statement.columnBlob(9)));
+		lease.setIaAddrDhcpOptions(decodeOptions(statement.columnBlob(10)));
+		return lease;
     }
     
     private void closeStatement(SQLiteStatement statement) {

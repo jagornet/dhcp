@@ -352,7 +352,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 					}
 	    		}
 	    		else {
-	    			log.warn("No Client FQDN option in current binding.  No DDNS deletes performed.");
+	    			log.info("No Client FQDN option in current binding.  No DDNS deletes performed.");
 	    		}
 	    	}
     	}

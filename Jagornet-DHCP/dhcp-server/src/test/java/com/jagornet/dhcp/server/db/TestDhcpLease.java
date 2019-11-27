@@ -28,7 +28,7 @@ public class TestDhcpLease {
 										(byte)0xde, (byte)0xbb, (byte)0x1e });
 		dhcpLease.setIaid(1);
 		dhcpLease.setIatype(IdentityAssoc.V4_TYPE);
-		dhcpLease.setState(IdentityAssoc.COMMITTED);
+		dhcpLease.setState(IdentityAssoc.LEASED);
 		Date now = new Date();
 		dhcpLease.setStartTime(now);
 		dhcpLease.setPreferredEndTime(now);

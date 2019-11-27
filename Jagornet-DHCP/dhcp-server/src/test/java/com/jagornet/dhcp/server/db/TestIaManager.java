@@ -101,7 +101,7 @@ public class TestIaManager extends BaseTestCase
 		ia.setDuid(duid);
 		ia.setIatype(iatype);
 		ia.setIaid(iaid);
-		ia.setState(IdentityAssoc.ADVERTISED);
+		ia.setState(IdentityAssoc.OFFERED);
 		
 		Collection<IaAddress> ips = new ArrayList<IaAddress>();
 		
@@ -113,7 +113,7 @@ public class TestIaManager extends BaseTestCase
 		ip1.setPreferredEndTime(p1);
 		v1 = new Date(now1.getTime() + twohours);
 		ip1.setValidEndTime(v1);
-		ip1.setState(IaAddress.ADVERTISED);
+		ip1.setState(IaAddress.OFFERED);
 		
 		Collection<DhcpOption> ip1opts = new ArrayList<DhcpOption>();
 		
@@ -138,7 +138,7 @@ public class TestIaManager extends BaseTestCase
 		ip2.setPreferredEndTime(p2);
 		v2 = new Date(now2.getTime() + twohours);
 		ip2.setValidEndTime(v2);
-		ip2.setState(IaAddress.ADVERTISED);
+		ip2.setState(IaAddress.OFFERED);
 		
 		Collection<DhcpOption> ip2opts = new ArrayList<DhcpOption>();
 		
@@ -181,7 +181,7 @@ public class TestIaManager extends BaseTestCase
 		assertTrue(Arrays.equals(duid, ia2.getDuid()));
 		assertEquals(iatype, ia2.getIatype());
 		assertEquals(iaid, ia2.getIaid());
-		assertEquals(IdentityAssoc.ADVERTISED, ia2.getState());
+		assertEquals(IdentityAssoc.OFFERED, ia2.getState());
 		
 		Collection<DhcpOption> opts2 = ia2.getDhcpOptions();
 		assertNotNull(opts2);
@@ -199,7 +199,7 @@ public class TestIaManager extends BaseTestCase
 		assertEquals(now1.getTime(), ia2ip1.getStartTime().getTime());
 		assertEquals(p1.getTime(), ia2ip1.getPreferredEndTime().getTime());
 		assertEquals(v1.getTime(), ia2ip1.getValidEndTime().getTime());
-		assertEquals(IaAddress.ADVERTISED, ip1.getState());
+		assertEquals(IaAddress.OFFERED, ip1.getState());
 		
 		Collection<DhcpOption> ia2ip1opts = ia2ip1.getDhcpOptions();
 		assertNotNull(ia2ip1opts);
@@ -217,7 +217,7 @@ public class TestIaManager extends BaseTestCase
 		assertEquals(now2.getTime(), ia2ip2.getStartTime().getTime());
 		assertEquals(p2.getTime(), ia2ip2.getPreferredEndTime().getTime());
 		assertEquals(v2.getTime(), ia2ip2.getValidEndTime().getTime());
-		assertEquals(IaAddress.ADVERTISED, ip2.getState());
+		assertEquals(IaAddress.OFFERED, ip2.getState());
 		
 		Collection<DhcpOption> ia2ip2opts = ia2ip2.getDhcpOptions();
 		assertNotNull(ia2ip2opts);

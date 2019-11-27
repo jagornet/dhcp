@@ -325,7 +325,7 @@ public class V6PrefixBindingManagerImpl
 				iaPrefix.setStartTime(null);
 				iaPrefix.setPreferredEndTime(null);
 				iaPrefix.setValidEndTime(null);
-				iaPrefix.setState(IaPrefix.RELEASED);
+				iaPrefix.setState(IaPrefix.AVAILABLE);
 				iaMgr.updateIaPrefix(iaPrefix);
 			}
 		}
@@ -370,7 +370,7 @@ public class V6PrefixBindingManagerImpl
 				iaPrefix.setStartTime(null);
 				iaPrefix.setPreferredEndTime(null);
 				iaPrefix.setValidEndTime(null);
-				iaPrefix.setState(IaPrefix.EXPIRED);
+				iaPrefix.setState(IaPrefix.AVAILABLE);
 				log.debug("Updating expired prefix: " + iaPrefix.getIpAddress());
 				iaMgr.updateIaPrefix(iaPrefix);
 			}

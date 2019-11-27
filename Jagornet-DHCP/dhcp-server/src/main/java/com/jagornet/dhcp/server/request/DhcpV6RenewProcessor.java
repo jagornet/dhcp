@@ -166,7 +166,7 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
 						else {
 							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaNaOption, requestMsg, 
-									IdentityAssoc.COMMITTED);
+									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
@@ -205,7 +205,7 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
 						else {
 							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaTaOption, requestMsg, 
-									IdentityAssoc.COMMITTED);
+									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
@@ -244,7 +244,7 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
 						else {
 							binding = bindingMgr.updateBinding(binding, clientLink, 
 									clientIdOption, dhcpIaPdOption, requestMsg, 
-									IdentityAssoc.COMMITTED);
+									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);

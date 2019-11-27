@@ -134,6 +134,12 @@ public class RandomAccessFileLeaseManager extends LeaseManager {
 	}
 
 	@Override
+	public DhcpLease findUnusedLease(InetAddress startAddr, InetAddress endAddr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public List<DhcpLease> findExpiredLeases(byte iatype) {
 		// TODO Auto-generated method stub
 		return null;

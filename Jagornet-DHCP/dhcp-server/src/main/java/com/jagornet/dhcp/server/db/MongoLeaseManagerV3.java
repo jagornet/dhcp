@@ -40,8 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.util.DhcpConstants;
-import com.jagornet.dhcp.server.config.DhcpServerPolicies;
-import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.request.binding.Range;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -365,14 +363,13 @@ public class MongoLeaseManagerV3 extends LeaseManager
 		final Date offerExpiration = new Date(new Date().getTime() - offerExpireMillis);
 
 		BasicDBList ipAdvBetw = new BasicDBList();
-		ipAdvBetw.add(new BasicDBObject("state", IaAddress.ADVERTISED));
+		ipAdvBetw.add(new BasicDBObject("state", IaAddress.OFFERED));
 		ipAdvBetw.add(new BasicDBObject("startTime", new BasicDBObject("$lte", offerExpiration)));
 		ipAdvBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$gte", startAddr.getAddress())));
 		ipAdvBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$lte", endAddr.getAddress())));
 		
 		BasicDBList ipExpRel = new BasicDBList();
-		ipExpRel.add(IaAddress.EXPIRED);
-		ipExpRel.add(IaAddress.RELEASED);
+		ipExpRel.add(IaAddress.AVAILABLE);
 		
 		BasicDBList ipExpRelBetw = new BasicDBList();
 		ipExpRelBetw.add(new BasicDBObject("state", new BasicDBObject("$in", ipExpRel)));
@@ -402,12 +399,56 @@ public class MongoLeaseManagerV3 extends LeaseManager
 		
 		return null;
 	}
+	
+	@Override
+	public DhcpLease findUnusedLease(final InetAddress startAddr, final InetAddress endAddr)
+	{
+		final Date offerExpiration = new Date(new Date().getTime() - offerExpireMillis);
+
+		BasicDBList ipAdvBetw = new BasicDBList();
+		ipAdvBetw.add(new BasicDBObject("state", IaAddress.OFFERED));
+		ipAdvBetw.add(new BasicDBObject("startTime", new BasicDBObject("$lte", offerExpiration)));
+		ipAdvBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$gte", startAddr.getAddress())));
+		ipAdvBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$lte", endAddr.getAddress())));
+		
+		BasicDBList ipExpRel = new BasicDBList();
+		ipExpRel.add(IaAddress.AVAILABLE);
+		
+		BasicDBList ipExpRelBetw = new BasicDBList();
+		ipExpRelBetw.add(new BasicDBObject("state", new BasicDBObject("$in", ipExpRel)));
+		ipExpRelBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$gte", startAddr.getAddress())));
+		ipExpRelBetw.add(new BasicDBObject("ipAddress", new BasicDBObject("$lte", endAddr.getAddress())));
+		
+		BasicDBList ipBetw = new BasicDBList();
+		ipBetw.add(new BasicDBObject("$and", ipAdvBetw));
+		ipBetw.add(new BasicDBObject("$and", ipExpRelBetw));
+		
+		DBObject query = new BasicDBObject("$or", ipBetw); 
+//		DBCursor cursor = dhcpLeases.find(query).sort(new BasicDBObject("state", 1))
+//												.sort(new BasicDBObject("validEndTime", 1))
+//												.sort(new BasicDBObject("ipAddress", 1))
+//												.limit(1);
+//		try {
+//			if (cursor.count() > 0) {
+//				DhcpLease lease = null
+//				while (cursor.hasNext()) {
+//					lease = convertDBObject(cursor.next());
+//				}
+//				return lease;
+//			}
+//		}
+//		finally {
+//			cursor.close();
+//		}
+		
+		return null;
+	}
 
 	@Override
 	public List<DhcpLease> findExpiredLeases(final byte iatype) {
 		List<DhcpLease> leases = null;
 		DBObject query = new BasicDBObject("iatype", iatype).
-									append("state", new BasicDBObject("$ne", IaAddress.STATIC)).
+									append("state", new BasicDBObject("$eq", IaAddress.LEASED)).
 									append("validEndTime", new BasicDBObject("$lt", new Date()));
 //		DBCursor cursor = dhcpLeases.find(query).sort(new BasicDBObject("validEndTime", 1));
 //		try {

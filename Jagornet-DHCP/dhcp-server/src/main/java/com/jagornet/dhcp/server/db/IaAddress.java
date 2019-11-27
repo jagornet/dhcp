@@ -41,12 +41,20 @@ import com.jagornet.dhcp.core.util.Util;
 public class IaAddress
 {
 	// states
+	/*
 	public static final byte ADVERTISED = 1;
 	public static final byte COMMITTED = 2;
 	public static final byte EXPIRED = 3;
 	public static final byte RELEASED = 4;
 	public static final byte DECLINED = 5;
 	public static final byte STATIC = 6;
+	*/
+	public static final byte AVAILABLE = 0;
+	public static final byte RESERVED = 1;
+	public static final byte OFFERED = 2;
+	public static final byte LEASED = 3;
+	public static final byte DECLINED = 4;
+	public static final byte PINGED = 5;
 
 	protected Long id;	// the database-generated object ID
 	protected InetAddress ipAddress;
@@ -352,6 +360,7 @@ public class IaAddress
 	{
 		String s = null;
 		switch (state) {
+		/*
 			case ADVERTISED:
 				s = "Advertised";
 				break;
@@ -370,6 +379,26 @@ public class IaAddress
 			case STATIC:
 				s = "Static";
 				break;
+		*/
+		case AVAILABLE:
+			s = "Available";
+			break;
+		case RESERVED:
+			s = "Reserved";
+			break;
+		case OFFERED:
+			s = "Offered";
+			break;
+		case LEASED:
+			s = "Leased";
+			break;
+		case DECLINED:
+			s = "Declined";
+			break;
+		case PINGED:
+			s = "Pinged";
+			break;
+			
 			default:
 				s = "Unknown";
 				break;

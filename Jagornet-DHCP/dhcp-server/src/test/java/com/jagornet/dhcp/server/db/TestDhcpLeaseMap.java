@@ -38,7 +38,7 @@ public class TestDhcpLeaseMap {
 				lease.setStartTime(new Date());
 				lease.setPreferredEndTime(new Date());
 				lease.setValidEndTime(new Date());
-				lease.setState(IdentityAssoc.ADVERTISED);
+				lease.setState(IdentityAssoc.OFFERED);
 				leaseMap.put(inetAddr, lease);
 				long usedMemory = rt.totalMemory() - rt.freeMemory();
 				if (i % 1000 == 0) {

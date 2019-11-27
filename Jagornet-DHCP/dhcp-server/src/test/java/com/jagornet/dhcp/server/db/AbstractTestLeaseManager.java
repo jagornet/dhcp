@@ -63,10 +63,10 @@ public class AbstractTestLeaseManager extends BaseTestCase {
 				lease.setPreferredEndTime(end);
 				lease.setValidEndTime(end);
 				if (i < 5) {
-					lease.setState(IaAddress.ADVERTISED);
+					lease.setState(IaAddress.OFFERED);
 				}
 				else {
-					lease.setState(IaAddress.COMMITTED);
+					lease.setState(IaAddress.LEASED);
 				}
 				// TODO: add options
 				IdentityAssoc ia = LeaseManager.toIdentityAssoc(lease);
@@ -115,15 +115,10 @@ public class AbstractTestLeaseManager extends BaseTestCase {
 		lease.setStartTime(null);
 		lease.setPreferredEndTime(null);
 		lease.setValidEndTime(null);
-		lease.setState(IaAddress.RELEASED);
+		lease.setState(IaAddress.AVAILABLE);
 		leaseManager.updateDhcpLease(lease);
+		// the available lease should not be found as expired, it is already free
 		List<DhcpLease> expired = leaseManager.findExpiredLeases(IdentityAssoc.V4_TYPE);
-		if (expired != null) {
-			log.debug("Found " + expired.size() + " expired leases, first one: " + expired.get(0));
-		}
-		else {
-			log.debug("No expired leases found");
-		}
 		assertTrue(expired.isEmpty());
 	}
 }

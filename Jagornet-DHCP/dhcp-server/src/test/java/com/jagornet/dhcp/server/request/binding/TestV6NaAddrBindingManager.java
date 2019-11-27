@@ -120,7 +120,7 @@ public class TestV6NaAddrBindingManager extends BaseTestCase
 		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
 		Binding binding = manager.createSolicitBinding(clientLink, clientIdOption, 
-				dhcpIaNa, null, IdentityAssoc.ADVERTISED);
+				dhcpIaNa, null, IdentityAssoc.OFFERED);
 		assertNotNull(binding);
 		Binding binding2 = manager.findCurrentBinding(clientLink, clientIdOption, 
 				dhcpIaNa, null);
