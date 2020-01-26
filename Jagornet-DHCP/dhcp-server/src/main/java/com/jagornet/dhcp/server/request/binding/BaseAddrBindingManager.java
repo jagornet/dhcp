@@ -25,10 +25,18 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
+import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.management.Attribute;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,6 +233,21 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 			log.debug("Looking for expired addresses of type: " +
 					IdentityAssoc.iaTypeToString(getIaType()) + "...");
 			expireAddresses();
+			
+			/*
+			 * Confirmed via below that DhcpLeasesResource.ipstream does not leak file descriptors
+			 * 
+	        try {
+				MBeanServer mbean = ManagementFactory.getPlatformMBeanServer();
+				ObjectName oName = new ObjectName("java.lang:type=OperatingSystem");
+				javax.management.AttributeList list = mbean.getAttributes(oName, new String[]{"OpenFileDescriptorCount", "MaxFileDescriptorCount"});
+				for(Attribute attr: list.asList()) {
+				    log.debug(attr.getName() + ": " + attr.getValue());
+				}
+			} catch (Exception ex) {
+				log.error("Failed to check open files: " + ex);
+			}
+			 */
 		}
 	}
 }

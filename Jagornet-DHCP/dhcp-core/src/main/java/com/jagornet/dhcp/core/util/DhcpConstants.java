@@ -28,6 +28,7 @@ package com.jagornet.dhcp.core.util;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +107,8 @@ public class DhcpConstants
                                                     "Info-Request",
                                                     "Relay-Forward",
                                                     "Relay-Reply" };
+    
+    public static enum HaRole { PRIMARY, BACKUP };
     
     /**
      * Get the string representation of a DHCPv6 message
@@ -256,5 +259,7 @@ public class DhcpConstants
     public static final int V4OPTION_CLIENT_FQDN = 81;
     public static final int V4OPTION_RELAY_INFO = 82;
     public static final int V4OPTION_EOF = 255;
+
+	public static Date EPOCH = new Date(0);
     
 }

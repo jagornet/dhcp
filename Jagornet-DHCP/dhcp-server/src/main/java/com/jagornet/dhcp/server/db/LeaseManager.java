@@ -52,29 +52,38 @@ public abstract class LeaseManager implements IaManager {
 	
 	private static Logger log = LoggerFactory.getLogger(LeaseManager.class);
 
-	public abstract void insertDhcpLease(final DhcpLease lease);
-	public abstract void updateDhcpLease(final DhcpLease lease);
-	public abstract void deleteDhcpLease(final DhcpLease lease);
-	public abstract void updateIpAddress(final InetAddress inetAddr, 
-			final byte state, final short prefixlen,
+	public abstract int insertDhcpLease(final DhcpLease lease);
+	public abstract int updateDhcpLease(final DhcpLease lease);
+	public abstract int deleteDhcpLease(final DhcpLease lease);
+	public abstract int updateIpAddress(final InetAddress inetAddr, 
+			final byte state, final byte haPeerState, final short prefixlen,
 			final Date start, final Date preferred, final Date valid);
-	public abstract void deleteIpAddress(final InetAddress inetAddr);
-	public abstract void updateIaOptions(final InetAddress inetAddr, 
+	public abstract int deleteIpAddress(final InetAddress inetAddr);
+	public abstract int updateIaOptions(final InetAddress inetAddr, 
 			final Collection<DhcpOption> iaOptions);
-	public abstract void updateIpAddrOptions(final InetAddress inetAddr,
+	public abstract int updateIpAddrOptions(final InetAddress inetAddr,
 			final Collection<DhcpOption> ipAddrOptions);
 	public abstract List<DhcpLease> findDhcpLeasesForIA(final byte[] duid, 
 			final byte iatype, final long iaid);
 	public abstract DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr);
 	public abstract List<InetAddress> findExistingLeaseIPs(final InetAddress startAddr, 
 			final InetAddress endAddr);
+	public void findExistingLeaseIPs(final InetAddress startAddr, 
+			final InetAddress endAddr, InetAddressCallbackHandler inetAddressCallbackHandler) {
+		//TODO: implement in all subclasses
+	}
+	public void findExistingLeases(final InetAddress startAddr, 
+								   final InetAddress endAddr,
+								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
+		//TODO: implement in all subclasses
+	}
 	public abstract List<DhcpLease> findUnusedLeases(final InetAddress startAddr, 
 			final InetAddress endAddr);
 	public abstract DhcpLease findUnusedLease(final InetAddress startAddr, 
 			final InetAddress endAddr);
 	public abstract List<DhcpLease> findExpiredLeases(final byte iatype);
 	public abstract void reconcileLeases(final List<Range> ranges);
-	public abstract void deleteAllLeases();
+	public abstract int deleteAllLeases();
 	
 	protected long offerExpireMillis;
 	protected IaCache iaCache = null;
@@ -370,11 +379,13 @@ public abstract class LeaseManager implements IaManager {
 			prefixLen = ((IaPrefix)iaAddr).getPrefixLength();
 		}
 		if (!isPrefix) {
-			updateIpAddress(iaAddr.getIpAddress(), iaAddr.getState(), (short)0,
+			updateIpAddress(iaAddr.getIpAddress(), 
+					iaAddr.getState(), iaAddr.getHaPeerState(), (short)0,
 					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime());
 		}
 		else {
-			updateIpAddress(iaAddr.getIpAddress(), iaAddr.getState(), prefixLen,
+			updateIpAddress(iaAddr.getIpAddress(), 
+					iaAddr.getState(), iaAddr.getHaPeerState(), prefixLen,
 					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime());
 			
 		}
@@ -738,6 +749,7 @@ public abstract class LeaseManager implements IaManager {
 			ia.setIatype(lease.getIatype());
 			ia.setIaid(lease.getIaid());
 			ia.setState(lease.getState());
+			//TODO? ia.setHaPeerState(lease.getHaPeerState());
 			ia.setDhcpOptions(lease.getIaDhcpOptions());
 			if (lease.getIatype() == IdentityAssoc.PD_TYPE) {
 				List<IaPrefix> iaPrefixes = new ArrayList<IaPrefix>();
@@ -802,6 +814,7 @@ public abstract class LeaseManager implements IaManager {
 		IaAddress iaAddr = new IaAddress();
 		iaAddr.setIpAddress(lease.getIpAddress());
 		iaAddr.setState(lease.getState());
+		iaAddr.setHaPeerState(lease.getHaPeerState());
 		iaAddr.setStartTime(lease.getStartTime());
 		iaAddr.setPreferredEndTime(lease.getPreferredEndTime());
 		iaAddr.setValidEndTime(lease.getValidEndTime());
@@ -834,6 +847,7 @@ public abstract class LeaseManager implements IaManager {
 		iaPrefix.setIpAddress(lease.getIpAddress());
 		iaPrefix.setPrefixLength(lease.getPrefixLength());
 		iaPrefix.setState(lease.getState());
+		iaPrefix.setHaPeerState(lease.getHaPeerState());
 		iaPrefix.setStartTime(lease.getStartTime());
 		iaPrefix.setPreferredEndTime(lease.getPreferredEndTime());
 		iaPrefix.setValidEndTime(lease.getValidEndTime());
@@ -884,6 +898,7 @@ public abstract class LeaseManager implements IaManager {
 			lease.setPrefixLength(((IaPrefix)iaAddr).getPrefixLength());
 		}
 		lease.setState(iaAddr.getState());
+		lease.setHaPeerState(iaAddr.getHaPeerState());
 		lease.setStartTime(iaAddr.getStartTime());
 		lease.setPreferredEndTime(iaAddr.getPreferredEndTime());
 		lease.setValidEndTime(iaAddr.getValidEndTime());

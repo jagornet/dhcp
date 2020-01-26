@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcp.server.db;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.PreparedStatement;
@@ -44,6 +45,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.jagornet.dhcp.core.util.Util;
@@ -86,7 +88,7 @@ public class JdbcLeaseManager extends LeaseManager
 	public void init() throws Exception {
 		super.init();
         String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
-        if (schemaType.toLowerCase().endsWith("derby")) {
+        if (schemaType.toLowerCase().contains("derby")) {
 			DbSchemaManager.validateSchema(dataSource, DbSchemaManager.SCHEMA_DERBY_V2_FILENAME, 2);
         }
         else {
@@ -99,37 +101,40 @@ public class JdbcLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void insertDhcpLease(final DhcpLease lease)
+	public int insertDhcpLease(final DhcpLease lease)
 	{
 		int cnt = getJdbcTemplate().update("insert into dhcplease" +
-				" (ipaddress, duid, iatype, iaid, prefixlen, state," +
+				" (ipaddress, duid, iatype, iaid, prefixlen, state, hapeerstate," +
 				" starttime, preferredendtime, validendtime," +
 				" ia_options, ipaddr_options)" +
-				" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+				" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 				new PreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps)
 					throws SQLException {
-				ps.setBytes(1, lease.getIpAddress().getAddress());
-				ps.setBytes(2, lease.getDuid());
-				ps.setByte(3, lease.getIatype());
-				ps.setLong(4, lease.getIaid());
-				ps.setShort(5, lease.getPrefixLength());
-				ps.setByte(6, lease.getState());
+				int i = 1;
+				ps.setBytes(i++, lease.getIpAddress().getAddress());
+				ps.setBytes(i++, lease.getDuid());
+				ps.setByte(i++, lease.getIatype());
+				ps.setLong(i++, lease.getIaid());
+				ps.setShort(i++, lease.getPrefixLength());
+				ps.setByte(i++, lease.getState());
+				ps.setByte(i++, lease.getHaPeerState());
 				java.sql.Timestamp sts = 
 					new java.sql.Timestamp(lease.getStartTime().getTime());
-				ps.setTimestamp(7, sts, Util.GMT_CALENDAR);
+				ps.setTimestamp(i++, sts, Util.GMT_CALENDAR);
 				java.sql.Timestamp pts = 
 					new java.sql.Timestamp(lease.getPreferredEndTime().getTime());
-				ps.setTimestamp(8, pts, Util.GMT_CALENDAR);
+				ps.setTimestamp(i++, pts, Util.GMT_CALENDAR);
 				java.sql.Timestamp vts = 
 					new java.sql.Timestamp(lease.getValidEndTime().getTime());
-				ps.setTimestamp(9, vts, Util.GMT_CALENDAR);
-				ps.setBytes(10, encodeOptions(lease.getIaDhcpOptions()));
-				ps.setBytes(11, encodeOptions(lease.getIaAddrDhcpOptions()));
+				ps.setTimestamp(i++, vts, Util.GMT_CALENDAR);
+				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions()));
+				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions()));
 			}
 		});
 		log.debug("Inserted " + cnt + " dhcplease objects");
+		return cnt;
 	}
 	
 	/**
@@ -137,10 +142,11 @@ public class JdbcLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void updateDhcpLease(final DhcpLease lease)
+	public int updateDhcpLease(final DhcpLease lease)
 	{
 		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set state=?," +
+				" hapeerstate=?," +
 				" starttime=?," +
 				" preferredendtime=?," +
 				" validendtime=?," +
@@ -151,22 +157,25 @@ public class JdbcLeaseManager extends LeaseManager
 			@Override
 			public void setValues(PreparedStatement ps)
 					throws SQLException {
-				ps.setByte(1, lease.getState());
+				int i = 1;
+				ps.setByte(i++, lease.getState());
+				ps.setByte(i++, lease.getHaPeerState());
 				java.sql.Timestamp sts = 
 					new java.sql.Timestamp(lease.getStartTime().getTime());
-				ps.setTimestamp(2, sts, Util.GMT_CALENDAR);
+				ps.setTimestamp(i++, sts, Util.GMT_CALENDAR);
 				java.sql.Timestamp pts = 
 					new java.sql.Timestamp(lease.getPreferredEndTime().getTime());
-				ps.setTimestamp(3, pts, Util.GMT_CALENDAR);
+				ps.setTimestamp(i++, pts, Util.GMT_CALENDAR);
 				java.sql.Timestamp vts = 
 					new java.sql.Timestamp(lease.getValidEndTime().getTime());
-				ps.setTimestamp(4, vts, Util.GMT_CALENDAR);
-				ps.setBytes(5, encodeOptions(lease.getIaDhcpOptions()));
-				ps.setBytes(6, encodeOptions(lease.getIaAddrDhcpOptions()));
-				ps.setBytes(7, lease.getIpAddress().getAddress());
+				ps.setTimestamp(i++, vts, Util.GMT_CALENDAR);
+				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions()));
+				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions()));
+				ps.setBytes(i++, lease.getIpAddress().getAddress());
 			}
 		});
 		log.debug("Updated " + cnt + " dhcplease objects");
+		return cnt;
 	}
 	
 	/**
@@ -174,7 +183,7 @@ public class JdbcLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void deleteDhcpLease(final DhcpLease lease)
+	public int deleteDhcpLease(final DhcpLease lease)
 	{
 		int cnt = getJdbcTemplate().update("delete from dhcplease" +
 				" where ipaddress=?",
@@ -186,13 +195,14 @@ public class JdbcLeaseManager extends LeaseManager
 			}
 		});
 		log.debug("Deleted " + cnt + " dhcplease objects");
+		return cnt;
 	}
 	
 	/**
 	 * Update ia options.
 	 */
-	public void updateIaOptions(final InetAddress inetAddr, 
-									final Collection<DhcpOption> iaOptions)
+	public int updateIaOptions(final InetAddress inetAddr, 
+							   final Collection<DhcpOption> iaOptions)
 	{
 		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set ia_options=?" +
@@ -206,13 +216,14 @@ public class JdbcLeaseManager extends LeaseManager
 			}
 		});
 		log.debug("Updated ia_options in " + cnt + " dhcplease objects");
+		return cnt;
 	}
 	
 	/**
 	 * Update ipaddr options.
 	 */
-	public void updateIpAddrOptions(final InetAddress inetAddr,
-									final Collection<DhcpOption> ipAddrOptions)
+	public int updateIpAddrOptions(final InetAddress inetAddr,
+								   final Collection<DhcpOption> ipAddrOptions)
 	{
 		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set ipaddr_options=?" +
@@ -226,6 +237,7 @@ public class JdbcLeaseManager extends LeaseManager
 			}
 		});
 		log.debug("Updated ipaddr_options in " + cnt + " dhcplease objects");
+		return cnt;
 	}
 
 	/**
@@ -288,11 +300,12 @@ public class JdbcLeaseManager extends LeaseManager
 	}
 
 	@Override
-	public void updateIpAddress(final InetAddress inetAddr, 
-								final byte state, final short prefixlen,
-								final Date start, final Date preferred, final Date valid) {
+	public int updateIpAddress(final InetAddress inetAddr, 
+							   final byte state, final byte haPeerState, final short prefixlen,
+							   final Date start, final Date preferred, final Date valid) {
 		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set state = ?," +
+				" hapeerstate = ?," +
 				((prefixlen > 0) ? " prefixlen = ?," : "") + 
 				" starttime = ?," +
 				" preferredendtime = ?," +
@@ -303,6 +316,7 @@ public class JdbcLeaseManager extends LeaseManager
 			public void setValues(PreparedStatement ps) throws SQLException {
 				int i = 1;
 				ps.setByte(i++, state);
+				ps.setByte(i++, haPeerState);
 				if (prefixlen > 0) {
 					ps.setShort(i++, prefixlen);
 				}
@@ -331,10 +345,11 @@ public class JdbcLeaseManager extends LeaseManager
 			}
 		});
 		log.debug("Updated ipAddress in " + cnt + " dhcplease objects");
+		return cnt;
 	}
 
 	@Override
-	public void deleteIpAddress(final InetAddress inetAddr)
+	public int deleteIpAddress(final InetAddress inetAddr)
 	{
 		int cnt = getJdbcTemplate().update("delete from dhcplease" +
 				" where ipaddress = ?",
@@ -345,6 +360,7 @@ public class JdbcLeaseManager extends LeaseManager
 			}
 		});
 		log.info("Deleted " + cnt + " dhcplease objects by ipAddress");
+		return cnt;
 	}
 
 	@Override
@@ -375,6 +391,71 @@ public class JdbcLeaseManager extends LeaseManager
                 		}
                         return inetAddr;
                     }
+                });
+	}
+
+	@Override
+	public void findExistingLeaseIPs(final InetAddress startAddr, 
+									 final InetAddress endAddr,
+									 InetAddressCallbackHandler inetAddressCallbackHandler)
+	{
+        getJdbcTemplate().query(
+                "select ipaddress from dhcplease" +
+                " where ipaddress >= ? and ipaddress <= ?" +
+                " order by ipaddress", 
+                new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setBytes(1, startAddr.getAddress());
+						ps.setBytes(2, endAddr.getAddress());
+					}                	
+                },
+                new RowCallbackHandler() {
+                	@Override
+                	public void processRow(ResultSet rs) throws SQLException {
+                    	InetAddress inetAddr = null;
+                    	try {
+                			inetAddr = InetAddress.getByAddress(rs.getBytes("ipaddress"));
+                			inetAddressCallbackHandler.processInetAddress(inetAddr);
+                		} 
+                    	catch (IOException e) {
+                    		// re-throw as SQLException
+                			throw new SQLException("Unable to map ipaddress", e);
+                		}
+                	}
+                });
+	}
+
+	@Override
+	public void findExistingLeases(final InetAddress startAddr, 
+								   final InetAddress endAddr,
+								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler)
+	{
+        getJdbcTemplate().query(
+                "select * from dhcplease" +
+                " where ipaddress >= ? and ipaddress <= ?" +
+                " order by ipaddress", 
+                new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setBytes(1, startAddr.getAddress());
+						ps.setBytes(2, endAddr.getAddress());
+					}                	
+                },
+                new RowCallbackHandler() {
+                	@Override
+                	public void processRow(ResultSet rs) throws SQLException {
+                    	try {
+                	    	ResultSetExtractor<DhcpLease> rsExtractor = 
+                	    			new DhcpLeaseResultSetExtractor();
+                	    	DhcpLease dhcpLease = rsExtractor.extractData(rs);
+                			dhcpLeaseCallbackHandler.processDhcpLease(dhcpLease);
+                		} 
+                    	catch (Exception e) {
+                    		// re-throw as SQLException
+                			throw new SQLException("Unable to map ipaddress", e);
+                		}
+                	}
                 });
 	}
 	
@@ -505,6 +586,7 @@ public class JdbcLeaseManager extends LeaseManager
 			}
         	lease.setPrefixLength(rs.getShort("prefixlen"));
 			lease.setState(rs.getByte("state"));
+			lease.setHaPeerState(rs.getByte("hapeerstate"));
 			lease.setStartTime(rs.getTimestamp("starttime", Util.GMT_CALENDAR));
 			lease.setPreferredEndTime(rs.getTimestamp("preferredendtime", Util.GMT_CALENDAR));
 			lease.setValidEndTime(rs.getTimestamp("validendtime", Util.GMT_CALENDAR));
@@ -518,8 +600,9 @@ public class JdbcLeaseManager extends LeaseManager
 	 * For unit tests only
 	 */
     @Override
-	public void deleteAllLeases() {
+	public int deleteAllLeases() {
 		int cnt = getJdbcTemplate().update("delete from dhcplease");
 		log.info("Deleted all " + cnt + " dhcpleases");
+		return cnt;
 	}
 }

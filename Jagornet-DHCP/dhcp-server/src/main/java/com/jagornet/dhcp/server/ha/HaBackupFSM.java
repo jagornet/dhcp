@@ -1,5 +1,9 @@
 package com.jagornet.dhcp.server.ha;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -8,8 +12,12 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.server.config.DhcpLink;
+import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
 import com.jagornet.dhcp.server.rest.api.DhcpServerStatusResource;
 import com.jagornet.dhcp.server.rest.api.DhcpServerStatusService;
 import com.jagornet.dhcp.server.rest.cli.JerseyRestClient;
@@ -17,7 +25,8 @@ import com.jagornet.dhcp.server.rest.cli.JerseyRestClient;
 public class HaBackupFSM implements Runnable {
 
 	private static Logger log = LoggerFactory.getLogger(HaBackupFSM.class);
-		
+
+	/*
 	public enum State { BACKUP_INIT,
 						BACKUP_POLLING,
 						BACKUP_AWAITING_POLL_REPLY,
@@ -25,11 +34,27 @@ public class HaBackupFSM implements Runnable {
 						BACKUP_RUNNING,
 						BACKUP_RETURNING_CONTROL,
 						BACKUP_BULK_BINDINGS_SENT };
+	*/
+	
+	public enum State { BACKUP_INIT,
+						BACKUP_SYNCING_FROM_PRIMARY,
+						// don't care BACKUP_SYNCING_TO_PRIMARY,
+						BACKUP_POLLING,
+						BACKUP_RUNNING,
+						BACKUP_CONFLICT };
 
 	private String primaryHost;
 	private int primaryPort;
 	private State state;
+	private HaPrimaryFSM.State primaryState;
+	private HaStateDbManager haStateDbManager;
+	private Collection<DhcpLink> dhcpLinks;
+	private CountDownLatch linkSyncLatch;
+
+	// REST client for communicating to primary
 	private JerseyRestClient restClient;
+	// REST service for handling requests from primary
+	private DhcpLeasesService dhcpLeasesService;
 	
 	private ScheduledExecutorService pollingTaskExecutor = null;
 	private ScheduledFuture<?> scheduledPollingFuture = null;
@@ -39,29 +64,104 @@ public class HaBackupFSM implements Runnable {
 	public HaBackupFSM(String primaryHost, int primaryPort) {
 		this.primaryHost = primaryHost;
 		this.primaryPort = primaryPort;
-		setState(State.BACKUP_INIT);
     	pollingTaskExecutor = Executors.newSingleThreadScheduledExecutor();
     	pollingTask = new PollingTask();
 	}
 
-	public void init(State state) throws Exception {
+	public void init() throws Exception {
+		
+		dhcpLinks = DhcpServerConfiguration.getInstance().getLinkMap().values();
+		
+		// service implementation for processing leases synced from backup server
+		dhcpLeasesService = new DhcpLeasesService();
+
+		// client implementation for getting updates from primary server
 		restClient = new JerseyRestClient(primaryHost, primaryPort);
-		// start polling the primary server regardless of the initial
-		// state, because we always want to know if primary is running
+
+		// get the last stored state and take the appropriate action for startup
+		haStateDbManager = new HaStateDbManager();
+    	HaState haState = haStateDbManager.init(DhcpConstants.HaRole.BACKUP);
+    	//since we store state changes to either server, and we don't really
+    	//care what the last state was, not going to set a startup state here
+		//state = State.valueOf(haState.state);
+    	
 		Thread haBackupThread = new Thread(this, "HA-Backup");
 		haBackupThread.start();
-		setState(state);
 	}
 
 	@Override
 	public void run() {
+		String primaryHaState = restClient.doGet(DhcpServerStatusResource.PATH +
+		 		DhcpServerStatusResource.HASTATE);
+		if (primaryHaState == null) {
+			log.info("Null response from HA Primary server");
+			primaryState = null;
+			// we are backup, so start polling and
+			// if polling fails, then take over
+			startPollingTask();
+			return;
+		}
+		log.info("HA Primary state: " + primaryHaState);
+		primaryState = HaPrimaryFSM.State.valueOf(primaryHaState);
+		
+		// primary is available, start link sync from primary
+		try {
+			startLinkSync();
+		}
+		catch (Exception ex) {
+			log.error("Failed to start Link Sync");
+		}
+		startPollingTask();
+	}
+
+	public void startPollingTask() {
 		int pollSeconds = DhcpServerPolicies.globalPolicyAsInt(
 				Property.HA_POLL_SECONDS);
 		// TODO: consider scheduleWithFixedDelay?
+		setState(State.BACKUP_POLLING);
 		scheduledPollingFuture = pollingTaskExecutor.scheduleAtFixedRate(
 				pollingTask, 0, pollSeconds, TimeUnit.SECONDS);
 	}
+	
+	protected void startLinkSync() throws Exception {
+		if (!dhcpLinks.isEmpty()) {
+	    	linkSyncLatch = new CountDownLatch(dhcpLinks.size());
+			setState(State.BACKUP_SYNCING_FROM_PRIMARY);
+			Instant start = Instant.now();
+			// check the state of the primary
+			// set links unavailable
+			for (DhcpLink dhcpLink : dhcpLinks) {
+				dhcpLink.setState(DhcpLink.State.NOT_SYNCED);
+				Thread linkSyncThread = new Thread(
+						new LinkSyncThread(dhcpLink, 
+						linkSyncLatch, restClient, dhcpLeasesService), 
+						"BackupLinkSyncFromPrimary-" + dhcpLink.getLinkAddress()
+						);
+				linkSyncThread.start();
+			}
 
+	    	try {
+//TODO	    		
+//	    		int timeout = 60;
+//	    		log.info("Waiting total of " + timeout + " seconds for " + 
+//	    				dhcpLinks.size() + " links to sync");
+//	    		linkSyncLatch.await(timeout, TimeUnit.SECONDS);
+	    		log.info("Waiting for " +  dhcpLinks.size() + " links to sync");
+	    		linkSyncLatch.await();
+				Instant finish = Instant.now();
+			    long timeElapsed = Duration.between(start, finish).toMillis();
+			    log.info("Link sync threads completed: timeElapsed=" + 
+			    		 timeElapsed + "ms");
+			} 
+	    	catch (InterruptedException e) {
+				log.error("Link sync interrupted: ", e);
+			}
+		}
+		else {
+			log.error("No links to sync!");
+		}
+	}
+	
 	public String getPrimaryHost() {
 		return primaryHost;
 	}
@@ -82,11 +182,33 @@ public class HaBackupFSM implements Runnable {
 		return state;
 	}
 
-	public void setState(State state) {
+	public synchronized void setState(State state) {
 		if (this.state != state) {
-			//TODO: write the state to a file
-			log.info("State change: " + this.state + " -> " + state);
+			log.info("Backup HA State change: " + this.state + " -> " + state);
 			this.state = state;
+			try {
+				haStateDbManager.updateBackupState(this.state);
+			}
+			catch (Exception ex) {
+				log.error("Failed to update HA backup state DB", ex);
+			}
+		}
+	}
+	
+	public HaPrimaryFSM.State getPrimaryState() {
+		return primaryState;
+	}
+
+	public synchronized void setPrimaryState(HaPrimaryFSM.State primaryState) {
+		if (this.primaryState != primaryState) {
+			log.info("Primary HA State change: " + this.primaryState + " -> " + primaryState);
+			this.primaryState = primaryState;
+			try {
+				haStateDbManager.updatePrimaryState(this.primaryState);
+			}
+			catch (Exception ex) {
+				log.error("Failed to update HA backup state DB", ex);
+			}
 		}
 	}
 
@@ -96,13 +218,13 @@ public class HaBackupFSM implements Runnable {
 	
 	class PollingTask implements Runnable {
 
-		private int timeout;
+// timeout is configured in JerseyRestClient
+//		private int timeout;
 		private int failLimit;
 		
 		public PollingTask() {
-			//TODO: integrate timeout with JerseyRestClient
-			timeout = DhcpServerPolicies.globalPolicyAsInt(
-					Property.HA_POLL_REPLY_TIMEOUT);			
+//			timeout = DhcpServerPolicies.globalPolicyAsInt(
+//					Property.HA_POLL_REPLY_TIMEOUT);			
 			failLimit = DhcpServerPolicies.globalPolicyAsInt(
 					Property.HA_POLL_REPLY_FAILURE_COUNT);
 		}
@@ -113,7 +235,8 @@ public class HaBackupFSM implements Runnable {
 			if (status == null) {
 				log.error("No response to status request");
 				pollReplyTimeoutCnt++;
-				log.warn("Poll reply timeout exceeded " + pollReplyTimeoutCnt + " times");
+				log.warn("Poll reply timeout exceeded " + pollReplyTimeoutCnt + 
+						 " of limit " + failLimit + " times");
 				if (pollReplyTimeoutCnt >= failLimit) {
 					log.warn("Poll reply failure count limit reached: " + failLimit);
 					setState(State.BACKUP_RUNNING);
@@ -123,6 +246,8 @@ public class HaBackupFSM implements Runnable {
 				log.info("Status request response: " + status);
 				if (status.equals(DhcpServerStatusService.STATUS_OK)) {
 					setState(State.BACKUP_POLLING);
+					log.debug("Resetting pollReplyTimeoutCount=0");
+					pollReplyTimeoutCnt = 0;
 				}
 				else {
 					//TODO

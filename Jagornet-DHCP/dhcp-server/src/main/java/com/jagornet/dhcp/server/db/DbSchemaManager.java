@@ -26,6 +26,7 @@
 package com.jagornet.dhcp.server.db;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -37,11 +38,13 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 
 /**
  * The Class DbSchemaManager.
@@ -52,12 +55,23 @@ public class DbSchemaManager
 {    
     private static Logger log = LoggerFactory.getLogger(DbSchemaManager.class);
     
+    // JDBC schema types support both v1 and v2 schemas
     public static String SCHEMATYPE_JDBC_DERBY = "jdbc-derby";
     public static String SCHEMATYPE_JDBC_H2 = "jdbc-h2";
     public static String SCHEMATYPE_JDBC_SQLITE = "jdbc-sqlite";
+
+    public static String APP_CONTEXT_JDBC_DATASOURCE_FILENAME = "context_jdbc_datasource.xml";
+    public static String APP_CONTEXT_JDBC_V1SCHEMA_FILENAME = "context_jdbc_v1schema.xml";
+    public static String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "context_jdbc_v2schema.xml";  
+    
+    // other schema types support only v2 schema
     public static String SCHEMATYPE_SQLITE = "sqlite";
+    public static String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "context_sqlite_v2schema.xml";    
     public static String SCHEMATYPE_MONGO = "mongo";
+    public static String APP_CONTEXT_MONGO_V2SCHEMA_FILENAME = "context_mongo_v2schema.xml";    
     public static String SCHEMATYPE_FILE = "file";
+    public static String APP_CONTEXT_FILE_V2SCHEMA_FILENAME = "context_file_v2schema.xml";    
+    
 
     public static String DB_HOME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
         							(DhcpConstants.JAGORNET_DHCP_HOME + "/db/") : "db/";
@@ -71,6 +85,47 @@ public class DbSchemaManager
 	public static String SCHEMA_DERBY_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby-v2.sql";
 
     public static String[] TABLE_NAMES_V2 = { "DHCPLEASE" };
+    
+    public static List<String> getDbContextFiles(String schemaType, int schemaVersion) throws Exception {
+    	
+    	List<String> dbContexts = new ArrayList<String>();
+
+    	if (schemaType.startsWith("jdbc")) {
+    		// convention over configuration
+        	String schemaContext = "context_" + schemaType + ".xml";
+        	if (ClassLoader.getSystemResource(schemaContext) == null) {
+        		throw new DhcpServerConfigException("Schema context not found on classpath: " + schemaContext);
+        	}
+            String versionContext = null;
+        	if (schemaVersion == 1) {
+        		versionContext = APP_CONTEXT_JDBC_V1SCHEMA_FILENAME;
+        	}
+        	else if (schemaVersion == 2) {
+        		versionContext = APP_CONTEXT_JDBC_V2SCHEMA_FILENAME;
+        	}
+        	else {
+        		throw new DhcpServerConfigException("Unsupported schema version: " + schemaVersion);
+        	}        	
+        	FileUtils.forceMkdir(new File(DB_HOME + schemaType));
+        	dbContexts.add(schemaContext);
+        	dbContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
+        	dbContexts.add(versionContext);
+    	}
+        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_SQLITE)) {
+    		FileUtils.forceMkdir(new File(DB_HOME + "sqlite"));
+        	dbContexts.add(APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME);
+        }
+        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_MONGO)) {
+        	dbContexts.add(APP_CONTEXT_MONGO_V2SCHEMA_FILENAME);
+        }
+        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_FILE)) {
+        	dbContexts.add(APP_CONTEXT_FILE_V2SCHEMA_FILENAME);
+        }
+        else {
+        	throw new DhcpServerConfigException("Unsupported schema type: " + schemaType);
+        }
+    	return dbContexts;
+    }
 	
 	/**
 	 * Validate schema.

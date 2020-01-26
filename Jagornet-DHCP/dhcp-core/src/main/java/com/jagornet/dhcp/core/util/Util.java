@@ -275,4 +275,10 @@ public class Util
         return v6Addr;
 	}
     
+	
+	public static  boolean isInRange(InetAddress inetAddr,
+			InetAddress startAddr, InetAddress endAddr) {
+		return ((Util.compareInetAddrs(inetAddr, startAddr) >= 0) &&
+				(Util.compareInetAddrs(inetAddr, endAddr) <= 0));		
+	}
 }

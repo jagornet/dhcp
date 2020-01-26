@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.db.DhcpLease;
+import com.jagornet.dhcp.server.db.DhcpLeaseCallbackHandler;
 import com.jagornet.dhcp.server.db.IaManager;
+import com.jagornet.dhcp.server.db.InetAddressCallbackHandler;
 import com.jagornet.dhcp.server.db.LeaseManager;
 
 public class DhcpLeasesService {
@@ -29,28 +31,99 @@ public class DhcpLeasesService {
 		}
 	}
 	
+	private InetAddress createStartIp(String start) throws UnknownHostException {
+		InetAddress startIp = (start != null) ? 
+				  InetAddress.getByName(start) :
+				  InetAddress.getByName("0.0.0.0");
+		return startIp;
+	}
+	
+	private InetAddress createEndIp(String end) throws UnknownHostException {
+		InetAddress endIp = (end != null) ? 
+				InetAddress.getByName(end):
+				InetAddress.getByName("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
+		return endIp;
+	}
+	
 	public List<InetAddress> getAllLeaseIPs() {
 		List<InetAddress> ips = null;
 		try {
 			//TODO: check/fix this hack that gets all IPs?
-			ips = leaseManager.findExistingLeaseIPs(InetAddress.getByName("0.0.0.0"), 
-					InetAddress.getByName("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"));
-			if (ips != null) {
-				log.info("Found " + ips.size() + " existing leases");
-			}
-			else {
-				log.error("Failed to find any existing leases!");
-			}
-		} catch (UnknownHostException e) {
+			ips = getRangeLeaseIPs(null, null);
+		} 
+		catch (UnknownHostException e) {
 			log.error("Exception getting all leases: " + e);
 		}
 		return ips;
 	}
 	
-	public DhcpLease createDhcpLease(DhcpLease dhcpLease) {
+	public List<InetAddress> getRangeLeaseIPs(String start, String end) 
+			throws UnknownHostException {
+		InetAddress startIp = createStartIp(start);
+		InetAddress endIp = createEndIp(end);
+		List<InetAddress> ips = leaseManager.findExistingLeaseIPs(startIp, endIp); 
+		if (ips != null) {
+			log.info("Found " + ips.size() + " existing leases in range: start=" +
+					startIp.getHostAddress() + " end=" + endIp.getHostAddress());
+		}
+		else {
+			log.error("Failed to find any existing leases in range: start=" +
+					 startIp.getHostAddress() + " end=" + endIp.getHostAddress());
+		}
+		return ips;
+	}
+	
+	public void getAllLeaseIPs(InetAddressCallbackHandler inetAddressCallbackHandler) {
+		try {
+			getRangeLeaseIPs(null, null, inetAddressCallbackHandler);
+		
+		} catch (UnknownHostException e) {
+			log.error("Exception getting all leases: " + e);
+		}
+	}
+	
+	public void getRangeLeaseIPs(String start, String end,
+								 InetAddressCallbackHandler inetAddressCallbackHandler) 
+		throws UnknownHostException {
+		
+		InetAddress startIp = createStartIp(start);
+		InetAddress endIp = createEndIp(end);
+		leaseManager.findExistingLeaseIPs(startIp, endIp, inetAddressCallbackHandler); 
+	}
+	
+	public void getAllLeases(DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
+		try {
+			getRangeLeases(null, null, dhcpLeaseCallbackHandler);
+		
+		} catch (UnknownHostException e) {
+			log.error("Exception getting all leases: " + e);
+		}
+	}
+	
+	public void getRangeLeases(String start, String end,
+			 				   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler)
+		throws UnknownHostException {
+			
+		InetAddress startIp = createStartIp(start);
+		InetAddress endIp = createEndIp(end);
+		leaseManager.findExistingLeases(startIp, endIp,dhcpLeaseCallbackHandler);
+	}
+	
+	public boolean createOrUpdateDhcpLease(DhcpLease dhcpLease) {
+		DhcpLease foundLease = getDhcpLease(dhcpLease.getIpAddress());
+		if (foundLease == null) {
+			return createDhcpLease(dhcpLease);
+		}
+		else {
+			return updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease);
+		}
+	}
+	public boolean createDhcpLease(DhcpLease dhcpLease) {
 		log.info("Creating DhcpLease: " + dhcpLease);
-		leaseManager.insertDhcpLease(dhcpLease);
-		return dhcpLease;	// or getDhcpLease(dhcpLease.getIpAddress)
+		if (leaseManager.insertDhcpLease(dhcpLease) == 1) {
+			return true;
+		}
+		return false;
 	}
 
 	public DhcpLease getDhcpLease(InetAddress ipAddress) {
@@ -65,29 +138,36 @@ public class DhcpLeasesService {
 		}
 		return dhcpLease;
 	}
-
-	public void updateDhcpLease(InetAddress ipAddress, DhcpLease dhcpLease) {
+	
+	public boolean updateDhcpLease(InetAddress ipAddress, DhcpLease dhcpLease) {
 		String ipStr = ipAddress.getHostAddress();
 		if (Util.compareInetAddrs(ipAddress, dhcpLease.getIpAddress()) == 0) {
 			log.info("Updating DhcpLease for IP=" + ipStr + ": " + dhcpLease);
-			leaseManager.updateDhcpLease(dhcpLease);
+			// TODO: handle error condition from update, or just bubble up?
+			if (leaseManager.updateDhcpLease(dhcpLease) == 1) {
+				return true;
+			}
 		}
 		else {
 			log.error("Update failed: cannot change IP=" + ipStr +
 						" to IP=" + dhcpLease.getIpAddress().getHostAddress());
 		}
+		return false;
 	}
 
-	public void deleteDhcpLease(InetAddress ipAddress) {
+	public boolean deleteDhcpLease(InetAddress ipAddress) {
 		String ipStr = ipAddress.getHostAddress();
 		log.info("Finding DhcpLease for IP=" + ipStr);
 		DhcpLease dhcpLease = getDhcpLease(ipAddress);
 		if (dhcpLease != null) {
-			leaseManager.deleteDhcpLease(dhcpLease);
+			if (leaseManager.deleteDhcpLease(dhcpLease) == 1) {
+				return true;
+			}
 		}
 		else {
 			log.error("Delete failed: no lease found for IP=" + ipStr);
 		}
+		return false;
 	}
 
 }

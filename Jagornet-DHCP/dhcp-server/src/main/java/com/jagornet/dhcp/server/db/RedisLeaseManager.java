@@ -25,16 +25,18 @@ public class RedisLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	public void updateIpAddress(final InetAddress inetAddr, 
-			final byte state, final short prefixlen,
+	public int updateIpAddress(final InetAddress inetAddr, 
+			final byte state, final byte haPeerState, final short prefixlen,
 			final Date start, final Date preferred, final Date valid) {
 		// TODO Auto-generated method stub
-
+		return 0;
+		
 	}
 
 	@Override
-	public void deleteIpAddress(final InetAddress inetAddr) {
+	public int deleteIpAddress(final InetAddress inetAddr) {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
@@ -63,13 +65,14 @@ public class RedisLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	public void deleteAllLeases() {
+	public int deleteAllLeases() {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
 	@Override
-	public void insertDhcpLease(DhcpLease lease) {
+	public int insertDhcpLease(DhcpLease lease) {
 		String ip = lease.getIpAddress().getHostAddress();
 		int expireSecs = (int)
 				((lease.getValidEndTime().getTime() - lease.getStartTime().getTime()) / 1000);
@@ -77,32 +80,37 @@ public class RedisLeaseManager extends LeaseManager {
 		tx.setex(ip, expireSecs, lease.toJson());
 		tx.zadd("tuple", 0, 
 				Util.toHexString(lease.getDuid()) + "-" + 
-						lease.iatype + "-" + lease.iaid + "-" + ip);
-		tx.exec();
+						lease.getIatype() + "-" + lease.getIaid() + "-" + ip);
+		List<Object> list = tx.exec();
 		//JOhm.expire(lease, seconds);
+		return list.size();
 	}
 
 	@Override
-	public void updateDhcpLease(DhcpLease lease) {
+	public int updateDhcpLease(DhcpLease lease) {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deleteDhcpLease(DhcpLease lease) {
-		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
 	@Override
-	public void updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
+	public int deleteDhcpLease(DhcpLease lease) {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
 	@Override
-	public void updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
+	public int updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
 		// TODO Auto-generated method stub
+		return 0;
+
+	}
+
+	@Override
+	public int updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
+		// TODO Auto-generated method stub
+		return 0;
 
 	}
 

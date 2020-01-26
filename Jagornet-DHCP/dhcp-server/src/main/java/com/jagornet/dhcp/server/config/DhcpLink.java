@@ -37,6 +37,10 @@ import com.jagornet.dhcp.server.config.xml.Link;
 public class DhcpLink
 {
 	
+	public enum State  { OK, NOT_SYNCED, SYNCING };
+
+	private State state;
+	
 	/** The subnet. */
 	private Subnet subnet;
 	
@@ -70,6 +74,7 @@ public class DhcpLink
 		iaPdConfigOptions = new DhcpV6ConfigOptions(link.getV6IaPdConfigOptions());
 		prefixConfigOptions = new DhcpV6ConfigOptions(link.getV6PrefixConfigOptions());
 		v4ConfigOptions = new DhcpV4ConfigOptions(link.getV4ConfigOptions());
+		this.state = State.OK;
 	}
 	
 	/**
@@ -177,6 +182,14 @@ public class DhcpLink
 
 	public void setV4ConfigOptions(DhcpV4ConfigOptions v4ConfigOptions) {
 		this.v4ConfigOptions = v4ConfigOptions;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
 	}
 	
 }

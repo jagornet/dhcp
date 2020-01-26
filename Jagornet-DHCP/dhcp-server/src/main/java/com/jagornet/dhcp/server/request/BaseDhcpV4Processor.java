@@ -62,6 +62,7 @@ import com.jagornet.dhcp.server.failover.FailoverBindingCallback;
 import com.jagornet.dhcp.server.failover.FailoverBindingUpdater;
 import com.jagornet.dhcp.server.failover.FailoverStateManager;
 import com.jagornet.dhcp.server.failover.FailoverStateManager.State;
+import com.jagornet.dhcp.server.ha.HaBackupFSM;
 import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.BindingObject;
@@ -96,6 +97,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     protected static Set<DhcpV4Message> recentMsgs = 
     	Collections.synchronizedSet(new HashSet<DhcpV4Message>());
     protected static Timer recentMsgPruner = new Timer("RecentMsgPruner");
+    protected HaPrimaryFSM haPrimaryFSM;
+    protected HaBackupFSM haBackupFSM; 
     
     /**
      * Construct an BaseDhcpRequest processor.  Since this class is
@@ -108,6 +111,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     {
         this.requestMsg = requestMsg;
         this.clientLinkAddress = clientLinkAddress;
+        haPrimaryFSM = dhcpServerConfig.getHaPrimaryFSM();
+        haBackupFSM = dhcpServerConfig.getHaBackupFSM();
     }
 
     protected Map<Integer, DhcpOption> requestedOptions(Map<Integer, DhcpOption> optionMap,
@@ -233,7 +238,14 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
      * @return true if processing should continue
      */
     public boolean preProcess()
-    {        
+    {
+    	if (haBackupFSM != null) {
+    		if (haBackupFSM.getState() != HaBackupFSM.State.BACKUP_RUNNING) {
+    			log.debug("HA Backup is not running.  Dropping DHCPv4 Message");
+    			return false;
+    		}
+    	}
+    	
     	InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
     	
     	byte chAddr[] = requestMsg.getChAddr();
@@ -252,6 +264,12 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
         			" clientLinkAddress=" + clientLinkAddress.getHostAddress());
         	return false;	// must configure link for server to reply
         }
+        
+		if (!clientLink.getState().equals(DhcpLink.State.OK)) {
+			log.warn("Link '" + clientLink.getLinkAddress() +
+					 "' is unavailable: state=" + clientLink.getState());
+			return false;
+		}
 
 /* TODO: check if this DOS mitigation is useful
  * 
@@ -514,9 +532,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 	}
 	
 	protected void processHaBindingUpdates() {
-		HaPrimaryFSM fsm = dhcpServerConfig.getHaPrimaryFSM();
-		if (fsm != null) {
-			fsm.updateBindings(bindings);
+		if (haPrimaryFSM != null) {
+			haPrimaryFSM.updateBindings(bindings);
 		}
 		else {
 			log.debug("Not configured as HA Primary.  Skipping HA binding update processing.");

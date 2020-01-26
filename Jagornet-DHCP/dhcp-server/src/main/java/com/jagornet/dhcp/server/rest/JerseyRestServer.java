@@ -84,9 +84,9 @@ public class JerseyRestServer {
 	        		.forServer(primaryCertDetails.getPrivateKey(), 
 	        				primaryCertDetails.getX509Certificate());
 
-//	        sslContextBuilder.trustManager(ClassLoader.getSystemResourceAsStream(SSL_TRUSTED_CERT_CHAIN_FILE_PEM));
+// off for testing via browser	        sslContextBuilder.trustManager(ClassLoader.getSystemResourceAsStream(SSL_TRUSTED_CERT_CHAIN_FILE_PEM));
 	        sslContextBuilder.trustManager(primaryCertDetails.getTrustedCertificate());
-//	        sslContextBuilder.clientAuth(ClientAuth.REQUIRE);
+// off for testing via browser	        sslContextBuilder.clientAuth(ClientAuth.REQUIRE);
 	        SslContext sslContext = sslContextBuilder.build();
 	        Channel server = NettyHttpContainerProvider
 	        		.createServer(baseUri, resourceConfig, sslContext, false);

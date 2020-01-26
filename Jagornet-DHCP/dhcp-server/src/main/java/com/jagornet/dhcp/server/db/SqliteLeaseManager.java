@@ -107,8 +107,9 @@ public class SqliteLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void insertDhcpLease(final DhcpLease lease)
+	public int insertDhcpLease(final DhcpLease lease)
 	{
+		int cnt = 0;
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {
@@ -132,6 +133,7 @@ public class SqliteLeaseManager extends LeaseManager
 			
 			while (statement.step()) {
 				log.debug("insertDhcpLease: step=true");
+				cnt++;
 			}
 		}
 		catch (SQLiteException ex) {
@@ -142,6 +144,7 @@ public class SqliteLeaseManager extends LeaseManager
 			closeStatement(statement);
 			closeConnection(connection);
 		}
+		return cnt;
 	}
 	
 	/**
@@ -149,8 +152,9 @@ public class SqliteLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void updateDhcpLease(final DhcpLease lease)
+	public int updateDhcpLease(final DhcpLease lease)
 	{
+		int cnt = 0;
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {
@@ -173,6 +177,7 @@ public class SqliteLeaseManager extends LeaseManager
 			
 			while (statement.step()) {
 				log.debug("updateDhcpLease: step=true");
+				cnt++;
 			}
 		}
 		catch (SQLiteException ex) {
@@ -183,6 +188,7 @@ public class SqliteLeaseManager extends LeaseManager
 			closeStatement(statement);
 			closeConnection(connection);
 		}
+		return cnt;
 	}
 	
 	/**
@@ -190,8 +196,9 @@ public class SqliteLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void deleteDhcpLease(final DhcpLease lease)
+	public int deleteDhcpLease(final DhcpLease lease)
 	{
+		int cnt = 0;
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {
@@ -212,14 +219,16 @@ public class SqliteLeaseManager extends LeaseManager
 			closeStatement(statement);
 			closeConnection(connection);
 		}
+		return cnt;
 	}
 	
 	/**
 	 * Update ia options.
 	 */
-	public void updateIaOptions(final InetAddress inetAddr, 
-									final Collection<DhcpOption> iaOptions)
+	public int updateIaOptions(final InetAddress inetAddr, 
+								final Collection<DhcpOption> iaOptions)
 	{
+		int cnt = 0;
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {
@@ -232,6 +241,7 @@ public class SqliteLeaseManager extends LeaseManager
 			
 			while (statement.step()) {
 				log.debug("updateIaOptions: step=true");
+				cnt++;
 			}
 		}
 		catch (SQLiteException ex) {
@@ -242,14 +252,16 @@ public class SqliteLeaseManager extends LeaseManager
 			closeStatement(statement);
 			closeConnection(connection);
 		}
+		return cnt;
 	}
 	
 	/**
 	 * Update ipaddr options.
 	 */
-	public void updateIpAddrOptions(final InetAddress inetAddr,
+	public int updateIpAddrOptions(final InetAddress inetAddr,
 									final Collection<DhcpOption> ipAddrOptions)
 	{
+		int cnt = 0;
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {
@@ -262,6 +274,7 @@ public class SqliteLeaseManager extends LeaseManager
 			
 			while (statement.step()) {
 				log.debug("updateIpAddrOptions: step=true");
+				cnt++;
 			}
 		}
 		catch (SQLiteException ex) {
@@ -272,6 +285,7 @@ public class SqliteLeaseManager extends LeaseManager
 			closeStatement(statement);
 			closeConnection(connection);
 		}
+		return cnt;
 	}
 
 	/**
@@ -349,16 +363,18 @@ public class SqliteLeaseManager extends LeaseManager
 	}
 	
 	@Override
-	public void updateIpAddress(final InetAddress inetAddr, 
-								final byte state, final short prefixlen,
+	public int updateIpAddress(final InetAddress inetAddr, 
+								final byte state, final byte haPeerState, final short prefixlen,
 								final Date start, final Date preferred, final Date valid)
 	{
+		int cnt = 0;
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {
 			connection = getSQLiteConnection();
 			statement = connection.prepare("update dhcplease" +
 					" set state = ?," +
+					" hapeerstate = ?" +
 					((prefixlen > 0) ? " prefixlen = ?," : "") + 
 					" starttime = ?," +
 					" preferredendtime = ?," +
@@ -366,6 +382,7 @@ public class SqliteLeaseManager extends LeaseManager
 					" where ipaddress = ?");
 			int i=1;
 			statement.bind(i++, state);
+			statement.bind(i++, haPeerState);
 			if (prefixlen > 0) {
 				statement.bind(i++, prefixlen);
 			}
@@ -391,6 +408,7 @@ public class SqliteLeaseManager extends LeaseManager
 			
 			while(statement.step()) {
 				log.debug("updateIaAddr: step=true");
+				cnt++;
 			}
 		}
 		catch (SQLiteException ex) {
@@ -401,11 +419,13 @@ public class SqliteLeaseManager extends LeaseManager
 			closeStatement(statement);
 			closeConnection(connection);
 		}
+		return cnt;
 	}
 	
 	@Override
-	public void deleteIpAddress(final InetAddress inetAddr)
+	public int deleteIpAddress(final InetAddress inetAddr)
 	{
+		int cnt = 0;
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {
@@ -416,6 +436,7 @@ public class SqliteLeaseManager extends LeaseManager
 			
 			while(statement.step()) {
 				log.debug("deleteIaAddr: step=true");
+				cnt++;
 			}
 		}
 		catch (SQLiteException ex) {
@@ -426,6 +447,7 @@ public class SqliteLeaseManager extends LeaseManager
 			closeStatement(statement);
 			closeConnection(connection);
 		}
+		return cnt;
 	}
 
 	@Override
@@ -650,7 +672,7 @@ public class SqliteLeaseManager extends LeaseManager
      * For unit tests only
      */
     @Override
-	public void deleteAllLeases() {
+	public int deleteAllLeases() {
 		SQLiteConnection connection = null;
 		SQLiteStatement statement = null;
 		try {
@@ -665,5 +687,6 @@ public class SqliteLeaseManager extends LeaseManager
 			closeStatement(statement);
 			closeConnection(connection);
 		}
+		return 0;	//TODO
 	}
 }

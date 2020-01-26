@@ -62,50 +62,56 @@ public class RandomAccessFileLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	public void insertDhcpLease(DhcpLease lease) {
+	public int insertDhcpLease(DhcpLease lease) {
 		if (leasesMap.containsKey(lease.getIpAddress())) {
 			log.warn("Leases map already contains IP: " + lease.getIpAddress().getHostAddress());
-			updateDhcpLease(lease);
+			return updateDhcpLease(lease);
 		}
 		else {
-			
+			return 0;
 		}
 	}
 
 	@Override
-	public void updateDhcpLease(DhcpLease lease) {
+	public int updateDhcpLease(DhcpLease lease) {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
 	@Override
-	public void deleteDhcpLease(DhcpLease lease) {
+	public int deleteDhcpLease(DhcpLease lease) {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
 	@Override
-	public void updateIpAddress(InetAddress inetAddr, byte state, short prefixlen, Date start, Date preferred,
+	public int updateIpAddress(InetAddress inetAddr, byte state, byte haPeerState, short prefixlen, Date start, Date preferred,
 			Date valid) {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
 	@Override
-	public void deleteIpAddress(InetAddress inetAddr) {
+	public int deleteIpAddress(InetAddress inetAddr) {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
 	@Override
-	public void updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
+	public int updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
 	@Override
-	public void updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
+	public int updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 
@@ -152,8 +158,9 @@ public class RandomAccessFileLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	public void deleteAllLeases() {
+	public int deleteAllLeases() {
 		// TODO Auto-generated method stub
+		return 0;
 
 	}
 

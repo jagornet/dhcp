@@ -129,6 +129,9 @@ public abstract class BaseBindingManager
 		}
     }
 
+    public Map<String, List<? extends BindingPool>> getBindingPoolMap() {
+    	return bindingPoolMap;
+    }
 
     /**
      * Build the list of BindingPools for the given DhcpLink.  The BindingPools
@@ -163,6 +166,10 @@ public abstract class BaseBindingManager
 				}
 			}
 		}
+    }
+
+    public Map<String, List<? extends StaticBinding>> getStaticBindingMap() {
+    	return staticBindingMap;
     }
     
     /**
@@ -235,6 +242,7 @@ public abstract class BaseBindingManager
 	protected BindingPool findBindingPool(InetAddress inetAddr)
 	{
 		Collection<List<? extends BindingPool>> allPools = bindingPoolMap.values();
+		//TODO: find a more efficient way to search the pools
 		if ((allPools != null) && !allPools.isEmpty()) {
 			for (List<? extends BindingPool> bps : allPools) {
 				for (BindingPool bindingPool : bps) {
@@ -429,6 +437,9 @@ public abstract class BaseBindingManager
 				IaAddress iaAddr = new IaAddress();
 				iaAddr.setIpAddress(inetAddr);
 				iaAddr.setState(IaAddress.RESERVED);
+				// creating a new IP, peer state is unknown at this time
+				iaAddr.setHaPeerState(IaAddress.UNKNOWN);
+				// TODO: V6BindingAddress?
 				V6BindingAddress bindingAddr = new V6BindingAddress(iaAddr, staticBinding);
 				setBindingObjectTimes(bindingAddr, 
 						staticBinding.getPreferredLifetimeMs(), 
@@ -868,6 +879,8 @@ public abstract class BaseBindingManager
 			BindingObject bindingObj = buildBindingObject(inetAddr, clientLink, requestMsg);
 			if (bindingObj != null) {
 				bindingObj.setState(state);
+				// allocating a new IP, peer state is unknown at this time
+				bindingObj.setHaPeerState(IaAddress.UNKNOWN);
 				bindingObjs.add(bindingObj);
 			}
 			else {
@@ -928,6 +941,9 @@ public abstract class BaseBindingManager
 						configObj.getPreferredLifetimeMs(), 
 						configObj.getValidLifetimeMs());
 				bindingObj.setState(state);
+				// if we are changing state and setting lease times, then
+				// the peer doesn't know about these changes yet, right?
+				bindingObj.setHaPeerState(IaAddress.UNKNOWN);
 				//TODO: if we store the options, and they have changed,
 				// 		then we must update those options here somehow
 			}

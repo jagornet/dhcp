@@ -49,6 +49,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
+import com.mongodb.WriteResult;
 
 /**
  * The MongoLeaseManager implementation class for the IaManager interface.
@@ -195,9 +196,10 @@ public class MongoLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void insertDhcpLease(final DhcpLease lease)
+	public int insertDhcpLease(final DhcpLease lease)
 	{
-		dhcpLeases.insert(convertDhcpLease(lease));
+		WriteResult result = dhcpLeases.insert(convertDhcpLease(lease));
+		return result.getN();
 	}
 	
 	/**
@@ -205,10 +207,11 @@ public class MongoLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void updateDhcpLease(final DhcpLease lease)
+	public int updateDhcpLease(final DhcpLease lease)
 	{ 
-		dhcpLeases.update(ipAddressQuery(lease.getIpAddress()), 
+		WriteResult result = dhcpLeases.update(ipAddressQuery(lease.getIpAddress()), 
 										convertDhcpLease(lease));
+		return result.getN();
 	}
 	
 	/**
@@ -216,31 +219,34 @@ public class MongoLeaseManager extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void deleteDhcpLease(final DhcpLease lease)
+	public int deleteDhcpLease(final DhcpLease lease)
 	{
-		dhcpLeases.remove(ipAddressQuery(lease.getIpAddress()));
+		WriteResult result = dhcpLeases.remove(ipAddressQuery(lease.getIpAddress()));
+		return result.getN();
 	}
 	
 	/**
 	 * Update ia options.
 	 */
-	public void updateIaOptions(final InetAddress inetAddr, 
+	public int updateIaOptions(final InetAddress inetAddr, 
 									final Collection<DhcpOption> iaOptions)
 	{
 		DBObject update = new BasicDBObject("$set",
 				new BasicDBObject("iaDhcpOptions", convertDhcpOptions(iaOptions)));
-		dhcpLeases.update(ipAddressQuery(inetAddr), update);
+		WriteResult result = dhcpLeases.update(ipAddressQuery(inetAddr), update);
+		return result.getN();
   	}
 	
 	/**
 	 * Update ipaddr options.
 	 */
-	public void updateIpAddrOptions(final InetAddress inetAddr,
+	public int updateIpAddrOptions(final InetAddress inetAddr,
 									final Collection<DhcpOption> ipAddrOptions)
 	{
 		DBObject update = new BasicDBObject("$set", 
 				new BasicDBObject("iaAddrDhcpOptions", convertDhcpOptions(ipAddrOptions)));
-		dhcpLeases.update(ipAddressQuery(inetAddr), update);
+		WriteResult result = dhcpLeases.update(ipAddressQuery(inetAddr), update);
+		return result.getN();
 	}
 
 	/**
@@ -304,12 +310,13 @@ public class MongoLeaseManager extends LeaseManager
 	}
 	
 	@Override
-	public void updateIpAddress(final InetAddress inetAddr, 
-								final byte state, final short prefixlen,
+	public int updateIpAddress(final InetAddress inetAddr, 
+								final byte state, final byte haPeerState, final short prefixlen,
 								final Date start, final Date preferred, final Date valid)
 	{
 		DBObject query = ipAddressQuery(inetAddr);
 		BasicDBObject update = new BasicDBObject("state", state);
+		update.append("haPeerState", haPeerState);
 		if (prefixlen > 0) {
 			update.append("prefixLength", prefixlen);
 		}
@@ -317,13 +324,15 @@ public class MongoLeaseManager extends LeaseManager
 				append("preferredEndTime", preferred).
 				append("validEndTime", valid);
 		
-		dhcpLeases.update(query, new BasicDBObject("$set", update));
+		WriteResult result = dhcpLeases.update(query, new BasicDBObject("$set", update));
+		return result.getN();
 	}
 	
 	@Override
-	public void deleteIpAddress(final InetAddress inetAddr)
+	public int deleteIpAddress(final InetAddress inetAddr)
 	{
-		dhcpLeases.remove(ipAddressQuery(inetAddr));
+		WriteResult result = dhcpLeases.remove(ipAddressQuery(inetAddr));
+		return result.getN();
 	}
 
 	@Override
@@ -479,20 +488,22 @@ public class MongoLeaseManager extends LeaseManager
 	 * For unit tests only
 	 */
 	@Override
-	public void deleteAllLeases() {
+	public int deleteAllLeases() {
+		int cnt=0;
 		DBCursor cursor = dhcpLeases.find();
 		try {
 			if (cursor.count() > 0) {
-				int i=0;
 				while (cursor.hasNext()) {
 					dhcpLeases.remove(cursor.next());
-					i++;
+					cnt++;
 				}
-				log.info("Deleted all " + i + " dhcpLeases");
+				log.info("Deleted all " + cnt + " dhcpLeases");
+				
 			}
 		}
 		finally {
 			cursor.close();
 		}
+		return cnt;
 	}
 }

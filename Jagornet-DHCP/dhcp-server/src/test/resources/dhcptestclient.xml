@@ -37,7 +37,7 @@
 		</policy>
 		<policy>
 			<name>ha.peerServer</name>
-			<value>10.10.10.228</value>
+			<value>10.10.10.216</value>
 		</policy>
 		<policy>
 			<name>ha.peerPort</name>

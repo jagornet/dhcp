@@ -140,6 +140,7 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     		else {
     	        replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_OFFER);
     		}
+    		//TODO: should this be in postProcess?
     		if (!bindings.isEmpty()) {
         		if (rapidCommit) {
         			processDdnsUpdates(true);

@@ -199,9 +199,10 @@ public class MongoLeaseManagerV3 extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void insertDhcpLease(final DhcpLease lease)
+	public int insertDhcpLease(final DhcpLease lease)
 	{
 //		dhcpLeases.insert(convertDhcpLease(lease));
+		return 0;
 	}
 	
 	/**
@@ -209,10 +210,11 @@ public class MongoLeaseManagerV3 extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void updateDhcpLease(final DhcpLease lease)
+	public int updateDhcpLease(final DhcpLease lease)
 	{ 
 //		dhcpLeases.update(ipAddressQuery(lease.getIpAddress()), 
 //										convertDhcpLease(lease));
+		return 0;
 	}
 	
 	/**
@@ -220,31 +222,34 @@ public class MongoLeaseManagerV3 extends LeaseManager
 	 *
 	 * @param lease the lease
 	 */
-	public void deleteDhcpLease(final DhcpLease lease)
+	public int deleteDhcpLease(final DhcpLease lease)
 	{
 //		dhcpLeases.remove(ipAddressQuery(lease.getIpAddress()));
+		return 0;
 	}
 	
 	/**
 	 * Update ia options.
 	 */
-	public void updateIaOptions(final InetAddress inetAddr, 
+	public int updateIaOptions(final InetAddress inetAddr, 
 									final Collection<DhcpOption> iaOptions)
 	{
 		DBObject update = new BasicDBObject("$set",
 				new BasicDBObject("iaDhcpOptions", convertDhcpOptions(iaOptions)));
 //		dhcpLeases.update(ipAddressQuery(inetAddr), update);
+		return 0;
   	}
 	
 	/**
 	 * Update ipaddr options.
 	 */
-	public void updateIpAddrOptions(final InetAddress inetAddr,
+	public int updateIpAddrOptions(final InetAddress inetAddr,
 									final Collection<DhcpOption> ipAddrOptions)
 	{
 		DBObject update = new BasicDBObject("$set", 
 				new BasicDBObject("iaAddrDhcpOptions", convertDhcpOptions(ipAddrOptions)));
 //		dhcpLeases.update(ipAddressQuery(inetAddr), update);
+		return 0;
 	}
 
 	/**
@@ -308,12 +313,13 @@ public class MongoLeaseManagerV3 extends LeaseManager
 	}
 	
 	@Override
-	public void updateIpAddress(final InetAddress inetAddr, 
-								final byte state, final short prefixlen,
+	public int updateIpAddress(final InetAddress inetAddr, 
+								final byte state, final byte haPeerState, final short prefixlen,
 								final Date start, final Date preferred, final Date valid)
 	{
 		DBObject query = ipAddressQuery(inetAddr);
 		BasicDBObject update = new BasicDBObject("state", state);
+		update.append("haPeerState", haPeerState);
 		if (prefixlen > 0) {
 			update.append("prefixLength", prefixlen);
 		}
@@ -322,12 +328,14 @@ public class MongoLeaseManagerV3 extends LeaseManager
 				append("validEndTime", valid);
 		
 //		dhcpLeases.update(query, new BasicDBObject("$set", update));
+		return 0;
 	}
 	
 	@Override
-	public void deleteIpAddress(final InetAddress inetAddr)
+	public int deleteIpAddress(final InetAddress inetAddr)
 	{
 //		dhcpLeases.remove(ipAddressQuery(inetAddr));
+		return 0;
 	}
 
 	@Override
@@ -486,7 +494,7 @@ public class MongoLeaseManagerV3 extends LeaseManager
 	 * For unit tests only
 	 */
 	@Override
-	public void deleteAllLeases() {
+	public int deleteAllLeases() {
 //		DBCursor cursor = dhcpLeases.find();
 //		try {
 //			if (cursor.count() > 0) {
@@ -501,5 +509,6 @@ public class MongoLeaseManagerV3 extends LeaseManager
 //		finally {
 //			cursor.close();
 //		}
+		return 0;
 	}
 }

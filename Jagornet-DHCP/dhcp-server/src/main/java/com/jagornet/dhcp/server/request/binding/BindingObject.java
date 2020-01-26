@@ -39,6 +39,7 @@ import com.jagornet.dhcp.server.config.DhcpConfigObject;
 public interface BindingObject
 {
 	public void setState(byte state);
+	public void setHaPeerState(byte state);
 	public DhcpConfigObject getConfigObj();
 	public void setStartTime(Date startDate);
 	public void setPreferredEndTime(Date preferredDate);

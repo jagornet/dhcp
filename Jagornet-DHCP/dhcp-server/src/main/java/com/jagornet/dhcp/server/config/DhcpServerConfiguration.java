@@ -116,7 +116,6 @@ import com.jagornet.dhcp.server.config.xml.V6ServerIdOption;
 import com.jagornet.dhcp.server.config.xml.V6UserClassOption;
 import com.jagornet.dhcp.server.config.xml.V6VendorClassOption;
 import com.jagornet.dhcp.server.db.IaManager;
-import com.jagornet.dhcp.server.failover.FailoverConstants;
 import com.jagornet.dhcp.server.failover.FailoverStateManager;
 import com.jagornet.dhcp.server.ha.HaBackupFSM;
 import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
@@ -228,10 +227,12 @@ public class DhcpServerConfiguration
 	    	
 	    	globalFilters = xmlServerConfig.getFilters();
 	    	
-	        initFailover();
-	        initHighAvailability();
-	    	
 	    	initLinkMap(xmlServerConfig.getLinks());
+	    	
+	        initFailover();
+	        // must initLinkMap before initHighAvailability because
+	        // the HA FSMs need to sync leases by link (link-sync "TM")
+	        initHighAvailability();
 	    	
 	    	if (needWrite) {
 	    		saveConfig(xmlServerConfig, configFilename);
@@ -438,15 +439,13 @@ public class DhcpServerConfiguration
         	try {
         		peerAddress = InetAddress.getByName(peerServer).getHostAddress();
         		int peerPort = DhcpServerPolicies.globalPolicyAsInt(Property.HA_PEER_PORT);
-	        	if (haRole.equalsIgnoreCase("primary")) {
+	        	if (haRole.equalsIgnoreCase(DhcpConstants.HaRole.PRIMARY.toString())) {
 	        		haPrimaryFSM = new HaPrimaryFSM(peerAddress, peerPort);
-	        		//TODO: read last state from file
-	        		haPrimaryFSM.init(HaPrimaryFSM.State.PRIMARY_INIT);
+//	        		haPrimaryFSM.init();
 	        	}
-	        	else if (haRole.equalsIgnoreCase("backup")) {
+	        	else if (haRole.equalsIgnoreCase(DhcpConstants.HaRole.BACKUP.toString())) {
 	        		haBackupFSM = new HaBackupFSM(peerAddress, peerPort);
-	        		//TODO: read last state from file
-	        		haBackupFSM.init(HaBackupFSM.State.BACKUP_POLLING);
+//	        		haBackupFSM.init();
 	        	}
 	        	else {
 	        		throw new DhcpServerConfigException("Unknown " + Property.HA_ROLE.key() + 

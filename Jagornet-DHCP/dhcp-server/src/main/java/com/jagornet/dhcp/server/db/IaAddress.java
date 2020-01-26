@@ -49,6 +49,7 @@ public class IaAddress
 	public static final byte DECLINED = 5;
 	public static final byte STATIC = 6;
 	*/
+	public static final byte UNKNOWN = -1;
 	public static final byte AVAILABLE = 0;
 	public static final byte RESERVED = 1;
 	public static final byte OFFERED = 2;
@@ -62,6 +63,7 @@ public class IaAddress
 	protected Date preferredEndTime;
 	protected Date validEndTime;
 	protected byte state;
+	protected byte haPeerState;
 	protected Long identityAssocId;
 	protected Collection<DhcpOption> dhcpOptions;
 
@@ -174,6 +176,20 @@ public class IaAddress
 	}
 	
 	/**
+	 * @return the haPeerState
+	 */
+	public byte getHaPeerState() {
+		return haPeerState;
+	}
+
+	/**
+	 * @param haPeerState the haPeerState to set
+	 */
+	public void setHaPeerState(byte haPeerState) {
+		this.haPeerState = haPeerState;
+	}
+
+	/**
 	 * Gets the identity assoc id.
 	 * 
 	 * @return the identity assoc id
@@ -259,6 +275,7 @@ public class IaAddress
 		result = prime * result
 				+ ((startTime == null) ? 0 : startTime.hashCode());
 		result = prime * result + state;
+		result = prime * result + haPeerState;
 		result = prime * result
 				+ ((validEndTime == null) ? 0 : validEndTime.hashCode());
 		return result;
@@ -305,6 +322,8 @@ public class IaAddress
 			return false;
 		if (state != other.state)
 			return false;
+		if (haPeerState != other.haPeerState)
+			return false;
 		if (validEndTime == null) {
 			if (other.validEndTime != null)
 				return false;
@@ -325,6 +344,8 @@ public class IaAddress
 		sb.append(this.getIpAddress().getHostAddress());
 		sb.append(" state=");
 		sb.append(this.getState() + "(" + stateToString(this.getState()) + ")");
+		sb.append(" haPeerState=");
+		sb.append(this.getHaPeerState() + "(" + stateToString(this.getHaPeerState()) + ")");
 		sb.append(" startTime=");
 		if (this.getStartTime() != null)
 			sb.append(Util.GMT_DATEFORMAT.format(this.getStartTime()));
@@ -413,6 +434,7 @@ public class IaAddress
 		setPreferredEndTime(iaAddr.getPreferredEndTime());
 		setValidEndTime(iaAddr.getValidEndTime());
 		setState(iaAddr.getState());
+		setHaPeerState(iaAddr.getHaPeerState());
 		setIdentityAssocId(iaAddr.getIdentityAssocId());
 		setDhcpOptions(iaAddr.getDhcpOptions());
 		

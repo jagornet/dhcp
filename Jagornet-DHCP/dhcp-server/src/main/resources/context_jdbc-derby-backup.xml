@@ -9,8 +9,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 	<bean id="propertyConfigurer" 
 		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location">
-			<!-- <value>classpath:jdbc.derby.properties</value> -->
-			<value>file:${jagornet.dhcp.home}/config/jdbc.derby.properties</value>
+			<value>classpath:jdbc-derby-backup.properties</value>
     	</property>
   	</bean>
   	

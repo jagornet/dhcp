@@ -9,7 +9,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 	<bean id="propertyConfigurer" 
 		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location">
-			<value>classpath:jdbc.properties</value>
+			<value>classpath:jdbc-derby.properties</value>
     	</property>
   	</bean>
   	

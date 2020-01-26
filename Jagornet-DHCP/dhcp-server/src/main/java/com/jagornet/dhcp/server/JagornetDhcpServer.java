@@ -25,7 +25,6 @@
  */
 package com.jagornet.dhcp.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
@@ -55,7 +54,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.jmx.HierarchyDynamicMBean;
 import org.apache.log4j.spi.LoggerRepository;
@@ -116,16 +114,6 @@ public class JagornetDhcpServer
 
     /** The application context filename. */
     public static String APP_CONTEXT_FILENAME = "context.xml";
-    public static String APP_CONTEXT_JDBC_DATASOURCE_FILENAME = "context_jdbc_datasource.xml";
-    public static String APP_CONTEXT_JDBC_DERBY_FILENAME = "context_jdbc_derby.xml";
-    public static String APP_CONTEXT_JDBC_H2_FILENAME = "context_jdbc_h2.xml";
-    public static String APP_CONTEXT_JDBC_SQLITE_FILENAME = "context_jdbc_sqlite.xml";
-    public static String APP_CONTEXT_JDBC_FILENAME = "context_jdbc.xml";
-    public static String APP_CONTEXT_JDBC_V1SCHEMA_FILENAME = "context_jdbc_v1schema.xml";
-    public static String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "context_jdbc_v2schema.xml";    
-    public static String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "context_sqlite_v2schema.xml";    
-    public static String APP_CONTEXT_MONGO_V2SCHEMA_FILENAME = "context_mongo_v2schema.xml";    
-    public static String APP_CONTEXT_FILE_V2SCHEMA_FILENAME = "context_file_v2schema.xml";    
     
     /** DHCPv6 Multicast interfaces */
     protected List<NetworkInterface> v6McastNetIfs = null;
@@ -384,6 +372,12 @@ public class JagornetDhcpServer
     	if (serverConfig.isHA()) {
 	    	//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
 	    	Channel jerseyHttpServer = JerseyRestServer.startNettyServer(haPortNumber);
+	    	if (serverConfig.getHaPrimaryFSM() != null) {
+	    		serverConfig.getHaPrimaryFSM().init();
+	    	}
+	    	else {
+	    		serverConfig.getHaBackupFSM().init();
+	    	}
 	    	log.info("HA server startup complete");
     	}
     	else {
@@ -395,65 +389,8 @@ public class JagornetDhcpServer
 
     	List<String> appContexts = new ArrayList<String>();
 
-    	String dbDir = DbSchemaManager.DB_HOME;
-    	
-    	if (schemaType.startsWith("jdbc")) {
-            String jdbcContext = null;
-        	if (schemaVersion == 1) {
-        		jdbcContext = APP_CONTEXT_JDBC_V1SCHEMA_FILENAME;
-        	}
-        	else if (schemaVersion == 2) {
-        		jdbcContext = APP_CONTEXT_JDBC_V2SCHEMA_FILENAME;
-        	}
-        	else {
-        		throw new IllegalStateException("Unsupported schema version: " + schemaVersion);
-        	}
-        	
-        	if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_DERBY)) {
-        		FileUtils.forceMkdir(new File(dbDir + "derby"));
-            	appContexts.add(APP_CONTEXT_JDBC_DERBY_FILENAME);
-            	appContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
-            	appContexts.add(jdbcContext);
-            	appContexts.add(APP_CONTEXT_FILENAME);
-            }
-            else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_H2)) {
-        		FileUtils.forceMkdir(new File(dbDir + "h2"));
-            	appContexts.add(APP_CONTEXT_JDBC_H2_FILENAME);
-            	appContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
-            	appContexts.add(jdbcContext);
-            	appContexts.add(APP_CONTEXT_FILENAME);
-            }
-            else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_JDBC_SQLITE)) {
-        		FileUtils.forceMkdir(new File(dbDir + "sqlite"));
-            	appContexts.add(APP_CONTEXT_JDBC_SQLITE_FILENAME);
-            	appContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
-            	appContexts.add(jdbcContext);
-            	appContexts.add(APP_CONTEXT_FILENAME);
-            }
-            else {
-            	log.warn("Unknown JDBC data source, using jdbc.properties");
-            	appContexts.add(APP_CONTEXT_JDBC_FILENAME);
-            	appContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
-            	appContexts.add(jdbcContext);
-            	appContexts.add(APP_CONTEXT_FILENAME);
-            }
-    	}
-        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_SQLITE)) {
-    		FileUtils.forceMkdir(new File(dbDir + "sqlite"));
-        	appContexts.add(APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME);
-        	appContexts.add(APP_CONTEXT_FILENAME);
-        }
-        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_MONGO)) {
-        	appContexts.add(APP_CONTEXT_MONGO_V2SCHEMA_FILENAME);
-        	appContexts.add(APP_CONTEXT_FILENAME);
-        }
-        else if (schemaType.equalsIgnoreCase(DbSchemaManager.SCHEMATYPE_FILE)) {
-        	appContexts.add(APP_CONTEXT_FILE_V2SCHEMA_FILENAME);
-        	appContexts.add(APP_CONTEXT_FILENAME);
-        }
-        else {
-        	throw new DhcpServerConfigException("Unsupported schema type: " + schemaType);
-        }
+    	appContexts.addAll(DbSchemaManager.getDbContextFiles(schemaType, schemaVersion));
+    	appContexts.add(APP_CONTEXT_FILENAME);
         
     	String[] ctxArray = new String[appContexts.size()];
     	return appContexts.toArray(ctxArray);

@@ -25,6 +25,8 @@
  */
 package com.jagornet.dhcp.server.db;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
+import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
 
 /**
@@ -42,13 +45,13 @@ import com.jagornet.dhcp.core.util.Util;
 
 public class DhcpLease implements Cloneable
 {
-	protected static Date EPOCH = new Date(0);
 	protected InetAddress ipAddress;
 	protected byte[] duid;
 	protected byte iatype;
 	protected long iaid;		// need long to hold 32-bit unsigned integer
 	protected short prefixLength;
 	protected byte state;		// states defined in IaAddress
+	protected byte haPeerState;
 	protected Date startTime;
 	protected Date preferredEndTime;
 	protected Date validEndTime;
@@ -175,6 +178,22 @@ public class DhcpLease implements Cloneable
 
 
 	/**
+	 * @return the haPeerState
+	 */
+	public byte getHaPeerState() {
+		return haPeerState;
+	}
+
+
+	/**
+	 * @param haPeerState the haPeerState to set
+	 */
+	public void setHaPeerState(byte haPeerState) {
+		this.haPeerState = haPeerState;
+	}
+
+
+	/**
 	 * Gets the start time.
 	 *
 	 * @return the start time
@@ -183,7 +202,7 @@ public class DhcpLease implements Cloneable
 		if (startTime != null) {
 			return startTime;
 		}
-		return EPOCH;
+		return DhcpConstants.EPOCH;
 	}
 
 
@@ -206,7 +225,7 @@ public class DhcpLease implements Cloneable
 		if (preferredEndTime != null) {
 			return preferredEndTime;
 		}
-		return EPOCH;
+		return DhcpConstants.EPOCH;
 	}
 
 
@@ -232,7 +251,7 @@ public class DhcpLease implements Cloneable
 		// ensure non null Date is returned, otherwise
 		// NullPointer will occur in lambda expressions
 		// in LeaseManager
-		return EPOCH;
+		return DhcpConstants.EPOCH;
 	}
 
 
@@ -346,6 +365,7 @@ public class DhcpLease implements Cloneable
 		result = prime * result
 				+ ((startTime == null) ? 0 : startTime.hashCode());
 		result = prime * result + state;
+		result = prime * result + haPeerState;
 		result = prime * result
 				+ ((validEndTime == null) ? 0 : validEndTime.hashCode());
 		return result;
@@ -396,6 +416,8 @@ public class DhcpLease implements Cloneable
 			return false;
 		if (state != other.state)
 			return false;
+		if (haPeerState != other.haPeerState)
+			return false;
 		if (validEndTime == null) {
 			if (other.validEndTime != null)
 				return false;
@@ -411,7 +433,10 @@ public class DhcpLease implements Cloneable
 	public String toString() {
 		return "DhcpLease [ipAddress=" + ipAddress.getHostAddress() + 
 				", duid=" + Util.toHexString(duid) + 
-				", iatype=" + iatype + ", iaid=" + iaid + ", state=" + state + 
+				", iatype=" + iatype + 
+				", iaid=" + iaid + 
+				", state=" + state + 
+				", haPeerState=" + haPeerState + 
 				", startTime=" + 
 					(startTime == null ? "" : Util.GMT_DATEFORMAT.format(startTime)) +
 				", preferredEndTime=" + 
@@ -429,6 +454,7 @@ public class DhcpLease implements Cloneable
 				"'iatype':'" + iatype + "', " +
 				"'iaid':'" + iaid + "', " +
 				"'state':'" + state + "', " + 
+				"'haPeerState':'" + haPeerState + "', " + 
 				"'startTime':'" + 
 					(startTime == null ? "" : startTime.getTime()) + "', " +
 				"'preferredEndTime':'" + 
@@ -442,6 +468,15 @@ public class DhcpLease implements Cloneable
 					(iaAddrDhcpOptions == null ? "" : 
 						 Util.toHexString(LeaseManager.encodeOptions(iaAddrDhcpOptions))) +	"', " +
 				"}";
+	}
+	
+	public static DhcpLease fromJson(Reader reader) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		int c = 0;
+		while ((c = reader.read()) != -1) {
+			sb.append((char)c);
+		}
+		return fromJson(sb.toString());
 	}
 	
 	public static DhcpLease fromJson(String json) {
@@ -460,6 +495,7 @@ public class DhcpLease implements Cloneable
 			dhcpLease.setIatype(Byte.parseByte(getJsonAttrValue(json, "iatype")));
 			dhcpLease.setIaid(Long.parseLong(getJsonAttrValue(json, "iaid")));
 			dhcpLease.setState(Byte.parseByte(getJsonAttrValue(json, "state")));
+			dhcpLease.setHaPeerState(Byte.parseByte(getJsonAttrValue(json, "haPeerState")));
 			String time = getJsonAttrValue(json, "startTime");
 			if ((time != null) && !time.isEmpty()) {
 				dhcpLease.setStartTime(new Date(Long.parseLong(time)));
@@ -497,7 +533,7 @@ public class DhcpLease implements Cloneable
 	}
 	
 	@Override
-	public DhcpLease clone() throws CloneNotSupportedException {
+	public DhcpLease clone() {
 		DhcpLease clone = new DhcpLease();
 		clone.setIpAddress(this.getIpAddress());
 		clone.setDuid(this.getDuid());
@@ -505,6 +541,7 @@ public class DhcpLease implements Cloneable
 		clone.setIaid(this.getIaid());
 		clone.setPrefixLength(this.getPrefixLength());
 		clone.setState(this.getState());
+		clone.setHaPeerState(this.getHaPeerState());
 		clone.setStartTime(this.getStartTime());
 		clone.setPreferredEndTime(this.getPreferredEndTime());
 		clone.setValidEndTime(this.getPreferredEndTime());

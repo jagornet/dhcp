@@ -46,26 +46,30 @@ public class FileLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	public void updateIpAddress(final InetAddress inetAddr, 
-								final byte state, final short prefixlen,
+	public int updateIpAddress(final InetAddress inetAddr, 
+								final byte state, final byte haPeerState, final short prefixlen,
 								final Date start, final Date preferred, final Date valid) {
 		
+		int cnt = 0;
 		DhcpLease lease = load(inetAddr);
 		if (lease != null) {
 			lease.setState(state);
+			lease.setHaPeerState(haPeerState);
 			if (prefixlen > 0) {
 				lease.setPrefixLength(prefixlen);
 			}
 			lease.setStartTime(start);
 			lease.setPreferredEndTime(preferred);
 			lease.setValidEndTime(valid);
-			store(lease);
+			cnt = store(lease);
 		}
+		return cnt;
 	}
 
 	@Override
-	public void deleteIpAddress(InetAddress inetAddr) {
+	public int deleteIpAddress(InetAddress inetAddr) {
 		remove(inetAddr);
+		return 1;
 	}
 
 	@Override
@@ -181,13 +185,15 @@ public class FileLeaseManager extends LeaseManager {
 	}
 
 	@Override
-	public void deleteAllLeases() {
+	public int deleteAllLeases() {
+		int cnt = 0;
 		try {
 			DirectoryStream<Path> ipFiles = Files.newDirectoryStream(LEASES_DIR);
 			for (Path ipFile : ipFiles) {
 	            InetAddress ip = buildIpFromFilename(ipFile.getFileName().toString());
 	            if (ip != null) {
 	            	remove(ip);
+	            	cnt++;
 	            }
 			}
 		} 
@@ -195,39 +201,45 @@ public class FileLeaseManager extends LeaseManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return cnt;
 	}
 
 	@Override
-	public void insertDhcpLease(DhcpLease lease) {
-		store(lease);
+	public int insertDhcpLease(DhcpLease lease) {
+		return store(lease);
 	}
 
 	@Override
-	public void updateDhcpLease(DhcpLease lease) {
-		store(lease);
+	public int updateDhcpLease(DhcpLease lease) {
+		return store(lease);
 	}
 
 	@Override
-	public void deleteDhcpLease(DhcpLease lease) {
+	public int deleteDhcpLease(DhcpLease lease) {
 		remove(lease.getIpAddress());
+		return 1;
 	}
 
 	@Override
-	public void updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
+	public int updateIaOptions(InetAddress inetAddr, Collection<DhcpOption> iaOptions) {
+		int cnt = 0;
 		DhcpLease lease = load(inetAddr);
 		if (lease != null) {
 			lease.setIaDhcpOptions(iaOptions);
-			store(lease);
+			cnt = store(lease);
 		}
+		return cnt;
 	}
 
 	@Override
-	public void updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
+	public int updateIpAddrOptions(InetAddress inetAddr, Collection<DhcpOption> ipAddrOptions) {
+		int cnt = 0;
 		DhcpLease lease = load(inetAddr);
 		if (lease != null) {
 			lease.setIaAddrDhcpOptions(ipAddrOptions);
-			store(lease);
+			cnt = store(lease);
 		}
+		return cnt;
 	}
 
 	@Override
@@ -294,7 +306,7 @@ public class FileLeaseManager extends LeaseManager {
 		return null;
 	}
 	
-	public void store(DhcpLease lease) {
+	public int store(DhcpLease lease) {
 		try {
 			AsynchronousFileChannel fc = getAsyncFileChannel(lease.getIpAddress());
 			if (fc != null) {
@@ -302,6 +314,7 @@ public class FileLeaseManager extends LeaseManager {
 				Future<Integer> future = fc.write(buf, 0);
 				int wrote = future.get();
 				fc.truncate(wrote);
+				return wrote;
 			}
 			else {
 				log.error("Could not get AsynchronousFileChannel for IP=" + 
@@ -312,6 +325,7 @@ public class FileLeaseManager extends LeaseManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return 0;
 	}
 	
 	public DhcpLease load(InetAddress inetAddress) {

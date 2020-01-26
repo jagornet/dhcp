@@ -212,6 +212,19 @@
 	    <artifactId>jersey-apache-connector</artifactId>
 	    <version>${jersey.version}</version>
 	</dependency>
+	<!-- 
+	<dependency>
+	    <groupId>org.glassfish.jersey.media</groupId>
+	    <artifactId>jersey-media-json-jackson</artifactId>
+	    <version>${jersey.version}</version>
+	</dependency>
+	-->
+	<dependency>
+	    <groupId>org.glassfish.jersey.bundles</groupId>
+	    <artifactId>jaxrs-ri</artifactId>
+	    <version>${jersey.version}</version>
+<!-- 	    <scope>provided</scope>  -->
+	</dependency>
 	<!-- JAXB and activation jars required for Java 11 -->
 	<dependency>
 	    <groupId>javax.xml.bind</groupId>

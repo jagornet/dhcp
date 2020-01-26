@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 public class DhcpServerStatusResource {
 	
 	public static final String PATH = "dhcpserverstatus";
+	public static final String HASTATE = "/hastate";
 	
 	private DhcpServerStatusService service;
 	
@@ -29,5 +30,12 @@ public class DhcpServerStatusResource {
     @Produces(MediaType.TEXT_PLAIN)
     public String getStatus() {
         return service.getStatus();
+    }
+    
+    @GET
+    @Path(HASTATE)
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getHaState() {
+        return service.getHaState();
     }
 }

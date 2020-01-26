@@ -12,7 +12,7 @@
 	
 	<v4ServerIdOption>
 		<!--  DHCPv4 ServerID must be a local IP address -->
-		<ipAddress>10.10.10.228</ipAddress>
+		<ipAddress>10.10.10.216</ipAddress>
 	</v4ServerIdOption>
 
 	<policies>
@@ -29,7 +29,7 @@
 		
 		<policy>
 			<name>database.schemaType</name>
-			<value>jdbc-backup-derby</value>
+			<value>jdbc-derby-backup</value>
 		</policy>
 		<policy>
 			<name>ha.role</name>
@@ -37,11 +37,19 @@
 		</policy>
 		<policy>
 			<name>ha.peerServer</name>
-			<value>10.10.10.228</value>
+			<value>10.10.10.216</value>
 		</policy>
 		<policy>
 			<name>ha.peerPort</name>
 			<value>9060</value> <!-- HTTPS port of Jersey REST server -->
+		</policy>
+		<policy>
+			<name>ha.stateDbFile</name>
+			<value>db/ha/jagornet-ha-state-backup.db</value>
+		</policy>
+		<policy>
+			<name>ha.pollReplyFailureCount</name>
+			<value>2</value>
 		</policy>
 	</policies>
 	
@@ -72,7 +80,7 @@
 		<link>
 			<name>Local IPv6 Client Link (Multicast traffic)</name>
 			<!-- Local DHCPv6 links are defined by interface name -->
-			<interface>en1</interface>
+			<interface>en0</interface>
 			<v6MsgConfigOptions>
 				<v6DnsServersOption>
 					<ipAddress>2001:db8:1::1</ipAddress>
