@@ -48,7 +48,8 @@ public class HaStateDbManager {
 	}
 	
 	public HaState init(DhcpConstants.HaRole haRole) throws Exception {
-		HaState lastSavedHaState = null;
+		boolean isBackup = haRole.equals(DhcpConstants.HaRole.BACKUP);
+		HaState myLastSavedHaState = null;
 		log.info("Initializing HA state DB: " + stateDbFile);
 		haStateDb = new HaStateDb();
 		haStateDb.haRole = haRole;
@@ -70,13 +71,18 @@ public class HaStateDbManager {
 					while (jsonReader.hasNext()) {
 						haState = gson.fromJson(jsonReader, HaState.class);
 						log.debug("Read HA state: " + haState);
-						haStateDb.haStates.add(haState);
+						if (haState != null) {
+							haStateDb.haStates.add(haState);
+							if (!isBackup && isPrimaryState(haState.state)) {
+								myLastSavedHaState = haState;
+							}
+							else if (isBackup && isBackupState(haState.state)) {
+								myLastSavedHaState = haState;
+							}
+						}
 					}
 					jsonReader.endArray();
 					jsonReader.close();
-					if (haState != null) {
-						lastSavedHaState = haState;
-					}
 				}
 			}
 			finally {
@@ -90,9 +96,9 @@ public class HaStateDbManager {
 				}
 			}
 		}
-		if (lastSavedHaState == null) {
+		if (myLastSavedHaState == null) {
 			log.info("No saved HA states");
-			if (haRole.equals(DhcpConstants.HaRole.PRIMARY)) {
+			if (!isBackup) {
 				currentHaState = updatePrimaryState(HaPrimaryFSM.State.PRIMARY_INIT);
 			}
 			else {
@@ -100,10 +106,28 @@ public class HaStateDbManager {
 			}
 		}
 		else {
-			log.info("Last saved HA state: " + lastSavedHaState);
-			currentHaState = lastSavedHaState;
+			log.info("Last saved HA state: " + myLastSavedHaState);
+			currentHaState = myLastSavedHaState;
 		}
 		return currentHaState;
+	}
+	
+	public boolean isPrimaryState(String state) {
+		for (HaPrimaryFSM.State s : HaPrimaryFSM.State.values()) {
+			if (s.name().equals(state)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isBackupState(String state) {
+		for (HaBackupFSM.State s : HaBackupFSM.State.values()) {
+			if (s.name().equals(state)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public HaState updatePrimaryState(HaPrimaryFSM.State primaryState) throws Exception {

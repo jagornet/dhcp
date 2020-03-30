@@ -17,6 +17,7 @@ import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.ha.HaPrimaryFSM.State;
 import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
 import com.jagornet.dhcp.server.rest.api.DhcpServerStatusResource;
 import com.jagornet.dhcp.server.rest.api.DhcpServerStatusService;
@@ -45,6 +46,7 @@ public class HaBackupFSM implements Runnable {
 
 	private String primaryHost;
 	private int primaryPort;
+	private boolean requestAllLeasesOnRestart;
 	private State state;
 	private HaPrimaryFSM.State primaryState;
 	private HaStateDbManager haStateDbManager;
@@ -64,6 +66,8 @@ public class HaBackupFSM implements Runnable {
 	public HaBackupFSM(String primaryHost, int primaryPort) {
 		this.primaryHost = primaryHost;
 		this.primaryPort = primaryPort;
+		requestAllLeasesOnRestart = 
+				DhcpServerPolicies.globalPolicyAsBoolean(Property.HA_CONTROL_REQUEST_ALL_LEASES_ON_RESTART);
     	pollingTaskExecutor = Executors.newSingleThreadScheduledExecutor();
     	pollingTask = new PollingTask();
 	}
@@ -74,9 +78,13 @@ public class HaBackupFSM implements Runnable {
 		
 		// service implementation for processing leases synced from backup server
 		dhcpLeasesService = new DhcpLeasesService();
+		
+		String haUsername = DhcpServerPolicies.globalPolicy(Property.HA_USERNAME);
+		String haPassword = DhcpServerPolicies.globalPolicy(Property.HA_PASSWORD);
 
 		// client implementation for getting updates from primary server
-		restClient = new JerseyRestClient(primaryHost, primaryPort);
+		restClient = new JerseyRestClient(primaryHost, primaryPort,
+										  haUsername, haPassword);
 
 		// get the last stored state and take the appropriate action for startup
 		haStateDbManager = new HaStateDbManager();
@@ -84,6 +92,7 @@ public class HaBackupFSM implements Runnable {
     	//since we store state changes to either server, and we don't really
     	//care what the last state was, not going to set a startup state here
 		//state = State.valueOf(haState.state);
+    	setState(State.valueOf(haState.state));
     	
 		Thread haBackupThread = new Thread(this, "HA-Backup");
 		haBackupThread.start();
@@ -126,6 +135,9 @@ public class HaBackupFSM implements Runnable {
 	protected void startLinkSync() throws Exception {
 		if (!dhcpLinks.isEmpty()) {
 	    	linkSyncLatch = new CountDownLatch(dhcpLinks.size());
+	    	boolean unsyncedLeasesOnly =  requestAllLeasesOnRestart ||
+										  getState().equals(State.BACKUP_INIT) ?
+												  false : true;
 			setState(State.BACKUP_SYNCING_FROM_PRIMARY);
 			Instant start = Instant.now();
 			// check the state of the primary
@@ -134,7 +146,8 @@ public class HaBackupFSM implements Runnable {
 				dhcpLink.setState(DhcpLink.State.NOT_SYNCED);
 				Thread linkSyncThread = new Thread(
 						new LinkSyncThread(dhcpLink, 
-						linkSyncLatch, restClient, dhcpLeasesService), 
+						linkSyncLatch, restClient, 
+						dhcpLeasesService, unsyncedLeasesOnly), 
 						"BackupLinkSyncFromPrimary-" + dhcpLink.getLinkAddress()
 						);
 				linkSyncThread.start();

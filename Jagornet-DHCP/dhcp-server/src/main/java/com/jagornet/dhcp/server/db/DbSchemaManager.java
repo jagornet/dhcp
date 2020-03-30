@@ -106,7 +106,7 @@ public class DbSchemaManager
         	else {
         		throw new DhcpServerConfigException("Unsupported schema version: " + schemaVersion);
         	}        	
-        	FileUtils.forceMkdir(new File(DB_HOME + schemaType));
+//        	FileUtils.forceMkdir(new File(DB_HOME + schemaType));
         	dbContexts.add(schemaContext);
         	dbContexts.add(APP_CONTEXT_JDBC_DATASOURCE_FILENAME);
         	dbContexts.add(versionContext);

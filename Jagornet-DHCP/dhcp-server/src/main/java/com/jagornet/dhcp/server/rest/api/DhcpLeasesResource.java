@@ -42,6 +42,7 @@ public class DhcpLeasesResource {
 	public static final String PATHPARAM_IPADDRESS = "ipaddress";
 	public static final String IPADDRESS = "/{" + PATHPARAM_IPADDRESS + "}";
 	public static final String IPSTREAM = "/ipstream";
+	public static final String DHCPLEASESSTREAM = "/dhcpleases";
 	public static final String JSONLEASES = "/jsonleases";
 	public static final String JSONLEASESTREAM = "/jsonleasestream";
 	public static final String GSONLEASES = "/gsonleases";
@@ -51,6 +52,8 @@ public class DhcpLeasesResource {
 	public static final String QUERYPARAM_END = "end";
 	public static final String QUERYPARAM_FORMAT = "format";
 	public static final String QUERYPARAM_HAUPDATE = "haupdate";
+	public static final String QUERYPARAM_HAUPDATE_ALL = "all";
+	public static final String QUERYPARAM_HAUPDATE_UNSYNCED = "unsynced";
 
 	private DhcpLeasesService leasesService;
 	private DhcpServerStatusService statusService;
@@ -89,7 +92,7 @@ public class DhcpLeasesResource {
         	return Response.ok(sb.toString()).build();
 		}
 		catch (Exception ex) {
-			log.error("Exception caught in getDhcpLeaseIps: " + ex);
+			log.error("Exception caught in getDhcpLeaseIps", ex);
 			return Response.serverError().entity(ex).build();
 		}
     }
@@ -123,25 +126,29 @@ public class DhcpLeasesResource {
 			return Response.ok(stream).build();
 		}
 		catch (Exception ex) {
-			log.error("Exception caught in getDhcpLeaseIpStream: " + ex);
+			log.error("Exception caught in getDhcpLeaseIpStream", ex);
 			return Response.serverError().entity(ex).build();
 		}
     }
 
+    @GET
+    @Path(DHCPLEASESSTREAM)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response getDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
 			   						   @QueryParam(QUERYPARAM_END) String end,
 		    						   @QueryParam(QUERYPARAM_FORMAT) String format,
 		    						   @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
     	Response response = null;
     	if ("gson".equalsIgnoreCase(format)) {
-    		response = getGsonDhcpLeaseStream(start, end);
+    		response = getGsonDhcpLeaseStream(start, end, haUpdate);
     	}
     	else { // default if ("json".equalsIgnoreCase(format)){
-    		response = getJsonDhcpLeaseStream(start, end);
+    		response = getJsonDhcpLeaseStream(start, end, haUpdate);
     	}
-    	if ("true".equalsIgnoreCase(haUpdate) &&
+    	
+		//TODO: consider this implementation - hack to set HA FSM state?
+    	if ((haUpdate != null) &&
     		(response.getStatus() == Status.OK.ordinal())) {
-    		//TODO: consider this implementation - hack?
     		statusService.setHaState(DhcpServerStatusService.SYNCING_TO_PEER);
     	}
     	return response;
@@ -151,8 +158,11 @@ public class DhcpLeasesResource {
     @Path(JSONLEASESTREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getJsonDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
-			 							   @QueryParam(QUERYPARAM_END) String end) {
+			 							   @QueryParam(QUERYPARAM_END) String end,
+			    						   @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
     	// this will be served at http://localhost/dhcpleases/jsonleasestream
+    	final boolean unsyncedLeasesOnly = 
+    			QUERYPARAM_HAUPDATE_UNSYNCED.equalsIgnoreCase(haUpdate) ? true : false;
     	/*
     	 * See commented code in BaseAddrBindingManager.ReaperTimerTask.run
     	 * that confirms that implementation below does not leak file descriptors
@@ -170,13 +180,13 @@ public class DhcpLeasesResource {
 							writer.write(System.lineSeparator());
 							writer.flush();  // important to flush
 						}
-					});
+					}, unsyncedLeasesOnly);
 			    }
 			};
 			return Response.ok(stream).build();    	
     	}
     	catch (Exception ex) {
-			log.error("Exception caught in getJsonDhcpLeaseStream: " + ex);
+			log.error("Exception caught in getJsonDhcpLeaseStream", ex);
 			return Response.serverError().entity(ex).build();
     	}
     }
@@ -185,8 +195,11 @@ public class DhcpLeasesResource {
     @Path(GSONLEASESTREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getGsonDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
-			   							   @QueryParam(QUERYPARAM_END) String end) {
+			   							   @QueryParam(QUERYPARAM_END) String end,
+			    						   @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
     	// this will be served at http://localhost/dhcpleases/gsonleasestream
+    	final boolean unsyncedLeasesOnly = 
+    			QUERYPARAM_HAUPDATE_UNSYNCED.equalsIgnoreCase(haUpdate) ? true : false;
     	/*
     	 * See commented code in BaseAddrBindingManager.ReaperTimerTask.run
     	 * that confirms that implementation below does not leak file descriptors
@@ -203,7 +216,7 @@ public class DhcpLeasesResource {
 						public void processDhcpLease(DhcpLease dhcpLease) throws Exception {
 							gson.toJson(dhcpLease, DhcpLease.class, writer);
 						}
-					});
+					}, unsyncedLeasesOnly);
 					writer.endArray();
 					writer.close();
 			    }
@@ -211,7 +224,7 @@ public class DhcpLeasesResource {
 			return Response.ok(stream).build();    	
     	}
     	catch (Exception ex) {
-			log.error("Exception caught in getGsonDhcpLeaseStream: " + ex);
+			log.error("Exception caught in getGsonDhcpLeaseStream", ex);
 			return Response.serverError().entity(ex).build();
     	}
     }
@@ -261,7 +274,7 @@ public class DhcpLeasesResource {
 			}
     	}
     	catch (Exception ex) {
-			log.error("Exception caught in getDhcpLease: " + ex);
+			log.error("Exception caught in getDhcpLease", ex);
 			return Response.serverError().entity(ex).build();
     	}
     }
@@ -314,7 +327,7 @@ public class DhcpLeasesResource {
 	    	}
         }
     	catch (Exception ex) {
-			log.error("Exception caught in postDhcpLease: " + ex);
+			log.error("Exception caught in postDhcpLease", ex);
     		return Response.serverError().entity(ex).build();
     	}
 	}
@@ -370,7 +383,7 @@ public class DhcpLeasesResource {
 			}
 		}
 		catch (Exception ex) {
-			log.error("Exception caught in postDhcpLease: " + ex);
+			log.error("Exception caught in postDhcpLease", ex);
 			return Response.serverError().entity(ex).build();
 		}
     }
@@ -389,7 +402,7 @@ public class DhcpLeasesResource {
     		}
 		}
 		catch (Exception ex) {
-			log.error("Exception caught in deleteDhcpLease: " + ex);
+			log.error("Exception caught in deleteDhcpLease", ex);
 			return Response.serverError().entity(ex).build();
 		}
     }

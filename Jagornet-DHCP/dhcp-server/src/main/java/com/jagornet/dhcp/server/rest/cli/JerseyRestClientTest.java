@@ -16,6 +16,8 @@ import javax.ws.rs.client.WebTarget;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.db.DhcpLease;
 
 public class JerseyRestClientTest {
@@ -61,7 +63,10 @@ public class JerseyRestClientTest {
 
 	public static void main(String[] args) {
 		try {
-			JerseyRestClient client = new JerseyRestClient("localhost", 9060);
+			JerseyRestClient client = 
+					new JerseyRestClient("localhost", 9060,
+							DhcpServerPolicies.globalPolicy(Property.REST_API_USERNAME),
+							DhcpServerPolicies.globalPolicy(Property.REST_API_PASSWORD));
 			String api = "dhcpserverstatus";
 			if (args.length > 0) {
 				api = args[0];

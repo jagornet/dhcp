@@ -199,10 +199,10 @@ public class DhcpLease implements Cloneable
 	 * @return the start time
 	 */
 	public Date getStartTime() {
-		if (startTime != null) {
+//		if (startTime != null) {
 			return startTime;
-		}
-		return DhcpConstants.EPOCH;
+//		}
+//		return DhcpConstants.EPOCH;
 	}
 
 
@@ -222,10 +222,10 @@ public class DhcpLease implements Cloneable
 	 * @return the preferred end time
 	 */
 	public Date getPreferredEndTime() {
-		if (preferredEndTime != null) {
+//		if (preferredEndTime != null) {
 			return preferredEndTime;
-		}
-		return DhcpConstants.EPOCH;
+//		}
+//		return DhcpConstants.EPOCH;
 	}
 
 
@@ -245,13 +245,13 @@ public class DhcpLease implements Cloneable
 	 * @return the valid end time
 	 */
 	public Date getValidEndTime() {
-		if (validEndTime != null) {
+//		if (validEndTime != null) {
 			return validEndTime;
-		}
-		// ensure non null Date is returned, otherwise
-		// NullPointer will occur in lambda expressions
-		// in LeaseManager
-		return DhcpConstants.EPOCH;
+//		}
+//		// ensure non null Date is returned, otherwise
+//		// NullPointer will occur in lambda expressions
+//		// in LeaseManager
+//		return DhcpConstants.EPOCH;
 	}
 
 

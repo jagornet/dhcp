@@ -107,6 +107,7 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
 				if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 					V4BindingAddress bindingAddr = (V4BindingAddress) bindingObjs.iterator().next();
 					bindingMgr.releaseIaAddress(binding, bindingAddr);
+					bindings.add(binding);
 				}
 				else {
 					log.error("No binding addresses in binding for client: " + 
@@ -122,6 +123,11 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
 			log.error("Unable to process V4 Release:" +
 					" No V4AddrBindingManager available");
 		}
+		
+        if (!bindings.isEmpty()) {
+        	// DDNS handled by bindingMgr.releaseIaAddress
+			processHaBindingUpdates();
+        }
 		
 	    return false;	// no reply for v4 release
     }

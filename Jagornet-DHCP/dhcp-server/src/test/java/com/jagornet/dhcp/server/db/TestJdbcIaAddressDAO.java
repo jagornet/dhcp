@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -44,6 +45,7 @@ import org.junit.Test;
  * 
  * @author agrabil
  */
+@Ignore
 public class TestJdbcIaAddressDAO extends BaseTestCase
 {
     protected static IdentityAssocDAO iaDao;

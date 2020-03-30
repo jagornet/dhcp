@@ -120,15 +120,30 @@ public class JdbcLeaseManager extends LeaseManager
 				ps.setShort(i++, lease.getPrefixLength());
 				ps.setByte(i++, lease.getState());
 				ps.setByte(i++, lease.getHaPeerState());
-				java.sql.Timestamp sts = 
-					new java.sql.Timestamp(lease.getStartTime().getTime());
-				ps.setTimestamp(i++, sts, Util.GMT_CALENDAR);
-				java.sql.Timestamp pts = 
-					new java.sql.Timestamp(lease.getPreferredEndTime().getTime());
-				ps.setTimestamp(i++, pts, Util.GMT_CALENDAR);
-				java.sql.Timestamp vts = 
-					new java.sql.Timestamp(lease.getValidEndTime().getTime());
-				ps.setTimestamp(i++, vts, Util.GMT_CALENDAR);
+				if (lease.getStartTime() != null) {
+					java.sql.Timestamp sts = 
+							new java.sql.Timestamp(lease.getStartTime().getTime());
+					ps.setTimestamp(i++, sts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(i++, java.sql.Types.TIMESTAMP);
+				}
+				if (lease.getPreferredEndTime() != null) {
+					java.sql.Timestamp pts =
+							new java.sql.Timestamp(lease.getPreferredEndTime().getTime());
+					ps.setTimestamp(i++, pts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(i++, java.sql.Types.TIMESTAMP);
+				}
+				if (lease.getValidEndTime() != null) {
+					java.sql.Timestamp vts = 
+						new java.sql.Timestamp(lease.getValidEndTime().getTime());
+					ps.setTimestamp(i++, vts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(i++, java.sql.Types.TIMESTAMP);
+				}
 				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions()));
 				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions()));
 			}
@@ -160,15 +175,30 @@ public class JdbcLeaseManager extends LeaseManager
 				int i = 1;
 				ps.setByte(i++, lease.getState());
 				ps.setByte(i++, lease.getHaPeerState());
-				java.sql.Timestamp sts = 
-					new java.sql.Timestamp(lease.getStartTime().getTime());
-				ps.setTimestamp(i++, sts, Util.GMT_CALENDAR);
-				java.sql.Timestamp pts = 
-					new java.sql.Timestamp(lease.getPreferredEndTime().getTime());
-				ps.setTimestamp(i++, pts, Util.GMT_CALENDAR);
-				java.sql.Timestamp vts = 
-					new java.sql.Timestamp(lease.getValidEndTime().getTime());
-				ps.setTimestamp(i++, vts, Util.GMT_CALENDAR);
+				if (lease.getStartTime() != null) {
+					java.sql.Timestamp sts = 
+							new java.sql.Timestamp(lease.getStartTime().getTime());
+					ps.setTimestamp(i++, sts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(i++, java.sql.Types.TIMESTAMP);
+				}
+				if (lease.getPreferredEndTime() != null) {
+					java.sql.Timestamp pts =
+							new java.sql.Timestamp(lease.getPreferredEndTime().getTime());
+					ps.setTimestamp(i++, pts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(i++, java.sql.Types.TIMESTAMP);
+				}
+				if (lease.getValidEndTime() != null) {
+					java.sql.Timestamp vts = 
+						new java.sql.Timestamp(lease.getValidEndTime().getTime());
+					ps.setTimestamp(i++, vts, Util.GMT_CALENDAR);
+				}
+				else {
+					ps.setNull(i++, java.sql.Types.TIMESTAMP);
+				}
 				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions()));
 				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions()));
 				ps.setBytes(i++, lease.getIpAddress().getAddress());
@@ -458,6 +488,46 @@ public class JdbcLeaseManager extends LeaseManager
                 	}
                 });
 	}
+
+	@Override
+	public void findUnsyncedLeases(final InetAddress startAddr, 
+								   final InetAddress endAddr,
+								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler)
+	{
+        getJdbcTemplate().query(
+                "select * from dhcplease" +
+                " where hapeerstate = " + IaAddress.UNKNOWN +
+                " and ipaddress >= ? and ipaddress <= ?" +
+                " order by ipaddress", 
+                new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setBytes(1, startAddr.getAddress());
+						ps.setBytes(2, endAddr.getAddress());
+					}                	
+                },
+                new RowCallbackHandler() {
+                	@Override
+                	public void processRow(ResultSet rs) throws SQLException {
+                    	try {
+                	    	ResultSetExtractor<DhcpLease> rsExtractor = 
+                	    			new DhcpLeaseResultSetExtractor();
+                	    	DhcpLease dhcpLease = rsExtractor.extractData(rs);
+                			dhcpLeaseCallbackHandler.processDhcpLease(dhcpLease);
+                		} 
+                    	catch (Exception e) {
+                    		// re-throw as SQLException
+                			throw new SQLException("Unable to map ipaddress", e);
+                		}
+                	}
+                });
+	}
+	
+	@Override
+	public int setAllLeasesUnsynced() {
+		return getJdbcTemplate().update("update dhcplease" +
+								 		" set hapeerstate=" + IaAddress.UNKNOWN);
+	}
 	
 	@Override
 	public List<DhcpLease> findUnusedLeases(final InetAddress startAddr, final InetAddress endAddr)
@@ -484,6 +554,7 @@ public class JdbcLeaseManager extends LeaseManager
 	}
 
 	@Override
+	/*
 	public DhcpLease findUnusedLease(InetAddress startAddr, InetAddress endAddr) {
 		final long offerExpiration = new Date().getTime() - offerExpireMillis;
         List<DhcpLease> leases = getJdbcTemplate().query(
@@ -507,8 +578,52 @@ public class JdbcLeaseManager extends LeaseManager
 		if ((leases != null) && leases.size() > 0) {
 			return leases.get(0);
 		}
-		return null;
-		
+		return null;	
+	}
+	*/
+	public DhcpLease findUnusedLease(InetAddress startAddr, InetAddress endAddr) {
+        List<DhcpLease> leases = getJdbcTemplate().query(
+                "select * from dhcplease" +
+                " where state=" + IaAddress.AVAILABLE +
+                " and ipaddress >= ? and ipaddress <= ?" +
+//                " order by state, validendtime, ipaddress" + 
+                LIMIT_ONE_CLAUSE,
+                new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setBytes(1, startAddr.getAddress());
+						ps.setBytes(2, endAddr.getAddress());
+					}                	
+                },
+                new DhcpLeaseRowMapper());
+		if ((leases != null) && leases.size() > 0) {
+			return leases.get(0);
+		}
+		// no "available" leases, now see if any offers have expired
+		// using a separate query instead of 'or' clause, because 'or'
+		// appears to impact performance in the nominal case
+		final long offerExpiration = new Date().getTime() - offerExpireMillis;
+        leases = getJdbcTemplate().query(
+                "select * from dhcplease" +
+                " where (state=" + IaAddress.OFFERED +
+                " and starttime <= ?)" +
+                " and ipaddress >= ? and ipaddress <= ?" +
+//                " order by state, validendtime, ipaddress" + 
+                LIMIT_ONE_CLAUSE,
+                new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						java.sql.Timestamp ts = new java.sql.Timestamp(offerExpiration);
+						ps.setTimestamp(1, ts, Util.GMT_CALENDAR);
+						ps.setBytes(2, startAddr.getAddress());
+						ps.setBytes(3, endAddr.getAddress());
+					}                	
+                },
+                new DhcpLeaseRowMapper());
+		if ((leases != null) && leases.size() > 0) {
+			return leases.get(0);
+		}
+		return null;		
 	}
 	
 	public List<DhcpLease> findExpiredLeases(final byte iatype) {

@@ -50,6 +50,7 @@ public class HaPrimaryFSM implements Runnable {
 	
 	private String backupHost;
 	private int backupPort;
+	private boolean requestAllLeasesOnRestart;
 	private State state;
 	private HaBackupFSM.State backupState;
 	private UpdateMode updateMode;
@@ -65,6 +66,8 @@ public class HaPrimaryFSM implements Runnable {
 	public HaPrimaryFSM(String backupHost, int backupPort) {
 		this.backupHost = backupHost;
 		this.backupPort = backupPort;
+		requestAllLeasesOnRestart = 
+				DhcpServerPolicies.globalPolicyAsBoolean(Property.HA_CONTROL_REQUEST_ALL_LEASES_ON_RESTART);
 	}
 
 	public void init() throws Exception {
@@ -87,9 +90,13 @@ public class HaPrimaryFSM implements Runnable {
 		
 		// service implementation for processing leases synced from backup server
 		dhcpLeasesService = new DhcpLeasesService();
+		
+		String haUsername = DhcpServerPolicies.globalPolicy(Property.HA_USERNAME);
+		String haPassword = DhcpServerPolicies.globalPolicy(Property.HA_PASSWORD);
 
 		// client implementation for sending updates to backup server
-		restClient = new JerseyRestClient(backupHost, backupPort);
+		restClient = new JerseyRestClient(backupHost, backupPort,
+										  haUsername, haPassword);
 
 		// get the last stored state and take the appropriate action for startup
 		haStateDbManager = new HaStateDbManager();
@@ -97,6 +104,7 @@ public class HaPrimaryFSM implements Runnable {
     	//since we store state changes to either server, and we don't really
     	//care what the last state was, not going to set a startup state here
 		//state = State.valueOf(haState.state);
+    	setState(State.valueOf(haState.state));
 		
 		Thread haPrimaryThread = new Thread(this, "HA-Primary");
 		haPrimaryThread.start();
@@ -129,6 +137,11 @@ public class HaPrimaryFSM implements Runnable {
 	protected void startLinkSync() throws Exception {
 		if (!dhcpLinks.isEmpty()) {
 	    	linkSyncLatch = new CountDownLatch(dhcpLinks.size());
+	    	// request all leases from the backup if configured to do so,
+	    	// or if this primary is initializing for the first time
+	    	boolean unsyncedLeasesOnly =  requestAllLeasesOnRestart ||
+	    								  getState().equals(State.PRIMARY_INIT) ?
+	    										  false : true;
 			setState(State.PRIMARY_SYNCING_FROM_BACKUP);
 			Instant start = Instant.now();
 			// check the state of the backup
@@ -137,7 +150,8 @@ public class HaPrimaryFSM implements Runnable {
 				dhcpLink.setState(DhcpLink.State.NOT_SYNCED);
 				Thread linkSyncThread = new Thread(
 						new LinkSyncThread(dhcpLink, 
-						linkSyncLatch, restClient, dhcpLeasesService), 
+						linkSyncLatch, restClient, 
+						dhcpLeasesService, unsyncedLeasesOnly), 
 						"PrimaryLinkSyncFromBackup-" + dhcpLink.getLinkAddress()
 						);
 				linkSyncThread.start();
@@ -222,6 +236,7 @@ public class HaPrimaryFSM implements Runnable {
 				log.info("HA binding update delegated to database replication");
 			}
 			else {
+				log.info("Sending binding updates to backup server");
 				//TODO: consider posting the whole binding rather than one DhcpLease
 				// at a time, even though Binding probably only contains one DhcpLease?
 				for (Binding binding : bindings) {

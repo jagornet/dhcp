@@ -31,16 +31,19 @@ public class LinkSyncThread implements Runnable {
 	private JerseyRestClient restClient;
 	// REST service for handling requests from peer
 	private DhcpLeasesService dhcpLeasesService;
+	private boolean unsyncedLeasesOnly;
 	
 	public LinkSyncThread(DhcpLink dhcpLink,
 							CountDownLatch linkSyncLatch,
 							JerseyRestClient restClient,
-							DhcpLeasesService dhcpLeasesService) {
+							DhcpLeasesService dhcpLeasesService,
+							boolean unsyncedLeasesOnly) {
 		super();
 		this.dhcpLink = dhcpLink;
 		this.linkSyncLatch = linkSyncLatch;
 		this.restClient = restClient;
 		this.dhcpLeasesService = dhcpLeasesService;
+		this.unsyncedLeasesOnly = unsyncedLeasesOnly;
 	}
 	
 	@Override
@@ -50,7 +53,16 @@ public class LinkSyncThread implements Runnable {
 		paramMap.put(DhcpLeasesResource.QUERYPARAM_START, linkStartIp);
 		String linkEndIp = dhcpLink.getSubnet().getEndAddress().getHostAddress();
 		paramMap.put(DhcpLeasesResource.QUERYPARAM_END, linkEndIp);
-		paramMap.put(DhcpLeasesResource.QUERYPARAM_HAUPDATE, Boolean.TRUE.toString());
+		if (unsyncedLeasesOnly) {
+			log.debug("Requesting unsynced leases only");
+			paramMap.put(DhcpLeasesResource.QUERYPARAM_HAUPDATE, 
+							DhcpLeasesResource.QUERYPARAM_HAUPDATE_UNSYNCED);
+		}
+		else {
+			log.debug("Requesting all leases");
+			paramMap.put(DhcpLeasesResource.QUERYPARAM_HAUPDATE, 
+							DhcpLeasesResource.QUERYPARAM_HAUPDATE_ALL);
+		}
 		// set link syncing state now or in process method?
 		dhcpLink.setState(DhcpLink.State.SYNCING);
 		log.info("Starting lease sync for link: " + dhcpLink.getLinkAddress());
@@ -95,7 +107,7 @@ public class LinkSyncThread implements Runnable {
 							// mark this lease as 'synced'
 							dhcpLease.setHaPeerState(dhcpLease.getState());
 							if (dhcpLeasesService.createOrUpdateDhcpLease(dhcpLease)) {
-								// now tell the backup server we're in sync
+								// now tell the peer server we're in sync
 								restClient.doPut(
 										DhcpLeasesResource.buildPutPath(
 												dhcpLease.getIpAddress().getHostAddress()),
@@ -118,7 +130,7 @@ public class LinkSyncThread implements Runnable {
 			}
 		} 
 		catch (Exception ex) {
-			log.error("Link sync failure: " + ex);
+			log.error("Link sync failure", ex);
 			return false;
 		}
 	}
@@ -140,7 +152,7 @@ public class LinkSyncThread implements Runnable {
 	        return true;
 		} 
 		catch (Exception ex) {
-			log.error("Link sync failure: " + ex);
+			log.error("Link sync failure", ex);
 			return false;
 		}
 	}

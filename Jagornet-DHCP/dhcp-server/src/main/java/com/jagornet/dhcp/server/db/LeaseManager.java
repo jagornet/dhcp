@@ -77,6 +77,15 @@ public abstract class LeaseManager implements IaManager {
 								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
 		//TODO: implement in all subclasses
 	}
+	public void findUnsyncedLeases(final InetAddress startAddr, 
+			   final InetAddress endAddr,
+			   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
+		//TODO: implement in all subclasses
+	}
+	public int setAllLeasesUnsynced() {
+		//TODO: implement in all subclasses
+		return 0;
+	}
 	public abstract List<DhcpLease> findUnusedLeases(final InetAddress startAddr, 
 			final InetAddress endAddr);
 	public abstract DhcpLease findUnusedLease(final InetAddress startAddr, 

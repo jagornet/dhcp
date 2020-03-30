@@ -15,7 +15,6 @@ import com.jagornet.dhcp.server.rest.util.CertificateUtils;
 import com.jagornet.dhcp.server.rest.util.CertificateUtils.CertificateDetails;
 
 import io.netty.channel.Channel;
-import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 

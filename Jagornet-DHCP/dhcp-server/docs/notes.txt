@@ -183,3 +183,40 @@ for each link
 		update lease synced status
 		return lease synced status
 BACKUP-POLLING
+
+
+Test scenarios
+==============
+1) Start Primary
+2) Get leases from Primary
+3) Start Backup
+4) Confirm all leases synced from Primary to Backup
+5) Send requests to both Primary and Backup
+6) Confirm only Primary responds to lease requests
+7) Confirm lease updates are sent from Primary to Backup
+8) Stop Primary temporarily
+9) Confirm Backup ignores requests during temporary Primary outage (based on policies)
+10) Restart Primary
+11) Send requests to both Primary and Backup
+12) Confirm only Primary responds to lease requests
+13) Stop Primary
+14) Wait for Backup to take control
+15) Get leases from Backup
+16) Start Primary
+17) Confirm only unsynced leases synced from Backup to Primary
+
+18) Send requests to both Primary and Backup
+19) Confirm only Primary responds to lease requests
+20) Confirm lease updates are sent from Primary to Backup
+21) Stop Backup
+22) Get more leases from Primary
+23) Start Backup
+24) Confirm only unsynced leases synced from Primary to Backup
+25) Send requests to both Primary and Backup
+26) Confirm only Primary responds to lease requests
+27) Confirm lease updates are sent from Primary to Backup
+28) Stop Primary
+29) Wait for Backup to take control
+30) Get leases from Backup
+31) Start FRESH NEW Primary
+32) Confirm all leases synced from Backup to Primary

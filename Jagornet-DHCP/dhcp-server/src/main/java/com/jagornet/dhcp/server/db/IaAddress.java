@@ -347,20 +347,36 @@ public class IaAddress
 		sb.append(" haPeerState=");
 		sb.append(this.getHaPeerState() + "(" + stateToString(this.getHaPeerState()) + ")");
 		sb.append(" startTime=");
-		if (this.getStartTime() != null)
+		if (this.getStartTime() != null) {
 			sb.append(Util.GMT_DATEFORMAT.format(this.getStartTime()));
+			sb.append(" (since_epoch=");
+			sb.append(this.getStartTime().getTime());
+			sb.append(")");
+		}
 		sb.append(" preferredEndTime=");
-		if (this.getPreferredEndTime() != null)
-			if (this.getPreferredEndTime().getTime() < 0)
+		if (this.getPreferredEndTime() != null) {
+			if (this.getPreferredEndTime().getTime() < 0) {
 				sb.append("infinite");
-			else 
+			}
+			else { 
 				sb.append(Util.GMT_DATEFORMAT.format(this.getPreferredEndTime()));
+				sb.append(" (since_epoch=");
+				sb.append(this.getStartTime().getTime());
+				sb.append(")");
+			}
+		}
 		sb.append(" validEndTime=");
-		if (this.getValidEndTime() != null)
-			if (this.getValidEndTime().getTime() < 0)
+		if (this.getValidEndTime() != null) {
+			if (this.getValidEndTime().getTime() < 0) {
 				sb.append("infinite");
-			else
+			}
+			else {
 				sb.append(Util.GMT_DATEFORMAT.format(this.getValidEndTime()));
+				sb.append(" (since_epoch=");
+				sb.append(this.getStartTime().getTime());
+				sb.append(")");
+			}
+		}
 		Collection<DhcpOption> opts = this.getDhcpOptions();
 		if (opts != null) {
 			for (DhcpOption dhcpOption : opts) {

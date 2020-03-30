@@ -809,7 +809,8 @@ public abstract class BaseBindingManager
 */
 			if (log.isDebugEnabled())
 				log.debug("Finding available address in pool: " +
-						bp.toString());
+						bp.toString() + " (current time since_epoch=" +
+						new Date().getTime() + ")");
 			IaAddress iaAddr = 
 				iaMgr.findUnusedIaAddress(bp.getStartAddress(), bp.getEndAddress());
 			if (iaAddr != null) {

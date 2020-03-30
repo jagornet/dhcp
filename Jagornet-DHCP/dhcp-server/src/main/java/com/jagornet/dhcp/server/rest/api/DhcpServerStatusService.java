@@ -33,8 +33,10 @@ public class DhcpServerStatusService {
 		else if (dhcpServerConfig.getHaBackupFSM() != null) {
 			// if we are backup, and we get an HA state request
 			// from the primary, then assume the primary is running
+			// which means we should "cease and desist" and keep polling
 			log.info("HA Backup received HA state request from Primary, " + 
 					 "assuming that Primary is running");
+			dhcpServerConfig.getHaBackupFSM().setState(HaBackupFSM.State.BACKUP_POLLING);
 			dhcpServerConfig.getHaBackupFSM().setPrimaryState(HaPrimaryFSM.State.PRIMARY_RUNNING);
 			return dhcpServerConfig.getHaBackupFSM().getState().toString();
 		}

@@ -1,5 +1,7 @@
 package com.jagornet.dhcp.server.rest.api;
 
+import java.util.UUID;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -17,6 +19,7 @@ public class AuthenticationResource {
  *
  *  		username=admin&password=123456
  *
+ */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -38,7 +41,6 @@ public class AuthenticationResource {
             return Response.status(Response.Status.FORBIDDEN).build();
         }      
     }
-*/
 	
 /*
  * Using the application/json approach, the client must send 
@@ -77,6 +79,12 @@ public class AuthenticationResource {
     private void authenticate(String username, String password) throws Exception {
         // Authenticate against a database, LDAP, file or whatever
         // Throw an Exception if the credentials are invalid
+    	if ("jagornet".equals(username) && "jagornet".equals(password)) {
+    		// success
+    	}
+    	else {
+    		throw new Exception("Authentication failure!");
+    	}
     }
 
     private String issueToken(String username) {
@@ -84,6 +92,6 @@ public class AuthenticationResource {
         // Issue a token (can be a random String persisted to a database or a JWT token)
         // The issued token must be associated to a user
         // Return the issued token
-    	return null;
+    	return UUID.nameUUIDFromBytes("jagornet".getBytes()).toString();
     }
 }

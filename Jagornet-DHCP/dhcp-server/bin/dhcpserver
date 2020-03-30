@@ -162,11 +162,13 @@ version() {
 testconfigfile() {
 	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
 			$JAGORNET_DHCP_MAIN --test-configfile $JAGORNET_DHCP_OPTS
+	exit $? 
 }
 
 listinterfaces() {
 	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
 			$JAGORNET_DHCP_MAIN --list-interfaces
+	exit $? 
 }
 
 testclientv4() {
@@ -174,6 +176,7 @@ testclientv4() {
 	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
 			-Dlog4j.configuration="testclient_log4j.properties" \
 			$DHCPV4TESTCLIENT_MAIN $JAGORNET_DHCP_OPTS 
+	exit $? 
 }
 
 testclientv6() {
@@ -181,12 +184,14 @@ testclientv6() {
 	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
 			-Dlog4j.configuration="testclient_log4j.properties" \
 			$DHCPV6TESTCLIENT_MAIN $JAGORNET_DHCP_OPTS 
+	exit $? 
 }
 
 gentestconfig() {
 	echo Running $GENTESTCONFIG_MAIN
 	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			$GENTESTCONFIG_MAIN $JAGORNET_DHCP_OPTS 
+			$GENTESTCONFIG_MAIN $JAGORNET_DHCP_OPTS
+	exit $? 
 }
 
 

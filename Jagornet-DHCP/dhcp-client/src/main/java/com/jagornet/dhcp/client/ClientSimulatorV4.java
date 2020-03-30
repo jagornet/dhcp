@@ -68,6 +68,7 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.option.v4.DhcpV4MsgTypeOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.netty.DhcpV4ChannelDecoder;
@@ -336,9 +337,11 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     			(requestsSent.get() == acksReceived.get()) &&
     			(releasesSent.get() == numRequests)) {
     		
+    		log.info("System exit 0 (success)");
     		System.exit(0);
     	}
     	else {
+    		log.info("System exit 1 (failure)");
     		System.exit(1);
     	}
     }
@@ -585,6 +588,10 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
         DhcpV4RequestedIpAddressOption reqIpOption = new DhcpV4RequestedIpAddressOption();
         reqIpOption.setIpAddress(offer.getYiAddr().getHostAddress());
         msg.putDhcpOption(reqIpOption);
+        
+        // MUST include serverId option for selecting state
+        DhcpV4ServerIdOption serverIdOption = offer.getDhcpV4ServerIdOption();
+        msg.putDhcpOption(serverIdOption);
         
         return msg;
     }

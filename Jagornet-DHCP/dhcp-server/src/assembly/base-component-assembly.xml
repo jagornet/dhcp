@@ -35,6 +35,9 @@
     <fileSet>
       <directory>${project.basedir}/db</directory>
       <outputDirectory>db</outputDirectory>
+      <includes>
+      	<include>jagornet-*.sql</include>
+      </includes>
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/docs</directory>

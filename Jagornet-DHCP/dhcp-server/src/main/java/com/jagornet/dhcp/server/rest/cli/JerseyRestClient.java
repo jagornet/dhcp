@@ -29,6 +29,7 @@ import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,14 +50,15 @@ public class JerseyRestClient {
 	private Client client;
 	private WebTarget apiRootTarget;
 	
-	public JerseyRestClient(String host, int port) 
+	public JerseyRestClient(String host, int port, String username, String password) 
 			throws GeneralSecurityException, IOException {
-		this(host, port,
+		this(host, port, username, password,
 				JerseyRestServer.CLIENT_KEYSTORE_FILENAME,
 				JerseyRestServer.CLIENT_KEYSTORE_PASSWORD);
 	}
 	
 	public JerseyRestClient(String host, int port,
+			String username, String password,
 			String keyStoreFilename, String keyStorePassword) 
 					throws GeneralSecurityException, IOException {
 		
@@ -119,11 +121,14 @@ public class JerseyRestClient {
 										Property.HA_POLL_REPLY_TIMEOUT);
 			clientConfig.property(ClientProperties.CONNECT_TIMEOUT, timeout);
 			clientConfig.property(ClientProperties.READ_TIMEOUT, timeout);
+			
+			HttpAuthenticationFeature httpAuthFeature = 
+					HttpAuthenticationFeature.basic(username, password);
+			clientConfig.register(httpAuthFeature);
 
 			client = ClientBuilder.newBuilder()
 					.withConfig(clientConfig)
-					.build();
-			
+					.build();			
 		}
 		finally {
 			if (keyStoreInputStream != null) {
@@ -459,7 +464,9 @@ public class JerseyRestClient {
 		}
 		
 		try {
-			JerseyRestClient client = new JerseyRestClient(host, port);
+			String username = DhcpServerPolicies.globalPolicy(Property.REST_API_USERNAME);
+			String password = DhcpServerPolicies.globalPolicy(Property.REST_API_PASSWORD);
+			JerseyRestClient client = new JerseyRestClient(host, port, username, password);
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("format", format);
 			String response = client.doGet(api, params);

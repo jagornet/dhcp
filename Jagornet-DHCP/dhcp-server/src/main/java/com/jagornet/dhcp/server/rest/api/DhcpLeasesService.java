@@ -93,7 +93,7 @@ public class DhcpLeasesService {
 	
 	public void getAllLeases(DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
 		try {
-			getRangeLeases(null, null, dhcpLeaseCallbackHandler);
+			getRangeLeases(null, null, dhcpLeaseCallbackHandler, false);
 		
 		} catch (UnknownHostException e) {
 			log.error("Exception getting all leases: " + e);
@@ -101,12 +101,32 @@ public class DhcpLeasesService {
 	}
 	
 	public void getRangeLeases(String start, String end,
-			 				   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler)
+			 				   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler,
+			 				   boolean unsyncedLeasesOnly)
 		throws UnknownHostException {
 			
 		InetAddress startIp = createStartIp(start);
 		InetAddress endIp = createEndIp(end);
-		leaseManager.findExistingLeases(startIp, endIp,dhcpLeaseCallbackHandler);
+		if (unsyncedLeasesOnly) {
+			log.info("Getting unsynced leases for IP range: " +
+					 start + "-" + end);
+			leaseManager.findUnsyncedLeases(startIp, endIp, dhcpLeaseCallbackHandler);
+		}
+		else {
+			// this peer received a request for all leases, which means the other
+			// peer is initializing for the first time (or after catastrophic failure)
+			// and has no lease information whatsoever, which means this peer should
+			// automatically set all leases as unsynced, to safeguard against the
+			// possibility that the other peer would fail in mid-initial sync and then
+			// restart in an non-initial state, requesting only unsynced leases, but
+			// actually was never "in sync" to begin with, so just start over to be sure
+			//TODO: consider this as described above, but reset haPeerState per range?
+//			log.info("Resetting haPeerState on all leases");
+//			leaseManager.setAllLeasesUnsynced();
+			log.info("Getting all existing leases for IP range: " +
+					 start + "-" + end);
+			leaseManager.findExistingLeases(startIp, endIp, dhcpLeaseCallbackHandler);
+		}
 	}
 	
 	public boolean createOrUpdateDhcpLease(DhcpLease dhcpLease) {

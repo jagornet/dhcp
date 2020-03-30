@@ -48,8 +48,16 @@
 			<value>db/ha/jagornet-ha-state-backup.db</value>
 		</policy>
 		<policy>
+			<name>ha.pollReplyTimeout</name>
+			<value>100000</value>
+		</policy>
+		<policy>
 			<name>ha.pollReplyFailureCount</name>
 			<value>2</value>
+		</policy>
+		<policy>
+			<name>ha.requestAllLeasesOnRestart</name>
+			<value>false</value>
 		</policy>
 	</policies>
 	
