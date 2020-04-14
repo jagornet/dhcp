@@ -12,6 +12,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
@@ -61,7 +62,6 @@ public class AuthenticationFilter implements ContainerRequestFilter {
         // Extract the token from the Authorization header
         String token = authorizationHeader
                             .substring(AUTHENTICATION_SCHEME.length()).trim();
-
         try {
 
             // Validate the token
@@ -69,13 +69,28 @@ public class AuthenticationFilter implements ContainerRequestFilter {
         	// https://stackoverflow.com/questions/26777083/best-practice-for-rest-token-based-authentication-with-jax-rs-and-jersey
             //validateToken(token);
         	
-        	String username = validateUser(token);            
-            
-        	requestContext.setSecurityContext(
-        			new AuthFilterSecurityContext(requestContext.getSecurityContext(), 
-        										  username));
-            
-        } catch (Exception e) {
+        	String username = validateUser(token);
+        	
+    		SecurityContext securityContext = requestContext.getSecurityContext();
+        	if (securityContext != null) {
+        		// base properties
+//        		log.debug("securityContext.class=" + securityContext.getClass());
+//    			log.debug("securityContext.isSecure=" + securityContext.isSecure());
+//    			log.debug("securityContext.authenticationScheme=" +
+//    						securityContext.getAuthenticationScheme());
+//        		log.debug("securityContext.userPrincipal=" +
+//    						securityContext.getUserPrincipal());
+        		// extended wrapper class
+        		AuthFilterSecurityContext authSecurityContext = 
+        				new AuthFilterSecurityContext(
+        						requestContext.getSecurityContext(), username);
+        		log.debug("authSecurityContext.remoteAddress=" +
+						  	authSecurityContext.getRemoteAddress());
+            	requestContext.setSecurityContext(authSecurityContext);
+        	}            
+        }
+        catch (Exception ex) {
+        	log.error("Exception caught in filter", ex);
             abortWithUnauthorized(requestContext);
         }
     }

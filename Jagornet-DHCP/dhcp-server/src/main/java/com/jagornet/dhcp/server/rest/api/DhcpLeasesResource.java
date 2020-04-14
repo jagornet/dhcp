@@ -76,6 +76,7 @@ public class DhcpLeasesResource {
 	}
 
     @GET 
+    @Secured	// registration AuthenticationFilter
     @Path(IPS)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getDhcpLeaseIps(@QueryParam(QUERYPARAM_START) String start,
@@ -98,6 +99,7 @@ public class DhcpLeasesResource {
     }
 
     @GET 
+    @Secured	// registration AuthenticationFilter
     @Path(IPSTREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getDhcpLeaseIpStream(@QueryParam(QUERYPARAM_START) String start,
@@ -132,6 +134,7 @@ public class DhcpLeasesResource {
     }
 
     @GET
+    @Secured	// registration AuthenticationFilter
     @Path(DHCPLEASESSTREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
@@ -155,6 +158,7 @@ public class DhcpLeasesResource {
     }
     
     @GET
+    @Secured	// registration AuthenticationFilter
     @Path(JSONLEASESTREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getJsonDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
@@ -192,6 +196,7 @@ public class DhcpLeasesResource {
     }
     
     @GET 
+    @Secured	// registration AuthenticationFilter
     @Path(GSONLEASESTREAM)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getGsonDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
@@ -230,7 +235,7 @@ public class DhcpLeasesResource {
     }
     
     @GET 
-//    @Secured
+    @Secured	// registration AuthenticationFilter
 //  @Path(PATH_IPS_IPADDRESS)
     @Path(IPADDRESS)
 //    @Produces(MediaType.APPLICATION_JSON)
@@ -280,7 +285,7 @@ public class DhcpLeasesResource {
     }
 
     @POST 
-//    @Secured
+    @Secured	// registration AuthenticationFilter
 //    @Path(PATH_IPS)
 //    @Consumes(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
@@ -333,7 +338,7 @@ public class DhcpLeasesResource {
 	}
 	
     @PUT
-//    @Secured
+    @Secured	// registration AuthenticationFilter
 //    @Path(PATH_IPS_IPADDRESS)
     @Path(IPADDRESS)
 //    @Consumes(MediaType.APPLICATION_JSON)
@@ -389,7 +394,7 @@ public class DhcpLeasesResource {
     }
  
     @DELETE
-//    @Secured
+    @Secured	// registration AuthenticationFilter
 //    @Path(PATH_IPS_IPADDRESS)
     @Path(IPADDRESS)
     public Response deleteDhcpLease(@PathParam(PATHPARAM_IPADDRESS) String ipAddress) {

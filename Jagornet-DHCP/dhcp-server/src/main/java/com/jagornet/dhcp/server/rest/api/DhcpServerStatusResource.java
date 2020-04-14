@@ -8,7 +8,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 
-import org.glassfish.jersey.netty.httpserver.NettySecurityContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -16,6 +17,8 @@ import org.glassfish.jersey.netty.httpserver.NettySecurityContext;
  */
 @Path(DhcpServerStatusResource.PATH)
 public class DhcpServerStatusResource {
+	
+	private static Logger log = LoggerFactory.getLogger(DhcpServerStatusResource.class);
 	
 	public static final String PATH = "dhcpserverstatus";
 	public static final String HASTATE = "/hastate";
@@ -33,32 +36,41 @@ public class DhcpServerStatusResource {
      * @return String that will be returned as a text/plain response.
      */
     @GET
-    @Secured
+    @Secured	// registration AuthenticationFilter
     @Produces(MediaType.TEXT_PLAIN)
     public String getStatus(@Context ContainerRequestContext context) {
-		SecurityContext securityContext = context.getSecurityContext();
-    	if (securityContext != null) {
-			// TODO: No sysout and do NPE checks!
-    		System.out.println(securityContext.isSecure());
-    		System.out.println(securityContext.getAuthenticationScheme());
-    		System.out.println(securityContext.getUserPrincipal().getName());
-    		if (securityContext instanceof AuthFilterSecurityContext) {
-    			AuthFilterSecurityContext authSecurityContext = 
-    					(AuthFilterSecurityContext)securityContext;
-        		System.out.println(authSecurityContext
-			        				.getNettySecurityContext()
-			        				.getNettyContext()
-			        				.channel()
-			        				.remoteAddress());
-    		}
-    	}
-    	return service.getStatus();
+    	SecurityContext securityContext = context.getSecurityContext();
+		if (securityContext != null) {
+			if (securityContext.isUserInRole(
+					AuthenticationFilter.AuthRole.HA_PEER.toString())) {
+				return service.haPeerGetStatus();
+			}
+			else if (securityContext.isUserInRole(
+					AuthenticationFilter.AuthRole.REST_API.toString())) {
+				return service.getStatus();
+			}
+		}
+		log.error("Failed to verify security context role");
+		return null;
     }
     
     @GET
+    @Secured	// registration AuthenticationFilter
     @Path(HASTATE)
     @Produces(MediaType.TEXT_PLAIN)
-    public String getHaState() {
-        return service.getHaState();
+    public String getHaState(@Context ContainerRequestContext context) {
+    	SecurityContext securityContext = context.getSecurityContext();
+		if (securityContext != null) {
+			if (securityContext.isUserInRole(
+					AuthenticationFilter.AuthRole.HA_PEER.toString())) {
+				return service.haPeerGetHaState();
+			}
+			else if (securityContext.isUserInRole(
+					AuthenticationFilter.AuthRole.REST_API.toString())) {
+				return service.getHaState();
+			}
+		}
+		log.error("Failed to verify security context role");
+		return null;
     }
 }

@@ -32,6 +32,7 @@ public class DhcpLinksResource {
 	}
 
 	@GET
+    @Secured	// registration AuthenticationFilter
     @Path(SUBNET)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getLinkState(@PathParam(PATHPARAM_SUBNET) String subnetDashForSlash) {

@@ -21,28 +21,42 @@ public class DhcpServerStatusService {
 		return STATUS_OK;
 	}
 	
+	public String haPeerGetStatus() {
+		return getStatus();
+	}
+	
 	public String getHaState() {
 		if (dhcpServerConfig.getHaPrimaryFSM() != null) {
+			return getHaPrimaryState(dhcpServerConfig.getHaPrimaryFSM());
+		}
+		else if (dhcpServerConfig.getHaBackupFSM() != null) {
+			return getHaBackupState(dhcpServerConfig.getHaBackupFSM());
+		}
+		return "HA not configured";
+	}
+	
+	public String haPeerGetHaState() {
+		if (dhcpServerConfig.getHaPrimaryFSM() != null) {
+			HaPrimaryFSM haPrimaryFSM = dhcpServerConfig.getHaPrimaryFSM();
 			// if we are primary, and we get an HA state request
 			// from the backup, then the backup is available
 			log.info("HA Primary received HA state request from Backup, " + 
 					 "assuming that Backup is polling");
-			dhcpServerConfig.getHaPrimaryFSM().setBackupState(HaBackupFSM.State.BACKUP_POLLING);
-			return dhcpServerConfig.getHaPrimaryFSM().getState().toString();
+			haPrimaryFSM.setBackupState(HaBackupFSM.State.BACKUP_POLLING);
+			return getHaPrimaryState(haPrimaryFSM);
 		}
 		else if (dhcpServerConfig.getHaBackupFSM() != null) {
+			HaBackupFSM haBackupFSM = dhcpServerConfig.getHaBackupFSM();
 			// if we are backup, and we get an HA state request
 			// from the primary, then assume the primary is running
 			// which means we should "cease and desist" and keep polling
 			log.info("HA Backup received HA state request from Primary, " + 
 					 "assuming that Primary is running");
-			dhcpServerConfig.getHaBackupFSM().setState(HaBackupFSM.State.BACKUP_POLLING);
-			dhcpServerConfig.getHaBackupFSM().setPrimaryState(HaPrimaryFSM.State.PRIMARY_RUNNING);
-			return dhcpServerConfig.getHaBackupFSM().getState().toString();
+			haBackupFSM.setState(HaBackupFSM.State.BACKUP_POLLING);
+			haBackupFSM.setPrimaryState(HaPrimaryFSM.State.PRIMARY_RUNNING);
+			return getHaBackupState(haBackupFSM);
 		}
-		else {
-			return "HA not configured";
-		}
+		return "HA not configured";
 	}
 	
 	public void setHaState(String state) {
@@ -62,12 +76,20 @@ public class DhcpServerStatusService {
 						HaPrimaryFSM.State.PRIMARY_SYNCING_FROM_BACKUP);
 			}
 			else {
-				// TOdo: log error
+				log.error("HA not configured");
 			}
 		}
 		else {
-			// TOdo: log error
+			log.warn("Ignoring HA state change: " + state);
 		}
+	}
+	
+	private String getHaPrimaryState(HaPrimaryFSM haPrimaryFSM) {
+		return haPrimaryFSM.getState().toString();
+	}
+	
+	private String getHaBackupState(HaBackupFSM haBackupFSM) {
+		return haBackupFSM.getState().toString();
 	}
 
 }

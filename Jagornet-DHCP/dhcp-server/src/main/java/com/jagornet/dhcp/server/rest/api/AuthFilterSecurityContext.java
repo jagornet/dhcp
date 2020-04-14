@@ -1,5 +1,6 @@
 package com.jagornet.dhcp.server.rest.api;
 
+import java.net.SocketAddress;
 import java.security.Principal;
 
 import javax.ws.rs.core.SecurityContext;
@@ -9,6 +10,9 @@ import org.glassfish.jersey.netty.httpserver.NettySecurityContext;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.rest.api.AuthenticationFilter.AuthRole;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 
 public class AuthFilterSecurityContext implements SecurityContext {
 
@@ -55,6 +59,31 @@ public class AuthFilterSecurityContext implements SecurityContext {
     @Override
     public String getAuthenticationScheme() {
         return AuthenticationFilter.AUTHENTICATION_SCHEME;
+    }
+    
+    public SocketAddress getRemoteAddress() {
+    	Channel nettyChannel = getNettyChannel();
+    	if (nettyChannel != null) {
+    		return nettyChannel.remoteAddress();
+    	}
+    	return null;
+    }
+    
+    public Channel getNettyChannel() {
+    	ChannelHandlerContext nettyChannelHandlerContext =
+    			getNettyChannelHandlerContext();
+    	if (nettyChannelHandlerContext != null) {
+    		return nettyChannelHandlerContext.channel();
+    	}
+    	return null;
+    }
+    
+    public ChannelHandlerContext getNettyChannelHandlerContext() {
+    	NettySecurityContext nettySecurityContext = getNettySecurityContext();
+    	if (nettySecurityContext != null) {
+    		return nettySecurityContext.getNettyContext();
+    	}
+    	return null;
     }
     
     public NettySecurityContext getNettySecurityContext() {
