@@ -12,12 +12,10 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcp.server.ha.HaPrimaryFSM.State;
 import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
 import com.jagornet.dhcp.server.rest.api.DhcpServerStatusResource;
 import com.jagornet.dhcp.server.rest.api.DhcpServerStatusService;
@@ -88,7 +86,7 @@ public class HaBackupFSM implements Runnable {
 
 		// get the last stored state and take the appropriate action for startup
 		haStateDbManager = new HaStateDbManager();
-    	HaState haState = haStateDbManager.init(DhcpConstants.HaRole.BACKUP);
+    	HaState haState = haStateDbManager.init(DhcpServerConfiguration.HaRole.BACKUP);
     	//since we store state changes to either server, and we don't really
     	//care what the last state was, not going to set a startup state here
 		//state = State.valueOf(haState.state);

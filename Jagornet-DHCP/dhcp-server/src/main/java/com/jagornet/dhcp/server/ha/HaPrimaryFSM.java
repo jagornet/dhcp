@@ -13,7 +13,6 @@ import javax.ws.rs.client.InvocationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
@@ -100,7 +99,7 @@ public class HaPrimaryFSM implements Runnable {
 
 		// get the last stored state and take the appropriate action for startup
 		haStateDbManager = new HaStateDbManager();
-    	HaState haState = haStateDbManager.init(DhcpConstants.HaRole.PRIMARY);
+    	HaState haState = haStateDbManager.init(DhcpServerConfiguration.HaRole.PRIMARY);
     	//since we store state changes to either server, and we don't really
     	//care what the last state was, not going to set a startup state here
 		//state = State.valueOf(haState.state);

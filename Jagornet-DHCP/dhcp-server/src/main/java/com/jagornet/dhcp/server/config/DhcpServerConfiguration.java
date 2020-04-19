@@ -116,7 +116,6 @@ import com.jagornet.dhcp.server.config.xml.V6ServerIdOption;
 import com.jagornet.dhcp.server.config.xml.V6UserClassOption;
 import com.jagornet.dhcp.server.config.xml.V6VendorClassOption;
 import com.jagornet.dhcp.server.db.IaManager;
-import com.jagornet.dhcp.server.failover.FailoverStateManager;
 import com.jagornet.dhcp.server.ha.HaBackupFSM;
 import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
 import com.jagornet.dhcp.server.request.binding.Range;
@@ -164,8 +163,7 @@ public class DhcpServerConfiguration
     private V4AddrBindingManager v4AddrBindingMgr;
     private IaManager iaMgr;
     
-    private FailoverStateManager failoverStateManager;
-    
+    public static enum HaRole { PRIMARY, BACKUP };
     private HaPrimaryFSM haPrimaryFSM;
     private HaBackupFSM haBackupFSM;
     
@@ -229,7 +227,6 @@ public class DhcpServerConfiguration
 	    	
 	    	initLinkMap(xmlServerConfig.getLinks());
 	    	
-	        initFailover();
 	        // must initLinkMap before initHighAvailability because
 	        // the HA FSMs need to sync leases by link (link-sync "TM")
 	        initHighAvailability();
@@ -403,30 +400,6 @@ public class DhcpServerConfiguration
 		return v4ServerId;
     }
     
-    private void initFailover() throws DhcpServerConfigException {
-        String failoverRole = DhcpServerPolicies.globalPolicy(Property.FAILOVER_ROLE);
-        if (!failoverRole.isEmpty()) {
-        	if (failoverRole.equalsIgnoreCase("primary")) {
-        		failoverStateManager = new FailoverStateManager(FailoverStateManager.Role.PRIMARY);
-        	}
-        	else if (failoverRole.equalsIgnoreCase("backup")) {
-        		failoverStateManager = new FailoverStateManager(FailoverStateManager.Role.BACKUP);
-        	}
-        	else {
-        		throw new DhcpServerConfigException("Unknown " + Property.FAILOVER_ROLE.key() + 
-        											": " + failoverRole);
-        	}
-        }
-    }
-
-    public FailoverStateManager getFailoverStateManager() {
-    	return failoverStateManager;
-    }
-    
-    public void setFailoverState(FailoverStateManager failoverStateManager) {
-    	this.failoverStateManager = failoverStateManager;
-    }
-    
     private void initHighAvailability() throws DhcpServerConfigException {
         String haRole = DhcpServerPolicies.globalPolicy(Property.HA_ROLE);
         if (!haRole.isEmpty()) {
@@ -439,11 +412,11 @@ public class DhcpServerConfiguration
         	try {
         		peerAddress = InetAddress.getByName(peerServer).getHostAddress();
         		int peerPort = DhcpServerPolicies.globalPolicyAsInt(Property.HA_PEER_PORT);
-	        	if (haRole.equalsIgnoreCase(DhcpConstants.HaRole.PRIMARY.toString())) {
+	        	if (haRole.equalsIgnoreCase(HaRole.PRIMARY.toString())) {
 	        		haPrimaryFSM = new HaPrimaryFSM(peerAddress, peerPort);
 //	        		haPrimaryFSM.init();
 	        	}
-	        	else if (haRole.equalsIgnoreCase(DhcpConstants.HaRole.BACKUP.toString())) {
+	        	else if (haRole.equalsIgnoreCase(HaRole.BACKUP.toString())) {
 	        		haBackupFSM = new HaBackupFSM(peerAddress, peerPort);
 //	        		haBackupFSM.init();
 	        	}

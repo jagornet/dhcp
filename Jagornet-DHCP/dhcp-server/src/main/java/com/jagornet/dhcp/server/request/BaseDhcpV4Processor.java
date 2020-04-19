@@ -58,10 +58,6 @@ import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.DhcpV4OptionConfigObject;
-import com.jagornet.dhcp.server.failover.FailoverBindingCallback;
-import com.jagornet.dhcp.server.failover.FailoverBindingUpdater;
-import com.jagornet.dhcp.server.failover.FailoverStateManager;
-import com.jagornet.dhcp.server.failover.FailoverStateManager.State;
 import com.jagornet.dhcp.server.ha.HaBackupFSM;
 import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
 import com.jagornet.dhcp.server.request.binding.Binding;
@@ -505,28 +501,6 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 						}
 					}
 				}
-			}
-		}
-	}
-	
-	protected void processFailoverBindingUpdates() {
-		FailoverStateManager fsm = dhcpServerConfig.getFailoverStateManager();
-		if (fsm != null) {
-			if (fsm.getState().equals(State.PRIMARY_RUNNING)) {
-				for (Binding binding : bindings) {
-					if (binding.getState() == Binding.LEASED) {
-						FailoverBindingCallback bndCallback =
-								new FailoverBindingCallback(binding);
-						//TODO: calculate second param - isDelete
-						FailoverBindingUpdater bndUpdater =
-								new FailoverBindingUpdater(binding, false, bndCallback);
-						bndUpdater.processUpdates();
-					}
-				}				
-			}
-			else {
-				log.warn("Unable to process failover binding updates: " +
-						 "failover state=" + fsm.getState());
 			}
 		}
 	}

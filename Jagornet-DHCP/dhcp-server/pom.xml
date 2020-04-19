@@ -12,21 +12,17 @@
   <properties>
   	<jagornet.dhcp.version>3.0.0-SNAPSHOT</jagornet.dhcp.version>
   	<commons.cli.version>1.2</commons.cli.version>
-  	<commons.dbcp2.version>2.1.1</commons.dbcp2.version>
-  	<commons.io.version>2.5</commons.io.version>
-  	<commons.pool2.version>2.4.2</commons.pool2.version>
-  	<dnsjava.version>2.1.8</dnsjava.version>
-  	<netty3.version>3.10.6.Final</netty3.version>
-  	<netty4.version>4.1.28.Final</netty4.version>
-  	<spring.version>4.3.6.RELEASE</spring.version>
-  	<derby.version>10.13.1.1</derby.version>
-  	<h2.version>1.4.193</h2.version>
-  	<sqlite.jdbc.version>3.16.1</sqlite.jdbc.version>
-  	<sqlite4java.version>1.0.392</sqlite4java.version>
-  	<mongo.version>3.4.2</mongo.version>
-  	<jedis.version>2.9.0</jedis.version>
-  	<gson.version>2.8.4</gson.version>
-  	<jersey.version>2.29</jersey.version>
+  	<commons.dbcp2.version>2.7.0</commons.dbcp2.version>
+  	<commons.io.version>2.6</commons.io.version>
+  	<commons.pool2.version>2.7.0</commons.pool2.version>
+  	<dnsjava.version>2.1.9</dnsjava.version>
+  	<netty.version>4.1.48.Final</netty.version>
+  	<spring.version>5.2.5.RELEASE</spring.version>
+  	<derby.version>10.14.2.0</derby.version>
+  	<h2.version>1.4.200</h2.version>
+  	<sqlite.jdbc.version>3.30.1</sqlite.jdbc.version>
+  	<gson.version>2.8.6</gson.version>
+  	<jersey.version>2.30</jersey.version>
   	<jaxb.version>2.2.11</jaxb.version>
   	<activation.version>1.1.1</activation.version>
   </properties>
@@ -64,13 +60,8 @@
 	</dependency>
 	<dependency>
 	    <groupId>io.netty</groupId>
-	    <artifactId>netty</artifactId>
-	    <version>${netty3.version}</version>
-	</dependency>
-	<dependency>
-	    <groupId>io.netty</groupId>
 	    <artifactId>netty-all</artifactId>
-	    <version>${netty4.version}</version>
+	    <version>${netty.version}</version>
 	</dependency>
     <dependency>
         <groupId>org.springframework</groupId>
@@ -131,57 +122,6 @@
 	    <version>${sqlite.jdbc.version}</version>
         <scope>runtime</scope>
 	</dependency>
-	<dependency>
-	    <groupId>com.almworks.sqlite4java</groupId>
-	    <artifactId>sqlite4java</artifactId>
-	    <version>${sqlite4java.version}</version>
-	</dependency>
-<!-- 
-	<dependency>
-	    <groupId>com.almworks.sqlite4java</groupId>
-	    <artifactId>libsqlite4java-linux-amd64</artifactId>
-	    <version>1.0.392</version>
-        <scope>runtime</scope>
-	</dependency>
-	<dependency>
-	    <groupId>com.almworks.sqlite4java</groupId>
-	    <artifactId>libsqlite4java-linux-i386</artifactId>
-	    <version>1.0.392</version>
-        <scope>runtime</scope>
-	</dependency>
-	<dependency>
-	    <groupId>com.almworks.sqlite4java</groupId>
-	    <artifactId>libsqlite4java-osx</artifactId>
-	    <version>1.0.392</version>
-        <scope>runtime</scope>
-	</dependency>
- -->
- 	<!-- TODO: Add SqlLite4Java binaries for Windows -->
-	<dependency>
-	    <groupId>org.mongodb</groupId>
-	    <artifactId>mongo-java-driver</artifactId>
-	    <version>${mongo.version}</version>
-	</dependency>
-	<dependency>
-	    <groupId>redis.clients</groupId>
-	    <artifactId>jedis</artifactId>
-	    <version>${jedis.version}</version>
-	</dependency>
-	<!-- 
-	<dependency>
-    	<groupId>redis</groupId>
-    	<artifactId>johm</artifactId>
-    	<version>0.6.7</version>
-    	<type>jar</type>
-	</dependency>
-	 -->
-  	<dependency>
-  		<groupId>com.jagornet</groupId>
-  		<artifactId>dhcp-core</artifactId>
-  		<version>${jagornet.dhcp.version}</version>
-		<type>test-jar</type>
-		<scope>test</scope>
-  	</dependency>
   	<dependency>
   		<groupId>com.google.code.gson</groupId>
   		<artifactId>gson</artifactId>
@@ -195,6 +135,11 @@
 	<dependency>
 	    <groupId>org.glassfish.jersey.containers</groupId>
 	    <artifactId>jersey-container-netty-http</artifactId>
+	    <version>${jersey.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.glassfish.jersey.core</groupId>
+	    <artifactId>jersey-server</artifactId>
 	    <version>${jersey.version}</version>
 	</dependency>
 	<dependency>
@@ -219,12 +164,6 @@
 	    <version>${jersey.version}</version>
 	</dependency>
 	-->
-	<dependency>
-	    <groupId>org.glassfish.jersey.bundles</groupId>
-	    <artifactId>jaxrs-ri</artifactId>
-	    <version>${jersey.version}</version>
-<!-- 	    <scope>provided</scope>  -->
-	</dependency>
 	<!-- JAXB and activation jars required for Java 11 -->
 	<dependency>
 	    <groupId>javax.xml.bind</groupId>
@@ -246,6 +185,24 @@
 	    <artifactId>activation</artifactId>
 	    <version>${activation.version}</version>
 	</dependency>
+	<dependency>
+	    <groupId>javax.annotation</groupId>
+	    <artifactId>javax.annotation-api</artifactId>
+	    <version>1.3.2</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.httpcomponents</groupId>
+	    <artifactId>httpclient</artifactId>
+	    <version>4.5.12</version>
+	</dependency>
+	<!-- Test dependency jars -->
+  	<dependency>
+  		<groupId>com.jagornet</groupId>
+  		<artifactId>dhcp-core</artifactId>
+  		<version>${jagornet.dhcp.version}</version>
+		<type>test-jar</type>
+		<scope>test</scope>
+  	</dependency>
   </dependencies>
 
 <!--   

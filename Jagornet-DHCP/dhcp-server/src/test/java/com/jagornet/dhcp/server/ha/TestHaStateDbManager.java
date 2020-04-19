@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.jagornet.dhcp.core.util.DhcpConstants.HaRole;
+import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 
 public class TestHaStateDbManager {
 
@@ -21,7 +21,7 @@ public class TestHaStateDbManager {
 
 	@Test
 	public void testInitPrimary() throws Exception {
-		haStateDbManager.init(HaRole.PRIMARY);
+		haStateDbManager.init(DhcpServerConfiguration.HaRole.PRIMARY);
 	}
 
 }

@@ -108,8 +108,6 @@ public class DhcpConstants
                                                     "Relay-Forward",
                                                     "Relay-Reply" };
     
-    public static enum HaRole { PRIMARY, BACKUP };
-    
     /**
      * Get the string representation of a DHCPv6 message
      * given the message type.  Note that the type is

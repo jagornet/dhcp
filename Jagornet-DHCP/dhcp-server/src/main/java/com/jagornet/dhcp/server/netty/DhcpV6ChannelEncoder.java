@@ -26,16 +26,14 @@
 package com.jagornet.dhcp.server.netty;
 
 import java.nio.ByteBuffer;
-
-import org.jboss.netty.buffer.ByteBufferBackedChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
+
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageEncoder;
 
 /**
  * Title: DhcpChannelEncoder
@@ -45,28 +43,11 @@ import com.jagornet.dhcp.core.message.DhcpV6Message;
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class DhcpV6ChannelEncoder extends OneToOneEncoder
+public class DhcpV6ChannelEncoder extends MessageToMessageEncoder<DhcpV6Message>
 {
-    private static Logger log = LoggerFactory.getLogger(DhcpV6ChannelEncoder.class);
-
-    /*
-     * Encode the requested DhcpMessage into a ChannelBuffer.
-     * (non-Javadoc)
-     * @see org.jboss.netty.handler.codec.oneone.OneToOneEncoder#encode(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.Channel, java.lang.Object)
-     */
-    @Override
-    public Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
-    {
-        if (msg instanceof DhcpV6Message) {
-            DhcpV6Message dhcpMessage = (DhcpV6Message) msg;
-            ByteBuffer buf = dhcpMessage.encode();
-            return new ByteBufferBackedChannelBuffer(buf);
-        }
-        else {
-            String errmsg = "Unknown message object class: " + msg.getClass();
-            log.error(errmsg);
-            return msg;
-        }
-    }
-    
+	@Override
+	protected void encode(ChannelHandlerContext ctx, DhcpV6Message msg, List<Object> out) throws Exception {
+        ByteBuffer buf = msg.encode();
+        out.add(Unpooled.wrappedBuffer(buf));
+	}   
 }

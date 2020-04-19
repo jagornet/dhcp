@@ -15,6 +15,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 
@@ -47,8 +48,8 @@ public class HaStateDbManager {
 		stateDbFile.delete();
 	}
 	
-	public HaState init(DhcpConstants.HaRole haRole) throws Exception {
-		boolean isBackup = haRole.equals(DhcpConstants.HaRole.BACKUP);
+	public HaState init(DhcpServerConfiguration.HaRole haRole) throws Exception {
+		boolean isBackup = haRole.equals(DhcpServerConfiguration.HaRole.BACKUP);
 		HaState myLastSavedHaState = null;
 		log.info("Initializing HA state DB: " + stateDbFile);
 		haStateDb = new HaStateDb();

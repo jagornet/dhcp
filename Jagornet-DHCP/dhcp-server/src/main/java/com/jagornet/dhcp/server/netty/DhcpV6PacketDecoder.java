@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpV4PacketDecoder.java is part of Jagornet DHCP.
+ *   This file DhcpV6PacketDecoder.java is part of Jagornet DHCP.
  *
  *   Jagornet DHCP is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  *   along with Jagornet DHCP.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.jagornet.dhcp.server.netty4;
+package com.jagornet.dhcp.server.netty;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -31,27 +31,27 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.DatagramPacketDecoder;
 
 /**
- * Title: DhcpV4PacketDecoder
- * Description: The protocol decoder used by the NETTY-based DHCPv4 server
+ * Title: DhcpV6PacketDecoder
+ * Description: The protocol decoder used by the NETTY-based DHCPv6 server
  * when receiving packets.
  * 
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class DhcpV4PacketDecoder extends DatagramPacketDecoder
+public class DhcpV6PacketDecoder extends DatagramPacketDecoder
 {
-	DhcpV4ChannelDecoder dhcpV4ChannelDecoder;
+	DhcpV6ChannelDecoder dhcpV6ChannelDecoder;
 
-    public DhcpV4PacketDecoder(DhcpV4ChannelDecoder dhcpV4ChannelDecoder)
+    public DhcpV6PacketDecoder(DhcpV6ChannelDecoder dhcpV6ChannelDecoder)
     {
-    	super(dhcpV4ChannelDecoder);
-    	this.dhcpV4ChannelDecoder = dhcpV4ChannelDecoder;
+    	super(dhcpV6ChannelDecoder);
+    	this.dhcpV6ChannelDecoder = dhcpV6ChannelDecoder;
     }
     
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object obj) throws Exception {
 		if (obj instanceof DatagramPacket) {
-			dhcpV4ChannelDecoder.setRemoteSocketAddress(((DatagramPacket) obj).sender());
+			dhcpV6ChannelDecoder.setRemoteSocketAddress(((DatagramPacket) obj).sender());
 			super.channelRead(ctx, obj);
 		}
 	}

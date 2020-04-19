@@ -31,7 +31,6 @@ import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -70,10 +69,7 @@ import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.xml.DhcpServerConfig;
 import com.jagornet.dhcp.server.db.DbSchemaManager;
 import com.jagornet.dhcp.server.db.IaManager;
-import com.jagornet.dhcp.server.failover.FailoverConstants;
-import com.jagornet.dhcp.server.failover.FailoverStateManager;
-import com.jagornet.dhcp.server.failover.FailoverStateManager.Role;
-import com.jagornet.dhcp.server.netty4.NettyDhcpServer;
+import com.jagornet.dhcp.server.netty.NettyDhcpServer;
 import com.jagornet.dhcp.server.request.binding.BaseBindingManager;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
@@ -128,16 +124,10 @@ public class JagornetDhcpServer
     protected List<InetAddress> v4UcastAddrs = null;
     /** DHCPv4 Server port number */
     protected int v4PortNumber = DhcpConstants.V4_SERVER_PORT;
-
-    /** Failover Unicast addresses */
-    protected List<InetAddress> failoverAddrs = null;
-    protected int failoverPortNumber = FailoverConstants.FAILOVER_PORT;
     
     /** HA Unicast addresses */
     protected List<InetAddress> haAddrs = null;
     protected int haPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
-    
-    protected boolean useNetty3 = false;
     
     protected DhcpServerConfiguration serverConfig = null;
     protected ApplicationContext context = null;
@@ -291,87 +281,22 @@ public class JagornetDhcpServer
         msg = "DHCPv6 Port number: " + v6PortNumber;
         System.out.println(msg);
         log.info(msg);
-
-        if (failoverAddrs != null) {
-	        msg = "Failover addresses: " + Arrays.toString(failoverAddrs.toArray());
-	        System.out.println(msg);
-	        log.info(msg);
-	        
-	        msg = "Failover Port number: " + failoverPortNumber;
-	        System.out.println(msg);
-	        log.info(msg);
-	
-	        // validate the failover configuration before starting the server
-	        // TODO: or not validate?
-	        InetSocketAddress primaryServerSocket = null;
-	        InetSocketAddress backupServerSocket = null;
-	        String failoverRole = DhcpServerPolicies.globalPolicy(Property.FAILOVER_ROLE);
-	        if (failoverRole.equalsIgnoreCase("backup")) {
-	        	String primaryServer = DhcpServerPolicies.globalPolicy(Property.FAILOVER_PEER_SERVER);
-	        	int primaryPort = DhcpServerPolicies.globalPolicyAsInt(Property.FAILOVER_PEER_PORT);
-	        	primaryServerSocket = new InetSocketAddress(primaryServer, primaryPort);
-	        }
-	        else if (failoverRole.equalsIgnoreCase("primary")) {
-	        	String backupServer = DhcpServerPolicies.globalPolicy(Property.FAILOVER_PEER_SERVER);
-	        	int backupPort = DhcpServerPolicies.globalPolicyAsInt(Property.FAILOVER_PEER_PORT);
-	        	backupServerSocket = new InetSocketAddress(backupServer, backupPort);
-	        }
-	        else if (!failoverRole.isEmpty()) {
-				throw new DhcpServerConfigException("Unknown failover role: " + failoverRole);
-	        }
-        }
         
-        /*
-         * 
-    	NettyDhcpServer nettyServer = new NettyDhcpServer(v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
-    														v4UcastAddrs, v4BcastNetIf, v4PortNumber,
-    														failoverAddrs, failoverPortNumber);
-         */
-        
-        if (useNetty3) {
-        	com.jagornet.dhcp.server.netty.NettyDhcpServer nettyServer = 
-        			new com.jagornet.dhcp.server.netty.NettyDhcpServer(
-        					v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
-        					v4UcastAddrs, v4BcastNetIf, v4PortNumber);
-        	nettyServer.start();
-        }
-        else {
-	    	NettyDhcpServer nettyServer = new NettyDhcpServer(
-	    			v4UcastAddrs, v4BcastNetIf, v4PortNumber,
-	    			v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
-					failoverAddrs, failoverPortNumber);
-	    	
-	    	nettyServer.start();
-        }
+    	NettyDhcpServer nettyServer = new NettyDhcpServer(
+    			v4UcastAddrs, v4BcastNetIf, v4PortNumber,
+    			v6UcastAddrs, v6McastNetIfs, v6PortNumber);
     	
-    	//TODO: Need to change server behavior when receiving regular DHCP messages
-    	//		based on the failover role.  E.g. when configured as backup, it needs
-    	//		to drop all DHCP packets in the preProcess() methods.  Same thing for
-    	//		primary that is regaining control.  Note that when regaining control, the
-    	//		primary should allow giving out leases on a subnet as soon as all 
-    	//		leases for that subnet are obtained - i.e. super speedy sync!
-    	FailoverStateManager fsm = serverConfig.getFailoverStateManager();
-    	if ((fsm != null) && !fsm.getRole().equals(Role.NOT_CONFIGURED)) {
-    		Thread fsmThread = new Thread(fsm);
-    		fsmThread.start();
-    	}
-    	
-//    	NioDhcpServer nioServer = new NioDhcpServer(v6UcastAddrs, v6McastNetIfs, v6PortNumber, 
-//				v4UcastAddrs, v4BcastNetIf, v4PortNumber);
-//    	nioServer.start();
-    	
-    	/*
-    	if (primaryServerSocket != null) {
-    		
-    	}
-    	else if (backupServerSocket != null) {
-    		
-    	}
-    	*/
-    	
+    	nettyServer.start();
+    	    	
     	if (serverConfig.isHA()) {
 	    	//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
 	    	Channel jerseyHttpServer = JerseyRestServer.startNettyServer(haPortNumber);
+	    	if (jerseyHttpServer == null) {
+	    		log.error("Failed to create Jersey JAX-RS Netty HTTP Server");
+	    	}
+	    	else if (!jerseyHttpServer.isActive()) {
+	    		log.warn("Jersey JAX-RS Netty HTTP Server is not active");
+	    	}
 	    	if (serverConfig.getHaPrimaryFSM() != null) {
 	    		serverConfig.getHaPrimaryFSM().init();
 	    	}
@@ -718,28 +643,6 @@ public class JagornetDhcpServer
             							" Exception=" + ex);
             	}
             }
-            if (cmd.hasOption("fa")) {
-            	String[] addrs = cmd.getOptionValues("fa");
-            	if ((addrs == null) || (addrs.length < 1)) {
-            		addrs = new String[] { "*" };
-            	}
-        		failoverAddrs = getFailoverIpAddrs(addrs);
-        		if ((failoverAddrs == null) || failoverAddrs.isEmpty()) {
-        			return false;
-        		}
-            }            
-            if (cmd.hasOption("fp")) {
-            	String p = cmd.getOptionValue("fp");
-            	try {
-            		failoverPortNumber = Integer.parseInt(p);
-            	}
-            	catch (NumberFormatException ex) {
-            		failoverPortNumber = FailoverConstants.FAILOVER_PORT;
-            		System.err.println("Invalid port number: '" + p +
-            							"' using default: " + failoverPortNumber +
-            							" Exception=" + ex);
-            	}
-            }
             if (cmd.hasOption("ha")) {
             	String[] addrs = cmd.getOptionValues("ha");
             	if ((addrs == null) || (addrs.length < 1)) {
@@ -789,9 +692,6 @@ public class JagornetDhcpServer
     				}
     			}
             	System.exit(0);
-            }
-            if (cmd.hasOption("n3")) {
-            	useNetty3 = true;
             }
         }
         catch (ParseException pe) {

@@ -27,18 +27,20 @@ package com.jagornet.dhcp.server.netty;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.request.DhcpV6MessageHandler;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.DatagramPacket;
 
 /**
  * Title: DhcpChannelHandler
@@ -48,47 +50,33 @@ import com.jagornet.dhcp.server.request.DhcpV6MessageHandler;
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class DhcpV6ChannelHandler extends SimpleChannelHandler
+public class DhcpV6ChannelHandler extends SimpleChannelInboundHandler<DhcpV6Message>
 {
 	private static Logger log = LoggerFactory.getLogger(DhcpV6ChannelHandler.class);
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.jboss.netty.channel.SimpleChannelHandler#messageReceived(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.MessageEvent)
-	 */
 	@Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception
-    {
-    	Object message = e.getMessage();
-        if (message instanceof DhcpV6Message) {
-            
-            DhcpV6Message dhcpMessage = (DhcpV6Message) message;
-            if (log.isDebugEnabled())
-            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
-            else
-            	log.info("Received: " + dhcpMessage.toString());
-            
-            SocketAddress remoteAddress = e.getRemoteAddress();
-            InetAddress localAddr = ((InetSocketAddress)e.getChannel().getLocalAddress()).getAddress();
-            if (localAddr.equals(DhcpConstants.ZEROADDR_V4)) {
-            	localAddr = DhcpConstants.ZEROADDR_V6;
-            }
-            DhcpV6Message replyMessage = 
-            	DhcpV6MessageHandler.handleMessage(localAddr, dhcpMessage);
-            
-            if (replyMessage != null) {
-            	e.getChannel().write(replyMessage, remoteAddress);
-            }
-            else {
-                log.warn("Null DHCP reply message returned from handler");
-            }
-            
+	protected void channelRead0(ChannelHandlerContext ctx, DhcpV6Message dhcpMessage) throws Exception {
+        if (log.isDebugEnabled())
+        	log.debug("Received: " + dhcpMessage.toStringWithOptions());
+        else
+        	log.info("Received: " + dhcpMessage.toString());
+        
+//        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        InetSocketAddress remoteAddress = dhcpMessage.getRemoteAddress();
+//        InetAddress localAddr = ((InetSocketAddress)ctx.channel().localAddress()).getAddress();
+        InetAddress localAddr = dhcpMessage.getLocalAddress().getAddress();
+        if (localAddr.equals(DhcpConstants.ZEROADDR_V4)) {
+        	localAddr = DhcpConstants.ZEROADDR_V6;
+        }
+        DhcpV6Message replyMessage = 
+        	DhcpV6MessageHandler.handleMessage(localAddr, dhcpMessage);
+        
+        if (replyMessage != null) {
+        	ByteBuf buf = Unpooled.wrappedBuffer(replyMessage.encode());
+        	ctx.writeAndFlush(new DatagramPacket(buf, remoteAddress));
         }
         else {
-            // Note: in theory, we can't get here, because the
-            // codec would have thrown an exception beforehand
-            log.error("Received unknown message object: " + message.getClass());
+            log.warn("Null DHCP reply message returned from handler");
         }
-    }
-    
+	}    
 }

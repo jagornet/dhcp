@@ -26,17 +26,16 @@
 package com.jagornet.dhcp.server.netty;
 
 import java.net.InetSocketAddress;
-
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
+import java.util.List;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * The Class DhcpUnicastChannelDecoder.
  */
-@ChannelHandler.Sharable
 public class DhcpV6UnicastChannelDecoder extends DhcpV6ChannelDecoder 
 {
 	
@@ -49,19 +48,12 @@ public class DhcpV6UnicastChannelDecoder extends DhcpV6ChannelDecoder
 	{
 		super(localSocketAddress, ignoreSelfPackets);
 	}
-
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.netty.DhcpChannelDecoder#decode(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.Channel, java.lang.Object)
-	 */
+    
 	@Override
-	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
-	{
-		Object obj = super.decode(ctx, channel, msg);
-		if (obj instanceof DhcpV6Message) {
-			// this decoder is in the pipeline for unicast
-			// channels only, so this must be a unicast packet
-			((DhcpV6Message)obj).setUnicast(true);
-		}
-		return obj;
-	}
+	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
+        DhcpV6Message dhcpMessage = 
+        	DhcpV6Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
+        dhcpMessage.setUnicast(true);
+        out.add(dhcpMessage);
+    }
 }

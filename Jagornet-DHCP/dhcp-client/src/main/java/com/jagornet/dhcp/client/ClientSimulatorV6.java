@@ -75,8 +75,6 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6ElapsedTimeOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
-import com.jagornet.dhcp.server.netty.DhcpV6ChannelDecoder;
-import com.jagornet.dhcp.server.netty.DhcpV6ChannelEncoder;
 
 /**
  * A test client that sends solict/request/release messages 

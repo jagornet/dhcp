@@ -26,20 +26,20 @@
 package com.jagornet.dhcp.server.netty;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+
 /**
  * The Class DhcpUnicastChannelDecoder.
  */
-@ChannelHandler.Sharable
 public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder 
 {
 	   
@@ -56,26 +56,27 @@ public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder
 		super(localSocketAddress, ignoreSelfPackets);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.jagornet.dhcpv6.server.netty.DhcpChannelDecoder#decode(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.Channel, java.lang.Object)
-	 */
 	@Override
-	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
-	{
-    	if (remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR_V4)) {
-        	// can't unicast to 0.0.0.0, so a broadcast channel is needed
-        	// this is a workaround for Windows implementation which will
-        	// see duplicate packets on the unicast and broadcast channels
-        	log.debug("Ignoring packet from 0.0.0.0 received on unicast channel");
-        	return null;
-    	}
-    	
-		Object obj = super.decode(ctx, channel, msg);
-		if (obj instanceof DhcpV4Message) {
-			// this decoder is in the pipeline for unicast
-			// channels only, so this must be a unicast packet
-			((DhcpV4Message)obj).setUnicast(true);
+	public boolean acceptInboundMessage(Object obj) throws Exception {
+		boolean accept = super.acceptInboundMessage(obj);
+		if (accept) {
+	    	if (remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR_V4)) {
+	        	// can't unicast to 0.0.0.0, so a broadcast channel is needed
+	        	// this is a workaround for Windows implementation which will
+	        	// see duplicate packets on the unicast and broadcast channels
+	        	log.debug("Ignoring packet from 0.0.0.0 received on unicast channel");
+	        	accept = false;
+	    	}
 		}
-		return obj;
+		return accept;
 	}
+    
+	@Override
+	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
+		// remoteSocketAddress is set by DhcpV4PacketDecoder.channelRead
+        DhcpV4Message dhcpMessage = 
+        	DhcpV4Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
+        dhcpMessage.setUnicast(true);
+        out.add(dhcpMessage);
+    }
 }
