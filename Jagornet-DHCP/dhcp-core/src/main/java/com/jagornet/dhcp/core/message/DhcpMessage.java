@@ -25,6 +25,8 @@
  */
 package com.jagornet.dhcp.core.message;
 
+import java.util.List;
+
 import com.jagornet.dhcp.core.option.base.DhcpOption;
 
 /**
@@ -55,4 +57,10 @@ public interface DhcpMessage {
 	 * @return the dhcp option
 	 */
 	public DhcpOption getDhcpOption(int optionCode);
+	
+	/**
+	 * Gets the list of option codes requested by the client
+	 * @return the list of option codes requested by the client
+	 */
+	public List<Integer> getRequestedOptionCodes();
 }

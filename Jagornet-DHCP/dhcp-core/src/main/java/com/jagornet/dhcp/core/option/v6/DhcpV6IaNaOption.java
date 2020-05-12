@@ -121,7 +121,9 @@ public class DhcpV6IaNaOption extends BaseDhcpOption
 	 * @param dhcpOptions the dhcp options
 	 */
 	public void putAllDhcpOptions(Map<Integer, DhcpOption> dhcpOptions) {
-		this.dhcpOptions.putAll(dhcpOptions);
+		if (dhcpOptions != null) {
+			this.dhcpOptions.putAll(dhcpOptions);
+		}
 	}
 	
 	/**

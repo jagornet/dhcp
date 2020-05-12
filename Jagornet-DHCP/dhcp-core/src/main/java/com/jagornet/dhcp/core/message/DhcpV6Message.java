@@ -609,6 +609,7 @@ public class DhcpV6Message implements DhcpMessage
 	 * Convenience method to get the requested option codes.
 	 * @return
 	 */
+	@Override
 	public List<Integer> getRequestedOptionCodes() {
 		if (requestedOptionCodes == null) {
 			if (dhcpOptions != null) {
