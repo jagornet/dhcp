@@ -36,7 +36,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -1005,7 +1004,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveMsgOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
     	if (globalV6MsgConfigOptions != null) {
     		optionMap.putAll(globalV6MsgConfigOptions.getDhcpOptionMap());
     	}
@@ -1025,7 +1024,8 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveMsgOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink)
+    public Map<Integer, DhcpOption> effectiveMsgOptions(DhcpV6Message requestMsg, 
+    													DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveMsgOptions(requestMsg);
     	if ((dhcpLink != null) && (dhcpLink.getLink() != null)) {
@@ -1043,6 +1043,26 @@ public class DhcpServerConfiguration
     	return optionMap;
     }
     
+    public Map<Integer, DhcpOption> effectiveMsgOptions(DhcpV6Message requestMsg, 
+    													DhcpLink dhcpLink,
+    													DhcpV6OptionConfigObject configObj)
+    {
+    	Map<Integer, DhcpOption> optionMap = effectiveMsgOptions(requestMsg, dhcpLink);
+    	if (configObj != null) {
+	    	DhcpV6ConfigOptions configOptions = configObj.getMsgConfigOptions();
+	    	if (configOptions != null) {
+	    		optionMap.putAll(configOptions.getDhcpOptionMap());
+	    	}
+	    	
+	    	Map<Integer, DhcpOption> filteredOptions = 
+	    		filteredMsgOptions(requestMsg, configObj.getFilters());
+	    	if (filteredOptions != null) {
+	    		optionMap.putAll(filteredOptions);
+	    	}
+    	}
+    	return optionMap;
+    }
+    
     /**
      * Effective ia na options.
      * 
@@ -1052,7 +1072,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveIaNaOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
     	if (globalV6IaNaConfigOptions != null) {
     		optionMap.putAll(globalV6IaNaConfigOptions.getDhcpOptionMap());
     	}
@@ -1073,7 +1093,8 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveIaNaOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink)
+    public Map<Integer, DhcpOption> effectiveIaNaOptions(DhcpV6Message requestMsg, 
+    													 DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveIaNaOptions(requestMsg);
     	if ((dhcpLink != null) && (dhcpLink.getLink() != null)) {
@@ -1090,6 +1111,26 @@ public class DhcpServerConfiguration
     	}
     	return optionMap;
     }
+
+    public Map<Integer, DhcpOption> effectiveIaNaOptions(DhcpV6Message requestMsg,
+														 DhcpLink dhcpLink, 
+														 DhcpV6OptionConfigObject configObj)
+	{
+		Map<Integer, DhcpOption> optionMap = effectiveIaNaOptions(requestMsg, dhcpLink);
+		if (configObj != null) {
+			DhcpV6ConfigOptions configOptions = configObj.getIaConfigOptions();
+			if (configOptions != null) {
+				optionMap.putAll(configOptions.getDhcpOptionMap());
+			}
+			
+			Map<Integer, DhcpOption> filteredOptions = 
+					filteredIaNaOptions(requestMsg, configObj.getFilters());
+			if (filteredOptions != null) {
+				optionMap.putAll(filteredOptions);
+			}
+		}
+		return optionMap;
+	}
     
     /**
      * Effective na addr options.
@@ -1100,7 +1141,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
     	if (globalV6NaAddrConfigOptions != null) {
     		optionMap.putAll(globalV6NaAddrConfigOptions.getDhcpOptionMap());
     	}
@@ -1121,7 +1162,8 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink)
+    public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpV6Message requestMsg,
+    													   DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveNaAddrOptions(requestMsg);
     	if ((dhcpLink != null) && (dhcpLink.getLink() != null)) {
@@ -1148,12 +1190,13 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink, 
-    		DhcpV6OptionConfigObject configObj)
+    public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpV6Message requestMsg,
+    													   DhcpLink dhcpLink,
+    													   DhcpV6OptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveNaAddrOptions(requestMsg, dhcpLink);
     	if (configObj != null) {
-	    	DhcpV6ConfigOptions configOptions = configObj.getDhcpConfigOptions();
+	    	DhcpV6ConfigOptions configOptions = configObj.getAddrConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
@@ -1176,7 +1219,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveIaTaOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
     	if (globalV6IaTaConfigOptions != null) {
     		optionMap.putAll(globalV6IaTaConfigOptions.getDhcpOptionMap());
     	}
@@ -1197,7 +1240,8 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveIaTaOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink)
+    public Map<Integer, DhcpOption> effectiveIaTaOptions(DhcpV6Message requestMsg,
+    													 DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveIaTaOptions(requestMsg);
     	if ((dhcpLink != null) && (dhcpLink.getLink() != null)) {
@@ -1214,6 +1258,27 @@ public class DhcpServerConfiguration
     	}
     	return optionMap;
     }
+
+    public Map<Integer, DhcpOption> effectiveIaTaOptions(DhcpV6Message requestMsg,
+														 DhcpLink dhcpLink, 
+														 DhcpV6OptionConfigObject configObj)
+	{
+		Map<Integer, DhcpOption> optionMap = effectiveIaTaOptions(requestMsg, dhcpLink);
+		if (configObj != null) {
+			DhcpV6ConfigOptions configOptions = configObj.getIaConfigOptions();
+			if (configOptions != null) {
+				optionMap.putAll(configOptions.getDhcpOptionMap());
+			}
+			
+			Map<Integer, DhcpOption> filteredOptions = 
+					filteredIaTaOptions(requestMsg, configObj.getFilters());
+			if (filteredOptions != null) {
+				optionMap.putAll(filteredOptions);
+			}
+		}
+		return optionMap;
+	}
+    
     
     /**
      * Effective ta addr options.
@@ -1224,13 +1289,13 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
     	if (globalV6TaAddrConfigOptions != null) {
     		optionMap.putAll(globalV6TaAddrConfigOptions.getDhcpOptionMap());
     	}
     	
     	Map<Integer, DhcpOption> filteredOptions = 
-    		filteredNaAddrOptions(requestMsg, globalFilters);
+    		filteredTaAddrOptions(requestMsg, globalFilters);
     	if (filteredOptions != null) {
     		optionMap.putAll(filteredOptions);
     	}
@@ -1245,7 +1310,8 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink)
+    public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpV6Message requestMsg,
+    													   DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveTaAddrOptions(requestMsg);
     	if ((dhcpLink != null) && (dhcpLink != null)) {
@@ -1272,12 +1338,13 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink, 
-    		DhcpV6OptionConfigObject configObj)
+    public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpV6Message requestMsg,
+    													   DhcpLink dhcpLink, 
+    													   DhcpV6OptionConfigObject configObj)
     {
-    	Map<Integer, DhcpOption> optionMap = effectiveNaAddrOptions(requestMsg, dhcpLink);
+    	Map<Integer, DhcpOption> optionMap = effectiveTaAddrOptions(requestMsg, dhcpLink);
     	if (configObj != null)  {
-	    	DhcpV6ConfigOptions configOptions = configObj.getDhcpConfigOptions();
+	    	DhcpV6ConfigOptions configOptions = configObj.getAddrConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
@@ -1300,7 +1367,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveIaPdOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
     	if (globalV6IaPdConfigOptions != null) {
     		optionMap.putAll(globalV6IaPdConfigOptions.getDhcpOptionMap());
     	}
@@ -1321,7 +1388,8 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveIaPdOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink)
+    public Map<Integer, DhcpOption> effectiveIaPdOptions(DhcpV6Message requestMsg,
+    													 DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveIaPdOptions(requestMsg);
     	if ((dhcpLink != null) && (dhcpLink.getLink() != null)) {
@@ -1338,6 +1406,26 @@ public class DhcpServerConfiguration
     	}
     	return optionMap;
     }
+
+    public Map<Integer, DhcpOption> effectiveIaPdOptions(DhcpV6Message requestMsg,
+														 DhcpLink dhcpLink, 
+														 DhcpV6OptionConfigObject configObj)
+	{
+		Map<Integer, DhcpOption> optionMap = effectiveIaPdOptions(requestMsg, dhcpLink);
+		if (configObj != null) {
+			DhcpV6ConfigOptions configOptions = configObj.getIaConfigOptions();
+			if (configOptions != null) {
+				optionMap.putAll(configOptions.getDhcpOptionMap());
+			}
+			
+			Map<Integer, DhcpOption> filteredOptions = 
+					filteredIaPdOptions(requestMsg, configObj.getFilters());
+			if (filteredOptions != null) {
+				optionMap.putAll(filteredOptions);
+			}
+		}
+		return optionMap;
+	}
     
     /**
      * Effective prefix options.
@@ -1348,7 +1436,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
     	if (globalV6PrefixConfigOptions != null) {
     		optionMap.putAll(globalV6PrefixConfigOptions.getDhcpOptionMap());
     	}
@@ -1369,7 +1457,8 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink)
+    public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpV6Message requestMsg,
+    													   DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectivePrefixOptions(requestMsg);
     	if ((dhcpLink != null) && (dhcpLink != null)) {
@@ -1396,12 +1485,13 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpV6Message requestMsg, DhcpLink dhcpLink, 
-    		DhcpV6OptionConfigObject configObj)
+    public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpV6Message requestMsg,
+    													   DhcpLink dhcpLink, 
+    													   DhcpV6OptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = effectivePrefixOptions(requestMsg, dhcpLink);
     	if (configObj != null) {
-	    	DhcpV6ConfigOptions configOptions = configObj.getDhcpConfigOptions();
+	    	DhcpV6ConfigOptions configOptions = configObj.getAddrConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
 	    	}
@@ -1424,7 +1514,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveV4AddrOptions(DhcpV4Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new HashMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
     	if (globalV4ConfigOptions != null) {
     		optionMap.putAll(globalV4ConfigOptions.getDhcpOptionMap());
     	}
@@ -1445,7 +1535,8 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveV4AddrOptions(DhcpV4Message requestMsg, DhcpLink dhcpLink)
+    public Map<Integer, DhcpOption> effectiveV4AddrOptions(DhcpV4Message requestMsg,
+    													   DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveV4AddrOptions(requestMsg);
     	if ((dhcpLink != null) && (dhcpLink.getLink() != null)) {
@@ -1472,8 +1563,9 @@ public class DhcpServerConfiguration
      * 
      * @return the map< integer, dhcp option>
      */
-    public Map<Integer, DhcpOption> effectiveV4AddrOptions(DhcpV4Message requestMsg, DhcpLink dhcpLink, 
-    		DhcpV4OptionConfigObject configObj)
+    public Map<Integer, DhcpOption> effectiveV4AddrOptions(DhcpV4Message requestMsg,
+    													   DhcpLink dhcpLink, 
+    													   DhcpV4OptionConfigObject configObj)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveV4AddrOptions(requestMsg, dhcpLink);
     	if (configObj != null) {

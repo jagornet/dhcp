@@ -31,11 +31,13 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
@@ -409,7 +411,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 	}
 
 	/**
-	 * Create a V6BindingAddress given an IaAddress loaded from the database.
+	 * Build a V6BindingAddress from an IaAddress loaded from the database.
 	 * 
 	 * @param iaAddr the ia addr
 	 * @param clientLink the client link
@@ -421,11 +423,15 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 			DhcpLink clientLink, DhcpMessage requestMsg)
 	{
 		InetAddress inetAddr = iaAddr.getIpAddress();
-		BindingPool bp = findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
+		V6AddressBindingPool bp = (V6AddressBindingPool)
+				findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
-			// TODO store the configured options in the persisted binding?
-			// ipAddr.setDhcpOptions(bp.getDhcpOptions());
-			return new V6BindingAddress(iaAddr, (V6AddressBindingPool)bp);
+			// binding loaded from DB will contain the stored options
+	    	V6BindingAddress bindingAddr = new V6BindingAddress(iaAddr, (V6AddressBindingPool)bp);
+	    	// TODO: setBindingObjectTimes?  see buildBindingObject
+			// update the options with whatever may now be configured
+	    	setDhcpOptions(bindingAddr, clientLink, (DhcpV6Message)requestMsg, bp);
+	    	return bindingAddr;
 		}
 		else {
 			log.error("Failed to create BindingAddress: No BindingPool found for IP=" + 
@@ -436,7 +442,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 	}
 	
 	/**
-	 * Build a V6BindingAddress given an IaAddress loaded from the database
+	 * Build a V6BindingAddress from an IaAddress loaded from the database
 	 * and a static binding for the client request.
 	 * 
 	 * @param iaAddr
@@ -451,7 +457,8 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 	}
 	
 	/**
-	 * Build a BindingAddress for the given InetAddress and DhcpLink.
+	 * Create a new V6BindingAddress type BindingObject
+	 * for the given InetAddress and DhcpLink.
 	 * 
 	 * @param inetAddr the inet addr
 	 * @param clientLink the client link
@@ -459,11 +466,11 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 	 * 
 	 * @return the binding address
 	 */
-	protected BindingObject buildBindingObject(InetAddress inetAddr, 
+	protected BindingObject createBindingObject(InetAddress inetAddr, 
 			DhcpLink clientLink, DhcpMessage requestMsg)
 	{
-		V6AddressBindingPool bp = 
-			(V6AddressBindingPool) findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
+		V6AddressBindingPool bp = (V6AddressBindingPool) 
+				findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			bp.setUsed(inetAddr);	// TODO check if this is necessary
 			IaAddress iaAddr = new IaAddress();
@@ -471,8 +478,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 			V6BindingAddress bindingAddr = new V6BindingAddress(iaAddr, bp);
 			setBindingObjectTimes(bindingAddr, 
 					bp.getPreferredLifetimeMs(), bp.getPreferredLifetimeMs());
-			// TODO store the configured options in the persisted binding?
-			// bindingAddr.setDhcpOptions(bp.getDhcpOptions());
+			setDhcpOptions(bindingAddr, clientLink, (DhcpV6Message)requestMsg, bp);
 			return bindingAddr;
 		}
 		else {
@@ -482,4 +488,45 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 		// MUST have a BindingPool, otherwise something's broke
 		return null;
 	}
+
+	/**
+	 * Set both the map of options to be returned to the client and those
+	 * same options as a list to be stored with the lease in the database
+	 * 
+	 * @param bindingAddr
+	 * @param clientLink
+	 * @param requestMsg
+	 * @param bp
+	 */
+	protected void setDhcpOptions(V6BindingAddress bindingAddr, DhcpLink clientLink,
+			DhcpV6Message requestMsg, V6AddressBindingPool bp) {
+		// set the options to be returned to the client
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> dhcpOptionMap =
+				buildDhcpOptions(clientLink, requestMsg, bp);
+		bindingAddr.setDhcpOptionMap(dhcpOptionMap);
+		// these options are rarely used
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> iaDhcpOptionMap =
+				buildIaDhcpOptions(clientLink, requestMsg, bp);
+		bindingAddr.setIaDhcpOptionMap(iaDhcpOptionMap);
+		// these options are rarely used
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> iaAddrDhcpOptionMap =
+				buildIaAddrDhcpOptions(clientLink, requestMsg, bp);
+		bindingAddr.setIaAddrDhcpOptionMap(iaAddrDhcpOptionMap);
+	}
+
+	/**
+	 * Build the map of DHCP options to be returned to the client, which consists
+	 * of the configured options, filtered by any requested options, if applicable
+	 * 
+	 * @param clientLink
+	 * @param requestMsg
+	 * @param bp
+	 * @return
+	 */
+	protected abstract Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6AddressBindingPool bp);
+	protected abstract Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildIaDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6AddressBindingPool bp);
+	protected abstract Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildIaAddrDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6AddressBindingPool bp);
 }

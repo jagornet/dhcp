@@ -40,15 +40,17 @@ public class V6StaticAddressBinding extends StaticBinding implements DhcpV6Optio
 	protected V6AddressBinding addressBinding;
 	protected byte iaType;
 	
-	// The configured options for this binding
-	protected DhcpV6ConfigOptions dhcpConfigOptions;
+	protected DhcpV6ConfigOptions msgConfigOptions;
+	protected DhcpV6ConfigOptions iaConfigOptions;
+	protected DhcpV6ConfigOptions addrConfigOptions;
 	
 	public V6StaticAddressBinding(V6AddressBinding addressBinding, byte iaType)
 	{
 		this.addressBinding = addressBinding;
 		this.iaType = iaType;
-		dhcpConfigOptions = 
-			new DhcpV6ConfigOptions(addressBinding.getAddrConfigOptions());
+		msgConfigOptions = new DhcpV6ConfigOptions(addressBinding.getMsgConfigOptions());
+		iaConfigOptions = new DhcpV6ConfigOptions(addressBinding.getIaConfigOptions());
+		addrConfigOptions = new DhcpV6ConfigOptions(addressBinding.getAddrConfigOptions());
 	}
 	
 	@Override
@@ -87,8 +89,30 @@ public class V6StaticAddressBinding extends StaticBinding implements DhcpV6Optio
 	}
 
 	@Override
-	public DhcpV6ConfigOptions getDhcpConfigOptions() {
-		return dhcpConfigOptions;
+	public DhcpV6ConfigOptions getMsgConfigOptions() {
+		return msgConfigOptions;
+	}
+
+	public void setMsgConfigOptions(DhcpV6ConfigOptions msgConfigOptions) {
+		this.msgConfigOptions = msgConfigOptions;
+	}
+
+	@Override
+	public DhcpV6ConfigOptions getIaConfigOptions() {
+		return iaConfigOptions;
+	}
+
+	public void setIaConfigOptions(DhcpV6ConfigOptions iaConfigOptions) {
+		this.iaConfigOptions = iaConfigOptions;
+	}
+
+	@Override
+	public DhcpV6ConfigOptions getAddrConfigOptions() {
+		return addrConfigOptions;
+	}
+
+	public void setAddrConfigOptions(DhcpV6ConfigOptions addrConfigOptions) {
+		this.addrConfigOptions = addrConfigOptions;
 	}
 
 	@Override

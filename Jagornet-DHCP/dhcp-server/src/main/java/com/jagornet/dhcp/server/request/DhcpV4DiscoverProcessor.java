@@ -144,7 +144,7 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
     		if (!bindings.isEmpty()) {
         		if (rapidCommit) {
         			processDdnsUpdates(true);
-        			processHaBindingUpdates();
+        			processHaBindingUpdates(replyMsg.getDhcpOptionMap());
         		}
         		else {
         			processDdnsUpdates(false);

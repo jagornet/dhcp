@@ -47,7 +47,6 @@ import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4HostnameOption;
-import com.jagornet.dhcp.core.option.v4.DhcpV4LeaseTimeOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
@@ -135,8 +134,11 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
      * @param link the link
      * @param configObj the config object or null if none
      */
-    protected void populateV4Reply(DhcpLink dhcpLink, DhcpV4OptionConfigObject configObj)
+    protected void populateV4Reply(DhcpLink dhcpLink, V4BindingAddress bindingAddr)
     {
+    	DhcpV4OptionConfigObject configObj = 
+    			(DhcpV4OptionConfigObject) bindingAddr.getConfigObj();
+    	
     	String sname = DhcpServerPolicies.effectivePolicy(requestMsg, configObj, 
     			dhcpLink.getLink(), Property.V4_HEADER_SNAME);
     	if ((sname != null) && !sname.isEmpty()) {
@@ -149,13 +151,12 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     		replyMsg.setFile(filename);
     	}
     	
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink, configObj);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
-    			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	replyMsg.putAllDhcpOptions(optionMap);
+		// we have already determined the options to be returned
+		// to the client when the binding was created/built, so
+		// we just need to stuff them into the reply message now
+    	// note that we need to put atop of the existing options
+    	// which will consist of the ServerId option for DHCPv4
+    	replyMsg.putAllDhcpOptions(bindingAddr.getDhcpOptionMap());
     	
     	// copy the relay agent info option from request to reply 
     	// in order to echo option back to router as required
@@ -325,29 +326,29 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			if (bindingObjs.size() == 1) {
 				BindingObject bindingObj = bindingObjs.iterator().next();
-				InetAddress inetAddr = bindingObj.getIpAddress();
-				if (inetAddr != null) {
-					replyMsg.setYiAddr(inetAddr);
-					// must be an DhcpV4OptionConfigObject for v4 binding
-					DhcpV4OptionConfigObject configObj = 
-						(DhcpV4OptionConfigObject) bindingObj.getConfigObj();
-					if (configObj != null) {
-						long preferred = configObj.getPreferredLifetime();
-						DhcpV4LeaseTimeOption dhcpV4LeaseTimeOption = new DhcpV4LeaseTimeOption();
-						dhcpV4LeaseTimeOption.setUnsignedInt(preferred);
-						replyMsg.putDhcpOption(dhcpV4LeaseTimeOption);
-						populateV4Reply(clientLink, configObj);
-						//TODO when do actually start the timer?  currently, two get
-						//     created - one during advertise, one during reply
-						//     policy to allow real-time expiration?
-	//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+				if (bindingObj != null) {
+					InetAddress inetAddr = bindingObj.getIpAddress();
+					if (inetAddr != null) {
+						replyMsg.setYiAddr(inetAddr);
+						// must be an DhcpV4BindingAddress for v4 binding
+						if (bindingObj instanceof V4BindingAddress) {
+							V4BindingAddress bindingAddr = (V4BindingAddress) bindingObj;
+							populateV4Reply(clientLink, bindingAddr);
+							//TODO when do actually start the timer?  currently, two get
+							//     created - one during advertise, one during reply
+							//     policy to allow real-time expiration?
+		//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+						}
+						else {
+							log.error("Unsupported bindingObject type: " + bindingObj.getClass());
+						}
 					}
 					else {
-						log.error("Null binding pool in binding: " + binding.toString());
+						log.error("Null address in binding: " + binding.toString());
 					}
 				}
 				else {
-					log.error("Null address in binding: " + binding.toString());
+					log.error("Null bindingObject in v4 Binding");
 				}
 			}
 			else {
@@ -505,9 +506,9 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		}
 	}
 	
-	protected void processHaBindingUpdates() {
+	protected void processHaBindingUpdates(Map<Integer, DhcpOption> dhcpOptionMap) {
 		if (haPrimaryFSM != null) {
-			haPrimaryFSM.updateBindings(bindings);
+			haPrimaryFSM.updateBindings(bindings, dhcpOptionMap);
 		}
 		else {
 			log.debug("Not configured as HA Primary.  Skipping HA binding update processing.");

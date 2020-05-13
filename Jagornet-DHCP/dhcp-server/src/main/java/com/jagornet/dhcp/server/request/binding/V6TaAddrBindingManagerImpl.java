@@ -28,13 +28,20 @@ package com.jagornet.dhcp.server.request.binding;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaAddrOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.xml.Link;
 import com.jagornet.dhcp.server.config.xml.LinkFilter;
 import com.jagornet.dhcp.server.config.xml.V6AddressBindingsType;
@@ -50,6 +57,7 @@ public class V6TaAddrBindingManagerImpl
 		extends V6AddrBindingManager 
 		implements V6TaAddrBindingManager
 {
+	private static Logger log = LoggerFactory.getLogger(V6TaAddrBindingManagerImpl.class);
 	
 	/**
 	 * Instantiates a new ta addr binding manager impl.
@@ -155,4 +163,51 @@ public class V6TaAddrBindingManagerImpl
 	protected byte getIaType() {
 		return IdentityAssoc.TA_TYPE;
 	}
+	
+	@Override
+	protected Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6AddressBindingPool bp) {
+		
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
+				serverConfig.effectiveMsgOptions((DhcpV6Message)requestMsg, clientLink, bp);
+		
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
+    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		log.debug("buildDhcpOptions: configured to include only requested options");
+    		configOptionMap = requestedOptions(configOptionMap, requestMsg);
+    	}
+    	
+		return configOptionMap;
+	}
+	
+	protected Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildIaDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6AddressBindingPool bp) {
+		
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
+				serverConfig.effectiveIaTaOptions((DhcpV6Message)requestMsg, clientLink, bp);
+		
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
+    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		log.debug("buildDhcpOptions: configured to include only requested options");
+    		configOptionMap = requestedOptions(configOptionMap, requestMsg);
+    	}
+    	
+		return configOptionMap;
+	}
+	
+	protected Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildIaAddrDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6AddressBindingPool bp) {
+		
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
+				serverConfig.effectiveTaAddrOptions((DhcpV6Message)requestMsg, clientLink, bp);
+		
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
+    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		log.debug("buildDhcpOptions: configured to include only requested options");
+    		configOptionMap = requestedOptions(configOptionMap, requestMsg);
+    	}
+    	
+		return configOptionMap;
+	}
+
 }

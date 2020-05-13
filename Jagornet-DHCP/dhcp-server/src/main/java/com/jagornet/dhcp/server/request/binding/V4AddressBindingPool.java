@@ -290,6 +290,7 @@ public class V4AddressBindingPool implements BindingPool, DhcpV4OptionConfigObje
 		this.linkFilter = linkFilter;
 	}
 	
+	@Override
 	public DhcpV4ConfigOptions getV4ConfigOptions() {
 		return v4ConfigOptions;
 	}

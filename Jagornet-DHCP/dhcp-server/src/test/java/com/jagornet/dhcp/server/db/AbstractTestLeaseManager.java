@@ -70,7 +70,7 @@ public class AbstractTestLeaseManager extends BaseTestCase {
 				}
 				// TODO: add options
 				IdentityAssoc ia = LeaseManager.toIdentityAssoc(lease);
-				leaseManager.createIA(ia);
+				leaseManager.createIA(ia, null);
 				log.debug("Inserted: " + ia);
 			}
 			catch (UnknownHostException ex) {

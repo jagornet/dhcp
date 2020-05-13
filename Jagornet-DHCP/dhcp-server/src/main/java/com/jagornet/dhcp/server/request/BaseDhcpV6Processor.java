@@ -154,249 +154,6 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     	}
     	replyMsg.putAllDhcpOptions(optionMap);
     }
-    
-    /**
-     * Populate ia na options.
-     * 
-     * @param iaNaOption the ia na option
-     */
-    protected void populateIaNaOptions(DhcpV6IaNaOption iaNaOption)
-    {
-    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveIaNaOptions(requestMsg);
-    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaNaOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate ia ta options.
-     * 
-     * @param iaTaOption the ia ta option
-     */
-    protected void populateIaTaOptions(DhcpV6IaTaOption iaTaOption)
-    {
-    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveIaTaOptions(requestMsg);
-    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaTaOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate ia pd options.
-     * 
-     * @param iaPdOption the ia pd option
-     */
-    protected void populateIaPdOptions(DhcpV6IaPdOption iaPdOption)
-    {
-    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveIaPdOptions(requestMsg);
-    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaPdOption.putAllDhcpOptions(optionMap);
-    }
-
-    /**
-     * Populate ia na options.
-     * 
-     * @param iaNaOption the ia na option
-     * @param link the link
-     */
-    protected void populateIaNaOptions(DhcpV6IaNaOption iaNaOption, DhcpLink dhcpLink)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveIaNaOptions(requestMsg, dhcpLink);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
-    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaNaOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate ia ta options.
-     * 
-     * @param iaTaOption the ia ta option
-     * @param link the link
-     */
-    protected void populateIaTaOptions(DhcpV6IaTaOption iaTaOption, DhcpLink dhcpLink)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveIaTaOptions(requestMsg, dhcpLink);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
-    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaTaOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate ia pd options.
-     * 
-     * @param iaPdOption the ia pd option
-     * @param link the link
-     */
-    protected void populateIaPdOptions(DhcpV6IaPdOption iaPdOption, DhcpLink dhcpLink)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveIaPdOptions(requestMsg, dhcpLink);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
-    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaPdOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate na addr options.
-     * 
-     * @param iaAddrOption the ia addr option
-     */
-    protected void populateNaAddrOptions(DhcpV6IaAddrOption iaAddrOption)
-    {
-    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveNaAddrOptions(requestMsg);
-    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaAddrOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate ta addr options.
-     * 
-     * @param iaAddrOption the ia addr option
-     */
-    protected void populateTaAddrOptions(DhcpV6IaAddrOption iaAddrOption)
-    {
-    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveTaAddrOptions(requestMsg);
-    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaAddrOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate prefix options.
-     * 
-     * @param iaPrefixOption the ia prefix option
-     */
-    protected void populatePrefixOptions(DhcpV6IaPrefixOption iaPrefixOption)
-    {
-    	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectivePrefixOptions(requestMsg);
-    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaPrefixOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate na addr options.
-     * 
-     * @param iaAddrOption the ia addr option
-     * @param link the link
-     */
-    protected void populateNaAddrOptions(DhcpV6IaAddrOption iaAddrOption, DhcpLink dhcpLink)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveNaAddrOptions(requestMsg, dhcpLink);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
-    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaAddrOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate ta addr options.
-     * 
-     * @param iaAddrOption the ia addr option
-     * @param link the link
-     */
-    protected void populateTaAddrOptions(DhcpV6IaAddrOption iaAddrOption, DhcpLink dhcpLink)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveTaAddrOptions(requestMsg, dhcpLink);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
-    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaAddrOption.putAllDhcpOptions(optionMap);
-    }
-    
-    /**
-     * Populate prefix options.
-     * 
-     * @param iaPrefixOption the ia prefix option
-     * @param link the link
-     */
-    protected void populatePrefixOptions(DhcpV6IaPrefixOption iaPrefixOption, DhcpLink dhcpLink)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectivePrefixOptions(requestMsg, dhcpLink);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
-    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaPrefixOption.putAllDhcpOptions(optionMap);
-    }
-	
-    /**
-     * Populate na addr options.
-     * 
-     * @param iaAddrOption the ia addr option
-     * @param link the link
-     * @param pool the pool
-     */
-    protected void populateNaAddrOptions(DhcpV6IaAddrOption iaAddrOption, DhcpLink dhcpLink, 
-    		DhcpV6OptionConfigObject configObj)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveNaAddrOptions(requestMsg, dhcpLink, configObj);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
-    			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaAddrOption.putAllDhcpOptions(optionMap);
-    }    
-    
-    /**
-     * Populate ta addr options.
-     * 
-     * @param iaAddrOption the ia addr option
-     * @param link the link
-     * @param pool the pool
-     */
-    protected void populateTaAddrOptions(DhcpV6IaAddrOption iaAddrOption, DhcpLink dhcpLink, 
-    		DhcpV6OptionConfigObject configObj)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectiveTaAddrOptions(requestMsg, dhcpLink, configObj);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
-    			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-    	iaAddrOption.putAllDhcpOptions(optionMap);
-    }    
-    
-    /**
-     * Populate prefix options.
-     * 
-     * @param iaPrefixOption the ia prefix option
-     * @param link the link
-     * @param pool the pool
-     */
-    protected void populatePrefixOptions(DhcpV6IaPrefixOption iaPrefixOption, DhcpLink dhcpLink, 
-    		DhcpV6OptionConfigObject configObj)
-    {
-    	Map<Integer, DhcpOption> optionMap = 
-    		dhcpServerConfig.effectivePrefixOptions(requestMsg, dhcpLink, configObj);
-    	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
-    			dhcpLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
-    		optionMap = requestedOptions(optionMap, requestMsg);
-    	}
-	    iaPrefixOption.putAllDhcpOptions(optionMap);
-    }    
 
     /**
      * Process the client request.  Find appropriate configuration based on any
@@ -630,6 +387,10 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		DhcpV6IaNaOption dhcpIaNaOption = new DhcpV6IaNaOption();
 		dhcpIaNaOption.setIaId(binding.getIaid());
 
+		// TODO: can't really rely on a single binding address, right?
+		V6BindingAddress theBindingAddr = null;
+		// the minimum leases time from the list of addresses in the binding,
+		// so that we can use it for the lease time of the binding itself
 		long minPreferredLifetime = 0;
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
@@ -644,19 +405,36 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 					DhcpV6OptionConfigObject configObj = 
 						(DhcpV6OptionConfigObject) bindingObj.getConfigObj();
 					if (configObj != null) {
-						long preferred = configObj.getPreferredLifetime();
-						if ((minPreferredLifetime == 0xffffffff) ||
-								(preferred < minPreferredLifetime))  {
-							minPreferredLifetime = preferred; 
+						// must be an DhcpV6BindingAddress for IA_NA v6 binding
+						if (bindingObj instanceof V6BindingAddress) {
+							V6BindingAddress bindingAddr = (V6BindingAddress) bindingObj;
+							theBindingAddr = bindingAddr;
+							// NOTE: we need the configObj to get the preferred
+							// *lifetime* to return to the client, as opposed to
+							// the *endtime* that is stored with the bindingAddr
+							// which is different from v4 in that the lease time
+							// (e.g. lifetime) is stored as an option, which was
+							// already populated when the biding was created/built
+							long preferred = configObj.getPreferredLifetime();
+							if ((minPreferredLifetime == 0xffffffff) ||
+									(preferred < minPreferredLifetime))  {
+								minPreferredLifetime = preferred; 
+							}
+							dhcpIaAddrOption.setPreferredLifetime(preferred);
+							dhcpIaAddrOption.setValidLifetime(configObj.getValidLifetime());
+							// we have already determined the options to be returned
+							// to the client when the binding was created/built, so
+							// we just need to stuff them into the IA_Address option
+					    	dhcpIaAddrOption.putAllDhcpOptions(bindingAddr.getIaAddrDhcpOptionMap());					    	
+							dhcpIaAddrOptions.add(dhcpIaAddrOption);
+							//TODO when do actually start the timer?  currently, two get
+							//     created - one during advertise, one during reply
+							//     policy to allow real-time expiration?
+		//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
 						}
-						dhcpIaAddrOption.setPreferredLifetime(preferred);
-						dhcpIaAddrOption.setValidLifetime(configObj.getValidLifetime());
-						populateNaAddrOptions(dhcpIaAddrOption, clientLink, configObj);
-						dhcpIaAddrOptions.add(dhcpIaAddrOption);
-						//TODO when do actually start the timer?  currently, two get
-						//     created - one during advertise, one during reply
-						//     policy to allow real-time expiration?
-	//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+						else {
+							log.error("Unsupported bindingObject type: " + bindingObj.getClass());
+						}
 					}
 					else {
 						log.error("Null binding pool in binding: " + binding.toString());
@@ -674,8 +452,15 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		
 		setIaNaT1(clientLink, dhcpIaNaOption, minPreferredLifetime);
 		setIaNaT2(clientLink, dhcpIaNaOption, minPreferredLifetime);
-		
-		populateIaNaOptions(dhcpIaNaOption, clientLink);
+//		populateIaNaOptions(dhcpIaNaOption, clientLink);
+		// this is sketchy, because theBindingAddr = last address in the binding
+		if (theBindingAddr != null) {
+			// we have already determined the options to be returned
+			// to the client when the binding was created/built, so
+			// set any IA-level options and message-level options here
+			dhcpIaNaOption.setDhcpOptionMap(theBindingAddr.getIaDhcpOptionMap());
+			replyMsg.putAllDhcpOptions(theBindingAddr.getDhcpOptionMap());
+		}
 		replyMsg.addIaNaOption(dhcpIaNaOption);
 	}
 	
@@ -690,6 +475,8 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		DhcpV6IaTaOption dhcpIaTaOption = new DhcpV6IaTaOption();
 		dhcpIaTaOption.setIaId(binding.getIaid());
 		
+		// TODO: can't really rely on a single binding address, right?
+		V6BindingAddress theBindingAddr = null;
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			List<DhcpV6IaAddrOption> dhcpIaAddrOptions = new ArrayList<DhcpV6IaAddrOption>(); 
@@ -702,14 +489,25 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 					DhcpV6OptionConfigObject configObj = 
 						(DhcpV6OptionConfigObject) bindingObj.getConfigObj();
 					if (configObj != null) {
-						dhcpIaAddrOption.setPreferredLifetime(configObj.getPreferredLifetime());
-						dhcpIaAddrOption.setValidLifetime(configObj.getValidLifetime());
-						populateTaAddrOptions(dhcpIaAddrOption, clientLink, configObj);
-						dhcpIaAddrOptions.add(dhcpIaAddrOption);
-						//TODO when do actually start the timer?  currently, two get
-						//     created - one during advertise, one during reply
-						//     policy to allow real-time expiration?
-	//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+						// must be an DhcpV6BindingAddress for IA_TA v6 binding
+						if (bindingObj instanceof V6BindingAddress) {
+							V6BindingAddress bindingAddr = (V6BindingAddress) bindingObj;
+							theBindingAddr = bindingAddr;
+							dhcpIaAddrOption.setPreferredLifetime(configObj.getPreferredLifetime());
+							dhcpIaAddrOption.setValidLifetime(configObj.getValidLifetime());
+							// we have already determined the options to be returned
+							// to the client when the binding was created/built, so
+							// we just need to stuff them into the IA_Address option
+					    	dhcpIaAddrOption.putAllDhcpOptions(bindingAddr.getIaAddrDhcpOptionMap());
+							dhcpIaAddrOptions.add(dhcpIaAddrOption);
+							//TODO when do actually start the timer?  currently, two get
+							//     created - one during advertise, one during reply
+							//     policy to allow real-time expiration?
+		//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+						}
+						else {
+							log.error("Unsupported bindingObject type: " + bindingObj.getClass());
+						}
 					}
 					else {
 						log.error("Null binding pool in binding: " + binding.toString());
@@ -724,8 +522,15 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		else {
 			log.error("No IA_TA bindings in binding object!");
 		}
-		
-		populateIaTaOptions(dhcpIaTaOption, clientLink);
+//		populateIaTaOptions(dhcpIaTaOption, clientLink);
+		// this is sketchy, because theBindingAddr = last address in the binding
+		if (theBindingAddr != null) {
+			// we have already determined the options to be returned
+			// to the client when the binding was created/built, so
+			// set any IA-level options and message-level options here
+			dhcpIaTaOption.setDhcpOptionMap(theBindingAddr.getIaDhcpOptionMap());
+			replyMsg.putAllDhcpOptions(theBindingAddr.getDhcpOptionMap());
+		}
 		replyMsg.addIaTaOption(dhcpIaTaOption);
 	}
 	
@@ -740,6 +545,8 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		DhcpV6IaPdOption dhcpIaPdOption = new DhcpV6IaPdOption();
 		dhcpIaPdOption.setIaId(binding.getIaid());
 		
+		// TODO: can't really rely on a single binding prefix, right?
+		V6BindingPrefix theBindingPrefix = null;
 		long minPreferredLifetime = 0;
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
@@ -748,6 +555,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 			for (BindingObject bindingObj : bindingObjs) {
 				// must be a Binding Prefix for IaPd binding
 				V6BindingPrefix bindingPrefix = (V6BindingPrefix) bindingObj;
+				theBindingPrefix = bindingPrefix;
 				DhcpV6IaPrefixOption dhcpIaPrefixOption = new DhcpV6IaPrefixOption();
 				InetAddress inetAddr = bindingObj.getIpAddress();
 				if (inetAddr != null) {
@@ -764,8 +572,11 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 						}
 						dhcpIaPrefixOption.setPreferredLifetime(preferred);
 						dhcpIaPrefixOption.setValidLifetime(configObj.getValidLifetime());
-						populatePrefixOptions(dhcpIaPrefixOption, clientLink, configObj);
-						dhcpIaPrefixOptions.add(dhcpIaPrefixOption);
+						// we have already determined the options to be returned
+						// to the client when the binding was created/built, so
+						// we just need to stuff them into the IA_Prefix option
+				    	dhcpIaPrefixOption.putAllDhcpOptions(bindingPrefix.getIaAddrDhcpOptionMap());
+				    	dhcpIaPrefixOptions.add(dhcpIaPrefixOption);
 						//TODO when do actually start the timer?  currently, two get
 						//     created - one during advertise, one during reply
 						//     policy to allow real-time expiration?
@@ -787,8 +598,15 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		
 		setIaPdT1(clientLink, dhcpIaPdOption, minPreferredLifetime);
 		setIaPdT2(clientLink, dhcpIaPdOption, minPreferredLifetime);
-		
-		populateIaPdOptions(dhcpIaPdOption, clientLink);
+//		populateIaPdOptions(dhcpIaPdOption, clientLink);
+		// this is sketchy, because theBindingAddr = last address in the binding
+		if (theBindingPrefix != null) {
+			// we have already determined the options to be returned
+			// to the client when the binding was created/built, so
+			// set any IA-level options and message-level options here
+			dhcpIaPdOption.setDhcpOptionMap(theBindingPrefix.getIaDhcpOptionMap());
+			replyMsg.putAllDhcpOptions(theBindingPrefix.getDhcpOptionMap());
+		}
 		replyMsg.addIaPdOption(dhcpIaPdOption);
 	}
 	

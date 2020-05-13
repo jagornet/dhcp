@@ -130,9 +130,9 @@ public abstract class LeaseManager implements IaManager {
 	}
 
 	@Override
-	public void createIA(IdentityAssoc ia) {
+	public void createIA(IdentityAssoc ia, Collection<DhcpOption> dhcpOptions) {
 		if (ia != null) {
-			List<DhcpLease> leases = toDhcpLeases(ia);
+			List<DhcpLease> leases = toDhcpLeases(ia, dhcpOptions);
 			if ((leases != null) && !leases.isEmpty()) {
 				for (final DhcpLease lease : leases) {
 					insertDhcpLease(lease);
@@ -148,12 +148,15 @@ public abstract class LeaseManager implements IaManager {
 	}
 	
 	@Override
-	public void updateIA(IdentityAssoc ia, Collection<? extends IaAddress> addAddrs,
-			Collection<? extends IaAddress> updateAddrs, Collection<? extends IaAddress> delAddrs)
+	public void updateIA(IdentityAssoc ia, 
+						 Collection<? extends IaAddress> addAddrs,
+						 Collection<? extends IaAddress> updateAddrs,
+						 Collection<? extends IaAddress> delAddrs,
+						 Collection<DhcpOption> dhcpOptions)
 	{
 		if ((addAddrs != null) && !addAddrs.isEmpty()) {
 			for (IaAddress addAddr : addAddrs) {
-				DhcpLease lease = toDhcpLease(ia, addAddr);
+				DhcpLease lease = toDhcpLease(ia, addAddr, dhcpOptions);
 				insertDhcpLease(lease);
 				if (useLeaseCache()) {
 					leaseCache.putLease(lease);
@@ -162,7 +165,7 @@ public abstract class LeaseManager implements IaManager {
 		}
 		if ((updateAddrs != null) && !updateAddrs.isEmpty()) {
 			for (IaAddress updateAddr : updateAddrs) {
-				DhcpLease lease = toDhcpLease(ia, updateAddr);
+				DhcpLease lease = toDhcpLease(ia, updateAddr, dhcpOptions);
 				updateDhcpLease(lease);
 				if (useLeaseCache()) {
 					leaseCache.putLease(lease);
@@ -171,7 +174,7 @@ public abstract class LeaseManager implements IaManager {
 		}
 		if ((delAddrs != null) && !delAddrs.isEmpty()) {
 			for (IaAddress delAddr : delAddrs) {
-				DhcpLease lease = toDhcpLease(ia, delAddr);
+				DhcpLease lease = toDhcpLease(ia, delAddr, dhcpOptions);
 				deleteDhcpLease(lease);
 				if (useLeaseCache()) {
 					leaseCache.removeLease(lease.getIpAddress());
@@ -187,7 +190,8 @@ public abstract class LeaseManager implements IaManager {
 	public void deleteIA(IdentityAssoc ia)
 	{
 		if (ia != null) {
-			List<DhcpLease> leases = toDhcpLeases(ia);
+			// don't need v4 options or v6 message-level options for delete
+			List<DhcpLease> leases = toDhcpLeases(ia, null);
 			if ((leases != null) && !leases.isEmpty()) {
 				for (final DhcpLease lease : leases) {
 					deleteDhcpLease(lease);
@@ -868,16 +872,18 @@ public abstract class LeaseManager implements IaManager {
 	 * To dhcp leases.
 	 *
 	 * @param ia the ia
+	 * @param dhcpOptions v4 options or v6 message-level options
 	 * @return the list
 	 */
-	public static List<DhcpLease> toDhcpLeases(IdentityAssoc ia)
+	public static List<DhcpLease> toDhcpLeases(IdentityAssoc ia,
+											   Collection<DhcpOption> dhcpOptions)
 	{
 		if (ia != null) {
 			Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
 			if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
 				List<DhcpLease> leases = new ArrayList<DhcpLease>();
 				for (IaAddress iaAddr : iaAddrs) {
-					DhcpLease lease = toDhcpLease(ia, iaAddr);
+					DhcpLease lease = toDhcpLease(ia, iaAddr, dhcpOptions);
 					leases.add(lease);
 				}
 				return leases;
@@ -894,9 +900,11 @@ public abstract class LeaseManager implements IaManager {
 	 *
 	 * @param ia the ia
 	 * @param iaAddr the ia addr
+	 * @param dhcpOptions v4 options or v6 message-level options
 	 * @return the dhcp lease
 	 */
-	public static DhcpLease toDhcpLease(IdentityAssoc ia, IaAddress iaAddr)
+	public static DhcpLease toDhcpLease(IdentityAssoc ia, IaAddress iaAddr,
+										Collection<DhcpOption> dhcpOptions)
 	{
 		DhcpLease lease = new DhcpLease();
 		lease.setDuid(ia.getDuid());
@@ -913,6 +921,7 @@ public abstract class LeaseManager implements IaManager {
 		lease.setValidEndTime(iaAddr.getValidEndTime());
 		lease.setIaAddrDhcpOptions(iaAddr.getDhcpOptions());
 		lease.setIaDhcpOptions(ia.getDhcpOptions());
+		lease.setDhcpOptions(dhcpOptions);
 		return lease;
 	}
 	

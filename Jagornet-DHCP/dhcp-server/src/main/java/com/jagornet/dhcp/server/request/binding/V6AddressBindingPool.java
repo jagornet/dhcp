@@ -58,7 +58,9 @@ public class V6AddressBindingPool implements BindingPool, DhcpV6OptionConfigObje
 	protected long preferredLifetime;
 	protected long validLifetime;
 	protected V6AddressPool pool;
-	protected DhcpV6ConfigOptions dhcpConfigOptions;
+	protected DhcpV6ConfigOptions msgConfigOptions;
+	protected DhcpV6ConfigOptions iaConfigOptions;
+	protected DhcpV6ConfigOptions addrConfigOptions;
 	protected LinkFilter linkFilter; 
 	protected Timer reaper;
 	
@@ -87,7 +89,9 @@ public class V6AddressBindingPool implements BindingPool, DhcpV6OptionConfigObje
 			new FreeList(new BigInteger(range.getStartAddress().getAddress()),
 					new BigInteger(range.getEndAddress().getAddress()));
 		reaper = new Timer(pool.getRange()+"_Reaper");
-		dhcpConfigOptions = new DhcpV6ConfigOptions(pool.getAddrConfigOptions());
+		msgConfigOptions = new DhcpV6ConfigOptions(pool.getMsgConfigOptions());
+		iaConfigOptions = new DhcpV6ConfigOptions(pool.getIaConfigOptions());
+		addrConfigOptions = new DhcpV6ConfigOptions(pool.getAddrConfigOptions());
 	}
 	
 	/**
@@ -298,13 +302,32 @@ public class V6AddressBindingPool implements BindingPool, DhcpV6OptionConfigObje
 	public void setLinkFilter(LinkFilter linkFilter) {
 		this.linkFilter = linkFilter;
 	}
-	
-	public DhcpV6ConfigOptions getDhcpConfigOptions() {
-		return dhcpConfigOptions;
+
+	@Override
+	public DhcpV6ConfigOptions getMsgConfigOptions() {
+		return msgConfigOptions;
 	}
 
-	public void setDhcpConfigOptions(DhcpV6ConfigOptions dhcpConfigOptions) {
-		this.dhcpConfigOptions = dhcpConfigOptions;
+	public void setMsgConfigOptions(DhcpV6ConfigOptions msgConfigOptions) {
+		this.msgConfigOptions = msgConfigOptions;
+	}
+
+	@Override
+	public DhcpV6ConfigOptions getIaConfigOptions() {
+		return iaConfigOptions;
+	}
+
+	public void setIaConfigOptions(DhcpV6ConfigOptions iaConfigOptions) {
+		this.iaConfigOptions = iaConfigOptions;
+	}
+
+	@Override
+	public DhcpV6ConfigOptions getAddrConfigOptions() {
+		return addrConfigOptions;
+	}
+
+	public void setAddrConfigOptions(DhcpV6ConfigOptions addrConfigOptions) {
+		this.addrConfigOptions = addrConfigOptions;
 	}
 
 	public String toString()

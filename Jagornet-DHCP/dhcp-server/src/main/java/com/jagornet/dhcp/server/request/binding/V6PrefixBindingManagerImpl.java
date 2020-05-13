@@ -30,6 +30,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaPdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaPrefixOption;
@@ -51,6 +53,7 @@ import com.jagornet.dhcp.server.config.xml.V6PrefixBinding;
 import com.jagornet.dhcp.server.config.xml.V6PrefixBindingsType;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPool;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPoolsType;
+import com.jagornet.dhcp.server.db.DhcpOption;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IaPrefix;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
@@ -388,6 +391,7 @@ public class V6PrefixBindingManagerImpl
 	{
 		List<IaPrefix> expiredPrefs = iaMgr.findExpiredIaPrefixes();
 		if ((expiredPrefs != null) && !expiredPrefs.isEmpty()) {
+			log.info("Found " + expiredPrefs.size() + " expired prefix bindings"); 
 			for (IaPrefix iaPrefix : expiredPrefs) {
 				expireIaPrefix(iaPrefix);
 			}
@@ -448,7 +452,7 @@ public class V6PrefixBindingManagerImpl
         		}
         		else {
         			bindingPrefix =
-        				buildBindingAddrFromIaPrefix((IaPrefix)iaAddr, clientLink.getLink(), requestMsg);
+        				buildBindingAddrFromIaPrefix((IaPrefix)iaAddr, clientLink, requestMsg);
         		}
 				if (bindingPrefix != null)
 					bindingPrefixes.add(bindingPrefix);
@@ -463,7 +467,7 @@ public class V6PrefixBindingManagerImpl
 	}
 
 	/**
-	 * Create a BindingPrefix given an IaPrefix loaded from the database.
+	 * Build a V6BindingPrefix from an IaPrefix loaded from the database.
 	 * 
 	 * @param iaPrefix the ia prefix
 	 * @param clientLink the client link
@@ -472,14 +476,18 @@ public class V6PrefixBindingManagerImpl
 	 * @return the binding address
 	 */
 	private V6BindingPrefix buildBindingAddrFromIaPrefix(IaPrefix iaPrefix, 
-			Link clientLink, DhcpMessage requestMsg)
+			DhcpLink clientLink, DhcpMessage requestMsg)
 	{
 		InetAddress inetAddr = iaPrefix.getIpAddress();
-		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
+		V6PrefixBindingPool bp = (V6PrefixBindingPool)
+				findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
-			// TODO store the configured options in the persisted binding?
-			// ipAddr.setDhcpOptions(bp.getDhcpOptions());
-			return new V6BindingPrefix(iaPrefix, (V6PrefixBindingPool)bp);
+			// binding loaded from DB will contain the stored options
+			V6BindingPrefix bindingPrefix = new V6BindingPrefix(iaPrefix, (V6PrefixBindingPool)bp);
+	    	// TODO: setBindingObjectTimes?  see buildBindingObject
+			// update the options with whatever may now be configured
+	    	setDhcpOptions(bindingPrefix, clientLink, (DhcpV6Message)requestMsg, bp);
+	    	return bindingPrefix;
 		}
 		else {
 			log.error("Failed to create BindingPrefix: No BindingPool found for IP=" + 
@@ -490,7 +498,7 @@ public class V6PrefixBindingManagerImpl
 	}
 	
 	/**
-	 * Build a BindingPrefix given an IaAddress loaded from the database
+	 * Build a BindingPrefix from an IaAddress loaded from the database
 	 * and a static binding for the client request.
 	 * 
 	 * @param iaPrefix
@@ -505,7 +513,8 @@ public class V6PrefixBindingManagerImpl
 	}
 	
 	/**
-	 * Build a BindingPrefix for the given InetAddress and Link.
+	 * Created a new V6BindingPrefix type BindingObject
+	 * for the given InetAddress and Link.
 	 * 
 	 * @param inetAddr the inet addr
 	 * @param clientLink the client link
@@ -513,7 +522,7 @@ public class V6PrefixBindingManagerImpl
 	 * 
 	 * @return the binding address
 	 */
-	protected BindingObject buildBindingObject(InetAddress inetAddr, 
+	protected BindingObject createBindingObject(InetAddress inetAddr, 
 			DhcpLink clientLink, DhcpMessage requestMsg)
 	{
 		V6PrefixBindingPool bp = 
@@ -526,8 +535,7 @@ public class V6PrefixBindingManagerImpl
 			V6BindingPrefix bindingPrefix = new V6BindingPrefix(iaPrefix, bp);
 			setBindingObjectTimes(bindingPrefix, 
 					bp.getPreferredLifetimeMs(), bp.getPreferredLifetimeMs());
-			// TODO store the configured options in the persisted binding?
-			// bindingPrefix.setDhcpOptions(bp.getDhcpOptions());
+			setDhcpOptions(bindingPrefix, clientLink, (DhcpV6Message)requestMsg, bp);
 			return bindingPrefix;
 		}
 		else {
@@ -536,6 +544,80 @@ public class V6PrefixBindingManagerImpl
 		}
 		// MUST have a BindingPool, otherwise something's broke
 		return null;
+	}
+
+	/**
+	 * Set both the map of options to be returned to the client and those
+	 * same options as a list to be stored with the lease in the database
+	 * 
+	 * @param bindingAddr
+	 * @param clientLink
+	 * @param requestMsg
+	 * @param bp
+	 */
+	protected void setDhcpOptions(V6BindingPrefix bindingPrefix, DhcpLink clientLink,
+			DhcpV6Message requestMsg, V6PrefixBindingPool bp) {
+		// set the options to be returned to the client
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> effectiveDhcpOptionMap =
+				buildDhcpOptions(clientLink, requestMsg, bp);
+		bindingPrefix.setDhcpOptionMap(effectiveDhcpOptionMap);
+		// convert the "configured" options to options to be stored in lease database
+		Collection<DhcpOption> dhcpOptions = convertDhcpOptions(effectiveDhcpOptionMap);
+		bindingPrefix.setDhcpOptions(dhcpOptions);
+	}
+	
+	/**
+	 * Build the map of DHCP options to be returned to the client, which consists
+	 * of the configured options, filtered by any requested options, if applicable
+	 * 
+	 * @param clientLink
+	 * @param requestMsg
+	 * @param bp
+	 * @return
+	 */
+	protected Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6PrefixBindingPool bp) {
+		
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
+				serverConfig.effectiveMsgOptions((DhcpV6Message)requestMsg, clientLink, bp);
+		
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
+    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		log.debug("buildDhcpOptions: configured to include only requested options");
+    		configOptionMap = requestedOptions(configOptionMap, requestMsg);
+    	}
+    	
+		return configOptionMap;
+	}
+	
+	protected Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildIaDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6PrefixBindingPool bp) {
+		
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
+				serverConfig.effectiveIaPdOptions((DhcpV6Message)requestMsg, clientLink, bp);
+		
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
+    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		log.debug("buildDhcpOptions: configured to include only requested options");
+    		configOptionMap = requestedOptions(configOptionMap, requestMsg);
+    	}
+    	
+		return configOptionMap;
+	}
+
+	protected Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildIaAddrDhcpOptions(
+			DhcpLink clientLink, DhcpV6Message requestMsg, V6PrefixBindingPool bp) {
+		
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
+				serverConfig.effectivePrefixOptions((DhcpV6Message)requestMsg, clientLink, bp);
+		
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
+    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		log.debug("buildDhcpOptions: configured to include only requested options");
+    		configOptionMap = requestedOptions(configOptionMap, requestMsg);
+    	}
+    	
+		return configOptionMap;
 	}
 	
 	/**
@@ -548,7 +630,7 @@ public class V6PrefixBindingManagerImpl
 		 */
 		@Override
 		public void run() {
-//			log.debug("Expiring addresses...");
+			log.debug("Looking for expired prefixes...");
 			expirePrefixes();
 		}
 	}

@@ -258,7 +258,8 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
     	        replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_ADVERTISE);
     		}
     		if (!bindings.isEmpty()) {
-    			populateReplyMsgOptions(clientLink);
+            	// see addBindingToReply
+            	// populateReplyMsgOptions(clientLink);
     			if (rapidCommit) {
     				processDdnsUpdates(true);
     			}

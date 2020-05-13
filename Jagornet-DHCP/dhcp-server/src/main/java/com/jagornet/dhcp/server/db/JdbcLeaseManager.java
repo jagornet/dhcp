@@ -106,8 +106,8 @@ public class JdbcLeaseManager extends LeaseManager
 		int cnt = getJdbcTemplate().update("insert into dhcplease" +
 				" (ipaddress, duid, iatype, iaid, prefixlen, state, hapeerstate," +
 				" starttime, preferredendtime, validendtime," +
-				" ia_options, ipaddr_options)" +
-				" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+				" options, ia_options, ipaddr_options)" +
+				" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 				new PreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps)
@@ -144,6 +144,7 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
+				ps.setBytes(i++, encodeOptions(lease.getDhcpOptions()));
 				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions()));
 				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions()));
 			}
@@ -165,6 +166,7 @@ public class JdbcLeaseManager extends LeaseManager
 				" starttime=?," +
 				" preferredendtime=?," +
 				" validendtime=?," +
+				" options=?," +
 				" ia_options=?," +
 				" ipaddr_options=?" +
 				" where ipaddress=?",
@@ -199,6 +201,7 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
+				ps.setBytes(i++, encodeOptions(lease.getDhcpOptions()));
 				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions()));
 				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions()));
 				ps.setBytes(i++, lease.getIpAddress().getAddress());
@@ -705,6 +708,7 @@ public class JdbcLeaseManager extends LeaseManager
 			lease.setStartTime(rs.getTimestamp("starttime", Util.GMT_CALENDAR));
 			lease.setPreferredEndTime(rs.getTimestamp("preferredendtime", Util.GMT_CALENDAR));
 			lease.setValidEndTime(rs.getTimestamp("validendtime", Util.GMT_CALENDAR));
+			lease.setDhcpOptions(decodeOptions(rs.getBytes("options")));
 			lease.setIaDhcpOptions(decodeOptions(rs.getBytes("ia_options")));
 			lease.setIaAddrDhcpOptions(decodeOptions(rs.getBytes("ipaddr_options")));
             return lease;

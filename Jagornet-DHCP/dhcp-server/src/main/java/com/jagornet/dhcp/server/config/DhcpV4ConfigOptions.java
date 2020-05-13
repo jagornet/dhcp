@@ -191,8 +191,8 @@ public class DhcpV4ConfigOptions
 			}
 		}
 		
-		if (configOptions.getOtherOptions() != null) {
-			optionMap.putAll(GenericOptionFactory.genericOptions(configOptions.getOtherOptions()));
+		if (configOptions.getV4OtherOptions() != null) {
+			optionMap.putAll(GenericOptionFactory.genericOptions(configOptions.getV4OtherOptions()));
 		}
 		
 		return optionMap;

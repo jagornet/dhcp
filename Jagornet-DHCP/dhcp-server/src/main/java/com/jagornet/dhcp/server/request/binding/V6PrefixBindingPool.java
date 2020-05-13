@@ -57,7 +57,9 @@ public class V6PrefixBindingPool implements BindingPool, DhcpV6OptionConfigObjec
 	protected long preferredLifetime;
 	protected long validLifetime;
 	protected V6PrefixPool pool;
-	protected DhcpV6ConfigOptions dhcpConfigOptions;
+	protected DhcpV6ConfigOptions msgConfigOptions;
+	protected DhcpV6ConfigOptions iaConfigOptions;
+	protected DhcpV6ConfigOptions prefixConfigOptions;
 	protected LinkFilter linkFilter; 
 	protected Timer reaper;
 	
@@ -87,7 +89,9 @@ public class V6PrefixBindingPool implements BindingPool, DhcpV6OptionConfigObjec
 			freeList = new FreeList(BigInteger.ZERO, 
 					BigInteger.valueOf(numPrefixes).subtract(BigInteger.ONE));
 			reaper = new Timer(pool.getRange()+"_Reaper");
-			dhcpConfigOptions = new DhcpV6ConfigOptions(pool.getPrefixConfigOptions());
+			msgConfigOptions = new DhcpV6ConfigOptions(pool.getMsgConfigOptions());
+			iaConfigOptions = new DhcpV6ConfigOptions(pool.getIaConfigOptions());
+			prefixConfigOptions = new DhcpV6ConfigOptions(pool.getPrefixConfigOptions());
 		} 
 		catch (NumberFormatException ex) {
 			log.error("Invalid PrefixPool definition", ex);
@@ -287,13 +291,36 @@ public class V6PrefixBindingPool implements BindingPool, DhcpV6OptionConfigObjec
 	public void setLinkFilter(LinkFilter linkFilter) {
 		this.linkFilter = linkFilter;
 	}
-	
-	public DhcpV6ConfigOptions getDhcpConfigOptions() {
-		return dhcpConfigOptions;
+
+	@Override
+	public DhcpV6ConfigOptions getMsgConfigOptions() {
+		return msgConfigOptions;
 	}
 
-	public void setDhcpConfigOptions(DhcpV6ConfigOptions dhcpConfigOptions) {
-		this.dhcpConfigOptions = dhcpConfigOptions;
+	public void setMsgConfigOptions(DhcpV6ConfigOptions msgConfigOptions) {
+		this.msgConfigOptions = msgConfigOptions;
+	}
+
+	@Override
+	public DhcpV6ConfigOptions getIaConfigOptions() {
+		return iaConfigOptions;
+	}
+
+	public void setIaConfigOptions(DhcpV6ConfigOptions iaConfigOptions) {
+		this.iaConfigOptions = iaConfigOptions;
+	}
+
+	@Override
+	public DhcpV6ConfigOptions getAddrConfigOptions() {
+		return getPrefixConfigOptions();
+	}
+
+	public DhcpV6ConfigOptions getPrefixConfigOptions() {
+		return prefixConfigOptions;
+	}
+
+	public void setPrefixConfigOptions(DhcpV6ConfigOptions prefixConfigOptions) {
+		this.prefixConfigOptions = prefixConfigOptions;
 	}
 
 	public String toString()

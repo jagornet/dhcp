@@ -40,14 +40,17 @@ public class V6StaticPrefixBinding extends StaticBinding implements DhcpV6Option
 	// the XML object wrapped by this class
 	protected V6PrefixBinding prefixBinding;
 	
-	// The configured options for this binding
-	protected DhcpV6ConfigOptions dhcpConfigOptions;
+	
+	protected DhcpV6ConfigOptions msgConfigOptions;
+	protected DhcpV6ConfigOptions iaConfigOptions;
+	protected DhcpV6ConfigOptions prefixConfigOptions;
 	
 	public V6StaticPrefixBinding(V6PrefixBinding prefixBinding)
 	{
 		this.prefixBinding = prefixBinding;
-		dhcpConfigOptions = 
-			new DhcpV6ConfigOptions(prefixBinding.getPrefixConfigOptions());
+		msgConfigOptions = new DhcpV6ConfigOptions(prefixBinding.getMsgConfigOptions());
+		iaConfigOptions = new DhcpV6ConfigOptions(prefixBinding.getIaConfigOptions());
+		prefixConfigOptions = new DhcpV6ConfigOptions(prefixBinding.getPrefixConfigOptions());
 	}
 	
 	@Override
@@ -86,8 +89,34 @@ public class V6StaticPrefixBinding extends StaticBinding implements DhcpV6Option
 	}
 
 	@Override
-	public DhcpV6ConfigOptions getDhcpConfigOptions() {
-		return dhcpConfigOptions;
+	public DhcpV6ConfigOptions getMsgConfigOptions() {
+		return msgConfigOptions;
+	}
+
+	public void setMsgConfigOptions(DhcpV6ConfigOptions msgConfigOptions) {
+		this.msgConfigOptions = msgConfigOptions;
+	}
+
+	@Override
+	public DhcpV6ConfigOptions getIaConfigOptions() {
+		return iaConfigOptions;
+	}
+
+	public void setIaConfigOptions(DhcpV6ConfigOptions iaConfigOptions) {
+		this.iaConfigOptions = iaConfigOptions;
+	}
+
+	@Override
+	public DhcpV6ConfigOptions getAddrConfigOptions() {
+		return getPrefixConfigOptions();
+	}
+
+	public DhcpV6ConfigOptions getPrefixConfigOptions() {
+		return prefixConfigOptions;
+	}
+
+	public void setPrefixConfigOptions(DhcpV6ConfigOptions prefixConfigOptions) {
+		this.prefixConfigOptions = prefixConfigOptions;
 	}
 
 	@Override

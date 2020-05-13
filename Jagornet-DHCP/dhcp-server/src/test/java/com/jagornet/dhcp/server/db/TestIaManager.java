@@ -233,7 +233,7 @@ public class TestIaManager extends BaseTestCase
 	public void testCreateReadDeleteIA() throws Exception
 	{	
 		log.info("Creating IA");
-		iaMgr.createIA(ia);
+		iaMgr.createIA(ia, null);
 
 		log.info("Locating IA");
 		IdentityAssoc ia2 = iaMgr.findIA(duid, iatype, iaid);
@@ -268,7 +268,7 @@ public class TestIaManager extends BaseTestCase
 	public void testUpdateIaAddr() throws Exception
 	{
 		log.info("Creating IA");
-		iaMgr.createIA(ia);
+		iaMgr.createIA(ia, null);
 
 		// "expire" the first address
 		IaAddress addr1 = ia.getIaAddresses().iterator().next();
@@ -313,7 +313,7 @@ public class TestIaManager extends BaseTestCase
 	public void testUpdateAllIaAddrs() throws Exception
 	{
 		log.info("Creating IA");
-		iaMgr.createIA(ia);
+		iaMgr.createIA(ia, null);
 
 		Iterator<? extends IaAddress> iaAddrIter = ia.getIaAddresses().iterator();
 		
@@ -378,7 +378,7 @@ public class TestIaManager extends BaseTestCase
 	public void testDeleteIaAddr() throws Exception
 	{
 		log.info("Creating IA");
-		iaMgr.createIA(ia);
+		iaMgr.createIA(ia, null);
 
 		// delete the first address
 		IaAddress addr1 = ia.getIaAddresses().iterator().next();
@@ -410,7 +410,7 @@ public class TestIaManager extends BaseTestCase
 	public void testDeleteAllIaAddrs() throws Exception
 	{
 		log.info("Creating IA");
-		iaMgr.createIA(ia);
+		iaMgr.createIA(ia, null);
 
 		Iterator<? extends IaAddress> iaAddrIter = ia.getIaAddresses().iterator();
 		IaAddress addr1 = iaAddrIter.next();

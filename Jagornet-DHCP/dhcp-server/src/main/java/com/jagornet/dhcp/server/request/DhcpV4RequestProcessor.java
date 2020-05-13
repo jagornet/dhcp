@@ -190,7 +190,7 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
             replyMsg.setMessageType((short)DhcpConstants.V4MESSAGE_TYPE_ACK);
             if (!bindings.isEmpty()) {
     			processDdnsUpdates(true);
-    			processHaBindingUpdates();
+    			processHaBindingUpdates(replyMsg.getDhcpOptionMap());
             }
     	}
 		return sendReply;    	

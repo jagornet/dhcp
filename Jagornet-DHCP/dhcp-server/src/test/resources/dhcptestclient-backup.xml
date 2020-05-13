@@ -77,6 +77,13 @@
                 <v4RoutersOption>
                     <ipAddress>10.10.0.1</ipAddress>
                 </v4RoutersOption>
+                <v4DomainServersOption>
+                    <ipAddress>1.1.1.1</ipAddress>
+                    <ipAddress>8.8.8.8</ipAddress>
+                </v4DomainServersOption>
+                <v4DomainNameOption>
+                    <string>test.jagornet.com.</string>
+                </v4DomainNameOption>
             </v4ConfigOptions>
             <v4AddrPools>
                 <pool>

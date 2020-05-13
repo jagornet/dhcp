@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +52,7 @@ import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.xml.Link;
 import com.jagornet.dhcp.server.config.xml.LinkFilter;
+import com.jagornet.dhcp.server.db.DhcpOption;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
@@ -383,16 +385,20 @@ public abstract class BaseBindingManager
 		List<InetAddress> inetAddrs = 
 			getInetAddrs(clientLink, duid, iatype, iaid, requestAddrs, requestMsg);
 		if ((inetAddrs != null) && !inetAddrs.isEmpty()) {
-			log.debug("Got " + inetAddrs.size() + " addresses, building binding");
-			binding = buildBinding(clientLink, duid, iatype, iaid, state);
-			log.debug("Building binding objects");
+			log.debug("Got " + inetAddrs.size() + " addresses, creating binding");
+			binding = createBinding(clientLink, duid, iatype, iaid, state);
+			log.debug("Creating binding objects");
 			Set<BindingObject> bindingObjs = 
-				buildBindingObjects(clientLink, inetAddrs, requestMsg, state);
+				createBindingObjects(clientLink, inetAddrs, requestMsg, state);
 			if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 				binding.setBindingObjects(bindingObjs);
 				log.info("Creating new binding");
+				Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> msgOptions =
+						bindingObjs.iterator().next().getDhcpOptionMap();
+				// convert the "configured" options to options to be stored in lease database
+				Collection<DhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
 				try {
-					iaMgr.createIA(binding);
+					iaMgr.createIA(binding, dhcpOptions);
 				}
 				catch (Exception ex) {
 					log.error("Failed to create persistent binding", ex);
@@ -431,7 +437,7 @@ public abstract class BaseBindingManager
 	{
 		Binding binding = null;		
 		if (staticBinding != null) {
-			binding = buildBinding(clientLink, duid, iatype, iaid, IaAddress.RESERVED);
+			binding = createBinding(clientLink, duid, iatype, iaid, IaAddress.RESERVED);
 			InetAddress inetAddr = staticBinding.getInetAddress();
 			if (inetAddr != null) {
 				IaAddress iaAddr = new IaAddress();
@@ -449,8 +455,12 @@ public abstract class BaseBindingManager
 				Collection<BindingObject> bindingObjs = new ArrayList<BindingObject>();
 				bindingObjs.add(bindingAddr);
 				binding.setBindingObjects(bindingObjs);
+				Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> msgOptions =
+						bindingObjs.iterator().next().getDhcpOptionMap();
+				// convert the "configured" options to options to be stored in lease database
+				Collection<DhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
 				try {
-					iaMgr.createIA(binding);
+					iaMgr.createIA(binding, dhcpOptions);
 				}
 				catch (Exception ex) {
 					log.error("Failed to create persistent binding", ex);
@@ -518,15 +528,19 @@ public abstract class BaseBindingManager
 				log.error("Failed to update binding, no addresses available");
 				return null;
 			}
-			bindingObjs = buildBindingObjects(clientLink, inetAddrs, requestMsg, state);
+			bindingObjs = createBindingObjects(clientLink, inetAddrs, requestMsg, state);
 			binding.setBindingObjects(bindingObjs);
 			// these new IaAddress binding objects will be added
 			addIaAddresses = binding.getIaAddresses();
 		}
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> msgOptions =
+				bindingObjs.iterator().next().getDhcpOptionMap();
+		// convert the "configured" options to options to be stored in lease database
+		Collection<DhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
 		binding.setState(state);
 		try {
 			log.info("Updating binding");
-			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses);
+			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses, dhcpOptions);
 			log.info("Binding updated: " + binding.toString());
 			return binding;	// if we get here, it worked
 		}
@@ -556,9 +570,10 @@ public abstract class BaseBindingManager
 		Collection<? extends IaAddress> updateIaAddresses = null;
 		Collection<? extends IaAddress> delIaAddresses = null;	// not used currently
 
+		Collection<BindingObject> bindingObjs = null;
 		if (staticBinding != null) {
 			log.info("Updating static binding: " + binding);
-			Collection<BindingObject> bindingObjs = binding.getBindingObjects();
+			bindingObjs = binding.getBindingObjects();
 			if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 				for (BindingObject bindingObj : bindingObjs) {
 					if (bindingObj.getIpAddress().equals(staticBinding.getInetAddress())) {
@@ -575,7 +590,7 @@ public abstract class BaseBindingManager
 			else {
 				InetAddress inetAddr = staticBinding.getInetAddress();
 				if (inetAddr != null) {
-					BindingObject bindingObj = buildStaticBindingObject(inetAddr, staticBinding);
+					BindingObject bindingObj = createStaticBindingObject(inetAddr, staticBinding);
 					bindingObjs = new ArrayList<BindingObject>();
 					bindingObjs.add(bindingObj);
 					binding.setBindingObjects(bindingObjs);
@@ -587,10 +602,17 @@ public abstract class BaseBindingManager
 		else {
 			log.error("StaticBindingObject is null");
 		}
+		
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> msgOptions = null;
+		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
+			msgOptions = bindingObjs.iterator().next().getDhcpOptionMap();
+		}
+		// convert the "configured" options to options to be stored in lease database
+		Collection<DhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
 
 		binding.setState(IaAddress.RESERVED);
 		try {
-			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses);
+			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses, dhcpOptions);
 			return binding;	// if we get here, it worked
 		}
 		catch (Exception ex) {
@@ -838,7 +860,7 @@ public abstract class BaseBindingManager
 			DhcpLink clientLink, DhcpMessage requestMsg);
 
 	/**
-	 * Builds a new Binding.  Create a new IdentityAssoc from the given
+	 * Create a new Binding.  Create a new IdentityAssoc from the given
 	 * tuple and wrap that IdentityAssoc in a Binding.
 	 * 
 	 * @param clientLink the client link
@@ -848,7 +870,7 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the binding (a wrapped IdentityAssoc)
 	 */
-	private Binding buildBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
+	private Binding createBinding(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
 			byte state)
 	{
 		IdentityAssoc ia = new IdentityAssoc();
@@ -860,7 +882,7 @@ public abstract class BaseBindingManager
 	}
 	
 	/**
-	 * Builds the set of binding objects for the client request.
+	 * Creates the set of new binding objects for the client request.
 	 * 
 	 * @param clientLink the client link
 	 * @param inetAddrs the list of IP addresses for the client binding
@@ -869,15 +891,15 @@ public abstract class BaseBindingManager
 	 * 
 	 * @return the set<binding object>
 	 */
-	private Set<BindingObject> buildBindingObjects(DhcpLink clientLink, 
+	private Set<BindingObject> createBindingObjects(DhcpLink clientLink, 
 			List<InetAddress> inetAddrs, DhcpMessage requestMsg,
 			byte state)
 	{
 		Set<BindingObject> bindingObjs = new HashSet<BindingObject>();
 		for (InetAddress inetAddr : inetAddrs) {
 			if (log.isDebugEnabled())
-				log.debug("Building BindingObject for IP=" + inetAddr.getHostAddress());
-			BindingObject bindingObj = buildBindingObject(inetAddr, clientLink, requestMsg);
+				log.debug("Creating BindingObject for IP=" + inetAddr.getHostAddress());
+			BindingObject bindingObj = createBindingObject(inetAddr, clientLink, requestMsg);
 			if (bindingObj != null) {
 				bindingObj.setState(state);
 				// allocating a new IP, peer state is unknown at this time
@@ -885,14 +907,14 @@ public abstract class BaseBindingManager
 				bindingObjs.add(bindingObj);
 			}
 			else {
-				log.warn("Failed to build BindingObject for IP=" + inetAddr.getHostAddress());
+				log.warn("Failed to create BindingObject for IP=" + inetAddr.getHostAddress());
 			}
 		}
 		return bindingObjs;
 	}
 	
 	/**
-	 * Build the appropriate type of BindingObject.  This method is implemented by the
+	 * Create the appropriate type of BindingObject.  This method is implemented by the
 	 * subclasses to create an NA/TA BindingAddress object or a BindingPrefix object
 	 * or a V4AddressBinding object.
 	 * 
@@ -901,12 +923,12 @@ public abstract class BaseBindingManager
 	 * @param requestMsg the request message
 	 * @return the binding object
 	 */
-	protected abstract BindingObject buildBindingObject(InetAddress inetAddr, 
+	protected abstract BindingObject createBindingObject(InetAddress inetAddr, 
 			DhcpLink clientLink, DhcpMessage requestMsg);
 
 
 	/**
-	 * Build a BindingObject from a static binding.  Because the StaticBinding
+	 * Created a BindingObject from a static binding.  Because the StaticBinding
 	 * implements the DhcpConfigObject interface, it can be used directly in
 	 * creating the BindingObject, unlike buildBindingObject above which is
 	 * abstract because each implementation must lookup the object in that
@@ -916,7 +938,7 @@ public abstract class BaseBindingManager
 	 * @param staticBinding the static binding
 	 * @return the binding object
 	 */
-	protected BindingObject buildStaticBindingObject(InetAddress inetAddr,
+	protected BindingObject createStaticBindingObject(InetAddress inetAddr,
 			StaticBinding staticBinding)
 	{
 		IaAddress iaAddr = new IaAddress();
@@ -926,6 +948,62 @@ public abstract class BaseBindingManager
 				staticBinding.getPreferredLifetimeMs(), 
 				staticBinding.getPreferredLifetimeMs());
 		return bindingAddr;
+	}
+	
+	/**
+	 * Filter a map of configured DHCP options by those options requested by the client
+	 * @param optionMap
+	 * @param requestMsg
+	 * @return
+	 */
+    protected Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> requestedOptions(
+    		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> optionMap, 
+    		DhcpMessage requestMsg)
+	{
+    	if ((optionMap != null)  && !optionMap.isEmpty()) {
+    		List<Integer> requestedCodes = requestMsg.getRequestedOptionCodes();
+    		if ((requestedCodes != null) && !requestedCodes.isEmpty()) {
+    			log.debug("Client requested option codes: " + requestedCodes);
+    			Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> _optionMap = new HashMap<Integer, com.jagornet.dhcp.core.option.base.DhcpOption>();
+    			for (Map.Entry<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> option : optionMap.entrySet()) {
+					if (requestedCodes.contains(option.getKey())) {
+						_optionMap.put(option.getKey(), option.getValue());
+					}
+				}
+    			optionMap = _optionMap;
+    		}
+    		else {
+    			log.debug("No options requested by client, including all configured options");
+    		}
+    	}
+    	return optionMap;
+	}
+	
+	/**
+	 * Convert the map of configured options to a list of options
+	 * to be stored with the lease in the database
+	 * 
+	 * @param effectiveDhcpOptionMap the map of effectively configured options
+	 *                               which has been filtered by the requested
+	 *                               options from the client, if applicable
+	 * @return
+	 */
+	public static Collection<DhcpOption> convertDhcpOptions(
+			Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> effectiveDhcpOptionMap) {
+		
+		Collection<DhcpOption> dhcpOptions = null;
+		if ((effectiveDhcpOptionMap != null) && !effectiveDhcpOptionMap.isEmpty()) {
+			dhcpOptions = new ArrayList<DhcpOption>();
+			for (com.jagornet.dhcp.core.option.base.DhcpOption effectiveDhcpOption : 
+				 effectiveDhcpOptionMap.values()) {
+				try {
+					dhcpOptions.add(DhcpOption.fromConfigDhcpOption(effectiveDhcpOption));
+				} catch (IOException e) {
+					log.error("Failed to convert config option code=" + effectiveDhcpOption.getCode());
+				}
+			}
+		}
+		return dhcpOptions;
 	}
 	
 	/**

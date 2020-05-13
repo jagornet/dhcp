@@ -62,8 +62,9 @@ public interface IaManager
 	 * contained in the IaAddresses or IaPrefixes themselves.
 	 * 
 	 * @param ia the IdentityAssoc to create
+	 * @param dhcpOptions the v4 options or v6 message-level options
 	 */
-	public void createIA(IdentityAssoc ia);
+	public void createIA(IdentityAssoc ia, Collection<DhcpOption> dhcpOptions);
 	
 	/**
 	 * Update an IdentityAssoc object, including any contained
@@ -74,9 +75,13 @@ public interface IaManager
 	 * @param addAddrs the IaAddresses/IaPrefixes to add to the IdentityAssoc
 	 * @param updateAddrs the IaAddresses/IaPrefixes to update in the IdentityAssoc
 	 * @param delAddrs the IaAddresses/IaPrefixes to delete from the IdentityAssoc
+	 * @param dhcpOptions the v4 options or v6 message-level options
 	 */
-	public void updateIA(IdentityAssoc ia, Collection<? extends IaAddress> addAddrs,
-			Collection<? extends IaAddress> updateAddrs, Collection<? extends IaAddress> delAddrs);
+	public void updateIA(IdentityAssoc ia,
+						 Collection<? extends IaAddress> addAddrs,
+						 Collection<? extends IaAddress> updateAddrs,
+						 Collection<? extends IaAddress> delAddrs,
+						 Collection<DhcpOption> dhcpOptions);
 	
 	/**
 	 * Delete an IdentityAssoc object, and allow the database

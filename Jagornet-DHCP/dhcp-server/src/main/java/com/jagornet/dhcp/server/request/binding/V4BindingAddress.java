@@ -25,6 +25,9 @@
  */
 package com.jagornet.dhcp.server.request.binding;
 
+import java.util.Map;
+
+import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.db.IaAddress;
 
@@ -37,6 +40,11 @@ import com.jagornet.dhcp.server.db.IaAddress;
 public class V4BindingAddress extends IaAddress implements BindingObject
 {
 	private DhcpConfigObject configObj;
+	// the IaAddress superclass has the collection of the options stored 
+	// in the database, but here we have map of configured options which
+	// are filtered by the client requested options, if applicable, and
+	// this map is used when populating the DHCPv4 reply message
+	private Map<Integer, DhcpOption> dhcpOptionMap;
 	
 	/**
 	 * Instantiates a new binding address.
@@ -58,5 +66,13 @@ public class V4BindingAddress extends IaAddress implements BindingObject
 
 	public void setConfigObj(DhcpConfigObject configObj) {
 		this.configObj = configObj;
+	}
+
+	public Map<Integer, DhcpOption> getDhcpOptionMap() {
+		return dhcpOptionMap;
+	}
+
+	public void setDhcpOptionMap(Map<Integer, DhcpOption> dhcpOptionMap) {
+		this.dhcpOptionMap = dhcpOptionMap;
 	}
 }

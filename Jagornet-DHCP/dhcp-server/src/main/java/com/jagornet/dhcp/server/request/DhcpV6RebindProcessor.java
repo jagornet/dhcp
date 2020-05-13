@@ -273,7 +273,8 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 	    if (sendReply) {
             replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
             if (!bindings.isEmpty()) {
-            	populateReplyMsgOptions(clientLink);
+            	// see addBindingToReply
+            	// populateReplyMsgOptions(clientLink);
     			processDdnsUpdates(true);
            }
 	    }

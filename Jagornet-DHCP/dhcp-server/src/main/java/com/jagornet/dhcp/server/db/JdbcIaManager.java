@@ -75,7 +75,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#createIA(com.jagornet.dhcpv6.db.IdentityAssoc)
 	 */
-	public void createIA(IdentityAssoc ia)
+	public void createIA(IdentityAssoc ia, Collection<DhcpOption> dhcpOptions)
 	{
 		if (ia != null) {
 			log.debug("Creating: " + ia.toString());
@@ -108,13 +108,17 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 				}
 			}
 		}
+		//TODO: something with v4 options / v6 message-level options?
 	}
 
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.IaManager#updateIA(com.jagornet.dhcpv6.db.IdentityAssoc, java.util.Collection, java.util.Collection, java.util.Collection)
 	 */
-	public void updateIA(IdentityAssoc ia, Collection<? extends IaAddress> addAddrs,
-			Collection<? extends IaAddress> updateAddrs, Collection<? extends IaAddress> delAddrs)
+	public void updateIA(IdentityAssoc ia,
+						 Collection<? extends IaAddress> addAddrs,
+						 Collection<? extends IaAddress> updateAddrs, 
+						 Collection<? extends IaAddress> delAddrs,
+						 Collection<DhcpOption> dhcpOptions)
 	{
 		iaDao.update(ia);
 		if (addAddrs != null) {
@@ -145,6 +149,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 					iaAddrDao.deleteById(delAddr.getId());
 			}
 		}
+		//TODO: something with v4 options / v6 message-level options?
 	}
 
 	/* (non-Javadoc)

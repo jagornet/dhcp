@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
 
 /**
@@ -55,8 +54,9 @@ public class DhcpLease implements Cloneable
 	protected Date startTime;
 	protected Date preferredEndTime;
 	protected Date validEndTime;
-	protected Collection<DhcpOption> iaDhcpOptions;
-	protected Collection<DhcpOption> iaAddrDhcpOptions;
+	protected Collection<DhcpOption> dhcpOptions;	// v4 options or v6 message level options
+	protected Collection<DhcpOption> iaDhcpOptions;		// v6 IA level options
+	protected Collection<DhcpOption> iaAddrDhcpOptions;	// v6 IA_ADDR level options
 	
 	/**
 	 * Gets the ip address.
@@ -266,6 +266,26 @@ public class DhcpLease implements Cloneable
 
 
 	/**
+	 * Gets the dhcp options.
+	 *
+	 * @return the dhcp options
+	 */
+	public Collection<DhcpOption> getDhcpOptions() {
+		return dhcpOptions;
+	}
+
+
+	/**
+	 * Sets the dhcp options.
+	 *
+	 * @param dhcpOptions the new dhcp options
+	 */
+	public void setDhcpOptions(Collection<DhcpOption> dhcpOptions) {
+		this.dhcpOptions = dhcpOptions;
+	}
+
+	
+	/**
 	 * Gets the ia dhcp options.
 	 *
 	 * @return the ia dhcp options
@@ -443,6 +463,7 @@ public class DhcpLease implements Cloneable
 					(preferredEndTime == null ? "" : Util.GMT_DATEFORMAT.format(preferredEndTime)) +
 				", validEndTime=" +  
 					(validEndTime == null ? "" : Util.GMT_DATEFORMAT.format(validEndTime)) +
+				", dhcpOptions=" + dhcpOptions + 
 				", iaDhcpOptions=" + iaDhcpOptions + 
 				", iaAddrDhcpOptions=" + iaAddrDhcpOptions + "]";
 	}
@@ -461,6 +482,9 @@ public class DhcpLease implements Cloneable
 					(preferredEndTime == null ? "" : preferredEndTime.getTime()) + "', " + 
 				"'validEndTime':'" + 
 					(validEndTime == null ? "" : validEndTime.getTime()) + "', " +
+				"'dhcpOptions':'" + 
+					(dhcpOptions == null ? "" : 
+						 Util.toHexString(LeaseManager.encodeOptions(dhcpOptions))) +	"', " +
 				"'iaDhcpOptions':'" + 
 					(iaDhcpOptions == null ? "" : 
 						 Util.toHexString(LeaseManager.encodeOptions(iaDhcpOptions))) +	"', " +
@@ -508,6 +532,8 @@ public class DhcpLease implements Cloneable
 			if ((time != null) && !time.isEmpty()) {
 				dhcpLease.setValidEndTime(new Date(Long.parseLong(time)));
 			}
+			dhcpLease.setDhcpOptions(
+					LeaseManager.decodeOptions(Util.fromHexString(getJsonAttrValue(json, "dhcpOptions"))));
 			dhcpLease.setIaDhcpOptions(
 					LeaseManager.decodeOptions(Util.fromHexString(getJsonAttrValue(json, "iaDhcpOptions"))));
 			dhcpLease.setIaAddrDhcpOptions(
@@ -545,6 +571,7 @@ public class DhcpLease implements Cloneable
 		clone.setStartTime(this.getStartTime());
 		clone.setPreferredEndTime(this.getPreferredEndTime());
 		clone.setValidEndTime(this.getPreferredEndTime());
+		clone.setDhcpOptions(this.getDhcpOptions());
 		clone.setIaDhcpOptions(this.getIaDhcpOptions());
 		clone.setIaAddrDhcpOptions(this.getIaAddrDhcpOptions());
 		return clone;

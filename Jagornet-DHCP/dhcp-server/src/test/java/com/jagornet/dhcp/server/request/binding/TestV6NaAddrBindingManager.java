@@ -30,6 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Iterator;
 
 import org.junit.After;
@@ -38,8 +39,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.jagornet.dhcp.core.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.OpaqueDataUtil;
 import com.jagornet.dhcp.server.config.xml.OpaqueData;
@@ -119,11 +123,15 @@ public class TestV6NaAddrBindingManager extends BaseTestCase
 		dhcpIaNa.setT2(0);
 		DhcpLink clientLink = config.findLinkForAddress(InetAddress.getByName("2001:DB8:1::a"));
 		assertNotNull(clientLink);
+		// create a mock message - local address is server port, remote address is client port
+		DhcpMessage dhcpMessage = 
+				new DhcpV6Message(new InetSocketAddress(DhcpConstants.V6_SERVER_PORT),
+						new InetSocketAddress(DhcpConstants.V6_CLIENT_PORT));
 		Binding binding = manager.createSolicitBinding(clientLink, clientIdOption, 
-				dhcpIaNa, null, IdentityAssoc.OFFERED);
+				dhcpIaNa, dhcpMessage, IdentityAssoc.OFFERED);
 		assertNotNull(binding);
 		Binding binding2 = manager.findCurrentBinding(clientLink, clientIdOption, 
-				dhcpIaNa, null);
+				dhcpIaNa, dhcpMessage);
 		assertNotNull(binding2);
 		assertEquals(binding.getDuid().length, binding2.getDuid().length);
 		for (int i=0; i<binding.getDuid().length; i++) {

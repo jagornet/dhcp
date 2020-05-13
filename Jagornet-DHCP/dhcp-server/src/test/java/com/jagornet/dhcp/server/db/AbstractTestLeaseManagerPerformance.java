@@ -52,7 +52,7 @@ public abstract class AbstractTestLeaseManagerPerformance extends BaseTestCase {
 	public static Duration createIAs() throws Exception {
 		Instant t1 = Instant.now();
 		for (DhcpLease dhcpLease : mockLeases) {
-			leaseManager.createIA(LeaseManager.toIdentityAssoc(dhcpLease));
+			leaseManager.createIA(LeaseManager.toIdentityAssoc(dhcpLease), null);
 		}
 		Instant t2 = Instant.now();
 		return Duration.between(t1, t2);
@@ -68,7 +68,7 @@ public abstract class AbstractTestLeaseManagerPerformance extends BaseTestCase {
 		Instant t2 = Instant.now();
 		assertNotNull(found);
 		log.info("Found IA: " + found);
-		List<DhcpLease> leases = LeaseManager.toDhcpLeases(found);
+		List<DhcpLease> leases = LeaseManager.toDhcpLeases(found, null);
 		assertEquals(1, leases.size());
 		assertEquals(dhcpLease, leases.get(0));
 		return Duration.between(t1, t2);
@@ -85,7 +85,7 @@ public abstract class AbstractTestLeaseManagerPerformance extends BaseTestCase {
 													  dhcpLease.getIaid());
 			Instant t2 = Instant.now();
 			assertNotNull(found);
-			List<DhcpLease> leases = LeaseManager.toDhcpLeases(found);
+			List<DhcpLease> leases = LeaseManager.toDhcpLeases(found, null);
 			assertEquals(1, leases.size());
 			assertEquals(dhcpLease, leases.get(0));
 			Duration duration = Duration.between(t1, t2);
@@ -107,7 +107,7 @@ public abstract class AbstractTestLeaseManagerPerformance extends BaseTestCase {
 		IdentityAssoc ia = LeaseManager.toIdentityAssoc(dhcpLease);
 		IaAddress iaAddr = LeaseManager.toIaAddress(dhcpLease);
 		Instant t1 = Instant.now();
-		leaseManager.updateIA(ia, null, Arrays.asList(iaAddr), null);
+		leaseManager.updateIA(ia, null, Arrays.asList(iaAddr), null, null);
 		Instant t2 = Instant.now();
 		log.debug("Replacing: " + origDhcpLease +
 				" with: " + dhcpLease);
@@ -130,7 +130,7 @@ public abstract class AbstractTestLeaseManagerPerformance extends BaseTestCase {
 			IdentityAssoc ia = LeaseManager.toIdentityAssoc(dhcpLease);
 			IaAddress iaAddr = LeaseManager.toIaAddress(dhcpLease);
 			Instant t1 = Instant.now();
-			leaseManager.updateIA(ia, null, Arrays.asList(iaAddr), null);
+			leaseManager.updateIA(ia, null, Arrays.asList(iaAddr), null, null);
 			Instant t2 = Instant.now();
 			Duration duration = Duration.between(t1, t2);
 			totalDuration = totalDuration.plus(duration);

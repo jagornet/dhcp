@@ -31,12 +31,15 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
+import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4LeaseTimeOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
@@ -314,7 +317,7 @@ public class V4AddrBindingManagerImpl
 	}
 
 	/**
-	 * Create a Binding given an IdentityAssoc loaded from the database.
+	 * Build a Binding from an IdentityAssoc loaded from the database.
 	 * 
 	 * @param ia the ia
 	 * @param clientLink the client link
@@ -345,7 +348,7 @@ public class V4AddrBindingManagerImpl
         		}
         		else {
         			bindingAddr =
-        				buildV4BindingAddressFromIaAddr(iaAddr, clientLink.getLink(), requestMsg);
+        				buildV4BindingAddressFromIaAddr(iaAddr, clientLink, requestMsg);
         		}
 				if (bindingAddr != null)
 					bindingAddrs.add(bindingAddr);
@@ -360,7 +363,7 @@ public class V4AddrBindingManagerImpl
 	}
 
 	/**
-	 * Create a V4BindingAddress given an IaAddress loaded from the database.
+	 * Build a V4BindingAddress from an IaAddress loaded from the database.
 	 * 
 	 * @param iaAddr the ia addr
 	 * @param clientLink the client link
@@ -369,14 +372,18 @@ public class V4AddrBindingManagerImpl
 	 * @return the binding address
 	 */
 	private V4BindingAddress buildV4BindingAddressFromIaAddr(IaAddress iaAddr, 
-			Link clientLink, DhcpMessage requestMsg)
+			DhcpLink clientLink, DhcpMessage requestMsg)
 	{
 		InetAddress inetAddr = iaAddr.getIpAddress();
-		BindingPool bp = findBindingPool(clientLink, inetAddr, requestMsg);
+		V4AddressBindingPool bp = (V4AddressBindingPool)
+				findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
-			// TODO store the configured options in the persisted binding?
-			// ipAddr.setDhcpOptions(bp.getDhcpOptions());
-			return new V4BindingAddress(iaAddr, (V4AddressBindingPool)bp);
+			// binding loaded from DB will contain the stored options
+	    	V4BindingAddress bindingAddr = new V4BindingAddress(iaAddr, (V4AddressBindingPool)bp);
+	    	// TODO: setBindingObjectTimes?  see buildBindingObject
+			// update the options with whatever may now be configured
+	    	setDhcpOptions(bindingAddr, clientLink, (DhcpV4Message)requestMsg, bp);
+	    	return bindingAddr;
 		}
 		else {
 			log.error("Failed to create V4BindingAddress: No V4BindingPool found for IP=" + 
@@ -390,15 +397,26 @@ public class V4AddrBindingManagerImpl
 			StaticBinding staticBinding)
 	{
 		V4BindingAddress bindingAddr = new V4BindingAddress(iaAddr, staticBinding);
+		//TODO: setDhcpOptions?
 		return bindingAddr;
 	}
-
+	
+	/**
+	 * Create a new V4BindingAddress type BindingObject
+	 * for the given InetAddress and DhcpLink.
+	 * 
+	 * @param inetAddr the inet addr
+	 * @param clientLink the client link
+	 * @param requestMsg the request msg
+	 * 
+	 * @return the binding address
+	 */
 	@Override
-	protected BindingObject buildBindingObject(InetAddress inetAddr,
+	protected BindingObject createBindingObject(InetAddress inetAddr,
 			DhcpLink clientLink, DhcpMessage requestMsg)
 	{
-		V4AddressBindingPool bp = 
-			(V4AddressBindingPool) findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
+		V4AddressBindingPool bp = (V4AddressBindingPool)
+				findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			bp.setUsed(inetAddr);	// TODO check if this is necessary
 			IaAddress iaAddr = new IaAddress();
@@ -406,9 +424,8 @@ public class V4AddrBindingManagerImpl
 			V4BindingAddress bindingAddr = new V4BindingAddress(iaAddr, bp);
 			setBindingObjectTimes(bindingAddr, 
 					bp.getPreferredLifetimeMs(), bp.getPreferredLifetimeMs());
-			// TODO store the configured options in the persisted binding?
-			// bindingAddr.setDhcpOptions(bp.getDhcpOptions());
-			return bindingAddr;
+			setDhcpOptions(bindingAddr, clientLink, (DhcpV4Message)requestMsg, bp);
+	    	return bindingAddr;
 		}
 		else {
 			log.error("Failed to create V4BindingAddress: No V4BindingPool found for IP=" + 
@@ -418,6 +435,51 @@ public class V4AddrBindingManagerImpl
 		return null;
 	}
 
+	/**
+	 * Set the map of options to be returned to the client
+	 * 
+	 * @param bindingAddr
+	 * @param clientLink
+	 * @param requestMsg
+	 * @param bp
+	 */
+	protected void setDhcpOptions(V4BindingAddress bindingAddr, DhcpLink clientLink,
+			DhcpV4Message requestMsg, V4AddressBindingPool bp) {
+		// set the options to be returned to the client
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> effectiveDhcpOptionMap =
+				buildDhcpOptions(clientLink, requestMsg, bp);
+		bindingAddr.setDhcpOptionMap(effectiveDhcpOptionMap);
+	}
+
+	/**
+	 * Build the map of DHCP options to be returned to the client, which consists
+	 * of the configured options, filtered by any requested options, if applicable
+	 * 
+	 * @param clientLink
+	 * @param requestMsg
+	 * @param bp
+	 * @return
+	 */
+	protected Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> buildDhcpOptions(
+			DhcpLink clientLink, DhcpV4Message requestMsg, V4AddressBindingPool bp) {
+		
+		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
+				serverConfig.effectiveV4AddrOptions(requestMsg, clientLink, bp);
+		
+    	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
+    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    		log.debug("buildDhcpOptions: configured to include only requested options");
+    		configOptionMap = requestedOptions(configOptionMap, requestMsg);
+    	}
+		
+    	// may as well just set the DHCPv4 lease time option here as well
+		long preferred = bp.getPreferredLifetime();
+		DhcpV4LeaseTimeOption dhcpV4LeaseTimeOption = new DhcpV4LeaseTimeOption();
+		dhcpV4LeaseTimeOption.setUnsignedInt(preferred);
+		configOptionMap.put(dhcpV4LeaseTimeOption.getCode(), dhcpV4LeaseTimeOption);
+		return configOptionMap;
+	}
+	
 	@Override
 	protected void ddnsDelete(IdentityAssoc ia, IaAddress iaAddr) {
     	DhcpV4ClientFqdnOption clientFqdnOption = null;
@@ -448,7 +510,7 @@ public class V4AddrBindingManagerImpl
 			        		}
 			        		else {
 			        			bindingAddr =
-			        				buildV4BindingAddressFromIaAddr(iaAddr, link.getLink(), null);	// safe to send null requestMsg
+			        				buildV4BindingAddressFromIaAddr(iaAddr, link, null);	// safe to send null requestMsg
 			        		}
 			        		if (bindingAddr != null) {
 			        			

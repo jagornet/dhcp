@@ -125,7 +125,7 @@
 			<xs:element name="v4NetbiosNodeTypeOption" type="v4NetbiosNodeTypeOption" minOccurs="0"/>
 			<xs:element name="v4TftpServerNameOption" type="v4TftpServerNameOption" minOccurs="0"/>
 			<xs:element name="v4BootFileNameOption" type="v4BootFileNameOption" minOccurs="0"/>
-			<xs:element name="otherOptions" type="genericOptionsType" minOccurs="0"/>
+			<xs:element name="v4OtherOptions" type="genericOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -293,6 +293,8 @@
 		<xs:sequence>
 			<xs:element name="range" type="range"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+			<xs:element name="msgConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
+			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
@@ -309,6 +311,8 @@
 			<xs:element name="range" type="range"/>
 			<xs:element name="prefixLength" type="length"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+			<xs:element name="msgConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
+			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="prefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
@@ -326,6 +330,8 @@
 			<xs:element name="duid" type="opaqueData"/>
 			<xs:element name="iaid" type="iaId" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+			<xs:element name="msgConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
+			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -343,6 +349,8 @@
 			<xs:element name="duid" type="opaqueData"/>
 			<xs:element name="iaid" type="iaId" minOccurs="0"/>
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
+			<xs:element name="msgConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
+			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="prefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -812,7 +820,8 @@
 			<xs:element name="iaId" type="iaId"/>
 			<xs:element name="t1" type="xs:unsignedInt"/>
 			<xs:element name="t2" type="xs:unsignedInt"/>
-			<xs:element name="configOptions" type="v6ConfigOptionsType"/>
+			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType"/>
+			<xs:element name="prefixConfigOptions" type="v6ConfigOptionsType"/>
 			<xs:element name="iaPrefixOptionList" type="v6IaPrefixOptionListType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="25"/>
@@ -824,7 +833,7 @@
 			<xs:element name="ipv6Prefix" type="ipAddress"/>
 			<xs:element name="preferredLifetime" type="xs:unsignedInt"/>
 			<xs:element name="validLifetime" type="xs:unsignedInt"/>
-			<xs:element name="configOptions" type="v6ConfigOptionsType"/>
+			<xs:element name="prefixConfigOptions" type="v6ConfigOptionsType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="26"/>
 	</xs:complexType>

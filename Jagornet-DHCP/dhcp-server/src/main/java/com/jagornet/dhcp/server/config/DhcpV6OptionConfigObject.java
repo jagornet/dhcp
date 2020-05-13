@@ -27,5 +27,7 @@ package com.jagornet.dhcp.server.config;
 
 public interface DhcpV6OptionConfigObject extends DhcpConfigObject 
 {
-	public DhcpV6ConfigOptions getDhcpConfigOptions();
+	public DhcpV6ConfigOptions getMsgConfigOptions();
+	public DhcpV6ConfigOptions getIaConfigOptions();
+	public DhcpV6ConfigOptions getAddrConfigOptions();
 }
