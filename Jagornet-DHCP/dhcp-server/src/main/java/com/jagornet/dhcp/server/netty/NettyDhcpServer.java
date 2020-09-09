@@ -109,7 +109,7 @@ public class NettyDhcpServer
     
     /** The executor service thread pool for processing requests. */
     //protected ExecutorService executorService = Executors.newCachedThreadPool();
-    protected EventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(16);
+    protected EventExecutorGroup eventExecutorGroup = null;
     
     /**
      * Create a NettyDhcpServer.
@@ -146,10 +146,6 @@ public class NettyDhcpServer
         			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_SELF_PACKETS);
         	final int corePoolSize = 
         			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_THREADPOOL_SIZE);
-        	final int maxChannelMemorySize = 
-        			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_MAX_CHANNEL_MEMORY);
-        	final int maxTotalMemorySize = 
-        			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_MAX_TOTAL_MEMORY);
         	final int receiveBufSize = 
         			DhcpServerPolicies.globalPolicyAsInt(Property.CHANNEL_READ_BUFFER_SIZE);
         	final int sendBufSize = 
@@ -157,10 +153,10 @@ public class NettyDhcpServer
         	
         	log.info("Initializing channels:" + 
         			" corePoolSize=" + corePoolSize +
-        			" maxChannelMemorySize=" + maxChannelMemorySize +
-        			" maxTotalMemorySize=" + maxTotalMemorySize + 
         			" receiveBufferSize=" + receiveBufSize +
         			" sendBufferSize=" + sendBufSize);
+        	
+        	eventExecutorGroup = new DefaultEventExecutorGroup(corePoolSize);
         	
         	boolean v4SocketChecked = false;
     		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();

@@ -136,8 +136,10 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
      */
     protected void populateV4Reply(DhcpLink dhcpLink, V4BindingAddress bindingAddr)
     {
-    	DhcpV4OptionConfigObject configObj = 
-    			(DhcpV4OptionConfigObject) bindingAddr.getConfigObj();
+    	DhcpV4OptionConfigObject configObj = null;
+    	if (bindingAddr != null) {
+    		configObj = (DhcpV4OptionConfigObject) bindingAddr.getConfigObj();
+    	}
     	
     	String sname = DhcpServerPolicies.effectivePolicy(requestMsg, configObj, 
     			dhcpLink.getLink(), Property.V4_HEADER_SNAME);
@@ -151,12 +153,25 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     		replyMsg.setFile(filename);
     	}
     	
-		// we have already determined the options to be returned
-		// to the client when the binding was created/built, so
-		// we just need to stuff them into the reply message now
-    	// note that we need to put atop of the existing options
-    	// which will consist of the ServerId option for DHCPv4
-    	replyMsg.putAllDhcpOptions(bindingAddr.getDhcpOptionMap());
+    	if (bindingAddr != null) {
+			// we have already determined the options to be returned
+			// to the client when the binding was created/built, so
+			// we just need to stuff them into the reply message now
+	    	// note that we need to put atop of the existing options
+	    	// which will consist of the ServerId option for DHCPv4
+	    	replyMsg.putAllDhcpOptions(bindingAddr.getDhcpOptionMap());
+    	}
+    	else {
+    		// if no binding, then should be an Inform request, 
+    		// therefore, populate options from link configuration
+        	Map<Integer, DhcpOption> optionMap = 
+            		dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink, configObj);
+        	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
+        			dhcpLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
+        		optionMap = requestedOptions(optionMap, requestMsg);
+        	}
+        	replyMsg.putAllDhcpOptions(optionMap);    		
+    	}
     	
     	// copy the relay agent info option from request to reply 
     	// in order to echo option back to router as required

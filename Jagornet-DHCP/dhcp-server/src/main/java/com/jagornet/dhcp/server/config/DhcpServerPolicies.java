@@ -39,6 +39,7 @@ import com.jagornet.dhcp.server.config.xml.LinkFilter;
 import com.jagornet.dhcp.server.config.xml.LinkFiltersType;
 import com.jagornet.dhcp.server.config.xml.PoliciesType;
 import com.jagornet.dhcp.server.config.xml.Policy;
+import com.jagornet.dhcp.server.rest.JerseyRestServer;
 
 /**
  * The Class DhcpServerPolicies.
@@ -58,17 +59,7 @@ public class DhcpServerPolicies
 	 * The Property enum.
 	 */
 	public enum Property {
-		CHANNEL_THREADPOOL_SIZE("channel.threadPoolSize", "16"),
-		CHANNEL_MAX_CHANNEL_MEMORY("channel.maxChannelMemory", "1048576"),	// 1024 x 1024
-		CHANNEL_MAX_TOTAL_MEMORY("channel.maxTotalMemory", "1048576"),		// 1024 x 1024
-		CHANNEL_READ_BUFFER_SIZE("channel.readBufferSize", "307200"),		// 300 bytes x 1K clients
-		CHANNEL_WRITE_BUFFER_SIZE("channel.writeBufferSize", "307200"),		// 300 bytes x 1K clients
-		DATABASE_SCHEMA_TYTPE("database.schemaType", "jdbc-h2"),	// h2 performs best
-		DATABASE_SCHEMA_VERSION("database.schemaVersion", "2"),
-		DHCP_PROCESSOR_RECENT_MESSAGE_TIMER("dhcp.processor.recentMessageTimer", "5000"),
-		DHCP_IGNORE_LOOPBACK("dhcp.ignoreLoopback", "true"),
-		DHCP_IGNORE_LINKLOCAL("dhcp.ignoreLinkLocal", "true"),
-		DHCP_IGNORE_SELF_PACKETS("dhcp.ignoreSelfPackets", "true"),
+		
 		BINDING_MANAGER_REAPER_STARTUP_DELAY("binding.manager.reaper.startupDelay", "10000"),
 		BINDING_MANAGER_REAPER_RUN_PERIOD("binding.manager.reaper.runPeriod", "60000"),
 		BINDING_MANAGER_OFFER_EXPIRATION("binding.manager.offerExpiration", "120000"),
@@ -77,15 +68,14 @@ public class DhcpServerPolicies
 		BINDING_MANAGER_IA_CACHE_SIZE("binding.manager.iaCacheSize", "0"),
 		// caching is buggy and not really faster, so turn it off for now
 		BINDING_MANAGER_LEASE_CACHE_SIZE("binding.manager.leaseCacheSize", "0"),
-		SEND_REQUESTED_OPTIONS_ONLY("sendRequestedOptionsOnly", "false"),
-		SUPPORT_RAPID_COMMIT("supportRapidCommit", "false"),
-		VERIFY_UNKNOWN_REBIND("verifyUnknownRebind", "false"),
-		PREFERRED_LIFETIME("preferredLifetime", "3600"),
-		VALID_LIFETIME("validLifetime", "3600"),
-		IA_NA_T1("iaNaT1", "0.5"),
-		IA_NA_T2("iaNaT2", "0.8"),
-		IA_PD_T1("iaPdT1", "0.5"),
-		IA_PD_T2("iaPdT2", "0.8"),
+
+		CHANNEL_THREADPOOL_SIZE("channel.threadPoolSize", "16"),
+		CHANNEL_READ_BUFFER_SIZE("channel.readBufferSize", "307200"),		// 300 bytes x 1K clients
+		CHANNEL_WRITE_BUFFER_SIZE("channel.writeBufferSize", "307200"),		// 300 bytes x 1K clients
+		
+		DATABASE_SCHEMA_TYTPE("database.schemaType", "jdbc-h2"),	// h2 performs best
+		DATABASE_SCHEMA_VERSION("database.schemaVersion", "2"),
+		
 		DDNS_UPDATE("ddns.update", "none"),	// acceptable values: none, server, client, etc...
 		DDNS_SYNCHRONIZE("ddns.synchronize", "false"),
 		DDNS_DOMAIN("ddns.domain", ""),
@@ -107,19 +97,29 @@ public class DhcpServerPolicies
 		DDNS_REVERSE_ZONE_TSIG_KEYNAME("ddns.reverse.zone.tsig.keyName", ""),
 		DDNS_REVERSE_ZONE_TSIG_ALGORITHM("ddns.reverse.zone.tsig.algorithm", ""),
 		DDNS_REVERSE_ZONE_TSIG_KEYDATA("ddns.reverse.zone.tsig.keyData", ""),
+		
+		DHCP_PROCESSOR_RECENT_MESSAGE_TIMER("dhcp.processor.recentMessageTimer", "5000"),
+		DHCP_IGNORE_LOOPBACK("dhcp.ignoreLoopback", "true"),
+		DHCP_IGNORE_LINKLOCAL("dhcp.ignoreLinkLocal", "true"),
+		DHCP_IGNORE_SELF_PACKETS("dhcp.ignoreSelfPackets", "true"),
+		
+		DHCP_SEND_REQUESTED_OPTIONS_ONLY("dhcp.sendRequestedOptionsOnly", "false"),
+		DHCP_SUPPORT_RAPID_COMMIT("dhcp.supportRapidCommit", "false"),
+		
 		V4_HEADER_SNAME("v4.header.sname", ""),
 		V4_HEADER_FILENAME("v4.header.filename", ""),
 		V4_IGNORED_MACS("v4.ignoredMacAddrs", "000000000000, FFFFFFFFFFFF"),
 		V4_DEFAULT_LEASETIME("v4.defaultLeasetime", "3600"),
 		V4_PINGCHECK_TIMEOUT("v4.pingCheckTimeout", "0"),
-		FAILOVER_ROLE("failover.role", ""),
-		FAILOVER_PEER_SERVER("failover.peerServer", ""),
-		FAILOVER_PEER_PORT("failover.peerPort", "647"),
-		FAILOVER_POLL_SECONDS("failover.pollSeconds", "30"),
-		FAILOVER_POLL_REPLY_TIMEOUT("failover.pollReplyTimeout", "5"),
-		FAILOVER_POLL_REPLY_FAILURE_COUNT("failover.pollReplyFailureCount", "5"),
-		FAILOVER_CONTROL_RETURN_TIMEOUT("failover.controlReturnTimeout", "2"),
-		FAILOVER_CONTROL_RETURN_FAILURE_COUNT("failover.controlReturnFailureCount", "1"),
+
+		V6_IA_NA_T1("v6.iaNaT1", "0.5"),
+		V6_IA_NA_T2("v6.iaNaT2", "0.8"),
+		V6_IA_PD_T1("v6.iaPdT1", "0.5"),
+		V6_IA_PD_T2("v6.iaPdT2", "0.8"),
+		V6_PREFERRED_LIFETIME("v6.preferredLifetime", "3600"),
+		V6_VALID_LIFETIME("v6.validLifetime", "3600"),
+		V6_VERIFY_UNKNOWN_REBIND("v6.verifyUnknownRebind", "false"),
+		
 		HA_ROLE("ha.role", ""),
 		HA_USERNAME("ha.username", "hapeer"),
 		HA_PASSWORD("ha.password", "jagornet"),
@@ -129,13 +129,12 @@ public class DhcpServerPolicies
 		HA_DATABASE_MAX_STORED_STATES("ha.maxStoredStates", "10"),
 		HA_BINDING_UPDATE_MODE("ha.bindingUpdateMode", "sync"),	// sync, async, database
 		HA_PEER_SERVER("ha.peerServer", ""),
-		HA_PEER_PORT("ha.peerPort", "9060"),
+		HA_PEER_PORT("ha.peerPort", String.valueOf(JerseyRestServer.HTTPS_SERVER_PORT)),
 		HA_POLL_SECONDS("ha.pollSeconds", "30"),
 		HA_POLL_REPLY_TIMEOUT("ha.pollReplyTimeout", "1000"),	// milliseconds
 		HA_POLL_REPLY_FAILURE_COUNT("ha.pollReplyFailureCount", "5"),
-		HA_CONTROL_RETURN_TIMEOUT("ha.controlReturnTimeout", "2"),
-		HA_CONTROL_RETURN_FAILURE_COUNT("ha.controlReturnFailureCount", "1"),
 		HA_CONTROL_REQUEST_ALL_LEASES_ON_RESTART("ha.requestAllLeasesOnRestart", "true"),
+		
 		REST_API_USERNAME("rest.api.username", "jagornet"),
 		REST_API_PASSWORD("rest.api.password", "jagornet"),
 		;

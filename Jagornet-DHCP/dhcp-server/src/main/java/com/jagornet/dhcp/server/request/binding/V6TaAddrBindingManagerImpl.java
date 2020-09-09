@@ -172,7 +172,7 @@ public class V6TaAddrBindingManagerImpl
 				serverConfig.effectiveMsgOptions((DhcpV6Message)requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		log.debug("buildDhcpOptions: configured to include only requested options");
     		configOptionMap = requestedOptions(configOptionMap, requestMsg);
     	}
@@ -187,7 +187,7 @@ public class V6TaAddrBindingManagerImpl
 				serverConfig.effectiveIaTaOptions((DhcpV6Message)requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		log.debug("buildDhcpOptions: configured to include only requested options");
     		configOptionMap = requestedOptions(configOptionMap, requestMsg);
     	}
@@ -202,7 +202,7 @@ public class V6TaAddrBindingManagerImpl
 				serverConfig.effectiveTaAddrOptions((DhcpV6Message)requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		log.debug("buildDhcpOptions: configured to include only requested options");
     		configOptionMap = requestedOptions(configOptionMap, requestMsg);
     	}

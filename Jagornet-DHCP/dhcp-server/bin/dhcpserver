@@ -61,7 +61,9 @@ if [ -z "$JAGORNET_DHCP_HOME" ] ; then
 fi
 
 # Add the config directory to the beginning of the CLASSPATH
-# so that the server can find the log4j.properties file
+# so that the server can find the log4j.properties file and
+# to allow this directory to be used in case of the need to
+# override resources that are packaged in the server jar file
 JAGORNET_DHCP_CLASSPATH="$JAGORNET_DHCP_HOME/config"
 
 # Add all .jar files in JAGORNET_DHCP_HOME/lib/ to the CLASSPATH

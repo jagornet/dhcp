@@ -42,10 +42,8 @@ public class DhcpLeasesResource {
 	public static final String PATHPARAM_IPADDRESS = "ipaddress";
 	public static final String IPADDRESS = "/{" + PATHPARAM_IPADDRESS + "}";
 	public static final String IPSTREAM = "/ipstream";
-	public static final String DHCPLEASESSTREAM = "/dhcpleases";
-	public static final String JSONLEASES = "/jsonleases";
+	public static final String DHCPLEASESSTREAM = "/dhcpleasestream";
 	public static final String JSONLEASESTREAM = "/jsonleasestream";
-	public static final String GSONLEASES = "/gsonleases";
 	public static final String GSONLEASESTREAM = "/gsonleasestream";
 
 	public static final String QUERYPARAM_START = "start";

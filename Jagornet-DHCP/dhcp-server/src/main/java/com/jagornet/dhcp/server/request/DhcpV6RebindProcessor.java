@@ -164,7 +164,7 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 					}
 					else {
 						if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-								clientLink.getLink(), Property.VERIFY_UNKNOWN_REBIND)) {
+								clientLink.getLink(), Property.V6_VERIFY_UNKNOWN_REBIND)) {
 							// zero out the lifetimes of any invalid addresses
 							allIaAddrsOnLink(dhcpIaNaOption, clientLink);
 							replyMsg.addIaNaOption(dhcpIaNaOption);
@@ -207,7 +207,7 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 					}
 					else {
 						if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-								clientLink.getLink(), Property.VERIFY_UNKNOWN_REBIND)) {
+								clientLink.getLink(), Property.V6_VERIFY_UNKNOWN_REBIND)) {
 							// zero out the lifetimes of any invalid addresses
 							allIaAddrsOnLink(dhcpIaTaOption, clientLink);
 							replyMsg.addIaTaOption(dhcpIaTaOption);
@@ -250,7 +250,7 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 					}
 					else {
 						if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-								clientLink.getLink(), Property.VERIFY_UNKNOWN_REBIND)) {
+								clientLink.getLink(), Property.V6_VERIFY_UNKNOWN_REBIND)) {
 							// zero out the lifetimes of any invalid addresses
 							allIaPrefixesOnLink(dhcpIaPdOption, clientLink);
 							replyMsg.addIaPdOption(dhcpIaPdOption);
@@ -266,7 +266,7 @@ public class DhcpV6RebindProcessor extends BaseDhcpV6Processor
 
 	    if (bindings.isEmpty() && 
 	    		!DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-	    				clientLink.getLink(), Property.VERIFY_UNKNOWN_REBIND)) {
+	    				clientLink.getLink(), Property.V6_VERIFY_UNKNOWN_REBIND)) {
 			sendReply = false;
 		}
 

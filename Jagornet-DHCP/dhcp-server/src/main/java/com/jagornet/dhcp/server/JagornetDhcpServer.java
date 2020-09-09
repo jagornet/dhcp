@@ -111,6 +111,9 @@ public class JagornetDhcpServer
     /** The application context filename. */
     public static String APP_CONTEXT_FILENAME = "context.xml";
     
+    public static String ALL = "all";
+    public static String NONE = "none";
+    
     /** DHCPv6 Multicast interfaces */
     protected List<NetworkInterface> v6McastNetIfs = null;
     /** DHCPv6 Unicast addresses */
@@ -125,9 +128,9 @@ public class JagornetDhcpServer
     /** DHCPv4 Server port number */
     protected int v4PortNumber = DhcpConstants.V4_SERVER_PORT;
     
-    /** HA Unicast addresses */
-    protected List<InetAddress> haAddrs = null;
-    protected int haPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
+    /** HTTPS Unicast address */
+    protected InetAddress httpsAddr = null;
+    protected int httpsPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
     
     protected DhcpServerConfiguration serverConfig = null;
     protected ApplicationContext context = null;
@@ -222,14 +225,17 @@ public class JagornetDhcpServer
 
         String msg = null;
         
-        // by default, all non-loopback, non-linklocal,
-        // IPv4 addresses are selected for unicast
-        if (v4UcastAddrs == null) {
-        	v4UcastAddrs = getFilteredIPv4Addrs();
+        if (v4UcastAddrs != null) {
+        	v4UcastAddrs = getFilteredIPv4Addrs(v4UcastAddrs);
+	        msg = "DHCPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
+	        System.out.println(msg);
+	        log.info(msg);
         }
-        msg = "DHCPv4 Unicast addresses: " + Arrays.toString(v4UcastAddrs.toArray());
-        System.out.println(msg);
-        log.info(msg);
+        else {
+        	msg = "DHCPv4 Unicast addresses: none";
+        	System.out.println(msg);
+        	log.info(msg);
+        }
         
         if (v4BcastNetIf != null) {
         	msg = "DHCPv4 Broadcast Interface: " + v4BcastNetIf.getName();
@@ -242,22 +248,24 @@ public class JagornetDhcpServer
         	log.info(msg);
         }
         
-        msg = "DHCPv4 Port number: " + v4PortNumber;
-        System.out.println(msg);
-        log.info(msg);
-        
-        // by default, all non-loopback, non-linklocal,
-        // IPv6 addresses are selected for unicast
-        if (v6UcastAddrs == null) {
-        	v6UcastAddrs = getFilteredIPv6Addrs();
+        if ((v4UcastAddrs != null) || (v4BcastNetIf != null)) {
+	        msg = "DHCPv4 Port number: " + v4PortNumber;
+	        System.out.println(msg);
+	        log.info(msg);
         }
-        msg = "DHCPv6 Unicast addresses: " + Arrays.toString(v6UcastAddrs.toArray());
-        System.out.println(msg);
-        log.info(msg);
         
-        // for now, the mcast interfaces MUST be listed at
-        // startup to get the mcast behavior at all... but
-        // we COULD default to use all IPv6 interfaces 
+        if (v6UcastAddrs != null) {
+        	v6UcastAddrs = getFilteredIPv6Addrs(v6UcastAddrs);
+            msg = "DHCPv6 Unicast addresses: " + Arrays.toString(v6UcastAddrs.toArray());
+            System.out.println(msg);
+            log.info(msg);
+        }
+        else {
+        	msg = "DHCPv6 Unicast addresses: none";
+        	System.out.println(msg);
+        	log.info(msg);
+        }
+        
         if (v6McastNetIfs != null) {
 //        	msg = "DHCPv6 Multicast interfaces: " + Arrays.toString(mcastNetIfs.toArray());
         	StringBuilder sb = new StringBuilder();
@@ -278,9 +286,11 @@ public class JagornetDhcpServer
         	log.info(msg);
         }
         
-        msg = "DHCPv6 Port number: " + v6PortNumber;
-        System.out.println(msg);
-        log.info(msg);
+        if ((v6UcastAddrs != null) || (v6McastNetIfs != null)) {
+	        msg = "DHCPv6 Port number: " + v6PortNumber;
+	        System.out.println(msg);
+	        log.info(msg);
+        }
         
     	NettyDhcpServer nettyServer = new NettyDhcpServer(
     			v4UcastAddrs, v4BcastNetIf, v4PortNumber,
@@ -288,22 +298,30 @@ public class JagornetDhcpServer
     	
     	nettyServer.start();
     	    	
-    	if (serverConfig.isHA()) {
+    	if (httpsAddr != null) {
 	    	//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
-	    	Channel jerseyHttpServer = JerseyRestServer.startNettyServer(haPortNumber);
+	    	Channel jerseyHttpServer = 
+	    			JerseyRestServer.startNettyServer(httpsAddr, httpsPortNumber);
 	    	if (jerseyHttpServer == null) {
-	    		log.error("Failed to create Jersey JAX-RS Netty HTTP Server");
+	    		log.error("Failed to create Jersey JAX-RS Netty HTTPS Server");
 	    	}
 	    	else if (!jerseyHttpServer.isActive()) {
-	    		log.warn("Jersey JAX-RS Netty HTTP Server is not active");
+	    		log.warn("Jersey JAX-RS Netty HTTPS Server is not active");
 	    	}
 	    	if (serverConfig.getHaPrimaryFSM() != null) {
 	    		serverConfig.getHaPrimaryFSM().init();
+		    	log.info("HA Primary DHCP server startup with HTTPS complete");
+	    	}
+	    	else if (serverConfig.getHaBackupFSM() != null) {
+	    		serverConfig.getHaBackupFSM().init();
+		    	log.info("HA Backup DHCP server startup with HTTPS complete");
 	    	}
 	    	else {
-	    		serverConfig.getHaBackupFSM().init();
+	    		log.info("Standalone server startup with HTTPS complete");
 	    	}
-	    	log.info("HA server startup complete");
+    	}
+    	else if (serverConfig.isHA()) {
+    		throw new DhcpServerConfigException("HTTPS is required for HA configuration");
     	}
     	else {
     		log.info("Standalone server startup complete");
@@ -442,11 +460,11 @@ public class JagornetDhcpServer
         Option v4BcastOption = 
         	OptionBuilder.withLongOpt("v4bcast")
         	.withArgName("interface")
-        	.withDescription("DHCPv4 broadcast support (default = none). " +
+        	.withDescription("DHCPv4 broadcast interface (default = none). " +
         			"Use this option to specify the interface for the server to " +
-        			"receive and send broadcast DHCPv4 packets. Only one interface " +
+        			"receive and send broadcast DHCPv4 packets. " + /* Only one interface " +
         			"may be specified. All other interfaces on the host will only " +
-        			"receive and send unicast traffic.  The default IPv4 address on " +
+        			"receive and send unicast traffic. */ "The default IPv4 address on " +
         			"the specified interface will be used for determining the " +
         			"DHCPv4 client link within the server configuration file.")
         	.hasArg()
@@ -476,7 +494,7 @@ public class JagornetDhcpServer
         Option mcastOption =
         	OptionBuilder.withLongOpt("v6mcast")
         	.withArgName("interfaces")
-        	.withDescription("DHCPv6 Multicast support (default = none). " +
+        	.withDescription("DHCPv6 Multicast interfaces (default = none). " +
         			"Use this option without arguments to instruct the server to bind to all " +
         			"multicast-enabled IPv6 interfaces on the host. Optionally, use arguments " +
         			"to list specific interfaces, separated by spaces.")
@@ -504,41 +522,25 @@ public class JagornetDhcpServer
         	.create("6p");
         options.addOption(portOption);
 
-        Option fAddrOption =
-        	OptionBuilder.withLongOpt("faddr")
-        	.withArgName("addresses")
-        	.withDescription("Failover addresses (default = all IPv4/IPv6 addresses). " +
-        			"Use this option to instruct the server to bind to a specific list " +
-        			"of IP addresses for DHCP server failover communications.")
-        	.hasOptionalArgs()
-        	.create("fa");        				 
-        options.addOption(fAddrOption);
-        
-        Option fPortOption =
-        	OptionBuilder.withLongOpt("fport")
-        	.withArgName("portnum")
-        	.withDescription("DHCP Failover Port number (default = 647).")
-        	.hasArg()
-        	.create("fp");
-        options.addOption(fPortOption);
-
-        Option haAddrOption =
-        	OptionBuilder.withLongOpt("haaddr")
-        	.withArgName("addresses")
-        	.withDescription("HA addresses (default = all IPv4/IPv6 addresses). " +
-        			"Use this option to instruct the server to bind to a specific list " +
-        			"of IP addresses for DHCP server HA communications.")
+        Option hAddrOption =
+        	OptionBuilder.withLongOpt("haddr")
+        	.withArgName("address")
+        	.withDescription("HTTPS address (default = all IP addresses). " +
+        			"Use this option to instruct the server to bind to a specific " +
+        			"IP address for HTTPS communications. Set the value to 'none' " +
+        			"(without quotes) to disable HTTPS for standalone server.")
         	.hasOptionalArgs()
         	.create("ha");        				 
-        options.addOption(haAddrOption);
+        options.addOption(hAddrOption);
         
-        Option haPortOption =
-        	OptionBuilder.withLongOpt("haport")
+        Option hPortOption =
+        	OptionBuilder.withLongOpt("hport")
         	.withArgName("portnum")
-        	.withDescription("DHCP HA Port number (default = 9060).")
+        	.withDescription("HTTPS Port number (default = " +
+        					JerseyRestServer.HTTPS_SERVER_PORT + ").")
         	.hasArg()
         	.create("hp");
-        options.addOption(haPortOption);
+        options.addOption(hPortOption);
 
         Option testConfigFileOption =
         	OptionBuilder.withLongOpt("test-configfile")
@@ -555,10 +557,6 @@ public class JagornetDhcpServer
         Option versionOption = new Option("v", "version", false, 
         		"Show version information, then exit.");
         options.addOption(versionOption);
-        
-        Option netty3Option = new Option("n3", "netty3", false,
-        		"Use Netty3 implementation.");
-        options.addOption(netty3Option);
         
         Option helpOption = new Option("?", "help", false, "Show this help page.");        
         options.addOption(helpOption);
@@ -579,41 +577,12 @@ public class JagornetDhcpServer
                 showHelp();
                 System.exit(0);
             }
+            
             if (cmd.hasOption("c")) {
                 configFilename = cmd.getOptionValue("c");
             }
-            if (cmd.hasOption("6p")) {
-            	String p = cmd.getOptionValue("6p");
-            	try {
-            		v6PortNumber = Integer.parseInt(p);
-            	}
-            	catch (NumberFormatException ex) {
-            		v6PortNumber = DhcpConstants.V6_SERVER_PORT;
-            		System.err.println("Invalid port number: '" + p +
-            							"' using default: " + v6PortNumber +
-            							" Exception=" + ex);
-            	}
-            }
-            if (cmd.hasOption("6m")) {
-            	String[] ifnames = cmd.getOptionValues("6m");
-            	if ((ifnames == null) || (ifnames.length < 1)) {
-            		ifnames = new String[] { "*" };
-            	}
-        		v6McastNetIfs = getIPv6NetIfs(ifnames);
-        		if ((v6McastNetIfs == null) || v6McastNetIfs.isEmpty()) {
-        			return false;
-        		}
-            }
-            if (cmd.hasOption("6u")) {
-            	String[] addrs = cmd.getOptionValues("6u");
-            	if ((addrs == null) || (addrs.length < 1)) {
-            		addrs = new String[] { "*" };
-            	}
-        		v6UcastAddrs = getV6IpAddrs(addrs);
-        		if ((v6UcastAddrs == null) || v6UcastAddrs.isEmpty()) {
-        			return false;
-        		}
-            }
+            
+            v4BcastNetIf = null;	// default
             if (cmd.hasOption("4b")) {
             	String v4if = cmd.getOptionValue("4b");
         		v4BcastNetIf = getIPv4NetIf(v4if);
@@ -621,16 +590,33 @@ public class JagornetDhcpServer
         			return false;
         		}
             }
+            
+    		v4UcastAddrs = getAllIPv4Addrs();	// default
             if (cmd.hasOption("4u")) {
             	String[] addrs = cmd.getOptionValues("4u");
-            	if ((addrs == null) || (addrs.length < 1)) {
-            		addrs = new String[] { "*" };
+            	if (addrs != null) {
+            		if (addrs.length == 1) {
+            			String addr = addrs[0];
+            			if (addr.equalsIgnoreCase(NONE)) {
+            				v4UcastAddrs = null;
+            			}
+            			if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
+            				v4UcastAddrs = getAllIPv4Addrs();
+            			}
+            		}
+            		else {	            		
+	            		v4UcastAddrs = getV4IpAddrs(addrs);
+	            		if ((v4UcastAddrs == null) || v4UcastAddrs.isEmpty()) {
+	            			return false;
+	            		}
+            		}
             	}
-        		v4UcastAddrs = getV4IpAddrs(addrs);
-        		if ((v4UcastAddrs == null) || v4UcastAddrs.isEmpty()) {
-        			return false;
-        		}
-            }            
+            	else {
+            		v4UcastAddrs = getAllIPv4Addrs();
+            	}
+            }
+
+            v4PortNumber = DhcpConstants.V4_SERVER_PORT;
             if (cmd.hasOption("4p")) {
             	String p = cmd.getOptionValue("4p");
             	try {
@@ -643,32 +629,84 @@ public class JagornetDhcpServer
             							" Exception=" + ex);
             	}
             }
-            if (cmd.hasOption("ha")) {
-            	String[] addrs = cmd.getOptionValues("ha");
-            	if ((addrs == null) || (addrs.length < 1)) {
-            		addrs = new String[] { "*" };
+
+            v6McastNetIfs = null;	// default
+            if (cmd.hasOption("6m")) {
+            	String[] ifnames = cmd.getOptionValues("6m");
+            	if (ifnames != null) {
+            		v6McastNetIfs = getIPv6NetIfs(ifnames);
+            		if ((v6McastNetIfs == null) || v6McastNetIfs.isEmpty()) {
+            			return false;
+            		}
             	}
-        		haAddrs = getHaIpAddrs(addrs);
-        		if ((haAddrs == null) || haAddrs.isEmpty()) {
-        			return false;
-        		}
+            	else {
+            		v6McastNetIfs = getAllIPv6NetIfs();
+            	}
+        		
+            }
+            
+            v6UcastAddrs = getAllIPv6Addrs();	// default
+            if (cmd.hasOption("6u")) {
+            	String[] addrs = cmd.getOptionValues("6u");
+            	if (addrs != null) {
+            		if (addrs.length == 1) {
+            			String addr = addrs[0];
+            			if (addr.equalsIgnoreCase(NONE)) {
+            				v6UcastAddrs = null;
+            			}
+            			if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
+            				v6UcastAddrs = getAllIPv6Addrs();
+            			}
+            		}
+            		else {
+    	        		v6UcastAddrs = getV6IpAddrs(addrs);
+    	        		if ((v6UcastAddrs == null) || v6UcastAddrs.isEmpty()) {
+    	        			return false;
+    	        		}
+            		}
+            	}
+            	else {
+            		v6UcastAddrs = getAllIPv6Addrs();
+            	}
+            }
+            
+    		v6PortNumber = DhcpConstants.V6_SERVER_PORT;
+            if (cmd.hasOption("6p")) {
+            	String p = cmd.getOptionValue("6p");
+            	try {
+            		v6PortNumber = Integer.parseInt(p);
+            	}
+            	catch (NumberFormatException ex) {
+            		v6PortNumber = DhcpConstants.V6_SERVER_PORT;
+            		System.err.println("Invalid port number: '" + p +
+            							"' using default: " + v6PortNumber +
+            							" Exception=" + ex);
+            	}
+            }
+            
+            httpsAddr = DhcpConstants.ZEROADDR_V4;
+            if (cmd.hasOption("ha")) {
+            	String addr = cmd.getOptionValue("ha", ALL);
+        		httpsAddr = getHttpsAddr(addr);
             }            
             if (cmd.hasOption("hp")) {
             	String p = cmd.getOptionValue("hp");
             	try {
-            		haPortNumber = Integer.parseInt(p);
+            		httpsPortNumber = Integer.parseInt(p);
             	}
             	catch (NumberFormatException ex) {
-            		haPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
-            		System.err.println("Invalid port number: '" + p +
-            							"' using default: " + haPortNumber +
+            		httpsPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
+            		System.err.println("Invalid HTTPS port number: '" + p +
+            							"' using default: " + httpsPortNumber +
             							" Exception=" + ex);
             	}
             }
+            
             if (cmd.hasOption("v")) {
             	System.err.println(Version.getVersion());
             	System.exit(0);
             }
+            
             if (cmd.hasOption("tc")) {
             	try {
             		String filename = cmd.getOptionValue("tc");
@@ -683,6 +721,7 @@ public class JagornetDhcpServer
             	}
             	System.exit(0);
             }
+            
             if (cmd.hasOption("li")) {
     			Enumeration<NetworkInterface> netIfs = NetworkInterface.getNetworkInterfaces();
     			if (netIfs != null) {
@@ -693,17 +732,19 @@ public class JagornetDhcpServer
     			}
             	System.exit(0);
             }
+            
         }
         catch (ParseException pe) {
             System.err.println("Command line option parsing failure: " + pe);
             return false;
-        } catch (SocketException se) {
+        } 
+        catch (SocketException se) {
 			System.err.println("Network interface socket failure: " + se);
 			return false;
-		} catch (UnknownHostException he) {
+		} 
+        catch (UnknownHostException he) {
 			System.err.println("IP Address failure: " + he);
-		}
-        
+		}        
         return true;
     }
 
@@ -811,9 +852,6 @@ public class JagornetDhcpServer
 	{
 		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
 		for (String addr : addrs) {
-			if (addr.equals("*")) {
-				return getAllIPv6Addrs();
-			}
 			InetAddress ipAddr = InetAddress.getByName(addr);
 			// allow only IPv6 addresses?
 			ipAddrs.add(ipAddr);
@@ -853,16 +891,19 @@ public class JagornetDhcpServer
 	}
 
 	public static List<InetAddress> getFilteredIPv6Addrs() {
+		return getFilteredIPv6Addrs(getAllIPv6Addrs());
+	}
+	
+	public static List<InetAddress> getFilteredIPv6Addrs(List<InetAddress> v6Addrs) {
 		
     	boolean ignoreLoopback = 
     			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
     	boolean ignoreLinkLocal = 
     			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
     	
-		List<InetAddress> myV6Addrs = new ArrayList<InetAddress>();
-		List<InetAddress> allV6Addrs = getAllIPv6Addrs();
-		if (allV6Addrs != null) {
-			for (InetAddress ip : allV6Addrs) {
+		List<InetAddress> filteredV6Addrs = new ArrayList<InetAddress>();
+		if (v6Addrs != null) {
+			for (InetAddress ip : v6Addrs) {
         		if (ignoreLoopback && ip.isLoopbackAddress()) {
         			log.debug("Skipping loopback address: " + ip);
         			continue;
@@ -871,10 +912,10 @@ public class JagornetDhcpServer
         			log.debug("Skipping link local address: " + ip);
         			continue;
         		}
-        		myV6Addrs.add(ip);
+        		filteredV6Addrs.add(ip);
 			}
 		}
-		return myV6Addrs;
+		return filteredV6Addrs;
 	}
 	
 	public static NetworkInterface getIPv4NetIf(String ifname) throws SocketException 
@@ -932,9 +973,6 @@ public class JagornetDhcpServer
 	{
 		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
 		for (String addr : addrs) {
-			if (addr.equals("*")) {
-				return getAllIPv4Addrs();
-			}
 			InetAddress ipAddr = InetAddress.getByName(addr);
 			// allow only IPv4 addresses?
 			ipAddrs.add(ipAddr);
@@ -974,16 +1012,19 @@ public class JagornetDhcpServer
 	}
 	
 	public static List<InetAddress> getFilteredIPv4Addrs() {
+		return getFilteredIPv4Addrs(getAllIPv4Addrs());
+	}
+	
+	public static List<InetAddress> getFilteredIPv4Addrs(List<InetAddress> v4Addrs) {
 		
     	boolean ignoreLoopback = 
     			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LOOPBACK);
     	boolean ignoreLinkLocal = 
     			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_LINKLOCAL);
     	
-		List<InetAddress> myV4Addrs = new ArrayList<InetAddress>();
-		List<InetAddress> allV4Addrs = getAllIPv4Addrs();
-		if (allV4Addrs != null) {
-			for (InetAddress ip : allV4Addrs) {
+		List<InetAddress> filteredV4Addrs = new ArrayList<InetAddress>();
+		if (v4Addrs != null) {
+			for (InetAddress ip : v4Addrs) {
         		if (ignoreLoopback && ip.isLoopbackAddress()) {
         			log.debug("Skipping loopback address: " + ip);
         			continue;
@@ -992,42 +1033,23 @@ public class JagornetDhcpServer
         			log.debug("Skipping link local address: " + ip);
         			continue;
         		}
-        		myV4Addrs.add(ip);
+        		filteredV4Addrs.add(ip);
 			}
 		}
-		return myV4Addrs;		
+		return filteredV4Addrs;		
 	}
 	
-	public static List<InetAddress> getFailoverIpAddrs(String[] addrs) throws UnknownHostException
-	{
-		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
-		for (String addr : addrs) {
-			if (addr.equals("*")) {
-				ipAddrs.clear();
-				ipAddrs.add(DhcpConstants.WILDCARD_ADDR);
-				return ipAddrs;
-			}
-			InetAddress ipAddr = InetAddress.getByName(addr);
-			// allow only IPv6 addresses?
-			ipAddrs.add(ipAddr);
+	public static InetAddress getHttpsAddr(String addr) throws UnknownHostException {
+		if (addr.equalsIgnoreCase(NONE)) {
+			return null;
 		}
-		return ipAddrs;
-	}
-	
-	public static List<InetAddress> getHaIpAddrs(String[] addrs) throws UnknownHostException
-	{
-		List<InetAddress> ipAddrs = new ArrayList<InetAddress>();
-		for (String addr : addrs) {
-			if (addr.equals("*")) {
-				ipAddrs.clear();
-				ipAddrs.add(DhcpConstants.WILDCARD_ADDR);
-				return ipAddrs;
-			}
-			InetAddress ipAddr = InetAddress.getByName(addr);
-			// allow only IPv6 addresses?
-			ipAddrs.add(ipAddr);
+		if (addr.equalsIgnoreCase(ALL)) {
+			return DhcpConstants.ZEROADDR_V4;
 		}
-		return ipAddrs;
+		// NOTE: Jersey NettyHttpContainerProvider does not support 
+		// see: https://github.com/eclipse-ee4j/jersey/issues/4045
+		//return InetAddress.getByName(addr);
+		return DhcpConstants.ZEROADDR_V4;
 	}
 	
     /**

@@ -27,8 +27,9 @@ package com.jagornet.dhcp.server.db;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -41,6 +42,9 @@ import javax.sql.DataSource;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.jagornet.dhcp.core.util.DhcpConstants;
@@ -76,13 +80,17 @@ public class DbSchemaManager
     public static String DB_HOME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
         							(DhcpConstants.JAGORNET_DHCP_HOME + "/db/") : "db/";
         							
-    public static String SCHEMA_FILENAME = DB_HOME + "jagornet-dhcp-server-schema.sql";
-	public static String SCHEMA_DERBY_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby.sql";
+//	public static String SCHEMA_FILENAME = DB_HOME + "jagornet-dhcp-server-schema.sql";
+//	public static String SCHEMA_DERBY_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby.sql";
+    public static String SCHEMA_FILENAME = "classpath:jagornet-dhcp-server-schema.sql";
+	public static String SCHEMA_DERBY_FILENAME = "classpath:jagornet-dhcp-server-schema-derby.sql";
 	
 	public static String[] TABLE_NAMES = { "DHCPOPTION", "IAADDRESS", "IAPREFIX", "IDENTITYASSOC" };
 
-	public static String SCHEMA_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-v2.sql";
-	public static String SCHEMA_DERBY_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby-v2.sql";
+//	public static String SCHEMA_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-v2.sql";
+//	public static String SCHEMA_DERBY_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby-v2.sql";
+	public static String SCHEMA_V2_FILENAME = "classpath:jagornet-dhcp-server-schema-v2.sql";
+	public static String SCHEMA_DERBY_V2_FILENAME = "classpath:jagornet-dhcp-server-schema-derby-v2.sql";
 
     public static String[] TABLE_NAMES_V2 = { "DHCPLEASE" };
     
@@ -194,13 +202,16 @@ public class DbSchemaManager
 	}
 	
 	public static List<String> getSchemaDDL(String schemaFilename) throws IOException {
+		ResourceLoader resourceLoader = new DefaultResourceLoader();
+		Resource resource = resourceLoader.getResource(schemaFilename);
+		InputStream is = resource.getInputStream();
 		List<String> schema = new ArrayList<String>();
-		FileReader fr = null;
+		InputStreamReader isr = null;
 		BufferedReader br = null;
 		try {
 	    	StringBuilder ddl = new StringBuilder();
-	    	fr = new FileReader(schemaFilename);
-	    	br = new BufferedReader(fr);
+	    	isr = new InputStreamReader(is);
+	    	br = new BufferedReader(isr);
 	    	String line = br.readLine();
 	    	while (line != null) {
 	    		if (!line.startsWith("-- ")) {
@@ -218,8 +229,8 @@ public class DbSchemaManager
 			if (br != null) {
 				br.close();
 			}
-			if (fr != null) {
-				fr.close();
+			if (isr != null) {
+				isr.close();
 			}
 		}
 		return schema;

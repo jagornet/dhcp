@@ -43,5 +43,13 @@
       <directory>${project.basedir}/docs</directory>
       <outputDirectory>docs</outputDirectory>
     </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/target/generated-docs</directory>
+      <outputDirectory>docs</outputDirectory>
+      <includes>
+      	<include>*.html</include>
+      	<include>*.pdf</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </component>

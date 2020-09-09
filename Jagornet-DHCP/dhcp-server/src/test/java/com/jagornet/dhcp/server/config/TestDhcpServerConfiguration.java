@@ -68,9 +68,9 @@ public class TestDhcpServerConfiguration extends TestCase
 		policies.getPolicies().add(policy);
 		config.setPolicies(policies);
 		
-		DhcpServerConfiguration.saveConfig(config, "src/test/java/com/jagornet/dhcp/server/config/dhcpServerConfigTestSave.xml");
+		DhcpServerConfiguration.saveConfig(config, "src/test/resources/dhcpserver-test-config-save.xml");
 		
-		config = DhcpServerConfiguration.loadConfig("src/test/java/com/jagornet/dhcp/server/config/dhcpServerConfigTestSave.xml");
+		config = DhcpServerConfiguration.loadConfig("file:src/test/resources/dhcpserver-test-config-save.xml");
 		assertNotNull(config);
 		assertNotNull(config.getV6ServerIdOption());
 		assertNotNull(config.getPolicies().getPolicies());
@@ -86,7 +86,7 @@ public class TestDhcpServerConfiguration extends TestCase
      */
     public void testLinkMap() throws Exception
     {
-    	String configFilename = "src/test/java/com/jagornet/dhcp/server/config/dhcpServerConfigLinkTest1.xml";
+    	String configFilename = "file:src/test/resources/dhcpserver-test-link.xml";
         DhcpServerConfiguration serverConfig = DhcpServerConfiguration.getInstance();
         serverConfig.init(configFilename);
         assertNotNull(serverConfig);

@@ -273,6 +273,7 @@ public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
             	// see addBindingToReply
             	// populateReplyMsgOptions(clientLink);
     			processDdnsUpdates(true);
+    			processHaBindingUpdates(replyMsg.getDhcpOptionMap());
             }
             else {
             	log.warn("Reply message has no bindings");

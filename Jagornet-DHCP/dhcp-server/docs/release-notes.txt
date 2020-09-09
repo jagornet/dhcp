@@ -1,3 +1,12 @@
+Features/Changes in 3.0.0
+-------------------------
+	- Java 8
+	- Multi-module Maven project - core, server, client modules
+	- REST API
+	- High availability (HA)
+	- Performance improvements
+	
+	
 Changes in 2.0.5
 ----------------
 	- Fixes #17: Convert IPv4 wildcard address (0.0.0.0) to IPv6 wildcard (::)

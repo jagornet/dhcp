@@ -11,7 +11,7 @@ public class DhcpServerStatusService {
 	
 	private static Logger log = LoggerFactory.getLogger(DhcpServerStatusService.class);
 
-	public static final String STATUS_OK = "Kickin' ass!";
+	public static final String STATUS_OK = "all-systems-go";
 	public static final String SYNCING_TO_PEER = "syncing-to-peer";
 
     protected static DhcpServerConfiguration dhcpServerConfig = 

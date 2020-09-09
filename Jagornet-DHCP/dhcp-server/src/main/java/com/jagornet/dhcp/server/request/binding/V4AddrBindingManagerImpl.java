@@ -467,7 +467,7 @@ public class V4AddrBindingManagerImpl
 				serverConfig.effectiveV4AddrOptions(requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		log.debug("buildDhcpOptions: configured to include only requested options");
     		configOptionMap = requestedOptions(configOptionMap, requestMsg);
     	}

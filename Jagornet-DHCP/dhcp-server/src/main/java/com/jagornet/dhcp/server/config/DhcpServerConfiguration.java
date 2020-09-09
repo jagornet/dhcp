@@ -49,6 +49,10 @@ import javax.xml.bind.helpers.DefaultValidationEventHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.ResourceUtils;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.message.DhcpV4Message;
@@ -937,18 +941,11 @@ public class DhcpServerConfiguration
     	DhcpServerConfig config = null;
     	InputStream inputStream = null;
     	try {
-    		File file = new File(filename);
-    		if (filename.contains(File.separator) && file.exists()) {
-    			// if filename is qualified, assume it is on the file
-    			// system and relative to the working directory
-    			inputStream = new FileInputStream(filename);
-    		}
-    		else {
-    			// if filename is not qualified, assume it is on the
-    			// classpath, as would be the case for unit tests
-    			filename = File.separator + filename;
-    			inputStream = DhcpServerConfig.class.getResourceAsStream(filename);
-    		}
+//    		String classpath = System.getProperty("java.class.path");
+//    		String[] classpathEntries = classpath.split(File.pathSeparator);
+    		ResourceLoader resourceLoader = new DefaultResourceLoader();
+    		Resource resource = resourceLoader.getResource(filename);
+    		inputStream = resource.getInputStream();
 	        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
 	        Unmarshaller unmarshaller = jc.createUnmarshaller();
 	        //TODO: consider VEC or ValidationEventHandler implementation

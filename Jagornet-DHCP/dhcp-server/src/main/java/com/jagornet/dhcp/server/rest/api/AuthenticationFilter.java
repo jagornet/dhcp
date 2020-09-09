@@ -132,8 +132,8 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     	byte[] decodedBytes = Base64.getDecoder().decode(token);
     	String decodedString = new String(decodedBytes);
     	
-    	//TODO: suppress password in log
-    	log.debug("authToken=" + decodedString);
+    	// mask password in log
+    	log.debug("authToken=" + decodedString.replaceAll(":.*", ":********"));
     	if (decodedString != null) {
     		int i = decodedString.indexOf(':');
     		if ((i > 0) && ((i+1) < decodedString.length())) {

@@ -262,6 +262,7 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
             	// populateReplyMsgOptions(clientLink);
     			if (rapidCommit) {
     				processDdnsUpdates(true);
+        			processHaBindingUpdates(replyMsg.getDhcpOptionMap());
     			}
     			else {
     				processDdnsUpdates(false);
@@ -283,7 +284,7 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 	{
 		if (requestMsg.hasOption(DhcpConstants.V6OPTION_RAPID_COMMIT) && 
 				DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg, clientLink, 
-						Property.SUPPORT_RAPID_COMMIT)) {
+						Property.DHCP_SUPPORT_RAPID_COMMIT)) {
 			return true;
 		}
 		return false;

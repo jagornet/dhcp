@@ -52,7 +52,7 @@ public abstract class BaseTestCase
 {	
     public static final String DEFAULT_SCHEMA_TYPE = DbSchemaManager.SCHEMATYPE_JDBC_DERBY;
 	public static final int DEFAULT_SCHEMA_VERSION = 2;
-	protected static String configFilename = "dhcpserver-basetest.xml";
+	protected static String configFilename = "classpath:dhcpserver-basetest.xml";
 	protected static DhcpServerConfiguration config;	
 	protected static ApplicationContext ctx;
 		

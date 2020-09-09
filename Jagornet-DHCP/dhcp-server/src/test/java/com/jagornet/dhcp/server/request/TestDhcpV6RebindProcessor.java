@@ -108,7 +108,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 	public void testRebindNoBinding() throws Exception
 	{
 		// set the default server policy
-		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "false");
+		DhcpServerPolicies.getProperties().put(Property.V6_VERIFY_UNKNOWN_REBIND.key(), "false");
 		
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REBIND);
@@ -130,7 +130,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 	public void testRebindNoBindingWithVerify() throws Exception
 	{
 		// set the default server policy
-		DhcpServerPolicies.getProperties().put(Property.VERIFY_UNKNOWN_REBIND.key(), "true");
+		DhcpServerPolicies.getProperties().put(Property.V6_VERIFY_UNKNOWN_REBIND.key(), "true");
 
 		DhcpV6Message requestMsg = buildNaRequestMessage(firstPoolAddr);
 		requestMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REBIND);
@@ -213,7 +213,7 @@ public class TestDhcpV6RebindProcessor extends BaseTestDhcpV6Processor
 			new DhcpV6RebindProcessor(replyMsg, replyMsg.getRemoteAddress().getAddress());
 		
 		// set the server policy to allow it to verify this unknown rebind
-		DhcpServerPolicies.setProperty(Property.VERIFY_UNKNOWN_REBIND, "true");
+		DhcpServerPolicies.setProperty(Property.V6_VERIFY_UNKNOWN_REBIND, "true");
 		
 		replyMsg = nProc.processMessage();
 		

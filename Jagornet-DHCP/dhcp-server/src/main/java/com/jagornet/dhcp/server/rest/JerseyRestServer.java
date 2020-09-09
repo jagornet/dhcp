@@ -1,5 +1,6 @@
 package com.jagornet.dhcp.server.rest;
 
+import java.net.InetAddress;
 import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
@@ -20,9 +21,8 @@ public class JerseyRestServer {
 
     private static Logger log = LoggerFactory.getLogger(JerseyRestServer.class);
 
-    // 9060 is actually registered with IANA, but relative to zero,
-	// J=9, A=0, G=6, then 0 is the first port in the "JAG" range!
-	public static final int HTTPS_SERVER_PORT = 9060;
+    // 9067: J=9, A=0, G=6, H(ttps)=7 (letter encoding relative zero)
+	public static final int HTTPS_SERVER_PORT = 9067;
 	
 	// Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URI = "https://localhost:" + HTTPS_SERVER_PORT + 
@@ -56,7 +56,7 @@ public class JerseyRestServer {
 //        return null;
 //    }
 
-    public static Channel startNettyServer(int httpsPort) {
+    public static Channel startNettyServer(InetAddress httpsAddr, int httpsPort) {
         // create a resource config that scans for JAX-RS resources and providers
         // in API_PACKAGE
         final ResourceConfig resourceConfig = new ResourceConfig().packages(API_PACKAGE);
@@ -67,8 +67,14 @@ public class JerseyRestServer {
 		 * other than root path ("/"). Non-root context path is ignored during 
 		 * deployment.
          */
-        URI baseUri = UriBuilder.fromUri("https://localhost/").port(httpsPort).build();
-        log.info("Creating Netty HTTP server on: " + baseUri);
+		// NOTE: Jersey NettyHttpContainerProvider does not support 
+        // binding to a specific address, so always binds to wildcard
+		// see: https://github.com/eclipse-ee4j/jersey/issues/4045
+        URI baseUri = UriBuilder.fromUri("https://" + httpsAddr.getHostAddress() + "/")
+//        						.host(httpsAddr.getHostAddress())
+        						.port(httpsPort)
+        						.build();
+        log.info("Creating Netty HTTPS server on: " + baseUri);
         try {
 /*        	
 	        SslContextBuilder sslContextBuilder = SslContextBuilder

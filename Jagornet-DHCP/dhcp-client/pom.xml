@@ -3,21 +3,21 @@
 
   <parent>
     <groupId>com.jagornet</groupId>
-    <artifactId>dhcp-all</artifactId>
+    <artifactId>jagornet-dhcp-all</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>dhcp-client</artifactId>
+  <artifactId>jagornet-dhcp-client</artifactId>
 
   <dependencies>
   	<dependency>
   		<groupId>com.jagornet</groupId>
-  		<artifactId>dhcp-core</artifactId>
+  		<artifactId>jagornet-dhcp-core</artifactId>
   		<version>3.0.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>com.jagornet</groupId>
-  		<artifactId>dhcp-server</artifactId>
+  		<artifactId>jagornet-dhcp-server</artifactId>
   		<version>3.0.0-SNAPSHOT</version>
   	</dependency>
 	<dependency>

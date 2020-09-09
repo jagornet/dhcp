@@ -209,10 +209,10 @@ public class V6PrefixBindingManagerImpl
     {
 		V6PrefixBindingPool bp = new V6PrefixBindingPool(pool);
 		long pLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.PREFERRED_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.V6_PREFERRED_LIFETIME);
 		bp.setPreferredLifetime(pLifetime);
 		long vLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.VALID_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.V6_VALID_LIFETIME);
 		bp.setValidLifetime(vLifetime);
 		bp.setLinkFilter(linkFilter);
 		
@@ -582,7 +582,7 @@ public class V6PrefixBindingManagerImpl
 				serverConfig.effectiveMsgOptions((DhcpV6Message)requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		log.debug("buildDhcpOptions: configured to include only requested options");
     		configOptionMap = requestedOptions(configOptionMap, requestMsg);
     	}
@@ -597,7 +597,7 @@ public class V6PrefixBindingManagerImpl
 				serverConfig.effectiveIaPdOptions((DhcpV6Message)requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		log.debug("buildDhcpOptions: configured to include only requested options");
     		configOptionMap = requestedOptions(configOptionMap, requestMsg);
     	}
@@ -612,7 +612,7 @@ public class V6PrefixBindingManagerImpl
 				serverConfig.effectivePrefixOptions((DhcpV6Message)requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
-    			clientLink.getLink(), Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		log.debug("buildDhcpOptions: configured to include only requested options");
     		configOptionMap = requestedOptions(configOptionMap, requestMsg);
     	}

@@ -41,7 +41,7 @@
 		</policy>
 		<policy>
 			<name>ha.peerPort</name>
-			<value>9060</value> <!-- HTTPS port of Jersey REST server -->
+			<value>9067</value> <!-- HTTPS port of Jersey REST server -->
 		</policy>
 		<policy>
 			<name>ha.stateDbFile</name>

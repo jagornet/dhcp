@@ -248,6 +248,11 @@ public class DhcpV6ReleaseProcessor extends BaseDhcpV6Processor
     	if (sendReply) {
             replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
     		setReplyStatus(DhcpConstants.V6STATUS_CODE_SUCCESS);
+            if (!bindings.isEmpty()) {
+            	// DDNS handled by bindingMgr.releaseIaAddress
+    			processHaBindingUpdates(null);
+            }
+    		
     	}
 	    return sendReply;
     }

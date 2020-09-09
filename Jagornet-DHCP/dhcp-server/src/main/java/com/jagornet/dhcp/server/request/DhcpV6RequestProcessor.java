@@ -290,6 +290,7 @@ public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
             	// see addBindingToReply
             	// populateReplyMsgOptions(clientLink);
     			processDdnsUpdates(true);
+    			processHaBindingUpdates(replyMsg.getDhcpOptionMap());
             }
     	}
 		return sendReply;    	

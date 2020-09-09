@@ -61,6 +61,8 @@ import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
 import com.jagornet.dhcp.server.config.xml.V6AddressPool;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPool;
+import com.jagornet.dhcp.server.ha.HaBackupFSM;
+import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.BindingObject;
 import com.jagornet.dhcp.server.request.binding.V6BindingAddress;
@@ -95,6 +97,8 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     protected static Set<DhcpV6Message> recentMsgs = 
     	Collections.synchronizedSet(new HashSet<DhcpV6Message>());
     protected static Timer recentMsgPruner = new Timer("RecentMsgPruner");
+    protected HaPrimaryFSM haPrimaryFSM;
+    protected HaBackupFSM haBackupFSM; 
     
     /**
      * Construct an BaseDhcpRequest processor.  Since this class is
@@ -107,6 +111,8 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     {
         this.requestMsg = requestMsg;
         this.clientLinkAddress = clientLinkAddress;
+        haPrimaryFSM = dhcpServerConfig.getHaPrimaryFSM();
+        haBackupFSM = dhcpServerConfig.getHaBackupFSM();
     }
 
     protected Map<Integer, DhcpOption> requestedOptions(Map<Integer, DhcpOption> optionMap,
@@ -133,7 +139,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     protected void populateReplyMsgOptions()
     {
     	Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveMsgOptions(requestMsg);
-    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    	if (DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
     	replyMsg.putAllDhcpOptions(optionMap);
@@ -149,7 +155,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     	Map<Integer, DhcpOption> optionMap = 
     		dhcpServerConfig.effectiveMsgOptions(requestMsg, dhcpLink);
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(dhcpLink.getLink(),
-    			Property.SEND_REQUESTED_OPTIONS_ONLY)) {
+    			Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
     		optionMap = requestedOptions(optionMap, requestMsg);
     	}
     	replyMsg.putAllDhcpOptions(optionMap);
@@ -632,7 +638,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 	private void setIaNaT1(DhcpLink clientLink, DhcpV6IaNaOption iaNaOption,
 			long minPreferredLifetime)
 	{
-		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_NA_T1);
+		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.V6_IA_NA_T1);
 		if (t1 > 1) {
 			log.debug("Setting IA_NA T1 to configured number of seconds: " + t1);
 			// if T1 is greater than one, then treat it as an
@@ -673,7 +679,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 	private void setIaNaT2(DhcpLink clientLink, DhcpV6IaNaOption iaNaOption,
 			long minPreferredLifetime)
 	{
-		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_NA_T2);
+		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.V6_IA_NA_T2);
 		if (t2 > 1) {
 			log.debug("Setting IA_NA T2 to configured number of seconds: " + t2);
 			iaNaOption.setT2((long)t2);
@@ -718,7 +724,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 	private void setIaPdT1(DhcpLink clientLink, DhcpV6IaPdOption iaPdOption,
 			long minPreferredLifetime)
 	{
-		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_PD_T1);
+		float t1 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.V6_IA_PD_T1);
 		if (t1 > 1) {
 			log.debug("Setting IA_PD T1 to configured number of seconds: " + t1);
 			// if T1 is greater than one, then treat it as an
@@ -759,7 +765,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 	private void setIaPdT2(DhcpLink clientLink, DhcpV6IaPdOption iaPdOption,
 			long minPreferredLifetime)
 	{
-		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.IA_PD_T2);
+		float t2 = DhcpServerPolicies.effectivePolicyAsFloat(clientLink.getLink(), Property.V6_IA_PD_T2);
 		if (t2 > 1) {
 			log.debug("Setting IA_PD T2 to configured number of seconds: " + t2);
 			iaPdOption.setT2((long)t2);
@@ -916,6 +922,15 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 					}
 				}
 			}
+		}
+	}
+	
+	protected void processHaBindingUpdates(Map<Integer, DhcpOption> dhcpOptionMap) {
+		if (haPrimaryFSM != null) {
+			haPrimaryFSM.updateBindings(bindings, dhcpOptionMap);
+		}
+		else {
+			log.debug("Not configured as HA Primary.  Skipping HA binding update processing.");
 		}
 	}
 

@@ -166,7 +166,7 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
 	{
 		if (requestMsg.hasOption(DhcpConstants.V4OPTION_RAPID_COMMIT) && 
 				DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg, clientLink, 
-						Property.SUPPORT_RAPID_COMMIT)) {
+						Property.DHCP_SUPPORT_RAPID_COMMIT)) {
 			return true;
 		}
 		return false;

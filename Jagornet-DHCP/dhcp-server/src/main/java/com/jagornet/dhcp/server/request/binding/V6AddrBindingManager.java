@@ -209,10 +209,10 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
     {
 		V6AddressBindingPool bp = new V6AddressBindingPool(pool);
 		long pLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.PREFERRED_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.V6_PREFERRED_LIFETIME);
 		bp.setPreferredLifetime(pLifetime);
 		long vLifetime = 
-			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.VALID_LIFETIME);
+			DhcpServerPolicies.effectivePolicyAsLong(bp, link, Property.V6_VALID_LIFETIME);
 		bp.setValidLifetime(vLifetime);
 		bp.setLinkFilter(linkFilter);
 		
