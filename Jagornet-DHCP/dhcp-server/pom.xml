@@ -4,13 +4,13 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
   </parent>
 
   <artifactId>jagornet-dhcp-server</artifactId>
   
   <properties>
-  	<jagornet.dhcp.version>3.0.0-SNAPSHOT</jagornet.dhcp.version>
+  	<jagornet.dhcp.version>3.0.0</jagornet.dhcp.version>
   	<commons.cli.version>1.2</commons.cli.version>
   	<commons.dbcp2.version>2.7.0</commons.dbcp2.version>
   	<commons.io.version>2.6</commons.io.version>
