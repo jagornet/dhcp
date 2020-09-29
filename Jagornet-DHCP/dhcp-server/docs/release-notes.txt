@@ -1,3 +1,9 @@
+Changes in 3.0.1
+----------------
+	- Fixes #20: Replace Log4j with Log4j2
+	- Fixes #21: Correct default configuration file processing
+	- Reorder config schema elements - v4 before v6
+
 Features/Changes in 3.0.0
 -------------------------
 	- Java 8

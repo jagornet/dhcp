@@ -68,7 +68,7 @@ public class TestDhcpServerConfiguration extends TestCase
 		policies.getPolicies().add(policy);
 		config.setPolicies(policies);
 		
-		DhcpServerConfiguration.saveConfig(config, "src/test/resources/dhcpserver-test-config-save.xml");
+		DhcpServerConfiguration.saveConfig(config, "file:src/test/resources/dhcpserver-test-config-save.xml");
 		
 		config = DhcpServerConfiguration.loadConfig("file:src/test/resources/dhcpserver-test-config-save.xml");
 		assertNotNull(config);

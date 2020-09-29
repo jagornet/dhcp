@@ -3,6 +3,11 @@
 <dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml"
 					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 					xsi:schemaLocation="http://jagornet.com/dhcpserver.xsd">
+	
+	<v4ServerIdOption>
+		<!--  DHCPv4 ServerID must be a local IP address -->
+		<ipAddress>10.0.0.2</ipAddress>
+	</v4ServerIdOption>
 
 	<v6ServerIdOption>
 		<!-- DHCPv6 ServerID should be auto-generated hex data -->
@@ -10,11 +15,6 @@
 			<asciiValue>Jagornet</asciiValue>
 		</opaqueData>
 	</v6ServerIdOption>
-	
-	<v4ServerIdOption>
-		<!--  DHCPv4 ServerID must be a local IP address -->
-		<ipAddress>10.0.0.2</ipAddress>
-	</v4ServerIdOption>
 
 	<links>
 		<!-- Must define at least one link for client requests -->

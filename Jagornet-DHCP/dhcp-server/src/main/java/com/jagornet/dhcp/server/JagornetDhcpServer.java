@@ -27,7 +27,6 @@ package com.jagornet.dhcp.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -41,8 +40,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.cli.BasicParser;
@@ -53,9 +50,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.jmx.HierarchyDynamicMBean;
-import org.apache.log4j.spi.LoggerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -102,8 +96,10 @@ public class JagornetDhcpServer
     public static String JAGORNET_DHCP_SERVER = "Jagornet DHCP Server";
     
     /** The default config filename. */
-    public static String DEFAULT_CONFIG_FILENAME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
-    	(DhcpConstants.JAGORNET_DHCP_HOME + "/config/dhcpserver.xml") : "config/dhcpserver.xml";
+    public static String DEFAULT_CONFIG_FILENAME = 
+    		DhcpConstants.JAGORNET_DHCP_HOME != null ? 
+    		"file:" + (DhcpConstants.JAGORNET_DHCP_HOME + "/config/dhcpserver.xml") : 
+    		"config/dhcpserver.xml";	// this should be relative
 	
     /** The configuration filename. */
     protected String configFilename = DEFAULT_CONFIG_FILENAME;
@@ -1118,6 +1114,10 @@ public class JagornetDhcpServer
     @SuppressWarnings("unchecked")
     public static void registerLog4jInJmx()
     {
+    	/**
+    	 * "Log4j 2 has built-in support for JMX..."
+    	 * See: https://logging.apache.org/log4j/2.x/manual/jmx.html
+    	 * 
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();  
         try {
             // Create and Register the top level Log4J MBean
@@ -1145,6 +1145,7 @@ public class JagornetDhcpServer
         catch (Exception ex) {
             log.error("Failure registering Log4J in JMX: " + ex);
         }
+        */
     }
 
 	public List<NetworkInterface> getV6McastNetIfs() {

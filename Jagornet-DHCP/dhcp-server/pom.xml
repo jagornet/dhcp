@@ -4,13 +4,13 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
   </parent>
 
   <artifactId>jagornet-dhcp-server</artifactId>
   
   <properties>
-  	<jagornet.dhcp.version>3.0.0</jagornet.dhcp.version>
+  	<jagornet.dhcp.version>3.0.1</jagornet.dhcp.version>
   	<commons.cli.version>1.2</commons.cli.version>
   	<commons.dbcp2.version>2.7.0</commons.dbcp2.version>
   	<commons.io.version>2.6</commons.io.version>
@@ -27,6 +27,8 @@
   	<jaxb.core.version>2.3.0.1</jaxb.core.version>
   	<jaxb.runtime.version>2.3.2</jaxb.runtime.version>
   	<activation.version>1.1.1</activation.version>
+  	<javax.annotation.version>1.3.2</javax.annotation.version>
+  	<httpclient.version>4.5.12</httpclient.version>
   </properties>
 
   <dependencies>
@@ -190,12 +192,12 @@
 	<dependency>
 	    <groupId>javax.annotation</groupId>
 	    <artifactId>javax.annotation-api</artifactId>
-	    <version>1.3.2</version>
+	    <version>${javax.annotation.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.httpcomponents</groupId>
 	    <artifactId>httpclient</artifactId>
-	    <version>4.5.12</version>
+	    <version>${httpclient.version}</version>
 	</dependency>
 	<!-- Test dependency jars -->
   	<dependency>

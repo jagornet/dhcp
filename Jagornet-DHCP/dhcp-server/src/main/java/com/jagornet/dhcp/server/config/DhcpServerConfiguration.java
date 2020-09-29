@@ -25,8 +25,6 @@
  */
 package com.jagornet.dhcp.server.config;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.util.ResourceUtils;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.message.DhcpV4Message;
@@ -198,8 +195,19 @@ public class DhcpServerConfiguration
     	DhcpServerConfig xmlServerConfig = loadConfig(configFilename);
     	if (xmlServerConfig != null) {
     		boolean needWrite = false;
+        	
+        	V4ServerIdOption v4ServerId = xmlServerConfig.getV4ServerIdOption();
+        	if ((v4ServerId == null) ||
+        		(v4ServerId.getIpAddress() == null)) {
+        		v4ServerId = generateV4ServerId();
+        		xmlServerConfig.setV4ServerIdOption(v4ServerId);
+        		needWrite = true;
+        	}
+        	dhcpV4ServerIdOption = new DhcpV4ServerIdOption(v4ServerId.getIpAddress());
+
         	V6ServerIdOption v6ServerId = xmlServerConfig.getV6ServerIdOption();
-        	if (v6ServerId == null) {
+        	if ((v6ServerId == null) ||
+        		(v6ServerId.getOpaqueData() == null)) {
         		v6ServerId = generateV6ServerId();
         		xmlServerConfig.setV6ServerIdOption(v6ServerId);
         		needWrite = true;
@@ -207,14 +215,6 @@ public class DhcpServerConfiguration
         	BaseOpaqueData baseOpaqueData = 
         			OpaqueDataUtil.toBaseOpaqueData(v6ServerId.getOpaqueData());
         	dhcpV6ServerIdOption = new DhcpV6ServerIdOption(baseOpaqueData);
-        	
-        	V4ServerIdOption v4ServerId = xmlServerConfig.getV4ServerIdOption();
-        	if (v4ServerId == null) {
-        		v4ServerId = generateV4ServerId();
-        		xmlServerConfig.setV4ServerIdOption(v4ServerId);
-        		needWrite = true;
-        	}
-        	dhcpV4ServerIdOption = new DhcpV4ServerIdOption(v4ServerId.getIpAddress());
         	
         	globalPolicies = xmlServerConfig.getPolicies();
 	    	globalV6MsgConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6MsgConfigOptions());
@@ -974,7 +974,9 @@ public class DhcpServerConfiguration
     	FileOutputStream fos = null;
     	try {
 	        log.info("Saving server configuration file: " + filename);
-	        fos = new FileOutputStream(filename);
+    		ResourceLoader resourceLoader = new DefaultResourceLoader();
+    		Resource resource = resourceLoader.getResource(filename);
+	        fos = new FileOutputStream(resource.getFile());
 	        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
 	        Marshaller marshaller = jc.createMarshaller();
 	        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

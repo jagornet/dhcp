@@ -2,7 +2,7 @@
 <ns2:dhcpServerConfig xmlns:ns2="http://jagornet.com/dhcp/xml">
     <v6ServerIdOption>
         <opaqueData>
-            <hexValue>000100015F4BD21FCA268E9E606F</hexValue>
+            <hexValue>000100015F713881263F0A171B4F</hexValue>
         </opaqueData>
     </v6ServerIdOption>
     <policies>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configuration status is for Log4j2 internal status logging -->
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d [%t] %-5p %c - %m%n"/>
+    </Console>
+    <RollingFile name="Logfile" 
+    			 fileName="log/dhcpserver-backup.log"
+    			 filePattern="log/dhcpserver-backup-%i.log">
+      <PatternLayout>
+        <Pattern>%d [%t] %-5p %c{2} - %m%n</Pattern>
+      </PatternLayout>
+      <DefaultRolloverStrategy max="10"/>
+      <Policies>
+      	<SizeBasedTriggeringPolicy size="10 MB"/>
+      </Policies>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="Console" level="INFO"/>
+      <AppenderRef ref="Logfile" level="DEBUG"/>
+    </Root>
+    <Logger name="com.jagornet" level="DEBUG">
+      <!-- Inherit appenders from root logger -->
+    </Logger>
+  </Loggers>
+</Configuration>

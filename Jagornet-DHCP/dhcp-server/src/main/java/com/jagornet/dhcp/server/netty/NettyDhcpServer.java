@@ -71,7 +71,7 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import io.netty.util.internal.logging.Log4JLoggerFactory;
+import io.netty.util.internal.logging.Log4J2LoggerFactory;
 
 /**
  * This is a JBoss Netty based DHCPv6 server that uses
@@ -140,7 +140,7 @@ public class NettyDhcpServer
     public void start() throws Exception
     {
         try {
-        	InternalLoggerFactory.setDefaultFactory(Log4JLoggerFactory.INSTANCE);
+        	InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
         	
         	final boolean ignoreSelfPackets = 
         			DhcpServerPolicies.globalPolicyAsBoolean(Property.DHCP_IGNORE_SELF_PACKETS);

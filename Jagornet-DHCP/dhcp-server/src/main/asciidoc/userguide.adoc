@@ -1,10 +1,10 @@
 = Jagornet DHCP Server {appversion}: Community Edition User Guide
 :doctype: book
 :author: A. Gregory Rabil
-:email: <greg.rabil@jagornet.com>
+:email: greg.rabil@jagornet.com
 :homepage: http://jagornet.com[Jagornet Technologies, LLC]
 :appversion: 3.0
-:appbuild: 0
+:appbuild: 1
 :toc:
 
 {author} {email} 
@@ -93,7 +93,7 @@ Enable DHCPv4 and DHCPv6 UDP port traffic on all intervening network equipment.
 The main Java class of the Jagornet DHCP Server supports the following usage:
 
  usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
- Jagornet DHCP Server Community Edition 3.0.0
+ Jagornet DHCP Server Community Edition 3.0.1
  Copyright Jagornet Technologies 2009-2020.  All Rights Reserved.
   -4b,--v4bcast <interface>         DHCPv4 broadcast interface (default = none).
                                     Use this option to specify the interface for
@@ -290,6 +290,18 @@ Startup examples:
 . Start the server with an alternate configuration file, one specific unicast address, and two specific multicast interfaces:
 
  %JAGORNET_DHCP_HOME%\bin\dhcpserver start -c conf\my-dhcpserver.xml -6u 2001:db8::1 -6m eth0 eth1
+
+=== Logging
+Logging for the Jagornet DHCP server is performed using the 
+https://logging.apache.org/log4j/2.x/[Apache Log4j 2] logging 
+logging service. The Log4j2 configuration file is located in the `config/log4j2.xml` 
+file. The server writes all initial startup messages to the standard output and 
+error streams. After the server initialization, all messages will be written to
+the `log/dhcpserver.log` file. When the file reaches 10MB, it is "rolled" over to a 
+new `log/dhcpserver-#.log` file up to ten files of logging history. These settings are 
+controlled by the  
+https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender[Log4j2 RollingFileAppender]
+for details.
 
 == Configuration
 === Hierarchy
@@ -907,9 +919,7 @@ follows:
 
  <?xml version="1.0" encoding="UTF-8"?>
  <dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml">
-     <v4ServerIdOption>
-         <ipAddress/>
-     </v4ServerIdOption>
+     <v4ServerIdOption/>
  </dhc:dhcpServerConfig>
  
 Using this default configuration, the default IP address of the host will be set 
@@ -947,11 +957,7 @@ follows:
 
  <?xml version="1.0" encoding="UTF-8"?>
  <dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml">
-     <v6ServerIdOption>
-         <opaqueData>
-             <hexValue/>
-         </opaqueData>
-     </v6ServerIdOption>
+     <v6ServerIdOption/>
  </dhc:dhcpServerConfig>
  
 Using this default configuration, a DUID-LLT, as defined by section 9.2 of RFC 3315,
