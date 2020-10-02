@@ -1,5 +1,5 @@
 # Jagornet DHCP Server
-An open source DHCPv4/DHCPv6 Server in Java
+An open source DHCPv4/DHCPv6 Server written in Java
 
 ## Description
 Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configuration Protocol Server for IPv4 and IPv6.
