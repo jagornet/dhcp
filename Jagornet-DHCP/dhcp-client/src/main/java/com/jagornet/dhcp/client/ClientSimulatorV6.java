@@ -70,6 +70,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ElapsedTimeOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
@@ -102,6 +103,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     protected int clientPort = DhcpConstants.V6_CLIENT_PORT;
     protected boolean rapidCommit = false;
     protected boolean sendRelease = false;
+    protected boolean sendFqdn = false;
     protected int numRequests = 100;
     protected AtomicInteger solicitsSent = new AtomicInteger();
     protected AtomicInteger advertisementsReceived = new AtomicInteger();
@@ -114,13 +116,15 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     protected long endTime = 0;
     protected long timeout = 0;
     protected int poolSize = 0;
+    protected int threadPoolSize = 0;
     protected CountDownLatch doneLatch = null;
 
     protected InetSocketAddress server = null;
     protected InetSocketAddress client = null;
     
     protected DatagramChannel channel = null;	
-	protected ExecutorService executor = Executors.newCachedThreadPool();
+	//protected ExecutorService executor = Executors.newCachedThreadPool();
+    protected ExecutorService executor = null;
 	
 	protected Map<String, ClientMachine> clientMap =
 			Collections.synchronizedMap(new HashMap<String, ClientMachine>());
@@ -160,6 +164,14 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
             String cliName = this.getClass().getName();
             formatter.printHelp(cliName, options);
             System.exit(0);
+        }
+        
+        log.info("Starting ClientSimulatorV4 with threadPoolSize=" + threadPoolSize);
+        if (threadPoolSize <= 0) {
+        	executor = Executors.newCachedThreadPool();
+        }
+        else {
+        	executor = Executors.newFixedThreadPool(threadPoolSize);
         }
         
         try {
@@ -214,13 +226,21 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         options.addOption(toOption);
         
         Option psOption = new Option("ps", "poolsize", true,
-        							"Size of the pool; wait for release after this many requests");
+        							"Size of the pool configured on the server; wait for release after this many requests");
         options.addOption(psOption);
+        
+        Option tpsOption = new Option("tps", "threadpoolsize", true,
+        							"Size of the thread pool used by the client");
+        options.addOption(tpsOption);
         
         Option xOption = new Option("x", "release", false,
         							"Send release");
         options.addOption(xOption);
         
+        Option fOption = new Option("f", "fqdn", false,
+        							"Send client FQDN");
+        options.addOption(fOption);
+
         Option helpOption = new Option("?", "help", false, "Show this help page.");
         
         options.addOption(helpOption);
@@ -314,8 +334,15 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
             	poolSize = 
             			parseIntegerOption("pool size", cmd.getOptionValue("ps"), 0);
             }
+            if (cmd.hasOption("tps")) {
+            	threadPoolSize = 
+            			parseIntegerOption("thread pool size used by client", cmd.getOptionValue("tps"), 0);
+            }
             if (cmd.hasOption("x")) {
             	sendRelease = true;
+            }
+            if (cmd.hasOption("f")) {
+            	sendFqdn = true;
             }
         }
         catch (ParseException pe) {
@@ -451,6 +478,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 				if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 					if (retry) {
 						retry = false;
+						log.warn("Solicit timeout after 2 seconds, retrying...");
 						solicit();
 					}
 				}
@@ -484,6 +512,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 	    		if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 	    			if (retry) {
 	    				retry = false;
+						log.warn("Request timeout after 2 seconds, retrying...");
 	    				request();
 	    			}
 	    		}
@@ -607,6 +636,12 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         dhcpIaNa.setIaId(1);
         msg.putDhcpOption(dhcpIaNa);
 
+        if (sendFqdn) {
+        	DhcpV6ClientFqdnOption fqdnOption = new DhcpV6ClientFqdnOption();
+        	fqdnOption.setDomainName("jagornet-clientsimv6-" + duid);
+        	msg.putDhcpOption(fqdnOption);
+        }
+        
         return msg;
     }
     
@@ -619,6 +654,13 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         msg.putDhcpOption(advertisement.getDhcpServerIdOption());
         msg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REQUEST);
         msg.putDhcpOption(advertisement.getIaNaOptions().get(0));
+
+        if (sendFqdn) {
+        	DhcpV6ClientFqdnOption fqdnOption = new DhcpV6ClientFqdnOption();
+        	fqdnOption.setDomainName("jagornet-clientsimv6-" + 
+        							 advertisement.getDhcpClientIdOption().getOpaqueData().getAscii());
+        	msg.putDhcpOption(fqdnOption);
+        }
         
         return msg;
     }

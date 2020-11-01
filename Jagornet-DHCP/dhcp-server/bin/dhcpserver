@@ -231,7 +231,16 @@ case "$OP" in
 		gentestconfig
 		;;
 	*)
-		echo "Usage: $0 { start [options] |\n stop |\n restart [options] |\n status |\n version |\n test-configfile <configfile> |\n list-interfaces |\n testclientv4 [options] |\n testclientv6 [options] |\n gentestconfig [options] }"
+		echo "Usage: $0 < start [options|-?] | 
+				stop | 
+				restart [options|-?] | 
+				status | 
+				version | 
+				test-configfile <configfile> | 
+				list-interfaces | 
+				testclientv4 [options|-?] | 
+				testclientv6 [options|-?] | 
+				gentestconfig [options|-?] >"
 		exit 1
 		;;
 esac

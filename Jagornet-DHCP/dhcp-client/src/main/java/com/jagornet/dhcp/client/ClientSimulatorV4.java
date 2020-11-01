@@ -66,6 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.option.v4.DhcpV4HostnameOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4MsgTypeOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
@@ -95,6 +96,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     protected int clientPort = DhcpConstants.V4_SERVER_PORT;	// the test client acts as a relay
     protected boolean rapidCommit = false;
     protected boolean sendRelease = false;
+    protected boolean sendHostname = false;
     protected int numRequests = 100;
     protected AtomicInteger discoversSent = new AtomicInteger();
     protected AtomicInteger offersReceived = new AtomicInteger();
@@ -106,13 +108,15 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     protected long endTime = 0;
     protected long timeout = 0;
     protected int poolSize = 0;
+    protected int threadPoolSize = 0;
     protected CountDownLatch doneLatch = null;
 
     protected InetSocketAddress server = null;
     protected InetSocketAddress client = null;
     
     protected DatagramChannel channel = null;	
-	protected ExecutorService executor = Executors.newCachedThreadPool();
+	//protected ExecutorService executor = Executors.newCachedThreadPool();
+    protected ExecutorService executor = null;
 	
 	protected Map<BigInteger, ClientMachine> clientMap =
 			Collections.synchronizedMap(new HashMap<BigInteger, ClientMachine>());
@@ -136,6 +140,13 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
             System.exit(0);
         }
         
+        log.info("Starting ClientSimulatorV4 with threadPoolSize=" + threadPoolSize);
+        if (threadPoolSize <= 0) {
+        	executor = Executors.newCachedThreadPool();
+        }
+        else {
+        	executor = Executors.newFixedThreadPool(threadPoolSize);
+        }
         try {
 			start();
 		} 
@@ -183,12 +194,20 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
         options.addOption(toOption);
         
         Option psOption = new Option("ps", "poolsize", true,
-        							"Size of the pool; wait for release after this many requests");
+        							"Size of the pool configured on the server; wait for release after this many requests");
         options.addOption(psOption);
+        
+        Option tpsOption = new Option("tps", "threadpoolsize", true,
+        							"Size of the thread pool used by the client");
+        options.addOption(tpsOption);
         
         Option xOption = new Option("x", "release", false,
         							"Send release");
         options.addOption(xOption);
+        
+        Option hOption = new Option("h", "hostname", false,
+        							"Send hostname");
+        options.addOption(hOption);
         
         Option helpOption = new Option("?", "help", false, "Show this help page.");
         
@@ -271,10 +290,17 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
             }
             if (cmd.hasOption("ps")) {
             	poolSize = 
-            			parseIntegerOption("pool size", cmd.getOptionValue("ps"), 0);
+            			parseIntegerOption("pool size configured on server", cmd.getOptionValue("ps"), 0);
+            }
+            if (cmd.hasOption("tps")) {
+            	threadPoolSize = 
+            			parseIntegerOption("thread pool size used by client", cmd.getOptionValue("tps"), 0);
             }
             if (cmd.hasOption("x")) {
             	sendRelease = true;
+            }
+            if (cmd.hasOption("h")) {
+            	sendHostname = true;
             }
         }
         catch (ParseException pe) {
@@ -410,6 +436,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 				if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 					if (retry) {
 						retry = false;
+						log.warn("Discover timeout after 2 seconds, retrying...");
 						discover();
 					}
 				}
@@ -443,6 +470,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 	    		if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 	    			if (retry) {
 	    				retry = false;
+						log.warn("Request timeout after 2 seconds, retrying...");
 	    				request();
 	    			}
 	    		}
@@ -564,6 +592,12 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
         
         msg.putDhcpOption(msgTypeOption);
         
+        if (sendHostname) {
+        	DhcpV4HostnameOption hostnameOption = new DhcpV4HostnameOption();
+        	hostnameOption.setString("jagornet-clientsimv4-" + Util.toHexString(chAddr));
+        	msg.putDhcpOption(hostnameOption);
+        }
+        
         return msg;
     }
     
@@ -582,6 +616,12 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
         msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_REQUEST);
         
         msg.putDhcpOption(msgTypeOption);
+        
+        if (sendHostname) {
+        	DhcpV4HostnameOption hostnameOption = new DhcpV4HostnameOption();
+        	hostnameOption.setString("jagornet-clientsimv4-" + Util.toHexString(offer.getChAddr()));
+        	msg.putDhcpOption(hostnameOption);
+        }
         
         DhcpV4RequestedIpAddressOption reqIpOption = new DhcpV4RequestedIpAddressOption();
         reqIpOption.setIpAddress(offer.getYiAddr().getHostAddress());
