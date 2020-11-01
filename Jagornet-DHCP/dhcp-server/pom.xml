@@ -4,13 +4,12 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
-    <version>3.0.1</version>
+    <version>${jagornet.dhcp.version}</version>
   </parent>
 
   <artifactId>jagornet-dhcp-server</artifactId>
   
   <properties>
-  	<jagornet.dhcp.version>3.0.1</jagornet.dhcp.version>
   	<commons.cli.version>1.2</commons.cli.version>
   	<commons.dbcp2.version>2.7.0</commons.dbcp2.version>
   	<commons.io.version>2.6</commons.io.version>
@@ -209,11 +208,6 @@
   	</dependency>
   </dependencies>
 
-<!--   
-  <profiles>
-    <profile>
-    <id>all-db</id>
--->
 	<build>
 		<!-- <pluginManagement> -->
 		<plugins>
@@ -391,36 +385,7 @@
 				  </execution>
 				</executions>
 			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.3.0</version>
-				<configuration>
-				  <!-- 
-				  'bin' descriptorRef just creates server jar
-				  'jar-with-dependencies' is an uber jar
-				  <descriptorRefs>
-				    <descriptorRef>bin</descriptorRef>
-				    <descriptorRef>jar-with-dependencies</descriptorRef>
-				  </descriptorRefs>
-				   -->
-				  <descriptors>
-				    <descriptor>src/assembly/all-db-dist-assembly.xml</descriptor>
-				    <descriptor>src/assembly/derby-dist-assembly.xml</descriptor>
-				    <descriptor>src/assembly/h2-dist-assembly.xml</descriptor>
-				  </descriptors>
-				</configuration>
-				<executions>
-				  <execution>
-				    <id>make-assembly</id> <!-- this is used for inheritance merges -->
-				    <phase>package</phase> <!-- bind to the packaging phase -->
-				    <goals>
-				      <goal>single</goal>
-				    </goals>
-				  </execution>
-				</executions>
-			</plugin>
+ 
 			<plugin>
 	        	<groupId>org.apache.maven.plugins</groupId>
 	        	<artifactId>maven-surefire-plugin</artifactId>
@@ -439,29 +404,6 @@
                     </execution>
                </executions>
 	    	</plugin>
-	    	
-	    	<!-- TODO: remove this, superseded by assembly plugin, right? 
-		    <plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-dependency-plugin</artifactId>
-		        <version>3.0.2</version>
-		        <executions>
-		          <execution>
-		            <id>copy-dependencies</id>
-		            <phase>package</phase>
-		            <goals>
-		              <goal>copy-dependencies</goal>
-		            </goals>
-		            <configuration>
-		              <outputDirectory>target/lib</outputDirectory>
-		              <overWriteReleases>false</overWriteReleases>
-		              <overWriteSnapshots>false</overWriteSnapshots>
-		              <overWriteIfNewer>true</overWriteIfNewer>
-		            </configuration>
-		          </execution>
-		        </executions>
-		    </plugin>
-		    -->
         </plugins>
         <!-- </pluginManagement> -->
     </build>
@@ -475,125 +417,5 @@
 	    </plugin>
 	  </plugins>
 	</reporting>
-
-<!-- 
-    </profile>
-    
-    <profile>
-    <id>derby</id>
-	<build>
-        <plugins>
-	        <plugin>
-	        	<groupId>org.apache.maven.plugins</groupId>
-	            <artifactId>maven-compiler-plugin</artifactId>
-	            <configuration>
-	                <excludes>
-	                	<exclude>com/jagornet/dhcp/netty4/*</exclude>
-	                	<exclude>com/jagornet/dhcp/db/Mongo*</exclude>
-	                	<exclude>com/jagornet/dhcp/db/Redis*</exclude>
-	                	<exclude>com/jagornet/dhcp/db/Sqlite*</exclude>
-	                </excludes>
-	            </configuration>
-	        </plugin>
-	        <plugin>
-	            <groupId>org.codehaus.mojo</groupId>
-	            <artifactId>jaxb2-maven-plugin</artifactId>
-	            <version>2.3.1</version>
-	            <executions>
-	                <execution>
-	                	<phase>generate-sources</phase>
-	                    <id>xjc</id>
-	                    <goals>
-	                        <goal>xjc</goal>
-	                    </goals>
-	                </execution>
-	            </executions>
-	            <configuration>
-	            	<sources>
-	            		<source>src/main/resources/dhcpserver.xsd</source>
-	            	</sources>
-	            	<xjbSources>
-	            		<source>src/main/resources/dhcpserver.xjb</source>
-	            	</xjbSources>
-	                <packageName>com.jagornet.dhcp.server.config.xml</packageName>
-	            </configuration>
-	        </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.3</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                          <goal>shade</goal>
-                        </goals>
-                        <configuration>
-
-                          <minimizeJar>true</minimizeJar>
-			              <filters>
-			                <filter>
-			                   <artifact>log4j:log4j</artifact>
-			                   <includes>
-			                       <include>**</include>
-			                   </includes>
-			                </filter>
-			                <filter>
-			                   <artifact>commons-logging:commons-logging</artifact>
-			                   <includes>
-			                       <include>**</include>
-			                   </includes>
-			                </filter>
-			                <filter>
-			                   <artifact>org.springframework:spring-beans</artifact>
-			                   <includes>
-			                       <include>**</include>
-			                   </includes>
-			                </filter>
-			                <filter>
-			                   <artifact>org.springframework:spring-core</artifact>
-			                   <includes>
-			                       <include>**</include>
-			                   </includes>
-			                </filter>
-			                <filter>
-			                   <artifact>org.apache.commons:commons-dbcp2</artifact>
-			                   <includes>
-			                       <include>**</include>
-			                   </includes>
-			                </filter>
-			                <filter>
-			                   <artifact>org.apache.commons:commons-pool2</artifact>
-			                   <includes>
-			                       <include>**</include>
-			                   </includes>
-			                </filter>
-			                <filter>
-			                   <artifact>org.apache.derby</artifact>
-			                   <includes>
-			                       <include>**</include>
-			                   </includes>
-			                </filter>
-			              </filters>
-
- 						  <artifactSet>
- 						    <excludes>
- 						      <exclude>io.netty:netty-all</exclude>
- 						      <exclude>com.h2database:h2</exclude>
- 						      <exclude>org.xerial:sqlite-jdbc</exclude>
- 						      <exclude>com.almworks.sqlite4java:sqlite4java</exclude>
- 						      <exclude>org.mongodb:mongo-java-driver</exclude>
- 						      <exclude>redis.clients:jedis</exclude>
- 						    </excludes>
- 						  </artifactSet>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    </profile>
-  </profiles>   
--->
  
 </project>

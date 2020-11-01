@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.jagornet</groupId>
+    <artifactId>jagornet-dhcp-all</artifactId>
+    <version>${jagornet.dhcp.version}</version>
+  </parent>
+  <artifactId>jagornet-dhcp-dist</artifactId>
+  <packaging>pom</packaging>
+
+  <!-- NOTE: These dependency declarations are only required to sort this project to the 
+       end of the line in the multimodule build. 
+       
+       Since we only include the child1 module in our assembly, we only need to ensure this
+       distribution project builds AFTER that one...
+  -->
+  <dependencies>
+    <dependency>
+      <groupId>com.jagornet</groupId>
+      <artifactId>jagornet-dhcp-client</artifactId>
+      <version>${jagornet.dhcp.version}</version>
+    </dependency>
+  </dependencies>
+  
+  <build>
+  	<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+				  <descriptors>
+				    <descriptor>src/assembly/all-db-dist-assembly.xml</descriptor>
+				    <!-- 
+				    <descriptor>src/assembly/derby-dist-assembly.xml</descriptor>
+				    <descriptor>src/assembly/h2-dist-assembly.xml</descriptor>
+				     -->
+				  </descriptors>
+				</configuration>
+				<executions>
+				  <execution>
+				    <id>make-assembly</id>
+				    <phase>package</phase>
+				    <goals>
+				      <goal>single</goal>
+				    </goals>
+				  </execution>
+				</executions>
+			</plugin>
+  	</plugins>
+  </build>
+
+</project>

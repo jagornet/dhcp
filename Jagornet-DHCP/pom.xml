@@ -9,24 +9,27 @@
 
   <groupId>com.jagornet</groupId>
   <artifactId>jagornet-dhcp-all</artifactId>
-  <version>3.0.1</version>
   <packaging>pom</packaging>
 
-  <name>jagornet-dhcp-all</name>
-
   <properties>
+    <!-- Jagornet DHCP version for all modules -->
+  	<jagornet.dhcp.version>3.0.2</jagornet.dhcp.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   	<slf4j.version>1.7.23</slf4j.version>
   	<log4j.version>2.13.3</log4j.version>
-  	<junit.version>4.12</junit.version>
+  	<junit.version>4.13.1</junit.version>
   </properties>
-  
+
+  <name>jagornet-dhcp-all</name>
+  <version>${jagornet.dhcp.version}</version>
+
   <modules>
   	<module>dhcp-core</module>
   	<module>dhcp-client</module>
   	<module>dhcp-server</module>
+  	<module>dhcp-dist</module>
   </modules>
   
   <dependencies>

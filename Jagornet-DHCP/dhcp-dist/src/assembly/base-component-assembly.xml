@@ -1,0 +1,59 @@
+<component>
+  <moduleSets>
+    <moduleSet>
+    
+      <!-- Enable access to all projects in the current multimodule build! -->
+      <useAllReactorProjects>true</useAllReactorProjects>
+      
+      <!-- Now, select which projects to include in this module-set. -->
+      <includes>
+        <include>com.jagornet:jagornet-dhcp-core</include>
+        <include>com.jagornet:jagornet-dhcp-server</include>
+        <include>com.jagornet:jagornet-dhcp-client</include>
+      </includes>
+      <binaries>
+        <outputDirectory>lib</outputDirectory>
+        <unpack>false</unpack>
+      </binaries>
+    </moduleSet>
+  </moduleSets>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>lib</outputDirectory> 
+      <includes>
+        <include>com.jagornet:jagornet-dhcp-core</include>
+        <include>com.jagornet:jagornet-dhcp-server</include>
+        <include>com.jagornet:jagornet-dhcp-client</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+  <fileSets>
+    <fileSet>
+      <directory>${project.basedir}/../dhcp-server/bin</directory>
+      <outputDirectory>bin</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/../dhcp-server/config</directory>
+      <outputDirectory>config</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/../dhcp-server/db</directory>
+      <outputDirectory>db</outputDirectory>
+      <includes>
+      	<include>jagornet-*.sql</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/../dhcp-server/docs</directory>
+      <outputDirectory>docs</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/../dhcp-server/target/generated-docs</directory>
+      <outputDirectory>docs</outputDirectory>
+      <includes>
+      	<include>*.html</include>
+      	<include>*.pdf</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</component>

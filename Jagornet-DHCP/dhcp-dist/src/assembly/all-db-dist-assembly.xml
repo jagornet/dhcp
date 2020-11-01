@@ -1,7 +1,7 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>derby-dist</id>
+  <id>all</id>
   <formats>
     <format>zip</format>
     <format>tar.gz</format>
@@ -11,11 +11,8 @@
   </componentDescriptors>
   <dependencySets>
     <dependencySet>
+      <!-- all dependencies included by default -->
       <outputDirectory>lib</outputDirectory>
-      <excludes>
-        <exclude>com.h2database:h2</exclude>
-        <exclude>org.xerial:sqlite-jdbc</exclude>
-      </excludes>
     </dependencySet>
   </dependencySets>
 </assembly>

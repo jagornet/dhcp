@@ -1,7 +1,7 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>all-db-dist</id>
+  <id>h2-only</id>
   <formats>
     <format>zip</format>
     <format>tar.gz</format>
@@ -12,19 +12,10 @@
   <dependencySets>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
-      <!-- all dependencies included by default,
-      		so no need for component above nor
-      		includes below
-      <includes>
-        <include>org.apache.derby:derby</include>
-        <include>org.apache.derby:derbyclient</include>
-        <include>com.h2database:h2</include>
-        <include>org.xerial:sqlite-jdbc</include>
-        <include>com.almworks.sqlite4java:sqlite4java</include>
-        <include>org.mongodb:mongo-java-driver</include>
-        <include>redis.client:jedis</include>
-      </includes>
-       -->
+      <excludes>
+        <exclude>org.apache.derby</exclude>
+        <exclude>org.xerial</exclude>
+      </excludes>
     </dependencySet>
   </dependencySets>
 </assembly>
