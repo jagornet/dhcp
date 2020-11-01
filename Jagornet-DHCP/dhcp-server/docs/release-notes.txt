@@ -1,3 +1,14 @@
+Changes in 3.0.2
+----------------
+    - Fixes #22: Update JUnit to 4.13.1 to resolve Dependabot security alert 
+    - Fixes #24: Refactor module poms to build new distribution including
+                 core, server, and client jars
+    - Fixes #25: Add -h/--hostname option for DHCPv4 test client and
+                 -f/--fqdn option for DHCPv6 test client to configure
+                 sending hostname in requests
+    - Fixes #26: Add -tps/--threadpoolsize option for DHCPv4/v6 test
+                 clients to configure number of threads used
+
 Changes in 3.0.1
 ----------------
 	- Fixes #20: Replace Log4j with Log4j2
