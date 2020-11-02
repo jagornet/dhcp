@@ -381,12 +381,20 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 
     	doneLatch = new CountDownLatch(numRequests);
     	try {
-    		log.info("Waiting total of " + timeout + " seconds for completion");
-			doneLatch.await(timeout, TimeUnit.SECONDS);
-			endTime = System.currentTimeMillis();
+    		if (timeout <= 0) {
+    			log.info("Waiting for completion");
+    			doneLatch.await();
+    		}
+    		else {
+	    		log.info("Waiting total of " + timeout + " seconds for completion");
+				doneLatch.await(timeout, TimeUnit.SECONDS);
+    		}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.warn("Waiting interrupted");
+			System.err.println("Interrupted");
 		}
+    	
+		endTime = System.currentTimeMillis();
 
 		log.info("Complete: solicitsSent=" + solicitsSent +
 				" advertisementsReceived=" + advertisementsReceived +
@@ -575,7 +583,8 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 				}
 			}
 			else {
-				log.warn("Failed to send message id=" + msg.getTransactionId());
+				log.error("Failed to send message id=" + msg.getTransactionId() +
+						  ": " + future.getCause());
 			}
 		}
     }
