@@ -22,4 +22,4 @@ echo Warning: JAVA_HOME environment variable is not set.
 echo.
 
 :runApp
-"%_JAVACMD%" -cp "%JAGORNET_DHCP_HOME%\conf";"%JAGORNET_DHCP_HOME%\lib\*" -Djagornet.dhcp.home="%JAGORNET_DHCP_HOME%" com.jagornet.dhcp.client.ClientSimulatorV4 %*
+"%_JAVACMD%" -cp "%JAGORNET_DHCP_HOME%\config";"%JAGORNET_DHCP_HOME%\lib\*" -Djagornet.dhcp.home="%JAGORNET_DHCP_HOME%" -Dlog4j.configurationFile=log4j2-testclient.xml com.jagornet.dhcp.client.ClientSimulatorV4 %*

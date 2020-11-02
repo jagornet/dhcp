@@ -176,7 +176,7 @@ listinterfaces() {
 testclientv4() {
 	echo Running $DHCPV4TESTCLIENT_MAIN
 	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			-Dlog4j.configuration="testclient_log4j.properties" \
+			-Dlog4j.configurationFile=log4j2-testclient.xml \
 			$DHCPV4TESTCLIENT_MAIN $JAGORNET_DHCP_OPTS 
 	exit $? 
 }
@@ -184,7 +184,7 @@ testclientv4() {
 testclientv6() {
 	echo Running $DHCPV6TESTCLIENT_MAIN
 	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			-Dlog4j.configuration="testclient_log4j.properties" \
+			-Dlog4j.configurationFile=log4j2-testclient.xml \
 			$DHCPV6TESTCLIENT_MAIN $JAGORNET_DHCP_OPTS 
 	exit $? 
 }
