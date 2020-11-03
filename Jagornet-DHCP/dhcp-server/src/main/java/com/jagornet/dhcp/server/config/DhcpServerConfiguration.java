@@ -973,10 +973,14 @@ public class DhcpServerConfiguration
     {
     	FileOutputStream fos = null;
     	try {
+    		if (filename.startsWith("file:")) {
+    			filename = filename.substring(5);
+    		}
 	        log.info("Saving server configuration file: " + filename);
-    		ResourceLoader resourceLoader = new DefaultResourceLoader();
-    		Resource resource = resourceLoader.getResource(filename);
-	        fos = new FileOutputStream(resource.getFile());
+	        fos = new FileOutputStream(filename);
+//    		ResourceLoader resourceLoader = new DefaultResourceLoader();
+//    		Resource resource = resourceLoader.getResource(filename);
+//	        fos = new FileOutputStream(resource.getFile());
 	        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
 	        Marshaller marshaller = jc.createMarshaller();
 	        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
