@@ -1,3 +1,14 @@
+Changes in 3.0.3
+----------------
+    - Fix #27: Update DHCP client logging config file options for Log4j2
+    - Fix #28: Check DHCPv4 release count on exit only if sendRelease
+               option was specified
+    - Fix #29: Wait forever for client threads to complete if timeout
+               option is not specified
+    - Fix #30: Comment console logging in default Log4j2 config file
+    - Update config/readme.txt for previous move to Log4j2
+    - Fix #31: Strip the "file:" prefix from config file name when saving
+    
 Changes in 3.0.2
 ----------------
     - Fixes #22: Update JUnit to 4.13.1 to resolve Dependabot security alert 
