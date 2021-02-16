@@ -117,6 +117,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     protected long timeout = 0;
     protected int poolSize = 0;
     protected int threadPoolSize = 0;
+    protected int requestRate = 0;
     protected CountDownLatch doneLatch = null;
 
     protected InetSocketAddress server = null;
@@ -166,7 +167,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
             System.exit(0);
         }
         
-        log.info("Starting ClientSimulatorV4 with threadPoolSize=" + threadPoolSize);
+        log.info("Starting ClientSimulatorV6 with threadPoolSize=" + threadPoolSize);
         if (threadPoolSize <= 0) {
         	executor = Executors.newCachedThreadPool();
         }
@@ -240,6 +241,10 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         Option fOption = new Option("f", "fqdn", false,
         							"Send client FQDN");
         options.addOption(fOption);
+
+        Option rrOption = new Option("rr","requestrate", true,
+				"Request rate per second");
+        options.addOption(rrOption);
 
         Option helpOption = new Option("?", "help", false, "Show this help page.");
         
@@ -332,7 +337,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
             }
             if (cmd.hasOption("ps")) {
             	poolSize = 
-            			parseIntegerOption("pool size", cmd.getOptionValue("ps"), 0);
+            			parseIntegerOption("address pool size configured on server", cmd.getOptionValue("ps"), 0);
             }
             if (cmd.hasOption("tps")) {
             	threadPoolSize = 
@@ -343,6 +348,15 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
             }
             if (cmd.hasOption("f")) {
             	sendFqdn = true;
+            }
+            if (cmd.hasOption("rr")) {
+            	requestRate = 
+            			parseIntegerOption("request rate per second", cmd.getOptionValue("rr"), 0);
+            }
+            
+            if (poolSize > 0 && !sendRelease) {
+            	System.err.println("Must specify -x/--release when using -ps/--poolsize");
+            	return false;
             }
         }
         catch (ParseException pe) {
@@ -375,8 +389,45 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 		channel.getConfig().setNetworkInterface(mcastNetIf);
     	channel.bind(client);
 
-    	for (int i=1; i<=numRequests; i++) {
-    		executor.execute(new ClientMachine(i));
+    	
+    	if (requestRate <= 0) {
+    		// spin up requests as fast as possible
+	    	for (int i=1; i<=numRequests; i++) {
+	    		log.debug("Executing client " + i);
+	    		executor.execute(new ClientMachine(i));
+	    	}
+    	}
+    	else {
+	    	// spin up requests at the given rate per second
+	    	Thread requestThread = new Thread() {
+	    		@Override
+	    		public void run() {
+	    	    	long before = System.currentTimeMillis();
+	    	    	log.debug("Spinning up " + numRequests + " clients at " + before);
+	    	    	for (int i=1; i<=numRequests; i++) {
+	    	    		log.debug("Executing client " + i);
+	    	    		executor.execute(new ClientMachine(i));
+	    	    		// if not the last request, see if on request rate boundary
+	    	    		if ((i < numRequests) && (i % requestRate == 0)) {
+	    	    			long now = System.currentTimeMillis();
+	    	    			long diff = now - before;
+	    	    			// if less than one second since starting last batch
+	    	    			if (diff < 1000) {
+	    	    				long wait = 1000 - diff;
+	    	    				try {
+	    	    					log.debug("Waiting " + wait + "ms to honor requestRate=" + requestRate);
+	    							Thread.sleep(wait);
+	    							before = System.currentTimeMillis();
+	    						} catch (InterruptedException e) {
+	    							// TODO Auto-generated catch block
+	    							e.printStackTrace();
+	    						}
+	    	    			}
+	    	    		}
+	    	    	}
+	    		}
+	    	};
+	    	requestThread.start();
     	}
 
     	doneLatch = new CountDownLatch(numRequests);
@@ -726,6 +777,11 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 	            	else {
 	            		releaseRepliesReceived.getAndIncrement();
 						clientMap.remove(key);
+						if (poolSize > 0) {
+							synchronized (clientMap) {
+								clientMap.notify();
+							}
+						}
 						doneLatch.countDown();
 	            	}
 	            }
