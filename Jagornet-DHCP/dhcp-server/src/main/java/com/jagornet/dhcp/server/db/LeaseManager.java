@@ -585,7 +585,13 @@ public abstract class LeaseManager implements IaManager {
 			}
 		}
 		if (iaAddress == null) {
-			iaAddress = toIaAddress(findUnusedLease(startAddr, endAddr));
+			DhcpLease dhcpLease = findUnusedLease(startAddr, endAddr);
+			if (dhcpLease == null) {
+				log.error("No leases available in pool: " + 
+						  startAddr.getHostAddress() + "-" + endAddr.getHostAddress());
+				return null;
+			}
+			iaAddress = toIaAddress(dhcpLease);
 		}
 		return iaAddress;
 	}
