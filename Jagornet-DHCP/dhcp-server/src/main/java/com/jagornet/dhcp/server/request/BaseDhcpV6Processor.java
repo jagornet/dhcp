@@ -63,6 +63,7 @@ import com.jagornet.dhcp.server.config.xml.V6AddressPool;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPool;
 import com.jagornet.dhcp.server.ha.HaBackupFSM;
 import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
+import com.jagornet.dhcp.server.netty.NettyDhcpV6Message;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.BindingObject;
 import com.jagornet.dhcp.server.request.binding.V6BindingAddress;
@@ -185,8 +186,10 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     		}
 	        
 	        // build a reply message using the local and remote sockets from the request
-	        replyMsg = new DhcpV6Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
-	        // copy the transaction ID into the reply
+	        //]]replyMsg = new DhcpV6Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
+    		replyMsg = new NettyDhcpV6Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
+
+    		// copy the transaction ID into the reply
 	        replyMsg.setTransactionId(requestMsg.getTransactionId());
 	
 	        // MUST put Server Identifier DUID in ADVERTISE or REPLY message

@@ -42,10 +42,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.core.message.DhcpV4Message;
-import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
+import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
@@ -66,19 +65,14 @@ import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.handler.codec.DatagramPacketEncoder;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.util.concurrent.UnorderedThreadPoolEventExecutor;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Log4J2LoggerFactory;
 
 /**
- * This is a JBoss Netty based DHCPv6 server that uses
- * Java NIO DatagramChannels for receiving unicast messages.
- * It uses OIO (java.net) DatagramSockets for receiving
- * multicast messages.  Java 7 is required to support
- * MulticastChannels.
+ * The main Netty DHCP server class that initializes all channels and handlers.
  * 
  * @author A. Gregory Rabil
  */
@@ -156,7 +150,9 @@ public class NettyDhcpServer
         			" receiveBufferSize=" + receiveBufSize +
         			" sendBufferSize=" + sendBufSize);
         	
-        	eventExecutorGroup = new DefaultEventExecutorGroup(corePoolSize);
+        	//eventExecutorGroup = new DefaultEventExecutorGroup(corePoolSize);
+        	// unordered avoids any bottlenecks from ordering, but adds some risk
+        	eventExecutorGroup = new UnorderedThreadPoolEventExecutor(corePoolSize);
         	
         	boolean v4SocketChecked = false;
     		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
@@ -201,11 +197,11 @@ public class NettyDhcpServer
 				            pipeline.addLast("decoder",
 				            		new DhcpV4PacketDecoder(
 				            				new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
-				            pipeline.addLast("encoder", 
-				            		new DatagramPacketEncoder<DhcpV4Message>(
+				            pipeline.addLast("encoder",
+				            		new DhcpV4PacketEncoder(
 				            				new DhcpV4ChannelEncoder()));
 				            pipeline.addLast(eventExecutorGroup, "handler", 
-				            		new DhcpV4ChannelHandler(null));
+				            		new DhcpV4ChannelHandler(channel));
 						}	        		
 	            	});
 
@@ -241,6 +237,13 @@ public class NettyDhcpServer
                 			log.error(msg);
                 			throw new DhcpServerConfigException(msg);        					
         				}
+        				if (JagornetDhcpServer.hasMultipleV4Interfaces()) {
+        					log.warn("Multiple active IPv4 interfaces found." +
+        							" Broadcast DHCP request messages must be received" +
+        							" from clients directly connected to interface '" +
+        							v4NetIf + "' only. All other DHCP request messages" +
+        							" must be unicast from a DHCP relay agent.");
+        				}
 		        		foundV4Addr = true;
 			            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
 			            Bootstrap bootstrap = new Bootstrap();
@@ -257,9 +260,9 @@ public class NettyDhcpServer
 					            pipeline.addLast("logger", new LoggingHandler());
 					            pipeline.addLast("decoder",
 					            		new DhcpV4PacketDecoder(
-					            				new DhcpV4ChannelDecoder(sockAddr, ignoreSelfPackets)));
-					            pipeline.addLast("encoder",  
-					            		new DatagramPacketEncoder<DhcpV4Message>(
+					            				new DhcpV4ChannelDecoder(sockAddr, ignoreSelfPackets, v4NetIf)));
+					            pipeline.addLast("encoder",
+					            		new DhcpV4PacketEncoder(
 					            				new DhcpV4ChannelEncoder()));
 					            pipeline.addLast(eventExecutorGroup, "handler",
 					            		new DhcpV4ChannelHandler(bcastChannel));
@@ -329,11 +332,11 @@ public class NettyDhcpServer
 				            pipeline.addLast("decoder", 
 				            		new DhcpV6PacketDecoder(
 				            				new DhcpV6UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
-				            pipeline.addLast("encoder",  
-				            		new DatagramPacketEncoder<DhcpV6Message>(
+				            pipeline.addLast("encoder",
+				            		new DhcpV6PacketEncoder(
 				            				new DhcpV6ChannelEncoder()));
 				            pipeline.addLast(eventExecutorGroup, "handler", 
-				            		new DhcpV6ChannelHandler());
+				            		new DhcpV6ChannelHandler(channel));
 						}
 	            	});
 		            
@@ -383,11 +386,11 @@ public class NettyDhcpServer
 				            pipeline.addLast("decoder", 
 				            		new DhcpV6PacketDecoder(
 				            				new DhcpV6ChannelDecoder(sockAddr, ignoreSelfPackets)));
-				            pipeline.addLast("encoder",  
-				            		new DatagramPacketEncoder<DhcpV6Message>(
+				            pipeline.addLast("encoder",
+				            		new DhcpV6PacketEncoder(
 				            				new DhcpV6ChannelEncoder()));
 				            pipeline.addLast(eventExecutorGroup, "handler", 
-				            		new DhcpV6ChannelHandler());
+				            		new DhcpV6ChannelHandler(channel));
 						}
 	            	});
 	            	
@@ -451,7 +454,7 @@ public class NettyDhcpServer
     		}
     	}
     }
-    
+        
     /**
      * Shutdown.
      */
@@ -464,4 +467,60 @@ public class NettyDhcpServer
 		log.info("Executor shutdown");
 //TODO        executorService.shutdown();     
     }
+
+	public List<InetAddress> getV4Addrs() {
+		return v4Addrs;
+	}
+
+	public void setV4Addrs(List<InetAddress> v4Addrs) {
+		this.v4Addrs = v4Addrs;
+	}
+
+	public NetworkInterface getV4NetIf() {
+		return v4NetIf;
+	}
+
+	public void setV4NetIf(NetworkInterface v4NetIf) {
+		this.v4NetIf = v4NetIf;
+	}
+
+	public int getV4Port() {
+		return v4Port;
+	}
+
+	public void setV4Port(int v4Port) {
+		this.v4Port = v4Port;
+	}
+
+	public List<InetAddress> getV6Addrs() {
+		return v6Addrs;
+	}
+
+	public void setV6Addrs(List<InetAddress> v6Addrs) {
+		this.v6Addrs = v6Addrs;
+	}
+
+	public List<NetworkInterface> getV6NetIfs() {
+		return v6NetIfs;
+	}
+
+	public void setV6NetIfs(List<NetworkInterface> v6NetIfs) {
+		this.v6NetIfs = v6NetIfs;
+	}
+
+	public int getV6Port() {
+		return v6Port;
+	}
+
+	public void setV6Port(int v6Port) {
+		this.v6Port = v6Port;
+	}
+
+	public Collection<DatagramChannel> getChannels() {
+		return channels;
+	}
+
+	public void setChannels(Collection<DatagramChannel> channels) {
+		this.channels = channels;
+	}
 }

@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.JagornetDhcpServer;
 
 import io.netty.buffer.ByteBuf;
@@ -41,9 +42,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
 /**
- * Title: DhcpChannelDecoder
- * Description: The protocol decoder used by the NETTY-based DHCP server
- * when receiving packets.
+ * Description: The DHCPv6 message decoder used by the NETTY-based DHCPv6 server
+ * when receiving packets.  This is the second handler in the inbound pipeline.
+ * This class does the work of creating the request DhcpV6Message and then
+ * sends it on to the channel handler, which is next in the pipeline. 
  * 
  * @author A. Gregory Rabil
  */
@@ -52,10 +54,8 @@ public class DhcpV6ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
 {
     private static Logger log = LoggerFactory.getLogger(DhcpV6ChannelDecoder.class);
 
-    /** The local socket address. */
     protected InetSocketAddress localSocketAddress = null;
     
-    /** The remote socket address. */
     protected InetSocketAddress remoteSocketAddress = null;
     
     protected boolean ignoreSelfPackets;
@@ -95,9 +95,17 @@ public class DhcpV6ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
     
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
+		log.info("Decoding multicast message:" +
+				 " local=" + Util.socketAddressAsString(localSocketAddress) + 
+				 " remote=" + Util.socketAddressAsString(remoteSocketAddress));
+		// Netty's ByteBuf.nioBuffer() returns the underlying ByteBuffer, 
+		// without additional allocations, so should not be necessary 
+		// to have a NettyDhcpV4Message.decode() for Netty's ByteBuf
         DhcpV6Message dhcpMessage = 
         	DhcpV6Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
-//        						 (InetSocketAddress) ctx.channel().remoteAddress());
+        log.info("Multicast message decoded: msg=" + dhcpMessage);
+		// send the message to the next handler in the pipeline, which is
+		// the DhcpV6ChannelHandler
         out.add(dhcpMessage);
     }
 

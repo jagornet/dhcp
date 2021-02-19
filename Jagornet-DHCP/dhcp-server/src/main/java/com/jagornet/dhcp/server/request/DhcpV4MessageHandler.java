@@ -87,7 +87,7 @@ public class DhcpV4MessageHandler
 	    	            break;
 	        	}
 	        	if (processor != null) {
-	        		return processor.processMessage();
+	        		replyMessage = processor.processMessage();
 	        	}
 	        	else {
 	        		log.error("No processor found for message type: " + msgType);
@@ -96,7 +96,6 @@ public class DhcpV4MessageHandler
     		else {
     			log.error("No message type option found in request.");
     		}
-        	return null;
 	    }
 	    else {
 	        log.error("Unsupported op code: " + dhcpMessage.getOp());

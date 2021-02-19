@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpV6ChannelEncoder.java is part of Jagornet DHCP.
+ *   This file DhcpV4PacketDecoder.java is part of Jagornet DHCP.
  *
  *   Jagornet DHCP is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,36 +25,45 @@
  */
 package com.jagornet.dhcp.server.netty;
 
-import java.nio.ByteBuffer;
-import java.util.List;
+import java.net.InetSocketAddress;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.util.Util;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageEncoder;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.DatagramPacketEncoder;
 
 /**
- * Title: DhcpChannelEncoder
- * Description: The protocol encoder used by the NETTY-based DHCP server
- * when sending packets.
+ * Title: DhcpV6PacketEncoder
+ * Description: The protocol encode used by the NETTY-based DHCPv6 server
+ * when receiving packets.
  * 
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class DhcpV6ChannelEncoder extends MessageToMessageEncoder<DhcpV6Message>
+public class DhcpV6PacketEncoder extends DatagramPacketEncoder<DhcpV6Message>
 {
-    private static Logger log = LoggerFactory.getLogger(DhcpV6ChannelEncoder.class);
+    private static Logger log = LoggerFactory.getLogger(DhcpV6PacketEncoder.class);
 
+    DhcpV6ChannelEncoder dhcpV6ChannelEncoder;
+
+    public DhcpV6PacketEncoder(DhcpV6ChannelEncoder dhcpV6ChannelEncoder)
+    {
+    	super(dhcpV6ChannelEncoder);
+    	this.dhcpV6ChannelEncoder = dhcpV6ChannelEncoder;
+    }
+    
     @Override
-	protected void encode(ChannelHandlerContext ctx, DhcpV6Message msg, List<Object> out) throws Exception {
-		log.info("Encoding message: msg=" + msg);
-        ByteBuffer buf = msg.encode();
-        log.info("Message encoded: limit=" + buf.limit());
-        out.add(Unpooled.wrappedBuffer(buf));
-	}   
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+    	log.debug("Sending datagram packet on localChannel: " + 
+  			  Util.socketAddressAsString((InetSocketAddress)ctx.channel().localAddress()));
+		// send the message to the next handler in the outbound pipeline, which invokes 
+    	// the encode method of the dhcpV6ChannelEncoder supplied in the constructor
+    	super.write(ctx, msg, promise);
+    }
 }

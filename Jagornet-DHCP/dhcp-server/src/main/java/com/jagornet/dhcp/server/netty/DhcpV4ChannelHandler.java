@@ -26,21 +26,23 @@
 package com.jagornet.dhcp.server.netty;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.request.DhcpV4MessageHandler;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultAddressedEnvelope;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.socket.DatagramPacket;
 
 /**
  * Title: DhcpV4ChannelHandler
@@ -56,12 +58,12 @@ public class DhcpV4ChannelHandler extends SimpleChannelInboundHandler<DhcpV4Mess
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpV4ChannelHandler.class);
 
-	private Channel broadcastSendChannel;
+	private Channel outboundChannel;
 	
 	
-	public DhcpV4ChannelHandler(Channel broadcastSendChannel)
+	public DhcpV4ChannelHandler(Channel outboundChannel)
 	{
-		this.broadcastSendChannel = broadcastSendChannel;
+		this.outboundChannel = outboundChannel;
 	}
 
 	@Override
@@ -77,22 +79,38 @@ public class DhcpV4ChannelHandler extends SimpleChannelInboundHandler<DhcpV4Mess
         	DhcpV4MessageHandler.handleMessage(msg.getLocalAddress().getAddress(), msg);
         
         if (replyMessage != null) {
-        	if ((broadcastSendChannel != null) &&
-        		(replyMessage.getRemoteAddress().getAddress().equals(DhcpConstants.ZEROADDR_V4))) {
-    			if (log.isDebugEnabled())
+        	if ((replyMessage.getRemoteAddress().getAddress().equals(DhcpConstants.ZEROADDR_V4))) {
+    			if (log.isDebugEnabled()) {
     				log.debug("Client request received from zero address," +
     							" replying to broadcast address.");
+    			}
     			replyMessage.setRemoteAddress(new InetSocketAddress(DhcpConstants.BROADCAST,
     											replyMessage.getRemoteAddress().getPort()));
-    			// ensure the packet is sent on the proper broadcast interface
-    			ByteBuf buf = Unpooled.wrappedBuffer(replyMessage.encode());
-    			broadcastSendChannel.writeAndFlush(new DatagramPacket(buf, replyMessage.getRemoteAddress()));
     		}
-    		else {
-    			// client request was unicast, so reply via receive channel
-    			ByteBuf buf = Unpooled.wrappedBuffer(replyMessage.encode());
-    			ctx.writeAndFlush(new DatagramPacket(buf, replyMessage.getRemoteAddress()));
-    		}
+        	if (log.isDebugEnabled()) {
+        		log.debug("Sending: " + replyMessage.toStringWithOptions());
+        	}
+        	else {
+        		log.info("Sending: " + replyMessage.toString());
+        	}
+			ChannelFuture future = outboundChannel.writeAndFlush(
+					new DefaultAddressedEnvelope<DhcpV4Message, SocketAddress>(
+							replyMessage, replyMessage.getRemoteAddress()));
+			future.addListener(new ChannelFutureListener() {
+				public void operationComplete(ChannelFuture future) {
+		        	if (log.isDebugEnabled()) {
+						log.debug("Channel: " +
+								Util.socketAddressAsString(
+										(InetSocketAddress)future.channel().localAddress()) +
+								" write/flush operation complete: success=" + future.isSuccess());
+		        	}
+					if (replyMessage instanceof NettyDhcpV4Message) {
+			        	// release message resources, which basically means 
+			        	// releasing the byte buffer back to the buffer pool
+			        	((NettyDhcpV4Message)replyMessage).release();
+					}
+				}
+			});
         }
         else {
         	// don't log a warning for release, which has no reply message

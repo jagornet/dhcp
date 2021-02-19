@@ -706,10 +706,10 @@ public class JagornetDhcpServer
             if (cmd.hasOption("tc")) {
             	try {
             		String filename = cmd.getOptionValue("tc");
-            		System.err.println("Parsing server configuration file: " + filename);
-            		DhcpServerConfig config = DhcpServerConfiguration.parseConfig(filename);
+            		System.err.println("Testing server configuration file: " + filename);
+            		DhcpServerConfig config = DhcpServerConfiguration.loadConfig(filename);
             		if (config != null) {
-            			System.err.println("OK: " + filename + " is a valid DHCPv6 server configuration file.");
+            			System.err.println("OK: " + filename + " is a valid Jagornet DHCP server configuration file.");
             		}
             	}
             	catch (Exception ex) {
@@ -1034,6 +1034,39 @@ public class JagornetDhcpServer
 		}
 		return filteredV4Addrs;		
 	}
+    
+	// Use null as tertiary value so that we calculate this only once
+	static Boolean multipleV4Interfaces = null;
+    public static boolean hasMultipleV4Interfaces() throws SocketException {
+    	if (multipleV4Interfaces == null) {
+			multipleV4Interfaces = false;
+			Enumeration<NetworkInterface> netIfs = NetworkInterface.getNetworkInterfaces();
+			if (netIfs != null) {
+				boolean oneV4Interface = false;
+				while (netIfs.hasMoreElements()) {
+					NetworkInterface netIf = netIfs.nextElement();
+					if (netIf.isUp()) {
+			        	// the loopback interface is excluded
+			        	if (!netIf.isLoopback()) {
+							List<InterfaceAddress> ifAddrs =
+								netIf.getInterfaceAddresses();
+							for (InterfaceAddress ifAddr : ifAddrs) {
+								if (ifAddr.getAddress() instanceof Inet4Address) {
+									if (oneV4Interface) {
+										// already have one, so must have multiple
+										multipleV4Interfaces = true;
+										break;
+									}
+									oneV4Interface = true;
+								}
+							}
+			        	}
+					}
+				}
+			}
+    	}
+	    return multipleV4Interfaces.booleanValue();
+    }
 	
 	public static InetAddress getHttpsAddr(String addr) throws UnknownHostException {
 		if (addr.equalsIgnoreCase(NONE)) {
@@ -1091,7 +1124,8 @@ public class JagornetDhcpServer
      * 
      * @throws IOException the exception
      */
-    public static void saveConfig(DhcpServerConfig config, String filename) throws IOException
+    public static void saveConfig(DhcpServerConfig config, String filename) 
+    		throws DhcpServerConfigException, JAXBException, IOException 
     {
         DhcpServerConfiguration.saveConfig(config, filename);
     }

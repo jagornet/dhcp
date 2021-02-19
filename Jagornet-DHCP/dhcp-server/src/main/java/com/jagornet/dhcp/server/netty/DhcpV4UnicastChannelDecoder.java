@@ -33,27 +33,28 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * The Class DhcpUnicastChannelDecoder.
+ * Title: DhcpV4UnicastChannelDecoder
+ * Description: A specialized DHCPv4 message decoder used by the NETTY-based 
+ * DHCPv4 server when receiving packets in order to set the unicast flag in
+ * the DhcpV4Message for proper protocol processing.  This class is also used 
+ * distinguish the unicast channel in order to workaround duplicate messages 
+ * received when running on Windows.
+ * 
+ * @author A. Gregory Rabil
  */
 public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder 
-{
-	   
-    /** The log. */
+{	   
     private static Logger log = LoggerFactory.getLogger(DhcpV4UnicastChannelDecoder.class);
 	
-	/**
-	 * Instantiates a new dhcp unicast channel decoder.
-	 *
-	 * @param localSocketAddress the local socket address
-	 */
 	public DhcpV4UnicastChannelDecoder(InetSocketAddress localSocketAddress, boolean ignoreSelfPackets)
 	{
-		super(localSocketAddress, ignoreSelfPackets);
+		super(localSocketAddress, ignoreSelfPackets, null);
 	}
 
 	@Override
@@ -74,9 +75,17 @@ public class DhcpV4UnicastChannelDecoder extends DhcpV4ChannelDecoder
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
 		// remoteSocketAddress is set by DhcpV4PacketDecoder.channelRead
+		log.info("Decoding unicast message:" +
+				 " local=" + Util.socketAddressAsString(localSocketAddress) + 
+				 " remote=" + Util.socketAddressAsString(remoteSocketAddress));
+		// Netty's ByteBuf.nioBuffer() returns the underlying ByteBuffer, 
+		// without additional allocations, so should not be necessary 
+		// to have a NettyDhcpV4Message.decode() for Netty's ByteBuf
         DhcpV4Message dhcpMessage = 
         	DhcpV4Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
+        // DHCP message received via unicast
         dhcpMessage.setUnicast(true);
+        log.info("Unicast message decoded: msg=" + dhcpMessage);
         out.add(dhcpMessage);
     }
 }

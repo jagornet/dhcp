@@ -7,7 +7,7 @@
  */
 
 /*
- *   This file DhcpV4ChannelEncoder.java is part of Jagornet DHCP.
+ *   This file DhcpV4PacketDecoder.java is part of Jagornet DHCP.
  *
  *   Jagornet DHCP is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,36 +25,45 @@
  */
 package com.jagornet.dhcp.server.netty;
 
-import java.nio.ByteBuffer;
-import java.util.List;
+import java.net.InetSocketAddress;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.util.Util;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageEncoder;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.DatagramPacketEncoder;
 
 /**
- * Title: DhcpV4ChannelEncoder
+ * Title: DhcpV4PacketEncoder
  * Description: The protocol encoder used by the NETTY-based DHCPv4 server
  * when sending packets.
  * 
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class DhcpV4ChannelEncoder extends MessageToMessageEncoder<DhcpV4Message>
+public class DhcpV4PacketEncoder extends DatagramPacketEncoder<DhcpV4Message>
 {
-    private static Logger log = LoggerFactory.getLogger(DhcpV4ChannelEncoder.class);
+    private static Logger log = LoggerFactory.getLogger(DhcpV4PacketEncoder.class);
 
+    DhcpV4ChannelEncoder dhcpV4ChannelEncoder;
+
+    public DhcpV4PacketEncoder(DhcpV4ChannelEncoder dhcpV4ChannelEncoder)
+    {
+    	super(dhcpV4ChannelEncoder);
+    	this.dhcpV4ChannelEncoder = dhcpV4ChannelEncoder;
+    }
+    
     @Override
-	protected void encode(ChannelHandlerContext ctx, DhcpV4Message msg, List<Object> out) throws Exception {
-		log.info("Encoding message: msg=" + msg);
-        ByteBuffer buf = msg.encode();
-        log.info("Message encoded: limit=" + buf.limit());
-        out.add(Unpooled.wrappedBuffer(buf));
-	}   
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+    	log.debug("Sending datagram packet on localChannel: " + 
+    			  Util.socketAddressAsString((InetSocketAddress)ctx.channel().localAddress()));
+    	// send the message to the next handler in the outbound pipeline, which invokes 
+    	// the encode method of the dhcpV4ChannelEncoder supplied in the constructor
+    	super.write(ctx, msg, promise);
+    }
 }

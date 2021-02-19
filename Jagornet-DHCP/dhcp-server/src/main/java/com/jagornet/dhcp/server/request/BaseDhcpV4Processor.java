@@ -59,6 +59,7 @@ import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.DhcpV4OptionConfigObject;
 import com.jagornet.dhcp.server.ha.HaBackupFSM;
 import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
+import com.jagornet.dhcp.server.netty.NettyDhcpV4Message;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.request.binding.BindingObject;
 import com.jagornet.dhcp.server.request.binding.V4BindingAddress;
@@ -204,7 +205,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     		}
 	        
 	        // build a reply message using the local and remote sockets from the request
-	        replyMsg = new DhcpV4Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
+	        //replyMsg = new DhcpV4Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
+    		replyMsg = new NettyDhcpV4Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
 	        
 	        replyMsg.setOp((short)DhcpConstants.V4_OP_REPLY);
 	        // copy fields from request to reply
@@ -393,6 +395,10 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			log.debug("No Client FQDN nor hostname option in request.  Skipping DDNS update processing.");
 			return;
 		}
+		
+		String ddnsUpdatePolicy = DhcpServerPolicies.effectivePolicy(requestMsg,
+				clientLink.getLink(), Property.DDNS_UPDATE);
+		log.info("Server configuration for ddns.update policy: " + ddnsUpdatePolicy);
 
 		String fqdn = null;
 		String domain = DhcpServerPolicies.effectivePolicy(clientLink.getLink(), Property.DDNS_DOMAIN); 
@@ -415,11 +421,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				replyMsg.putDhcpOption(replyFqdnOption);
 				return;
 			}
-			
-			String policy = DhcpServerPolicies.effectivePolicy(requestMsg,
-					clientLink.getLink(), Property.DDNS_UPDATE);
-			log.info("Server configuration for ddns.update policy: " + policy);
-			if ((policy == null) || policy.equalsIgnoreCase("none")) {
+
+			if ((ddnsUpdatePolicy == null) || ddnsUpdatePolicy.equalsIgnoreCase("none")) {
 				log.info("Server configuration for ddns.update policy is null or 'none'." +
 						"  No DDNS updates performed.");
 				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
@@ -427,7 +430,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				return;
 			}
 					
-			if (clientFqdnOption.getNoUpdateBit() && policy.equalsIgnoreCase("honorNoUpdate")) {
+			if (clientFqdnOption.getNoUpdateBit() && ddnsUpdatePolicy.equalsIgnoreCase("honorNoUpdate")) {
 				log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
 						"  No DDNS updates performed.");
 				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
@@ -438,7 +441,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				return;
 			}
 
-			if (!clientFqdnOption.getUpdateABit() && policy.equalsIgnoreCase("honorNoA")) {
+			if (!clientFqdnOption.getUpdateABit() && ddnsUpdatePolicy.equalsIgnoreCase("honorNoA")) {
 				log.info("Client FQDN NoA flag set.  Server configured to honor request." +
 						"  No FORWARD DDNS updates performed.");
 				doForwardUpdate = false;
@@ -465,6 +468,12 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			replyMsg.putDhcpOption(replyFqdnOption);
 		}
 		else {
+
+			if ((ddnsUpdatePolicy == null) || ddnsUpdatePolicy.equalsIgnoreCase("none")) {
+				log.info("Server configuration for ddns.update policy is null or 'none'." +
+						"  No DDNS updates performed.");
+				return;
+			}
 			// The client did not send an FQDN option, so we'll try to formulate the FQDN
 			// from the hostname option combined with the DDNS_DOMAIN policy setting.
 			// A replyFqdnOption is fabricated to be stored with the binding for use
