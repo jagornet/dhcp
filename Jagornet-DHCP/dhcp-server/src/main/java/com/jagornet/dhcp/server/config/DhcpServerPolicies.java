@@ -308,7 +308,7 @@ public class DhcpServerPolicies
     	if (requestMsg != null) {
     		FiltersType filtersType = config.getGlobalFilters();
     		if (filtersType != null) {
-    			List<Filter> filters = filtersType.getFilters();
+    			List<Filter> filters = filtersType.getFilterList();
     			for (Filter filter : filters) {
 					if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
 						policy = getPolicy(filter.getPolicies(), prop.key());
@@ -466,7 +466,7 @@ public class DhcpServerPolicies
 		if ((requestMsg != null) && (link != null)) {
 			LinkFiltersType linkFiltersType = link.getLinkFilters();
 			if (linkFiltersType != null) {
-				List<LinkFilter> linkFilters = linkFiltersType.getLinkFilter();
+				List<LinkFilter> linkFilters = linkFiltersType.getLinkFilterList();
 				if (linkFilters != null) {
 					for (LinkFilter linkFilter : linkFilters) {
 						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, linkFilter)) {
@@ -652,7 +652,7 @@ public class DhcpServerPolicies
 		String policy = null;
 		if ((requestMsg != null) && (configObj != null)) {
 			if (configObj.getFilters() != null) {
-				List<Filter> filters = configObj.getFilters().getFilters();
+				List<Filter> filters = configObj.getFilters().getFilterList();
 				if (filters != null) {
 					for (Filter filter : filters) {
 						if (DhcpServerConfiguration.msgMatchesFilter(requestMsg, filter)) {
@@ -750,7 +750,7 @@ public class DhcpServerPolicies
     protected static String getPolicy(PoliciesType policies, String name)
     {
 		if (policies != null) {
-			List<Policy> policyList = policies.getPolicies();
+			List<Policy> policyList = policies.getPolicyList();
 			if (policyList != null) {
 				for (Policy policy : policyList) {
 					if (policy.getName().equalsIgnoreCase(name)) {

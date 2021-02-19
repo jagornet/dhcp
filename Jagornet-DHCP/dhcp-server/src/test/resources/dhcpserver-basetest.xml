@@ -14,31 +14,37 @@
 	</v4ServerIdOption>
 	
 	<policies>
-		<policy>
-			<name>sendRequestedOptionsOnly</name>
+		<policyList>
+			<name>dhcp.sendRequestedOptionsOnly</name>
 			<value>false</value>
-		</policy>
+		</policyList>
 	</policies>
 
 	<v6MsgConfigOptions>
 		<v6DnsServersOption>
-			<ipAddress>3ffe::0001</ipAddress>
-			<ipAddress>3ffe::0002</ipAddress>
-			<ipAddress>3ffe::0003</ipAddress>
+			<ipAddressList>3ffe::0001</ipAddressList>
+			<ipAddressList>3ffe::0002</ipAddressList>
+			<ipAddressList>3ffe::0003</ipAddressList>
 		</v6DnsServersOption>
 		<v6DomainSearchListOption>
-			<domainName>foo.com.</domainName>
-			<domainName>bar.com.</domainName>
-			<domainName>yuk.com.</domainName>
+			<domainNameList>foo.com.</domainNameList>
+			<domainNameList>bar.com.</domainNameList>
+			<domainNameList>yuk.com.</domainNameList>
 		</v6DomainSearchListOption>
 	</v6MsgConfigOptions>
 
 	<filters>
 	  <!-- Global server level filters applied to all clients that match -->
-	  <filter>
-		<name>UserClass Filter Group 1</name>
+	  <filterList>
+		<name>UserClass Filter Group 1</name>	
+		<policies>
+			<policyList>
+				<name>dhcp.sendRequestedOptionsOnly</name>
+				<value>false</value>
+			</policyList>
+		</policies>
 		<filterExpressions>
-			<filterExpression>
+			<filterExpressionList>
 				<optionExpression code="15" operator="equals">
 					<opaqueDataOption>
 						<opaqueData>
@@ -46,125 +52,125 @@
 						</opaqueData>
 					</opaqueDataOption>
 				</optionExpression>
-			</filterExpression>
+			</filterExpressionList>
 		</filterExpressions>
 		<v6MsgConfigOptions>
 			<!-- Clients that match the filter will receive this DomainListOption
 				 instead of the one defined globally -->
 			<v6DomainSearchListOption>
-				<domainName>filter.com.</domainName>
+				<domainNameList>filter.com.</domainNameList>
 			</v6DomainSearchListOption>
 		</v6MsgConfigOptions>
-	  </filter>
+	  </filterList>
 	</filters>
 	
 	<links>
-		<link>
+		<linkList>
 			<name>Client Link 1</name>
 			<address>2001:DB8:1::/48</address>
 			<v6IaNaConfigOptions>
 				<v6DnsServersOption>
-					<ipAddress>2001:DB8:1::1</ipAddress>
+					<ipAddressList>2001:DB8:1::1</ipAddressList>
 				</v6DnsServersOption>
 			</v6IaNaConfigOptions>
 			<v6NaAddrPools>
-				<pool>
+				<poolList>
 					<range>2001:DB8:1::0A-2001:DB8:1::FF</range>
 					<addrConfigOptions>
 						<v6SipServerAddressesOption>
-							<ipAddress>2001:DB8:1::1:1</ipAddress>
+							<ipAddressList>2001:DB8:1::1:1</ipAddressList>
 						</v6SipServerAddressesOption>
 					</addrConfigOptions>
-				</pool>
+				</poolList>
 			</v6NaAddrPools>
 			<v6PrefixPools>
-				<pool>
+				<poolList>
 					<range>2001:DB8:1:4000::/50</range>
 					<prefixLength>56</prefixLength>
-				</pool>
+				</poolList>
 			</v6PrefixPools>
 			<linkFilters>
-			  	<linkFilter>
+			  	<linkFilterList>
 					<name>Support Reconfigure</name>
 					<filterExpressions>
-						<filterExpression>
+						<filterExpressionList>
 							<optionExpression code="20">
 								<nilOption/>
 							</optionExpression>
-						</filterExpression>
+						</filterExpressionList>
 					</filterExpressions>
 					<v6NaAddrPools>
-						<pool>
+						<poolList>
 							<range>2001:DB8:1::10A-2001:DB8:1::1FF</range>
 							<addrConfigOptions>
 								<v6SipServerAddressesOption>
-									<ipAddress>2001:DB8:1::1:1</ipAddress>
+									<ipAddressList>2001:DB8:1::1:1</ipAddressList>
 								</v6SipServerAddressesOption>
 							</addrConfigOptions>
-						</pool>
+						</poolList>
 					</v6NaAddrPools>
-			  	</linkFilter>
+			  	</linkFilterList>
 			</linkFilters>
-		</link>
-		<link>
+		</linkList>
+		<linkList>
 			<name>Client Link 2</name>
 			<address>2001:DB8:2::/48</address>
 			<v6IaNaConfigOptions>
 				<v6DnsServersOption>
-					<ipAddress>2001:DB8:2::1</ipAddress>
+					<ipAddressList>2001:DB8:2::1</ipAddressList>
 				</v6DnsServersOption>
 			</v6IaNaConfigOptions>
 			<linkFilters>
-			  	<linkFilter>
+			  	<linkFilterList>
 					<name>Support Reconfigure</name>
 					<filterExpressions>
-						<filterExpression>
+						<filterExpressionList>
 							<optionExpression code="20">
 								<nilOption/>
 							</optionExpression>
-						</filterExpression>
+						</filterExpressionList>
 					</filterExpressions>
 					<v6NaAddrPools>
-						<pool>
+						<poolList>
 							<range>2001:DB8:2::10A-2001:DB8:2::1FF</range>
 							<addrConfigOptions>
 								<v6SipServerAddressesOption>
-									<ipAddress>2001:DB8:2::1:1</ipAddress>
+									<ipAddressList>2001:DB8:2::1:1</ipAddressList>
 								</v6SipServerAddressesOption>
 							</addrConfigOptions>
-						</pool>
+						</poolList>
 					</v6NaAddrPools>
-			  	</linkFilter>
+			  	</linkFilterList>
 			</linkFilters>
-		</link>
-		<link>
+		</linkList>
+		<linkList>
 			<name>Client Link 3</name>
 			<address>2001:DB8:3::/48</address>
 			<v6IaNaConfigOptions>
 				<v6DnsServersOption>
-					<ipAddress>2001:DB8:3::1</ipAddress>
+					<ipAddressList>2001:DB8:3::1</ipAddressList>
 				</v6DnsServersOption>
 			</v6IaNaConfigOptions>
-		</link>
-		<link>
+		</linkList>
+		<linkList>
 			<name>Client Link 4</name>
 			<address>2001:DB8:4::/48</address>
 			<v6IaNaConfigOptions>
 				<v6DnsServersOption>
-					<ipAddress>2001:DB8:4::1</ipAddress>
+					<ipAddressList>2001:DB8:4::1</ipAddressList>
 				</v6DnsServersOption>
 			</v6IaNaConfigOptions>
-		</link>
-		<link>
+		</linkList>
+		<linkList>
 			<name>Client Link 5</name>
 			<address>2001:DB8:5::/48</address>
 			<v6IaNaConfigOptions>
 				<v6DnsServersOption>
-					<ipAddress>2001:DB8:5::1</ipAddress>
+					<ipAddressList>2001:DB8:5::1</ipAddressList>
 				</v6DnsServersOption>
 			</v6IaNaConfigOptions>
-		</link>
-        <link>
+		</linkList>
+        <linkList>
             <name>V4 Client Link 1</name>
             <address>192.168.0.1/24</address>
             <v4ConfigOptions>
@@ -172,21 +178,21 @@
             		<ipAddress>255.255.255.0</ipAddress>
             	</v4SubnetMaskOption>
             	<v4RoutersOption>
-            		<ipAddress>192.168.0.1</ipAddress>
+            		<ipAddressList>192.168.0.1</ipAddressList>
             	</v4RoutersOption>
             	<v4DomainServersOption>
-            		<ipAddress>192.168.0.10</ipAddress>
+            		<ipAddressList>192.168.0.10</ipAddressList>
             	</v4DomainServersOption>
             	<v4DomainNameOption>
             		<string>v4.foo.com.</string>
             	</v4DomainNameOption>
             </v4ConfigOptions>
             <v4AddrPools>
-                <pool>
+                <poolList>
                     <range>192.168.0.100-192.168.0.199</range>
-                </pool>
+                </poolList>
             </v4AddrPools>
-        </link>
+        </linkList>
 	</links>
 
 </dhc:dhcpServerConfig>

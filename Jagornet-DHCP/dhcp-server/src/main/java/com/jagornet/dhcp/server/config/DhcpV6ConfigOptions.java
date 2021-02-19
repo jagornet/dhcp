@@ -304,7 +304,7 @@ public class DhcpV6ConfigOptions
 	    		GenericOptionsType genericOptions = vendorInfoOption.getSuboptionList();
 	    		if (genericOptions != null) {
 	    			suboptionList = new ArrayList<DhcpOption>();
-	    			List<OptionDefType> optdefs = genericOptions.getOptionDefs();
+	    			List<OptionDefType> optdefs = genericOptions.getOptionDefList();
 	    			if (optdefs != null) {
 	    				for (OptionDefType optdef : optdefs) {
 							DhcpOption subopt = GenericOptionFactory.getDhcpOption(optdef);

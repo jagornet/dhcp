@@ -1,0 +1,215 @@
+{
+  "v4ServerIdOption" : {
+    "ipAddress" : "10.0.0.2"
+  },
+  "v6ServerIdOption" : {
+    "opaqueData" : {
+      "asciiValue" : "Jagornet"
+    }
+  },
+  "policies" : {
+    "policyList" : [ {
+      "name" : "dhcp.sendRequestedOptionsOnly",
+      "value" : "false"
+    }, {
+      "name" : "ddns.update",
+      "value" : "server"
+    }, {
+      "name" : "ddns.domain",
+      "value" : "example.com."
+    }, {
+      "name" : "ddns.server",
+      "value" : "10.0.0.2"
+    }, {
+      "name" : "ddns.tsig.keyName",
+      "value" : "dhcpv6server-ddnsserver."
+    }, {
+      "name" : "ddns.tsig.algorithm",
+      "value" : "hmac-sha256."
+    }, {
+      "name" : "ddns.tsig.keyData",
+      "value" : "yourKeyDataHere"
+    } ]
+  },
+  "v6MsgConfigOptions" : {
+    "v6DnsServersOption" : {
+      "ipAddressList" : [ "2001:db8::1", "2001:db8::2", "2001:db8::3" ]
+    },
+    "v6DomainSearchListOption" : {
+      "domainNameList" : [ "foo.com.", "bar.com.", "yuk.com." ]
+    }
+  },
+  "filters" : {
+    "filterList" : [ {
+      "name" : "DHCPv6 UserClass Filter",
+      "filterExpressions" : {
+        "filterExpressionList" : [ {
+          "clientClassExpression" : {
+            "v6UserClassOption" : {
+              "opaqueDataList" : [ {
+                "asciiValue" : "MyUserClass"
+              } ]
+            },
+            "operator" : "equals"
+          }
+        } ]
+      },
+      "v6MsgConfigOptions" : {
+        "v6DomainSearchListOption" : {
+          "domainNameList" : [ "filter.com." ]
+        }
+      }
+    }, {
+      "name" : "DHCPv6 VendorClass Filter",
+      "filterExpressions" : {
+        "filterExpressionList" : [ {
+          "clientClassExpression" : {
+            "v6VendorClassOption" : {
+              "enterpriseNumber" : 12345,
+              "opaqueDataList" : [ {
+                "asciiValue" : "VendorXYZ"
+              } ]
+            },
+            "operator" : "equals"
+          }
+        } ]
+      },
+      "v6MsgConfigOptions" : {
+        "v6VendorInfoOption" : {
+          "enterpriseNumber" : 12345,
+          "suboptionList" : {
+            "optionDefList" : [ {
+              "stringOption" : {
+                "string" : "hello"
+              },
+              "code" : 1
+            }, {
+              "ipAddressOption" : {
+                "ipAddress" : "2001:db8::1"
+              },
+              "code" : 2
+            } ]
+          }
+        }
+      }
+    }, {
+      "name" : "DHCPv4 VendorClass Filter",
+      "filterExpressions" : {
+        "filterExpressionList" : [ {
+          "clientClassExpression" : {
+            "v4VendorClassOption" : {
+              "opaqueData" : {
+                "asciiValue" : "MyVendorPrefix"
+              }
+            },
+            "operator" : "startsWith"
+          }
+        } ]
+      },
+      "v4ConfigOptions" : {
+        "v4VendorSpecificOption" : {
+          "opaqueData" : {
+            "hexValue" : "01020304"
+          }
+        }
+      }
+    } ]
+  },
+  "links" : {
+    "linkList" : [ {
+      "name" : "IPv4 Client Link 1",
+      "address" : "10.0.0.0/24",
+      "policies" : {
+        "policyList" : [ {
+          "name" : "v4.defaultLeasetime",
+          "value" : "600"
+        } ]
+      },
+      "v4ConfigOptions" : {
+        "v4SubnetMaskOption" : {
+          "ipAddress" : "255.255.255.0"
+        },
+        "v4RoutersOption" : {
+          "ipAddressList" : [ "10.0.0.1" ]
+        }
+      },
+      "v4AddrPools" : {
+        "poolList" : [ {
+          "range" : "10.0.0.100-10.0.0.199"
+        } ]
+      },
+      "v4AddrBindings" : {
+        "bindingList" : [ {
+          "ipAddress" : "10.0.0.200",
+          "chaddr" : "0A1B2C3D4E5F",
+          "configOptions" : {
+            "v4RoutersOption" : {
+              "ipAddressList" : [ "10.0.0.11" ]
+            }
+          }
+        } ]
+      }
+    }, {
+      "name" : "Local IPv6 Client Link (Multicast traffic)",
+      "interface" : "eth2",
+      "policies" : {
+        "policyList" : [ {
+          "name" : "v6.preferredLifetime",
+          "value" : "600"
+        }, {
+          "name" : "v6.validLifetime",
+          "value" : "600"
+        } ]
+      },
+      "v6MsgConfigOptions" : {
+        "v6DnsServersOption" : {
+          "ipAddressList" : [ "2001:db8:1::1" ]
+        }
+      },
+      "v6NaAddrPools" : {
+        "poolList" : [ {
+          "range" : "2001:db8:1::0A-2001:db8:1::FF"
+        } ]
+      },
+      "v6NaAddrBindings" : {
+        "bindingList" : [ {
+          "ipAddress" : "2001:db8:1::100",
+          "duid" : {
+            "hexValue" : "0A1B2C3D4E5F"
+          }
+        } ]
+      },
+      "linkFilters" : {
+        "linkFilterList" : [ {
+          "v6NaAddrPools" : {
+            "poolList" : [ {
+              "range" : "2001:db8:1::10A-2001:db8:1::1FF"
+            } ]
+          },
+          "name" : "Support Rapid Commit",
+          "filterExpressions" : {
+            "filterExpressionList" : [ {
+              "optionExpression" : {
+                "nilOption" : { },
+                "code" : 14
+              }
+            } ]
+          }
+        } ]
+      }
+    }, {
+      "name" : "Remote IPv6 Client Link (Unicast/Multicast traffic)",
+      "address" : "2001:db8:2::/48",
+      "v6MsgConfigOptions" : {
+        "v6DnsServersOption" : {
+          "ipAddressList" : [ "2001:db8:2::1" ]
+        }
+      },
+      "v6NaAddrPools" : {
+        "poolList" : [ {
+          "range" : "2001:db8:2::0A-2001:db8:2::FF"
+        } ]
+      }
+    } ]
+  }
+}

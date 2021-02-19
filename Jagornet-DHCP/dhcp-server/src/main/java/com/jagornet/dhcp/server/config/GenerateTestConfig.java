@@ -33,6 +33,8 @@ import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -194,7 +196,7 @@ public class GenerateTestConfig {
 
 			PoliciesType policies = new PoliciesType();
 			Policy policy = new Policy();
-			policies.getPolicies().add(policy);
+			policies.getPolicyList().add(policy);
 			policy.setName("dhcp.ignoreSelfPackets");
 			policy.setValue("false");
 			config.setPolicies(policies);
@@ -209,7 +211,7 @@ public class GenerateTestConfig {
 				config.setV4ServerIdOption(v4ServerId);
 
 				Link v4Link = new Link();
-				links.getLinks().add(v4Link);
+				links.getLinkList().add(v4Link);
 				v4Link.setName("Test IPv4 Client Link");
 				// assume the client is on a /24 size IPv4 subnet
 				int p = myIp.lastIndexOf('.');
@@ -236,7 +238,7 @@ public class GenerateTestConfig {
 				// create a pool of 50 addresses at the end of subnet
 				V4AddressPool v4pool = new V4AddressPool();
 				v4pool.setRange(myNet + "200-" + myNet + "250");
-				v4Pools.getPool().add(v4pool);
+				v4Pools.getPoolList().add(v4pool);
 			}
 			
 			if (ipv6Address != null) {
@@ -246,7 +248,7 @@ public class GenerateTestConfig {
 				config.setV6ServerIdOption(serverId);
 
 				Link v6Link = new Link();
-				links.getLinks().add(v6Link);
+				links.getLinkList().add(v6Link);
 				v6Link.setName("Test IPv6 Client Link");
 				String myIf = networkInterface.getName();
 				v6Link.setInterface(myIf);
@@ -263,7 +265,7 @@ public class GenerateTestConfig {
 				v6Link.setV6NaAddrPools(v6Pools);
 				V6AddressPool v6Pool = new V6AddressPool();
 				v6Pool.setRange("2001:db8:1::/64");
-				v6Pools.getPool().add(v6Pool);
+				v6Pools.getPoolList().add(v6Pool);
 			}
 			
 			config.setLinks(links);
@@ -273,6 +275,12 @@ public class GenerateTestConfig {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DhcpServerConfigException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

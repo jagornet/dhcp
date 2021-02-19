@@ -28,6 +28,7 @@ package com.jagornet.dhcp.server.config;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -51,6 +53,24 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.message.DhcpV6Message;
@@ -98,18 +118,25 @@ import com.jagornet.dhcp.server.config.xml.OpaqueDataOptionType;
 import com.jagornet.dhcp.server.config.xml.Operator;
 import com.jagornet.dhcp.server.config.xml.OptionExpression;
 import com.jagornet.dhcp.server.config.xml.PoliciesType;
+import com.jagornet.dhcp.server.config.xml.Policy;
 import com.jagornet.dhcp.server.config.xml.StringOptionType;
 import com.jagornet.dhcp.server.config.xml.UnsignedByteListOptionType;
 import com.jagornet.dhcp.server.config.xml.UnsignedByteOptionType;
 import com.jagornet.dhcp.server.config.xml.UnsignedIntOptionType;
 import com.jagornet.dhcp.server.config.xml.UnsignedShortListOptionType;
 import com.jagornet.dhcp.server.config.xml.UnsignedShortOptionType;
+import com.jagornet.dhcp.server.config.xml.V4AddressBinding;
+import com.jagornet.dhcp.server.config.xml.V4AddressBindingsType;
 import com.jagornet.dhcp.server.config.xml.V4AddressPool;
 import com.jagornet.dhcp.server.config.xml.V4AddressPoolsType;
 import com.jagornet.dhcp.server.config.xml.V4ServerIdOption;
 import com.jagornet.dhcp.server.config.xml.V4VendorClassOption;
+import com.jagornet.dhcp.server.config.xml.V6AddressBinding;
+import com.jagornet.dhcp.server.config.xml.V6AddressBindingsType;
 import com.jagornet.dhcp.server.config.xml.V6AddressPool;
 import com.jagornet.dhcp.server.config.xml.V6AddressPoolsType;
+import com.jagornet.dhcp.server.config.xml.V6PrefixBinding;
+import com.jagornet.dhcp.server.config.xml.V6PrefixBindingsType;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPool;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPoolsType;
 import com.jagornet.dhcp.server.config.xml.V6ServerIdOption;
@@ -138,6 +165,8 @@ public class DhcpServerConfiguration
 
 	/** The INSTANCE. */
 	private static DhcpServerConfiguration INSTANCE;
+	
+	public static enum ConfigSyntax { XML, JSON, YAML }
     
 	private DhcpV6ServerIdOption dhcpV6ServerIdOption;
 	private DhcpV4ServerIdOption dhcpV4ServerIdOption;
@@ -162,8 +191,8 @@ public class DhcpServerConfiguration
     private V6PrefixBindingManager v6PrefixBindingMgr;
     private V4AddrBindingManager v4AddrBindingMgr;
     private IaManager iaMgr;
-    
-    public static enum HaRole { PRIMARY, BACKUP };
+
+	public static enum HaRole { PRIMARY, BACKUP };
     private HaPrimaryFSM haPrimaryFSM;
     private HaBackupFSM haBackupFSM;
     
@@ -465,7 +494,7 @@ public class DhcpServerConfiguration
     protected void initLinkMap(LinksType linksType) throws DhcpServerConfigException
     {
     	if (linksType != null) {
-        	List<Link> links = linksType.getLinks();
+        	List<Link> links = linksType.getLinkList();
             if ((links != null) && !links.isEmpty()) {
                 linkMap = new TreeMap<Subnet, DhcpLink>();
                 for (Link link : links) {
@@ -610,7 +639,7 @@ public class DhcpServerConfiguration
             	for (DhcpLink link : linkMap.values()) {
             		V6AddressPoolsType addrPoolType = link.getLink().getV6NaAddrPools();
             		if (addrPoolType != null) {
-            			List<V6AddressPool> addrPools = addrPoolType.getPool();
+            			List<V6AddressPool> addrPools = addrPoolType.getPoolList();
             			if (addrPools != null) {
             				for (V6AddressPool addrPool : addrPools) {
             					try {
@@ -628,7 +657,7 @@ public class DhcpServerConfiguration
             		}
             		addrPoolType = link.getLink().getV6TaAddrPools();
             		if (addrPoolType != null) {
-            			List<V6AddressPool> addrPools = addrPoolType.getPool();
+            			List<V6AddressPool> addrPools = addrPoolType.getPoolList();
             			if (addrPools != null) {
             				for (V6AddressPool addrPool : addrPools) {
             					try {
@@ -652,7 +681,7 @@ public class DhcpServerConfiguration
             	for (DhcpLink link : linkMap.values()) {
             		V4AddressPoolsType addrPoolType = link.getLink().getV4AddrPools();
             		if (addrPoolType != null) {
-            			List<V4AddressPool> addrPools = addrPoolType.getPool();
+            			List<V4AddressPool> addrPools = addrPoolType.getPoolList();
             			if (addrPools != null) {
             				for (V4AddressPool addrPool : addrPools) {
             					try {
@@ -836,7 +865,7 @@ public class DhcpServerConfiguration
     {
     	V6AddressPool pool = null;
 		if (poolsType != null) {
-			List<V6AddressPool> pools = poolsType.getPool();
+			List<V6AddressPool> pools = poolsType.getPoolList();
 			if ((pools != null) && !pools.isEmpty()) {
 				for (V6AddressPool p : pools) {
 					try {
@@ -889,7 +918,7 @@ public class DhcpServerConfiguration
     {
     	V6PrefixPool pool = null;
 		if (poolsType != null) {
-			List<V6PrefixPool> pools = poolsType.getPool();
+			List<V6PrefixPool> pools = poolsType.getPoolList();
 			if ((pools != null) && !pools.isEmpty()) {
 				for (V6PrefixPool p : pools) {
 					try {
@@ -924,9 +953,31 @@ public class DhcpServerConfiguration
     public static DhcpServerConfig loadConfig(String filename) 
     		throws DhcpServerConfigException, JAXBException, IOException 
     {
+    	DhcpServerConfig config = null;
         log.info("Loading server configuration file: " + filename);
-    	DhcpServerConfig config = parseConfig(filename);
+        ConfigSyntax syntax = getConfigSyntax(filename);
+    	InputStream inputStream = null;
+    	try {
+    		ResourceLoader resourceLoader = new DefaultResourceLoader();
+    		Resource resource = resourceLoader.getResource(filename);
+    		inputStream = resource.getInputStream();
+    		if (syntax == ConfigSyntax.XML) {
+    			config = loadXmlConfig(inputStream);
+    		}
+    		else if (syntax == ConfigSyntax.JSON) {
+    			config = loadJsonConfig(inputStream);
+    		}
+    		else if (syntax == ConfigSyntax.YAML) {
+    			config = loadYamlConfig(inputStream);
+    		}
+    	}
+    	finally {
+    		if (inputStream != null) {
+    			inputStream.close();
+    		}
+    	}
     	if (config != null) {
+    		validateConfigPolicies(config);
         	log.info("Server configuration file loaded.");
     	}
     	else {
@@ -934,31 +985,192 @@ public class DhcpServerConfiguration
     	}
     	return config;
     }
+        
+    public static ConfigSyntax getConfigSyntax(String configFilename)
+    		throws DhcpServerConfigException {
+    	ConfigSyntax syntax = null;
+    	if (configFilename.endsWith(".xml")) {
+    		syntax = ConfigSyntax.XML;
+    	}
+    	else if (configFilename.endsWith(".json") || (configFilename.endsWith(".jsn"))) {
+    		syntax = ConfigSyntax.JSON;
+    	}
+    	else if (configFilename.endsWith(".yaml") || (configFilename.endsWith(".yml"))) {
+    		syntax = ConfigSyntax.YAML;
+    	}
+    	else {
+    		throw new DhcpServerConfigException("Unsupported configuration file format extension: Expected .xml (XML), .json|.jsn (JSON), or .yaml|.yml (YAML)");
+    	}
+    	log.info("ConfigSyntax: " + syntax);
+    	return syntax;
+    }
     
-    public static DhcpServerConfig parseConfig(String filename) 
-    		throws DhcpServerConfigException, JAXBException, IOException
+    public static DhcpServerConfig loadXmlConfig(InputStream inputStream) 
+    		throws DhcpServerConfigException, JAXBException
     {
     	DhcpServerConfig config = null;
-    	InputStream inputStream = null;
-    	try {
-//    		String classpath = System.getProperty("java.class.path");
-//    		String[] classpathEntries = classpath.split(File.pathSeparator);
-    		ResourceLoader resourceLoader = new DefaultResourceLoader();
-    		Resource resource = resourceLoader.getResource(filename);
-    		inputStream = resource.getInputStream();
-	        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
-	        Unmarshaller unmarshaller = jc.createUnmarshaller();
-	        //TODO: consider VEC or ValidationEventHandler implementation
-	        //ValidationEventCollector vec = new ValidationEventCollector();
-	        unmarshaller.setEventHandler(new DefaultValidationEventHandler());
-	        config = (DhcpServerConfig) unmarshaller.unmarshal(inputStream);
+        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+        //TODO: consider VEC or ValidationEventHandler implementation
+        //ValidationEventCollector vec = new ValidationEventCollector();
+        unmarshaller.setEventHandler(new DefaultValidationEventHandler());
+        config = (DhcpServerConfig) unmarshaller.unmarshal(inputStream);
+        return config;
+    }
+    
+    public static DhcpServerConfig loadJsonConfig(InputStream inputStream)
+    		throws DhcpServerConfigException, IOException
+    {
+    	DhcpServerConfig config = null;
+		ObjectMapper mapper = new ObjectMapper(new JsonFactory());
+		SimpleModule module = new SimpleModule();
+		registerJsonDeserializers(module);
+		mapper.registerModule(module);
+		config = mapper.readValue(inputStream, DhcpServerConfig.class);
+		return config;
+    }
+    
+    public static DhcpServerConfig loadYamlConfig(InputStream inputStream)
+    		throws DhcpServerConfigException, IOException
+    {
+    	DhcpServerConfig config = null;
+		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		SimpleModule module = new SimpleModule();
+		registerJsonDeserializers(module);
+		mapper.registerModule(module);
+		config = mapper.readValue(inputStream, DhcpServerConfig.class);
+		return config;
+    }
+    
+    public static void validateConfigPolicies(DhcpServerConfig config) throws DhcpServerConfigException {
+    	validatePolicies("server", config.getPolicies());
+    	validateFilterPolicies(config.getFilters());
+    	validateLinkPolicies(config.getLinks());
+    }
+    
+    public static void validateLinkPolicies(LinksType linksType) throws DhcpServerConfigException {
+    	if (linksType != null) {
+	    	List<Link> links = linksType.getLinkList();
+	    	if (links != null) {
+	    		for (Link link : links) {
+					validatePolicies("link=" + link.getName(), link.getPolicies());
+					validateLinkFilterPolicies(link.getLinkFilters());
+					validateV4AddrPoolPolicies(link.getV4AddrPools());
+					validateV6AddrPoolPolicies(link.getV6NaAddrPools());
+					validateV6AddrPoolPolicies(link.getV6TaAddrPools());
+					validateV6PrefixPoolPolicies(link.getV6PrefixPools());
+					validateV4AddrBindingPolicies(link.getV4AddrBindings());
+					validateV6AddrBindingPolicies(link.getV6NaAddrBindings());
+					validateV6AddrBindingPolicies(link.getV6TaAddrBindings());
+					validateV6PrefixBindingPolicies(link.getV6PrefixBindings());
+				}
+	    	}
     	}
-    	finally {
-    		if (inputStream != null) {
-    			inputStream.close();
-    		}
+    }
+    
+    public static void validateFilterPolicies(FiltersType filtersType) throws DhcpServerConfigException {
+    	if (filtersType != null) {
+	    	List<Filter> filters = filtersType.getFilterList();
+	    	if (filters != null) {
+	    		for (Filter filter : filters) {
+					validatePolicies("filter=" + filter.getName(), filter.getPolicies());
+				}
+	    	}
     	}
-    	return config;
+    }
+    
+    public static void validateLinkFilterPolicies(LinkFiltersType filtersType) throws DhcpServerConfigException {
+    	if (filtersType != null) {
+	    	List<LinkFilter> filters = filtersType.getLinkFilterList();
+	    	if (filters != null) {
+	    		for (LinkFilter linkFilter : filters) {
+					validatePolicies("linkFilter=" + linkFilter.getName(), linkFilter.getPolicies());
+					validateV4AddrPoolPolicies(linkFilter.getV4AddrPools());
+					validateV6AddrPoolPolicies(linkFilter.getV6NaAddrPools());
+					validateV6AddrPoolPolicies(linkFilter.getV6TaAddrPools());
+					validateV6PrefixPoolPolicies(linkFilter.getV6PrefixPools());
+				}
+	    	}
+    	}
+    }
+    
+    public static void validateV4AddrPoolPolicies(V4AddressPoolsType poolsType) throws DhcpServerConfigException {
+    	if (poolsType != null) {
+	    	List<V4AddressPool> pools = poolsType.getPoolList();
+	    	if (pools != null) {
+	    		for (V4AddressPool pool : pools) {
+					validatePolicies("pool=" + pool.getRange(), pool.getPolicies());
+				}
+	    	}
+    	}
+    }
+    
+    public static void validateV6AddrPoolPolicies(V6AddressPoolsType poolsType) throws DhcpServerConfigException {
+    	if (poolsType != null) {
+	    	List<V6AddressPool> pools = poolsType.getPoolList();
+	    	if (pools != null) {
+	    		for (V6AddressPool pool : pools) {
+					validatePolicies("pool=" + pool.getRange(), pool.getPolicies());
+				}
+	    	}
+    	}
+    }
+    
+    public static void validateV6PrefixPoolPolicies(V6PrefixPoolsType poolsType) throws DhcpServerConfigException {
+    	if (poolsType != null) {
+	    	List<V6PrefixPool> pools = poolsType.getPoolList();
+	    	if (pools != null) {
+	    		for (V6PrefixPool pool : pools) {
+					validatePolicies("pool=" + pool.getRange(), pool.getPolicies());
+				}
+	    	}
+    	}
+    }
+    
+    public static void validateV4AddrBindingPolicies(V4AddressBindingsType bindingsType) throws DhcpServerConfigException {
+    	if (bindingsType != null) {
+	    	List<V4AddressBinding> bindings = bindingsType.getBindingList();
+	    	if (bindings != null) {
+	    		for (V4AddressBinding binding : bindings) {
+					validatePolicies("binding=" + binding.getIpAddress(), binding.getPolicies());
+				}
+	    	}
+    	}
+    }
+    
+    public static void validateV6AddrBindingPolicies(V6AddressBindingsType bindingsType) throws DhcpServerConfigException {
+    	if (bindingsType != null) {
+	    	List<V6AddressBinding> bindings = bindingsType.getBindingList();
+	    	if (bindings != null) {
+	    		for (V6AddressBinding binding : bindings) {
+					validatePolicies("binding=" + binding.getIpAddress(), binding.getPolicies());
+				}
+	    	}
+    	}
+    }
+    
+    public static void validateV6PrefixBindingPolicies(V6PrefixBindingsType bindingsType) throws DhcpServerConfigException {
+    	if (bindingsType != null) {
+	    	List<V6PrefixBinding> bindings = bindingsType.getBindingList();
+	    	if (bindings != null) {
+	    		for (V6PrefixBinding binding : bindings) {
+					validatePolicies("binding=" + binding.getPrefix(), binding.getPolicies());
+				}
+	    	}
+    	}
+    }
+    
+    public static void validatePolicies(String level, PoliciesType policiesType) throws DhcpServerConfigException {
+    	if (policiesType != null) {
+	    	List<Policy> policies = policiesType.getPolicyList();
+	    	if (policies != null) {
+	    		for (Policy policy : policies) {
+					if (!DhcpServerPolicies.DEFAULT_PROPERTIES.containsKey(policy.getName())) {
+						throw new DhcpServerConfigException("Unknown " + level + " policy: " + policy.getName());
+					}
+				}
+	    	}
+    	}
     }
     
     /**
@@ -968,34 +1180,81 @@ public class DhcpServerConfiguration
      * @param filename the full path and filename for the configuration
      * 
      * @throws IOException the exception
+     * @throws DhcpServerConfigException 
+     * @throws JAXBException 
      */
-    public static void saveConfig(DhcpServerConfig config, String filename) throws IOException
+    public static void saveConfig(DhcpServerConfig config, String filename) 
+    		throws DhcpServerConfigException, JAXBException, IOException 
     {
-    	FileOutputStream fos = null;
+        log.info("Saving server configuration file: " + filename);
+        ConfigSyntax syntax = getConfigSyntax(filename);
+    	OutputStream outputStream = null;
     	try {
     		if (filename.startsWith("file:")) {
     			filename = filename.substring(5);
     		}
-	        log.info("Saving server configuration file: " + filename);
-	        fos = new FileOutputStream(filename);
+	        outputStream = new FileOutputStream(filename);
 //    		ResourceLoader resourceLoader = new DefaultResourceLoader();
 //    		Resource resource = resourceLoader.getResource(filename);
-//	        fos = new FileOutputStream(resource.getFile());
-	        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
-	        Marshaller marshaller = jc.createMarshaller();
-	        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-	        marshaller.marshal(config, fos);
+//	        outputStream = new FileOutputStream(resource.getFile());
+    		if (syntax == ConfigSyntax.XML) {
+    	        saveXmlConfig(config, outputStream);
+    		}
+    		else if (syntax == ConfigSyntax.JSON) {
+    	        saveJsonConfig(config, outputStream);
+    		}
+    		else if (syntax == ConfigSyntax.YAML) {
+    	        saveYamlConfig(config, outputStream);
+    		}
 	        log.info("Server configuration file saved.");
     	}
-    	catch (JAXBException je) {
-    		//TODO: better exception handling here
-    		throw new IOException(je);
-    	}
     	finally {
-    		if (fos != null) {
-    			fos.close();
+    		if (outputStream != null) {
+    			outputStream.close();
     		}
     	}
+    }
+    
+    public static void saveXmlConfig(DhcpServerConfig config, OutputStream outputStream) 
+    		throws JAXBException {
+        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
+        Marshaller marshaller = jc.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(config, outputStream);	
+    }
+    
+    public static void saveJsonConfig(DhcpServerConfig config, OutputStream outputStream) 
+    		throws IOException {
+    	ObjectMapper mapper = new ObjectMapper(new JsonFactory());
+    	mapper.setSerializationInclusion(Include.NON_NULL);
+    	AnnotationIntrospector introspector =
+    	    new JaxbAnnotationIntrospector(mapper.getTypeFactory());   
+    	mapper.setAnnotationIntrospector(introspector);
+    	SimpleModule module = new SimpleModule();
+    	registerJsonSerializers(module);
+    	mapper.registerModule(module);
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    	mapper.writeValue(outputStream, config);
+    }
+    
+    public static void saveYamlConfig(DhcpServerConfig config, OutputStream outputStream) 
+    		throws IOException {
+    	ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    	mapper.setSerializationInclusion(Include.NON_NULL);
+    	AnnotationIntrospector introspector =
+    	    new JaxbAnnotationIntrospector(mapper.getTypeFactory());   
+    	mapper.setAnnotationIntrospector(introspector);
+    	SimpleModule module = new SimpleModule();
+    	registerJsonSerializers(module);
+    	mapper.registerModule(module);
+    	mapper.writeValue(outputStream, config);
+    }
+    
+    public static void convertConfig(String configFileIn, String configFileOut) 
+    		throws DhcpServerConfigException, JAXBException, IOException {
+    	
+    	DhcpServerConfig config = loadConfig(configFileIn);
+    	saveConfig(config, configFileOut);
     }
     
     /**
@@ -1598,7 +1857,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilters();
+    		List<Filter> filters = filtersType.getFilterList();
     		return filteredMsgOptions(requestMsg, filters);
     	}
     	return null;
@@ -1616,7 +1875,7 @@ public class DhcpServerConfiguration
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
-    		List<LinkFilter> filters = linkFiltersType.getLinkFilter();
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
     		return filteredMsgOptions(requestMsg, filters);
     	}
     	return null;
@@ -1660,7 +1919,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilters();
+    		List<Filter> filters = filtersType.getFilterList();
     		return filteredIaNaOptions(requestMsg, filters);
     	}
     	return null;
@@ -1678,7 +1937,7 @@ public class DhcpServerConfiguration
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
-    		List<LinkFilter> filters = linkFiltersType.getLinkFilter();
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
     		return filteredIaNaOptions(requestMsg, filters);
     	}
     	return null;
@@ -1722,7 +1981,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilters();
+    		List<Filter> filters = filtersType.getFilterList();
     		return filteredNaAddrOptions(requestMsg, filters);
     	}
     	return null;
@@ -1740,7 +1999,7 @@ public class DhcpServerConfiguration
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
-    		List<LinkFilter> filters = linkFiltersType.getLinkFilter();
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
     		return filteredNaAddrOptions(requestMsg, filters);
     	}
     	return null;
@@ -1784,7 +2043,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilters();
+    		List<Filter> filters = filtersType.getFilterList();
     		return filteredIaTaOptions(requestMsg, filters);
     	}
     	return null;
@@ -1802,7 +2061,7 @@ public class DhcpServerConfiguration
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
-    		List<LinkFilter> filters = linkFiltersType.getLinkFilter();
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
     		return filteredIaTaOptions(requestMsg, filters);
     	}
     	return null;
@@ -1846,7 +2105,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilters();
+    		List<Filter> filters = filtersType.getFilterList();
     		return filteredTaAddrOptions(requestMsg, filters);
     	}
     	return null;
@@ -1864,7 +2123,7 @@ public class DhcpServerConfiguration
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
-    		List<LinkFilter> filters = linkFiltersType.getLinkFilter();
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
     		return filteredTaAddrOptions(requestMsg, filters);
     	}
     	return null;
@@ -1908,7 +2167,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilters();
+    		List<Filter> filters = filtersType.getFilterList();
     		return filteredIaPdOptions(requestMsg, filters);
     	}
     	return null;
@@ -1926,7 +2185,7 @@ public class DhcpServerConfiguration
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
-    		List<LinkFilter> filters = linkFiltersType.getLinkFilter();
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
     		return filteredIaPdOptions(requestMsg, filters);
     	}
     	return null;
@@ -1970,7 +2229,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilters();
+    		List<Filter> filters = filtersType.getFilterList();
     		return filteredPrefixOptions(requestMsg, filters);
     	}
     	return null;
@@ -1988,7 +2247,7 @@ public class DhcpServerConfiguration
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
-    		List<LinkFilter> filters = linkFiltersType.getLinkFilter();
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
     		return filteredPrefixOptions(requestMsg, filters);
     	}
     	return null;
@@ -2032,7 +2291,7 @@ public class DhcpServerConfiguration
     		FiltersType filtersType)
     {
     	if (filtersType != null) {
-    		List<Filter> filters = filtersType.getFilters();
+    		List<Filter> filters = filtersType.getFilterList();
     		return filteredV4Options(requestMsg, filters);
     	}
     	return null;
@@ -2050,7 +2309,7 @@ public class DhcpServerConfiguration
     		LinkFiltersType linkFiltersType)
     {
     	if (linkFiltersType != null) {
-    		List<LinkFilter> filters = linkFiltersType.getLinkFilter();
+    		List<LinkFilter> filters = linkFiltersType.getLinkFilterList();
     		return filteredV4Options(requestMsg, filters);
     	}
     	return null;
@@ -2095,7 +2354,7 @@ public class DhcpServerConfiguration
         boolean matches = true;     // assume match
     	FilterExpressionsType filterExprs = filter.getFilterExpressions();
     	if (filterExprs != null) {
-        	List<FilterExpression> expressions = filterExprs.getFilterExpression();
+        	List<FilterExpression> expressions = filterExprs.getFilterExpressionList();
             if (expressions != null) {
 		        for (FilterExpression expression : expressions) {
 		        	if (expression.getClientClassExpression() != null) {
@@ -2438,140 +2697,293 @@ public class DhcpServerConfiguration
 		}
 		return true;
     }
-}
+    
+    public static void registerJsonDeserializers(SimpleModule module) {
+    	// need this deserializer to handle hexValue for JSON and YAML, 
+    	// it is handled in XML via the hexBinary XML Schema data type
+		module.addDeserializer(OpaqueData.class, 
+				new OpaqueDataJsonDeserializer());
+		/*
+		 * Not needed after XML schema change to make bindings
+		 * more friendly for JSON and YAML configuration files.
+		 * 
+		module.addDeserializer(PoliciesType.class, 
+				new PoliciesTypeJsonDeserializer());
+		module.addDeserializer(LinksType.class, 
+				new LinksTypeJsonDeserializer());
+		module.addDeserializer(FiltersType.class, 
+				new FiltersTypeJsonDeserializer());
+		module.addDeserializer(V4AddressPoolsType.class,
+				new V4AddressPoolsTypeJsonDeserializer());
+		module.addDeserializer(V6AddressPoolsType.class,
+				new V6AddressPoolsTypeJsonDeserializer());
+		module.addDeserializer(V6PrefixPoolsType.class,
+				new V6PrefixPoolsTypeJsonDeserializer());
+		*/
+    }
+    
+    public static void registerJsonSerializers(SimpleModule module) {
+    	// not sure why OpaqueDataSeriaizer is not needed, but
+    	// it appears that Jackson can interpret the hexBinary
+    	// XML Schema data type when writing, but not reading?
+    	
+    	/*
+		 * Not needed after XML schema change to make bindings
+		 * more friendly for JSON and YAML configuration files.
+		 * 
+		module.addSerializer(PoliciesType.class, 
+				new PoliciesTypeJsonSerializer());
+		module.addSerializer(LinksType.class, 
+				new LinksTypeJsonSerializer());
+		module.addSerializer(FiltersType.class, 
+				new FiltersTypeJsonSerializer());
+		module.addSerializer(V4AddressPoolsType.class,
+				new V4AddressPoolsTypeJsonSerializer());
+		module.addSerializer(V6AddressPoolsType.class,
+				new V6AddressPoolsTypeJsonSerializer());
+		module.addSerializer(V6PrefixPoolsType.class,
+				new V6PrefixPoolsTypeJsonSerializer());
+		*/
+    }
+    
+    private static final class OpaqueDataJsonDeserializer extends JsonDeserializer<OpaqueData> {
+		@Override
+		public OpaqueData deserialize(JsonParser p, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			ObjectCodec oc = p.getCodec();
+			JsonNode opaqueNode = oc.readTree(p);
 
-
-/*
- * 
-package com.jagornet.dhcp.server.config.option.base;
-
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.jagornet.dhcp.xml.OpaqueData;
-import com.jagornet.dhcp.xml.Operator;
-
-public class BaseOpaqueData 
-		extends com.jagornet.dhcp.core.option.base.BaseOpaqueData
-{
-	private static Logger log = LoggerFactory.getLogger(BaseOpaqueData.class);
-
-	public BaseOpaqueData() {
-		this(null);
-	}
-	
-	public BaseOpaqueData(OpaqueData opaqueData) {
-		super();
-		if (opaqueData != null) {
-			super.setAscii(opaqueData.getAsciiValue());
-			super.setHex(opaqueData.getHexValue());
+			OpaqueData data = new OpaqueData();
+			JsonNode asciiNode = opaqueNode.get("asciiValue");
+			if (asciiNode != null) {
+				data.setAsciiValue(asciiNode.asText());
+			}
+			JsonNode hexNode = opaqueNode.get("hexValue");
+			if (hexNode != null) {
+				data.setHexValue(DatatypeConverter.parseHexBinary(hexNode.asText()));
+			}
+			return data;
 		}
 	}
+    
+    private static final class PoliciesTypeJsonDeserializer extends JsonDeserializer<PoliciesType> {
 
-	// for expression matching
-    public boolean matches(OpaqueData that, Operator op)
-    {
-        if (that != null) {
-            String expAscii = that.getAsciiValue();
-            String myAscii = getAscii();
-            if ( (expAscii != null) && (myAscii != null) ) {
-                if (op.equals(Operator.EQUALS)) {
-                    return myAscii.equalsIgnoreCase(expAscii);
-                }
-                else if (op.equals(Operator.STARTS_WITH)) {
-                    return myAscii.startsWith(expAscii);
-                }
-                else if (op.equals(Operator.CONTAINS)) {
-                    return myAscii.contains(expAscii);
-                }
-                else if (op.equals(Operator.ENDS_WITH)) {
-                    return myAscii.endsWith(expAscii);
-                }
-                else if (op.equals(Operator.REG_EXP)) {
-                    return myAscii.matches(expAscii);
-                }
-                else {
-                    log.error("Unsupported expression operator: " + op);
-                    return false;
-                }
-            }
-            else if ( (expAscii == null) && (myAscii == null) ) {
-                byte[] expHex = that.getHexValue();
-                byte[] myHex = getHex();
-                if ( (expHex != null) && (myHex != null) ) {
-                    if (op.equals(Operator.EQUALS)) {
-                    	return Arrays.equals(myHex, expHex);
-                    }
-                    else if (op.equals(Operator.STARTS_WITH)) {
-                        if (myHex.length >= expHex.length) {
-                            for (int i=0; i<expHex.length; i++) {
-                                if (myHex[i] != expHex[i]) {
-                                    return false;
-                                }
-                            }
-                            return true;    // if we get here, it matches
-                        }
-                        else {
-                            return false;   // exp length too long
-                        }
-                    }
-                    else if (op.equals(Operator.CONTAINS)) {
-                        if (myHex.length >= expHex.length) {
-                            int j=0;
-                            for (int i=0; i<myHex.length; i++) {
-                                if (myHex[i] == expHex[j]) {
-                                    // found a potential match
-                                    j++;
-                                    boolean matches = true;
-                                    for (int ii=i+1; ii<myHex.length; ii++) {
-                                        if (myHex[ii] != expHex[j++]) {
-                                            matches = false;
-                                            break;
-                                        }
-                                    }
-                                    if (matches) {
-                                        return true;
-                                    }
-                                    j=0;    // reset to start of exp
-                                }
-                            }
-                            return false;    // if we get here, it didn't match
-                        }
-                        else {
-                            return false;   // exp length too long
-                        }
-                    }
-                    else if (op.equals(Operator.ENDS_WITH)) {
-                        if (myHex.length >= expHex.length) {
-                            for (int i=myHex.length-1; 
-                                 i>=myHex.length-expHex.length; 
-                                 i--) {
-                                if (myHex[i] != expHex[i]) {
-                                    return false;
-                                }
-                            }
-                            return true;    // if we get here, it matches
-                        }
-                        else {
-                            return false;   // exp length too long
-                        }
-                    }
-                    else if (op.equals(Operator.REG_EXP)) {
-                        log.error("Regular expression operator not valid for hex opaque opaqueData");
-                        return false;
-                    }
-                    else {
-                        log.error("Unsupported expression operator: " + op);
-                        return false;
-                    }
-                }
-            }
-        }
-        return false;
+		@Override
+		public PoliciesType deserialize(JsonParser p, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			ObjectCodec oc = p.getCodec();
+
+			TypeReference<List<Policy>> listTypeRef = new TypeReference<List<Policy>>() {};
+			List<Policy> policies = oc.readValue(p, listTypeRef);
+
+			PoliciesType policiesType = new PoliciesType();
+			policiesType.getPolicyList().addAll(policies);
+			return policiesType;
+		}
+    	
     }
+    
+    private static final class PoliciesTypeJsonSerializer extends JsonSerializer<PoliciesType> {
+
+		@Override
+		public void serialize(PoliciesType value, JsonGenerator gen, SerializerProvider serializers)
+				throws IOException {
+			List<Policy> policies = value.getPolicyList();
+			if ((policies != null) && !policies.isEmpty()) {
+				gen.writeStartArray();
+				for (Policy policy : policies) {
+					gen.writeObject(policy);
+				}
+				gen.writeEndArray();
+			}
+		}
+    	
+    }
+    
+    private static final class LinksTypeJsonDeserializer extends JsonDeserializer<LinksType> {
+
+		@Override
+		public LinksType deserialize(JsonParser p, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			ObjectCodec oc = p.getCodec();
+
+			TypeReference<List<Link>> listTypeRef = new TypeReference<List<Link>>() {};
+			List<Link> links = oc.readValue(p, listTypeRef);
+
+			LinksType linksType = new LinksType();
+			linksType.getLinkList().addAll(links);
+			return linksType;
+		}
+    	
+    }
+    
+    private static final class LinksTypeJsonSerializer extends JsonSerializer<LinksType> {
+
+		@Override
+		public void serialize(LinksType value, JsonGenerator gen, SerializerProvider serializers)
+				throws IOException {
+			List<Link> links = value.getLinkList();
+			if ((links != null) && !links.isEmpty()) {
+				gen.writeStartArray();
+				for (Link link : links) {
+					gen.writeObject(link);
+				}
+				gen.writeEndArray();
+			}
+		}
+    	
+    }
+    
+    private static final class FiltersTypeJsonDeserializer extends JsonDeserializer<FiltersType> {
+
+		@Override
+		public FiltersType deserialize(JsonParser p, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			ObjectCodec oc = p.getCodec();
+
+			TypeReference<List<Filter>> listTypeRef = new TypeReference<List<Filter>>() {};
+			List<Filter> filters = oc.readValue(p, listTypeRef);
+
+			FiltersType filtersType = new FiltersType();
+			filtersType.getFilterList().addAll(filters);
+			return filtersType;
+		}
+    	
+    }
+    
+    private static final class FiltersTypeJsonSerializer extends JsonSerializer<FiltersType> {
+
+		@Override
+		public void serialize(FiltersType value, JsonGenerator gen, SerializerProvider serializers)
+				throws IOException {
+			List<Filter> filters = value.getFilterList();
+			if ((filters != null) && !filters.isEmpty()) {
+				gen.writeStartArray();
+				for (Filter filter : filters) {
+					gen.writeObject(filter);
+				}
+				gen.writeEndArray();
+			}
+		}
+    	
+    }
+    
+    private static final class V4AddressPoolsTypeJsonDeserializer extends JsonDeserializer<V4AddressPoolsType> {
+
+		@Override
+		public V4AddressPoolsType deserialize(JsonParser p, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			ObjectCodec oc = p.getCodec();
+
+			TypeReference<List<V4AddressPool>> listTypeRef = new TypeReference<List<V4AddressPool>>() {};
+			List<V4AddressPool> pools = oc.readValue(p, listTypeRef);
+
+			V4AddressPoolsType poolsType = new V4AddressPoolsType();
+			poolsType.getPoolList().addAll(pools);
+			return poolsType;
+		}
+    	
+    }
+    
+    private static final class V4AddressPoolsTypeJsonSerializer extends JsonSerializer<V4AddressPoolsType> {
+
+		@Override
+		public void serialize(V4AddressPoolsType value, JsonGenerator gen, SerializerProvider serializers)
+				throws IOException {
+			List<V4AddressPool> pools = value.getPoolList();
+			if ((pools != null) && !pools.isEmpty()) {
+				gen.writeStartArray();
+				for (V4AddressPool pool : pools) {
+					gen.writeObject(pool);
+				}
+				gen.writeEndArray();
+			}
+		}
+    	
+    }
+    
+    private static final class V6AddressPoolsTypeJsonDeserializer extends JsonDeserializer<V6AddressPoolsType> {
+
+		@Override
+		public V6AddressPoolsType deserialize(JsonParser p, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			ObjectCodec oc = p.getCodec();
+
+			TypeReference<List<V6AddressPool>> listTypeRef = new TypeReference<List<V6AddressPool>>() {};
+			List<V6AddressPool> pools = oc.readValue(p, listTypeRef);
+
+			V6AddressPoolsType poolsType = new V6AddressPoolsType();
+			poolsType.getPoolList().addAll(pools);
+			return poolsType;
+		}
+    	
+    }
+    
+    private static final class V6AddressPoolsTypeJsonSerializer extends JsonSerializer<V6AddressPoolsType> {
+
+		@Override
+		public void serialize(V6AddressPoolsType value, JsonGenerator gen, SerializerProvider serializers)
+				throws IOException {
+			List<V6AddressPool> pools = value.getPoolList();
+			if ((pools != null) && !pools.isEmpty()) {
+				gen.writeStartArray();
+				for (V6AddressPool pool : pools) {
+					gen.writeObject(pool);
+				}
+				gen.writeEndArray();
+			}
+		}
+    	
+    }
+    
+    private static final class V6PrefixPoolsTypeJsonDeserializer extends JsonDeserializer<V6PrefixPoolsType> {
+
+		@Override
+		public V6PrefixPoolsType deserialize(JsonParser p, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			ObjectCodec oc = p.getCodec();
+
+			TypeReference<List<V6PrefixPool>> listTypeRef = new TypeReference<List<V6PrefixPool>>() {};
+			List<V6PrefixPool> pools = oc.readValue(p, listTypeRef);
+
+			V6PrefixPoolsType poolsType = new V6PrefixPoolsType();
+			poolsType.getPoolList().addAll(pools);
+			return poolsType;
+		}
+    	
+    }
+    
+    private static final class V6PrefixPoolsTypeJsonSerializer extends JsonSerializer<V6PrefixPoolsType> {
+
+		@Override
+		public void serialize(V6PrefixPoolsType value, JsonGenerator gen, SerializerProvider serializers)
+				throws IOException {
+			List<V6PrefixPool> pools = value.getPoolList();
+			if ((pools != null) && !pools.isEmpty()) {
+				gen.writeStartArray();
+				for (V6PrefixPool pool : pools) {
+					gen.writeObject(pool);
+				}
+				gen.writeEndArray();
+			}
+		}
+    	
+    }
+
+    /**
+     * Utility CLI to convert configs from one format to another
+     * @param args
+     */
+    public static void main(String[] args) {
+		if (args.length != 2) {
+			System.err.println("Usage: DhcpServerConfig configFileIn configFileOut");
+			System.exit(1);
+		}
+		try {
+			convertConfig(args[0], args[1]);
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 }
-
-
-*/

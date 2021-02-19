@@ -12,89 +12,89 @@
 	
 	<v4ServerIdOption>
 		<!--  DHCPv4 ServerID must be a local IP address -->
-		<ipAddress>10.10.10.216</ipAddress>
+		<ipAddress>10.9.5.100</ipAddress>
 	</v4ServerIdOption>
 
 	<policies>
 	<!-- 
-		<policy>
+		<policyList>
 			<name>database.schemaType</name>
 			<value>file</value>
-		</policy>
+		</policyList>
 	 -->
-		<policy>
+		<policyList>
 			<name>dhcp.ignoreSelfPackets</name>
 			<value>false</value>
-		</policy>
+		</policyList>
 		
-		<policy>
+		<policyList>
 			<name>ha.role</name>
 			<value>primary</value>
-		</policy>
-		<policy>
+		</policyList>
+		<policyList>
 			<name>ha.bindingUpdateMode</name>
 			<value>sync</value>
-		</policy>
-		<policy>
+		</policyList>
+		<policyList>
 			<name>ha.peerServer</name>
-			<value>10.10.10.216</value>
-		</policy>
-		<policy>
+			<value>10.9.5.100</value>
+		</policyList>
+		<policyList>
 			<name>ha.peerPort</name>
 			<value>9068</value> <!-- HTTPS port of Jersey REST server -->
-		</policy>
+		</policyList>
 	</policies>
 	
 	<links>
 		<!-- Must define at least one link for client requests -->
-        <link>
+        <linkList>
             <name>IPv4 Client Link 1</name>
             <!-- All DHCPv4 links are defined in CIDR notation.
             	 For local links, specify the interface as a
             	 startup command-line option, and configure the
             	 subnet for that interface's IPv4 address. -->
-            <address>10.10.0.0/16</address>
+            <address>10.9.0.0/16</address>
             <v4ConfigOptions>
                 <v4SubnetMaskOption>
                     <ipAddress>255.255.0.0</ipAddress>
                 </v4SubnetMaskOption>
                 <v4RoutersOption>
-                    <ipAddress>10.10.0.1</ipAddress>
+                    <ipAddressList>10.9.0.1</ipAddressList>
                 </v4RoutersOption>
                 <v4DomainServersOption>
-                    <ipAddress>1.1.1.1</ipAddress>
-                    <ipAddress>8.8.8.8</ipAddress>
+                    <ipAddressList>1.1.1.1</ipAddressList>
+                    <ipAddressList>8.8.8.8</ipAddressList>
                 </v4DomainServersOption>
                 <v4DomainNameOption>
                     <string>test.jagornet.com.</string>
                 </v4DomainNameOption>
             </v4ConfigOptions>
             <v4AddrPools>
-                <pool>
-                    <range>10.10.1.0-10.10.255.254</range>
-                     <!-- <range>10.10.1.0-10.10.1.99</range>  -->
-                </pool>
+                <poolList>
+                    <range>10.9.1.0-10.9.255.254</range>
+                     <!-- <range>10.9.1.0-10.9.1.99</range>  -->
+                </poolList>
             </v4AddrPools>
-        </link>
-		<link>
+        </linkList>
+		<linkList>
 			<name>Local IPv6 Client Link (Multicast traffic)</name>
 			<!-- Local DHCPv6 links are defined by interface name -->
 			<interface>en0</interface>
 			<v6MsgConfigOptions>
 				<v6DnsServersOption>
-					<ipAddress>2001:db8:1::1</ipAddress>
+					<ipAddressList>2001:db8:1::1</ipAddressList>
 				</v6DnsServersOption>
 				<v6DomainSearchListOption>
-					<domainName>foo.com.</domainName>
+					<domainNameList>foo.com.</domainNameList>
 				</v6DomainSearchListOption>
 			</v6MsgConfigOptions>
 			<v6NaAddrPools>
-				<pool>
+				<poolList>
 					<!-- <range>2001:db8:1::/64</range>  -->
 					<range>2001:db8:1::1:0-2001:db8:1::1:FF</range>
-				</pool>
+				</poolList>
 			</v6NaAddrPools>
-		</link>
+		</linkList>
 	</links>
 
 </dhc:dhcpServerConfig>

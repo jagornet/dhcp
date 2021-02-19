@@ -2,13 +2,13 @@
 <ns2:dhcpServerConfig xmlns:ns2="http://jagornet.com/dhcp/xml">
     <v6ServerIdOption>
         <opaqueData>
-            <hexValue>000100015F713881263F0A171B4F</hexValue>
+            <hexValue>000100015FF66EA4960F52D22F60</hexValue>
         </opaqueData>
     </v6ServerIdOption>
     <policies>
-        <policy>
-            <name>sendRequestedOptionsOnly</name>
+        <policyList>
+            <name>dhcp.sendRequestedOptionsOnly</name>
             <value>true</value>
-        </policy>
+        </policyList>
     </policies>
 </ns2:dhcpServerConfig>

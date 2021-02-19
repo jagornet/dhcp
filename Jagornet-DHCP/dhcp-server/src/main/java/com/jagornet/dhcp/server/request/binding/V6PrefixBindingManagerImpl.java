@@ -113,13 +113,13 @@ public class V6PrefixBindingManagerImpl
 		// Put the filtered pools first in the list of pools on this link
 		LinkFiltersType linkFiltersType = link.getLinkFilters();
 		if (linkFiltersType != null) {
-			List<LinkFilter> linkFilters = linkFiltersType.getLinkFilter();
+			List<LinkFilter> linkFilters = linkFiltersType.getLinkFilterList();
 			if ((linkFilters != null) && !linkFilters.isEmpty()) {
 				for (LinkFilter linkFilter : linkFilters) {
 					V6PrefixPoolsType poolsType = linkFilter.getV6PrefixPools();
 					if (poolsType != null) {
 						// add the filtered pools to the mapped list
-		    			List<V6PrefixPool> pools = poolsType.getPool();
+		    			List<V6PrefixPool> pools = poolsType.getPoolList();
 		    			if ((pools != null) && !pools.isEmpty()) {
 		    				for (V6PrefixPool pool : pools) {
 		    					V6PrefixBindingPool abp = buildV6BindingPool(pool, link, linkFilter);
@@ -139,7 +139,7 @@ public class V6PrefixBindingManagerImpl
 		V6PrefixPoolsType poolsType = link.getV6PrefixPools();
 		if (poolsType != null) {
 			// add the unfiltered pools to the mapped list
-			List<V6PrefixPool> pools = poolsType.getPool();
+			List<V6PrefixPool> pools = poolsType.getPoolList();
 			if ((pools != null) && !pools.isEmpty()) {
 				for (V6PrefixPool pool : pools) {
 					V6PrefixBindingPool abp = buildV6BindingPool(pool, link);
@@ -236,7 +236,7 @@ public class V6PrefixBindingManagerImpl
 		List<V6StaticPrefixBinding> staticBindings = new ArrayList<V6StaticPrefixBinding>();
 		V6PrefixBindingsType bindingsType = link.getV6PrefixBindings();
 		if (bindingsType != null) {
-			List<V6PrefixBinding> bindings = bindingsType.getBinding();
+			List<V6PrefixBinding> bindings = bindingsType.getBindingList();
 			if ((bindings != null) && !bindings.isEmpty()) {
 				for (V6PrefixBinding binding : bindings) {
 					V6StaticPrefixBinding spb = buildStaticBinding(binding, link);

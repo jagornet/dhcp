@@ -15,10 +15,17 @@
 			<asciiValue>Jagornet</asciiValue>
 		</opaqueData>
 	</v6ServerIdOption>
+	
+	<policies>
+		<policyList>
+			<name>dhcp.ignoreSelfPackets</name>
+			<value>true</value>
+		</policyList>
+	</policies>
 
 	<links>
 		<!-- Must define at least one link for client requests -->
-        <link>
+        <linkList>
             <name>IPv4 Client Link 1</name>
             <!-- All DHCPv4 links are defined in CIDR notation.
             	 For local links, specify the interface as a
@@ -30,51 +37,51 @@
                     <ipAddress>255.255.255.0</ipAddress>
                 </v4SubnetMaskOption>
                 <v4RoutersOption>
-                    <ipAddress>10.0.0.1</ipAddress>
+                    <ipAddressList>10.0.0.1</ipAddressList>
                 </v4RoutersOption>
             </v4ConfigOptions>
             <v4AddrPools>
-                <pool>
+                <poolList>
                     <range>10.0.0.100-10.0.0.199</range>
-                </pool>
+                </poolList>
             </v4AddrPools>
-        </link>
-		<link>
+        </linkList>
+		<linkList>
 			<name>Local IPv6 Client Link (Multicast traffic)</name>
 			<!-- Local DHCPv6 links are defined by interface name -->
 			<interface>eth2</interface>
 			<v6MsgConfigOptions>
 				<v6DnsServersOption>
-					<ipAddress>2001:db8:1::1</ipAddress>
+					<ipAddressList>2001:db8:1::1</ipAddressList>
 				</v6DnsServersOption>
 				<v6DomainSearchListOption>
-					<domainName>foo.com.</domainName>
+					<domainNameList>foo.com.</domainNameList>
 				</v6DomainSearchListOption>
 			</v6MsgConfigOptions>
 			<v6NaAddrPools>
-				<pool>
+				<poolList>
 					<range>2001:db8:1::0A-2001:db8:1::FF</range>
-				</pool>
+				</poolList>
 			</v6NaAddrPools>
-		</link>
-		<link>
+		</linkList>
+		<linkList>
 			<name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
 			<!-- Remote DHCPv6 links are defined in CIDR notation -->
 			<address>2001:db8:2::/48</address>
 			<v6MsgConfigOptions>
 				<v6DnsServersOption>
-					<ipAddress>2001:db8:2::1</ipAddress>
+					<ipAddressList>2001:db8:2::1</ipAddressList>
 				</v6DnsServersOption>
 				<v6DomainSearchListOption>
-					<domainName>bar.com.</domainName>
+					<domainNameList>bar.com.</domainNameList>
 				</v6DomainSearchListOption>
 			</v6MsgConfigOptions>
 			<v6NaAddrPools>
-				<pool>
+				<poolList>
 					<range>2001:db8:2::0A-2001:db8:2::FF</range>
-				</pool>
+				</poolList>
 			</v6NaAddrPools>
-		</link>
+		</linkList>
 	</links>
 
 </dhc:dhcpServerConfig>

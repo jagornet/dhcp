@@ -111,13 +111,13 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 		// Put the filtered pools first in the list of pools on this link
 		LinkFiltersType linkFiltersType = link.getLinkFilters();
 		if (linkFiltersType != null) {
-			List<LinkFilter> linkFilters = linkFiltersType.getLinkFilter();
+			List<LinkFilter> linkFilters = linkFiltersType.getLinkFilterList();
 			if ((linkFilters != null) && !linkFilters.isEmpty()) {
 				for (LinkFilter linkFilter : linkFilters) {
 					V6AddressPoolsType poolsType = getV6AddressPoolsType(linkFilter);
 					if (poolsType != null) {
 						// add the filtered pools to the mapped list
-		    			List<V6AddressPool> pools = poolsType.getPool();
+		    			List<V6AddressPool> pools = poolsType.getPoolList();
 		    			if ((pools != null) && !pools.isEmpty()) {
 		    				for (V6AddressPool pool : pools) {
 		    					V6AddressBindingPool abp = buildV6BindingPool(pool, link, linkFilter);
@@ -137,7 +137,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 		V6AddressPoolsType poolsType = getV6AddressPoolsType(link);
 		if (poolsType != null) {
 			// add the unfiltered pools to the mapped list
-			List<V6AddressPool> pools = poolsType.getPool();
+			List<V6AddressPool> pools = poolsType.getPoolList();
 			if ((pools != null) && !pools.isEmpty()) {
 				for (V6AddressPool pool : pools) {
 					V6AddressBindingPool abp = buildV6BindingPool(pool, link);
@@ -251,7 +251,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 		List<V6StaticAddressBinding> staticBindings = new ArrayList<V6StaticAddressBinding>();
 		V6AddressBindingsType bindingsType = getV6AddressBindingsType(link);
 		if (bindingsType != null) {
-			List<V6AddressBinding> bindings = bindingsType.getBinding();
+			List<V6AddressBinding> bindings = bindingsType.getBindingList();
 			if ((bindings != null) && !bindings.isEmpty()) {
 				for (V6AddressBinding binding : bindings) {
 					V6StaticAddressBinding sab = buildV6StaticBinding(binding, link);

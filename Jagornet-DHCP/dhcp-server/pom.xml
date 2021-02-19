@@ -28,6 +28,7 @@
   	<activation.version>1.1.1</activation.version>
   	<javax.annotation.version>1.3.2</javax.annotation.version>
   	<httpclient.version>4.5.12</httpclient.version>
+  	<jackson.version>2.11.2</jackson.version>
   </properties>
 
   <dependencies>
@@ -198,6 +199,11 @@
 	    <artifactId>httpclient</artifactId>
 	    <version>${httpclient.version}</version>
 	</dependency>
+	<dependency>
+	  <groupId>com.fasterxml.jackson.dataformat</groupId>
+	  <artifactId>jackson-dataformat-yaml</artifactId>
+	  <version>${jackson.version}</version>
+	</dependency>
 	<!-- Test dependency jars -->
   	<dependency>
   		<groupId>com.jagornet</groupId>
@@ -218,11 +224,31 @@
 				<configuration>
 				  <archive>
 				    <manifest>
+		              <addClasspath>true</addClasspath>
+		              <mainClass>com.jagornet.dhcp.server.JagornetDhcpServer</mainClass>
 				      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 				    </manifest>
 				  </archive>
 				</configuration>
 			</plugin>
+	        <!-- <plugin>
+	          <groupId>com.google.cloud.tools</groupId>
+	          <artifactId>jib-maven-plugin</artifactId>
+	          <version>2.7.0</version>
+	          <configuration>
+	            <to>
+	              <image>jagornet/dhcp-server:${jagornet.dhcp.version}</image>
+	            </to>
+	          </configuration>
+			  <executions>
+			    <execution>
+			      <phase>package</phase>
+			      <goals>
+			        <goal>buildTar</goal>
+			      </goals>
+			    </execution>
+			  </executions>
+	        </plugin> -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
@@ -256,9 +282,11 @@
 	            	<sources>
 	            		<source>src/main/resources/dhcpserver.xsd</source>
 	            	</sources>
+	            	<!-- xjb can be used to customize the bindings 
 	            	<xjbSources>
 	            		<source>src/main/resources/dhcpserver.xjb</source>
-	            	</xjbSources>
+	            	</xjbSources> 
+	            	-->
 	                <!-- The package of your generated sources -->
 	                <packageName>com.jagornet.dhcp.server.config.xml</packageName>
 	            </configuration>

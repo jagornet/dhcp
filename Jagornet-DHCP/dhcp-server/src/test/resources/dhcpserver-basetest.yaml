@@ -1,0 +1,125 @@
+---
+v4ServerIdOption:
+  ipAddress: "192.168.0.10"
+v6ServerIdOption:
+  opaqueData:
+    hexValue: "ABCDEF0123456789"
+policies:
+  policyList:
+  - name: "sendRequestedOptionsOnly"
+    value: "false"
+v6MsgConfigOptions:
+  v6DnsServersOption:
+    ipAddressList:
+    - "3ffe::0001"
+    - "3ffe::0002"
+    - "3ffe::0003"
+  v6DomainSearchListOption:
+    domainNameList:
+    - "foo.com."
+    - "bar.com."
+    - "yuk.com."
+filters:
+  filterList:
+  - name: "UserClass Filter Group 1"
+    filterExpressions:
+      filterExpressionList:
+      - optionExpression:
+          opaqueDataOption:
+            opaqueData:
+              asciiValue: "FilterUserClass"
+          code: 15
+          operator: "equals"
+    v6MsgConfigOptions:
+      v6DomainSearchListOption:
+        domainNameList:
+        - "filter.com."
+links:
+  linkList:
+  - name: "Client Link 1"
+    address: "2001:DB8:1::/48"
+    v6IaNaConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:DB8:1::1"
+    v6NaAddrPools:
+      poolList:
+      - range: "2001:DB8:1::0A-2001:DB8:1::FF"
+        addrConfigOptions:
+          v6SipServerAddressesOption:
+            ipAddressList:
+            - "2001:DB8:1::1:1"
+    v6PrefixPools:
+      poolList:
+      - range: "2001:DB8:1:4000::/50"
+        prefixLength: 56
+    linkFilters:
+      linkFilterList:
+      - v6NaAddrPools:
+          poolList:
+          - range: "2001:DB8:1::10A-2001:DB8:1::1FF"
+            addrConfigOptions:
+              v6SipServerAddressesOption:
+                ipAddressList:
+                - "2001:DB8:1::1:1"
+        name: "Support Reconfigure"
+        filterExpressions:
+          filterExpressionList:
+          - optionExpression:
+              nilOption: {}
+              code: 20
+  - name: "Client Link 2"
+    address: "2001:DB8:2::/48"
+    v6IaNaConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:DB8:2::1"
+    linkFilters:
+      linkFilterList:
+      - v6NaAddrPools:
+          poolList:
+          - range: "2001:DB8:2::10A-2001:DB8:2::1FF"
+            addrConfigOptions:
+              v6SipServerAddressesOption:
+                ipAddressList:
+                - "2001:DB8:2::1:1"
+        name: "Support Reconfigure"
+        filterExpressions:
+          filterExpressionList:
+          - optionExpression:
+              nilOption: {}
+              code: 20
+  - name: "Client Link 3"
+    address: "2001:DB8:3::/48"
+    v6IaNaConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:DB8:3::1"
+  - name: "Client Link 4"
+    address: "2001:DB8:4::/48"
+    v6IaNaConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:DB8:4::1"
+  - name: "Client Link 5"
+    address: "2001:DB8:5::/48"
+    v6IaNaConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:DB8:5::1"
+  - name: "V4 Client Link 1"
+    address: "192.168.0.1/24"
+    v4ConfigOptions:
+      v4SubnetMaskOption:
+        ipAddress: "255.255.255.0"
+      v4RoutersOption:
+        ipAddressList:
+        - "192.168.0.1"
+      v4DomainServersOption:
+        ipAddressList:
+        - "192.168.0.10"
+      v4DomainNameOption:
+        string: "v4.foo.com."
+    v4AddrPools:
+      poolList:
+      - range: "192.168.0.100-192.168.0.199"

@@ -140,7 +140,7 @@ public class DhcpConfigOptionFactory
 	{
 		Map<Integer, DhcpOption> optMap = new TreeMap<Integer, DhcpOption>(); 
 		if (genericOptions != null) {
-			List<OptionDefType> optionDefs = genericOptions.getOptionDefs();
+			List<OptionDefType> optionDefs = genericOptions.getOptionDefList();
 			if ((optionDefs != null) && !optionDefs.isEmpty()) {
 				for (OptionDefType optionDefType : optionDefs) {
 					

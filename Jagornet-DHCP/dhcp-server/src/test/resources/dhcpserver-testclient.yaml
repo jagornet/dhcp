@@ -1,0 +1,49 @@
+---
+v4ServerIdOption:
+  ipAddress: "10.9.5.100"
+v6ServerIdOption:
+  opaqueData:
+    asciiValue: "Jagornet"
+policies:
+  policyList:
+  - name: "dhcp.ignoreSelfPackets"
+    value: "false"
+  - name: "ha.role"
+    value: "primary"
+  - name: "ha.bindingUpdateMode"
+    value: "sync"
+  - name: "ha.peerServer"
+    value: "10.9.5.100"
+  - name: "ha.peerPort"
+    value: "9068"
+links:
+  linkList:
+  - name: "IPv4 Client Link 1"
+    address: "10.9.0.0/16"
+    v4ConfigOptions:
+      v4SubnetMaskOption:
+        ipAddress: "255.255.0.0"
+      v4RoutersOption:
+        ipAddressList:
+        - "10.9.0.1"
+      v4DomainServersOption:
+        ipAddressList:
+        - "1.1.1.1"
+        - "8.8.8.8"
+      v4DomainNameOption:
+        string: "test.jagornet.com."
+    v4AddrPools:
+      poolList:
+      - range: "10.9.1.0-10.9.255.254"
+  - name: "Local IPv6 Client Link (Multicast traffic)"
+    interface: "en0"
+    v6MsgConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:db8:1::1"
+      v6DomainSearchListOption:
+        domainNameList:
+        - "foo.com."
+    v6NaAddrPools:
+      poolList:
+      - range: "2001:db8:1::1:0-2001:db8:1::1:FF"

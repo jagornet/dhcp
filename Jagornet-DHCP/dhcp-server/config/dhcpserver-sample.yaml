@@ -1,0 +1,177 @@
+---
+v4ServerIdOption:
+  # DHCPv4 ServerID must be a local IP address
+  ipAddress: "10.0.0.2"
+v6ServerIdOption:
+  # DHCPv6 ServerID should be auto-generated hex data
+  opaqueData:
+    asciiValue: "Jagornet"
+policies:
+  # Global server level policies
+  policyList:
+  - name: "dhcp.sendRequestedOptionsOnly"
+    value: "false"
+  - name: "ddns.update"
+    value: "server"
+  - name: "ddns.domain"
+    value: "example.com."
+  - name: "ddns.server"
+    value: "10.0.0.2"
+  - name: "ddns.tsig.keyName"
+    value: "dhcpv6server-ddnsserver."
+  - name: "ddns.tsig.algorithm"
+    value: "hmac-sha256."
+  - name: "ddns.tsig.keyData"
+    value: "yourKeyDataHere"
+v6MsgConfigOptions:
+  # Global server level options to be put at the message level
+  # for reply messages sent to DHCPv6 clients
+  v6DnsServersOption:
+    ipAddressList:
+    - "2001:db8::1"
+    - "2001:db8::2"
+    - "2001:db8::3"
+  v6DomainSearchListOption:
+    domainNameList:
+    - "foo.com."
+    - "bar.com."
+    - "yuk.com."
+filters:
+  # Global server level filters applied to all clients that match
+  filterList:
+  - name: "DHCPv6 UserClass Filter"
+    filterExpressions:
+      # Match clients with v6 user class option of "MyUserClass"
+      filterExpressionList:
+      - clientClassExpression:
+          v6UserClassOption:
+            opaqueDataList:
+            - asciiValue: "MyUserClass"
+          operator: "equals"
+    v6MsgConfigOptions:
+      # Send the "filter.com." domain search list to the matched clients
+      v6DomainSearchListOption:
+        domainNameList:
+        - "filter.com."
+  - name: "DHCPv6 VendorClass Filter"
+    filterExpressions:
+      # Match clients with v6 vendor class option with enterprise
+      # number 1234 and ASCII value "VendorXYZ"
+      filterExpressionList:
+      - clientClassExpression:
+          v6VendorClassOption:
+            enterpriseNumber: 12345
+            opaqueDataList:
+            - asciiValue: "VendorXYZ"
+          operator: "equals"
+    v6MsgConfigOptions:
+      # Send vendor specific options to the matched clients
+      v6VendorInfoOption:
+        enterpriseNumber: 12345
+        suboptionList:
+          optionDefList:
+          - stringOption:
+              string: "hello"
+            code: 1
+          - ipAddressOption:
+              ipAddress: "2001:db8::1"
+            code: 2
+  - name: "DHCPv4 VendorClass Filter"
+    filterExpressions:
+      # Match clients with v4 vendor class option starting with "MyVendorPrefix"
+      filterExpressionList:
+      - clientClassExpression:
+          v4VendorClassOption:
+            opaqueData:
+              asciiValue: "MyVendorPrefix"
+          operator: "startsWith"
+    v4ConfigOptions:
+      # Send vendor specific data to the matched clients
+      v4VendorSpecificOption:
+        opaqueData:
+          hexValue: "01020304"
+links:
+  # Must define at least one link for client requests
+  linkList:
+  - name: "IPv4 Client Link 1"
+    # All DHCPv4 links are defined in CIDR notation.
+    # For local links, specify the interface as a
+    # startup command-line option, and configure the
+    # subnet for that interface's IPv4 address.
+    address: "10.0.0.0/24"
+    policies:
+      policyList:
+      - name: "v4.defaultLeasetime"
+        value: "600"
+    v4ConfigOptions:
+      v4SubnetMaskOption:
+        ipAddress: "255.255.255.0"
+      v4RoutersOption:
+        ipAddressList:
+        - "10.0.0.1"
+    v4AddrPools:
+      poolList:
+      - range: "10.0.0.100-10.0.0.199"
+    v4AddrBindings:
+      # Binding addresses should NOT be inside a pool
+      bindingList:
+      - ipAddress: "10.0.0.200"
+        chaddr: "0A1B2C3D4E5F"
+        configOptions:
+          v4RoutersOption:
+            ipAddressList:
+            - "10.0.0.11"
+  - name: "Local IPv6 Client Link (Multicast traffic)"
+    # Local DHCPv6 links are defined by interface name
+    interface: "eth2"
+    policies:
+      policyList:
+      - name: "v6.preferredLifetime"
+        value: "600"
+      - name: "v6.validLifetime"
+        value: "600"
+    v6MsgConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:db8:1::1"
+    v6NaAddrPools:
+      # Clients that don't support Rapid Commit requesting non-temporary
+      # addresses, will get an address from this pool with the
+      # address level options provided
+      poolList:
+      - range: "2001:db8:1::0A-2001:db8:1::FF"
+    v6NaAddrBindings:
+      bindingList:
+      - ipAddress: "2001:db8:1::100"
+        # DHCPv6 "binding" is not really supported yet
+        # because clients do not send a MAC address, but
+        # if the DUID is known, then a binding can be made.
+        duid:
+          hexValue: "0A1B2C3D4E5F"
+        # The IA_ID is almost definitely unpredictable, so
+        # it is an optional element for a DHCPv6 binding.  If
+        # left undefined, then ANY IA_ID will match.
+        # iaid: 0
+    linkFilters:
+      linkFilterList:
+      - v6NaAddrPools:
+          # Clients that support Rapid Commit requesting non-temporary
+          # addresses, will get an address from this pool
+          poolList:
+          - range: "2001:db8:1::10A-2001:db8:1::1FF"
+        name: "Support Rapid Commit"
+        filterExpressions:
+          filterExpressionList:
+          - optionExpression:
+              nilOption: {}
+              code: 14
+  - name: "Remote IPv6 Client Link (Unicast/Multicast traffic)"
+    # Remote DHCPv6 links are defined in CIDR notation
+    address: "2001:db8:2::/48"
+    v6MsgConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:db8:2::1"
+    v6NaAddrPools:
+      poolList:
+      - range: "2001:db8:2::0A-2001:db8:2::FF"

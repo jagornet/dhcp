@@ -100,13 +100,13 @@ public class V4AddrBindingManagerImpl
 		// Put the filtered pools first in the list of pools on this link
 		LinkFiltersType linkFiltersType = link.getLinkFilters();
 		if (linkFiltersType != null) {
-			List<LinkFilter> linkFilters = linkFiltersType.getLinkFilter();
+			List<LinkFilter> linkFilters = linkFiltersType.getLinkFilterList();
 			if ((linkFilters != null) && !linkFilters.isEmpty()) {
 				for (LinkFilter linkFilter : linkFilters) {
 					V4AddressPoolsType poolsType = linkFilter.getV4AddrPools();
 					if (poolsType != null) {
 						// add the filtered pools to the mapped list
-		    			List<V4AddressPool> pools = poolsType.getPool();
+		    			List<V4AddressPool> pools = poolsType.getPoolList();
 		    			if ((pools != null) && !pools.isEmpty()) {
 		    				for (V4AddressPool pool : pools) {
 		    					V4AddressBindingPool abp = buildV4BindingPool(pool, link, linkFilter);
@@ -126,7 +126,7 @@ public class V4AddrBindingManagerImpl
 		V4AddressPoolsType poolsType = link.getV4AddrPools();
 		if (poolsType != null) {
 			// add the unfiltered pools to the mapped list
-			List<V4AddressPool> pools = poolsType.getPool();
+			List<V4AddressPool> pools = poolsType.getPoolList();
 			if ((pools != null) && !pools.isEmpty()) {
 				for (V4AddressPool pool : pools) {
 					V4AddressBindingPool abp = buildV4BindingPool(pool, link);
@@ -220,7 +220,7 @@ public class V4AddrBindingManagerImpl
 		List<V4StaticAddressBinding> staticBindings = new ArrayList<V4StaticAddressBinding>();
 		V4AddressBindingsType bindingsType = link.getV4AddrBindings();
 		if (bindingsType != null) {
-			List<V4AddressBinding> bindings = bindingsType.getBinding();
+			List<V4AddressBinding> bindings = bindingsType.getBindingList();
 			if ((bindings != null) && !bindings.isEmpty()) {
 				for (V4AddressBinding binding : bindings) {
 					V4StaticAddressBinding sab = buildV4StaticBinding(binding, link);

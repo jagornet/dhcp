@@ -9,28 +9,28 @@
         <ipAddress>192.168.0.4</ipAddress>
     </v4ServerIdOption>
     <policies>
-        <policy>
-            <name>sendRequestedOptionsOnly</name>
+        <policyList>
+            <name>dhcp.sendRequestedOptionsOnly</name>
             <value>true</value>
-        </policy>
+        </policyList>
     </policies>
     <v6MsgConfigOptions>
         <v6DnsServersOption>
-            <ipAddress>3ffe::0001</ipAddress>
-            <ipAddress>3ffe::0002</ipAddress>
-            <ipAddress>3ffe::0003</ipAddress>
+            <ipAddressList>3ffe::0001</ipAddressList>
+            <ipAddressList>3ffe::0002</ipAddressList>
+            <ipAddressList>3ffe::0003</ipAddressList>
         </v6DnsServersOption>
         <v6DomainSearchListOption>
-            <domainName>foo.com.</domainName>
-            <domainName>bar.com.</domainName>
-            <domainName>yuk.com.</domainName>
+            <domainNameList>foo.com.</domainNameList>
+            <domainNameList>bar.com.</domainNameList>
+            <domainNameList>yuk.com.</domainNameList>
         </v6DomainSearchListOption>
     </v6MsgConfigOptions>
     <filters>
-        <filter>
+        <filterList>
             <name>UserClass Filter Group 1</name>
             <filterExpressions>
-                <filterExpression>
+                <filterExpressionList>
                     <optionExpression code="15">
                         <opaqueDataOption>
                             <opaqueData>
@@ -38,60 +38,60 @@
                             </opaqueData>
                         </opaqueDataOption>
                     </optionExpression>
-                </filterExpression>
+                </filterExpressionList>
             </filterExpressions>
             <v6MsgConfigOptions>
                 <v6DomainSearchListOption>
-                    <domainName>filter.com.</domainName>
+                    <domainNameList>filter.com.</domainNameList>
                 </v6DomainSearchListOption>
             </v6MsgConfigOptions>
-        </filter>
+        </filterList>
     </filters>
     <links>
-        <link>
+        <linkList>
             <name>Client Link 1</name>
             <address>2001:DB8:1::/48</address>
             <v6MsgConfigOptions>
                 <v6DnsServersOption>
-                    <ipAddress>2001:DB8:1::1</ipAddress>
+                    <ipAddressList>2001:DB8:1::1</ipAddressList>
                 </v6DnsServersOption>
             </v6MsgConfigOptions>
-        </link>
-        <link>
+        </linkList>
+        <linkList>
             <name>Client Link 2</name>
             <address>2001:DB8:2::/48</address>
             <v6MsgConfigOptions>
                 <v6DnsServersOption>
-                    <ipAddress>2001:DB8:2::1</ipAddress>
+                    <ipAddressList>2001:DB8:2::1</ipAddressList>
                 </v6DnsServersOption>
             </v6MsgConfigOptions>
-        </link>
-        <link>
+        </linkList>
+        <linkList>
             <name>Client Link 3</name>
             <address>2001:DB8:3::/48</address>
             <v6MsgConfigOptions>
                 <v6DnsServersOption>
-                    <ipAddress>2001:DB8:3::1</ipAddress>
+                    <ipAddressList>2001:DB8:3::1</ipAddressList>
                 </v6DnsServersOption>
             </v6MsgConfigOptions>
-        </link>
-        <link>
+        </linkList>
+        <linkList>
             <name>Client Link 4</name>
             <address>2001:DB8:4::/48</address>
             <v6MsgConfigOptions>
                 <v6DnsServersOption>
-                    <ipAddress>2001:DB8:4::1</ipAddress>
+                    <ipAddressList>2001:DB8:4::1</ipAddressList>
                 </v6DnsServersOption>
             </v6MsgConfigOptions>
-        </link>
-        <link>
+        </linkList>
+        <linkList>
             <name>Client Link 5</name>
             <address>2001:DB8:5::/48</address>
             <v6MsgConfigOptions>
                 <v6DnsServersOption>
-                    <ipAddress>2001:DB8:5::1</ipAddress>
+                    <ipAddressList>2001:DB8:5::1</ipAddressList>
                 </v6DnsServersOption>
             </v6MsgConfigOptions>
-        </link>
+        </linkList>
     </links>
 </dhc:dhcpServerConfig>

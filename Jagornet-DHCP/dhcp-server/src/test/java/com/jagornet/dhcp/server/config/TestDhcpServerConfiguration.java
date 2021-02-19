@@ -26,6 +26,7 @@
 package com.jagornet.dhcp.server.config;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.SortedMap;
 
 import com.jagornet.dhcp.core.util.DhcpConstants;
@@ -40,19 +41,13 @@ import com.jagornet.dhcp.server.config.xml.V6ServerIdOption;
 
 import junit.framework.TestCase;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestDhcpServerConfiguration.
  */
 public class TestDhcpServerConfiguration extends TestCase
 {
 	
-	/**
-	 * Test save and load config.
-	 * 
-	 * @throws Exception the exception
-	 */
-	public void testSaveAndLoadConfig() throws Exception
+	public void testSaveAndLoadXmlConfig() throws Exception
 	{
 		DhcpServerConfig config = new DhcpServerConfig();
 		
@@ -62,10 +57,10 @@ public class TestDhcpServerConfiguration extends TestCase
 		config.setV6ServerIdOption(serverId);
 		
 		Policy policy = new Policy();
-		policy.setName("sendRequestedOptionsOnly");
+		policy.setName("dhcp.sendRequestedOptionsOnly");
 		policy.setValue("true");
 		PoliciesType policies = new PoliciesType();
-		policies.getPolicies().add(policy);
+		policies.getPolicyList().add(policy);
 		config.setPolicies(policies);
 		
 		DhcpServerConfiguration.saveConfig(config, "file:src/test/resources/dhcpserver-test-config-save.xml");
@@ -73,11 +68,72 @@ public class TestDhcpServerConfiguration extends TestCase
 		config = DhcpServerConfiguration.loadConfig("file:src/test/resources/dhcpserver-test-config-save.xml");
 		assertNotNull(config);
 		assertNotNull(config.getV6ServerIdOption());
-		assertNotNull(config.getPolicies().getPolicies());
-		assertEquals(1, config.getPolicies().getPolicies().size());
-		assertEquals("sendRequestedOptionsOnly", config.getPolicies().getPolicies().get(0).getName());
-		assertEquals("true", config.getPolicies().getPolicies().get(0).getValue());
+		assertTrue(Arrays.equals(serverId.getOpaqueData().getHexValue(), 
+				config.getV6ServerIdOption().getOpaqueData().getHexValue()));
+		assertNotNull(config.getPolicies().getPolicyList());
+		assertEquals(1, config.getPolicies().getPolicyList().size());
+		assertEquals("dhcp.sendRequestedOptionsOnly", config.getPolicies().getPolicyList().get(0).getName());
+		assertEquals("true", config.getPolicies().getPolicyList().get(0).getValue());
 	}
+	
+	public void testSaveAndLoadJsonConfig() throws Exception
+	{
+		DhcpServerConfig config = new DhcpServerConfig();
+		
+		V6ServerIdOption serverId = new V6ServerIdOption();
+		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
+		serverId.setOpaqueData(duid);
+		config.setV6ServerIdOption(serverId);
+		
+		Policy policy = new Policy();
+		policy.setName("dhcp.sendRequestedOptionsOnly");
+		policy.setValue("true");
+		PoliciesType policies = new PoliciesType();
+		policies.getPolicyList().add(policy);
+		config.setPolicies(policies);
+		
+		DhcpServerConfiguration.saveConfig(config, "file:src/test/resources/dhcpserver-test-config-save.json");
+		
+		config = DhcpServerConfiguration.loadConfig("file:src/test/resources/dhcpserver-test-config-save.json");
+		assertNotNull(config);
+		assertNotNull(config.getV6ServerIdOption());
+		assertTrue(Arrays.equals(serverId.getOpaqueData().getHexValue(), 
+				config.getV6ServerIdOption().getOpaqueData().getHexValue()));
+		assertNotNull(config.getPolicies().getPolicyList());
+		assertEquals(1, config.getPolicies().getPolicyList().size());
+		assertEquals("dhcp.sendRequestedOptionsOnly", config.getPolicies().getPolicyList().get(0).getName());
+		assertEquals("true", config.getPolicies().getPolicyList().get(0).getValue());
+	}
+	
+	public void testSaveAndLoadYamlConfig() throws Exception
+	{
+		DhcpServerConfig config = new DhcpServerConfig();
+		
+		V6ServerIdOption serverId = new V6ServerIdOption();
+		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
+		serverId.setOpaqueData(duid);
+		config.setV6ServerIdOption(serverId);
+		
+		Policy policy = new Policy();
+		policy.setName("dhcp.sendRequestedOptionsOnly");
+		policy.setValue("true");
+		PoliciesType policies = new PoliciesType();
+		policies.getPolicyList().add(policy);
+		config.setPolicies(policies);
+		
+		DhcpServerConfiguration.saveConfig(config, "file:src/test/resources/dhcpserver-test-config-save.yaml");
+		
+		config = DhcpServerConfiguration.loadConfig("file:src/test/resources/dhcpserver-test-config-save.yaml");
+		assertNotNull(config);
+		assertNotNull(config.getV6ServerIdOption());
+		assertTrue(Arrays.equals(serverId.getOpaqueData().getHexValue(), 
+				config.getV6ServerIdOption().getOpaqueData().getHexValue()));
+		assertNotNull(config.getPolicies().getPolicyList());
+		assertEquals(1, config.getPolicies().getPolicyList().size());
+		assertEquals("dhcp.sendRequestedOptionsOnly", config.getPolicies().getPolicyList().get(0).getName());
+		assertEquals("true", config.getPolicies().getPolicyList().get(0).getValue());
+	}
+
 	
     /**
      * Test link map.
@@ -91,10 +147,10 @@ public class TestDhcpServerConfiguration extends TestCase
         serverConfig.init(configFilename);
         assertNotNull(serverConfig);
 		assertNotNull(serverConfig.getGlobalPolicies());
-		assertNotNull(serverConfig.getGlobalPolicies().getPolicies());
-		assertEquals(1, serverConfig.getGlobalPolicies().getPolicies().size());
-		assertEquals("sendRequestedOptionsOnly", serverConfig.getGlobalPolicies().getPolicies().get(0).getName());
-		assertEquals("true", serverConfig.getGlobalPolicies().getPolicies().get(0).getValue());
+		assertNotNull(serverConfig.getGlobalPolicies().getPolicyList());
+		assertEquals(1, serverConfig.getGlobalPolicies().getPolicyList().size());
+		assertEquals("dhcp.sendRequestedOptionsOnly", serverConfig.getGlobalPolicies().getPolicyList().get(0).getName());
+		assertEquals("true", serverConfig.getGlobalPolicies().getPolicyList().get(0).getValue());
         assertNotNull(serverConfig.getDhcpV6ServerIdOption());
 		assertEquals(DhcpConstants.V6OPTION_SERVERID, serverConfig.getDhcpV6ServerIdOption().getCode());
         assertEquals("abcdef0123456789", Util.toHexString(serverConfig.getDhcpV6ServerIdOption().getOpaqueData().getHex()));
