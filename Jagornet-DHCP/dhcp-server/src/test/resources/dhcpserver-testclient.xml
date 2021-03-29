@@ -66,7 +66,7 @@
                     <ipAddressList>8.8.8.8</ipAddressList>
                 </v4DomainServersOption>
                 <v4DomainNameOption>
-                    <string>test.jagornet.com.</string>
+                    <domainName>test.jagornet.com.</domainName>
                 </v4DomainNameOption>
             </v4ConfigOptions>
             <v4AddrPools>

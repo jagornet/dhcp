@@ -39,7 +39,7 @@ links:
         - "1.1.1.1"
         - "8.8.8.8"
       v4DomainNameOption:
-        string: "test.jagornet.com."
+        domainName: "test.jagornet.com."
     v4AddrPools:
       poolList:
       - range: "10.9.1.0-10.9.255.254"

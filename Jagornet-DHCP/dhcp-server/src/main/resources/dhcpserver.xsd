@@ -673,7 +673,7 @@
 
 	<xs:complexType name="v4DomainNameOption">
 		<xs:complexContent>
-			<xs:extension base="stringOptionType">
+			<xs:extension base="domainNameOptionType">
 				<xs:attribute name="code" type="v4Code" fixed="15"/>
 			</xs:extension>
 		</xs:complexContent>
@@ -838,7 +838,7 @@
 	
 	<xs:complexType name="v6IaAddrOptionListType">
 		<xs:sequence>
-			<xs:element name="iaAddrOption" type="v6IaAddrOption" maxOccurs="unbounded"/>
+			<xs:element name="iaAddrOptionList" type="v6IaAddrOption" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -929,7 +929,7 @@
 	<xs:complexType name="v6VendorInfoOption">
 		<xs:sequence>
 			<xs:element name="enterpriseNumber" type="enterpriseNumber"/>
-			<xs:element name="suboptionList" type="genericOptionsType"/>
+			<xs:element name="subOptions" type="genericOptionsType"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="17"/>
 	</xs:complexType>
@@ -1011,7 +1011,7 @@
 	
 	<xs:complexType name="v6IaPrefixOptionListType">
 		<xs:sequence>
-			<xs:element name="iaPrefixOption" type="v6IaPrefixOption" maxOccurs="unbounded"/>
+			<xs:element name="iaPrefixOptionList" type="v6IaPrefixOption" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -1085,7 +1085,7 @@
 		<xs:sequence>
 			<xs:element name="what" type="xs:unsignedByte"/>
 			<xs:element name="countryCode" type="countryCode"/>
-			<xs:element name="civicAddressElement" type="civicAddressElement" maxOccurs="unbounded"/>
+			<xs:element name="civicAddressElementList" type="civicAddressElement" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="code" type="code" fixed="36"/>
 	</xs:complexType>

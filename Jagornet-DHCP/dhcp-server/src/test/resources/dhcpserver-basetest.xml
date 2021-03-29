@@ -184,7 +184,7 @@
             		<ipAddressList>192.168.0.10</ipAddressList>
             	</v4DomainServersOption>
             	<v4DomainNameOption>
-            		<string>v4.foo.com.</string>
+            		<domainName>v4.foo.com.</domainName>
             	</v4DomainNameOption>
             </v4ConfigOptions>
             <v4AddrPools>

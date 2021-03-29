@@ -101,7 +101,7 @@ public class DhcpV4ConfigOptions
 			V4DomainNameOption domainNameOption = configOptions.getV4DomainNameOption();
 			if (domainNameOption != null) {
 				optionMap.put((int)domainNameOption.getCode(),
-						new DhcpV4DomainNameOption(domainNameOption.getString()));
+						new DhcpV4DomainNameOption(domainNameOption.getDomainName()));
 			}
 		}
 		

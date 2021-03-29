@@ -230,7 +230,7 @@ public class GenerateTestConfig {
 				dso4.getIpAddressList().add("10.0.0.1");
 				v4Options.setV4DomainServersOption(dso4);
 				V4DomainNameOption dno4 = new V4DomainNameOption();
-				dno4.setString("test.jagornet.com.");
+				dno4.setDomainName("test.jagornet.com.");
 				v4Options.setV4DomainNameOption(dno4);
 				
 				V4AddressPoolsType v4Pools = new V4AddressPoolsType();

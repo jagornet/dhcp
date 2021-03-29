@@ -40,7 +40,7 @@
           "ipAddressList" : [ "1.1.1.1", "8.8.8.8" ]
         },
         "v4DomainNameOption" : {
-          "string" : "test.jagornet.com."
+          "domainName" : "test.jagornet.com."
         }
       },
       "v4AddrPools" : {

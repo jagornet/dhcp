@@ -6,7 +6,7 @@ v6ServerIdOption:
     hexValue: "ABCDEF0123456789"
 policies:
   policyList:
-  - name: "sendRequestedOptionsOnly"
+  - name: "dhcp.sendRequestedOptionsOnly"
     value: "false"
 v6MsgConfigOptions:
   v6DnsServersOption:
@@ -30,6 +30,10 @@ filters:
               asciiValue: "FilterUserClass"
           code: 15
           operator: "equals"
+    policies:
+      policyList:
+      - name: "dhcp.sendRequestedOptionsOnly"
+        value: "false"
     v6MsgConfigOptions:
       v6DomainSearchListOption:
         domainNameList:
@@ -119,7 +123,7 @@ links:
         ipAddressList:
         - "192.168.0.10"
       v4DomainNameOption:
-        string: "v4.foo.com."
+        domainName: "v4.foo.com."
     v4AddrPools:
       poolList:
       - range: "192.168.0.100-192.168.0.199"

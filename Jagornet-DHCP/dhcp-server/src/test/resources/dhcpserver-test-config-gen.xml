@@ -29,7 +29,7 @@
                     <ipAddress>10.0.0.1</ipAddress>
                 </v4DomainServersOption>
                 <v4DomainNameOption>
-                    <string>test.jagornet.com.</string>
+                    <domainName>test.jagornet.com.</domainName>
                 </v4DomainNameOption>
             </v4ConfigOptions>
             <v4AddrPools>

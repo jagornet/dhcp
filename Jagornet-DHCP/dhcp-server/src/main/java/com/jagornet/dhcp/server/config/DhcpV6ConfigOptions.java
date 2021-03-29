@@ -158,7 +158,7 @@ public class DhcpV6ConfigOptions
 			V6GeoconfCivicOption geoconfCivicOption = configOptions.getV6GeoconfCivicOption();
 			if (geoconfCivicOption != null) {
 				List<CivicAddressElement> civicAddressElements =
-						geoconfCivicOption.getCivicAddressElement();
+						geoconfCivicOption.getCivicAddressElementList();
 				List<DhcpV6GeoconfCivicOption.CivicAddress> civicAddresses = null;
 				if (civicAddressElements != null) {
 					civicAddresses = new ArrayList<DhcpV6GeoconfCivicOption.CivicAddress>();
@@ -301,7 +301,7 @@ public class DhcpV6ConfigOptions
 			if (vendorInfoOption != null) {
 	    		long enterpriseNumber = vendorInfoOption.getEnterpriseNumber();
 	    		List<DhcpOption> suboptionList = null;
-	    		GenericOptionsType genericOptions = vendorInfoOption.getSuboptionList();
+	    		GenericOptionsType genericOptions = vendorInfoOption.getSubOptions();
 	    		if (genericOptions != null) {
 	    			suboptionList = new ArrayList<DhcpOption>();
 	    			List<OptionDefType> optdefs = genericOptions.getOptionDefList();
