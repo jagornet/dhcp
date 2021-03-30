@@ -50,7 +50,7 @@
                 "asciiValue" : "MyUserClass"
               } ]
             },
-            "operator" : "equals"
+            "operator" : "EQUALS"
           }
         } ]
       },
@@ -70,14 +70,14 @@
                 "asciiValue" : "VendorXYZ"
               } ]
             },
-            "operator" : "equals"
+            "operator" : "EQUALS"
           }
         } ]
       },
       "v6MsgConfigOptions" : {
         "v6VendorInfoOption" : {
           "enterpriseNumber" : 12345,
-          "suboptionList" : {
+          "subOptions" : {
             "optionDefList" : [ {
               "stringOption" : {
                 "string" : "hello"
@@ -93,7 +93,44 @@
         }
       }
     }, {
-      "name" : "DHCPv4 VendorClass Filter",
+      "name" : "DHCPv4 VendorClass Filter 1",
+      "filterExpressions" : {
+        "filterExpressionList" : [ {
+          "clientClassExpression" : {
+            "v4VendorClassOption" : {
+              "opaqueData" : {
+                "asciiValue" : "VendorXYZ"
+              }
+            },
+            "operator" : "EQUALS"
+          }
+        } ]
+      },
+      "v4ConfigOptions" : {
+        "v4VendorSpecificOption" : {
+          "opaqueData" : {
+            "subOptions" : {
+              "optionDefList" : [ {
+                "stringOption" : {
+                  "string" : "VendorSpecial"
+                },
+                "v4" : true,
+                "code" : 1,
+                "name" : "VendorXYZSubopt1"
+              }, {
+                "ipAddressOption" : {
+                  "ipAddress" : "10.11.12.13"
+                },
+                "v4" : true,
+                "code" : 2,
+                "name" : "VendorXYZSubopt2"
+              } ]
+            }
+          }
+        }
+      }
+    }, {
+      "name" : "DHCPv4 VendorClass Filter 2",
       "filterExpressions" : {
         "filterExpressionList" : [ {
           "clientClassExpression" : {
@@ -102,7 +139,7 @@
                 "asciiValue" : "MyVendorPrefix"
               }
             },
-            "operator" : "startsWith"
+            "operator" : "STARTS_WITH"
           }
         } ]
       },
@@ -131,6 +168,12 @@
         },
         "v4RoutersOption" : {
           "ipAddressList" : [ "10.0.0.1" ]
+        },
+        "v4DomainServersOption" : {
+          "ipAddressList" : [ "1.1.1.1", "8.8.8.8" ]
+        },
+        "v4DomainNameOption" : {
+          "domainName" : "foo.com."
         }
       },
       "v4AddrPools" : {
@@ -145,6 +188,16 @@
           "configOptions" : {
             "v4RoutersOption" : {
               "ipAddressList" : [ "10.0.0.11" ]
+            },
+            "v4OtherOptions" : {
+              "optionDefList" : [ {
+                "stringOption" : {
+                  "string" : "AnyOtherV4Option-Value"
+                },
+                "v4" : true,
+                "code" : 194,
+                "name" : "AnyOtherV4Option"
+              } ]
             }
           }
         } ]
@@ -176,6 +229,17 @@
           "ipAddress" : "2001:db8:1::100",
           "duid" : {
             "hexValue" : "0A1B2C3D4E5F"
+          },
+          "msgConfigOptions" : {
+            "v6OtherOptions" : {
+              "optionDefList" : [ {
+                "stringOption" : {
+                  "string" : "AnyOtherV6Option-Value"
+                },
+                "code" : 196,
+                "name" : "AnyOtherV6Option"
+              } ]
+            }
           }
         } ]
       },

@@ -47,7 +47,7 @@ filters:
           v6UserClassOption:
             opaqueDataList:
             - asciiValue: "MyUserClass"
-          operator: "equals"
+          operator: "EQUALS"
     v6MsgConfigOptions:
       # Send the "filter.com." domain search list to the matched clients
       v6DomainSearchListOption:
@@ -63,12 +63,12 @@ filters:
             enterpriseNumber: 12345
             opaqueDataList:
             - asciiValue: "VendorXYZ"
-          operator: "equals"
+          operator: "EQUALS"
     v6MsgConfigOptions:
       # Send vendor specific options to the matched clients
       v6VendorInfoOption:
         enterpriseNumber: 12345
-        suboptionList:
+        subOptions:
           optionDefList:
           - stringOption:
               string: "hello"
@@ -76,15 +76,38 @@ filters:
           - ipAddressOption:
               ipAddress: "2001:db8::1"
             code: 2
-  - name: "DHCPv4 VendorClass Filter"
+  - name: "DHCPv4 VendorClass Filter 1"
     filterExpressions:
       # Match clients with v4 vendor class option starting with "MyVendorPrefix"
       filterExpressionList:
       - clientClassExpression:
           v4VendorClassOption:
             opaqueData:
+              asciiValue: "VendorXYZ"
+          operator: "EQUALS"
+    v4ConfigOptions:
+      v4VendorSpecificOption:
+        opaqueData:
+          subOptions:
+            optionDefList:
+            - stringOption:
+                string: "VendorSpecial"
+              v4: true
+              code: 1
+              name: "VendorXYZSubopt1"
+            - ipAddressOption:
+                ipAddress: "10.11.12.13"
+              v4: true
+              code: 2
+              name: "VendorXYZSubopt2"
+  - name: "DHCPv4 VendorClass Filter 2"
+    filterExpressions:
+      filterExpressionList:
+      - clientClassExpression:
+          v4VendorClassOption:
+            opaqueData:
               asciiValue: "MyVendorPrefix"
-          operator: "startsWith"
+          operator: "STARTS_WITH"
     v4ConfigOptions:
       # Send vendor specific data to the matched clients
       v4VendorSpecificOption:
@@ -109,6 +132,12 @@ links:
       v4RoutersOption:
         ipAddressList:
         - "10.0.0.1"
+      v4DomainServersOption:
+        ipAddressList:
+        - "1.1.1.1"
+        - "8.8.8.8"
+      v4DomainNameOption:
+        domainName: "foo.com."
     v4AddrPools:
       poolList:
       - range: "10.0.0.100-10.0.0.199"
@@ -121,6 +150,13 @@ links:
           v4RoutersOption:
             ipAddressList:
             - "10.0.0.11"
+          v4OtherOptions:
+            optionDefList:
+            - stringOption:
+                string: "AnyOtherV4Option-Value"
+              v4: true
+              code: 194
+              name: "AnyOtherV4Option"
   - name: "Local IPv6 Client Link (Multicast traffic)"
     # Local DHCPv6 links are defined by interface name
     interface: "eth2"
@@ -148,10 +184,13 @@ links:
         # if the DUID is known, then a binding can be made.
         duid:
           hexValue: "0A1B2C3D4E5F"
-        # The IA_ID is almost definitely unpredictable, so
-        # it is an optional element for a DHCPv6 binding.  If
-        # left undefined, then ANY IA_ID will match.
-        # iaid: 0
+        msgConfigOptions:
+          v6OtherOptions:
+            optionDefList:
+            - stringOption:
+                string: "AnyOtherV6Option-Value"
+              code: 196
+              name: "AnyOtherV6Option"
     linkFilters:
       linkFilterList:
       - v6NaAddrPools:

@@ -3,8 +3,8 @@
 :author: A. Gregory Rabil
 :email: greg.rabil@jagornet.com
 :homepage: http://jagornet.com[Jagornet Technologies, LLC]
-:appversion: 3.0
-:appbuild: 1
+:appversion: 3.1
+:appbuild: 0
 :toc:
 
 {author} {email} 
@@ -38,9 +38,10 @@ The server supports the following features:
 ** DNS Options - http://www.ietf.org/rfc/rfc3646.txt[RFC 3646]
 ** Stateless DHCPv6 - http://www.ietf.org/rfc/rfc3736.txt[RFC 3736]
 * Other
+** High Availability (HA) - Primary/Backup
 ** Dynamic DNS for DHCPv4/v6 - http://www.ietf.org/rfc/rfc4703.txt[RFC 4703], http://www.ietf.org/rfc/rfc4704.txt[RFC 4704]
 ** Highly-scalable, multithreaded architecture using http://netty.io[Netty]
-** Flexible, XML configuration file format - Schema
+** Flexible XML, JSON, or YAML configuration file format - Schema
 ** Java Management Extensions (JMX) support - http://download.oracle.com/javase/8/docs/technotes/guides/jmx/index.html[Java 8 JMX]
 
 == Getting Started
@@ -93,8 +94,8 @@ Enable DHCPv4 and DHCPv6 UDP port traffic on all intervening network equipment.
 The main Java class of the Jagornet DHCP Server supports the following usage:
 
  usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
- Jagornet DHCP Server Community Edition 3.0.1
- Copyright Jagornet Technologies 2009-2020.  All Rights Reserved.
+ Jagornet DHCP Server Community Edition 3.1.0
+ Copyright Jagornet Technologies 2009-2021.  All Rights Reserved.
   -4b,--v4bcast <interface>         DHCPv4 broadcast interface (default = none).
                                     Use this option to specify the interface for
                                     the server to receive and send broadcast
@@ -332,16 +333,45 @@ any level, unless specifically stated otherwise.
 
 === Server Policies
 Server polices are configured using the `polices` element. 
-Each `policy` is specified with `name` and `value` elements. For example:
+Each `policyList` element consists of `name` and `value` elements. For example:
 
- <policies>
- ...  
-   <policy>
-     <name>dhcp.sendRequestedOptionsOnly</name>
-     <value>true</value>
-   </policy>
- ...
- </policies>
+.XML
+----
+<policies>  
+  <policyList>
+    <name>ha.role</name>
+    <value>primary</value>
+  </policyList>
+  <policyList>
+    <name>ha.peerServer</name>
+    <value>10.0.0.20</value>
+  </policyList>
+</policies>
+----
+
+.JSON
+----
+"policies" : {
+  "policyList" : [ {
+    "name" : "ha.role",
+    "value" : "primary"
+  },
+  {
+    "name" : "ha.peerServer",
+    "value" : "10.0.0.20"
+  } ]
+}
+----
+
+.YAML
+----
+policies:
+  policyList:
+  - name: "ha.role"
+    value: "primary"
+  - name: "ha.peerServer"
+  	value: "10.0.0.20"
+----
 
 The tables below describes the policies available for the Jagornet DHCP Server. 
 The Hierarchy Support column indicates which levels of the configuration hierarchy 
@@ -1010,104 +1040,337 @@ Options are returned within the returned DHCPv4 reply packet.
 | `v4SubnetMaskOption`
 (Section 3.3 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4SubnetMaskOption>
-   <ipAddress>255.255.255.0</ipAddress>
- </v4SubnetMaskOption>
- 
+.XML
+----
+<v4SubnetMaskOption>
+  <ipAddress>255.255.255.0</ipAddress>
+</v4SubnetMaskOption>
+----
+
+.JSON
+----
+{
+  "v4SubnetMaskOption" : {
+    "ipAddress" : "255.255.255.0"
+  }
+}
+----
+
+.YAML
+----
+v4SubnetMaskOption:
+  ipAddress: "255.255.255.0"
+----
+
 | 2
 | `v4TimeOffsetOption`
 (Section 3.4 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4TimeOffsetOption>
-   <unsignedInt>5000</unsignedInt>
- </v4TimeOffsetOption>
+.XML
+----
+<v4TimeOffsetOption>
+  <unsignedInt>5000</unsignedInt>
+</v4TimeOffsetOption>
+----
+
+.JSON
+----
+"v4TimeOffsetOption" : {
+  "unsignedInt" : 5000
+}
+----
+
+.YAML
+----
+v4TimeOffsetOption:
+  unsignedInt: 5000
+----
  
 | 3
 | `v4RoutersOption`
 (Section 3.5 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4RoutersOption>
-   <ipAddress>10.0.0.1</ipAddress>
-   <ipAddress>10.0.0.2</ipAddress>
- </v4RoutersOption>
+.XML
+----
+<v4RoutersOption>
+  <ipAddressList>10.0.0.1</ipAddressList>
+  <ipAddressList>10.0.0.2</ipAddressList>
+</v4RoutersOption>
+----
+
+.JSON
+----
+"v4RoutersOption" : {
+  ipAddressList: [
+    "10.0.0.1",
+    "10.0.0.2"
+  ]
+}
+----
+
+.YAML
+----
+v4RoutersOption:
+  ipAddressList:
+  - "10.0.0.1"
+  - "10.0.0.2"
+----
 
 | 4
 | `v4TimeServersOption`
 (Section 3.6 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4TimeServersOption>
-   <ipAddress>10.0.0.1</ipAddress>
-   <ipAddress>10.0.0.2</ipAddress>
- </v4TimeServersOption>
+.XML
+----
+<v4TimeServersOption>
+  <ipAddressList>10.0.0.1</ipAddressList>
+  <ipAddressList>10.0.0.2</ipAddressList>
+</v4TimeServersOption>
+----
+
+.JSON
+----
+"v4TimeServersOption" : {
+  ipAddressList: [
+    "10.0.0.1",
+    "10.0.0.2"
+  ]
+}
+----
+
+.YAML
+----
+v4TimeServersOption:
+  ipAddressList:
+  - "10.0.0.1"
+  - "10.0.0.2"
+----
 
 | 6
 | `v4DomainServersOption`
 (Section 3.8 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4DomainServersOption>
-   <ipAddress>10.0.0.1</ipAddress>
-   <ipAddress>10.0.0.2</ipAddress>
- </v4DomainServersOption>
+.XML
+----
+<v4DomainServersOption>
+  <ipAddressList>10.0.0.1</ipAddressList>
+  <ipAddressList>10.0.0.2</ipAddressList>
+</v4DomainServersOption>
+----
+
+.JSON
+----
+"v4DomainServersOption" : {
+  ipAddressList: [
+    "10.0.0.1",
+    "10.0.0.2"
+  ]
+}
+----
+
+.YAML
+----
+v4DomainServersOption:
+  ipAddressList:
+  - "10.0.0.1"
+  - "10.0.0.2"
+----
 
 | 15
 | `v4DomainNameOption`
 (Section 3.17 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4DomainNameOption>
-   <domainName>foo.com.</domainName>
- </v4DomainNameOption>
+.XML
+----
+<v4DomainNameOption>
+  <domainName>foo.com.</domainName>
+</v4DomainNameOption>
+----
+
+.JSON
+----
+"v4DomainNameOption" : {
+  "domainName" : "foo.com."
+}
+----
+
+.YAML
+----
+v4DomainNameOption:
+  domainName: "foo.com."
+----
 
 | 43
 | `v4VendorSpecificOption`
 (Section 8.4 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4VendorSpecificOption>
-   <subOptionList>
-     <optionDef code="1" name="VendorSubopt1">
-       <stringOption>
-         <string>VendorSpecial</string>
-       </stringOption>
-     </optionDef>
-     <optionDef code="2" name="VendorSubopt2">
-       <ipAddressOption>
-         <ipAddress>10.11.12.13</ipAddress>
-       </ipAddressOption>
-     </optionDef>
-   </subOptionList>
- </v4VendorSpecificOption>
+.XML
+----
+<v4VendorSpecificOption>
+  <opaqueData>
+    <subOptions>
+      <optionDefList v4="true" code="1" name="VendorSubopt1">
+        <stringOption>
+          <string>VendorSpecial</string>
+        </stringOption>
+      </optionDefList>
+      <optionDefList v4="true" code="2" name="VendorSubopt2">
+        <ipAddressOption>
+          <ipAddress>10.11.12.13</ipAddress>
+        </ipAddressOption>
+      </optionDefList>
+    </subOptions>
+  </opaqueData>
+</v4VendorSpecificOption>
+----
+
+.JSON
+----
+{
+  "v4VendorSpecificOption" : {
+    "opaqueData" : {
+      "subOptions" : {
+        "optionDefList" : [ {
+          "stringOption" : {
+            "string" : "VendorSpecial"
+          },
+          "v4" : true,
+          "code" : 1,
+          "name" : "VendorSubopt1"
+        }, {
+          "ipAddressOption" : {
+            "ipAddress" : "10.11.12.13"
+          },
+          "v4" : true,
+          "code" : 2,
+          "name" : "VendorSubopt2"
+        } ]
+      }
+    }
+  }
+}
+----
+
+.YAML
+----
+v4VendorSpecificOption:
+  opaqueData:
+    subOptions:
+      optionDefList:
+      - stringOption:
+          string: "VendorSpecial"
+        v4: true
+        code: 1
+        name: "VendorSubopt1"
+      - ipAddressOption:
+          ipAddress: "10.11.12.13"
+        v4: true
+        code: 2
+        name: "VendorSubopt2"
+----
 
 | 44
 | `v4NetbiosNameServersOption`
 (Section 8.5 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4NetbiosNameServersOption>
-   <ipAddress>10.0.0.1</ipAddress>
-   <ipAddress>10.0.0.2</ipAddress>
- </v4NetbiosNameServersOption>
+.XML
+----
+<v4NetbiosNameServersOption>
+  <ipAddressList>10.0.0.1</ipAddressList>
+  <ipAddressList>10.0.0.2</ipAddressList>
+</v4NetbiosNameServersOption>
+----
+
+
+.JSON
+----
+"v4NetbiosNameServersOption" : {
+  ipAddressList: [
+    "10.0.0.1",
+    "10.0.0.2"
+  ]
+}
+----
+
+.YAML
+----
+v4NetbiosNameServersOption:
+  ipAddressList:
+  - "10.0.0.1"
+  - "10.0.0.2"
+----
 
 | 46
 | `v4NetbiosNodeTypeOption`
 (Section 8.7 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4NetbiosNodeTypeOption>
-   <unsignedByte>8</unsignedByte>
- </v4NetbiosNodeTypeOption>
+.XML
+----
+<v4NetbiosNodeTypeOption>
+  <unsignedByte>8</unsignedByte>
+</v4NetbiosNodeTypeOption>
+----
 
+.JSON
+----
+"v4NetbiosNodeTypeOption" : {
+  "unsignedByte" : 8
+}
+----
+
+.YAML
+----
+v4NetbiosNodeTypeOption:
+  unsignedByte: 8
+----
+ 
 | 66
 | `v4TftpServerNameOption`
 (Section 9.4 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4TftpServerNameOption>
-   <string>tftp.foo.com.</string>
- </v4TftpServerNameOption>
+.XML
+----
+<v4TftpServerNameOption>
+  <string>tftp.foo.com.</string>
+</v4TftpServerNameOption>
+----
+
+.JSON
+----
+"v4TftpServerNameOption" : {
+  "string" : "tftp.foo.com."
+}
+----
+
+.YAML
+----
+v4TftpServerNameOption:
+  string: "tftp.foo.com."
+----
 
 | 67
 | `v4BootFileNameOption`
 (Section 9.5 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
 |
- <v4BootFileNameOption>
-   <string>bootfile-name</string>
- </v4BootFileNameOption>
+.XML
+----
+<v4BootFileNameOption>
+  <string>bootfile-name</string>
+</v4BootFileNameOption>
+----
+
+.JSON
+----
+"v4BootFileNameOption" : {
+  "string" : "bootfile-name"
+}
+----
+
+.YAML
+----
+v4BootFileNameOption:
+  string: "bootfile-name"
+----
  
 |===
 
@@ -1147,205 +1410,649 @@ these elements are for experimental and future use.
 | `v6PreferenceOption`
 (Section 22.8 of https://www.ietf.org/rfc/rfc3315.txt[RFC 3315])
 |
- <v6PreferenceOption>
-   <unsignedByte>10</unsignedByte>
- </v6PreferenceOption>
+.XML
+----
+<v6PreferenceOption>
+  <unsignedByte>10</unsignedByte>
+</v6PreferenceOption>
+----
+
+.JSON
+----
+"v6PreferenceOption" : {
+  "unsignedByte" : 10
+}
+----
+
+.YAML
+----
+v6PreferenceOption:
+  unsignedByte: 10
+----
 
 | 12
 | `v6ServerUnicastOption`
 (Section 22.8 of https://www.ietf.org/rfc/rfc3315.txt[RFC 3315])
 |
- <v6ServerUnicastOption>
-   <ipAddress>2001:db8::1</ipAddress>
- </v6ServerUnicastOption>
+.XML
+----
+<v6ServerUnicastOption>
+  <ipAddress>2001:db8::1</ipAddress>
+</v6ServerUnicastOption>
+----
+
+.JSON
+----
+"v6ServerUnicastOption" : {
+  "ipAddress" : "2001:db8::1"
+}
+----
+
+.YAML
+----
+v6ServerUnicastOption:
+  ipAddress: "2001:db8::1"
+----
 
 | 13
 | `v6StatusCodeOption`
 (Section 22.13 of https://www.ietf.org/rfc/rfc3315.txt[RFC 3315])
 |
- <v6StatusCodeOption>
-   <code>5</code>
-   <message>UseMulticast</message>
- </v6StatusCodeOption>
+.XML
+----
+<v6StatusCodeOption>
+  <code>5</code>
+  <message>UseMulticast</message>
+</v6StatusCodeOption>
+----
+
+.JSON
+----
+"v6StatusCodeOption" : {
+  "code" : 5,
+  "message" : "UseMulticast"
+}
+----
+
+.YAML
+----
+v6StatusCodeOption:
+  code: 5
+  message: "UseMulticast"
+----
+
 
 | 17
 | `v6VendorInfoOption`
 (Section 22.16 of https://www.ietf.org/rfc/rfc3315.txt[RFC 3315])
 |
- <v6VendorInfoOption>
-   <enterpriseNumber>999</enterpriseNumber>
-   <subOptionList>
-     <optionDef code="1" name="VendorSubopt1">
-       <stringOption>
-         <string>VendorSpecial</string>
-       </stringOption>
-     </optionDef>
-     <optionDef code="2" name="VendorSubopt2">
-       <ipAddressOption>
-         <ipAddress>2001:db8::999</ipAddress>
-       </ipAddressOption>
-     </optionDef>
-   </subOptionList>
- </v6VendorInfoOption>
+.XML
+----
+<v6VendorInfoOption>
+  <enterpriseNumber>999</enterpriseNumber>
+  <subOptions>
+    <optionDefList code="1" name="VendorSubopt1">
+      <stringOption>
+        <string>VendorSpecial</string>
+      </stringOption>
+    </optionDefList>
+    <optionDefList code="2" name="VendorSubopt2">
+      <ipAddressOption>
+        <ipAddress>2001:db8::999</ipAddress>
+      </ipAddressOption>
+    </optionDefList>
+  </subOptions>
+</v6VendorInfoOption>
+----
+
+.JSON
+----
+{
+  "v6VendorInfoOption" : {
+    "enterpriseNumber" : 999,
+    "subOptions" : {
+      "optionDefList" : [ {
+        "stringOption" : {
+          "string" : "VendorSpecial"
+        },
+        "code" : 1,
+        "name" : "VendorSubopt1"
+      }, {
+        "ipAddressOption" : {
+          "ipAddress" : "2001:db8::999"
+        },
+        "code" : 2,
+        "name" : "VendorSubopt2"
+      } ]
+    }
+  }
+}
+----
+
+.YAML
+----
+v6VendorInfoOption:
+  enterpriseNumber: 999
+  subOptions:
+    optionDefList:
+    - stringOption:
+        string: "VendorSpecial"
+      code: 1
+      name: "VendorSubopt1"
+    - ipAddressOption:
+        ipAddress: "2001:db8::999"
+      code: 2
+      name: "VendorSubopt2"
+----
 
 | 21
 | `v6SipServerDomainNamesOption`
 (https://www.ietf.org/rfc/rfc3319.txt[RFC 3319]))
 |
- <v6SipServerDomainNamesOption>
-   <domainName>sip.foo.com.</domainName>
-   <domainName>sip.bar.com.</domainName>
- </v6SipServerDomainNamesOption>
+.XML
+----
+<v6SipServerDomainNamesOption>
+  <domainNameList>sip.foo.com.</domainNameList>
+  <domainNameList>sip.bar.com.</domainNameList>
+</v6SipServerDomainNamesOption>
+----
+
+.JSON
+----
+{
+  "v6SipServerDomainNamesOption" : {
+    "domainNameList" : [ "sip.foo.com.", "sip.bar.com." ]
+  }
+}
+----
+
+.YAML
+----
+v6SipServerDomainNamesOption:
+  domainNameList:
+  - "sip.foo.com."
+  - "sip.bar.com."
+----
 
 | 22
 | `v6SipServerAddressesOption`
 (https://www.ietf.org/rfc/rfc3319.txt[RFC 3319]))
 |
- <v6SipServerAddressesOption>
-   <ipAddress>2001:db8::1</ipAddress>
-   <ipAddress>2001:db8::2</ipAddress>
- </v6SipServerAddressesOption>
+.XML
+----
+<v6SipServerAddressesOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6SipServerAddressesOption>
+----
+
+.JSON
+----
+{
+  "v6SipServerAddressesOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.YAML
+----
+v6SipServerAddressesOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
 
 | 23
 | `v6DnsServersOption`
 (https://www.ietf.org/rfc/rfc3646.txt[RFC 3646]))
 |
- <v6DnsServersOption>
-   <ipAddress>2001:db8::1</ipAddress>
-   <ipAddress>2001:db8::2</ipAddress>
- </v6DnsServersOption>
+.XML
+----
+<v6DnsServersOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6DnsServersOption>
+----
+
+.JSON
+----
+{
+  "v6SipServerAddressesOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.YAML
+----
+v6SipServerAddressesOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
 
 | 24
 | `v6DomainSearchListOption`
 (https://www.ietf.org/rfc/rfc3646.txt[RFC 3646]))
 |
- <v6DomainSearchListOption>
-   <domainName>foo.com.</domainName>
-   <domainName>bar.com.</domainName>
- </v6DomainSearchListOption>
+.XML
+----
+<v6DomainSearchListOption>
+  <domainNameList>foo.com.</domainNameList>
+  <domainNameList>bar.com.</domainNameList>
+</v6DomainSearchListOption>
+----
+
+.JSON
+----
+{
+  "name" : "DhcpV6DomainSearchListOption",
+  "code" : 24,
+  "v4" : false,
+  "domainNameList" : [ "foo.com.", "bar.com." ],
+  "length" : 18
+}
+----
+
+.YAML
+----
+name: "DhcpV6DomainSearchListOption"
+code: 24
+v4: false
+domainNameList:
+- "foo.com."
+- "bar.com."
+length: 18
+----
 
 | 27
 | `v6NisServersOption`
 (https://www.ietf.org/rfc/rfc3898.txt[RFC 3898]))
 |
- <v6NisServersOption>
-   <ipAddress>2001:db8::1</ipAddress>
-   <ipAddress>2001:db8::2</ipAddress>
- </v6NisServersOption>
+.XML
+----
+<v6NisServersOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6NisServersOption>
+----
+
+.JSON
+----
+{
+  "v6NisServersOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.YAML
+----
+v6NisServersOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
 
 | 28
 | `v6NisPlusServersOption`
 (https://www.ietf.org/rfc/rfc3898.txt[RFC 3898]))
 |
- <v6NisPlusServersOption>
-   <ipAddress>2001:db8::1</ipAddress>
-   <ipAddress>2001:db8::2</ipAddress>
- </v6NisPlusServersOption>
+.XML
+----
+<v6NisPlusServersOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6NisPlusServersOption>
+----
+
+.JSON
+----
+{
+  "v6NisServersOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.YAML
+----
+v6NisServersOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
 
 | 29
 | `v6NisDomainNameOption`
 (https://www.ietf.org/rfc/rfc3898.txt[RFC 3898]))
 |
- <v6NisDomainNameOption>
-   <domainName>foo.com.</domainName>
- </v6NisDomainNameOption>
+.XML
+----
+<v6NisDomainNameOption>
+  <domainName>foo.com.</domainName>
+</v6NisDomainNameOption>
+----
+
+.JSON
+----
+{
+  "v6NisDomainNameOption" : {
+    "domainName" : "foo.com."
+  }
+}
+----
+
+.YAML
+----
+v6NisDomainNameOption:
+  domainName: "foo.com."
+----
 
 | 30
 | `v6NisPlusDomainNameOption`
 (https://www.ietf.org/rfc/rfc3898.txt[RFC 3898]))
 |
- <v6NisPlusDomainNameOption>
-   <domainName>foo.com.</domainName>
- </v6NisPlusDomainNameOption>
+.XML
+----
+<v6NisPlusDomainNameOption>
+  <domainName>foo.com.</domainName>
+</v6NisPlusDomainNameOption>
+----
+
+.JSON
+----
+{
+  "v6NisDomainNameOption" : {
+    "domainName" : "foo.com."
+  }
+}
+----
+
+.YAML
+----
+v6NisDomainNameOption:
+  domainName: "foo.com."
+----
 
 | 31
 | `v6SntpServersOption`
 (https://www.ietf.org/rfc/rfc4075.txt[RFC 4075]))
 |
- <v6SntpServersOption>
-   <ipAddress>2001:db8::1</ipAddress>
-   <ipAddress>2001:db8::2</ipAddress>
- </v6SntpServersOption>
+.XML
+----
+<v6SntpServersOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6SntpServersOption>
+----
+
+.JSON
+----
+{
+  "v6SntpServersOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.YAML
+----
+v6SntpServersOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
 
 | 32
 | `v6InfoRefreshTimeOption`
 (https://www.ietf.org/rfc/rfc4242.txt[RFC 4242]))
 |
- <v6InfoRefreshTimeOption>
-   <unsignedInt>3600</unsignedInt>
- </v6InfoRefreshTimeOption>
+.XML
+----
+<v6InfoRefreshTimeOption>
+  <unsignedInt>3600</unsignedInt>
+</v6InfoRefreshTimeOption>
+----
+
+.JSON
+----
+{
+  "v6InfoRefreshTimeOption" : {
+    "unsignedInt" : 3600
+  }
+}
+----
+
+.YAML
+----
+v6InfoRefreshTimeOption:
+  unsignedInt: 3600
+----
 
 | 33
 | `v6BcmcsDomainNamesOption`
 (https://www.ietf.org/rfc/rfc4280.txt[RFC 4280]))
 |
- <v6BcmcsDomainNamesOption>
-   <domainName>bcmcs.foo.com.</domainName>
-   <domainName>bcmcs.bar.com.</domainName>
- </v6BcmcsDomainNamesOption>
+.XML
+----
+<v6BcmcsDomainNamesOption>
+  <domainNameList>bcmcs.foo.com.</domainNameList>
+  <domainNameList>bcmcs.bar.com.</domainNameList>
+</v6BcmcsDomainNamesOption>
+----
+
+.JSON
+----
+{
+  "v6BcmcsDomainNamesOption" : {
+    "domainNameList" : [ "bcmcs.foo.com.", "bcmcs.bar.com." ]
+  }
+}
+----
+
+.YAML
+----
+v6BcmcsDomainNamesOption:
+  domainNameList:
+  - "bcmcs.foo.com."
+  - "bcmcs.bar.com."
+----
 
 | 34
 | `v6BcmcsAddressesOption`
 (https://www.ietf.org/rfc/rfc4280.txt[RFC 4280]))
 |
- <v6BcmcsAddressesOption>
-   <ipAddress>2001:db8::1</ipAddress>
-   <ipAddress>2001:db8::2</ipAddress>
- </v6BcmcsAddressesOption>
+.XML
+----
+<v6BcmcsAddressesOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6BcmcsAddressesOption>
+----
+
+.JSON
+----
+{
+  "v6BcmcsAddressesOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.YAML
+----
+v6BcmcsAddressesOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
 
 | 36
 | `v6GeoconfCivicOption`
 (https://www.ietf.org/rfc/rfc4776.txt[RFC 4776]))
 |
- <v6GeoconfCivicOption>
-   <what>1</what>
-   <countryCode>US</countryCode>
-   <civicAddressElement>
-     <caType>0</caType>
-     <caValue>de</caValue>
-   </civicAddressElement>
-   <civicAddressElement>
-     <caType>128</caType>
-     <caValue>Latn</caValue>
-   </civicAddressElement>
-   <civicAddressElement>
-     <caType>1</caType>
-     <caValue>Bayern</caValue>
-   </civicAddressElement>
- </v6GeoconfCivicOption>
+.XML
+----
+<v6GeoconfCivicOption>
+  <what>1</what>
+  <countryCode>US</countryCode>
+  <civicAddressElementList>
+    <caType>0</caType>
+    <caValue>de</caValue>
+  </civicAddressElementList>
+  <civicAddressElementList>
+    <caType>128</caType>
+    <caValue>Latn</caValue>
+  </civicAddressElementList>
+  <civicAddressElementList>
+    <caType>1</caType>
+    <caValue>Bayern</caValue>
+  </civicAddressElementList>
+</v6GeoconfCivicOption>
+----
+
+.JSON
+----
+{
+  "v6GeoconfCivicOption" : {
+    "what" : 1,
+    "countryCode" : "US",
+    "civicAddressElementList" : [ {
+      "caType" : 0,
+      "caValue" : "de"
+    }, {
+      "caType" : 128,
+      "caValue" : "Latn"
+    }, {
+      "caType" : 1,
+      "caValue" : "Bayern"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+v6GeoconfCivicOption:
+  what: 1
+  countryCode: "US"
+  civicAddressElementList:
+  - caType: 0
+    caValue: "de"
+  - caType: 128
+    caValue: "Latn"
+  - caType: 1
+    caValue: "Bayern"
+----
 
 | 40
 | `v6PanaAgentAddressesOption`
 (https://www.ietf.org/rfc/rfc5192.txt[RFC 5192]))
 |
- <v6PanaAgentAddressesOption>
-   <ipAddress>2001:db8::1</ipAddress>
-   <ipAddress>2001:db8::2</ipAddress>
- </v6PanaAgentAddressesOption>
+.XML
+----
+<v6PanaAgentAddressesOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6PanaAgentAddressesOption>
+----
+
+.JSON
+----
+{
+  "v6PanaAgentAddressesOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.YAML
+----
+v6PanaAgentAddressesOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
 
 | 41
 | `v6NewPosixTimezoneOption`
 (https://www.ietf.org/rfc/rfc4833.txt[RFC 4833]))
 |
- <v6NewPosixTimezoneOption>
-   <string>EST5EDT4,M3.2.0/02:00,M11.1.0/02:00</string>
- </v6NewPosixTimezoneOption>
+.XML
+----
+<v6NewPosixTimezoneOption>
+  <string>EST5EDT4,M3.2.0/02:00,M11.1.0/02:00</string>
+</v6NewPosixTimezoneOption>
+----
+
+.JSON
+----
+{
+  "v6NewPosixTimezoneOption" : {
+    "string" : "EST5EDT4,M3.2.0/02:00,M11.1.0/02:00"
+  }
+}
+----
+
+.YAML
+----
+v6NewPosixTimezoneOption:
+  string: "EST5EDT4,M3.2.0/02:00,M11.1.0/02:00"
+----
 
 | 42
 | `v6NewTzdbTimezoneOption`
 (https://www.ietf.org/rfc/rfc4833.txt[RFC 4833]))
 |
- <v6NewTzdbTimezoneOption>
-   <string>Europe/Zurich</string>
- </v6NewTzdbTimezoneOption>
+.XML
+----
+<v6NewTzdbTimezoneOption>
+  <string>Europe/Zurich</string>
+</v6NewTzdbTimezoneOption>
+----
+
+.JSON
+----
+{
+  "v6NewTzdbTimezoneOption" : {
+    "string" : "Europe/Zurich"
+  }
+}
+----
+
+.YAML
+----
+v6NewTzdbTimezoneOption:
+  string: "Europe/Zurich"
+----
 
 | 51
 | `v6LostServerDomainNameOption`
 (https://www.ietf.org/rfc/rfc4523.txt[RFC 4253]))
 |
- <v6LostServerDomainNameOption>
-   <domainName>lost.foo.com.</domainName>
- </v6LostServerDomainNameOption>
+.XML
+----
+<v6LostServerDomainNameOption>
+  <domainName>lost.foo.com.</domainName>
+</v6LostServerDomainNameOption>
+----
+
+.JSON
+----
+{
+  "v6LostServerDomainNameOption" : {
+    "domainName" : "lost.foo.com."
+  }
+}
+----
+
+.YAML
+----
+v6LostServerDomainNameOption:
+  domainName: "lost.foo.com."
+----
 
 |===
 
@@ -1353,15 +2060,22 @@ these elements are for experimental and future use.
 === Generic Options
 Generic options are used to define new option types for experimental, future or
 any standard options that are not defined above for DHCPv4 and DHCPv6 configuration
-options. Generic options are defined using the `optionDef` element. The 
-`otherOptions` element of the configuration options can be used to add one or more 
-new or experimental options to the options that will be sent by the server to the 
-client. Generic options are also used when defining the `suboptionList` of the
-Vendor Information Option as shown in the table above.
+options. Generic options are defined using `optionDefList` elements when
+specifying `v4OtherOptions` or `v6OtherOptions` element of the configuration options 
+can be used to add one or more undefined options to the options that will be sent 
+by the server to the client. Generic options are also used when defining the 
+`subOptions` of the DHCPv4 and DHCPv6 Vendor Information Options as shown in the 
+table above.
 
 ==== Option Definition Type
 The option definition type predefines several option types for use in creating new,
 experimental, or vendor options.
+
+NOTE: The option definition type examples in the table below are shown for the
+`subOptions` element, but the syntax is also used for the `v4OtherOptions` and
+`v6OtherOptions` elements.
+
+IMPORTANT: DHCPv4 option definitions must include the `v4="true"` attribute.
 
 .Generic Option Definitions
 //  columns: monospace, asciidoc
@@ -1372,123 +2086,534 @@ experimental, or vendor options.
 
 | nilOption	
 |
- <optionDef code="99" name="MyOption">
-   <nilOption/>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <nilOption/>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "nilOption" : { },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - nilOption: {}
+    code: 99
+    name: "MyOption"
+----
 
 | uByteOption	
 |
- <optionDef code="99" name="MyOption">
-   <uByteOption>
-     <unsignedByte>255</unsignedByte>
-   </uByteOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <uByteOption>
+      <unsignedByte>255</unsignedByte>
+    </uByteOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "uByteOption" : {
+        "unsignedByte" : 255
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - uByteOption:
+      unsignedByte: 255
+    code: 99
+    name: "MyOption"
+----
 
 | uByteListOption	
 |
- <optionDef code="99" name="MyOption">
-   <uByteListOption>
-     <unsignedByte>1</unsignedByte>
-     <unsignedByte>10</unsignedByte>
-     <unsignedByte>255</unsignedByte>
-   </uByteListOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <uByteListOption>
+      <unsignedByteList>1</unsignedByteList>
+      <unsignedByteList>10</unsignedByteList>
+      <unsignedByteList>255</unsignedByteList>
+    </uByteListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "uByteListOption" : {
+        "unsignedByteList" : [ 1, 10, 255 ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - uByteListOption:
+      unsignedByteList:
+      - 1
+      - 10
+      - 255
+    code: 99
+    name: "MyOption"
+----
 
 | uShortOption	
 |
- <optionDef code="99" name="MyOption">
-   <uShortOption>
-     <unsignedShort>65535</unsignedShort>
-   </uShortOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <uShortOption>
+      <unsignedShort>65535</unsignedShort>
+    </uShortOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "genericOptionsType" : {
+    "optionDefList" : [ {
+      "uShortOption" : {
+        "unsignedShort" : 65535
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+genericOptionsType:
+  optionDefList:
+  - uShortOption:
+      unsignedShort: 65535
+    code: 99
+    name: "MyOption"
+----
 
 | uShortListOption	
 |
- <optionDef code="99" name="MyOption">
-   <uShortListOption>
-     <unsignedShort>1</unsignedShort>
-     <unsignedShort>999</unsignedShort>
-     <unsignedShort>65535</unsignedShort>
-   </uShortListOption>
- </optionDef>
+.XML
+----
+<subOptions>
+<optionDefList code="99" name="MyOption">
+  <uShortListOption>
+    <unsignedShortList>1</unsignedShortList>
+      <unsignedShortList>999</unsignedShortList>
+      <unsignedShortList>65535</unsignedShortList>
+    </uShortListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "uShortListOption" : {
+        "unsignedShortList" : [ 1, 999, 65535 ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - uShortListOption:
+      unsignedShortList:
+      - 1
+      - 999
+      - 65535
+    code: 99
+    name: "MyOption"
+----
 
 | uIntOption	
 |
- <optionDef code="99" name="MyOption">
-   <uIntOption>
-     <unsignedInt>4294697295</unsignedInt>
-   </uIntOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <uIntOption>
+      <unsignedInt>4294697295</unsignedInt>
+    </uIntOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "uIntOption" : {
+        "unsignedInt" : 4294697295
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - uIntOption:
+      unsignedInt: 4294697295
+    code: 99
+    name: "MyOption"
+----
 
 | stringOption	
 |
- <optionDef code="99" name="MyOption">
-   <stringOption>
-     <string>myOptionStringValue</string>
-   </stringOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <stringOption>
+      <string>myOptionStringValue</string>
+    </stringOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "stringOption" : {
+        "string" : "myOptionStringValue"
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - stringOption:
+      string: "myOptionStringValue"
+    code: 99
+    name: "MyOption"
+----
 
 | ipAddressOption	
 |
- <optionDef code="99" name="MyOption">
-   <ipAddressOption>
-     <ipAddress>2001:db8::1</ipAddress>
-   </ipAddressOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <ipAddressOption>
+      <ipAddress>2001:db8::1</ipAddress>
+    </ipAddressOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "ipAddressOption" : {
+        "ipAddress" : "2001:db8::1"
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - ipAddressOption:
+      ipAddress: "2001:db8::1"
+    code: 99
+    name: "MyOption"
+----
 
 | ipAddressListOption	
 |
- <optionDef code="99" name="MyOption">
-   <ipAddressListOption>
-     <ipAddress>2001:db8::1</ipAddress>
-     <ipAddress>2001:db8::2</ipAddress>
-     <ipAddress>2001:db8::3</ipAddress>
-   </ipAddressListOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <ipAddressListOption>
+      <ipAddressList>2001:db8::1</ipAddressList>
+      <ipAddressList>2001:db8::2</ipAddressList>
+      <ipAddressList>2001:db8::3</ipAddressList>
+    </ipAddressListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "ipAddressListOption" : {
+        "ipAddressList" : [ "2001:db8::1", "2001:db8::2", "2001:db8::3" ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - ipAddressListOption:
+      ipAddressList:
+      - "2001:db8::1"
+      - "2001:db8::2"
+      - "2001:db8::3"
+    code: 99
+    name: "MyOption"
+----
 
 | domainNameOption
 |	
- <optionDef code="99" name="MyOption">
-   <domainNameOption>
-     <domainName>my.foo.com.</domainName>
-   </domainNameOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <domainNameOption>
+      <domainName>my.foo.com.</domainName>
+    </domainNameOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "domainNameOption" : {
+        "domainName" : "my.foo.com."
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - domainNameOption:
+      domainName: "my.foo.com."
+    code: 99
+    name: "MyOption"
+----
 
 | domainNameListOption	
 |
- <optionDef code="99" name="MyOption">
-   <domainNameListOption>
-     <domainName>my.foo.com.</domainName>
-     <domainName>my.bar.com.</domainName>
-     <domainName>my.yuk.com.</domainName>
-   </domainNameListOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <domainNameListOption>
+      <domainNameList>my.foo.com.</domainNameList>
+      <domainNameList>my.bar.com.</domainNameList>
+      <domainNameList>my.yuk.com.</domainNameList>
+    </domainNameListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "domainNameListOption" : {
+        "domainNameList" : [ "my.foo.com.", "my.bar.com.", "my.yuk.com." ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - domainNameListOption:
+      domainNameList:
+      - "my.foo.com."
+      - "my.bar.com."
+      - "my.yuk.com."
+    code: 99
+    name: "MyOption"
+----
 
 | opaqueDataOption	
 |
- <optionDef code="99" name="MyOption">
-   <opaqueDataOption>
-     <opaqueData>
-       <hexValue>0123456789abcdef</hexValue>
-     </opaqueData>
-   </opaqueDataOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <opaqueDataOption>
+      <opaqueData>
+        <hexValue>0123456789abcdef</hexValue>
+      </opaqueData>
+    </opaqueDataOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "opaqueDataOption" : {
+        "opaqueData" : {
+          "hexValue" : "0123456789ABCDEF"
+        }
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - opaqueDataOption:
+      opaqueData:
+        hexValue: "0123456789ABCDEF"
+    code: 99
+    name: "MyOption"
+----
 
 | opaqueDataListOption	
 |
- <optionDef code="99" name="MyOption">
-   <opaqueDataListOption>
-     <opaqueData>
-       <hexValue>0123456789abcdef</hexValue>
-     </opaqueData>
-     <opaqueData>
-       <asciiValue>HelloWorld</asciiValue>
-     </opaqueData>
-     <opaqueData>
-       <hexValue>0a1b2c3d4e5f</hexValue>
-     </opaqueData>
-   </opaqueDataListOption>
- </optionDef>
+.XML
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <opaqueDataListOption>
+      <opaqueDataList>
+        <hexValue>0123456789abcdef</hexValue>
+      </opaqueDataList>
+      <opaqueDataList>
+        <asciiValue>HelloWorld</asciiValue>
+      </opaqueDataList>
+      <opaqueDataList>
+        <hexValue>0a1b2c3d4e5f</hexValue>
+      </opaqueDataList>
+    </opaqueDataListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.JSON
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "opaqueDataListOption" : {
+        "opaqueDataList" : [ {
+          "hexValue" : "0123456789ABCDEF"
+        }, {
+          "asciiValue" : "HelloWorld"
+        }, {
+          "hexValue" : "0A1B2C3D4E5F"
+        } ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+subOptions:
+  optionDefList:
+  - opaqueDataListOption:
+      opaqueDataList:
+      - hexValue: "0123456789ABCDEF"
+      - asciiValue: "HelloWorld"
+      - hexValue: "0A1B2C3D4E5F"
+    code: 99
+    name: "MyOption"
+----
 
 |===
 
@@ -1529,90 +2654,253 @@ clients which supply a vendor class option beginning with the specified ASCII
 value. This filter is configured to provide the vendor specific information 
 option for such clients.
 
- <filter>
-   <name>DHCPv4 VendorClass Filter</name>
-   <filterExpressions>
-     <filterExpression>
-       <clientClassExpression operator="startsWith">
-         <v4VendorClassOption>
-           <opaqueData>
-             <asciiValue>MyVendorPrefix</asciiValue>
-           </opaqueData>
-         </v4VendorClassOption>
-       </clientClassExpression>
-     </filterExpression>
-   </filterExpressions>
-   <v4ConfigOptions>
-     <v4VendorSpecificOption>
-       <opaqueData>
-         <hexValue>01020304</hexValue>
-       </opaqueData>
-     </v4VendorSpecificOption>
-   </v4ConfigOptions>
- </filter>
+.XML
+----
+<filter>
+  <name>DHCPv4 VendorClass Filter</name>
+  <filterExpressions>
+    <filterExpressionList>
+      <clientClassExpression operator="startsWith">
+        <v4VendorClassOption>
+          <opaqueData>
+            <asciiValue>MyVendorPrefix</asciiValue>
+          </opaqueData>
+        </v4VendorClassOption>
+      </clientClassExpression>
+    </filterExpressionList>
+  </filterExpressions>
+  <v4ConfigOptions>
+    <v4VendorSpecificOption>
+      <opaqueData>
+        <hexValue>01020304</hexValue>
+      </opaqueData>
+    </v4VendorSpecificOption>
+  </v4ConfigOptions>
+</filter>
+----
+
+.JSON
+----
+{
+  "filter" : {
+    "name" : "DHCPv4 VendorClass Filter",
+    "filterExpressions" : {
+      "filterExpressionList" : [ {
+        "clientClassExpression" : {
+          "v4VendorClassOption" : {
+            "opaqueData" : {
+              "asciiValue" : "MyVendorPrefix"
+            }
+          },
+          "operator" : "startsWith"
+        }
+      } ]
+    },
+    "v4ConfigOptions" : {
+      "v4VendorSpecificOption" : {
+        "opaqueData" : {
+          "hexValue" : "01020304"
+        }
+      }
+    }
+  }
+}
+----
+
+.YAML
+----
+filter:
+  name: "DHCPv4 VendorClass Filter"
+  filterExpressions:
+    filterExpressionList:
+    - clientClassExpression:
+        v4VendorClassOption:
+          opaqueData:
+            asciiValue: "MyVendorPrefix"
+        operator: "startsWith"
+  v4ConfigOptions:
+    v4VendorSpecificOption:
+      opaqueData:
+        hexValue: "01020304"
+----
 
 ====== DHCPv6 User Class Filter Example
 The following filter definition matches clients which supply a specific DHCPv6 
 user class option value. This filter is configured to provide a specific DNS 
 domain name for such clients.
 
- <filter>
-   <name>DHCPv6 UserClass Filter</name>
-   <filterExpressions>
-     <filterExpression>
-       <clientClassExpression operator="equals">
-         <v6UserClassOption>
-           <opaqueData>
-             <asciiValue>MyUserClass</asciiValue>
-           </opaqueData>
-         </v6UserClassOption>
-       </clientClassExpression>
-     </filterExpression>
-   </filterExpressions>
-   <v6MsgConfigOptions>
-     <v6DomainSearchListOption>
-       <domainName>filter.com.</domainName>
-     </v6DomainSearchListOption>
-   </v6MsgConfigOptions>
- </filter>
+.XML
+----
+<filter>
+  <name>DHCPv6 UserClass Filter</name>
+  <filterExpressions>
+    <filterExpressionList>
+      <clientClassExpression operator="equals">
+        <v6UserClassOption>
+          <opaqueDataList>
+            <asciiValue>MyUserClass</asciiValue>
+          </opaqueDataList>
+        </v6UserClassOption>
+      </clientClassExpression>
+    </filterExpressionList>
+  </filterExpressions>
+  <v6MsgConfigOptions>
+    <v6DomainSearchListOption>
+      <domainNameList>filter.com.</domainNameList>
+    </v6DomainSearchListOption>
+  </v6MsgConfigOptions>
+</filter>
+----
+
+.JSON
+----
+{
+  "filter" : {
+    "name" : "DHCPv6 UserClass Filter",
+    "filterExpressions" : {
+      "filterExpressionList" : [ {
+        "clientClassExpression" : {
+          "v6UserClassOption" : {
+            "opaqueDataList" : [ {
+              "asciiValue" : "MyUserClass"
+            } ]
+          },
+          "operator" : "equals"
+        }
+      } ]
+    },
+    "v6MsgConfigOptions" : {
+      "v6DomainSearchListOption" : {
+        "domainNameList" : [ "filter.com." ]
+      }
+    }
+  }
+}
+----
+
+.YAML
+----
+filter:
+  name: "DHCPv6 UserClass Filter"
+  filterExpressions:
+    filterExpressionList:
+    - clientClassExpression:
+        v6UserClassOption:
+          opaqueDataList:
+          - asciiValue: "MyUserClass"
+        operator: "equals"
+  v6MsgConfigOptions:
+    v6DomainSearchListOption:
+      domainNameList:
+      - "filter.com."
+----
 
 ====== DHCPv6 Vendor Class Filter Example
 The following filter definition matches client which supply a specific DHCPv6 
 vendor class option value. This filter is configured to provide a vendor specific 
 information option, which contains two suboptions, for such clients.
 
- <filter>
-   <name>DHCPv6 VendorClass Filter</name>
-   <filterExpressions>
-     <filterExpression>
-       <clientClassExpression operator="equals">
-         <v6VendorClassOption>
-           <opaqueData>
-             <asciiValue>VendorXYZ</asciiValue>
-           </opaqueData>
-           <enterpriseNumber>12345</enterpriseNumber>
-         </v6VendorClassOption>
-       </clientClassExpression>
-     </filterExpression>
-   </filterExpressions>
-   <v6MsgConfigOptions>
-     <v6VendorInfoOption>
-       <enterpriseNumber>12345</enterpriseNumber>
-       <suboptionList>
-         <optionDef code="1">
-           <stringOption>
-             <string>hello</string>
-           </stringOption>
-         </optionDef>
-         <optionDef code="2">
-           <ipAddressOption>
-             <ipAddress>2001:db8::1</ipAddress>
-           </ipAddressOption>
-         </optionDef>
-       </suboptionList>
-     </v6VendorInfoOption>
-   </v6MsgConfigOptions>
- </filter>
+.XML
+----
+<filter>
+  <name>DHCPv6 VendorClass Filter</name>
+  <filterExpressions>
+    <filterExpressionList>
+      <clientClassExpression operator="equals">
+        <v6VendorClassOption>
+          <opaqueDataList>
+            <asciiValue>VendorXYZ</asciiValue>
+          </opaqueDataList>
+          <enterpriseNumber>12345</enterpriseNumber>
+        </v6VendorClassOption>
+      </clientClassExpression>
+    </filterExpressionList>
+  </filterExpressions>
+  <v6MsgConfigOptions>
+    <v6VendorInfoOption>
+      <enterpriseNumber>12345</enterpriseNumber>
+      <suboptionList>
+        <optionDefList code="1">
+          <stringOption>
+            <string>hello</string>
+          </stringOption>
+        </optionDefList>
+        <optionDefList code="2">
+          <ipAddressOption>
+            <ipAddress>2001:db8::1</ipAddress>
+          </ipAddressOption>
+        </optionDefList>
+      </suboptionList>
+    </v6VendorInfoOption>
+  </v6MsgConfigOptions>
+</filter>
+----
+
+.JSON
+----
+{
+  "filter" : {
+    "name" : "DHCPv6 VendorClass Filter",
+    "filterExpressions" : {
+      "filterExpressionList" : [ {
+        "clientClassExpression" : {
+          "v6VendorClassOption" : {
+            "enterpriseNumber" : 12345,
+            "opaqueDataList" : [ {
+              "asciiValue" : "VendorXYZ"
+            } ]
+          },
+          "operator" : "equals"
+        }
+      } ]
+    },
+    "v6MsgConfigOptions" : {
+      "v6VendorInfoOption" : {
+        "enterpriseNumber" : 12345,
+        "suboptionList" : {
+          "optionDefList" : [ {
+            "stringOption" : {
+              "string" : "hello"
+            },
+            "code" : 1
+          }, {
+            "ipAddressOption" : {
+              "ipAddress" : "2001:db8::1"
+            },
+            "code" : 2
+          } ]
+        }
+      }
+    }
+  }
+}
+----
+
+.YAML
+----
+filter:
+  name: "DHCPv6 VendorClass Filter"
+  filterExpressions:
+    filterExpressionList:
+    - clientClassExpression:
+        v6VendorClassOption:
+          enterpriseNumber: 12345
+          opaqueDataList:
+          - asciiValue: "VendorXYZ"
+        operator: "equals"
+  v6MsgConfigOptions:
+    v6VendorInfoOption:
+      enterpriseNumber: 12345
+      suboptionList:
+        optionDefList:
+        - stringOption:
+            string: "hello"
+          code: 1
+        - ipAddressOption:
+            ipAddress: "2001:db8::1"
+          code: 2
+----
+
 
 ==== Option Expression
 An option expression defines the criteria for matching all or part of an option 
@@ -1637,31 +2925,95 @@ required `operator` attribute, which defaults to `equals`.
 * greaterThan
 * greaterThanOrEqual
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="equals">
-       <uByteOption>
-         <unsignedByte>255</unsignedByte>
-       </uByteOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <uByteOption>
+        <unsignedByte>255</unsignedByte>
+      </uByteOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uByteOption" : {
+          "unsignedByte" : 255
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uByteOption:
+        unsignedByte: 255
+      code: 99
+      operator: "equals"
+----
 
 | uByteListOption	
 | 
 * equals
 * contains
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="equals">
-       <uByteListOption>
-         <unsignedByte>1</unsignedByte>
-         <unsignedByte>255</unsignedByte>
-       </uByteListOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <uByteListOption>
+        <unsignedByteList>1</unsignedByteList>
+        <unsignedByteList>255</unsignedByteList>
+      </uByteListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uByteListOption" : {
+          "unsignedByteList" : [ 1, 255 ]
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uByteListOption:
+        unsignedByteList:
+        - 1
+        - 255
+      code: 99
+      operator: "equals"
+----
 
 | uShortOption	
 |
@@ -1671,31 +3023,95 @@ required `operator` attribute, which defaults to `equals`.
 * greaterThan
 * greaterThanOrEqual
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="lessThan">
-       <uShortOption>
-         <unsignedShort>65535</unsignedShort>
-       </uShortOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="lessThan">
+      <uShortOption>
+        <unsignedShort>65535</unsignedShort>
+      </uShortOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uShortOption" : {
+          "unsignedShort" : 65535
+        },
+        "code" : 99,
+        "operator" : "lessThan"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uShortOption:
+        unsignedShort: 65535
+      code: 99
+      operator: "lessThan"
+----
 
 | uShortListOption	
 |
 * equals
 * contains
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="equals">
-       <uShortListOption>
-         <unsignedShort>1</unsignedShort>
-         <unsignedShort>65535</unsignedShort>
-       </uShortListOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <uShortListOption>
+        <unsignedShortList>1</unsignedShortList>
+        <unsignedShortList>65535</unsignedShortList>
+      </uShortListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uShortListOption" : {
+          "unsignedShortList" : [ 1, 65535 ]
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uShortListOption:
+        unsignedShortList:
+        - 1
+        - 65535
+      code: 99
+      operator: "equals"
+----
 
 | uIntOption	
 |
@@ -1705,15 +3121,46 @@ required `operator` attribute, which defaults to `equals`.
 * greaterThan
 * greaterThanOrEqual
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="lessThan">
-       <uIntOption>
-         <unsignedInt>10000</unsignedInt>
-       </uIntOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="lessThan">
+      <uIntOption>
+        <unsignedInt>10000</unsignedInt>
+      </uIntOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uIntOption" : {
+          "unsignedInt" : 10000
+        },
+        "code" : 99,
+        "operator" : "lessThan"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uIntOption:
+        unsignedInt: 10000
+      code: 99
+      operator: "lessThan"
+----
 
 | stringOption	
 |
@@ -1723,15 +3170,46 @@ required `operator` attribute, which defaults to `equals`.
 * contains
 * regExp
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="endsWith">
-       <stringOption>
-         <string>mySuffix</string>
-       </stringOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="endsWith">
+      <stringOption>
+        <string>mySuffix</string>
+      </stringOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "stringOption" : {
+          "string" : "mySuffix"
+        },
+        "code" : 99,
+        "operator" : "endsWith"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      stringOption:
+        string: "mySuffix"
+      code: 99
+      operator: "endsWith"
+----
 
 | ipAddressOption	
 |
@@ -1741,30 +3219,93 @@ required `operator` attribute, which defaults to `equals`.
 * contains
 * regExp
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="equals">
-       <ipAddressOption>
-         <ipAddress>2001:db8::1</ipAddress>
-       </ipAddressOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <ipAddressOption>
+        <ipAddress>2001:db8::1</ipAddress>
+      </ipAddressOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "ipAddressOption" : {
+          "ipAddress" : "2001:db8::1"
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      ipAddressOption:
+        ipAddress: "2001:db8::1"
+      code: 99
+      operator: "equals"
+----
 
 | ipAddressListOption	
 |
 * equals
 * contains
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="contains">
-       <ipAddressListOption>
-         <ipAddress>2001:db8::1</ipAddress>
-       </ipAddressListOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="contains">
+      <ipAddressListOption>
+        <ipAddressList>2001:db8::1</ipAddressList>
+      </ipAddressListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "ipAddressListOption" : {
+          "ipAddressList" : [ "2001:db8::1" ]
+        },
+        "code" : 99,
+        "operator" : "contains"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      ipAddressListOption:
+        ipAddressList:
+        - "2001:db8::1"
+      code: 99
+      operator: "contains"
+----
 
 | domainNameOption	
 |
@@ -1774,30 +3315,93 @@ required `operator` attribute, which defaults to `equals`.
 * contains
 * regExp
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="equals">
-       <domainNameOption>
-         <domainName>foo.com.</domainName>
-       </domainNameOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <domainNameOption>
+        <domainName>foo.com.</domainName>
+      </domainNameOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "domainNameOption" : {
+          "domainName" : "foo.com."
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      domainNameOption:
+        domainName: "foo.com."
+      code: 99
+      operator: "equals"
+----
 
 | domainNameListOption	
 |
 * equals
 * contains
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="contains">
-       <domainNameListOption>
-         <domainName>foo.com.</domainName>
-       </domainNameListOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="contains">
+      <domainNameListOption>
+        <domainNameList>foo.com.</domainNameList>
+      </domainNameListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "domainNameListOption" : {
+          "domainNameList" : [ "foo.com." ]
+        },
+        "code" : 99,
+        "operator" : "contains"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      domainNameListOption:
+        domainNameList:
+        - "foo.com."
+      code: 99
+      operator: "contains"
+----
 
 | opaqueDataOption	
 |
@@ -1807,34 +3411,102 @@ required `operator` attribute, which defaults to `equals`.
 * contains
 * regExp
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="regExp">
-       <opaqueDataOption>
-         <opaqueData>
-           <asciiValue>myRegularExpression</asciiValue>
-         </opaqueData>
-       </opaqueDataOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="regExp">
+      <opaqueDataOption>
+        <opaqueData>
+          <asciiValue>myRegularExpression</asciiValue>
+        </opaqueData>
+      </opaqueDataOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "opaqueDataOption" : {
+          "opaqueData" : {
+            "asciiValue" : "myRegularExpression"
+          }
+        },
+        "code" : 99,
+        "operator" : "regExp"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      opaqueDataOption:
+        opaqueData:
+          asciiValue: "myRegularExpression"
+      code: 99
+      operator: "regExp"
+----
 
 | opaqueDataListOption	
 |
 * equals
 * contains
 |
- <filterExpressions>
-   <filterExpression>
-     <optionExpression code="99" operator="equals">
-       <opaqueDataOption>
-         <opaqueData>
-           <asciiValue>opaqueAsciiData</asciiValue>
-         </opaqueData>
-       </opaqueDataOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <opaqueDataListOption>
+        <opaqueDataList>
+          <asciiValue>opaqueAsciiData</asciiValue>
+        </opaqueDataList>
+      </opaqueDataListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "opaqueDataListOption" : {
+          "opaqueDataList" : [ {
+            "asciiValue" : "opaqueAsciiData"
+          } ]
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      opaqueDataListOption:
+        opaqueDataList:
+        - asciiValue: "opaqueAsciiData"
+      code: 99
+      operator: "equals"
+----
 
 |===
 
@@ -1843,15 +3515,48 @@ DHCPv4 option expressions use the same syntax as DHCPv6 option expressions,
 but must identify the option as a DHCPv4 option using the `v4` attribute. 
 For example:
 
- <filterExpressions>
-   <filterExpression>
-     <optionExpression v4="true" code="99" operator="equals">
-       <uByteOption>
-         <unsignedByte>255</unsignedByte>
-       </uByteOption>
-     </optionExpression>
-   </filterExpression>
- </filterExpressions>
+.XML
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression v4="true" code="99" operator="equals">
+      <uByteOption>
+        <unsignedByte>255</unsignedByte>
+      </uByteOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.JSON
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uByteOption" : {
+          "unsignedByte" : 255
+        },
+        "v4" : true,
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uByteOption:
+        unsignedByte: 255
+      v4: true
+      code: 99
+      operator: "equals"
+----
 
 ==== Custom Expressions
 _Custom expressions are used to define filter expressions that cannot be configured 
@@ -1873,15 +3578,41 @@ header. If the 'giAddr' field is zero, then the link is determined by the IP add
 assigned to the IPv4 broadcast interface provided to the server at startup.
 
 ===== DHCPv4 Link Example
- <link>
-   <name>IPv4 Client Link 1</name>
-   <!-- All DHCPv4 links are defined in CIDR notation.
-        For local links, specify the interface as a
-        startup command-line option, and configure the
-        subnet for that interface's IPv4 address. -->
-     <address>10.0.0.0/24</address>
-   ...
- </link>
+.XML
+----
+<link>
+  <name>IPv4 Client Link 1</name>
+  <!-- All DHCPv4 links are defined in CIDR notation.
+       For local links, specify the interface as a
+       startup command-line option, and configure the
+       subnet for that interface's IPv4 address. -->
+    <address>10.0.0.0/24</address>
+    ...
+</link>
+----
+
+.JSON
+----
+{
+  "link" : {
+    "name" : "IPv4 Client Link 1",
+    "address" : "10.0.0.0/24"
+    ...
+  }
+}
+----
+
+.YAML
+----
+link:
+  name: "IPv4 Client Link 1"
+  # All DHCPv4 links are defined in CIDR notation.
+  # For local links, specify the interface as a
+  # startup command-line option, and configure the
+  # subnet for that interface's IPv4 address.
+  address: "10.0.0.0/24"
+  ...
+----
 
 ==== DHCPv6 Links
 For DHCPv6, the link is determined by the server according to section 11 of RFC 
@@ -1897,22 +3628,68 @@ link definitions are either local or remote.
 Local links require the interface element to specify the name of the server 
 interface.
 
- <link>
-   <name>Local IPv6 Client Link (Multicast traffic)</name>
-   <!-- Local DHCPv6 links are defined by interface name -->
-   <interface>eth2</interface>
-   ...
- </link>
+.XML
+----
+<link>
+  <name>Local IPv6 Client Link (Multicast traffic)</name>
+  <!-- Local DHCPv6 links are defined by interface name -->
+  <interface>eth2</interface>
+  ...
+</link>
+----
+
+.JSON
+----
+{
+  "link" : {
+    "name" : "Local IPv6 Client Link (Multicast traffic)",
+    "interface" : "eth2"
+    ...
+  }
+}
+----
+
+.YAML
+----
+link:
+  name: "Local IPv6 Client Link (Multicast traffic)"
+  # Local DHCPv6 links are defined by interface name
+  interface: "eth2"
+  ...
+----
 
 ===== Remote DHCPv6 Link Example
 Remote links require the address element to specify the address of the remote link.
 
- <link>
-   <name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
-   <!-- Remote DHCPv6 links are defined in CIDR notation -->
-   <address>2001:db8:2::/48</address>
-   ...
- </link>
+.XML
+----
+<link>
+  <name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
+  <!-- Remote DHCPv6 links are defined in CIDR notation -->
+  <address>2001:db8:2::/48</address>
+  ...
+</link>
+----
+
+.JSON
+----
+{
+  "link" : {
+    "name" : "Remote IPv6 Client Link (Unicast/Multicast traffic)",
+    "address" : "2001:db8:2::/48"
+    ...
+  }
+}
+----
+
+.YAML
+----
+link:
+  name: "Remote IPv6 Client Link (Unicast/Multicast traffic)"
+  # Remote DHCPv6 links are defined in CIDR notation
+  address: "2001:db8:2::/48"
+  ...
+----
 
 === Pools
 Pools may be defined only within Links or Link Filters. The Jagornet DHCP Server 
@@ -1929,37 +3706,99 @@ must contain a `range` element to define the addresses available for allocation
 in  the pool. The range is specified using the start and end address of a range 
 of addresses. For example:
 
- <link>
-     <name>DHCPv4 Client Subnet</name>
-     <address>10.0.0.0/24</address>
-     <v4ConfigOptions>
-         <v4SubnetMaskOption>
-             <ipAddress>255.255.255.0</ipAddress>s
-         </v4SubnetMaskOption>
-         <v4RoutersOption>
-             <ipAddress>10.0.0.1</ipAddress>
-             <ipAddress>10.0.0.2</ipAddress>
-         </v4RoutersOption>
-     <v4ConfigOptions>
-     <v4AddrPools>
-         <pool>
-             <range>10.0.0.100-10.0.0.199</range>
-             <v4ConfigOptions>
-                 <v4DomainNameOption>
-                     <domainName>foo.com.</domainName>
-                 </v4DomainNameOption>
-             </v4ConfigOptions>
-         </pool>
-         <pool>
-             <range>10.0.0.200-10.0.0.254</range>
-             <v4ConfigOptions>
-                 <v4DomainNameOption>
-                     <domainName>bar.com.</domainName>
-                 </v4DomainNameOption>
-             </v4ConfigOptions>
-         </pool>
-     </naAddrPools>
- </link>
+.XML
+----
+<link>
+    <name>DHCPv4 Client Subnet</name>
+    <address>10.0.0.0/24</address>
+    <v4ConfigOptions>
+        <v4SubnetMaskOption>
+            <ipAddress>255.255.255.0</ipAddress>s
+        </v4SubnetMaskOption>
+        <v4RoutersOption>
+            <ipAddressList>10.0.0.1</ipAddressList>
+            <ipAddressList>10.0.0.2</ipAddressList>
+        </v4RoutersOption>
+    </v4ConfigOptions>
+    <v4AddrPools>
+        <poolList>
+            <range>10.0.0.100-10.0.0.199</range>
+            <configOptions>
+                <v4DomainNameOption>
+                    <domainName>foo.com.</domainName>
+                </v4DomainNameOption>
+            </configOptions>
+        </poolList>
+        <poolList>
+            <range>10.0.0.200-10.0.0.254</range>
+            <configOptions>
+                <v4DomainNameOption>
+                    <domainName>bar.com.</domainName>
+                </v4DomainNameOption>
+            </configOptions>
+        </poolList>
+    </v4AddrPools>
+</link>
+----
+
+.JSON
+----
+{
+  "link" : {
+    "name" : "DHCPv4 Client Subnet",
+    "address" : "10.0.0.0/24",
+    "v4ConfigOptions" : {
+      "v4SubnetMaskOption" : {
+        "ipAddress" : "255.255.255.0"
+      },
+      "v4RoutersOption" : {
+        "ipAddressList" : [ "10.0.0.1", "10.0.0.2" ]
+      }
+    },
+    "v4AddrPools" : {
+      "poolList" : [ {
+        "range" : "10.0.0.100-10.0.0.199",
+        "configOptions" : {
+          "v4DomainNameOption" : {
+            "domainName" : "foo.com."
+          }
+        }
+      }, {
+        "range" : "10.0.0.200-10.0.0.254",
+        "configOptions" : {
+          "v4DomainNameOption" : {
+            "domainName" : "bar.com."
+          }
+        }
+      } ]
+    }
+  }
+}
+----
+
+.YAML
+----
+link:
+  name: "DHCPv4 Client Subnet"
+  address: "10.0.0.0/24"
+  v4ConfigOptions:
+    v4SubnetMaskOption:
+      ipAddress: "255.255.255.0"
+    v4RoutersOption:
+      ipAddressList:
+      - "10.0.0.1"
+      - "10.0.0.2"
+  v4AddrPools:
+    poolList:
+    - range: "10.0.0.100-10.0.0.199"
+      configOptions:
+        v4DomainNameOption:
+          domainName: "foo.com."
+    - range: "10.0.0.200-10.0.0.254"
+      configOptions:
+        v4DomainNameOption:
+          domainName: "bar.com."
+----
 
 ==== DHCPv6 Address Pools
 Non-temporary and temporary address pools are defined by the `addressPool` type. 
@@ -1967,33 +3806,91 @@ The address pool must contain a `range` element to define the addresses availabl
 for allocation in the pool. The range is specified using the start and end address 
 of a range of addresses, or a prefix and length. For example:
 
- <link>
-     <name>Client Link 2</name>
-     <address>2001:DB8:2::/48</address>
-     <v6IaNaConfigOptions>
-         <v6DnsServersOption>
-             <ipAddress>2001:DB8:2::1</ipAddress>
-         </v6DnsServersOption>
-     </v6IaNaConfigOptions>
-     <v6NaAddrPools>
-         <pool>
-             <range>2001:DB8:2::0A-2001:DB8:2::FF</range>
-             <addrConfigOptions>
-                 <v6SipServerAddressesOption>
-                     <ipAddress>2001:DB8:2::1:1</ipAddress>
-                 </v6SipServerAddressesOption>
-             </addrConfigOptions>
-         </pool>
-         <pool>
-             <range>2001:DB8:2:1::/64</range>
-             <addrConfigOptions>
-                 <v6SipServerAddressesOption>
-                     <ipAddress>2001:DB8:2:1::1:1</ipAddress>
-                 </v6SipServerAddressesOption>
-             </addrConfigOptions>
-         </pool>
-     </v6NaAddrPools>
- </link>
+.XML
+----
+<link>
+    <name>Client Link 2</name>
+    <address>2001:DB8:2::/48</address>
+    <v6IaNaConfigOptions>
+        <v6DnsServersOption>
+            <ipAddressList>2001:DB8:2::1</ipAddressList>
+        </v6DnsServersOption>
+    </v6IaNaConfigOptions>
+    <v6NaAddrPools>
+        <poolList>
+            <range>2001:DB8:2::0A-2001:DB8:2::FF</range>
+            <addrConfigOptions>
+                <v6SipServerAddressesOption>
+                    <ipAddressList>2001:DB8:2::1:1</ipAddressList>
+                </v6SipServerAddressesOption>
+            </addrConfigOptions>
+        </poolList>
+        <poolList>
+            <range>2001:DB8:2:1::/64</range>
+            <addrConfigOptions>
+                <v6SipServerAddressesOption>
+                    <ipAddressList>2001:DB8:2:1::1:1</ipAddressList>
+                </v6SipServerAddressesOption>
+            </addrConfigOptions>
+        </poolList>
+    </v6NaAddrPools>
+</link>
+----
+
+.JSON
+----
+{
+  "link" : {
+    "name" : "Client Link 2",
+    "address" : "2001:DB8:2::/48",
+    "v6IaNaConfigOptions" : {
+      "v6DnsServersOption" : {
+        "ipAddressList" : [ "2001:DB8:2::1" ]
+      }
+    },
+    "v6NaAddrPools" : {
+      "poolList" : [ {
+        "range" : "2001:DB8:2::0A-2001:DB8:2::FF",
+        "addrConfigOptions" : {
+          "v6SipServerAddressesOption" : {
+            "ipAddressList" : [ "2001:DB8:2::1:1" ]
+          }
+        }
+      }, {
+        "range" : "2001:DB8:2:1::/64",
+        "addrConfigOptions" : {
+          "v6SipServerAddressesOption" : {
+            "ipAddressList" : [ "2001:DB8:2:1::1:1" ]
+          }
+        }
+      } ]
+    }
+  }
+}
+----
+
+.YAML
+----
+link:
+  name: "Client Link 2"
+  address: "2001:DB8:2::/48"
+  v6IaNaConfigOptions:
+    v6DnsServersOption:
+      ipAddressList:
+      - "2001:DB8:2::1"
+  v6NaAddrPools:
+    poolList:
+    - range: "2001:DB8:2::0A-2001:DB8:2::FF"
+      addrConfigOptions:
+        v6SipServerAddressesOption:
+          ipAddressList:
+          - "2001:DB8:2::1:1"
+    - range: "2001:DB8:2:1::/64"
+      addrConfigOptions:
+        v6SipServerAddressesOption:
+          ipAddressList:
+          - "2001:DB8:2:1::1:1"
+----
 
 ==== DHCPv6 Prefix Pools
 Prefix delegation pools are defined by the `prefixPool` type. The prefix pool must 
@@ -2001,26 +3898,74 @@ contain a `range` element to define the prefix available for delegation, and the
 prefixLength element to define the size of the prefixes to allocate to requesting 
 routers. For example:
 
- <link>
-     <name>Prefix Delegation Link</name>
-     <address>2001:DB8:1::/48</address>
-     <v6IaPdConfigOptions>
-         <v6DnsServersOption>
-             <ipAddress>2001:DB8:2::1</ipAddress>
-         </v6DnsServersOption>
-     </v6IaPdConfigOptions>
-     <v6PrefixPools>
-         <pool>
-             <range>2001:DB8:2::/48</range>
-             <prefixLength>64</prefixLength>
-             <prefixConfigOptions>
-                 <sipServerAddressesOption>
-                     <ipAddress>2001:DB8:2:1::1:1</ipAddress>
-                 </sipServerAddressesOption>
-             </prefixConfigOptions>
-         </pool>
-     </v6PrefixPools>
- </link>
+.XML
+----
+<link>
+    <name>Prefix Delegation Link</name>
+    <address>2001:DB8:1::/48</address>
+    <v6IaPdConfigOptions>
+        <v6DnsServersOption>
+            <ipAddressList>2001:DB8:2::1</ipAddressList>
+        </v6DnsServersOption>
+    </v6IaPdConfigOptions>
+    <v6PrefixPools>
+        <poolList>
+            <range>2001:DB8:2::/48</range>
+            <prefixLength>64</prefixLength>
+            <prefixConfigOptions>
+                <v6SipServerAddressesOption>
+                    <ipAddressList>2001:DB8:2:1::1:1</ipAddressList>
+                </v6SipServerAddressesOption>
+            </prefixConfigOptions>
+        </poolList>
+    </v6PrefixPools>
+</link>
+----
+
+.JSON
+----
+{
+  "link" : {
+    "name" : "Prefix Delegation Link",
+    "address" : "2001:DB8:1::/48",
+    "v6IaPdConfigOptions" : {
+      "v6DnsServersOption" : {
+        "ipAddressList" : [ "2001:DB8:2::1" ]
+      }
+    },
+    "v6PrefixPools" : {
+      "poolList" : [ {
+        "range" : "2001:DB8:2::/48",
+        "prefixLength" : 64,
+        "prefixConfigOptions" : {
+          "v6SipServerAddressesOption" : {
+            "ipAddressList" : [ "2001:DB8:2:1::1:1" ]
+          }
+        }
+      } ]
+    }
+  }
+}
+----
+
+.YAML
+----
+link:
+  name: "Prefix Delegation Link"
+  address: "2001:DB8:1::/48"
+  v6IaPdConfigOptions:
+    v6DnsServersOption:
+      ipAddressList:
+      - "2001:DB8:2::1"
+  v6PrefixPools:
+    poolList:
+    - range: "2001:DB8:2::/48"
+      prefixLength: 64
+      prefixConfigOptions:
+        v6SipServerAddressesOption:
+          ipAddressList:
+          - "2001:DB8:2:1::1:1"
+----
 
 === Static Bindings
 Static bindings are used to reserve a specific IP address for a specific client. 
@@ -2038,16 +3983,39 @@ reserved for the client. The address binding must also contain the `chAddr` elem
 to identify the client from the corresponding field in the DHCPv4 request header. 
 For example:
 
- <v4AddrBindings>
-   <binding>
-     <!-- Binding addresses should NOT be inside a pool -->
-     <ipAddress>10.0.0.200</ipAddress>
-     <!-- The MAC address of the client as hex string -->
-     <chaddr>0a1b2c3d4e5f</chaddr>
-     ...
-   </binding>
-   ...
- </v4AddrBindings>
+.XML
+----
+<v4AddressBindings>
+  <bindingList>
+    <!-- Binding addresses should NOT be inside a pool -->
+    <ipAddress>10.0.0.200</ipAddress>
+    <!-- The MAC address of the client as hex string -->
+    <chaddr>0a1b2c3d4e5f</chaddr>
+  </bindingList>
+</v4AddressBindings>
+----
+
+.JSON
+----
+{
+  "v4AddressBindings" : {
+    "bindingList" : [ {
+      "ipAddress" : "10.0.0.200",
+      "chaddr" : "0A1B2C3D4E5F"
+    } ]
+  }
+}
+----
+
+.YAML
+----
+v4AddressBindings:
+  bindingList:
+  # Binding addresses should NOT be inside a pool
+  - ipAddress: "10.0.0.200"
+    # The MAC address of the client as hex string
+    chaddr: "0A1B2C3D4E5F"
+----
 
 ==== DHCPv6 Address Bindings
 Non-temporary and temporary static address bindings are defined by the 
@@ -2061,23 +4029,49 @@ if the clients are known to have a single network interface. If the administrato
 understands the inherent risks with this configuration feature, it may be used with 
 caution. For example:
 
- <v6NaAddrBindings>
-   <binding>
-     <ipAddress>2001:db8:1::100</ipAddress>
-     <!-- For DHCPv6, clients do not send a MAC address,
-          therefore, the DUID can be used for the binding. -->
-     <duid>
-       <hexValue>0a1b2c3d4e5f</hexValue>
-     </duid>
-     <!-- The IA_ID may or may not be predictable, so
-          it is an optional element for a DHCPv6 binding.  If
-          left undefined, then ANY IA_ID will match.
-     <iaid>0</iaid>
-     -->
-     ...
-   </binding>
-   ...
- </v6NaAddrBindings>
+.XML
+----
+<v6NaAddressBindings>
+  <bindingList>
+    <ipAddress>2001:db8:1::100</ipAddress>
+    <!-- For DHCPv6, clients do not send a MAC address,
+         therefore, the DUID can be used for the binding. -->
+    <duid>
+      <hexValue>0a1b2c3d4e5f</hexValue>
+    </duid>
+    <!-- The IA_ID may or may not be predictable, so
+         it is an optional element for a DHCPv6 binding.  If
+         left undefined, then ANY IA_ID will match.
+    <iaid>0</iaid>
+    -->
+  </bindingList>
+</v6NaAddressBindings>
+----
+
+.JSON
+----
+{
+  "v6NaAddressBindings" : {
+    "bindingList" : [ {
+      "ipAddress" : "2001:db8:1::100",
+      "duid" : {
+        "hexValue" : "0A1B2C3D4E5F"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+v6NaAddressBindings:
+  bindingList:
+  - ipAddress: "2001:db8:1::100"
+    # For DHCPv6, clients do not send a MAC address,
+    # therefore, the DUID can be used for the binding.
+    duid:
+      hexValue: "0A1B2C3D4E5F"
+----
 
 ==== DHCPv6 Prefix Bindings
 Prefix delegation static prefix bindings are defined by the `prefixBinding` type. 
@@ -2086,19 +4080,45 @@ for delegation, and the `prefixLength` element to define the size of the prefixe
 to allocate to requesting router. The same caveats and cautions as DHCPv6 address 
 bindings apply for prefix bindings as well. For example:
 
- <v6PrefixBindings>
-   <binding>
-     <prefix>2001:db8:1::</prefix>
-     <prefixLength>64</prefixLength>
-     <!-- For DHCPv6, clients do not send a MAC address,
-          therefore, the DUID can be used for the binding. -->
-     <duid>
-       <hexValue>0a1b2c3d4e5f</hexValue>
-     </duid>
-     ...
-   </binding>
-   ...
- </v6PrefixBindings>
+.XML
+----
+<v6PrefixBindings>
+  <bindingList>
+    <prefix>2001:db8:1::</prefix>
+    <prefixLength>64</prefixLength>
+    <!-- For DHCPv6, clients do not send a MAC address,
+         therefore, the DUID can be used for the binding. -->
+    <duid>
+      <hexValue>0a1b2c3d4e5f</hexValue>
+    </duid>
+  </bindingList>
+</v6PrefixBindings>
+----
+
+.JSON
+----
+{
+  "v6PrefixBindings" : {
+    "bindingList" : [ {
+      "prefix" : "2001:db8:1::",
+      "prefixLength" : 64,
+      "duid" : {
+        "hexValue" : "0A1B2C3D4E5F"
+      }
+    } ]
+  }
+}
+----
+
+.YAML
+----
+v6PrefixBindings:
+  bindingList:
+  - prefix: "2001:db8:1::"
+    prefixLength: 64
+    duid:
+      hexValue: "0A1B2C3D4E5F"
+----
 
 
  

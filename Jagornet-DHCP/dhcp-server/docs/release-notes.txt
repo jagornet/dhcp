@@ -1,3 +1,10 @@
+Changes in 3.1.0
+----------------
+	- Fix #33: Add support for -rr option for requests per second for
+               for DHCP Client test tools
+    - Fix #34: Use Jackson classes for reading/writing JSON/YAML
+    - Fix #35: Improve Netty inbound/outbound pipeline processing
+
 Changes in 3.0.3
 ----------------
     - Fix #27: Update DHCP client logging config file options for Log4j2

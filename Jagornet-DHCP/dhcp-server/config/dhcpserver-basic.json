@@ -23,6 +23,12 @@
         },
         "v4RoutersOption" : {
           "ipAddressList" : [ "10.0.0.1" ]
+        },
+        "v4DomainServersOption" : {
+          "ipAddressList" : [ "1.1.1.1", "8.8.8.8" ]
+        },
+        "v4DomainNameOption" : {
+          "domainName" : "foo.com."
         }
       },
       "v4AddrPools" : {

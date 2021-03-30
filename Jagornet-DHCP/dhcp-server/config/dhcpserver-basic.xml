@@ -39,6 +39,13 @@
                 <v4RoutersOption>
                     <ipAddressList>10.0.0.1</ipAddressList>
                 </v4RoutersOption>
+            	<v4DomainServersOption>
+            		<ipAddressList>1.1.1.1</ipAddressList>
+            		<ipAddressList>8.8.8.8</ipAddressList>
+            	</v4DomainServersOption>
+            	<v4DomainNameOption>
+            		<domainName>foo.com.</domainName>
+            	</v4DomainNameOption>
             </v4ConfigOptions>
             <v4AddrPools>
                 <poolList>
