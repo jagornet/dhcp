@@ -10,8 +10,8 @@ Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configu
 * Static bindings (reservations)
 * Client filtering (client classes)
 * Dynamic DNS updates
-* High Availability
-* REST API (primary/backup)
+* High Availability (primary/backup)
+* REST API
 * Platform independent (Java 8+)
 * Highly scalable, multithreaded architecture featuring [Netty](http://netty.io)
 * Flexible XML, JSON, or YAML configuration file format (new for v3.1.0)
