@@ -11,10 +11,10 @@ Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configu
 * Client filtering (client classes)
 * Dynamic DNS updates
 * High Availability
-* REST API
+* REST API (primary/backup)
 * Platform independent (Java 8+)
 * Highly scalable, multithreaded architecture featuring [Netty](http://netty.io)
-* Flexible XML, JSON, or YAML configuration file format
+* Flexible XML, JSON, or YAML configuration file format (New for v3.1.0)
 
 ## Documentation
 [Jagornet DHCP Server Community Edition v3.1 User Guide](https://www.jagornet.com/documentation)
