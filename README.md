@@ -14,12 +14,13 @@ Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configu
 * REST API
 * Platform independent (Java 8+)
 * Highly scalable, multithreaded architecture featuring [Netty](http://netty.io)
+* Flexible XML, JSON, or YAML configuration file format
 
 ## Documentation
-[Jagornet DHCP Server Community Edition v3.0 User Guide](https://www.jagornet.com/documentation)
+[Jagornet DHCP Server Community Edition v3.1 User Guide](https://www.jagornet.com/documentation)
 
 ## Downloads
-[Jagornet DHCP Server Community Edition v3.0 Releases](https://github.com/jagornet/dhcp/releases)
+[Jagornet DHCP Server Community Edition v3.1 Releases](https://github.com/jagornet/dhcp/releases)
 
 ## User Forum
 [Jagornet DHCP Server Users Forum](https://groups.google.com/forum/#!forum/jagornet-dhcpv6-users)
