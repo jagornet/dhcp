@@ -25,6 +25,9 @@
  */
 package com.jagornet.dhcp.server.config;
 
+import java.beans.Introspector;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +38,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -42,10 +46,13 @@ import java.util.TreeMap;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +62,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -63,6 +71,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -2969,12 +2978,111 @@ public class DhcpServerConfiguration
 		}
     	
     }
+    
+    public static <T> void xmlToJsonAndYaml(String xmlData, Class<T> xmlClass) {
+    	try {
+    		
+    		
+	    	InputStream xmlDataStream = 
+	    			new ByteArrayInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+
+	    	JAXBContext jc = JAXBContext.newInstance(xmlClass);
+	        Unmarshaller unmarshaller = jc.createUnmarshaller();
+	        //TODO: consider VEC or ValidationEventHandler implementation
+	        //ValidationEventCollector vec = new ValidationEventCollector();
+	        unmarshaller.setEventHandler(new DefaultValidationEventHandler());
+//	        obj = (T) unmarshaller.unmarshal(xmlDataStream);
+	        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+	        XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(xmlDataStream);
+	        JAXBElement<T> element = unmarshaller.unmarshal(xmlEventReader, xmlClass);
+
+	    	T obj = element.getValue();
+	    	
+	    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    	baos.write((".XML"+System.lineSeparator()).getBytes());
+	    	baos.write(("----"+System.lineSeparator()).getBytes());
+	    	String[] lines = xmlData.split(System.getProperty("line.separator"));
+	    	for (String line : lines) {
+				if (line.startsWith(" ")) {
+					line = line.substring(1);
+				}
+				if (!line.startsWith("<?xml ") &&
+						!line.startsWith("<!DOCTYPE ")) {
+					baos.write(line.getBytes());
+				}
+			}
+	    	baos.write(System.lineSeparator().getBytes());
+	    	baos.write(("----"+System.lineSeparator()).getBytes());
+	    	System.out.println(new String(baos.toByteArray()));
+
+	    	baos.reset();
+	    	baos.write((".JSON"+System.lineSeparator()).getBytes());
+	    	baos.write(("----"+System.lineSeparator()).getBytes());
+	    	xmlObjToJson(obj, baos);
+	    	baos.write(System.lineSeparator().getBytes());
+	    	baos.write(("----"+System.lineSeparator()).getBytes());
+	    	String cls = obj.getClass().getSimpleName();
+	    	String out = new String(baos.toByteArray());
+	    	out = out.replaceAll("\"" + cls + "\"", "\"" + Introspector.decapitalize(cls) + "\"");
+	    	System.out.println(out);
+	    	
+	    	baos.reset();
+	    	baos.write((".YAML"+System.lineSeparator()).getBytes());
+	    	baos.write(("----"+System.lineSeparator()).getBytes());
+	    	xmlObjToYaml(obj, baos);
+	    	baos.write(("----"+System.lineSeparator()).getBytes());
+	    	cls = obj.getClass().getSimpleName();
+	    	out = new String(baos.toByteArray());
+	    	out = out.replaceAll(cls + ":", Introspector.decapitalize(cls) + ":");
+	    	lines = out.split(System.getProperty("line.separator"));
+	    	StringBuffer sb = new StringBuffer();
+	    	for (String line : lines) {
+	    		if (!line.equals("---")) {
+	    			sb.append(line);
+	    			sb.append(System.lineSeparator());
+	    		}
+	    	}
+	    	System.out.println(sb.toString());
+    	}
+    	catch (Exception ex) {
+    		ex.printStackTrace();
+    		
+    	}
+    }
+
+	private static <T> void xmlObjToJson(T obj, OutputStream os) throws IOException, JsonGenerationException, JsonMappingException {
+		ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
+		jsonMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+		jsonMapper.setSerializationInclusion(Include.NON_NULL);
+		AnnotationIntrospector jsonIntrospector =
+		    new JaxbAnnotationIntrospector(jsonMapper.getTypeFactory());   
+		jsonMapper.setAnnotationIntrospector(jsonIntrospector);
+		SimpleModule jsonModule = new SimpleModule();
+		registerJsonSerializers(jsonModule);
+		jsonMapper.registerModule(jsonModule);
+		jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
+		jsonMapper.writeValue(os, obj);
+	}
+
+	private static <T> void xmlObjToYaml(T obj, OutputStream os) throws IOException, JsonGenerationException, JsonMappingException {
+		ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+		yamlMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+		yamlMapper.setSerializationInclusion(Include.NON_NULL);
+		AnnotationIntrospector yamlIntrospector =
+		    new JaxbAnnotationIntrospector(yamlMapper.getTypeFactory());   
+		yamlMapper.setAnnotationIntrospector(yamlIntrospector);
+		SimpleModule yamlModule = new SimpleModule();
+		registerJsonSerializers(yamlModule);
+		yamlMapper.registerModule(yamlModule);
+		yamlMapper.writeValue(os, obj);
+	}
 
     /**
      * Utility CLI to convert configs from one format to another
      * @param args
      */
     public static void main(String[] args) {
+    	
 		if (args.length != 2) {
 			System.err.println("Usage: DhcpServerConfig configFileIn configFileOut");
 			System.exit(1);
@@ -2985,5 +3093,28 @@ public class DhcpServerConfiguration
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
+    	
+    	
+    	/*
+    	String xml =
+    			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
+    			"<!DOCTYPE xml>\r\n" +
+    			" <v6PrefixBindings>\r\n" + 
+    			"   <bindingList>\r\n" + 
+    			"     <prefix>2001:db8:1::</prefix>\r\n" + 
+    			"     <prefixLength>64</prefixLength>\r\n" + 
+    			"     <!-- For DHCPv6, clients do not send a MAC address,\r\n" + 
+    			"          therefore, the DUID can be used for the binding. -->\r\n" + 
+    			"     <duid>\r\n" + 
+    			"       <hexValue>0a1b2c3d4e5f</hexValue>\r\n" + 
+    			"     </duid>\r\n" + 
+//    			"     ...\r\n" + 
+    			"   </bindingList>\r\n" + 
+//    			"   ...\r\n" + 
+    			" </v6PrefixBindings>\r\n" 
+    			;
+    	xmlToJsonAndYaml(xml, V6PrefixBindingsType.class);
+		*/
+    	
 	}
 }
