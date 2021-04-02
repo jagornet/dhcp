@@ -179,6 +179,22 @@ public class DhcpConstants
     public static final int V6STATUS_CODE_USEMULTICAST = 5;
     public static final int V6STATUS_CODE_NOPREFIXAVAIL = 6;
 
+
+    public static final String[] V6STATUS_CODE_STRING = { "Success",
+                                                    "UnspecFail",
+                                                    "NoAddrsAvail",
+                                                    "NoBinding",
+                                                    "NotOnLink",
+                                                    "UseMulticast",
+                                                    "NoPrefixAvail" };
+    
+    public static final String getV6StatusCodeString(int code)
+    {
+        if ( (code >= 0) && (code <= V6STATUS_CODE_NOPREFIXAVAIL)) {
+            return V6STATUS_CODE_STRING[code];
+        }
+        return "Unknown";
+    }
     
     // V4 Constants
 	public static final int V4_CLIENT_PORT = 68;

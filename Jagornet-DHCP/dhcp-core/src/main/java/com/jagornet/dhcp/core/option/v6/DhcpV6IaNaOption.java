@@ -184,6 +184,21 @@ public class DhcpV6IaNaOption extends BaseDhcpOption
     	}
     	return len;
     }
+	
+	private DhcpV6StatusCodeOption statusCodeOption;
+	/**
+	 * Convenience method to get StatusCode option.
+	 * @return
+	 */
+	public DhcpV6StatusCodeOption getStatusCodeOption() {
+		if (statusCodeOption == null) {
+			if (dhcpOptions != null) {
+				statusCodeOption = 
+					(DhcpV6StatusCodeOption) dhcpOptions.get(DhcpConstants.V6OPTION_STATUS_CODE);
+			}
+		}
+		return statusCodeOption;
+	}
 
     /* (non-Javadoc)
      * @see com.jagornet.dhcpv6.option.Encodable#encode()

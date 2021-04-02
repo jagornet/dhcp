@@ -35,6 +35,7 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -74,6 +75,7 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ElapsedTimeOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6StatusCodeOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
 
@@ -524,6 +526,14 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 			solicit();
 		}
 		
+		/**
+		 * This client is done running.
+		 */
+		public void doneRun() {
+			clientMap.remove(duid);
+			doneLatch.countDown();			
+		}
+		
 		public void solicit() {
 			msg = buildSolicitMessage(duid); 
 			ChannelFuture future = channel.write(msg, server);
@@ -542,7 +552,38 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 					}
 				}
 				else {
-					request();
+					// A Status Code option may appear in the options field of a DHCP
+					// message and/or in the options field of another option.  If the Status
+					// Code option does not appear in a message in which the option could
+					// appear, the status of the message is assumed to be Success.
+					DhcpV6StatusCodeOption statusCodeOption = advertiseMsg.getStatusCodeOption();
+					if ((statusCodeOption != null) &&
+						(statusCodeOption.getStatusCode() != DhcpConstants.V6STATUS_CODE_SUCCESS)) {
+						log.error("Received Advertise message with unsuccessful status code=" +
+								statusCodeOption.getStatusCode() + " msg=" +
+								statusCodeOption.getMessage());
+						doneRun();
+					}
+					else {
+						List<DhcpV6IaNaOption> iaNaOptions = advertiseMsg.getIaNaOptions();
+						if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
+							statusCodeOption = iaNaOptions.get(0).getStatusCodeOption();
+							if ((statusCodeOption != null) &&
+								(statusCodeOption.getStatusCode() != DhcpConstants.V6STATUS_CODE_SUCCESS)) {
+								log.error("Received Advertise IA_NA with unsuccessful status code=" +
+										statusCodeOption.getStatusCode() + " msg=" +
+										statusCodeOption.getMessage());
+								doneRun();
+							}
+							else {
+								request();
+							}
+						}
+						else {
+							log.error("No IA_NA options in Advertise message");
+							doneRun();
+						}
+					}
 				}
 			} catch (InterruptedException e) {
 				log.warn(e.getMessage());
@@ -576,7 +617,38 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 	    			}
 	    		}
 	    		else {
-	    			release();
+					// A Status Code option may appear in the options field of a DHCP
+					// message and/or in the options field of another option.  If the Status
+					// Code option does not appear in a message in which the option could
+					// appear, the status of the message is assumed to be Success.
+					DhcpV6StatusCodeOption statusCodeOption = requestReplyMsg.getStatusCodeOption();
+					if ((statusCodeOption != null) &&
+						(statusCodeOption.getStatusCode() != DhcpConstants.V6STATUS_CODE_SUCCESS)) {
+						log.error("Received RequestReply message with unsuccessful status code=" +
+								statusCodeOption.getStatusCode() + " msg=" +
+								statusCodeOption.getMessage());
+						doneRun();
+					}
+					else {
+						List<DhcpV6IaNaOption> iaNaOptions = requestReplyMsg.getIaNaOptions();
+						if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
+							statusCodeOption = iaNaOptions.get(0).getStatusCodeOption();
+							if ((statusCodeOption != null) &&
+								(statusCodeOption.getStatusCode() != DhcpConstants.V6STATUS_CODE_SUCCESS)) {
+								log.error("Received RequestReply IA_NA with unsuccessful status code=" +
+										statusCodeOption.getStatusCode() + " msg=" +
+										statusCodeOption.getMessage());
+								doneRun();
+							}
+							else {
+								release();
+							}
+						}
+						else {
+							log.error("No IA_NA options in RequestReply message");
+							doneRun();
+						}
+					}
 	    		}
 			} catch (InterruptedException e) {
 				log.warn(e.getMessage());
@@ -600,8 +672,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 				}
 			}
 			else {
-				clientMap.remove(duid);
-				doneLatch.countDown();
+				doneRun();
 			}
 		}
 		
@@ -749,9 +820,9 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         if (message instanceof DhcpV6Message) {
             
             DhcpV6Message dhcpMessage = (DhcpV6Message) message;
-//            if (log.isDebugEnabled())
-//            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
-//            else
+            if (log.isDebugEnabled())
+            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
+            else
             	log.info("Received: " + dhcpMessage.toString());
             
             if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_ADVERTISE) {

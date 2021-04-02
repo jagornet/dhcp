@@ -46,6 +46,7 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
 import com.jagornet.dhcp.core.option.v6.DhcpV6OptionRequestOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6RelayOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6StatusCodeOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
 
@@ -602,6 +603,21 @@ public class DhcpV6Message implements DhcpMessage
 			}
 		}
 		return dhcpServerIdOption;
+	}
+	
+	private DhcpV6StatusCodeOption statusCodeOption;
+	/**
+	 * Convenience method to get StatusCode option.
+	 * @return
+	 */
+	public DhcpV6StatusCodeOption getStatusCodeOption() {
+		if (statusCodeOption == null) {
+			if (dhcpOptions != null) {
+				statusCodeOption = 
+					(DhcpV6StatusCodeOption) dhcpOptions.get(DhcpConstants.V6OPTION_STATUS_CODE);
+			}
+		}
+		return statusCodeOption;
 	}
 
 	private List<Integer> requestedOptionCodes;

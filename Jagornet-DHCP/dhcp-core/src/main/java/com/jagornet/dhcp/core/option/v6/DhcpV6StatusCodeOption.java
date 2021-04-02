@@ -73,6 +73,9 @@ public class DhcpV6StatusCodeOption extends BaseDhcpOption
 	}
 
 	public String getMessage() {
+		if (message == null) {
+			return DhcpConstants.getV6StatusCodeString(statusCode);
+		}
 		return message;
 	}
 
@@ -134,9 +137,9 @@ public class DhcpV6StatusCodeOption extends BaseDhcpOption
         StringBuilder sb = new StringBuilder(Util.LINE_SEPARATOR);
         sb.append(super.getName());
         sb.append(": statusCode=");
-        sb.append(statusCode);
+        sb.append(getStatusCode());
         sb.append(" message=");
-        sb.append(message);
+        sb.append(getMessage());
         return sb.toString();
     }
     

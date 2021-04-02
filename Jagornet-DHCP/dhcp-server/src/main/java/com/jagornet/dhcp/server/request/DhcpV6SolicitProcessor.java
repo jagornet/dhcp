@@ -164,9 +164,9 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 					else {
 						// something went wrong, report NoAddrsAvail status for IA_NA
 // TAHI tests want this status at the message level
-//	    				addIaNaOptionStatusToReply(dhcpIaNaOption, 
-//	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
-		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+//		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+	    				addIaNaOptionStatusToReply(dhcpIaNaOption, 
+	    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 					}
 	    		}
     		}
@@ -201,9 +201,9 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 					else {
 						// something went wrong, report NoAddrsAvail status for IA_TA
 // TAHI tests want this status at the message level
-//	    				addIaTaOptionStatusToReply(dhcpIaTaOption, 
-//	    						DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
-		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+//		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+	    				addIaTaOptionStatusToReply(dhcpIaTaOption, 
+	    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 					}
 	    		}
     		}
@@ -238,9 +238,9 @@ public class DhcpV6SolicitProcessor extends BaseDhcpV6Processor
 					else {
 						// something went wrong, report NoPrefixAvail status for IA_PD
 // TAHI tests want this status at the message level
-//	    				addIaPdOptionStatusToReply(dhcpIaPdOption, 
-//	    						DhcpConstants.STATUS_CODE_NOPREFIXAVAIL);
-		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
+//		    			setReplyStatus(DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
+	    				addIaPdOptionStatusToReply(dhcpIaPdOption, 
+	    						DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 					}
 	    		}
     		}
