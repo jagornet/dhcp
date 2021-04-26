@@ -12,7 +12,7 @@
   <properties>
   	<commons.cli.version>1.2</commons.cli.version>
   	<commons.dbcp2.version>2.7.0</commons.dbcp2.version>
-  	<commons.io.version>2.6</commons.io.version>
+  	<commons.io.version>2.7</commons.io.version>
   	<commons.pool2.version>2.7.0</commons.pool2.version>
   	<dnsjava.version>2.1.9</dnsjava.version>
   	<netty.version>4.1.48.Final</netty.version>
