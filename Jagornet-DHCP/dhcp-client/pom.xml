@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
-    <version>${jagornet.dhcp.version}</version>
+    <version>${revision}</version>
   </parent>
 
   <artifactId>jagornet-dhcp-client</artifactId>
@@ -13,12 +13,12 @@
   	<dependency>
   		<groupId>com.jagornet</groupId>
   		<artifactId>jagornet-dhcp-core</artifactId>
-  		<version>${jagornet.dhcp.version}</version>
+  		<version>${project.version}</version>
   	</dependency>
   	<dependency>
   		<groupId>com.jagornet</groupId>
   		<artifactId>jagornet-dhcp-server</artifactId>
-  		<version>${jagornet.dhcp.version}</version>
+  		<version>${project.version}</version>
   	</dependency>
 	<dependency>
 	    <groupId>commons-cli</groupId>

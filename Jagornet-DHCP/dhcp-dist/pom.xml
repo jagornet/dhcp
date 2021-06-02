@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
-    <version>${jagornet.dhcp.version}</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>jagornet-dhcp-dist</artifactId>
   <packaging>pom</packaging>
@@ -18,7 +18,7 @@
     <dependency>
       <groupId>com.jagornet</groupId>
       <artifactId>jagornet-dhcp-client</artifactId>
-      <version>${jagornet.dhcp.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
   
@@ -47,6 +47,24 @@
 				  </execution>
 				</executions>
 			</plugin>
+	        <!-- <plugin>
+	          <groupId>com.google.cloud.tools</groupId>
+	          <artifactId>jib-maven-plugin</artifactId>
+	          <version>2.7.0</version>
+	          <configuration>
+	            <to>
+	              <image>jagornet-dhcp-dist-${jagornet.dhcp.version}-docker-image</image>
+	            </to>
+	          </configuration>
+			  <executions>
+			    <execution>
+			      <phase>package</phase>
+			      <goals>
+			        <goal>build</goal>
+			      </goals>
+			    </execution>
+			  </executions>
+	        </plugin> -->
   	</plugins>
   </build>
 

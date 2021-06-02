@@ -13,7 +13,12 @@
 
   <properties>
     <!-- Jagornet DHCP version for all modules -->
-  	<jagornet.dhcp.version>3.1.0</jagornet.dhcp.version>
+    <!-- 
+    See this link for 'revision': https://maven.apache.org/maven-ci-friendly.html
+    which necessitates flatten-maven-plugin in module builds in order to remove
+    and replace the installed or deployed module
+     -->
+  	<revision>3.2.0-SNAPSHOT</revision>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,7 +28,7 @@
   </properties>
 
   <name>jagornet-dhcp-all</name>
-  <version>${jagornet.dhcp.version}</version>
+  <version>${revision}</version>
 
   <modules>
   	<module>dhcp-core</module>
@@ -64,4 +69,39 @@
     </dependency>
   </dependencies>
   
+  <build>
+	  <!-- This is needed when adding new plugins, but should be 
+	  	   removed afterwards, otherwise XJC doesn't run?
+	  	   -->
+	<pluginManagement> 
+	  <plugins>
+	    <plugin>
+	      <groupId>org.codehaus.mojo</groupId>
+	      <artifactId>flatten-maven-plugin</artifactId>
+	      <version>1.1.0</version>
+	      <configuration>
+	        <updatePomFile>true</updatePomFile>
+	        <flattenMode>resolveCiFriendliesOnly</flattenMode>
+	      </configuration>
+	      <executions>
+	        <execution>
+	          <id>flatten</id>
+	          <phase>process-resources</phase>
+	          <goals>
+	            <goal>flatten</goal>
+	          </goals>
+	        </execution>
+	        <execution>
+	          <id>flatten.clean</id>
+	          <phase>clean</phase>
+	          <goals>
+	            <goal>clean</goal>
+	          </goals>
+	        </execution>
+	      </executions>
+	    </plugin>
+	  </plugins>
+	</pluginManagement> 
+  </build>
+    
 </project>

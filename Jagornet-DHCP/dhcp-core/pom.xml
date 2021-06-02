@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
-    <version>${jagornet.dhcp.version}</version>
+    <version>${revision}</version>
   </parent>
 
   <artifactId>jagornet-dhcp-core</artifactId>
