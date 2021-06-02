@@ -154,7 +154,7 @@ public class DhcpLeasesService {
 			log.info("Found DhcpLease for IP=" + ipStr + ": " + dhcpLease);
 		}
 		else {
-			log.warn("No DhcpLease found for IP=" + ipStr);
+			log.info("No DhcpLease found for IP=" + ipStr);
 		}
 		return dhcpLease;
 	}

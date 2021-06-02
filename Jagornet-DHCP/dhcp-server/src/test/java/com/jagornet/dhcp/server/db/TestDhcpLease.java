@@ -56,9 +56,15 @@ public class TestDhcpLease {
 
 	@Test
 	public void testToFromJson() {
-		String json = dhcpLease.toJson();
-		DhcpLease _dhcpLease = DhcpLease.fromJson(json);
-		assertEquals(dhcpLease, _dhcpLease);
+		try {			
+			String json = DhcpLeaseJsonUtil.dhcpLeaseToJson(dhcpLease);
+			System.out.println(json);
+			DhcpLease _dhcpLease = DhcpLeaseJsonUtil.jsonToDhcpLease(json);
+			assertEquals(dhcpLease, _dhcpLease);
+		}
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-
 }

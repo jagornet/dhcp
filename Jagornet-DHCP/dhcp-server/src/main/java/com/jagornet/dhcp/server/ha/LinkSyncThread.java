@@ -1,5 +1,6 @@
 package com.jagornet.dhcp.server.ha;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Duration;
@@ -11,12 +12,15 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.db.DhcpLease;
 import com.jagornet.dhcp.server.rest.api.DhcpLeasesResource;
 import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
+import com.jagornet.dhcp.server.rest.api.JacksonObjectMapper;
 import com.jagornet.dhcp.server.rest.cli.JerseyRestClient;
 
 public class LinkSyncThread implements Runnable {
@@ -32,6 +36,7 @@ public class LinkSyncThread implements Runnable {
 	// REST service for handling requests from peer
 	private DhcpLeasesService dhcpLeasesService;
 	private boolean unsyncedLeasesOnly;
+	private ObjectMapper objectMapper;
 	
 	public LinkSyncThread(DhcpLink dhcpLink,
 							CountDownLatch linkSyncLatch,
@@ -44,6 +49,7 @@ public class LinkSyncThread implements Runnable {
 		this.restClient = restClient;
 		this.dhcpLeasesService = dhcpLeasesService;
 		this.unsyncedLeasesOnly = unsyncedLeasesOnly;
+		objectMapper = new JacksonObjectMapper().getJsonObjectMapper();
 	}
 	
 	@Override
@@ -68,9 +74,7 @@ public class LinkSyncThread implements Runnable {
 		log.info("Starting lease sync for link: " + dhcpLink.getLinkAddress());
 		Instant start = Instant.now();
 		boolean syncOk = false;
-//TODO: pick one... JSON or GSON?
 		syncOk = processJsonStream(paramMap);
-//		syncOk = processGsonStream(paramMap);
 		Instant finish = Instant.now();
 	    long timeElapsed = Duration.between(start, finish).toMillis();
 		if (syncOk) {
@@ -84,46 +88,43 @@ public class LinkSyncThread implements Runnable {
 		}
 		linkSyncLatch.countDown();
 	}
-
+	
 	private boolean processJsonStream(Map<String, Object> paramMap) {
 		InputStream stream = restClient.doGetStream(
-				DhcpLeasesResource.PATH + DhcpLeasesResource.JSONLEASESTREAM,
+				DhcpLeasesResource.PATH + DhcpLeasesResource.DHCPLEASESTREAM,
 				paramMap);
+		JsonParser parser = null;
 		try {
 			if (stream != null) {
-				StringBuilder sb = new StringBuilder();
-				int c = stream.read();
-				while (c != -1) {
-					if ((char)c == '{') {
-						sb.append((char)c);
-						c = stream.read();
-						while ((c != -1) && ((char)c != '}')) {
-							sb.append((char)c);
-							c = stream.read();
-						}
-						if ((char)c == '}') {
-							sb.append((char)c);
-							DhcpLease dhcpLease = DhcpLease.fromJson(sb.toString());
-							// mark this lease as 'synced'
-							dhcpLease.setHaPeerState(dhcpLease.getState());
-							if (dhcpLeasesService.createOrUpdateDhcpLease(dhcpLease)) {
-								// now tell the peer server we're in sync
-								restClient.doPut(
-										DhcpLeasesResource.buildPutPath(
-												dhcpLease.getIpAddress().getHostAddress()),
-										dhcpLease.toJson());
+				//ObjectMapper objectMapper = new ObjectMapper();
+				JsonFactory factory = objectMapper.getFactory();
+				parser = factory.createParser(new InputStreamReader(stream));
+				JsonToken token = parser.nextToken();
+				if (JsonToken.START_ARRAY.equals(token)) {
+		            // Iterate through the objects of the array.
+		            while (JsonToken.START_OBJECT.equals(parser.nextToken())) {
+		            	DhcpLease dhcpLease = parser.readValueAs(DhcpLease.class);
+						// mark this lease as 'synced'
+						dhcpLease.setHaPeerState(dhcpLease.getState());
+						if (dhcpLeasesService.createOrUpdateDhcpLease(dhcpLease)) {
+							// now tell the peer server we're in sync
+//							restClient.doPutString(
+//									DhcpLeasesResource.buildPutPath(
+//											dhcpLease.getIpAddress().getHostAddress()),
+//									DhcpLeaseJsonUtil.dhcpLeaseToJson(dhcpLease));
+							restClient.doPutDhcpLease(
+									DhcpLeasesResource.buildPutPath(
+											dhcpLease.getIpAddress().getHostAddress()),
+											dhcpLease);
 
-							}
 						}
-						sb.setLength(0);
-					}
-					else if ((char)c != '\n') {
-						log.error("Expected '{' or '\n', but found '" + (char)c + "'");
-						break;
-					}
-					c = stream.read();
+		            }
 				}
-				return true;
+				else {
+					log.error("Expected start_array token in JsonStream for link: " + 
+							   dhcpLink.getLinkAddress());
+				}
+		        return true;
 			}
 			else {
 				return false;
@@ -133,27 +134,14 @@ public class LinkSyncThread implements Runnable {
 			log.error("Link sync failure", ex);
 			return false;
 		}
-	}
-	
-	private boolean processGsonStream(Map<String, Object> paramMap) {
-		Gson gson = new Gson();
-		InputStream stream = restClient.doGetStream(
-				DhcpLeasesResource.PATH + DhcpLeasesResource.GSONLEASESTREAM,
-				paramMap);
-		try {
-	        JsonReader reader = new JsonReader(new InputStreamReader(stream));
-	        reader.beginArray();
-	        while (reader.hasNext()) {
-	            DhcpLease dhcpLease = gson.fromJson(reader, DhcpLease.class);
-				dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease);
-	        }
-	        reader.endArray();
-	        reader.close();
-	        return true;
-		} 
-		catch (Exception ex) {
-			log.error("Link sync failure", ex);
-			return false;
+		finally {
+			if (parser != null) {
+				try {
+					parser.close();
+				} catch (IOException e) {
+					log.warn("Failed to close JsonParser: " + e);
+				}
+			}
 		}
 	}
 }	
