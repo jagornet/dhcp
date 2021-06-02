@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -60,26 +59,10 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.message.DhcpV6Message;
@@ -159,6 +142,7 @@ import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManager;
+import com.jagornet.dhcp.server.rest.api.JacksonObjectMapper;
 
 /**
  * Title: DhcpServerConfiguration
@@ -174,6 +158,8 @@ public class DhcpServerConfiguration
 
 	/** The INSTANCE. */
 	private static DhcpServerConfiguration INSTANCE;
+    
+    private static JacksonObjectMapper jacksonMapper = null;
 	
 	public static enum ConfigSyntax { XML, JSON, YAML }
     
@@ -230,6 +216,7 @@ public class DhcpServerConfiguration
     
     public void init(String configFilename) throws DhcpServerConfigException, JAXBException, IOException
     {
+    	jacksonMapper = new JacksonObjectMapper();
     	DhcpServerConfig xmlServerConfig = loadConfig(configFilename);
     	if (xmlServerConfig != null) {
     		boolean needWrite = false;
@@ -1017,38 +1004,26 @@ public class DhcpServerConfiguration
     public static DhcpServerConfig loadXmlConfig(InputStream inputStream) 
     		throws DhcpServerConfigException, JAXBException
     {
-    	DhcpServerConfig config = null;
         JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
         Unmarshaller unmarshaller = jc.createUnmarshaller();
         //TODO: consider VEC or ValidationEventHandler implementation
         //ValidationEventCollector vec = new ValidationEventCollector();
         unmarshaller.setEventHandler(new DefaultValidationEventHandler());
-        config = (DhcpServerConfig) unmarshaller.unmarshal(inputStream);
-        return config;
+        return (DhcpServerConfig) unmarshaller.unmarshal(inputStream);
     }
     
     public static DhcpServerConfig loadJsonConfig(InputStream inputStream)
     		throws DhcpServerConfigException, IOException
     {
-    	DhcpServerConfig config = null;
-		ObjectMapper mapper = new ObjectMapper(new JsonFactory());
-		SimpleModule module = new SimpleModule();
-		registerJsonDeserializers(module);
-		mapper.registerModule(module);
-		config = mapper.readValue(inputStream, DhcpServerConfig.class);
-		return config;
+		ObjectMapper jsonMapper = jacksonMapper.getJsonObjectMapper();
+		return jsonMapper.readValue(inputStream, DhcpServerConfig.class);
     }
     
     public static DhcpServerConfig loadYamlConfig(InputStream inputStream)
     		throws DhcpServerConfigException, IOException
     {
-    	DhcpServerConfig config = null;
-		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-		SimpleModule module = new SimpleModule();
-		registerJsonDeserializers(module);
-		mapper.registerModule(module);
-		config = mapper.readValue(inputStream, DhcpServerConfig.class);
-		return config;
+		ObjectMapper yamlMapper = jacksonMapper.getYamlObjectMapper();
+		return yamlMapper.readValue(inputStream, DhcpServerConfig.class);
     }
     
     public static void validateConfigPolicies(DhcpServerConfig config) throws DhcpServerConfigException {
@@ -1226,37 +1201,22 @@ public class DhcpServerConfiguration
     
     public static void saveXmlConfig(DhcpServerConfig config, OutputStream outputStream) 
     		throws JAXBException {
-        JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
-        Marshaller marshaller = jc.createMarshaller();
+        JAXBContext jaxbContext = JAXBContext.newInstance(DhcpServerConfig.class);
+        Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         marshaller.marshal(config, outputStream);	
     }
     
     public static void saveJsonConfig(DhcpServerConfig config, OutputStream outputStream) 
     		throws IOException {
-    	ObjectMapper mapper = new ObjectMapper(new JsonFactory());
-    	mapper.setSerializationInclusion(Include.NON_NULL);
-    	AnnotationIntrospector introspector =
-    	    new JaxbAnnotationIntrospector(mapper.getTypeFactory());   
-    	mapper.setAnnotationIntrospector(introspector);
-    	SimpleModule module = new SimpleModule();
-    	registerJsonSerializers(module);
-    	mapper.registerModule(module);
-		mapper.enable(SerializationFeature.INDENT_OUTPUT);
-    	mapper.writeValue(outputStream, config);
+		ObjectMapper jsonMapper = jacksonMapper.getJsonObjectMapper();
+    	jsonMapper.writeValue(outputStream, config);
     }
     
     public static void saveYamlConfig(DhcpServerConfig config, OutputStream outputStream) 
     		throws IOException {
-    	ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    	mapper.setSerializationInclusion(Include.NON_NULL);
-    	AnnotationIntrospector introspector =
-    	    new JaxbAnnotationIntrospector(mapper.getTypeFactory());   
-    	mapper.setAnnotationIntrospector(introspector);
-    	SimpleModule module = new SimpleModule();
-    	registerJsonSerializers(module);
-    	mapper.registerModule(module);
-    	mapper.writeValue(outputStream, config);
+		ObjectMapper yamlMapper = jacksonMapper.getYamlObjectMapper();
+    	yamlMapper.writeValue(outputStream, config);
     }
     
     public static void convertConfig(String configFileIn, String configFileOut) 
@@ -2707,278 +2667,6 @@ public class DhcpServerConfiguration
 		return true;
     }
     
-    public static void registerJsonDeserializers(SimpleModule module) {
-    	// need this deserializer to handle hexValue for JSON and YAML, 
-    	// it is handled in XML via the hexBinary XML Schema data type
-		module.addDeserializer(OpaqueData.class, 
-				new OpaqueDataJsonDeserializer());
-		/*
-		 * Not needed after XML schema change to make bindings
-		 * more friendly for JSON and YAML configuration files.
-		 * 
-		module.addDeserializer(PoliciesType.class, 
-				new PoliciesTypeJsonDeserializer());
-		module.addDeserializer(LinksType.class, 
-				new LinksTypeJsonDeserializer());
-		module.addDeserializer(FiltersType.class, 
-				new FiltersTypeJsonDeserializer());
-		module.addDeserializer(V4AddressPoolsType.class,
-				new V4AddressPoolsTypeJsonDeserializer());
-		module.addDeserializer(V6AddressPoolsType.class,
-				new V6AddressPoolsTypeJsonDeserializer());
-		module.addDeserializer(V6PrefixPoolsType.class,
-				new V6PrefixPoolsTypeJsonDeserializer());
-		*/
-    }
-    
-    public static void registerJsonSerializers(SimpleModule module) {
-    	// not sure why OpaqueDataSeriaizer is not needed, but
-    	// it appears that Jackson can interpret the hexBinary
-    	// XML Schema data type when writing, but not reading?
-    	
-    	/*
-		 * Not needed after XML schema change to make bindings
-		 * more friendly for JSON and YAML configuration files.
-		 * 
-		module.addSerializer(PoliciesType.class, 
-				new PoliciesTypeJsonSerializer());
-		module.addSerializer(LinksType.class, 
-				new LinksTypeJsonSerializer());
-		module.addSerializer(FiltersType.class, 
-				new FiltersTypeJsonSerializer());
-		module.addSerializer(V4AddressPoolsType.class,
-				new V4AddressPoolsTypeJsonSerializer());
-		module.addSerializer(V6AddressPoolsType.class,
-				new V6AddressPoolsTypeJsonSerializer());
-		module.addSerializer(V6PrefixPoolsType.class,
-				new V6PrefixPoolsTypeJsonSerializer());
-		*/
-    }
-    
-    private static final class OpaqueDataJsonDeserializer extends JsonDeserializer<OpaqueData> {
-		@Override
-		public OpaqueData deserialize(JsonParser p, DeserializationContext ctxt)
-				throws IOException, JsonProcessingException {
-			ObjectCodec oc = p.getCodec();
-			JsonNode opaqueNode = oc.readTree(p);
-
-			OpaqueData data = new OpaqueData();
-			JsonNode asciiNode = opaqueNode.get("asciiValue");
-			if (asciiNode != null) {
-				data.setAsciiValue(asciiNode.asText());
-			}
-			JsonNode hexNode = opaqueNode.get("hexValue");
-			if (hexNode != null) {
-				data.setHexValue(DatatypeConverter.parseHexBinary(hexNode.asText()));
-			}
-			return data;
-		}
-	}
-    
-    private static final class PoliciesTypeJsonDeserializer extends JsonDeserializer<PoliciesType> {
-
-		@Override
-		public PoliciesType deserialize(JsonParser p, DeserializationContext ctxt)
-				throws IOException, JsonProcessingException {
-			ObjectCodec oc = p.getCodec();
-
-			TypeReference<List<Policy>> listTypeRef = new TypeReference<List<Policy>>() {};
-			List<Policy> policies = oc.readValue(p, listTypeRef);
-
-			PoliciesType policiesType = new PoliciesType();
-			policiesType.getPolicyList().addAll(policies);
-			return policiesType;
-		}
-    	
-    }
-    
-    private static final class PoliciesTypeJsonSerializer extends JsonSerializer<PoliciesType> {
-
-		@Override
-		public void serialize(PoliciesType value, JsonGenerator gen, SerializerProvider serializers)
-				throws IOException {
-			List<Policy> policies = value.getPolicyList();
-			if ((policies != null) && !policies.isEmpty()) {
-				gen.writeStartArray();
-				for (Policy policy : policies) {
-					gen.writeObject(policy);
-				}
-				gen.writeEndArray();
-			}
-		}
-    	
-    }
-    
-    private static final class LinksTypeJsonDeserializer extends JsonDeserializer<LinksType> {
-
-		@Override
-		public LinksType deserialize(JsonParser p, DeserializationContext ctxt)
-				throws IOException, JsonProcessingException {
-			ObjectCodec oc = p.getCodec();
-
-			TypeReference<List<Link>> listTypeRef = new TypeReference<List<Link>>() {};
-			List<Link> links = oc.readValue(p, listTypeRef);
-
-			LinksType linksType = new LinksType();
-			linksType.getLinkList().addAll(links);
-			return linksType;
-		}
-    	
-    }
-    
-    private static final class LinksTypeJsonSerializer extends JsonSerializer<LinksType> {
-
-		@Override
-		public void serialize(LinksType value, JsonGenerator gen, SerializerProvider serializers)
-				throws IOException {
-			List<Link> links = value.getLinkList();
-			if ((links != null) && !links.isEmpty()) {
-				gen.writeStartArray();
-				for (Link link : links) {
-					gen.writeObject(link);
-				}
-				gen.writeEndArray();
-			}
-		}
-    	
-    }
-    
-    private static final class FiltersTypeJsonDeserializer extends JsonDeserializer<FiltersType> {
-
-		@Override
-		public FiltersType deserialize(JsonParser p, DeserializationContext ctxt)
-				throws IOException, JsonProcessingException {
-			ObjectCodec oc = p.getCodec();
-
-			TypeReference<List<Filter>> listTypeRef = new TypeReference<List<Filter>>() {};
-			List<Filter> filters = oc.readValue(p, listTypeRef);
-
-			FiltersType filtersType = new FiltersType();
-			filtersType.getFilterList().addAll(filters);
-			return filtersType;
-		}
-    	
-    }
-    
-    private static final class FiltersTypeJsonSerializer extends JsonSerializer<FiltersType> {
-
-		@Override
-		public void serialize(FiltersType value, JsonGenerator gen, SerializerProvider serializers)
-				throws IOException {
-			List<Filter> filters = value.getFilterList();
-			if ((filters != null) && !filters.isEmpty()) {
-				gen.writeStartArray();
-				for (Filter filter : filters) {
-					gen.writeObject(filter);
-				}
-				gen.writeEndArray();
-			}
-		}
-    	
-    }
-    
-    private static final class V4AddressPoolsTypeJsonDeserializer extends JsonDeserializer<V4AddressPoolsType> {
-
-		@Override
-		public V4AddressPoolsType deserialize(JsonParser p, DeserializationContext ctxt)
-				throws IOException, JsonProcessingException {
-			ObjectCodec oc = p.getCodec();
-
-			TypeReference<List<V4AddressPool>> listTypeRef = new TypeReference<List<V4AddressPool>>() {};
-			List<V4AddressPool> pools = oc.readValue(p, listTypeRef);
-
-			V4AddressPoolsType poolsType = new V4AddressPoolsType();
-			poolsType.getPoolList().addAll(pools);
-			return poolsType;
-		}
-    	
-    }
-    
-    private static final class V4AddressPoolsTypeJsonSerializer extends JsonSerializer<V4AddressPoolsType> {
-
-		@Override
-		public void serialize(V4AddressPoolsType value, JsonGenerator gen, SerializerProvider serializers)
-				throws IOException {
-			List<V4AddressPool> pools = value.getPoolList();
-			if ((pools != null) && !pools.isEmpty()) {
-				gen.writeStartArray();
-				for (V4AddressPool pool : pools) {
-					gen.writeObject(pool);
-				}
-				gen.writeEndArray();
-			}
-		}
-    	
-    }
-    
-    private static final class V6AddressPoolsTypeJsonDeserializer extends JsonDeserializer<V6AddressPoolsType> {
-
-		@Override
-		public V6AddressPoolsType deserialize(JsonParser p, DeserializationContext ctxt)
-				throws IOException, JsonProcessingException {
-			ObjectCodec oc = p.getCodec();
-
-			TypeReference<List<V6AddressPool>> listTypeRef = new TypeReference<List<V6AddressPool>>() {};
-			List<V6AddressPool> pools = oc.readValue(p, listTypeRef);
-
-			V6AddressPoolsType poolsType = new V6AddressPoolsType();
-			poolsType.getPoolList().addAll(pools);
-			return poolsType;
-		}
-    	
-    }
-    
-    private static final class V6AddressPoolsTypeJsonSerializer extends JsonSerializer<V6AddressPoolsType> {
-
-		@Override
-		public void serialize(V6AddressPoolsType value, JsonGenerator gen, SerializerProvider serializers)
-				throws IOException {
-			List<V6AddressPool> pools = value.getPoolList();
-			if ((pools != null) && !pools.isEmpty()) {
-				gen.writeStartArray();
-				for (V6AddressPool pool : pools) {
-					gen.writeObject(pool);
-				}
-				gen.writeEndArray();
-			}
-		}
-    	
-    }
-    
-    private static final class V6PrefixPoolsTypeJsonDeserializer extends JsonDeserializer<V6PrefixPoolsType> {
-
-		@Override
-		public V6PrefixPoolsType deserialize(JsonParser p, DeserializationContext ctxt)
-				throws IOException, JsonProcessingException {
-			ObjectCodec oc = p.getCodec();
-
-			TypeReference<List<V6PrefixPool>> listTypeRef = new TypeReference<List<V6PrefixPool>>() {};
-			List<V6PrefixPool> pools = oc.readValue(p, listTypeRef);
-
-			V6PrefixPoolsType poolsType = new V6PrefixPoolsType();
-			poolsType.getPoolList().addAll(pools);
-			return poolsType;
-		}
-    	
-    }
-    
-    private static final class V6PrefixPoolsTypeJsonSerializer extends JsonSerializer<V6PrefixPoolsType> {
-
-		@Override
-		public void serialize(V6PrefixPoolsType value, JsonGenerator gen, SerializerProvider serializers)
-				throws IOException {
-			List<V6PrefixPool> pools = value.getPoolList();
-			if ((pools != null) && !pools.isEmpty()) {
-				gen.writeStartArray();
-				for (V6PrefixPool pool : pools) {
-					gen.writeObject(pool);
-				}
-				gen.writeEndArray();
-			}
-		}
-    	
-    }
-    
     public static <T> void xmlToJsonAndYaml(String xmlData, Class<T> xmlClass) {
     	try {
     		
@@ -3051,29 +2739,14 @@ public class DhcpServerConfiguration
     }
 
 	private static <T> void xmlObjToJson(T obj, OutputStream os) throws IOException, JsonGenerationException, JsonMappingException {
-		ObjectMapper jsonMapper = new ObjectMapper(new JsonFactory());
+		ObjectMapper jsonMapper = jacksonMapper.getJsonObjectMapper();
 		jsonMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-		jsonMapper.setSerializationInclusion(Include.NON_NULL);
-		AnnotationIntrospector jsonIntrospector =
-		    new JaxbAnnotationIntrospector(jsonMapper.getTypeFactory());   
-		jsonMapper.setAnnotationIntrospector(jsonIntrospector);
-		SimpleModule jsonModule = new SimpleModule();
-		registerJsonSerializers(jsonModule);
-		jsonMapper.registerModule(jsonModule);
-		jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
 		jsonMapper.writeValue(os, obj);
 	}
 
 	private static <T> void xmlObjToYaml(T obj, OutputStream os) throws IOException, JsonGenerationException, JsonMappingException {
-		ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+		ObjectMapper yamlMapper = jacksonMapper.getYamlObjectMapper();
 		yamlMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-		yamlMapper.setSerializationInclusion(Include.NON_NULL);
-		AnnotationIntrospector yamlIntrospector =
-		    new JaxbAnnotationIntrospector(yamlMapper.getTypeFactory());   
-		yamlMapper.setAnnotationIntrospector(yamlIntrospector);
-		SimpleModule yamlModule = new SimpleModule();
-		registerJsonSerializers(yamlModule);
-		yamlMapper.registerModule(yamlModule);
 		yamlMapper.writeValue(os, obj);
 	}
 

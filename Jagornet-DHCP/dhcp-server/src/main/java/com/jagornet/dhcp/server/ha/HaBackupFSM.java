@@ -98,8 +98,9 @@ public class HaBackupFSM implements Runnable {
 
 	@Override
 	public void run() {
-		String primaryHaState = restClient.doGet(DhcpServerStatusResource.PATH +
-		 		DhcpServerStatusResource.HASTATE);
+		String primaryHaState = 
+				restClient.doGetString(DhcpServerStatusResource.PATH +
+										DhcpServerStatusResource.HASTATE);
 		if (primaryHaState == null) {
 			log.info("Null response from HA Primary server");
 			primaryState = null;
@@ -242,7 +243,7 @@ public class HaBackupFSM implements Runnable {
 		
 		@Override
 		public void run() {
-			String status = restClient.doGet(DhcpServerStatusResource.PATH);
+			String status = restClient.doGetString(DhcpServerStatusResource.PATH);
 			if (status == null) {
 				log.error("No response to status request");
 				pollReplyTimeoutCnt++;

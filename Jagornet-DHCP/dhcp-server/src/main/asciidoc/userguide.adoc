@@ -899,17 +899,15 @@ resources are available via the API:
 ** Where `{subnet}` is the form of:
 *** DHCPv4: `10.0.0.0-24`
 *** DHCPv6: `2001:db8::0-64`
-* `[GET] dhcpleases/{ipaddress}?format=<json|gson>`
+* `[GET] dhcpleases/{ipaddress}
 ** Where `{ipaddress}` is the form of:
 *** DHCPv4: `10.0.0.10`
 *** DHCPv6: `2001:db8::10`
 * `[GET] dhcpleases/ips[?start={start-ipaddress}&end={end-ipaddress}]`
 * `[GET] dhcpleases/ipstream[?start={start-ipaddress}&end={end-ipaddress}]`
-* `[GET] dhcpleases/dhcpleasestream?fomat=<json|gson>[&start={start-ipaddress}&end={end-ipaddress}]`
-** `[GET] dhcpleases/jsonleasestream[?start={start-ipaddress}&end={end-ipaddress}]`
-** `[GET] dhcpleases/gsonleasestream[?start={start-ipaddress}&end={end-ipaddress}]`
-* `[POST] dhcpleases?format=<json|gson>`
-* `[PUT] dhcpleases/{ipaddress}?format=<json|gson>`
+* `[GET] dhcpleases/dhcpleasestream[?start={start-ipaddress}&end={end-ipaddress}]`
+* `[POST] dhcpleases`
+* `[PUT] dhcpleases/{ipaddress}`
 * `[DELETE] dhcpleases/{ipaddress}`
 
 .REST API Policies

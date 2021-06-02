@@ -33,17 +33,15 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.db.DhcpLease;
 import com.jagornet.dhcp.server.rest.JerseyRestServer;
+import com.jagornet.dhcp.server.rest.api.ObjectMapperContextResolver;
 
 public class JerseyRestClient {
 
 	private static Logger log = LoggerFactory.getLogger(JerseyRestClient.class);
-
-	private static Gson gson = new Gson();
 	
 	private String host;
 	private int port;
@@ -115,6 +113,8 @@ public class JerseyRestClient {
 		    
 		    clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
 		    clientConfig.connectorProvider(new ApacheConnectorProvider());
+		    // this handles the special processing for hex data on the client
+		    clientConfig.register(new ObjectMapperContextResolver());
 		    
 		    // TODO: consider two policies or rename current policy?
 			int timeout = DhcpServerPolicies.globalPolicyAsInt(
@@ -157,14 +157,13 @@ public class JerseyRestClient {
 		return method;
 	}
 	
-	public String doGet(String apiMethod) {
-		return this.doGet(apiMethod, null);
+	public String doGetString(String apiMethod) {
+		return this.doGetString(apiMethod, null);
 	}
 	
-	public String doGet(String apiMethod, Map<String, Object> queryParams) {
+	public String doGetString(String apiMethod, Map<String, Object> queryParams) {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
-		// accept text/plain response data
-		Invocation.Builder builder = method.request(MediaType.TEXT_PLAIN);
+		Invocation.Builder builder = method.request();
 		log.debug("Invoking sync get on: " + method.getUri());
 		try {
 			// keep it generic here by using primitives
@@ -177,116 +176,25 @@ public class JerseyRestClient {
 		}
 	}
 	
-/*
- * Just use doGet methods instead of doGetString and doGetDhcpLease
- * 
-	public String doGetString(String apiMethod) {
-		return this.doGetString(apiMethod, null);
-	}
-	
-	public String doGetString(String apiMethod, String format) {
+	public DhcpLease doGetDhcpLease(String apiMethod, Map<String, Object> queryParams) {
+		WebTarget method = buildWebTarget(apiMethod, queryParams);
+		Invocation.Builder builder = method.request();
+		log.debug("Invoking sync get on: " + method.getUri());
 		try {
-			// invoke HTTP GET synchronously, and read the response string
-			// get will throw exception if response is not a string
-			log.debug("Invoking sync get String on: " + apiMethod +
-					  " format=" + format);
-			String response;
-			if (format != null) {
-				response = getApiRootTarget()
-							.path(apiMethod)
-							.queryParam("format", format)
-							.request(MediaType.TEXT_PLAIN)
-							.get(String.class);
-			}
-			else { 
-				response = getApiRootTarget()
-							.path(apiMethod)
-							.request(MediaType.TEXT_PLAIN)
-							.get(String.class);
-			}				
-			log.debug("Response: " + response);
-			return response;
+			return builder.get(DhcpLease.class);
 		}
 		catch (Exception ex) {
-			log.error("Failed to process sync get String: " + ex);
+			log.error(apiMethod + " sync get failed: " + ex);
 			return null;
 		}
 	}
-	
-	public DhcpLease doGetDhcpLease(String apiMethod) {
-		return this.doGetDhcpLease(apiMethod, null);
-	}
-	
-	public DhcpLease doGetDhcpLease(String apiMethod, String format) {
-		try {
-			// invoke HTTP GET synchronously, and read the response data
-			// get will throw exception if response is not a DhcpLease
-			log.debug("Invoking sync get DhcpLease on: " + apiMethod +
-					  " format=" + format);
-			DhcpLease dhcpLease = null;
-			if ((format != null) && format.equalsIgnoreCase("json")) {
-				Response response = getApiRootTarget()
-										.path(apiMethod)
-										.queryParam("format", format)
-										.request(MediaType.APPLICATION_JSON)
-										.get();
-				log.debug("Response: " + response);
-				if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-					Reader reader = new InputStreamReader((InputStream)response.getEntity());
-					dhcpLease = DhcpLease.fromJson(reader);
-				}				
-			}
-			else if ((format != null) && format.equalsIgnoreCase("gson")) {
-				Response response = getApiRootTarget()
-										.path(apiMethod)
-										.queryParam("format", format)
-										.request(MediaType.APPLICATION_JSON)
-										.get();
-				log.debug("Response: " + response);
-				if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-					Reader reader = new InputStreamReader((InputStream)response.getEntity());
-					dhcpLease = gson.fromJson(reader, DhcpLease.class);
-				}
-			}
-			else {
-				DhcpLeaseJson leaseJson = getApiRootTarget()
-											.path(apiMethod)
-											.request(MediaType.APPLICATION_JSON)
-											.get(DhcpLeaseJson.class);
-				dhcpLease = leaseJson.toDhcpLease();
-			}
-			return dhcpLease;
-		}
-		catch (Exception ex) {
-			log.error("Failed to process sync get DhcpLease: " + ex);
-			return null;
-		}
-	}
- */
-	
 	
 	public InputStream doGetStream(String apiMethod, Map<String, Object> queryParams) {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
-		// accept text/plain response data
-		Invocation.Builder invocationBuilder = method.request(MediaType.TEXT_PLAIN);
+		Invocation.Builder invocationBuilder = method.request();
 		try {
 			log.debug("Invoking stream get on: '" + method.getUri());
 			InputStream responseStream = invocationBuilder.get(InputStream.class);
-//			StringBuilder sb = new StringBuilder();
-//			int c = responseStream.read();
-//			while (c != -1) {
-//				log.debug("ResponseStream: availableByteCount=" + responseStream.available());
-//				log.debug("char=" + c);
-//				if (c != 10) {	// line separator
-//					sb.append((char)c);
-//				}
-//				else {
-//					log.debug("IP=" + sb.toString());
-//					sb.setLength(0);
-//				}
-//				c = responseStream.read();
-//			}
-//			return null;
 			return responseStream;
 		}
 		catch (Exception ex) {
@@ -295,17 +203,16 @@ public class JerseyRestClient {
 		}
 	}
 	
-	public Future<String> doGetAsync(String apiMethod,
+	public Future<String> doGetAsyncString(String apiMethod,
 									 InvocationCallback<String> callback) {
-		return this.doGetAsync(apiMethod, callback, null);
+		return this.doGetAsyncString(apiMethod, callback, null);
 	}	
 	
-	public Future<String> doGetAsync(String apiMethod,
+	public Future<String> doGetAsyncString(String apiMethod,
 									 InvocationCallback<String> callback,
 									 Map<String, Object> queryParams) {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
-		// accept text/plain response data
-		Invocation.Builder builder = method.request(MediaType.TEXT_PLAIN);
+		Invocation.Builder builder = method.request();
 		log.debug("Invoking sync get on: " + method.getUri());
 		try {
 			// keep it generic here by using primitives
@@ -318,11 +225,31 @@ public class JerseyRestClient {
 		}
 	}
 	
-	public String doPut(String apiMethod, String data) {
-		return this.doPut(apiMethod, data, null);
+	public Future<DhcpLease> doGetAsyncDhcpLease(String apiMethod,
+									 InvocationCallback<DhcpLease> callback) {
+		return this.doGetAsyncDhcpLease(apiMethod, callback, null);
+	}	
+	
+	public Future<DhcpLease> doGetAsyncDhcpLease(String apiMethod,
+									 InvocationCallback<DhcpLease> callback,
+									 Map<String, Object> queryParams) {
+		WebTarget method = buildWebTarget(apiMethod, queryParams);
+		Invocation.Builder builder = method.request();
+		log.debug("Invoking sync get on: " + method.getUri());
+		try {
+			return builder.async().get(callback);
+		}
+		catch (Exception ex) {
+			log.error(apiMethod + " async get failed: " + ex);
+			return null;
+		}
 	}
 	
-	public String doPut(String apiMethod, String data,
+	public String doPutString(String apiMethod, String data) {
+		return this.doPutString(apiMethod, data, null);
+	}
+	
+	public String doPutString(String apiMethod, String data,
 			 			Map<String, Object> queryParams) {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
 		Invocation.Builder invocationBuilder = method.request(MediaType.TEXT_PLAIN);
@@ -334,17 +261,39 @@ public class JerseyRestClient {
 			return response;
 		}
 		catch (Exception ex) {
-			log.error(apiMethod + " sync put failed: " + ex);
+			log.error(apiMethod + " sync put failed", ex);
 			return null;
 		}
 	}
 	
-	public Future<String> doPutAsync(String apiMethod, String data, 
-									 InvocationCallback<String> callback) {
-		return this.doPutAsync(apiMethod, data, callback, null);
+	public DhcpLease doPutDhcpLease(String apiMethod, DhcpLease dhcpLease) {
+		return this.doPutDhcpLease(apiMethod, dhcpLease, null);
 	}
 	
-	public Future<String> doPutAsync(String apiMethod, String data, 
+	public DhcpLease doPutDhcpLease(String apiMethod, DhcpLease dhcpLease,
+			 			Map<String, Object> queryParams) {
+		WebTarget method = buildWebTarget(apiMethod, queryParams);
+		Invocation.Builder invocationBuilder = method.request(MediaType.APPLICATION_JSON);
+		try {
+			log.debug("Invoking sync put on: " + method.getUri());
+			DhcpLease responseDhcpLease = invocationBuilder.put(
+					Entity.entity(dhcpLease, MediaType.APPLICATION_JSON),
+					DhcpLease.class);
+			log.debug("Response DhcpLease: " + responseDhcpLease);
+			return responseDhcpLease;
+		}
+		catch (Exception ex) {
+			log.error(apiMethod + " sync put failed", ex);
+			return null;
+		}
+	}
+	
+	public Future<String> doPutAsyncString(String apiMethod, String data, 
+									 InvocationCallback<String> callback) {
+		return this.doPutAsyncString(apiMethod, data, callback, null);
+	}
+	
+	public Future<String> doPutAsyncString(String apiMethod, String data, 
 									 InvocationCallback<String> callback,
 							 		 Map<String, Object> queryParams) {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
@@ -355,11 +304,27 @@ public class JerseyRestClient {
         return entityFuture;
 	}
 	
-	public String doPost(String apiMethod, String data) {
-		return this.doPost(apiMethod, data, null);
+	public Future<DhcpLease> doPutAsyncDhcpLease(String apiMethod, DhcpLease dhcpLease, 
+									 InvocationCallback<DhcpLease> callback) {
+		return this.doPutAsyncDhcpLease(apiMethod, dhcpLease, callback, null);
 	}
 	
-	public String doPost(String apiMethod, String data,
+	public Future<DhcpLease> doPutAsyncDhcpLease(String apiMethod, DhcpLease dhcpLease, 
+									 InvocationCallback<DhcpLease> callback,
+							 		 Map<String, Object> queryParams) {
+		WebTarget method = buildWebTarget(apiMethod, queryParams);
+		// accept text/plain response data
+		Invocation.Builder invocationBuilder = method.request();
+        Future<DhcpLease> entityFuture = invocationBuilder.async().put(
+				Entity.entity(dhcpLease, MediaType.APPLICATION_JSON), callback);
+        return entityFuture;
+	}
+	
+	public String doPostString(String apiMethod, String data) {
+		return this.doPostString(apiMethod, data, null);
+	}
+	
+	public String doPostString(String apiMethod, String data,
 	 		 			 Map<String, Object> queryParams) {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
 		Invocation.Builder invocationBuilder = method.request(MediaType.TEXT_PLAIN);
@@ -373,6 +338,28 @@ public class JerseyRestClient {
 					Entity.entity(data, MediaType.TEXT_PLAIN), String.class);
 			log.debug("Response: " + response);
 			return response;
+		}
+		catch (Exception ex) {
+			log.error(apiMethod + " sync post failed: " + ex);
+			return null;
+		}
+	}
+	
+	public DhcpLease doPostDhcpLease(String apiMethod, DhcpLease dhcpLease) {
+		return this.doPostDhcpLease(apiMethod, dhcpLease, null);
+	}
+	
+	public DhcpLease doPostDhcpLease(String apiMethod, DhcpLease dhcpLease,
+	 		 			 Map<String, Object> queryParams) {
+		WebTarget method = buildWebTarget(apiMethod, queryParams);
+		Invocation.Builder invocationBuilder = method.request();
+		try {
+			log.debug("Invoking sync post on: " + method.getUri());
+			DhcpLease responseDhcpLease = invocationBuilder.post(
+					Entity.entity(dhcpLease, MediaType.APPLICATION_JSON),
+					DhcpLease.class);
+			log.debug("Response DhcpLease: " + responseDhcpLease);
+			return responseDhcpLease;
 		}
 		catch (Exception ex) {
 			log.error(apiMethod + " sync post failed: " + ex);
@@ -394,12 +381,12 @@ public class JerseyRestClient {
 	}
 	*/
 
-	public Future<String> doPostAsync(String apiMethod, String data, 
+	public Future<String> doPostAsyncString(String apiMethod, String data, 
 									  InvocationCallback<String> callback) {
-		return this.doPostAsync(apiMethod, data, callback, null);
+		return this.doPostAsyncString(apiMethod, data, callback, null);
 	}
 	
-	public Future<String> doPostAsync(String apiMethod, String data, 
+	public Future<String> doPostAsyncString(String apiMethod, String data, 
 									  InvocationCallback<String> callback,
 								 	  Map<String, Object> queryParams) {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
@@ -411,7 +398,23 @@ public class JerseyRestClient {
         return entityFuture;
 	}
 
-	public String doDelete(String apiMethod) {
+	public Future<DhcpLease> doPostAsyncDhcpLease(String apiMethod, DhcpLease dhcpLease, 
+									  InvocationCallback<DhcpLease> callback) {
+		return this.doPostAsyncDhcpLease(apiMethod, dhcpLease, callback, null);
+	}
+	
+	public Future<DhcpLease> doPostAsyncDhcpLease(String apiMethod, DhcpLease dhcpLease, 
+									  InvocationCallback<DhcpLease> callback,
+								 	  Map<String, Object> queryParams) {
+		WebTarget method = buildWebTarget(apiMethod, queryParams);
+		Invocation.Builder invocationBuilder = method.request();
+		log.debug("Invoking async post on: " + method.getUri());
+        Future<DhcpLease> entityFuture = invocationBuilder.async().post(
+				Entity.entity(dhcpLease, MediaType.APPLICATION_JSON), callback);
+        return entityFuture;
+	}
+
+	public String doDeleteString(String apiMethod) {
 		WebTarget api = getApiRootTarget();
 		WebTarget method = api.path(apiMethod);
 		// accept text/plain response data
@@ -429,14 +432,41 @@ public class JerseyRestClient {
 			return null;
 		}
 	}
+
+	public DhcpLease doDeleteDhcpLease(String apiMethod) {
+		WebTarget api = getApiRootTarget();
+		WebTarget method = api.path(apiMethod);
+		// accept text/plain response data
+		Invocation.Builder invocationBuilder = method.request();
+		try {
+			log.debug("Invoking sync delete on: " + method.getUri());
+			DhcpLease response = invocationBuilder.delete(DhcpLease.class);
+			log.debug("Response: " + response);
+			return response;
+		}
+		catch (Exception ex) {
+			log.error("Failed to process sync delete: " + ex);
+			return null;
+		}
+	}
 	
-	public Future<String> doDeleteAsync(String apiMethod,
+	public Future<String> doDeleteAsyncString(String apiMethod,
 										InvocationCallback<String> callback) {
 		WebTarget api = getApiRootTarget();
 		WebTarget method = api.path(apiMethod);
 		// accept text/plain response data
 		Invocation.Builder invocationBuilder = method.request(MediaType.TEXT_PLAIN);
         Future<String> entityFuture = invocationBuilder.async().delete(callback);
+        return entityFuture;
+	}
+	
+	public Future<DhcpLease> doDeleteAsyncDhcpLease(String apiMethod,
+										InvocationCallback<DhcpLease> callback) {
+		WebTarget api = getApiRootTarget();
+		WebTarget method = api.path(apiMethod);
+		// accept text/plain response data
+		Invocation.Builder invocationBuilder = method.request();
+        Future<DhcpLease> entityFuture = invocationBuilder.async().delete(callback);
         return entityFuture;
 	}
 	
@@ -469,7 +499,7 @@ public class JerseyRestClient {
 			JerseyRestClient client = new JerseyRestClient(host, port, username, password);
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("format", format);
-			String response = client.doGet(api, params);
+			String response = client.doGetString(api, params);
 			System.out.println("String: " + response);
 			
 			DhcpLease dhcpLease = null;
@@ -477,7 +507,8 @@ public class JerseyRestClient {
 				dhcpLease = DhcpLease.fromJson(response);
 			}
 			else if ("gson".equals(format)) {
-				dhcpLease = gson.fromJson(response, DhcpLease.class);
+//				dhcpLease = gson.fromJson(response, DhcpLease.class);
+				System.err.println("No longer implemented");
 			}
 			System.out.println("DhcpLease: " + dhcpLease);
 		} catch (Exception e) {

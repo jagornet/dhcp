@@ -12,15 +12,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jagornet.dhcp.server.db.BaseTestCase;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
+import com.jagornet.dhcp.server.rest.api.JacksonObjectMapper;
 
 public class TestBindingSerialization extends BaseTestCase {
 
-	Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	ObjectMapper objectMapper = new JacksonObjectMapper().getJsonObjectMapper();
 	IdentityAssoc v4IA;
 
 	@BeforeClass
@@ -73,10 +73,10 @@ public class TestBindingSerialization extends BaseTestCase {
 	}
 
 	@Test
-	public void test() {
-		String json = gson.toJson(v4IA);
+	public void test() throws Exception {
+		String json = objectMapper.writeValueAsString(v4IA);
 		System.out.println(json);
-		IdentityAssoc ia = gson.fromJson(json, IdentityAssoc.class);
+		IdentityAssoc ia = objectMapper.readValue(json, IdentityAssoc.class);
 		Assert.assertEquals(v4IA, ia);
 	}
 

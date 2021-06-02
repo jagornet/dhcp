@@ -26,8 +26,9 @@ import javax.ws.rs.core.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jagornet.dhcp.server.db.DhcpLease;
 import com.jagornet.dhcp.server.db.DhcpLeaseCallbackHandler;
 import com.jagornet.dhcp.server.db.InetAddressCallbackHandler;
@@ -42,25 +43,22 @@ public class DhcpLeasesResource {
 	public static final String PATHPARAM_IPADDRESS = "ipaddress";
 	public static final String IPADDRESS = "/{" + PATHPARAM_IPADDRESS + "}";
 	public static final String IPSTREAM = "/ipstream";
-	public static final String DHCPLEASESSTREAM = "/dhcpleasestream";
-	public static final String JSONLEASESTREAM = "/jsonleasestream";
-	public static final String GSONLEASESTREAM = "/gsonleasestream";
+	public static final String DHCPLEASESTREAM = "/dhcpleasestream";
 
 	public static final String QUERYPARAM_START = "start";
 	public static final String QUERYPARAM_END = "end";
-	public static final String QUERYPARAM_FORMAT = "format";
 	public static final String QUERYPARAM_HAUPDATE = "haupdate";
 	public static final String QUERYPARAM_HAUPDATE_ALL = "all";
 	public static final String QUERYPARAM_HAUPDATE_UNSYNCED = "unsynced";
 
 	private DhcpLeasesService leasesService;
 	private DhcpServerStatusService statusService;
-	private Gson gson;
+	private ObjectMapper objectMapper;
 	
 	public DhcpLeasesResource() {
 		leasesService = new DhcpLeasesService();
 		statusService = new DhcpServerStatusService();
-		gson = new Gson();
+		objectMapper = new JacksonObjectMapper().getJsonObjectMapper();
 	}
 
 	public static String buildPostPath(String ip) {
@@ -81,11 +79,13 @@ public class DhcpLeasesResource {
     								@QueryParam(QUERYPARAM_END) String end) {
     	// this will be served at http://localhost/dhcpleases
     	try {
+    		log.debug("getDhcpLeaseIps: start=" + start + " end=" + end);
         	StringBuilder sb = new StringBuilder();
     		List<InetAddress> ips = leasesService.getRangeLeaseIPs(start, end);
         	if ((ips != null) && !ips.isEmpty()) {
         		for (InetAddress ip : ips) {
-    				sb.append(ip.getHostAddress()).append(System.lineSeparator());
+    				sb.append(ip.getHostAddress())
+    					.append(System.lineSeparator());
     			}
         	}
         	return Response.ok(sb.toString()).build();
@@ -108,6 +108,7 @@ public class DhcpLeasesResource {
     	 * that confirms that implementation below does not leak file descriptors
     	 */
 		try {
+    		log.debug("getDhcpLeaseIpStream: start=" + start + " end=" + end);
 			StreamingOutput stream = new StreamingOutput() {
 				@Override
 				public void write(OutputStream os) throws IOException, WebApplicationException {
@@ -133,19 +134,15 @@ public class DhcpLeasesResource {
 
     @GET
     @Secured	// registration AuthenticationFilter
-    @Path(DHCPLEASESSTREAM)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Path(DHCPLEASESTREAM)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
 			   						   @QueryParam(QUERYPARAM_END) String end,
-		    						   @QueryParam(QUERYPARAM_FORMAT) String format,
 		    						   @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
-    	Response response = null;
-    	if ("gson".equalsIgnoreCase(format)) {
-    		response = getGsonDhcpLeaseStream(start, end, haUpdate);
-    	}
-    	else { // default if ("json".equalsIgnoreCase(format)){
-    		response = getJsonDhcpLeaseStream(start, end, haUpdate);
-    	}
+
+		log.debug("getDhcpLeaseIps: start=" + start + " end=" + end);
+    	// this will be served at http://localhost/dhcpleases/dhcpleasestream
+    	Response response = getJsonDhcpLeaseStream(start, end, haUpdate);
     	
 		//TODO: consider this implementation - hack to set HA FSM state?
     	if ((haUpdate != null) &&
@@ -154,15 +151,8 @@ public class DhcpLeasesResource {
     	}
     	return response;
     }
-    
-    @GET
-    @Secured	// registration AuthenticationFilter
-    @Path(JSONLEASESTREAM)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response getJsonDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
-			 							   @QueryParam(QUERYPARAM_END) String end,
-			    						   @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
-    	// this will be served at http://localhost/dhcpleases/jsonleasestream
+
+    protected Response getJsonDhcpLeaseStream(String start, String end, String haUpdate) {
     	final boolean unsyncedLeasesOnly = 
     			QUERYPARAM_HAUPDATE_UNSYNCED.equalsIgnoreCase(haUpdate) ? true : false;
     	/*
@@ -170,19 +160,23 @@ public class DhcpLeasesResource {
     	 * that confirms that implementation below does not leak file descriptors
     	 */
     	try {
+    		log.debug("getJsonDhcpLeaseStream: start=" + start + " end=" + end);
 			StreamingOutput stream = new StreamingOutput() {
 				@Override
 				public void write(OutputStream os) throws IOException, WebApplicationException {
-					Writer writer = new BufferedWriter(new OutputStreamWriter(os));
-					leasesService.getRangeLeases(start, end, 
+					JsonFactory factory = objectMapper.getFactory();
+					JsonGenerator generator = factory.createGenerator(os);
+					generator.writeStartArray();
+					leasesService.getRangeLeases(start, end,
 							new DhcpLeaseCallbackHandler() {
 						@Override
 						public void processDhcpLease(DhcpLease dhcpLease) throws Exception {
-							writer.write(dhcpLease.toJson());
-							writer.write(System.lineSeparator());
-							writer.flush();  // important to flush
+							generator.writeObject(dhcpLease);
+							generator.flush();
 						}
 					}, unsyncedLeasesOnly);
+					generator.writeEndArray();
+					generator.close();
 			    }
 			};
 			return Response.ok(stream).build();    	
@@ -195,80 +189,15 @@ public class DhcpLeasesResource {
     
     @GET 
     @Secured	// registration AuthenticationFilter
-    @Path(GSONLEASESTREAM)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response getGsonDhcpLeaseStream(@QueryParam(QUERYPARAM_START) String start,
-			   							   @QueryParam(QUERYPARAM_END) String end,
-			    						   @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
-    	// this will be served at http://localhost/dhcpleases/gsonleasestream
-    	final boolean unsyncedLeasesOnly = 
-    			QUERYPARAM_HAUPDATE_UNSYNCED.equalsIgnoreCase(haUpdate) ? true : false;
-    	/*
-    	 * See commented code in BaseAddrBindingManager.ReaperTimerTask.run
-    	 * that confirms that implementation below does not leak file descriptors
-    	 */
-    	try {
-			StreamingOutput stream = new StreamingOutput() {
-				@Override
-				public void write(OutputStream os) throws IOException, WebApplicationException {
-					JsonWriter writer = new JsonWriter(new OutputStreamWriter(os));
-					writer.beginArray();
-					leasesService.getRangeLeases(start, end,
-							new DhcpLeaseCallbackHandler() {
-						@Override
-						public void processDhcpLease(DhcpLease dhcpLease) throws Exception {
-							gson.toJson(dhcpLease, DhcpLease.class, writer);
-						}
-					}, unsyncedLeasesOnly);
-					writer.endArray();
-					writer.close();
-			    }
-			};
-			return Response.ok(stream).build();    	
-    	}
-    	catch (Exception ex) {
-			log.error("Exception caught in getGsonDhcpLeaseStream", ex);
-			return Response.serverError().entity(ex).build();
-    	}
-    }
-    
-    @GET 
-    @Secured	// registration AuthenticationFilter
-//  @Path(PATH_IPS_IPADDRESS)
     @Path(IPADDRESS)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public DhcpLease getDhcpLease(@PathParam("ipaddress") String ipAddress) 
-//    		throws UnknownHostException {
-//		return service.getDhcpLease(InetAddress.getByName(ipAddress));
-//    }
-//    @Produces(MediaType.TEXT_PLAIN)	// JSON?
-//    @Produces(MediaType.APPLICATION_JSON)
-    public Response getDhcpLease(@PathParam(PATHPARAM_IPADDRESS) String ipAddress,
-    							 @QueryParam(QUERYPARAM_FORMAT) String format) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDhcpLease(@PathParam(PATHPARAM_IPADDRESS) String ipAddress) {
     	// this will be served at http://localhost/dhcpleases/{ipaddress}
     	try {
+    		log.debug("getDhcpLease: ipAddress=" + ipAddress);
 			DhcpLease dhcpLease = leasesService.getDhcpLease(InetAddress.getByName(ipAddress));
 			if (dhcpLease != null) {
-				Object leaseJson = null;
-				if ((format != null) && format.equalsIgnoreCase("json")) {
-					leaseJson = dhcpLease.toJson();
-				}
-				else if ((format != null) && format.equalsIgnoreCase("gson")) {
-					leaseJson = gson.toJson(dhcpLease);
-				}
-				else {
-					// this DhcpLeaseJson object will be
-					// auto-marshalled to JSON via the
-					// ResponseBuilder below, which is needed
-					// because the auto-marshalling does not
-					// handle the InetAddress of DhcpLease
-					leaseJson = new DhcpLeaseJson(dhcpLease);
-				}
-			    return Response
-			    	      .status(Response.Status.OK)
-			    	      .entity(leaseJson)
-			    	      .type(MediaType.APPLICATION_JSON)
-			    	      .build();
+				return Response.ok(dhcpLease).build();
 			}
 			else {
 				return Response.status(Response.Status.NOT_FOUND)
@@ -284,48 +213,32 @@ public class DhcpLeasesResource {
 
     @POST 
     @Secured	// registration AuthenticationFilter
-//    @Path(PATH_IPS)
-//    @Consumes(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response postDhcpLease(String dhcpLeasePostData,
-    							  @QueryParam(QUERYPARAM_FORMAT) String format,
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response postDhcpLease(DhcpLease dhcpLease,
     							  @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
     	try {
-    		DhcpLease postedDhcpLease = buildDhcpLeaseFromJson(format, dhcpLeasePostData);
-        	if (postedDhcpLease != null) {
+    		log.debug("postDhcpLease: data=" + dhcpLease);
+        	if (dhcpLease != null) {
         		if ("true".equalsIgnoreCase(haUpdate)) {
         			// if this update is from the HA peer, then we are
         			// syncing the lease, so set the haPeerState=state
-        			postedDhcpLease.setHaPeerState(postedDhcpLease.getState());
+        			dhcpLease.setHaPeerState(dhcpLease.getState());
         		}
-        		/*
-        		 * POST should be for create only, use PUT for create/update
-        		 * 
-	    		InetAddress inetAddr = postedDhcpLease.getIpAddress();
-	    		DhcpLease existingDhcpLease = service.getDhcpLease(inetAddr);
-	    		if (existingDhcpLease != null) {
-	    			service.updateDhcpLease(inetAddr, postedDhcpLease);
-	    			// TODO: what if update fails? just fall-through to catch exception?
-	    			return buildResponse(format, postedDhcpLease);
-	    		}
-	    		else {
-	    		*/
-	    	    	if (leasesService.createDhcpLease(postedDhcpLease)) {
-	        			return buildResponseFromDhcpLease(format, postedDhcpLease);	    	    		
-	    	    	}
-	    	    	else {
-	    	    		return Response
-	    	    				.serverError()
-	    	    				.entity("POST - createDhcpLease failed!")
-	    	    				.build();
-	    	    	}
-	    		/* } */
+    	    	if (leasesService.createDhcpLease(dhcpLease)) {
+        			return Response.ok(dhcpLease).build();  	    		
+    	    	}
+    	    	else {
+    	    		return Response
+    	    				.serverError()
+    	    				.entity("POST - createDhcpLease failed!")
+    	    				.build();
+    	    	}
 	    	}
 	    	else {
 	    		return Response
-	    				.serverError()
-	    				.entity("POST - DhcpLease fromJson failed!")
+	    				.status(Response.Status.BAD_REQUEST)
+	    				.entity("POST - dhcpLease is null!")
 	    				.build();
 	    	}
         }
@@ -337,27 +250,25 @@ public class DhcpLeasesResource {
 	
     @PUT
     @Secured	// registration AuthenticationFilter
-//    @Path(PATH_IPS_IPADDRESS)
     @Path(IPADDRESS)
-//    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response putDhcpLease(@PathParam(PATHPARAM_IPADDRESS) String ipAddress,
-				    		 	 String dhcpLeasePostData,
-				    		 	 @QueryParam(QUERYPARAM_FORMAT) String format,
+				    		 	 DhcpLease dhcpLease,
 				    		 	 @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
 		try {
-			DhcpLease postedDhcpLease = buildDhcpLeaseFromJson(format, dhcpLeasePostData);
-			if (postedDhcpLease != null) {
+    		log.debug("putDhcpLease: data=" + dhcpLease);
+			if (dhcpLease != null) {
 				if ("true".equalsIgnoreCase(haUpdate)) {
 					// if this update is from the HA peer, then we are
 					// syncing the lease, so set the haPeerState=state
-					postedDhcpLease.setHaPeerState(postedDhcpLease.getState());
+					dhcpLease.setHaPeerState(dhcpLease.getState());
 				}
-				InetAddress inetAddr = postedDhcpLease.getIpAddress();
+				InetAddress inetAddr = dhcpLease.getIpAddress();
 				DhcpLease existingDhcpLease = leasesService.getDhcpLease(inetAddr);
 				if (existingDhcpLease != null) {
-					if (leasesService.updateDhcpLease(inetAddr, postedDhcpLease)) {
-						// TODO: what if update fails? just fall-through to catch exception?
-						return buildResponseFromDhcpLease(format, postedDhcpLease);
+					if (leasesService.updateDhcpLease(inetAddr, dhcpLease)) {
+						return Response.ok(dhcpLease).build();
 					}
 					else {
 						return Response
@@ -367,8 +278,9 @@ public class DhcpLeasesResource {
 					}
 				}
 				else {
-					if (leasesService.createDhcpLease(postedDhcpLease)) {
-						return buildResponseFromDhcpLease(format, postedDhcpLease);	    	    		
+					log.debug("PUT called with new lease");
+					if (leasesService.createDhcpLease(dhcpLease)) {
+						return Response.ok(dhcpLease).build();	    	    		
 					}
 					else {
 						return Response
@@ -379,29 +291,32 @@ public class DhcpLeasesResource {
 				}
 			}
 			else {
-				return Response
-					.serverError()
-					.entity("PUT - buildDhcpLeaseFromJson failed!")
-					.build();
+	    		return Response
+	    				.status(Response.Status.BAD_REQUEST)
+	    				.entity("PUT - dhcpLease is null!")
+	    				.build();
 			}
 		}
 		catch (Exception ex) {
-			log.error("Exception caught in postDhcpLease", ex);
+			log.error("Exception caught in putDhcpLease", ex);
 			return Response.serverError().entity(ex).build();
 		}
     }
  
     @DELETE
     @Secured	// registration AuthenticationFilter
-//    @Path(PATH_IPS_IPADDRESS)
     @Path(IPADDRESS)
     public Response deleteDhcpLease(@PathParam(PATHPARAM_IPADDRESS) String ipAddress) {
     	try {
+    		log.debug("deleteDhcpLease: ipAddress=" + ipAddress);
     		if (leasesService.deleteDhcpLease(InetAddress.getByName(ipAddress))) {
     			return Response.ok().build();
     		}
     		else {
-    			return Response.serverError().build();
+				return Response
+						.serverError()
+						.entity("DELETE - deleteDhcpLease failed!")
+						.build();
     		}
 		}
 		catch (Exception ex) {
@@ -409,32 +324,5 @@ public class DhcpLeasesResource {
 			return Response.serverError().entity(ex).build();
 		}
     }
-    
-
-    private DhcpLease buildDhcpLeaseFromJson(String format, String dhcpLeaseData) {
-		DhcpLease dhcpLease = null;
-    	if ("gson".equalsIgnoreCase(format)) {
-    		dhcpLease = gson.fromJson(dhcpLeaseData, DhcpLease.class);
-    	}
-    	else { // default if ("json".equalsIgnoreCase(format)){
-    		dhcpLease = DhcpLease.fromJson(dhcpLeaseData); 
-    	}
-    	return dhcpLease;
-    }
-    
-	private Response buildResponseFromDhcpLease(String format, DhcpLease postedDhcpLease) {
-		String response = null;
-		if ("gson".equalsIgnoreCase(format)) {
-			response = gson.toJson(postedDhcpLease);
-		}
-		else { // default if ("json".equalsIgnoreCase(format)){
-			response = postedDhcpLease.toJson();
-		}
-		return Response
-					.status(Response.Status.OK)
-					.entity(response)
-					.type(MediaType.APPLICATION_JSON)
-					.build();
-	}
     
 }

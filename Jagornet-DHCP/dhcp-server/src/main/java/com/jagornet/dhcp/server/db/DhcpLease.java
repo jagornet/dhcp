@@ -28,7 +28,6 @@ package com.jagornet.dhcp.server.db;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,6 +43,8 @@ import com.jagornet.dhcp.core.util.Util;
 
 public class DhcpLease implements Cloneable
 {
+//	private static Logger log = LoggerFactory.getLogger(DhcpLease.class);
+	
 	protected InetAddress ipAddress;
 	protected byte[] duid;
 	protected byte iatype;
@@ -398,51 +399,113 @@ public class DhcpLease implements Cloneable
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
+//		log.debug("this != obj");
 		if (obj == null)
 			return false;
+//		log.debug("obj != null");
 		if (getClass() != obj.getClass())
 			return false;
+//		log.debug("this.class == obj.class");
 		DhcpLease other = (DhcpLease) obj;
 		if (!Arrays.equals(duid, other.duid))
 			return false;
+//		log.debug("this.duid == other.duid");
 		if (iaAddrDhcpOptions == null) {
 			if (other.iaAddrDhcpOptions != null)
 				return false;
 		} else if (!iaAddrDhcpOptions.equals(other.iaAddrDhcpOptions))
 			return false;
+//		log.debug("this.iaAddrDhcpOptions == other.iaAddrDhcpOptions");
 		if (iaDhcpOptions == null) {
 			if (other.iaDhcpOptions != null)
 				return false;
 		} else if (!iaDhcpOptions.equals(other.iaDhcpOptions))
 			return false;
+//		log.debug("this.iaDhcpOptions == other.iaDhcpOptions");
 		if (iaid != other.iaid)
 			return false;
+//		log.debug("this.iaid == other.iaid");
 		if (iatype != other.iatype)
 			return false;
+//		log.debug("this.iatype == other.iatype");
 		if (ipAddress == null) {
 			if (other.ipAddress != null)
 				return false;
 		} else if (!ipAddress.equals(other.ipAddress))
 			return false;
+//		log.debug("this.ipAddress == other.ipAddress");
 		if (preferredEndTime == null) {
 			if (other.preferredEndTime != null)
 				return false;
 		} else if (!preferredEndTime.equals(other.preferredEndTime))
 			return false;
+//		log.debug("this.preferredEndTime == other.preferredEndTime");
 		if (startTime == null) {
-			if (other.startTime != null)
+			if (other.startTime != null) {
+//				log.debug("other.startTime != null");
 				return false;
-		} else if (!startTime.equals(other.startTime))
-			return false;
+			}
+// WTF: this is really inexplicable as to why this compare does not work, but
+// 		the evidence is seen below in the extra logging added to troubleshoot
+//		this total bizarre issue...
+//
+//			} else if (!startTime.equals(other.startTime)) {
+//			log.debug("this.startTime=" + startTime.getTime() + " != " +
+//					  "other.startTime=" + other.startTime.getTime());
+//			return false;
+//		}
+/*
+2021-05-13 22:27:35,388 [unorderedThreadPoolEventExecutor-1-10] DEBUG cli.JerseyRestClient - Invoking sync put on: https://10.9.5.100:9068/dhcpleases/10.9.1.0?haupdate=true
+2021-05-13 22:27:35,417 [unorderedThreadPoolEventExecutor-1-10] DEBUG cli.JerseyRestClient - Response DhcpLease: DhcpLease [ipAddress=10.9.1.0, duid=deb100000001, iatype=0, iaid=0, state=0, haPeerState=0, startTime=2021-05-13T22:27:35.081-0400, preferredEndTime=, validEndTime=, dhcpOptions=null, iaDhcpOptions=null, iaAddrDhcpOptions=null]
+2021-05-13 22:27:35,417 [unorderedThreadPoolEventExecutor-1-10] INFO  ha.HaPrimaryFSM - Binding update response: DhcpLease [ipAddress=10.9.1.0, duid=deb100000001, iatype=0, iaid=0, state=0, haPeerState=0, startTime=2021-05-13T22:27:35.081-0400, preferredEndTime=, validEndTime=, dhcpOptions=null, iaDhcpOptions=null, iaAddrDhcpOptions=null]
+2021-05-13 22:27:35,417 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this != obj
+2021-05-13 22:27:35,417 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - obj != null
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.class == obj.class
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.duid == other.duid
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.iaAddrDhcpOptions == other.iaAddrDhcpOptions
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.iaDhcpOptions == other.iaDhcpOptions
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.iaid == other.iaid
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.iatype == other.iatype
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.ipAddress == other.ipAddress
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.preferredEndTime == other.preferredEndTime
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] DEBUG db.DhcpLease - this.startTime=1620959255081 != other.startTime=1620959255081
+2021-05-13 22:27:35,418 [unorderedThreadPoolEventExecutor-1-10] WARN  ha.HaPrimaryFSM - Response (sync) does not match expected DhcpLease: DhcpLease [ipAddress=10.9.1.0, duid=deb100000001, iatype=0, iaid=0, state=0, haPeerState=0, startTime=2021-05-13T22:27:35.081-0400, preferredEndTime=, validEndTime=, dhcpOptions=null, iaDhcpOptions=null, iaAddrDhcpOptions=null]
+*/
+
+		}
+		else {
+			// WTF: here we have to recode the startTime comparison!
+			if (this.startTime != null) {
+				if (other.startTime == null)
+					return false;
+				if ((this.startTime instanceof Date) &&
+					!(other.startTime instanceof Date)) {
+					return false;
+				}
+				if (!(this.startTime instanceof Date) &&
+					(other.startTime instanceof Date)) {
+						return false;
+					}
+				if (this.startTime.getTime() != other.startTime.getTime())
+					return false;
+			}
+			else if (other.startTime != null) {
+				return false;
+			}
+		}
+//		log.debug("this.startTime == other.startTime");
 		if (state != other.state)
 			return false;
+//		log.debug("this.state == other.state");
 		if (haPeerState != other.haPeerState)
 			return false;
+//		log.debug("this.haPeerState == other.haPeerState");
 		if (validEndTime == null) {
 			if (other.validEndTime != null)
 				return false;
 		} else if (!validEndTime.equals(other.validEndTime))
 			return false;
+//		log.debug("this.validEndTime == other.validEndTime");
 		return true;
 	}
 
@@ -469,29 +532,7 @@ public class DhcpLease implements Cloneable
 	}
 	
 	public String toJson() {
-		return "{ "+
-				"'ipAddress':'" + ipAddress.getHostAddress() + "', " +
-				"'duid':'" + Util.toHexString(duid) + "', " + 
-				"'iatype':'" + iatype + "', " +
-				"'iaid':'" + iaid + "', " +
-				"'state':'" + state + "', " + 
-				"'haPeerState':'" + haPeerState + "', " + 
-				"'startTime':'" + 
-					(startTime == null ? "" : startTime.getTime()) + "', " +
-				"'preferredEndTime':'" + 
-					(preferredEndTime == null ? "" : preferredEndTime.getTime()) + "', " + 
-				"'validEndTime':'" + 
-					(validEndTime == null ? "" : validEndTime.getTime()) + "', " +
-				"'dhcpOptions':'" + 
-					(dhcpOptions == null ? "" : 
-						 Util.toHexString(LeaseManager.encodeOptions(dhcpOptions))) +	"', " +
-				"'iaDhcpOptions':'" + 
-					(iaDhcpOptions == null ? "" : 
-						 Util.toHexString(LeaseManager.encodeOptions(iaDhcpOptions))) +	"', " +
-				"'iaAddrDhcpOptions':'" + 
-					(iaAddrDhcpOptions == null ? "" : 
-						 Util.toHexString(LeaseManager.encodeOptions(iaAddrDhcpOptions))) +	"', " +
-				"}";
+		return DhcpLeaseJsonUtil.dhcpLeaseToJson(this);
 	}
 	
 	public static DhcpLease fromJson(Reader reader) throws IOException {
@@ -504,58 +545,7 @@ public class DhcpLease implements Cloneable
 	}
 	
 	public static DhcpLease fromJson(String json) {
-		InetAddress ipAddress = null;
-		try {
-			ipAddress = InetAddress.getByName(getJsonAttrValue(json, "ipAddress"));
-		}
-		catch (UnknownHostException ex) {
-			// this will be caught by ApplicationExceptionMapper
-			throw new RuntimeException(ex);
-		}
-		DhcpLease dhcpLease = new DhcpLease();
-		try {
-			dhcpLease.setIpAddress(ipAddress);
-			dhcpLease.setDuid(Util.fromHexString(getJsonAttrValue(json, "duid")));
-			dhcpLease.setIatype(Byte.parseByte(getJsonAttrValue(json, "iatype")));
-			dhcpLease.setIaid(Long.parseLong(getJsonAttrValue(json, "iaid")));
-			dhcpLease.setState(Byte.parseByte(getJsonAttrValue(json, "state")));
-			dhcpLease.setHaPeerState(Byte.parseByte(getJsonAttrValue(json, "haPeerState")));
-			String time = getJsonAttrValue(json, "startTime");
-			if ((time != null) && !time.isEmpty()) {
-				dhcpLease.setStartTime(new Date(Long.parseLong(time)));
-			}
-			time = getJsonAttrValue(json, "preferredEndTime");
-			if ((time != null) && !time.isEmpty()) {
-				dhcpLease.setPreferredEndTime(new Date(Long.parseLong(time)));
-			}
-			time = getJsonAttrValue(json, "validEndTime");
-			if ((time != null) && !time.isEmpty()) {
-				dhcpLease.setValidEndTime(new Date(Long.parseLong(time)));
-			}
-			dhcpLease.setDhcpOptions(
-					LeaseManager.decodeOptions(Util.fromHexString(getJsonAttrValue(json, "dhcpOptions"))));
-			dhcpLease.setIaDhcpOptions(
-					LeaseManager.decodeOptions(Util.fromHexString(getJsonAttrValue(json, "iaDhcpOptions"))));
-			dhcpLease.setIaAddrDhcpOptions(
-					LeaseManager.decodeOptions(Util.fromHexString(getJsonAttrValue(json, "iaAddrDhcpOptions"))));
-			return dhcpLease;
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
-	
-	private static String getJsonAttrValue(String json, String attr) {
-		String key = "'" + attr + "'" + ":'";
-		int p = json.indexOf(key);
-		if (p >= 0) {
-			p = p + key.length();
-			if (json.length() > p) {
-				return json.substring(p, json.indexOf("'", p));
-			}
-		}
-		return null;
+		return DhcpLeaseJsonUtil.jsonToDhcpLease(json);
 	}
 	
 	@Override

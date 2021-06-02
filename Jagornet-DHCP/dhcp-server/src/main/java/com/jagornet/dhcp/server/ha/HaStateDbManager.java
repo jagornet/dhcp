@@ -1,23 +1,20 @@
 package com.jagornet.dhcp.server.ha;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.rest.api.JacksonObjectMapper;
 
 /**
  * HaStateDbManager - manager class for the High Availability state database file
@@ -31,7 +28,7 @@ public class HaStateDbManager {
 	private File stateDbFile;
 	private HaStateDb haStateDb;
 	private int maxStoredStates;
-	private Gson gson;
+	private ObjectMapper objectMapper;
 	private HaState currentHaState;
 	
 	public HaStateDbManager() {
@@ -40,7 +37,7 @@ public class HaStateDbManager {
 			stateDbFile = new File(DhcpConstants.JAGORNET_DHCP_HOME, stateDbFile.getPath());
 		}
 		maxStoredStates = DhcpServerPolicies.globalPolicyAsInt(Property.HA_DATABASE_MAX_STORED_STATES);
-		gson = new GsonBuilder().setPrettyPrinting().create();
+		objectMapper = new JacksonObjectMapper().getJsonObjectMapper();
 	}
 	
 	// for testing
@@ -63,14 +60,12 @@ public class HaStateDbManager {
 			stateDbFile.createNewFile();	// create if not exists
 		}
 		else {
-			JsonReader jsonReader = null;
-			try {
-				jsonReader = new JsonReader(new FileReader(stateDbFile));
-				if (stateDbFile.length() > 0) {
-					HaState haState = null;
-					jsonReader.beginArray();
-					while (jsonReader.hasNext()) {
-						haState = gson.fromJson(jsonReader, HaState.class);
+			if (stateDbFile.length() > 0) {
+				List<HaState> savedHaStates = 
+						objectMapper.readValue(stateDbFile, 
+								new TypeReference<List<HaState>>(){});
+				if ((savedHaStates != null) && !savedHaStates.isEmpty()) {
+					for (HaState haState : savedHaStates) {
 						log.debug("Read HA state: " + haState);
 						if (haState != null) {
 							haStateDb.haStates.add(haState);
@@ -82,20 +77,9 @@ public class HaStateDbManager {
 							}
 						}
 					}
-					jsonReader.endArray();
-					jsonReader.close();
 				}
 			}
-			finally {
-				try {
-					if (jsonReader != null) {
-						jsonReader.close();
-					}
-				}
-				catch (IOException ex) {
-					log.error("Failed to close jsonReader: " + ex);
-				}
-			}
+			
 		}
 		if (myLastSavedHaState == null) {
 			log.info("No saved HA states");
@@ -155,26 +139,6 @@ public class HaStateDbManager {
 		if (haStateDb.haStates.size() > maxStoredStates) {
 			haStateDb.haStates = haStateDb.haStates.subList(0, maxStoredStates);
 		}
-		JsonWriter jsonWriter = null;
-		try {
-			jsonWriter = new JsonWriter(new FileWriter(stateDbFile));
-			jsonWriter.setIndent("  ");
-			jsonWriter.beginArray();
-			for (HaState haState : haStateDb.haStates) {
-				gson.toJson(haState, HaState.class, jsonWriter);
-			}
-			jsonWriter.endArray();
-			jsonWriter.flush();
-		}
-		finally {
-			try {
-				if (jsonWriter != null) {
-					jsonWriter.close();
-				}
-			}
-			catch (IOException ex) {
-				log.error("Failed to close jsonWriter: " + ex);
-			}
-		}
+		objectMapper.writeValue(stateDbFile, haStateDb.haStates);
 	}
 }
