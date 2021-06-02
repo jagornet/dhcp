@@ -124,16 +124,18 @@ public class DhcpV6ConfirmProcessor extends BaseDhcpV6Processor
     			if ((dhcpIaNaOption.getIaAddrOptions() != null) &&
     					!dhcpIaNaOption.getIaAddrOptions().isEmpty()) {
 		    		if (!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
-// TAHI tests want the status at the message level
-// 		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
-//		    					DhcpConstants.STATUS_CODE_NOTONLINK);
+						// TAHI tests want the status at the message level, but it
+						// should be safe to put it at both message and IA levels
+ 		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
+		    					DhcpConstants.V6STATUS_CODE_NOTONLINK);
  		    			allOnLink = false;
 		    			sendReply = true;
 		    		}
 		    		else {
-// TAHI tests want the status at the message level
-//		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
-//		    					DhcpConstants.STATUS_CODE_SUCCESS);
+		    			// TAHI tests want the status at the message level, but it
+		    			// should be safe to put it at both message and IA levels
+		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
+		    					DhcpConstants.V6STATUS_CODE_SUCCESS);
 		    			sendReply = true;
 		    		}
     			}

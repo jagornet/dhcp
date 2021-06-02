@@ -164,8 +164,9 @@ public class TestDhcpV6SolicitProcessor extends BaseTestDhcpV6Processor
 		assertEquals(requestMsg.getTransactionId(), replyMsg.getTransactionId());
 		assertEquals(DhcpConstants.V6MESSAGE_TYPE_ADVERTISE, replyMsg.getMessageType());
 		
-//	TAHI tests want this at the message level
-//		checkReplyIaNaStatus(replyMsg, DhcpConstants.STATUS_CODE_NOADDRSAVAIL);
+		// TAHI tests want the status at the message level, but it
+		// should be safe to put it at both message and IA levels
+		checkReplyIaNaStatus(replyMsg, DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 		checkReplyMsgStatus(replyMsg, DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 	}
 	
