@@ -26,16 +26,13 @@
 package com.jagornet.dhcp.server.request.binding;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
@@ -112,13 +109,12 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 				freeAddress(iaAddr.getIpAddress());
 			}
 			else {
-				/* 
-				 * Leave the old start time for released addresses
+				// null out all the old lease times
 				iaAddr.setStartTime(null);
-				*/
 				iaAddr.setPreferredEndTime(null);
 				iaAddr.setValidEndTime(null);
 				iaAddr.setState(IaAddress.AVAILABLE);
+				// TODO: delete the options
 				iaMgr.updateIaAddr(iaAddr);
 				log.info("Address released: " + iaAddr.toString());
 			}

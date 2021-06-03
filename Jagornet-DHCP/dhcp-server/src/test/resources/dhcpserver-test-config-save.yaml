@@ -1,7 +1,7 @@
 ---
 v6ServerIdOption:
   opaqueData:
-    hexValue: "000100015FF66EA4960F52D22F60"
+    hexValue: "0001000160777FE0BA626225162C"
 policies:
   policyList:
   - name: "dhcp.sendRequestedOptionsOnly"

@@ -1145,7 +1145,6 @@ public class JagornetDhcpServer
      * Register Log4J in JMX to allow dynamic configuration
      * of server logging using JMX client (e.g. jconsole).
      */
-    @SuppressWarnings("unchecked")
     public static void registerLog4jInJmx()
     {
     	/**

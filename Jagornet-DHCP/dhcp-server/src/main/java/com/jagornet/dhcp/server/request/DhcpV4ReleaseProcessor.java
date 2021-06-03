@@ -126,7 +126,7 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
 		
         if (!bindings.isEmpty()) {
         	// DDNS handled by bindingMgr.releaseIaAddress
-			processHaBindingUpdates(null);
+			processHaBindingUpdates(null);	// drop options on release
         }
 		
 	    return false;	// no reply for v4 release
