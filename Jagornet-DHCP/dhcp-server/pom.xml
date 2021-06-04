@@ -26,7 +26,7 @@
   	<jaxb.runtime.version>2.3.2</jaxb.runtime.version>
   	<activation.version>1.1.1</activation.version>
   	<javax.annotation.version>1.3.2</javax.annotation.version>
-  	<httpclient.version>4.5.12</httpclient.version>
+  	<httpclient.version>4.5.13</httpclient.version>
   	<jackson.version>2.11.2</jackson.version>
   	<swagger.version>2.1.7</swagger.version>
   </properties>
