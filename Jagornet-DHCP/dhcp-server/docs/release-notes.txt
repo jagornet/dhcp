@@ -1,6 +1,14 @@
+Changes in 3.2.0
+----------------
+    - Fix #36: Fix DHCPv6 status code handling in test client an server
+    - Fix #37: Bump Commons IO from 2.6 to 2.7
+    - Fix #38: Consolidate JSON processing to use Jackson API
+    - Fix #39: Include status option in DHCPv6 message and IA levels
+    - Fix #40: Bump Apache httpclient version from 4.5.12 to 4.5.13.
+
 Changes in 3.1.0
 ----------------
-	- Fix #33: Add support for -rr option for requests per second for
+    - Fix #33: Add support for -rr option for requests per second for
                for DHCP Client test tools
     - Fix #34: Use Jackson classes for reading/writing JSON/YAML
     - Fix #35: Improve Netty inbound/outbound pipeline processing

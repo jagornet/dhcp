@@ -3,7 +3,7 @@
 :author: A. Gregory Rabil
 :email: greg.rabil@jagornet.com
 :homepage: http://jagornet.com[Jagornet Technologies, LLC]
-:appversion: 3.1
+:appversion: 3.2
 :appbuild: 0
 :toc:
 
