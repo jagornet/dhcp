@@ -4,6 +4,7 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
+    <!-- See parent pom for revision -->
     <version>${revision}</version>
   </parent>
 

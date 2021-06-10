@@ -4,6 +4,7 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
+    <!-- See parent pom for revision -->
     <version>${revision}</version>
   </parent>
 
@@ -13,11 +14,17 @@
   	<dependency>
   		<groupId>com.jagornet</groupId>
   		<artifactId>jagornet-dhcp-core</artifactId>
+	    <!-- 
+	    See 'project.version' here - https://maven.apache.org/maven-ci-friendly.html
+	     -->
   		<version>${project.version}</version>
   	</dependency>
   	<dependency>
   		<groupId>com.jagornet</groupId>
   		<artifactId>jagornet-dhcp-server</artifactId>
+	    <!-- 
+	    See 'project.version' here - https://maven.apache.org/maven-ci-friendly.html
+	     -->
   		<version>${project.version}</version>
   	</dependency>
 	<dependency>

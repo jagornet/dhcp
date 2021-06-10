@@ -3,6 +3,7 @@
   <parent>
     <groupId>com.jagornet</groupId>
     <artifactId>jagornet-dhcp-all</artifactId>
+    <!-- See parent pom for revision -->
     <version>${revision}</version>
   </parent>
   <artifactId>jagornet-dhcp-dist</artifactId>
@@ -18,6 +19,9 @@
     <dependency>
       <groupId>com.jagornet</groupId>
       <artifactId>jagornet-dhcp-client</artifactId>
+	    <!-- 
+	    See 'project.version' here - https://maven.apache.org/maven-ci-friendly.html
+	     -->
       <version>${project.version}</version>
     </dependency>
   </dependencies>
