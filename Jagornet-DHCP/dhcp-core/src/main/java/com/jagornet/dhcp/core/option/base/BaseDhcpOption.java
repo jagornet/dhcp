@@ -110,14 +110,16 @@ public abstract class BaseDhcpOption implements DhcpOption
 	 */
 	public String getName()
 	{
-		if (name != null)
-			return name;
-		
-		String className = this.getClass().getSimpleName();
-		if (className.startsWith("Dhcp"))
-			return className;
-		
-		return "Option-" + this.getCode(); 
+		if (name == null) {
+			String className = this.getClass().getSimpleName();
+			if (className.startsWith("Dhcp")) {
+				name = className;
+			}
+			else {
+				name = "Dhcp" + (isV4() ? "V4-" : "V6-") + "Option-" + this.getCode();
+			}
+		}
+		return name; 
 	}
 	
 	public void setCode(int code) {
