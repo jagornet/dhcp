@@ -240,7 +240,14 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
         	return false;	// must configure link for server to reply
         }
 
-/* TODO: check if this DOS mitigation is useful
+        
+		if (!clientLink.getState().equals(DhcpLink.State.OK)) {
+			log.warn("Link '" + clientLink.getLinkAddress() +
+					 "' is unavailable: state=" + clientLink.getState());
+			return false;
+		}
+
+		/* TODO: check if this DOS mitigation is useful
  * 
 		boolean isNew = recentMsgs.add(requestMsg);
 		if (!isNew) {
