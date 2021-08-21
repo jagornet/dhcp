@@ -18,7 +18,7 @@
     which necessitates flatten-maven-plugin in module builds in order to remove
     and replace the installed or deployed module
      -->
-  	<revision>3.2.0</revision>
+  	<revision>4.0.0-SNAPSHOT</revision>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -101,7 +101,14 @@
 	      </executions>
 	    </plugin>
 	  </plugins>
-	</pluginManagement> 
+	</pluginManagement>
+	<plugins>
+	        <plugin>
+	          <groupId>com.google.cloud.tools</groupId>
+	          <artifactId>jib-maven-plugin</artifactId>
+	          <version>3.1.2</version>
+	        </plugin>
+	</plugins>
   </build>
     
 </project>
