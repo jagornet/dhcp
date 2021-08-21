@@ -83,6 +83,8 @@ public class JagornetDhcpServer
 
 	/** The INSTANCE. */
 	private static JagornetDhcpServer INSTANCE;
+	
+	protected String[] args;
 
     /** The command line options. */
     protected Options options;
@@ -166,7 +168,8 @@ public class JagornetDhcpServer
         	System.err.println("Invalid command line options: " + Arrays.toString(args));
         	showHelp();
             System.exit(0);
-        }        
+        }
+        this.args = args;
     }
     
     public void showHelp() {
@@ -179,14 +182,11 @@ public class JagornetDhcpServer
     }
     
     /**
-     * Start the DHCPv6 server.  If multicast network interfaces have
-     * been supplied on startup, then start a NetDhcpServer thread
-     * on each of those interfaces.  Start one NioDhcpServer thread
-     * which will listen on all IPv6 interfaces on the local host.
+     * Start the DHCP server with an array of command line args
      * 
      * @throws Exception the exception
      */
-    protected void start(String[] args) throws Exception
+    protected void start() throws Exception
     {
     	log.info("Starting " + JAGORNET_DHCP_SERVER);
     	log.info(Version.getVersion());
@@ -295,6 +295,8 @@ public class JagornetDhcpServer
     	nettyServer.start();
     	    	
     	if (httpsAddr != null) {
+    		System.out.println("HTTPS address: " + httpsAddr.getHostAddress());
+    		System.out.println("HTTPS port: " + httpsPortNumber);
 	    	//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
 	    	Channel jerseyHttpServer = 
 	    			JerseyRestServer.startNettyServer(httpsAddr, httpsPortNumber);
@@ -1092,7 +1094,8 @@ public class JagornetDhcpServer
             JagornetDhcpServer server = new JagornetDhcpServer(args);
             System.out.println("Starting " + JAGORNET_DHCP_SERVER + ": " + new Date());
             System.out.println(Version.getVersion());
-            server.start(args);
+            System.out.println("jagornet.dhcp.home=" + DhcpConstants.JAGORNET_DHCP_HOME);
+            server.start();
         }
         catch (Exception ex) {
             System.err.println("DhcpServer ABORT!");

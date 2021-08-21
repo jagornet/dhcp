@@ -19,7 +19,7 @@
   </Appenders>
   <Loggers>
     <Root level="INFO">
-      <AppenderRef ref="Console" level="INFO"/>
+      <AppenderRef ref="Console" level="DEBUG"/>
       <AppenderRef ref="Logfile" level="DEBUG"/>
     </Root>
     <Logger name="com.jagornet" level="DEBUG">
