@@ -662,7 +662,7 @@ public abstract class LeaseManager implements IaManager {
 	public void reconcileIaAddresses(List<Range> ranges) {
 		reconcileLeases(ranges);
 		if (useLeaseCache()) {
-// this methond is invoked only during startup, so there is nothing in the cache!
+// this method is invoked only during startup, so there is nothing in the cache!
 //			leaseCache.getAllLeases().stream()
 //				.filter(l -> {
 //					for (Range range : ranges) {

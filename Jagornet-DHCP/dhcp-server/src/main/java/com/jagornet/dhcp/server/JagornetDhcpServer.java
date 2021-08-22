@@ -38,7 +38,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
@@ -65,6 +67,9 @@ import com.jagornet.dhcp.server.db.DbSchemaManager;
 import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.netty.NettyDhcpServer;
 import com.jagornet.dhcp.server.request.binding.BaseBindingManager;
+import com.jagornet.dhcp.server.request.binding.BindingManager;
+import com.jagornet.dhcp.server.request.binding.BindingPool;
+import com.jagornet.dhcp.server.request.binding.Range;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
@@ -341,6 +346,15 @@ public class JagornetDhcpServer
 		
 		log.info("Loading managers from context...");
 		
+		Map<String, List<? extends BindingPool>> bindingPoolMap = null;
+		
+		boolean reconcile = DhcpServerPolicies.globalPolicyAsBoolean(
+				Property.BINDING_MANAGER_RECONCILE_POOLS_ON_STARTUP);
+
+		if (reconcile) {
+			bindingPoolMap = new HashMap<String, List<? extends BindingPool>>();
+		}
+		
 		//TODO: Check if binding manager init method can be
 		//		done by Spring in the context.xml file?
 		//		Maybe init is here for error handling at startup?
@@ -351,6 +365,10 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V4 Address Binding Manager");
 				v4AddrBindingMgr.init();
+				if (reconcile) {
+					bindingPoolMap.putAll(
+							((BindingManager)v4AddrBindingMgr).getBindingPoolMap());
+				}
 				serverConfig.setV4AddrBindingMgr(v4AddrBindingMgr);
 			}
 			catch (Exception ex) {
@@ -368,6 +386,10 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 NA Address Binding Manager");
 				v6NaAddrBindingMgr.init();
+				if (reconcile) {
+					bindingPoolMap.putAll(
+							((BindingManager)v6NaAddrBindingMgr).getBindingPoolMap());
+				}
 				serverConfig.setV6NaAddrBindingMgr(v6NaAddrBindingMgr);
 			}
 			catch (Exception ex) {
@@ -385,6 +407,10 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 TA Address Binding Manager");
 				v6TaAddrBindingMgr.init();
+				if (reconcile) {
+					bindingPoolMap.putAll(
+							((BindingManager)v6TaAddrBindingMgr).getBindingPoolMap());
+				}
 				serverConfig.setV6TaAddrBindingMgr(v6TaAddrBindingMgr);
 			}
 			catch (Exception ex) {
@@ -402,6 +428,10 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 Prefix Binding Manager");
 				v6PrefixBindingMgr.init();
+				if (reconcile) {
+					bindingPoolMap.putAll(
+							((BindingManager)v6PrefixBindingMgr).getBindingPoolMap());
+				}
 				serverConfig.setV6PrefixBindingMgr(v6PrefixBindingMgr);
 			}
 			catch (Exception ex) {
@@ -432,6 +462,9 @@ public class JagornetDhcpServer
         
 		IaManager iaMgr = (IaManager) context.getBean("iaManager");		
 		if (iaMgr != null) {
+			if (reconcile) {
+				reconcilePools(iaMgr, bindingPoolMap);
+			}
 			serverConfig.setIaMgr(iaMgr);
 		}
 		else {
@@ -441,6 +474,29 @@ public class JagornetDhcpServer
 		log.info("Managers loaded.");
     }
     
+    /**
+     * Reconcile pools.  Delete any IaAddress objects not contained
+     * within the given list of BindingPools.
+     * 
+     * @param collection. the list of BindingPools
+     */
+    protected void reconcilePools(IaManager iaMgr,
+    		Map<String, List<? extends BindingPool>> bindingPoolMap)
+    {
+    	if ((bindingPoolMap != null) && !bindingPoolMap.isEmpty()) {
+    		log.info("Reconciling leases for configured pool ranges");
+    		List<Range> ranges = new ArrayList<Range>();
+    		for (List<? extends BindingPool> bpList : bindingPoolMap.values()) {
+    			for (BindingPool bp : bpList) {
+	    			Range range = new Range(bp.getStartAddress(), bp.getEndAddress());
+					ranges.add(range);
+					log.debug("Added pool range: " + range);
+    			}
+			}
+        	iaMgr.reconcileIaAddresses(ranges);
+    	}
+    }
+
 	/**
 	 * Setup command line options.
 	 */

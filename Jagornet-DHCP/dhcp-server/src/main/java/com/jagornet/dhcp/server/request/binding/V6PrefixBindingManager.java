@@ -38,7 +38,7 @@ import com.jagornet.dhcp.server.db.IaPrefix;
  * 
  * @author A. Gregory Rabil
  */
-public interface V6PrefixBindingManager extends StaticBindingManager
+public interface V6PrefixBindingManager
 {
 	/**
 	 * Initialize the manager.

@@ -37,7 +37,7 @@ import com.jagornet.dhcp.server.db.IdentityAssoc;
  * 
  * @author A. Gregory Rabil
  */
-public interface V4AddrBindingManager extends StaticBindingManager
+public interface V4AddrBindingManager
 {
 	/**
 	 * Initialize the manager.

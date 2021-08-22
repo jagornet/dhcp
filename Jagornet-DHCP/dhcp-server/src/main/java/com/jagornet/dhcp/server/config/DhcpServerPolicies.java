@@ -68,6 +68,7 @@ public class DhcpServerPolicies
 		BINDING_MANAGER_IA_CACHE_SIZE("binding.manager.iaCacheSize", "0"),
 		// caching is buggy and not really faster, so turn it off for now
 		BINDING_MANAGER_LEASE_CACHE_SIZE("binding.manager.leaseCacheSize", "0"),
+		BINDING_MANAGER_RECONCILE_POOLS_ON_STARTUP("binding.manager.reconcilePoolsOnStartup", "true"),
 
 		CHANNEL_THREADPOOL_SIZE("channel.threadPoolSize", "16"),
 		CHANNEL_READ_BUFFER_SIZE("channel.readBufferSize", "307200"),		// 300 bytes x 1K clients

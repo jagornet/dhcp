@@ -140,28 +140,8 @@ public class V4AddrBindingManagerImpl
 		else {
 			log.info("PoolsType is null for Link: " + link.getName());
 		}
-
-		reconcilePools(bindingPools);
 		
 		return bindingPools;
-    }
-    
-    /**
-     * Reconcile pools.  Delete any IaAddress objects not contained
-     * within the given list of V4AddressBindingPools.
-     * 
-     * @param bindingPools the list of V4AddressBindingPools
-     */
-    protected void reconcilePools(List<V4AddressBindingPool> bindingPools)
-    {
-    	if ((bindingPools != null) && !bindingPools.isEmpty()) {
-    		List<Range> ranges = new ArrayList<Range>();
-    		for (V4AddressBindingPool bp : bindingPools) {
-    			Range range = new Range(bp.getStartAddress(), bp.getEndAddress());
-				ranges.add(range);
-			}
-        	iaMgr.reconcileIaAddresses(ranges);
-    	}
     }
     
     /**

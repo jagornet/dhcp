@@ -649,6 +649,7 @@ public class JdbcLeaseManager extends LeaseManager
 	
 	@Override
 	public void reconcileLeases(final List<Range> ranges) {
+		// TODO: what if the query string is huge?
 		List<byte[]> args = new ArrayList<byte[]>();
 		StringBuilder query = new StringBuilder();
 		query.append("delete from dhcplease where ipaddress");
@@ -661,7 +662,9 @@ public class JdbcLeaseManager extends LeaseManager
 			if (rangeIter.hasNext())
 				query.append(" and ipaddress");
 		}
-		getJdbcTemplate().update(query.toString(), args.toArray());
+		int cnt = getJdbcTemplate().update(query.toString(), args.toArray());
+		log.info("Deleted " + cnt + " dhcplease objects by reconciling on configured pool ranges");		
+		
 	}
 
     /**

@@ -39,7 +39,7 @@ import com.jagornet.dhcp.server.db.IdentityAssoc;
  * 
  * @author A. Gregory Rabil
  */
-public interface V6NaAddrBindingManager extends StaticBindingManager
+public interface V6NaAddrBindingManager
 {
 	/**
 	 * Initialize the manager.

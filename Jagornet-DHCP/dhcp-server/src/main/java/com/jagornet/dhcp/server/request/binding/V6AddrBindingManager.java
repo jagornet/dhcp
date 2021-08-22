@@ -151,30 +151,8 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 		else {
 			log.info("PoolsType is null for Link: " + link.getName());
 		}
-
-//TODO this is very dangerous if the server is managing
-//	    both NA and TA address pools because we'd delete
-//	    all the addresses in pools of the other type
-//		reconcilePools(bindingPools);
 		
 		return bindingPools;
-    }
-    
-    /**
-     * Reconcile pools.  Delete any IaAddress objects not contained
-     * within the given list of AddressBindingPools.
-     * 
-     * @param bindingPools the list of AddressBindingPools
-     */
-    protected void reconcilePools(List<V6AddressBindingPool> bindingPools)
-    {
-    	if ((bindingPools != null) && !bindingPools.isEmpty()) {
-    		List<Range> ranges = new ArrayList<Range>();
-    		for (V6AddressBindingPool bp : bindingPools) {
-				ranges.add(bp.getRange());
-			}
-        	iaMgr.reconcileIaAddresses(ranges);
-    	}
     }
     
     /**

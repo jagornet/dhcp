@@ -63,7 +63,7 @@ import com.jagornet.dhcp.server.db.IdentityAssoc;
  * 
  * @author A. Gregory Rabil
  */
-public abstract class BaseBindingManager
+public abstract class BaseBindingManager implements BindingManager
 {
 	private static Logger log = LoggerFactory.getLogger(BaseBindingManager.class);
 	
