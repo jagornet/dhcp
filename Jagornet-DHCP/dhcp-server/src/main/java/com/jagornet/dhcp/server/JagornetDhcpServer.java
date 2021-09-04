@@ -654,8 +654,14 @@ public class JagornetDhcpServer
             			if (addr.equalsIgnoreCase(NONE)) {
             				v4UcastAddrs = null;
             			}
-            			if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
+            			else if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
             				v4UcastAddrs = getAllIPv4Addrs();
+            			}
+            			else {
+            				v4UcastAddrs = getV4IpAddrs(addrs);
+    	            		if ((v4UcastAddrs == null) || v4UcastAddrs.isEmpty()) {
+    	            			return false;
+    	            		}
             			}
             		}
             		else {	            		
@@ -708,8 +714,14 @@ public class JagornetDhcpServer
             			if (addr.equalsIgnoreCase(NONE)) {
             				v6UcastAddrs = null;
             			}
-            			if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
+            			else if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
             				v6UcastAddrs = getAllIPv6Addrs();
+            			}
+            			else {
+        	        		v6UcastAddrs = getV6IpAddrs(addrs);
+        	        		if ((v6UcastAddrs == null) || v6UcastAddrs.isEmpty()) {
+        	        			return false;
+        	        		}
             			}
             		}
             		else {
