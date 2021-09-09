@@ -31,13 +31,16 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +101,8 @@ public class NettyDhcpServer
 	/** The DHCPv6 server port. */
 	private int v6Port;
 	
+	private Set<SocketAddress> checkedSockets = new HashSet<SocketAddress>();
+	
     /** The collection of channels this server listens on. */
     protected Collection<DatagramChannel> channels = new ArrayList<DatagramChannel>();
     
@@ -154,15 +159,12 @@ public class NettyDhcpServer
         	// unordered avoids any bottlenecks from ordering, but adds some risk
         	eventExecutorGroup = new UnorderedThreadPoolEventExecutor(corePoolSize);
         	
-        	boolean v4SocketChecked = false;
     		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
         	if (v4Addrs != null) {
-        		checkSocket(v4Port);
-        		v4SocketChecked = true;
 	        	for (InetAddress addr : v4Addrs) {
 	        		// local address for packets received on this channel
-		            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
-		            
+		            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port);
+		            checkSocket(sockAddr);
 		            Bootstrap bootstrap = new Bootstrap();
 		            String io = null;
 	            	EventLoopGroup group = null;
@@ -219,10 +221,6 @@ public class NettyDhcpServer
         	}
         	
         	if (v4NetIf != null) {
-        		if (!v4SocketChecked) {
-        			// if in-use socket check has not been done yet, then do it
-        			checkSocket(v4Port);
-        		}
         		boolean foundV4Addr = false;
         		// get the first v4 address on the interface and bind to it
         		Enumeration<InetAddress> addrs = v4NetIf.getInetAddresses();
@@ -246,6 +244,7 @@ public class NettyDhcpServer
         				}
 		        		foundV4Addr = true;
 			            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v4Port); 
+			            checkSocket(sockAddr);
 			            Bootstrap bootstrap = new Bootstrap();
 		            	bootstrap.channel(NioDatagramChannel.class);
 		            	bootstrap.group(new NioEventLoopGroup());
@@ -289,16 +288,11 @@ public class NettyDhcpServer
         		}
         	}
         	
-        	boolean v6SocketChecked = false;
         	if (v6Addrs != null) {
-        		// test if this socket is already in use, which means
-        		// there is probably already a DHCPv6 server running
-        		checkSocket(v6Port);
-        		v6SocketChecked = true;
 	        	for (InetAddress addr : v6Addrs) {
 	        		// local address for packets received on this channel
 		            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v6Port);
-
+		            checkSocket(sockAddr);
 	        		Bootstrap bootstrap = new Bootstrap();
 		            String io = null;
 	            	EventLoopGroup group = null;
@@ -353,10 +347,6 @@ public class NettyDhcpServer
         	}
         	
         	if (v6NetIfs != null) {
-        		if (!v6SocketChecked) {
-        			// if in-use socket check has not been done yet, then do it
-        			checkSocket(v6Port);
-        		}
 	        	for (NetworkInterface netIf : v6NetIfs) {
 	        		// find the link local IPv6 address for this interface
 	        		InetAddress addr = Util.netIfIPv6LinkLocalAddress(netIf);
@@ -367,7 +357,7 @@ public class NettyDhcpServer
 	        		}
 	        		// local address for packets received on this channel
 		            final InetSocketAddress sockAddr = new InetSocketAddress(addr, v6Port); 
-
+		            checkSocket(sockAddr);
 		            Bootstrap bootstrap = new Bootstrap();
 		        	// Use OioDatagramChannels for IPv6 multicast interfaces
 		            // Netty 3.5+ supports NIO UDP Multicast Channels
@@ -442,16 +432,22 @@ public class NettyDhcpServer
             });
     }
     
-    private void checkSocket(int port) throws SocketException {
-    	DatagramSocket ds = null;
-    	try {
-    		log.info("Checking for existing socket on port=" + port);
-    		ds = new DatagramSocket(port);
-    	}
-    	finally {
-    		if (ds != null) {
-    			ds.close();
-    		}
+    /**
+     * Check if the socket is already in use on the host system 
+     */
+    private void checkSocket(InetSocketAddress socket) throws SocketException {
+    	if (!checkedSockets.contains(socket)) {
+	    	DatagramSocket ds = null;
+	    	try {
+	    		log.info("Checking for existing socket on " + socket);
+	    		ds = new DatagramSocket(socket);
+	    	}
+	    	finally {
+	    		if (ds != null) {
+	    			ds.close();
+	    		}
+	    	}
+	    	checkedSockets.add(socket);
     	}
     }
         
