@@ -166,6 +166,8 @@ public class DdnsUpdater implements Runnable
 		this.doForwardUpdate = doForwardUpdate;
 		this.isDelete = isDelete;
 		this.callback = callback;
+		
+		setupPolicies(this.configObj, this.lifetime);						
 	}
 	
 	/**
@@ -186,7 +188,6 @@ public class DdnsUpdater implements Runnable
 	 */
 	public void run()
 	{
-		setupPolicies(configObj, lifetime);						
 		try {
 			if (doForwardUpdate) {
 				ForwardDdnsUpdate fwdUpdate = new ForwardDdnsUpdate(fqdn, addr, duid);
