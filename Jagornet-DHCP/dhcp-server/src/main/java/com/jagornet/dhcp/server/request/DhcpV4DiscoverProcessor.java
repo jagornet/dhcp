@@ -100,21 +100,22 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
 		boolean sendReply = true;
 		boolean rapidCommit = isRapidCommit(requestMsg, clientLink.getLink());
 		byte state = rapidCommit ? IaAddress.LEASED : IaAddress.OFFERED;
-		byte chAddr[] = requestMsg.getChAddr();
+		byte clientId[] = requestMsg.getClientId();
 		
 		V4AddrBindingManager bindingMgr = dhcpServerConfig.getV4AddrBindingMgr();
 		if (bindingMgr != null) {
-			log.info("Processing Discover from: chAddr=" + Util.toHexString(chAddr));
+			log.info("Processing Discover from: " + 
+					 "clientId=" + Util.toHexString(clientId));
 			Binding binding = bindingMgr.findCurrentBinding(clientLink, 
-					chAddr, requestMsg);
+					clientId, requestMsg);
 			if (binding == null) {
 				// no current binding for this MAC, create a new one
 				binding = bindingMgr.createDiscoverBinding(clientLink, 
-						chAddr, requestMsg, state);
+						clientId, requestMsg, state);
 			}
 			else {
 				binding = bindingMgr.updateBinding(binding, clientLink, 
-						chAddr, requestMsg, state);
+						clientId, requestMsg, state);
 			}
 			if (binding != null) {
 				// have a good binding, put it in the reply with options
@@ -122,8 +123,8 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
 				bindings.add(binding);
 			}
 			else {
-				log.error("Failed to create binding for Discover from: " +
-						Util.toHexString(chAddr));
+				log.error("Failed to create binding for Discover for: " +
+						"clientId=" + Util.toHexString(clientId));
 				sendReply = false;
 			}
 		}

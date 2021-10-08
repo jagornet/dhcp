@@ -228,43 +228,43 @@ public class V4AddrBindingManagerImpl
 	}
 
 	@Override
-	public Binding findCurrentBinding(DhcpLink clientLink, byte[] macAddr, 
+	public Binding findCurrentBinding(DhcpLink clientLink, byte[] clientId, 
 			DhcpMessage requestMsg) {
 		
-		return super.findCurrentBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+		return super.findCurrentBinding(clientLink, clientId, IdentityAssoc.V4_TYPE, 
 				0, requestMsg);
 	}
 
 	@Override
-	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] macAddr, 
+	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] clientId, 
 			DhcpMessage requestMsg, byte state)
 	{
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink.getLink(), macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
+			findStaticBinding(clientLink.getLink(), clientId, IdentityAssoc.V4_TYPE, 0, requestMsg);
 		
 		if (staticBinding != null) {
-			return super.createStaticBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+			return super.createStaticBinding(clientLink, clientId, IdentityAssoc.V4_TYPE, 
 					0, staticBinding, requestMsg);
 		}
 		else {
-			return super.createBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+			return super.createBinding(clientLink, clientId, IdentityAssoc.V4_TYPE, 
 					0, getInetAddrs(requestMsg), requestMsg, state);
 		}		
 	}
 
 	@Override
 	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
-			byte[] macAddr, DhcpMessage requestMsg, byte state) {
+			byte[] clientId, DhcpMessage requestMsg, byte state) {
 
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink.getLink(), macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
+			findStaticBinding(clientLink.getLink(), clientId, IdentityAssoc.V4_TYPE, 0, requestMsg);
 		
 		if (staticBinding != null) {
-			return super.updateStaticBinding(binding, clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+			return super.updateStaticBinding(binding, clientLink, clientId, IdentityAssoc.V4_TYPE, 
 					0, staticBinding, requestMsg);
 		}
 		else {
-			return super.updateBinding(binding, clientLink, macAddr, IdentityAssoc.V4_TYPE,
+			return super.updateBinding(binding, clientLink, clientId, IdentityAssoc.V4_TYPE,
 					0, getInetAddrs(requestMsg), requestMsg, state);
 		}		
 	}

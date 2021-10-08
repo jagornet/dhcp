@@ -55,7 +55,7 @@ public interface V4AddrBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding findCurrentBinding(DhcpLink clientLink, byte[] macAddr, 
+	public Binding findCurrentBinding(DhcpLink clientLink, byte[] clientId, 
 			DhcpMessage requestMsg);
 	
 	/**
@@ -68,7 +68,7 @@ public interface V4AddrBindingManager
 	 * 
 	 * @return the binding
 	 */
-	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] macAddr, 
+	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] clientId, 
 			DhcpMessage requestMsg, byte state);
 
 	/**
@@ -83,7 +83,7 @@ public interface V4AddrBindingManager
 	 * @return the binding
 	 */
 	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
-			byte[] macAddr, DhcpMessage requestMsg, byte state);
+			byte[] clientId, DhcpMessage requestMsg, byte state);
 
 	/**
 	 * Release ia address.

@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4ClientIdOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4MsgTypeOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4OptionFactory;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ParamRequestOption;
@@ -505,7 +506,37 @@ public class DhcpV4Message implements DhcpMessage
     {
         return dhcpOptions.values();
     }
+    
+    private DhcpV4ClientIdOption dhcpClientIdOption;
+	/**
+	 * Convenience method to get ClientID option.
+	 * @return
+	 */
+    public DhcpV4ClientIdOption getDhcpV4ClientIdOption() {
+		if (dhcpClientIdOption == null) {
+			if (dhcpOptions != null) {
+				dhcpClientIdOption = 
+					(DhcpV4ClientIdOption) dhcpOptions.get(DhcpConstants.V4OPTION_CLIENT_ID);
+			}
+		}
+		return dhcpClientIdOption;    	
+    }
 	
+    private byte[] clientId;
+    public byte[] getClientId() {
+    	if (clientId == null) {
+	    	if (this.getDhcpV4ClientIdOption() != null) {
+	    		clientId = getDhcpV4ClientIdOption().getOpaqueData().getHex();
+	    	}
+	    	else {
+	            if (log.isDebugEnabled())
+	            	log.debug("No clientId option found in DHCP message, using chAddr");
+	    		clientId = this.getChAddr();
+	    	}
+    	}
+    	return clientId;
+    }
+    
 	private DhcpV4ServerIdOption dhcpServerIdOption;
 	/**
 	 * Convenience method to get ServerID option.
