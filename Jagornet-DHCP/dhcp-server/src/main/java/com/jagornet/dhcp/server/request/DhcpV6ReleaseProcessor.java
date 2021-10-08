@@ -229,7 +229,7 @@ public class DhcpV6ReleaseProcessor extends BaseDhcpV6Processor
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 							for (BindingObject bindingObj : bindingObjs) {
-								bindingMgr.releaseIaPrefix((V6BindingPrefix)bindingObj);
+								bindingMgr.releaseIaPrefix(binding, (V6BindingPrefix)bindingObj);
 							}
 						}
 					}

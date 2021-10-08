@@ -335,14 +335,16 @@ public class JdbcLeaseManager extends LeaseManager
 	@Override
 	public int updateIpAddress(final InetAddress inetAddr, 
 							   final byte state, final byte haPeerState, final short prefixlen,
-							   final Date start, final Date preferred, final Date valid) {
+							   final Date start, final Date preferred, final Date valid,
+							   Collection<DhcpOption> ipAddrOptions) {
 		int cnt = getJdbcTemplate().update("update dhcplease" +
 				" set state = ?," +
 				" hapeerstate = ?," +
 				((prefixlen > 0) ? " prefixlen = ?," : "") + 
 				" starttime = ?," +
 				" preferredendtime = ?," +
-				" validendtime = ?" +
+				" validendtime = ?," +
+				" ipaddr_options = ?" +
 				" where ipaddress = ?",
 				new PreparedStatementSetter() {
 			@Override
@@ -374,6 +376,7 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
+				ps.setBytes(i++, encodeOptions(ipAddrOptions));
 				ps.setBytes(i++, inetAddr.getAddress());
 			}
 		});

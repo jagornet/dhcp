@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -42,6 +43,7 @@ import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaPdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaPrefixOption;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
@@ -85,7 +87,7 @@ public class V6PrefixBindingManagerImpl
 		long reaperRunPeriod =
 			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_REAPER_RUN_PERIOD);
 
-		reaper = new Timer("BindingReaper");
+		reaper = new Timer("BindingReaper-PD");
 		reaper.schedule(new ReaperTimerTask(), reaperStartupDelay, reaperRunPeriod);
 	}
     
@@ -313,11 +315,14 @@ public class V6PrefixBindingManagerImpl
 		}
 	}
 	
-	public void releaseIaPrefix(IaPrefix iaPrefix)
+	public void releaseIaPrefix(IdentityAssoc ia, IaPrefix iaPrefix)
 	{
 		try {
+			log.info("Releasing prefix: " + iaPrefix.getIpAddress().getHostAddress() +
+					"/" + iaPrefix.getPrefixLength());
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
+				log.debug("Deleting released iaPrefix");
 				iaMgr.deleteIaPrefix(iaPrefix);
 				// free the prefix only if it is deleted from the db,
 				// otherwise, we will get a unique constraint violation
@@ -328,16 +333,31 @@ public class V6PrefixBindingManagerImpl
 				iaPrefix.setStartTime(null);
 				iaPrefix.setPreferredEndTime(null);
 				iaPrefix.setValidEndTime(null);
+				iaPrefix.setDhcpOptions(null);
 				iaPrefix.setState(IaPrefix.AVAILABLE);
-				iaMgr.updateIaPrefix(iaPrefix);
+				// if only one, then update the whole IA/Binding,
+				// and clear out any DhcpOptions on that IA/Binding
+				if ((ia.getIaAddresses().size() == 1) &&
+						ia.getIaAddresses().contains(iaPrefix)) {
+					Binding binding = new Binding(ia, null);
+					binding.setDhcpOptions(null);
+					log.debug("Updating released IA/Binding");
+					iaMgr.updateIA(binding, null, Collections.singletonList(iaPrefix), null, null);
+				}
+				else {
+					log.debug("Updating released iaPrefix");
+					iaMgr.updateIaPrefix(iaPrefix);
+				}
+				log.info("Prefix released: " + iaPrefix.getIpAddress().getHostAddress() +
+						"/" + iaPrefix.getPrefixLength());
 			}
 		}
 		catch (Exception ex) {
-			log.error("Failed to release address", ex);
+			log.error("Failed to release prefix", ex);
 		}
 	}
 	
-	public void declineIaPrefix(IaPrefix iaPrefix)
+	public void declineIaPrefix(IdentityAssoc ia, IaPrefix iaPrefix)
 	{
 		try {
 			iaPrefix.setStartTime(null);
@@ -357,12 +377,14 @@ public class V6PrefixBindingManagerImpl
 	 * 
 	 * @param iaPrefix the ia prefix
 	 */
-	public void expireIaPrefix(IaPrefix iaPrefix)
+	public void expireIaPrefix(IdentityAssoc ia, IaPrefix iaPrefix)
 	{
 		try {
+			log.info("Expiring prefix: " + iaPrefix.getIpAddress().getHostAddress() +
+					"/" + iaPrefix.getPrefixLength());
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
-				log.debug("Deleting expired prefix: " + iaPrefix.getIpAddress());
+				log.debug("Deleting expired iaPrefix");
 				iaMgr.deleteIaPrefix(iaPrefix);
 				// free the prefix only if it is deleted from the db,
 				// otherwise, we will get a unique constraint violation
@@ -373,9 +395,23 @@ public class V6PrefixBindingManagerImpl
 				iaPrefix.setStartTime(null);
 				iaPrefix.setPreferredEndTime(null);
 				iaPrefix.setValidEndTime(null);
+				iaPrefix.setDhcpOptions(null);
 				iaPrefix.setState(IaPrefix.AVAILABLE);
-				log.debug("Updating expired prefix: " + iaPrefix.getIpAddress());
-				iaMgr.updateIaPrefix(iaPrefix);
+				// if only one, then update the whole IA/Binding,
+				// and clear out any DhcpOptions on that IA/Binding
+				if ((ia.getIaAddresses().size() == 1) &&
+						ia.getIaAddresses().contains(iaPrefix)) {
+					Binding binding = new Binding(ia, null);
+					binding.setDhcpOptions(null);
+					log.debug("Updating expired IA/Binding");
+					iaMgr.updateIA(binding, null, Collections.singletonList(iaPrefix), null, null);
+				}
+				else {
+					log.debug("Updating expired iaPrefix");
+					iaMgr.updateIaPrefix(iaPrefix);
+				}
+				log.info("Prefix expired: " + iaPrefix.getIpAddress().getHostAddress() +
+						"/" + iaPrefix.getPrefixLength());
 			}
 		}
 		catch (Exception ex) {
@@ -389,6 +425,7 @@ public class V6PrefixBindingManagerImpl
 	 */
 	public void expirePrefixes()
 	{
+		/*
 		List<IaPrefix> expiredPrefs = iaMgr.findExpiredIaPrefixes();
 		if ((expiredPrefs != null) && !expiredPrefs.isEmpty()) {
 			log.info("Found " + expiredPrefs.size() + " expired prefix bindings"); 
@@ -396,6 +433,30 @@ public class V6PrefixBindingManagerImpl
 				expireIaPrefix(iaPrefix);
 			}
 		}
+		*/
+		List<IdentityAssoc> expiredIAs = iaMgr.findExpiredIAs(IdentityAssoc.PD_TYPE);
+		if ((expiredIAs != null) && !expiredIAs.isEmpty()) {
+			log.info("Found " + expiredIAs.size() + " expired bindings of type: " + 
+					IdentityAssoc.iaTypeToString(IdentityAssoc.PD_TYPE));
+			for (IdentityAssoc ia : expiredIAs) {
+				Collection<? extends IaAddress> expiredAddrs = ia.getIaAddresses();
+				if ((expiredAddrs != null) && !expiredAddrs.isEmpty()) {
+					// due to the implementation of findExpiredIAs and more so
+					// LeaseManager.toIdentityAssocs(), each IdentityAssoc
+					// will have only one IaAddress within it to be expired
+					log.info("Found " + expiredAddrs.size() + " expired bindings for IA: " + 
+							"duid=" + Util.toHexString(ia.getDuid()) + " iaid=" + ia.getIaid());
+					for (IaAddress iaAddress : expiredAddrs) {
+						if (iaAddress instanceof IaPrefix) {
+							expireIaPrefix(ia, (IaPrefix)iaAddress);
+						}
+						else {
+							log.warn("Found IaAddress in Prefix Binding: " + iaAddress);
+						}
+					}
+				}
+			}
+		}		
 	}
 	
 	/**

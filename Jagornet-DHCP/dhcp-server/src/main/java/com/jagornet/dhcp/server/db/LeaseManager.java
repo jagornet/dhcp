@@ -57,7 +57,8 @@ public abstract class LeaseManager implements IaManager {
 	public abstract int deleteDhcpLease(final DhcpLease lease);
 	public abstract int updateIpAddress(final InetAddress inetAddr, 
 			final byte state, final byte haPeerState, final short prefixlen,
-			final Date start, final Date preferred, final Date valid);
+			final Date start, final Date preferred, final Date valid,
+			final Collection<DhcpOption> iaAddrOptions);
 	public abstract int deleteIpAddress(final InetAddress inetAddr);
 	public abstract int updateIaOptions(final InetAddress inetAddr, 
 			final Collection<DhcpOption> iaOptions);
@@ -68,24 +69,15 @@ public abstract class LeaseManager implements IaManager {
 	public abstract DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr);
 	public abstract List<InetAddress> findExistingLeaseIPs(final InetAddress startAddr, 
 			final InetAddress endAddr);
-	public void findExistingLeaseIPs(final InetAddress startAddr, 
-			final InetAddress endAddr, InetAddressCallbackHandler inetAddressCallbackHandler) {
-		//TODO: implement in all subclasses
-	}
-	public void findExistingLeases(final InetAddress startAddr, 
+	public abstract void findExistingLeaseIPs(final InetAddress startAddr, 
+			final InetAddress endAddr, InetAddressCallbackHandler inetAddressCallbackHandler);
+	public abstract void findExistingLeases(final InetAddress startAddr, 
 								   final InetAddress endAddr,
-								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
-		//TODO: implement in all subclasses
-	}
-	public void findUnsyncedLeases(final InetAddress startAddr, 
+								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler);
+	public abstract void findUnsyncedLeases(final InetAddress startAddr, 
 			   final InetAddress endAddr,
-			   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
-		//TODO: implement in all subclasses
-	}
-	public int setAllLeasesUnsynced() {
-		//TODO: implement in all subclasses
-		return 0;
-	}
+			   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler);
+	public abstract int setAllLeasesUnsynced();
 	public abstract List<DhcpLease> findUnusedLeases(final InetAddress startAddr, 
 			final InetAddress endAddr);
 	public abstract DhcpLease findUnusedLease(final InetAddress startAddr, 
@@ -388,18 +380,19 @@ public abstract class LeaseManager implements IaManager {
 		boolean isPrefix = false;
 		short prefixLen = 0;
 		if (iaAddr instanceof IaPrefix) {
-			isPrefix = true;
 			prefixLen = ((IaPrefix)iaAddr).getPrefixLength();
 		}
 		if (!isPrefix) {
 			updateIpAddress(iaAddr.getIpAddress(), 
 					iaAddr.getState(), iaAddr.getHaPeerState(), (short)0,
-					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime());
+					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime(),
+					iaAddr.getDhcpOptions());
 		}
 		else {
 			updateIpAddress(iaAddr.getIpAddress(), 
 					iaAddr.getState(), iaAddr.getHaPeerState(), prefixLen,
-					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime());
+					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime(),
+					iaAddr.getDhcpOptions());
 			
 		}
 		if (useLeaseCache()) {
