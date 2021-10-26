@@ -55,7 +55,6 @@ import com.jagornet.dhcp.server.config.xml.V6PrefixBinding;
 import com.jagornet.dhcp.server.config.xml.V6PrefixBindingsType;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPool;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPoolsType;
-import com.jagornet.dhcp.server.db.DhcpOption;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IaPrefix;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
@@ -623,8 +622,8 @@ public class V6PrefixBindingManagerImpl
 				buildDhcpOptions(clientLink, requestMsg, bp);
 		bindingPrefix.setDhcpOptionMap(effectiveDhcpOptionMap);
 		// convert the "configured" options to options to be stored in lease database
-		Collection<DhcpOption> dhcpOptions = convertDhcpOptions(effectiveDhcpOptionMap);
-		bindingPrefix.setDhcpOptions(dhcpOptions);
+		//Collection<DbDhcpOption> dhcpOptions = convertDhcpOptions(effectiveDhcpOptionMap);
+		bindingPrefix.setDhcpOptions(effectiveDhcpOptionMap.values());
 	}
 	
 	/**

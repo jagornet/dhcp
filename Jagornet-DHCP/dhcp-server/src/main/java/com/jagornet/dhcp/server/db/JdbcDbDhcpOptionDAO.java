@@ -43,14 +43,14 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
  * 
  * @author A. Gregory Rabil
  */
-public class JdbcDhcpOptionDAO extends JdbcDaoSupport implements DhcpOptionDAO 
+public class JdbcDbDhcpOptionDAO extends JdbcDaoSupport implements DbDhcpOptionDAO 
 {
-    private static Logger log = LoggerFactory.getLogger(JdbcDhcpOptionDAO.class);
+    private static Logger log = LoggerFactory.getLogger(JdbcDbDhcpOptionDAO.class);
     
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#create(com.jagornet.dhcpv6.db.DhcpOption)
 	 */
-	public void create(DhcpOption option) 
+	public void create(DbDhcpOption option) 
 	{
 		SimpleJdbcInsert insertOption = new SimpleJdbcInsert(getDataSource())
                     							.withTableName("dhcpoption")
@@ -113,7 +113,7 @@ public class JdbcDhcpOptionDAO extends JdbcDaoSupport implements DhcpOptionDAO
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#update(com.jagornet.dhcpv6.db.DhcpOption)
 	 */
-	public void update(DhcpOption option)
+	public void update(DbDhcpOption option)
 	{
 		getJdbcTemplate().update(
 				"update dhcpoption set value=? where id=?",
@@ -131,7 +131,7 @@ public class JdbcDhcpOptionDAO extends JdbcDaoSupport implements DhcpOptionDAO
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#getById()
 	 */
-	public DhcpOption getById(Long id) 
+	public DbDhcpOption getById(Long id) 
 	{
 		try {
 		    return getJdbcTemplate().queryForObject(
@@ -147,7 +147,7 @@ public class JdbcDhcpOptionDAO extends JdbcDaoSupport implements DhcpOptionDAO
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#findAllByIdentityAssocId(long)
 	 */
-	public List<DhcpOption> findAllByIdentityAssocId(long identityAssocId)
+	public List<DbDhcpOption> findAllByIdentityAssocId(long identityAssocId)
 	{
         return getJdbcTemplate().query(
                 "select * from dhcpoption where identityassoc_id = ? order by code", 
@@ -157,7 +157,7 @@ public class JdbcDhcpOptionDAO extends JdbcDaoSupport implements DhcpOptionDAO
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#findAllByIaAddressId(long)
 	 */
-	public List<DhcpOption> findAllByIaAddressId(long iaAddressId)
+	public List<DbDhcpOption> findAllByIaAddressId(long iaAddressId)
 	{
         return getJdbcTemplate().query(
                 "select * from dhcpoption where iaaddress_id = ? order by code", 
@@ -167,7 +167,7 @@ public class JdbcDhcpOptionDAO extends JdbcDaoSupport implements DhcpOptionDAO
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.db.DhcpOptionDAO#findAllByIaPrefixId(long)
 	 */
-	public List<DhcpOption> findAllByIaPrefixId(long iaPrefixId)
+	public List<DbDhcpOption> findAllByIaPrefixId(long iaPrefixId)
 	{
         return getJdbcTemplate().query(
                 "select * from dhcpoption where iaprefix_id = ? order by code", 
@@ -177,14 +177,14 @@ public class JdbcDhcpOptionDAO extends JdbcDaoSupport implements DhcpOptionDAO
     /**
      * The Class OptionRowMapper.
      */
-    protected class OptionRowMapper implements RowMapper<DhcpOption> 
+    protected class OptionRowMapper implements RowMapper<DbDhcpOption> 
     {	
         
         /* (non-Javadoc)
          * @see org.springframework.jdbc.core.simple.RowMapper#mapRow(java.sql.ResultSet, int)
          */
-        public DhcpOption mapRow(ResultSet rs, int rowNum) throws SQLException {
-        	DhcpOption option = new DhcpOption();
+        public DbDhcpOption mapRow(ResultSet rs, int rowNum) throws SQLException {
+        	DbDhcpOption option = new DbDhcpOption();
         	option.setId(rs.getLong("id"));
         	option.setCode(rs.getInt("code"));
         	option.setValue(rs.getBytes("value"));

@@ -32,7 +32,7 @@ import java.util.List;
  * 
  * @author A. Gregory Rabil
  */
-public interface DhcpOptionDAO
+public interface DbDhcpOptionDAO
 {
 	
 	/**
@@ -40,14 +40,14 @@ public interface DhcpOptionDAO
 	 * 
 	 * @param option the option
 	 */
-	public void create(DhcpOption option);
+	public void create(DbDhcpOption option);
 	
 	/**
 	 * Update.
 	 * 
 	 * @param option the option
 	 */
-	public void update(DhcpOption option);
+	public void update(DbDhcpOption option);
 	
 	/**
 	 * Delete by id.
@@ -63,7 +63,7 @@ public interface DhcpOptionDAO
 	 * 
 	 * @return the by id
 	 */
-	public DhcpOption getById(Long id);
+	public DbDhcpOption getById(Long id);
 	
 	/**
 	 * Find all by identity assoc id.
@@ -72,7 +72,7 @@ public interface DhcpOptionDAO
 	 * 
 	 * @return the list< dhcp option>
 	 */
-	public List<DhcpOption> findAllByIdentityAssocId(long identityAssocId);
+	public List<DbDhcpOption> findAllByIdentityAssocId(long identityAssocId);
 	
 	/**
 	 * Find all by ia address id.
@@ -81,7 +81,7 @@ public interface DhcpOptionDAO
 	 * 
 	 * @return the list< dhcp option>
 	 */
-	public List<DhcpOption> findAllByIaAddressId(long iaAddressId);
+	public List<DbDhcpOption> findAllByIaAddressId(long iaAddressId);
 	
 	/**
 	 * Find all by ia prefix id.
@@ -90,5 +90,5 @@ public interface DhcpOptionDAO
 	 * 
 	 * @return the list< dhcp option>
 	 */
-	public List<DhcpOption> findAllByIaPrefixId(long iaPrefixId);
+	public List<DbDhcpOption> findAllByIaPrefixId(long iaPrefixId);
 }

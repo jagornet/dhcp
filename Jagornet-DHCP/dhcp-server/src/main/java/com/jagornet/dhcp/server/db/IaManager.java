@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
 
+import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.server.request.binding.Range;
 
 /**

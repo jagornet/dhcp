@@ -35,19 +35,24 @@ public class TestDhcpLease {
 		dhcpLease.setValidEndTime(now);
 		com.jagornet.dhcp.core.option.base.DhcpOption subnetMaskOption = 
 				new DhcpV4SubnetMaskOption("255.255.255.0");
-		dhcpLease.addIaAddrDhcpOption(DhcpOption.fromConfigDhcpOption(subnetMaskOption));
+//		dhcpLease.addIaAddrDhcpOption(DbDhcpOption.fromConfigDhcpOption(subnetMaskOption));
+		dhcpLease.addIaAddrDhcpOption(subnetMaskOption);
 		com.jagornet.dhcp.core.option.base.DhcpOption routersOption = 
 				new DhcpV4RoutersOption(Arrays.asList("10.11.12.1"));
-		dhcpLease.addIaAddrDhcpOption(DhcpOption.fromConfigDhcpOption(routersOption));
+//		dhcpLease.addIaAddrDhcpOption(DbDhcpOption.fromConfigDhcpOption(routersOption));
+		dhcpLease.addIaAddrDhcpOption(routersOption);
 		com.jagornet.dhcp.core.option.base.DhcpOption dnsServersOption = 
 				new DhcpV4DomainServersOption(Arrays.asList("10.11.12.10"));
-		dhcpLease.addIaAddrDhcpOption(DhcpOption.fromConfigDhcpOption(dnsServersOption));
+//		dhcpLease.addIaAddrDhcpOption(DbDhcpOption.fromConfigDhcpOption(dnsServersOption));
+		dhcpLease.addIaAddrDhcpOption(dnsServersOption);
 		com.jagornet.dhcp.core.option.base.DhcpOption hostnameOption = 
 				new DhcpV4HostnameOption("hostname");
-		dhcpLease.addIaAddrDhcpOption(DhcpOption.fromConfigDhcpOption(hostnameOption));
+//		dhcpLease.addIaAddrDhcpOption(DbDhcpOption.fromConfigDhcpOption(hostnameOption));
+		dhcpLease.addIaAddrDhcpOption(hostnameOption);
 		com.jagornet.dhcp.core.option.base.DhcpOption domainOption = 
 				new DhcpV4DomainNameOption("jagornet.com");
-		dhcpLease.addIaAddrDhcpOption(DhcpOption.fromConfigDhcpOption(domainOption));
+//		dhcpLease.addIaAddrDhcpOption(DbDhcpOption.fromConfigDhcpOption(domainOption));
+		dhcpLease.addIaAddrDhcpOption(domainOption);
 	}
 
 	@After

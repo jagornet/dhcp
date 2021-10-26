@@ -52,7 +52,7 @@ import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.xml.Link;
 import com.jagornet.dhcp.server.config.xml.LinkFilter;
-import com.jagornet.dhcp.server.db.DhcpOption;
+import com.jagornet.dhcp.server.db.DbDhcpOption;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
@@ -396,9 +396,9 @@ public abstract class BaseBindingManager implements BindingManager
 				Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> msgOptions =
 						bindingObjs.iterator().next().getDhcpOptionMap();
 				// convert the "configured" options to options to be stored in lease database
-				Collection<DhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
+				//Collection<DbDhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
 				try {
-					iaMgr.createIA(binding, dhcpOptions);
+					iaMgr.createIA(binding, msgOptions.values());
 				}
 				catch (Exception ex) {
 					log.error("Failed to create persistent binding", ex);
@@ -458,9 +458,9 @@ public abstract class BaseBindingManager implements BindingManager
 				Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> msgOptions =
 						bindingObjs.iterator().next().getDhcpOptionMap();
 				// convert the "configured" options to options to be stored in lease database
-				Collection<DhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
+				//Collection<DbDhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
 				try {
-					iaMgr.createIA(binding, dhcpOptions);
+					iaMgr.createIA(binding, msgOptions.values());
 				}
 				catch (Exception ex) {
 					log.error("Failed to create persistent binding", ex);
@@ -536,11 +536,12 @@ public abstract class BaseBindingManager implements BindingManager
 		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> msgOptions =
 				bindingObjs.iterator().next().getDhcpOptionMap();
 		// convert the "configured" options to options to be stored in lease database
-		Collection<DhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
+		//Collection<DbDhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
 		binding.setState(state);
 		try {
 			log.info("Updating binding");
-			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses, dhcpOptions);
+			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, 
+							delIaAddresses, msgOptions.values());
 			log.info("Binding updated: " + binding.toString());
 			return binding;	// if we get here, it worked
 		}
@@ -608,11 +609,12 @@ public abstract class BaseBindingManager implements BindingManager
 			msgOptions = bindingObjs.iterator().next().getDhcpOptionMap();
 		}
 		// convert the "configured" options to options to be stored in lease database
-		Collection<DhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
+		//Collection<DbDhcpOption> dhcpOptions = convertDhcpOptions(msgOptions);
 
 		binding.setState(IaAddress.RESERVED);
 		try {
-			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, delIaAddresses, dhcpOptions);
+			iaMgr.updateIA(binding, addIaAddresses, updateIaAddresses, 
+							delIaAddresses, msgOptions.values());
 			return binding;	// if we get here, it worked
 		}
 		catch (Exception ex) {
@@ -988,16 +990,16 @@ public abstract class BaseBindingManager implements BindingManager
 	 *                               options from the client, if applicable
 	 * @return
 	 */
-	public static Collection<DhcpOption> convertDhcpOptions(
+	public static Collection<DbDhcpOption> convertDhcpOptions(
 			Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> effectiveDhcpOptionMap) {
 		
-		Collection<DhcpOption> dhcpOptions = null;
+		Collection<DbDhcpOption> dhcpOptions = null;
 		if ((effectiveDhcpOptionMap != null) && !effectiveDhcpOptionMap.isEmpty()) {
-			dhcpOptions = new ArrayList<DhcpOption>();
+			dhcpOptions = new ArrayList<DbDhcpOption>();
 			for (com.jagornet.dhcp.core.option.base.DhcpOption effectiveDhcpOption : 
 				 effectiveDhcpOptionMap.values()) {
 				try {
-					dhcpOptions.add(DhcpOption.fromConfigDhcpOption(effectiveDhcpOption));
+					dhcpOptions.add(DbDhcpOption.fromConfigDhcpOption(effectiveDhcpOption));
 				} catch (IOException e) {
 					log.error("Failed to convert config option code=" + effectiveDhcpOption.getCode());
 				}

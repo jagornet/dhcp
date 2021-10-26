@@ -26,6 +26,7 @@
 package com.jagornet.dhcp.server.db;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.PreparedStatement;
@@ -48,6 +49,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 
+import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
@@ -144,9 +146,12 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
-				ps.setBytes(i++, encodeOptions(lease.getDhcpOptions()));
-				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions()));
-				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions()));
+				ps.setBytes(i++, encodeOptions(lease.getDhcpOptions(),
+							(lease.getIatype() == IdentityAssoc.V4_TYPE)));
+				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions(),
+							(lease.getIatype() == IdentityAssoc.V4_TYPE)));
+				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions(),
+							(lease.getIatype() == IdentityAssoc.V4_TYPE)));
 			}
 		});
 		log.debug("Inserted " + cnt + " dhcplease objects");
@@ -201,9 +206,12 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
-				ps.setBytes(i++, encodeOptions(lease.getDhcpOptions()));
-				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions()));
-				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions()));
+				ps.setBytes(i++, encodeOptions(lease.getDhcpOptions(),
+							(lease.getIatype() == IdentityAssoc.V4_TYPE)));
+				ps.setBytes(i++, encodeOptions(lease.getIaDhcpOptions(),
+							(lease.getIatype() == IdentityAssoc.V4_TYPE)));
+				ps.setBytes(i++, encodeOptions(lease.getIaAddrDhcpOptions(),
+							(lease.getIatype() == IdentityAssoc.V4_TYPE)));
 				ps.setBytes(i++, lease.getIpAddress().getAddress());
 			}
 		});
@@ -244,7 +252,8 @@ public class JdbcLeaseManager extends LeaseManager
 			@Override
 			public void setValues(PreparedStatement ps)
 					throws SQLException {
-				ps.setBytes(1, encodeOptions(iaOptions));
+				ps.setBytes(1, encodeOptions(iaOptions,
+							inetAddr instanceof Inet4Address));
 				ps.setBytes(2, inetAddr.getAddress());
 			}
 		});
@@ -265,7 +274,8 @@ public class JdbcLeaseManager extends LeaseManager
 			@Override
 			public void setValues(PreparedStatement ps)
 					throws SQLException {
-				ps.setBytes(1, encodeOptions(ipAddrOptions));
+				ps.setBytes(1, encodeOptions(ipAddrOptions,
+							inetAddr instanceof Inet4Address));
 				ps.setBytes(2, inetAddr.getAddress());
 			}
 		});
@@ -376,7 +386,8 @@ public class JdbcLeaseManager extends LeaseManager
 				else {
 					ps.setNull(i++, java.sql.Types.TIMESTAMP);
 				}
-				ps.setBytes(i++, encodeOptions(ipAddrOptions));
+				ps.setBytes(i++, encodeOptions(ipAddrOptions,
+							inetAddr instanceof Inet4Address));
 				ps.setBytes(i++, inetAddr.getAddress());
 			}
 		});
@@ -714,9 +725,12 @@ public class JdbcLeaseManager extends LeaseManager
 			lease.setStartTime(rs.getTimestamp("starttime", Util.GMT_CALENDAR));
 			lease.setPreferredEndTime(rs.getTimestamp("preferredendtime", Util.GMT_CALENDAR));
 			lease.setValidEndTime(rs.getTimestamp("validendtime", Util.GMT_CALENDAR));
-			lease.setDhcpOptions(decodeOptions(rs.getBytes("options")));
-			lease.setIaDhcpOptions(decodeOptions(rs.getBytes("ia_options")));
-			lease.setIaAddrDhcpOptions(decodeOptions(rs.getBytes("ipaddr_options")));
+			lease.setDhcpOptions(decodeOptions(rs.getBytes("options"), 
+								(lease.getIatype() == IdentityAssoc.V4_TYPE)));
+			lease.setIaDhcpOptions(decodeOptions(rs.getBytes("ia_options"), 
+								(lease.getIatype() == IdentityAssoc.V4_TYPE)));
+			lease.setIaAddrDhcpOptions(decodeOptions(rs.getBytes("ipaddr_options"), 
+								(lease.getIatype() == IdentityAssoc.V4_TYPE)));
             return lease;
 		};
     }

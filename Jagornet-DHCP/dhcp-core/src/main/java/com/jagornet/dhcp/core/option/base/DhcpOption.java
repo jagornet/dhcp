@@ -40,6 +40,7 @@ public interface DhcpOption extends Encodable, Decodable
 	 * @return the code for the option
 	 */
 	public int getCode();
+	public void setCode(int code);
 
     /**
      * Gets the option name.
@@ -47,6 +48,7 @@ public interface DhcpOption extends Encodable, Decodable
      * @return the name of the option
      */
     public String getName();
+    public void setName(String name);
     
     /**
      * Gets the length.  Java int for unsigned short.
@@ -54,6 +56,14 @@ public interface DhcpOption extends Encodable, Decodable
      * @return the length of the option in bytes
      */
     public int getLength();
+    
+    /**
+     * Gets the raw option data as a byte array.
+     * 
+     * @return the option data bytes
+     */
+    public byte[] getRawData();
+    public void setRawData(byte[] value);
     
     /**
      * Return a string representation of this DhcpOption.
@@ -68,4 +78,6 @@ public interface DhcpOption extends Encodable, Decodable
      * @return true if this is a DHCPv4 option, false otherwise.
      */
     public boolean isV4();
+    public void setV4(boolean isV4);
+    
 }

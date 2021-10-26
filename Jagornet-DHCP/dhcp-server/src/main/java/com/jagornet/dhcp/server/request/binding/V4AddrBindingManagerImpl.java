@@ -27,7 +27,6 @@ package com.jagornet.dhcp.server.request.binding;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4LeaseTimeOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
@@ -54,7 +54,6 @@ import com.jagornet.dhcp.server.config.xml.V4AddressBinding;
 import com.jagornet.dhcp.server.config.xml.V4AddressBindingsType;
 import com.jagornet.dhcp.server.config.xml.V4AddressPool;
 import com.jagornet.dhcp.server.config.xml.V4AddressPoolsType;
-import com.jagornet.dhcp.server.db.DhcpOption;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.server.request.ddns.DdnsCallback;
@@ -469,8 +468,9 @@ public class V4AddrBindingManagerImpl
 	    		if (opts != null) {
 	    			for (DhcpOption opt : opts) {
 	    				if (opt.getCode() == DhcpConstants.V4OPTION_CLIENT_FQDN) {
-	    					clientFqdnOption = new DhcpV4ClientFqdnOption();
-	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
+//	    					clientFqdnOption = new DhcpV4ClientFqdnOption();
+//	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
+	    					clientFqdnOption = (DhcpV4ClientFqdnOption)opt;
 	    					break;
 	    				}
 	    			}

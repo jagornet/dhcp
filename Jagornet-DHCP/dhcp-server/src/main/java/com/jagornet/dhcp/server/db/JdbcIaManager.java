@@ -41,6 +41,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
+import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
@@ -59,7 +60,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	protected IdentityAssocDAO iaDao;
 	protected IaAddressDAO iaAddrDao;
 	protected IaPrefixDAO iaPrefixDao;
-	protected DhcpOptionDAO dhcpOptDao;
+	protected DbDhcpOptionDAO dhcpOptDao;
 	
 	// Spring bean init-method
 	public void init() throws Exception {
@@ -91,11 +92,19 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 					Collection<DhcpOption> opts = iaAddr.getDhcpOptions();
 					if (opts != null) {
 						for (DhcpOption opt : opts) {
+							DbDhcpOption dbOpt = new DbDhcpOption();
+							dbOpt.setCode(opt.getCode());
+							try {
+								dbOpt.setValue(opt.encode().array());
+							}
+							catch (IOException ex) {
+								log.error("Failed to encode option", ex);
+							}
 							if (ia.getIatype() == IdentityAssoc.PD_TYPE)
-								opt.setIaPrefixId(iaAddr.getId());
+								dbOpt.setIaPrefixId(iaAddr.getId());
 							else
-								opt.setIaAddressId(iaAddr.getId());
-							dhcpOptDao.create(opt);
+								dbOpt.setIaAddressId(iaAddr.getId());
+							dhcpOptDao.create(dbOpt);
 						}
 					}
 				}
@@ -103,8 +112,16 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 			Collection<DhcpOption> opts = ia.getDhcpOptions();
 			if (opts != null) {
 				for (DhcpOption opt : opts) {
-					opt.setIdentityAssocId(ia.getId());
-					dhcpOptDao.create(opt);
+					DbDhcpOption dbOpt = new DbDhcpOption();
+					dbOpt.setCode(opt.getCode());
+					try {
+						dbOpt.setValue(opt.encode().array());
+					}
+					catch (IOException ex) {
+						log.error("Failed to encode option", ex);
+					}
+					dbOpt.setIdentityAssocId(ia.getId());
+					dhcpOptDao.create(dbOpt);
 				}
 			}
 		}
@@ -190,20 +207,30 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 				iaAddrs = iaAddrDao.findAllByIdentityAssocId(ia.getId());
 			if (iaAddrs != null) {
 				for (IaAddress iaAddr : iaAddrs) {
-					List<DhcpOption> opts = null;
+					List<DbDhcpOption> dbOpts = null;
 					if (ia.getIatype() == IdentityAssoc.PD_TYPE)
-						opts = dhcpOptDao.findAllByIaPrefixId(iaAddr.getId());
+						dbOpts = dhcpOptDao.findAllByIaPrefixId(iaAddr.getId());
 					else
-						opts = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());
-					if (opts != null) {
-						iaAddr.setDhcpOptions(new ArrayList<DhcpOption>(opts));
+						dbOpts = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());
+					if (dbOpts != null) {
+						List<DhcpOption> opts = new ArrayList<DhcpOption>();
+						for (DbDhcpOption dbOpt : dbOpts) {
+							//TODO
+						}
+						iaAddr.setDhcpOptions(opts);
 					}
 				}
 				ia.setIaAddresses(new ArrayList<IaAddress>(iaAddrs));
 			}
-			List<DhcpOption> opts = dhcpOptDao.findAllByIdentityAssocId(ia.getId());
-			if (opts != null) {
-				ia.setDhcpOptions(new ArrayList<DhcpOption>(opts));
+			List<DbDhcpOption> dbOpts = dhcpOptDao.findAllByIdentityAssocId(ia.getId());
+			if (dbOpts != null) {
+				if (dbOpts != null) {
+					List<DhcpOption> opts = new ArrayList<DhcpOption>();
+					for (DbDhcpOption dbOpt : dbOpts) {
+						//TODO
+					}
+					ia.setDhcpOptions(opts);
+				}
 			}
 		}
 		return ia;
@@ -258,7 +285,14 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 			for (IaAddress iaAddr : iaAddrs) {
 				List<IaAddress> _iaAddrs = new ArrayList<IaAddress>();
 				// populate the IaAddress with the associated DhcpOptions
-				iaAddr.setDhcpOptions(dhcpOptDao.findAllByIaAddressId(iaAddr.getId()));
+				List<DbDhcpOption> dbOpts = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());
+				if (dbOpts != null) {
+					List<DhcpOption> opts = new ArrayList<DhcpOption>();
+					for (DbDhcpOption dbOpt : dbOpts) {
+						//TODO
+					}
+					iaAddr.setDhcpOptions(opts);
+				}
 				// find the IA for this expired IaAddress
 				IdentityAssoc ia = findIA(iaAddr);
 				// now add this one expired IaAddress to the
@@ -286,11 +320,9 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 				newVal = Arrays.copyOfRange(newVal, 2, newVal.length);
 			}
 //			DhcpOption dbOption = iaAddr.getDhcpOption(baseOption.getCode());
-			DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
+			DbDhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
 			if (dbOption == null) {
-				dbOption = new com.jagornet.dhcp.server.db.DhcpOption();
-				dbOption.setCode(baseOption.getCode());
-				dbOption.setValue(newVal);
+				dbOption = DbDhcpOption.fromConfigDhcpOption(baseOption);
 				addDhcpOption(iaAddr, dbOption);
 			}
 			else {
@@ -309,19 +341,19 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	public void deleteDhcpOption(IaAddress iaAddr, 
 							   com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption)
 	{
-		DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
+		DbDhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
 		if (dbOption != null) {
 			dhcpOptDao.deleteById(dbOption.getId());
 		}
 	}
 
-	protected DhcpOption findIaAddressOption(IaAddress iaAddr,
+	protected DbDhcpOption findIaAddressOption(IaAddress iaAddr,
 			com.jagornet.dhcp.core.option.base.BaseDhcpOption baseOption) 
 	{
-		DhcpOption dbOption = null;
-		List<DhcpOption> iaAddrOptions = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());
+		DbDhcpOption dbOption = null;
+		List<DbDhcpOption> iaAddrOptions = dhcpOptDao.findAllByIaAddressId(iaAddr.getId());
 		if (iaAddrOptions != null) {
-			for (DhcpOption iaAddrOption : iaAddrOptions) {
+			for (DbDhcpOption iaAddrOption : iaAddrOptions) {
 				if (iaAddrOption.getCode() == baseOption.getCode()) {
 					dbOption = iaAddrOption;
 					break;
@@ -331,7 +363,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 		return dbOption;
 	}
 	
-	protected void addDhcpOption(IdentityAssoc ia, DhcpOption option)
+	protected void addDhcpOption(IdentityAssoc ia, DbDhcpOption option)
 	{
 		// ensure the DhcpOption references this IA, and nothing else
 		option.setIdentityAssocId(ia.getId());
@@ -341,7 +373,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 		dhcpOptDao.create(option);
 	}
 	
-	protected void addDhcpOption(IaAddress iaAddr, DhcpOption option)
+	protected void addDhcpOption(IaAddress iaAddr, DbDhcpOption option)
 	{
 		// ensure the DhcpOption references this IA_ADDR, and nothing else
 		option.setIdentityAssocId(null);
@@ -351,7 +383,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 		dhcpOptDao.create(option);
 	}
 	
-	protected void addDhcpOption(IaPrefix iaPrefix, DhcpOption option)
+	protected void addDhcpOption(IaPrefix iaPrefix, DbDhcpOption option)
 	{
 		// ensure the DhcpOption references this IA_PREFIX, and nothing else
 		option.setIdentityAssocId(null);
@@ -361,12 +393,12 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 		dhcpOptDao.create(option);
 	}
 	
-	protected void updateDhcpOption(DhcpOption option)
+	protected void updateDhcpOption(DbDhcpOption option)
 	{
 		dhcpOptDao.update(option);
 	}
 	
-	protected void deleteDhcpOption(DhcpOption option)
+	protected void deleteDhcpOption(DbDhcpOption option)
 	{
 		dhcpOptDao.deleteById(option.getId());
 	}
@@ -591,7 +623,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	 * 
 	 * @return the dhcp opt dao
 	 */
-	public DhcpOptionDAO getDhcpOptDao() {
+	public DbDhcpOptionDAO getDhcpOptDao() {
 		return dhcpOptDao;
 	}
 
@@ -600,7 +632,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	 * 
 	 * @param dhcpOptDao the new dhcp opt dao
 	 */
-	public void setDhcpOptDao(DhcpOptionDAO dhcpOptDao) {
+	public void setDhcpOptDao(DbDhcpOptionDAO dhcpOptDao) {
 		this.dhcpOptDao = dhcpOptDao;
 	}
 
