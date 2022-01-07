@@ -19,7 +19,7 @@
   	<netty.version>4.1.48.Final</netty.version>
   	<spring.version>5.2.5.RELEASE</spring.version>
   	<derby.version>10.14.2.0</derby.version>
-  	<h2.version>1.4.200</h2.version>
+  	<h2.version>2.0.206</h2.version>
   	<sqlite.jdbc.version>3.30.1</sqlite.jdbc.version>
   	<jersey.version>2.30</jersey.version>
   	<jaxb.api.version>2.3.1</jaxb.api.version>
