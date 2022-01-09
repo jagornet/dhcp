@@ -155,30 +155,50 @@ public class DbSchemaManager
         Connection conn = dataSource.getConnection();
 		DatabaseMetaData dbMetaData = conn.getMetaData();
 		
+		String dbProduct = dbMetaData.getDatabaseProductName();
 		log.info("JDBC Connection Info:\n" +
 				"url = " + dbMetaData.getURL() +
 				"\n" +
-				"database = " + dbMetaData.getDatabaseProductName() +
+				"database = " + dbProduct +
 				" " + dbMetaData.getDatabaseProductVersion() +
 				"\n" +
 				"driver = " + dbMetaData.getDriverName() +
 				" " + dbMetaData.getDriverVersion());
 		
+		ResultSet crs = dbMetaData.getCatalogs();
+		while (crs.next()) {
+			String cat = crs.getString("TABLE_CAT");
+			log.info("CATALOG: " + cat);
+		}
+		ResultSet srs = dbMetaData.getSchemas();
+		while (srs.next()) {
+			log.info("SCHEMA (CATALOG): " + 
+					 srs.getString("TABLE_SCHEM") +
+					 " (" + srs.getString("TABLE_CATALOG") + ")");
+		}
+		
+		String catalog = null;		// "JAGORNET-DHCP"
+		String schema = null;
+		if (dbProduct.equals("H2")) {
+			log.debug("Using PUBLIC schema for H2 2.0.206+");
+			schema = "PUBLIC";		// for H2 2.0.206: _not_ INFORMATION_SCHEMA
+		}
         String[] types = { "TABLE" };
-        ResultSet rs = dbMetaData.getTables(null, null, "%", types);
+        ResultSet rs = dbMetaData.getTables(catalog, schema, "%", types);
         if (rs.next()) {
             tableNames.add(rs.getString("TABLE_NAME"));
         }
         else {
         	createSchema(dataSource, schemaFilename);
             dbMetaData = conn.getMetaData();
-            rs = dbMetaData.getTables(null, null, "%", types);
+            rs = dbMetaData.getTables(catalog, schema, "%", types);
             schemaCreated = true;
         }
         while (rs.next()){
           tableNames.add(rs.getString("TABLE_NAME"));
         }
         
+        log.info("TABLE_NAMES: " + String.join(", ", tableNames));
         String[] schemaTableNames;
         if (schemaVersion <= 1) {
         	schemaTableNames = TABLE_NAMES;
