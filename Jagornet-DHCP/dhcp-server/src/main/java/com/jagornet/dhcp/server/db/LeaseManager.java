@@ -942,8 +942,14 @@ public abstract class LeaseManager implements IaManager {
         	try {
         		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				for (DhcpOption option : dhcpOptions) {
-					byte[] opt = option.encode().array();
-					baos.write(opt, 0, opt.length);
+					ByteBuffer optbuf = option.encode();
+					if (optbuf != null) {
+						byte[] opt = optbuf.array();
+						baos.write(opt, 0, opt.length);
+					}
+					else {
+						log.error("Failed to encode option code=" + option.getCode());
+					}
 				}
 				return baos.toByteArray();
 			} 
@@ -961,11 +967,15 @@ public abstract class LeaseManager implements IaManager {
 	 * @param v4 is DHCPv4?
 	 * @return the collection of DhcpOptions
 	 */
-	public static Collection<DhcpOption> decodeOptions(byte[] buf, boolean v4)
+	public static Collection<DhcpOption> decodeOptions(String type, byte[] buf, boolean v4)
 	{
 		Collection<DhcpOption> options = null;
         if ((buf != null) && (buf.length > 0)) {
+        	if (log.isDebugEnabled()) {
+        		log.debug("Decoding " + type + " from DhcpLease");
+        	}
         	try {
+        		int i=0;
 				ByteBuffer bb = ByteBuffer.wrap(buf);
 				options = new ArrayList<DhcpOption>();
 				while (bb.hasRemaining()) {
@@ -981,7 +991,11 @@ public abstract class LeaseManager implements IaManager {
 						v6Opt.decode(bb);
 						options.add(v6Opt);
 					}
+					i++;
 				}
+	        	if (log.isDebugEnabled()) {
+	        		log.debug("Decoded " + i + " " + type + " from DhcpLease");
+	        	}
 			}
         	catch (IOException ex) {
 				log.error("Failure decoding options", ex);

@@ -62,8 +62,11 @@ public class BaseOpaqueData {
             return ascii.length();
         }
         else {
-            return hex.length;
-        }		
+        	if (hex != null) {
+        		return hex.length;
+        	}
+        }
+        return 0;
 	}
 	public void encode(ByteBuffer buf) {
         if (ascii != null) {

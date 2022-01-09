@@ -92,9 +92,10 @@ public abstract class BaseDhcpOption implements DhcpOption
             else {
             	len = Util.getUnsignedShort(buf);
             }
-            if (log.isDebugEnabled())
-                log.debug(getName() + " reports length=" + len +
+            if (log.isTraceEnabled()) {
+                log.trace(getName() + " reports length=" + len +
                           ":  bytes remaining in buffer=" + buf.remaining());
+            }
             return len;
         }
         return 0;

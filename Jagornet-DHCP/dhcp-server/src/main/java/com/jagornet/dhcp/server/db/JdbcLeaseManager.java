@@ -725,11 +725,14 @@ public class JdbcLeaseManager extends LeaseManager
 			lease.setStartTime(rs.getTimestamp("starttime", Util.GMT_CALENDAR));
 			lease.setPreferredEndTime(rs.getTimestamp("preferredendtime", Util.GMT_CALENDAR));
 			lease.setValidEndTime(rs.getTimestamp("validendtime", Util.GMT_CALENDAR));
-			lease.setDhcpOptions(decodeOptions(rs.getBytes("options"), 
+			lease.setDhcpOptions(
+					decodeOptions("options", rs.getBytes("options"), 
 								(lease.getIatype() == IdentityAssoc.V4_TYPE)));
-			lease.setIaDhcpOptions(decodeOptions(rs.getBytes("ia_options"), 
+			lease.setIaDhcpOptions(
+					decodeOptions("ia_options", rs.getBytes("ia_options"), 
 								(lease.getIatype() == IdentityAssoc.V4_TYPE)));
-			lease.setIaAddrDhcpOptions(decodeOptions(rs.getBytes("ipaddr_options"), 
+			lease.setIaAddrDhcpOptions(
+					decodeOptions("ipaddr_options", rs.getBytes("ipaddr_options"), 
 								(lease.getIatype() == IdentityAssoc.V4_TYPE)));
             return lease;
 		};
