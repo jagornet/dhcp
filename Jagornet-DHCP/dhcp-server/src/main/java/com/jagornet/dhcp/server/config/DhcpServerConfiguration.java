@@ -1328,7 +1328,7 @@ public class DhcpServerConfiguration
     	yamlMapper.writeValue(outputStream, config);
     }
     
-    public static void convertConfig(String configFileIn, String configFileOut) 
+    public void convertConfig(String configFileIn, String configFileOut) 
     		throws DhcpServerConfigException, JAXBException, IOException {
     	
     	DhcpServerConfig config = loadConfig(configFileIn);
@@ -2870,7 +2870,8 @@ public class DhcpServerConfiguration
 			System.exit(1);
 		}
 		try {
-			convertConfig(args[0], args[1]);
+			DhcpServerConfiguration instance = DhcpServerConfiguration.getInstance();
+			instance.convertConfig(args[0], args[1]);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();
