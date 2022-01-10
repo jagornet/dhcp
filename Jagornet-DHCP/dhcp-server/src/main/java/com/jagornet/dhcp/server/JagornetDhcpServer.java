@@ -366,8 +366,11 @@ public class JagornetDhcpServer
 				log.info("Initializing V4 Address Binding Manager");
 				v4AddrBindingMgr.init();
 				if (reconcile) {
-					bindingPoolMap.putAll(
-							((BindingManager)v4AddrBindingMgr).getBindingPoolMap());
+					Map<String, List<? extends BindingPool>> v4AddrPoolMap =
+							((BindingManager)v4AddrBindingMgr).getBindingPoolMap();
+					if (v4AddrPoolMap != null) {
+						bindingPoolMap.putAll(v4AddrPoolMap);
+					}
 				}
 				serverConfig.setV4AddrBindingMgr(v4AddrBindingMgr);
 			}
@@ -387,8 +390,11 @@ public class JagornetDhcpServer
 				log.info("Initializing V6 NA Address Binding Manager");
 				v6NaAddrBindingMgr.init();
 				if (reconcile) {
-					bindingPoolMap.putAll(
-							((BindingManager)v6NaAddrBindingMgr).getBindingPoolMap());
+					Map<String, List<? extends BindingPool>> v6NaAddrPoolMap =
+							((BindingManager)v6NaAddrBindingMgr).getBindingPoolMap();
+					if (v6NaAddrPoolMap != null) {
+						bindingPoolMap.putAll(v6NaAddrPoolMap);
+					}
 				}
 				serverConfig.setV6NaAddrBindingMgr(v6NaAddrBindingMgr);
 			}
@@ -408,8 +414,11 @@ public class JagornetDhcpServer
 				log.info("Initializing V6 TA Address Binding Manager");
 				v6TaAddrBindingMgr.init();
 				if (reconcile) {
-					bindingPoolMap.putAll(
-							((BindingManager)v6TaAddrBindingMgr).getBindingPoolMap());
+					Map<String, List<? extends BindingPool>> v6TaAddrPoolMap =
+							((BindingManager)v6TaAddrBindingMgr).getBindingPoolMap();
+					if (v6TaAddrPoolMap != null) {
+						bindingPoolMap.putAll(v6TaAddrPoolMap);
+					}
 				}
 				serverConfig.setV6TaAddrBindingMgr(v6TaAddrBindingMgr);
 			}
@@ -429,8 +438,11 @@ public class JagornetDhcpServer
 				log.info("Initializing V6 Prefix Binding Manager");
 				v6PrefixBindingMgr.init();
 				if (reconcile) {
-					bindingPoolMap.putAll(
-							((BindingManager)v6PrefixBindingMgr).getBindingPoolMap());
+					Map<String, List<? extends BindingPool>> v6PrefixPoolMap =
+							((BindingManager)v6NaAddrBindingMgr).getBindingPoolMap();
+					if (v6PrefixPoolMap != null) {
+						bindingPoolMap.putAll(v6PrefixPoolMap);
+					}
 				}
 				serverConfig.setV6PrefixBindingMgr(v6PrefixBindingMgr);
 			}
