@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcp.server.db;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -43,6 +44,9 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4OptionFactory;
+import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
 import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
@@ -57,7 +61,8 @@ public abstract class LeaseManager implements IaManager {
 	public abstract int deleteDhcpLease(final DhcpLease lease);
 	public abstract int updateIpAddress(final InetAddress inetAddr, 
 			final byte state, final byte haPeerState, final short prefixlen,
-			final Date start, final Date preferred, final Date valid);
+			final Date start, final Date preferred, final Date valid,
+			final Collection<DhcpOption> iaAddrOptions);
 	public abstract int deleteIpAddress(final InetAddress inetAddr);
 	public abstract int updateIaOptions(final InetAddress inetAddr, 
 			final Collection<DhcpOption> iaOptions);
@@ -68,24 +73,15 @@ public abstract class LeaseManager implements IaManager {
 	public abstract DhcpLease findDhcpLeaseForInetAddr(final InetAddress inetAddr);
 	public abstract List<InetAddress> findExistingLeaseIPs(final InetAddress startAddr, 
 			final InetAddress endAddr);
-	public void findExistingLeaseIPs(final InetAddress startAddr, 
-			final InetAddress endAddr, InetAddressCallbackHandler inetAddressCallbackHandler) {
-		//TODO: implement in all subclasses
-	}
-	public void findExistingLeases(final InetAddress startAddr, 
+	public abstract void findExistingLeaseIPs(final InetAddress startAddr, 
+			final InetAddress endAddr, InetAddressCallbackHandler inetAddressCallbackHandler);
+	public abstract void findExistingLeases(final InetAddress startAddr, 
 								   final InetAddress endAddr,
-								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
-		//TODO: implement in all subclasses
-	}
-	public void findUnsyncedLeases(final InetAddress startAddr, 
+								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler);
+	public abstract void findUnsyncedLeases(final InetAddress startAddr, 
 			   final InetAddress endAddr,
-			   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
-		//TODO: implement in all subclasses
-	}
-	public int setAllLeasesUnsynced() {
-		//TODO: implement in all subclasses
-		return 0;
-	}
+			   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler);
+	public abstract int setAllLeasesUnsynced();
 	public abstract List<DhcpLease> findUnusedLeases(final InetAddress startAddr, 
 			final InetAddress endAddr);
 	public abstract DhcpLease findUnusedLease(final InetAddress startAddr, 
@@ -315,23 +311,23 @@ public abstract class LeaseManager implements IaManager {
 			byte[] newVal = baseOption.encode().array();
 			// don't store the option code, start with length to
 			// simplify decoding when retrieving from database
-			if (baseOption.isV4()) {
-				newVal = Arrays.copyOfRange(newVal, 1, newVal.length);
-			}
-			else {
-				newVal = Arrays.copyOfRange(newVal, 2, newVal.length);
-			}
+//			if (baseOption.isV4()) {
+//				newVal = Arrays.copyOfRange(newVal, 1, newVal.length);
+//			}
+//			else {
+//				newVal = Arrays.copyOfRange(newVal, 2, newVal.length);
+//			}
 //			DhcpOption dbOption = iaAddr.getDhcpOption(baseOption.getCode());
 			DhcpOption dbOption = findIaAddressOption(iaAddr, baseOption);
 			if (dbOption == null) {
-				dbOption = new com.jagornet.dhcp.server.db.DhcpOption();
-				dbOption.setCode(baseOption.getCode());
-				dbOption.setValue(newVal);
+//				dbOption = new com.jagornet.dhcp.server.db.DhcpOption();
+//				dbOption.setCode(baseOption.getCode());
+//				dbOption.setValue(newVal);
 				setDhcpOption(iaAddr, dbOption);
 			}
 			else {
-				if(!Arrays.equals(dbOption.getValue(), newVal)) {
-					dbOption.setValue(newVal);
+				if(!Arrays.equals(dbOption.encode().array(), newVal)) {
+//					dbOption.setValue(newVal);
 					setDhcpOption(iaAddr, dbOption);
 				}
 			}
@@ -388,18 +384,19 @@ public abstract class LeaseManager implements IaManager {
 		boolean isPrefix = false;
 		short prefixLen = 0;
 		if (iaAddr instanceof IaPrefix) {
-			isPrefix = true;
 			prefixLen = ((IaPrefix)iaAddr).getPrefixLength();
 		}
 		if (!isPrefix) {
 			updateIpAddress(iaAddr.getIpAddress(), 
 					iaAddr.getState(), iaAddr.getHaPeerState(), (short)0,
-					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime());
+					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime(),
+					iaAddr.getDhcpOptions());
 		}
 		else {
 			updateIpAddress(iaAddr.getIpAddress(), 
 					iaAddr.getState(), iaAddr.getHaPeerState(), prefixLen,
-					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime());
+					iaAddr.getStartTime(), iaAddr.getPreferredEndTime(), iaAddr.getValidEndTime(),
+					iaAddr.getDhcpOptions());
 			
 		}
 		if (useLeaseCache()) {
@@ -662,7 +659,7 @@ public abstract class LeaseManager implements IaManager {
 	public void reconcileIaAddresses(List<Range> ranges) {
 		reconcileLeases(ranges);
 		if (useLeaseCache()) {
-// this methond is invoked only during startup, so there is nothing in the cache!
+// this method is invoked only during startup, so there is nothing in the cache!
 //			leaseCache.getAllLeases().stream()
 //				.filter(l -> {
 //					for (Range range : ranges) {
@@ -934,22 +931,31 @@ public abstract class LeaseManager implements IaManager {
 	/**
 	 * Encode options.
 	 *
-	 * @param dhcpOptions the dhcp options
+	 * @param dhcpOptions the collection of DhcpOptions
+	 * @param v4 is DHCPv4? (not used)
+	 * 
 	 * @return the byte[]
 	 */
-	public static byte[] encodeOptions(Collection<DhcpOption> dhcpOptions)
+	public static byte[] encodeOptions(Collection<DhcpOption> dhcpOptions, boolean v4) 
 	{
         if (dhcpOptions != null) {
-        	ByteBuffer bb = ByteBuffer.allocate(1024);
-            for (DhcpOption option : dhcpOptions) {
-        		bb.putShort((short)option.getCode());
-        		bb.putShort((short)option.getValue().length);
-        		bb.put(option.getValue());
-            }
-            bb.flip();
-            byte[] b = new byte[bb.limit()];
-            bb.get(b);
-            return b;
+        	try {
+        		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				for (DhcpOption option : dhcpOptions) {
+					ByteBuffer optbuf = option.encode();
+					if (optbuf != null) {
+						byte[] opt = optbuf.array();
+						baos.write(opt, 0, opt.length);
+					}
+					else {
+						log.error("Failed to encode option code=" + option.getCode());
+					}
+				}
+				return baos.toByteArray();
+			} 
+        	catch (IOException ex) {
+				log.error("Failure encoding options", ex);
+			}
         }
         return null;
 	}
@@ -958,23 +964,42 @@ public abstract class LeaseManager implements IaManager {
 	 * Decode options.
 	 *
 	 * @param buf the buf
-	 * @return the collection
+	 * @param v4 is DHCPv4?
+	 * @return the collection of DhcpOptions
 	 */
-	public static Collection<DhcpOption> decodeOptions(byte[] buf)
+	public static Collection<DhcpOption> decodeOptions(String type, byte[] buf, boolean v4)
 	{
 		Collection<DhcpOption> options = null;
         if ((buf != null) && (buf.length > 0)) {
-        	ByteBuffer bb = ByteBuffer.wrap(buf);
-        	options = new ArrayList<DhcpOption>();
-        	while (bb.hasRemaining()) {
-        		DhcpOption option = new DhcpOption();
-        		option.setCode(bb.getShort());
-        		int len = bb.getShort();
-        		byte[] val = new byte[len];
-        		bb.get(val);
-        		option.setValue(val);
-        		options.add(option);
+        	if (log.isDebugEnabled()) {
+        		log.debug("Decoding " + type + " from DhcpLease");
         	}
+        	try {
+        		int i=0;
+				ByteBuffer bb = ByteBuffer.wrap(buf);
+				options = new ArrayList<DhcpOption>();
+				while (bb.hasRemaining()) {
+					if (v4) {
+						short code = Util.getUnsignedByte(bb);
+						DhcpOption v4Opt = DhcpV4OptionFactory.getDhcpOption(code);
+						v4Opt.decode(bb);
+						options.add(v4Opt);
+					}
+					else {
+						int code = Util.getUnsignedShort(bb);
+						DhcpOption v6Opt = DhcpV6OptionFactory.getDhcpOption(code);
+						v6Opt.decode(bb);
+						options.add(v6Opt);
+					}
+					i++;
+				}
+	        	if (log.isDebugEnabled()) {
+	        		log.debug("Decoded " + i + " " + type + " from DhcpLease");
+	        	}
+			}
+        	catch (IOException ex) {
+				log.error("Failure decoding options", ex);
+			}
         }
         return options;
 	}

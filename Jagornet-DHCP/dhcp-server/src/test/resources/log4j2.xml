@@ -11,7 +11,7 @@
       <PatternLayout>
         <Pattern>%d [%t] %-5p %c{2} - %m%n</Pattern>
       </PatternLayout>
-      <DefaultRolloverStrategy max="10"/>
+      <DefaultRolloverStrategy fileIndex="min" max="9"/>
       <Policies>
       	<SizeBasedTriggeringPolicy size="10 MB"/>
       </Policies>

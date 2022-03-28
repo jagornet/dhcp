@@ -144,4 +144,8 @@ public class Range
 				subtract(new BigInteger(startAddress.getAddress())).
 				add(BigInteger.ONE);
 	}
+	
+	public String toString() {
+		return startAddress.getHostAddress() + "-" + endAddress.getHostAddress();
+	}
 }

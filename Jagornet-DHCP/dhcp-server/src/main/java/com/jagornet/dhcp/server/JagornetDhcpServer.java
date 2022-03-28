@@ -38,7 +38,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
@@ -65,6 +67,9 @@ import com.jagornet.dhcp.server.db.DbSchemaManager;
 import com.jagornet.dhcp.server.db.IaManager;
 import com.jagornet.dhcp.server.netty.NettyDhcpServer;
 import com.jagornet.dhcp.server.request.binding.BaseBindingManager;
+import com.jagornet.dhcp.server.request.binding.BindingManager;
+import com.jagornet.dhcp.server.request.binding.BindingPool;
+import com.jagornet.dhcp.server.request.binding.Range;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
@@ -83,6 +88,8 @@ public class JagornetDhcpServer
 
 	/** The INSTANCE. */
 	private static JagornetDhcpServer INSTANCE;
+	
+	protected String[] args;
 
     /** The command line options. */
     protected Options options;
@@ -166,7 +173,8 @@ public class JagornetDhcpServer
         	System.err.println("Invalid command line options: " + Arrays.toString(args));
         	showHelp();
             System.exit(0);
-        }        
+        }
+        this.args = args;
     }
     
     public void showHelp() {
@@ -179,14 +187,11 @@ public class JagornetDhcpServer
     }
     
     /**
-     * Start the DHCPv6 server.  If multicast network interfaces have
-     * been supplied on startup, then start a NetDhcpServer thread
-     * on each of those interfaces.  Start one NioDhcpServer thread
-     * which will listen on all IPv6 interfaces on the local host.
+     * Start the DHCP server with an array of command line args
      * 
      * @throws Exception the exception
      */
-    protected void start(String[] args) throws Exception
+    protected void start() throws Exception
     {
     	log.info("Starting " + JAGORNET_DHCP_SERVER);
     	log.info(Version.getVersion());
@@ -295,6 +300,8 @@ public class JagornetDhcpServer
     	nettyServer.start();
     	    	
     	if (httpsAddr != null) {
+    		System.out.println("HTTPS address: " + httpsAddr.getHostAddress());
+    		System.out.println("HTTPS port: " + httpsPortNumber);
 	    	//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
 	    	Channel jerseyHttpServer = 
 	    			JerseyRestServer.startNettyServer(httpsAddr, httpsPortNumber);
@@ -339,6 +346,15 @@ public class JagornetDhcpServer
 		
 		log.info("Loading managers from context...");
 		
+		Map<String, List<? extends BindingPool>> bindingPoolMap = null;
+		
+		boolean reconcile = DhcpServerPolicies.globalPolicyAsBoolean(
+				Property.BINDING_MANAGER_RECONCILE_POOLS_ON_STARTUP);
+
+		if (reconcile) {
+			bindingPoolMap = new HashMap<String, List<? extends BindingPool>>();
+		}
+		
 		//TODO: Check if binding manager init method can be
 		//		done by Spring in the context.xml file?
 		//		Maybe init is here for error handling at startup?
@@ -349,6 +365,13 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V4 Address Binding Manager");
 				v4AddrBindingMgr.init();
+				if (reconcile) {
+					Map<String, List<? extends BindingPool>> v4AddrPoolMap =
+							((BindingManager)v4AddrBindingMgr).getBindingPoolMap();
+					if (v4AddrPoolMap != null) {
+						bindingPoolMap.putAll(v4AddrPoolMap);
+					}
+				}
 				serverConfig.setV4AddrBindingMgr(v4AddrBindingMgr);
 			}
 			catch (Exception ex) {
@@ -366,6 +389,13 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 NA Address Binding Manager");
 				v6NaAddrBindingMgr.init();
+				if (reconcile) {
+					Map<String, List<? extends BindingPool>> v6NaAddrPoolMap =
+							((BindingManager)v6NaAddrBindingMgr).getBindingPoolMap();
+					if (v6NaAddrPoolMap != null) {
+						bindingPoolMap.putAll(v6NaAddrPoolMap);
+					}
+				}
 				serverConfig.setV6NaAddrBindingMgr(v6NaAddrBindingMgr);
 			}
 			catch (Exception ex) {
@@ -383,6 +413,13 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 TA Address Binding Manager");
 				v6TaAddrBindingMgr.init();
+				if (reconcile) {
+					Map<String, List<? extends BindingPool>> v6TaAddrPoolMap =
+							((BindingManager)v6TaAddrBindingMgr).getBindingPoolMap();
+					if (v6TaAddrPoolMap != null) {
+						bindingPoolMap.putAll(v6TaAddrPoolMap);
+					}
+				}
 				serverConfig.setV6TaAddrBindingMgr(v6TaAddrBindingMgr);
 			}
 			catch (Exception ex) {
@@ -400,6 +437,13 @@ public class JagornetDhcpServer
 			try {
 				log.info("Initializing V6 Prefix Binding Manager");
 				v6PrefixBindingMgr.init();
+				if (reconcile) {
+					Map<String, List<? extends BindingPool>> v6PrefixPoolMap =
+							((BindingManager)v6NaAddrBindingMgr).getBindingPoolMap();
+					if (v6PrefixPoolMap != null) {
+						bindingPoolMap.putAll(v6PrefixPoolMap);
+					}
+				}
 				serverConfig.setV6PrefixBindingMgr(v6PrefixBindingMgr);
 			}
 			catch (Exception ex) {
@@ -430,6 +474,9 @@ public class JagornetDhcpServer
         
 		IaManager iaMgr = (IaManager) context.getBean("iaManager");		
 		if (iaMgr != null) {
+			if (reconcile) {
+				reconcilePools(iaMgr, bindingPoolMap);
+			}
 			serverConfig.setIaMgr(iaMgr);
 		}
 		else {
@@ -439,6 +486,29 @@ public class JagornetDhcpServer
 		log.info("Managers loaded.");
     }
     
+    /**
+     * Reconcile pools.  Delete any IaAddress objects not contained
+     * within the given list of BindingPools.
+     * 
+     * @param collection. the list of BindingPools
+     */
+    protected void reconcilePools(IaManager iaMgr,
+    		Map<String, List<? extends BindingPool>> bindingPoolMap)
+    {
+    	if ((bindingPoolMap != null) && !bindingPoolMap.isEmpty()) {
+    		log.info("Reconciling leases for configured pool ranges");
+    		List<Range> ranges = new ArrayList<Range>();
+    		for (List<? extends BindingPool> bpList : bindingPoolMap.values()) {
+    			for (BindingPool bp : bpList) {
+	    			Range range = new Range(bp.getStartAddress(), bp.getEndAddress());
+					ranges.add(range);
+					log.debug("Added pool range: " + range);
+    			}
+			}
+        	iaMgr.reconcileIaAddresses(ranges);
+    	}
+    }
+
 	/**
 	 * Setup command line options.
 	 */
@@ -596,8 +666,14 @@ public class JagornetDhcpServer
             			if (addr.equalsIgnoreCase(NONE)) {
             				v4UcastAddrs = null;
             			}
-            			if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
+            			else if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
             				v4UcastAddrs = getAllIPv4Addrs();
+            			}
+            			else {
+            				v4UcastAddrs = getV4IpAddrs(addrs);
+    	            		if ((v4UcastAddrs == null) || v4UcastAddrs.isEmpty()) {
+    	            			return false;
+    	            		}
             			}
             		}
             		else {	            		
@@ -650,8 +726,14 @@ public class JagornetDhcpServer
             			if (addr.equalsIgnoreCase(NONE)) {
             				v6UcastAddrs = null;
             			}
-            			if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
+            			else if (addr.equals("*") || addr.equalsIgnoreCase(ALL)) {
             				v6UcastAddrs = getAllIPv6Addrs();
+            			}
+            			else {
+        	        		v6UcastAddrs = getV6IpAddrs(addrs);
+        	        		if ((v6UcastAddrs == null) || v6UcastAddrs.isEmpty()) {
+        	        			return false;
+        	        		}
             			}
             		}
             		else {
@@ -1092,7 +1174,8 @@ public class JagornetDhcpServer
             JagornetDhcpServer server = new JagornetDhcpServer(args);
             System.out.println("Starting " + JAGORNET_DHCP_SERVER + ": " + new Date());
             System.out.println(Version.getVersion());
-            server.start(args);
+            System.out.println("jagornet.dhcp.home=" + DhcpConstants.JAGORNET_DHCP_HOME);
+            server.start();
         }
         catch (Exception ex) {
             System.err.println("DhcpServer ABORT!");

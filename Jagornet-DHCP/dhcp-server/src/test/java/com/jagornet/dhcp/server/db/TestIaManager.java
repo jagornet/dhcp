@@ -31,6 +31,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +44,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.jagornet.dhcp.core.option.base.BaseDhcpOption;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.generic.GenericOpaqueDataOption;
 
 /**
  * The Class TestJdbcIaManager.
@@ -117,14 +122,14 @@ public class TestIaManager extends BaseTestCase
 		
 		Collection<DhcpOption> ip1opts = new ArrayList<DhcpOption>();
 		
-		DhcpOption ip1opt1 = new DhcpOption();
-		ip1opt1.setCode(11);
-		ip1opt1.setValue(new byte[] { (byte)0x11 } );
+		BaseDhcpOption ip1opt1 = new GenericOpaqueDataOption(11, "option-11");
+		ip1opt1.setV4(true);
+		ip1opt1.decode(ByteBuffer.wrap(new byte[] { (byte)0x01, (byte)0x11 } ));
 		ip1opts.add(ip1opt1);
 		
-		DhcpOption ip1opt2 = new DhcpOption();
-		ip1opt2.setCode(12);
-		ip1opt2.setValue(new byte[] { (byte)0x12 } );
+		BaseDhcpOption ip1opt2 = new GenericOpaqueDataOption(12, "option-12");
+		ip1opt2.setV4(true);
+		ip1opt2.decode(ByteBuffer.wrap(new byte[] { (byte)0x01, (byte)0x12 } ));
 		ip1opts.add(ip1opt2);
 		
 		ip1.setDhcpOptions(ip1opts);
@@ -142,14 +147,14 @@ public class TestIaManager extends BaseTestCase
 		
 		Collection<DhcpOption> ip2opts = new ArrayList<DhcpOption>();
 		
-		DhcpOption ip2opt1 = new DhcpOption();
-		ip2opt1.setCode(21);
-		ip2opt1.setValue(new byte[] { (byte)0x21 } );
+		BaseDhcpOption ip2opt1 = new GenericOpaqueDataOption(21, "option-21");
+		ip2opt1.setV4(true);
+		ip2opt1.decode(ByteBuffer.wrap(new byte[] { (byte)0x01, (byte)0x21 } ));
 		ip2opts.add(ip2opt1);
 		
-		DhcpOption ip2opt2 = new DhcpOption();
-		ip2opt2.setCode(22);
-		ip2opt2.setValue(new byte[] { (byte)0x22 } );
+		BaseDhcpOption ip2opt2 = new GenericOpaqueDataOption(22, "option-22");
+		ip2opt2.setV4(true);
+		ip2opt2.decode(ByteBuffer.wrap(new byte[] { (byte)0x01, (byte)0x22 } ));
 		ip2opts.add(ip1opt2);
 		
 		ip2.setDhcpOptions(ip2opts);
@@ -157,14 +162,14 @@ public class TestIaManager extends BaseTestCase
 		
 		Collection<DhcpOption> iaopts = new ArrayList<DhcpOption>();
 		
-		DhcpOption iaopt1 = new DhcpOption();
-		iaopt1.setCode(1);
-		iaopt1.setValue(new byte[] { (byte)0x01 } );
+		BaseDhcpOption iaopt1 = new GenericOpaqueDataOption(1, "option-1");
+		iaopt1.setV4(true);
+		iaopt1.decode(ByteBuffer.wrap(new byte[] { (byte)0x01, (byte)0x01 } ));
 		iaopts.add(iaopt1);
 		
-		DhcpOption iaopt2 = new DhcpOption();
-		iaopt2.setCode(2);
-		iaopt2.setValue(new byte[] { (byte)0x02 } );
+		BaseDhcpOption iaopt2 = new GenericOpaqueDataOption(2, "option-2");
+		iaopt2.setV4(true);
+		iaopt2.decode(ByteBuffer.wrap(new byte[] { (byte)0x01, (byte)0x02 } ));
 		iaopts.add(iaopt2);
 		
 		ia.setIaAddresses(ips);

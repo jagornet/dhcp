@@ -93,15 +93,15 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
     @Override
     public boolean process()
     {
-		byte chAddr[] = requestMsg.getChAddr();
+		byte clientId[] = requestMsg.getClientId();
 		
 		V4AddrBindingManager bindingMgr = dhcpServerConfig.getV4AddrBindingMgr();
 		if (bindingMgr != null) {
 			log.info("Processing Release" +
-					 " from chAddr=" + Util.toHexString(chAddr) +
+					 " from clientId=" + Util.toHexString(clientId) +
 					 " ciAddr=" + requestMsg.getCiAddr().getHostAddress());
 			Binding binding = bindingMgr.findCurrentBinding(clientLink, 
-															chAddr, requestMsg);
+															clientId, requestMsg);
 			if (binding != null) {
 				Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 				if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
@@ -111,12 +111,12 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
 				}
 				else {
 					log.error("No binding addresses in binding for client: " + 
-							Util.toHexString(chAddr));
+							Util.toHexString(clientId));
 				}
 			}
 			else {
 				log.error("No Binding available for client: " + 
-						Util.toHexString(chAddr));
+						Util.toHexString(clientId));
 			}
 		}
 		else {

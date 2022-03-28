@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Configuration status is for Log4j2 internal status logging -->
 <Configuration status="WARN">
+  <Properties>
+    <Property name="jagornet.dhcp.home">${sys.user.dir}</Property>
+  </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="%d [%t] %-5p %c - %m%n"/>
@@ -11,7 +14,7 @@
       <PatternLayout>
         <Pattern>%d [%t] %-5p %c{2} - %m%n</Pattern>
       </PatternLayout>
-      <DefaultRolloverStrategy max="10"/>
+      <DefaultRolloverStrategy fileIndex="min" max="9"/>
       <Policies>
       	<SizeBasedTriggeringPolicy size="10 MB"/>
       </Policies>

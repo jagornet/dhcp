@@ -37,7 +37,7 @@ import com.jagornet.dhcp.server.config.xml.Link;
 public class DhcpLink
 {
 	
-	public enum State  { OK, NOT_SYNCED, SYNCING };
+	public enum State  { OK, NOT_SYNCED, SYNCING, REMOVED };
 
 	private State state;
 	

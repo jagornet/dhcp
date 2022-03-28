@@ -17,7 +17,7 @@
   	<commons.pool2.version>2.7.0</commons.pool2.version>
   	<dnsjava.version>2.1.9</dnsjava.version>
   	<netty.version>4.1.48.Final</netty.version>
-  	<spring.version>5.2.5.RELEASE</spring.version>
+  	<spring.version>5.3.14</spring.version>
   	<derby.version>10.14.2.0</derby.version>
   	<h2.version>2.1.210</h2.version>
   	<sqlite.jdbc.version>3.30.1</sqlite.jdbc.version>
@@ -153,7 +153,9 @@
 	<!-- SQLite -->
 
 	<!-- Jersey -->
-<!-- 	
+<!-- 
+    Grizzly HTTP is popular for Jersey, but we already use Netty,
+    so we'll use that for the HTTP/REST container instead (see below).
 	<dependency>
 	    <groupId>org.glassfish.jersey.containers</groupId>
 	    <artifactId>jersey-container-grizzly2-http</artifactId>
@@ -239,11 +241,6 @@
       <version>${swagger.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-jaxrs2-servlet-initializer-v2</artifactId>
-      <version>${swagger.version}</version>
-    </dependency>	
-    <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
       <version>2.1</version>
@@ -313,14 +310,31 @@
 				  </archive>
 				</configuration>
 			</plugin>
-	        <!-- <plugin>
+	        <plugin>
 	          <groupId>com.google.cloud.tools</groupId>
 	          <artifactId>jib-maven-plugin</artifactId>
-	          <version>2.7.0</version>
+	          <!-- defined in parent pom <version>3.1.2</version> -->
 	          <configuration>
 	            <to>
-	              <image>jagornet/dhcp-server:${jagornet.dhcp.version}</image>
-	            </to>
+	              <!-- Image ends up as target/jib-image.tar -->
+ 	              <image>jagornet/dhcp-server:${project.version}</image>
+  	            </to>
+ 	            <container>
+ 	                <jvmFlags>
+ 	                  <!-- user.dir=/, so set friendly home dir -->
+ 	                  <jvmFlag>-Djagornet.dhcp.home=/app</jvmFlag>
+ 	                </jvmFlags>
+ 	            	<mainClass>com.jagornet.dhcp.server.JagornetDhcpServer</mainClass>
+ 	            	<args>
+ 	            	  <arg>-c</arg>
+ 	            	  <arg>file:/app/resources/dhcpserver-jib.json</arg>
+ 	            	</args>
+ 	            	<ports>
+ 	            	  <port>67/udp</port>	<!-- DHCPv4 Server port -->
+ 	            	  <port>547/udp</port>	<!-- DHCPv6 Server port -->
+ 	            	  <port>9067/tcp</port>	<!-- HTTPS/REST -->
+ 	            	</ports>
+ 	            </container>
 	          </configuration>
 			  <executions>
 			    <execution>
@@ -330,7 +344,7 @@
 			      </goals>
 			    </execution>
 			  </executions>
-	        </plugin> -->
+	        </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
@@ -362,7 +376,7 @@
 	            </executions>
 	            <configuration>
 	            	<sources>
-	            		<source>src/main/resources/dhcpserver.xsd</source>
+	            		<source>${project.basedir}/src/main/resources/dhcpserver.xsd</source>
 	            	</sources>
 	            	<!-- xjb can be used to customize the bindings 
 	            	<xjbSources>
@@ -380,7 +394,7 @@
                 <version>${swagger.version}</version>
                 <configuration>
                     <outputFileName>openapi</outputFileName>
-                    <outputPath>target/openapi</outputPath>
+                    <outputPath>${project.build.directory}/openapi</outputPath>
                     <outputFormat>JSONANDYAML</outputFormat>
                     <resourcePackages>
                         <package>com.jagornet.dhcp.server.rest.api</package>

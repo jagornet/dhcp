@@ -31,6 +31,7 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6IaPdOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.db.IaPrefix;
+import com.jagornet.dhcp.server.db.IdentityAssoc;
 
 /**
  * The Interface V6PrefixBindingManager.  The interface for DHCPv6 IA_PD type
@@ -38,7 +39,7 @@ import com.jagornet.dhcp.server.db.IaPrefix;
  * 
  * @author A. Gregory Rabil
  */
-public interface V6PrefixBindingManager extends StaticBindingManager
+public interface V6PrefixBindingManager
 {
 	/**
 	 * Initialize the manager.
@@ -95,12 +96,12 @@ public interface V6PrefixBindingManager extends StaticBindingManager
 	 * 
 	 * @param iaPrefix the ia prefix
 	 */
-	public void releaseIaPrefix(IaPrefix iaPrefix);
+	public void releaseIaPrefix(IdentityAssoc ia, IaPrefix iaPrefix);
 	
 	/**
 	 * Decline ia prefix.
 	 * 
 	 * @param iaPrefix the ia prefix
 	 */
-	public void declineIaPrefix(IaPrefix iaPrefix);
+	public void declineIaPrefix(IdentityAssoc ia, IaPrefix iaPrefix);
 }

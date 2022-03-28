@@ -43,9 +43,8 @@ public class DhcpConstants
 {
     private static Logger log = LoggerFactory.getLogger(DhcpConstants.class);
 	
-	public static String JAGORNET_DHCP_HOME = System.getProperty("jagornet.dhcp.home");
-	
-	public static boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
+	public static String JAGORNET_DHCP_HOME = null;	
+	public static boolean IS_WINDOWS = false;
 	
 	public static InetAddress WILDCARD_ADDR = null;
 	public static InetAddress ZEROADDR_V4 = null;
@@ -61,6 +60,16 @@ public class DhcpConstants
 
     static {
 		try {
+			String jagornetHome = System.getProperty("jagornet.dhcp.home");
+			if (jagornetHome != null) {
+				JAGORNET_DHCP_HOME = jagornetHome;
+			}
+			else {
+				JAGORNET_DHCP_HOME = System.getProperty("user.dir");
+				// set the property so it gets interpreted in properties files
+				System.setProperty("jagornet.dhcp.home", JAGORNET_DHCP_HOME);
+			}
+			IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 			WILDCARD_ADDR = (new InetSocketAddress(0)).getAddress();
 			ZEROADDR_V4 = InetAddress.getByName("0.0.0.0");
 			ZEROADDR_V6 = InetAddress.getByName("::");

@@ -27,7 +27,6 @@ package com.jagornet.dhcp.server.request.binding;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4LeaseTimeOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
@@ -54,7 +54,6 @@ import com.jagornet.dhcp.server.config.xml.V4AddressBinding;
 import com.jagornet.dhcp.server.config.xml.V4AddressBindingsType;
 import com.jagornet.dhcp.server.config.xml.V4AddressPool;
 import com.jagornet.dhcp.server.config.xml.V4AddressPoolsType;
-import com.jagornet.dhcp.server.db.DhcpOption;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.server.request.ddns.DdnsCallback;
@@ -140,28 +139,8 @@ public class V4AddrBindingManagerImpl
 		else {
 			log.info("PoolsType is null for Link: " + link.getName());
 		}
-
-		reconcilePools(bindingPools);
 		
 		return bindingPools;
-    }
-    
-    /**
-     * Reconcile pools.  Delete any IaAddress objects not contained
-     * within the given list of V4AddressBindingPools.
-     * 
-     * @param bindingPools the list of V4AddressBindingPools
-     */
-    protected void reconcilePools(List<V4AddressBindingPool> bindingPools)
-    {
-    	if ((bindingPools != null) && !bindingPools.isEmpty()) {
-    		List<Range> ranges = new ArrayList<Range>();
-    		for (V4AddressBindingPool bp : bindingPools) {
-    			Range range = new Range(bp.getStartAddress(), bp.getEndAddress());
-				ranges.add(range);
-			}
-        	iaMgr.reconcileIaAddresses(ranges);
-    	}
     }
     
     /**
@@ -248,43 +227,43 @@ public class V4AddrBindingManagerImpl
 	}
 
 	@Override
-	public Binding findCurrentBinding(DhcpLink clientLink, byte[] macAddr, 
+	public Binding findCurrentBinding(DhcpLink clientLink, byte[] clientId, 
 			DhcpMessage requestMsg) {
 		
-		return super.findCurrentBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+		return super.findCurrentBinding(clientLink, clientId, IdentityAssoc.V4_TYPE, 
 				0, requestMsg);
 	}
 
 	@Override
-	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] macAddr, 
+	public Binding createDiscoverBinding(DhcpLink clientLink, byte[] clientId, 
 			DhcpMessage requestMsg, byte state)
 	{
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink.getLink(), macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
+			findStaticBinding(clientLink.getLink(), clientId, IdentityAssoc.V4_TYPE, 0, requestMsg);
 		
 		if (staticBinding != null) {
-			return super.createStaticBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+			return super.createStaticBinding(clientLink, clientId, IdentityAssoc.V4_TYPE, 
 					0, staticBinding, requestMsg);
 		}
 		else {
-			return super.createBinding(clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+			return super.createBinding(clientLink, clientId, IdentityAssoc.V4_TYPE, 
 					0, getInetAddrs(requestMsg), requestMsg, state);
 		}		
 	}
 
 	@Override
 	public Binding updateBinding(Binding binding, DhcpLink clientLink, 
-			byte[] macAddr, DhcpMessage requestMsg, byte state) {
+			byte[] clientId, DhcpMessage requestMsg, byte state) {
 
 		StaticBinding staticBinding = 
-			findStaticBinding(clientLink.getLink(), macAddr, IdentityAssoc.V4_TYPE, 0, requestMsg);
+			findStaticBinding(clientLink.getLink(), clientId, IdentityAssoc.V4_TYPE, 0, requestMsg);
 		
 		if (staticBinding != null) {
-			return super.updateStaticBinding(binding, clientLink, macAddr, IdentityAssoc.V4_TYPE, 
+			return super.updateStaticBinding(binding, clientLink, clientId, IdentityAssoc.V4_TYPE, 
 					0, staticBinding, requestMsg);
 		}
 		else {
-			return super.updateBinding(binding, clientLink, macAddr, IdentityAssoc.V4_TYPE,
+			return super.updateBinding(binding, clientLink, clientId, IdentityAssoc.V4_TYPE,
 					0, getInetAddrs(requestMsg), requestMsg, state);
 		}		
 	}
@@ -489,8 +468,9 @@ public class V4AddrBindingManagerImpl
 	    		if (opts != null) {
 	    			for (DhcpOption opt : opts) {
 	    				if (opt.getCode() == DhcpConstants.V4OPTION_CLIENT_FQDN) {
-	    					clientFqdnOption = new DhcpV4ClientFqdnOption();
-	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
+//	    					clientFqdnOption = new DhcpV4ClientFqdnOption();
+//	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
+	    					clientFqdnOption = (DhcpV4ClientFqdnOption)opt;
 	    					break;
 	    				}
 	    			}

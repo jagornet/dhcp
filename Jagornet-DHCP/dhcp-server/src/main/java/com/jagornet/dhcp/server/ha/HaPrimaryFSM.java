@@ -21,7 +21,6 @@ import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.db.DhcpLease;
 import com.jagornet.dhcp.server.db.LeaseManager;
-import com.jagornet.dhcp.server.request.binding.BaseBindingManager;
 import com.jagornet.dhcp.server.request.binding.Binding;
 import com.jagornet.dhcp.server.rest.api.DhcpLeasesResource;
 import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
@@ -230,82 +229,6 @@ public class HaPrimaryFSM implements Runnable {
 		}
 	}
 	
-	public void updateBindings_OLD(List<Binding> bindings, Map<Integer, DhcpOption> dhcpOptionMap) {
-//		if (getState().equals(State.PRIMARY_RUNNING)) {
-		if (getBackupState() != null) {
-			// backup is available, so send it updates
-			if (updateMode == UpdateMode.DATABASE) {
-				log.info("HA binding update delegated to database replication");
-			}
-			else {
-				log.info("Sending binding updates to backup server");
-				//TODO: consider posting the whole binding rather than one DhcpLease
-				// at a time, even though Binding probably only contains one DhcpLease?
-				Collection<com.jagornet.dhcp.server.db.DhcpOption> dhcpOptions = 
-						BaseBindingManager.convertDhcpOptions(dhcpOptionMap);				
-				for (Binding binding : bindings) {
-					List<DhcpLease> dhcpLeases = LeaseManager.toDhcpLeases(binding, dhcpOptions);
-					for (DhcpLease dhcpLease : dhcpLeases) {
-						String leaseJson = dhcpLease.toJson();
-						// Expected response is that the haPeerState is
-						// set to the value of the state...
-						// TODO: consider an alternative, architected return value?
-						DhcpLease expectedDhcpLease = dhcpLease.clone();
-						expectedDhcpLease.setHaPeerState(expectedDhcpLease.getState());
-						String expectedLeaseJson = expectedDhcpLease.toJson();
-						// this is an HA update, so it will set the
-						// haPeerState of the lease before updating
-						Map<String, Object> queryParams = new HashMap<String, Object>();
-						queryParams.put(DhcpLeasesResource.QUERYPARAM_HAUPDATE, Boolean.TRUE.toString());
-						// NOTE: relying on the PUT behavior with no
-						// "format" query param, which defaults to JSON
-						if (updateMode == UpdateMode.SYNC) {
-							// PUT for create/update
-							String response = restClient.doPutString(
-									DhcpLeasesResource.buildPutPath(
-											dhcpLease.getIpAddress().getHostAddress()), 
-									leaseJson, queryParams);
-							log.info("Binding update response: " + response);
-							if (expectedLeaseJson.equals(response)) {
-								// if response matches what we sent, then success
-								// so update the HA peer state of the lease as synced
-								dhcpLease.setHaPeerState(dhcpLease.getState());
-								if (dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
-									log.info("HA peer state updated successfully");
-								}
-								else {
-									log.error("HA peer state update failed");
-								}
-							}
-							else {
-								log.warn("Response (sync) does not match expected JSON data");
-								// if the response doesn't match what we sent, then failure
-								// so update the HA peer state of the lease as unknown
-// not necessary, since we set haPeerState=UNKNOWN when creating/updating the lease
-//								dhcpLease.setHaPeerState(IaAddress.UNKNOWN);
-//								dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease);
-							}
-						}
-						else { 
-							//TODO: something with the callback!
-							//TODO: callback should be passed DhcpLease
-//							HaBindingCallbackString callback = new HaBindingCallbackString(binding);
-//							HaBindingCallbackResponse callback = new HaBindingCallbackResponse(binding);
-							HaDhcpLeaseCallbackString callback = new HaDhcpLeaseCallbackString(dhcpLease, expectedLeaseJson);
-							restClient.doPutAsyncString(
-									DhcpLeasesResource.buildPutPath(
-											dhcpLease.getIpAddress().getHostAddress()),
-									leaseJson, callback, queryParams);
-						}
-					}
-				}
-			}
-		}
-		else {
-			log.warn("HA Backup unvailable, not sending binding update");
-		}
-	}
-	
 	public void updateBindings(List<Binding> bindings, Map<Integer, DhcpOption> dhcpOptionMap) {
 //		if (getState().equals(State.PRIMARY_RUNNING)) {
 		if (getBackupState() != null) {
@@ -317,10 +240,10 @@ public class HaPrimaryFSM implements Runnable {
 				log.info("Sending binding updates to backup server");
 				//TODO: consider posting the whole binding rather than one DhcpLease
 				// at a time, even though Binding probably only contains one DhcpLease?
-				Collection<com.jagornet.dhcp.server.db.DhcpOption> dhcpOptions = 
-						BaseBindingManager.convertDhcpOptions(dhcpOptionMap);				
+//				Collection<com.jagornet.dhcp.server.db.DbDhcpOption> dhcpOptions = 
+//						BaseBindingManager.convertDhcpOptions(dhcpOptionMap);				
 				for (Binding binding : bindings) {
-					List<DhcpLease> dhcpLeases = LeaseManager.toDhcpLeases(binding, dhcpOptions);
+					List<DhcpLease> dhcpLeases = LeaseManager.toDhcpLeases(binding, dhcpOptionMap.values());
 					for (DhcpLease dhcpLease : dhcpLeases) {
 						// Expected response is that the haPeerState is
 						// set to the value of the state...

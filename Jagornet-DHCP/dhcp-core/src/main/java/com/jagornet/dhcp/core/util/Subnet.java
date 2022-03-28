@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Title: Subnet
- * Description: A utility class for managing IPv6 subnets.
+ * Description: A utility class for managing subnets.
  * 
  * TODO: Refactor to use java.net.InterfaceAddress?
  * 

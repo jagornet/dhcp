@@ -26,6 +26,7 @@
 package com.jagornet.dhcp.server.request.binding;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -63,7 +64,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 		long reaperRunPeriod =
 			DhcpServerPolicies.globalPolicyAsLong(Property.BINDING_MANAGER_REAPER_RUN_PERIOD);
 
-		reaper = new Timer("BindingReaper");
+		reaper = new Timer("BindingReaper-" + IdentityAssoc.iaTypeToString(getIaType()));
 		reaper.schedule(new ReaperTimerTask(), reaperStartupDelay, reaperRunPeriod);
 	}
 	
@@ -102,6 +103,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 			ddnsDelete(ia, iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
+				log.debug("Deleting released iaAddr");
 				iaMgr.deleteIaAddr(iaAddr);
 				// free the address only if it is deleted from the db,
 				// otherwise, we will get a unique constraint violation
@@ -113,10 +115,22 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 				iaAddr.setStartTime(null);
 				iaAddr.setPreferredEndTime(null);
 				iaAddr.setValidEndTime(null);
+				iaAddr.setDhcpOptions(null);
 				iaAddr.setState(IaAddress.AVAILABLE);
-				// TODO: delete the options
-				iaMgr.updateIaAddr(iaAddr);
-				log.info("Address released: " + iaAddr.toString());
+				// if only one, then update the whole IA/Binding,
+				// and clear out any DhcpOptions on that IA/Binding
+				if ((ia.getIaAddresses().size() == 1) &&
+						ia.getIaAddresses().contains(iaAddr)) {
+					Binding binding = new Binding(ia, null);
+					binding.setDhcpOptions(null);
+					log.debug("Updating released IA/Binding");
+					iaMgr.updateIA(binding, null, Collections.singletonList(iaAddr), null, null);
+				}
+				else {
+					log.debug("Updating released iaAddr");
+					iaMgr.updateIaAddr(iaAddr);
+				}
+				log.info("Address released: " + iaAddr.getIpAddress().getHostAddress());
 			}
 		}
 		catch (Exception ex) {
@@ -139,6 +153,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 			iaAddr.setStartTime(null);
 			iaAddr.setPreferredEndTime(null);
 			iaAddr.setValidEndTime(null);
+			iaAddr.setDhcpOptions(null);
 			iaAddr.setState(IaAddress.DECLINED);
 			iaMgr.updateIaAddr(iaAddr);
 			log.info("Address declined: " + iaAddr.toString());
@@ -160,8 +175,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 			ddnsDelete(ia, iaAddr);
 			if (DhcpServerPolicies.globalPolicyAsBoolean(
 					Property.BINDING_MANAGER_DELETE_OLD_BINDINGS)) {
-				log.debug("Deleting expired address: " + 
-							iaAddr.getIpAddress().getHostAddress());
+				log.debug("Deleting expired iaAddr");
 				iaMgr.deleteIaAddr(iaAddr);
 				// free the address only if it is deleted from the db,
 				// otherwise, we will get a unique constraint violation
@@ -170,15 +184,27 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 			}
 			else {
 				/* 
-				 * Leave the old times for expired addresses
+				 * Leave the old times for expired addresses?
 				iaAddr.setStartTime(null);
 				iaAddr.setPreferredEndTime(null);
 				iaAddr.setValidEndTime(null);
 				*/
+				iaAddr.setDhcpOptions(null);
 				iaAddr.setState(IaAddress.AVAILABLE);
-				log.debug("Updating expired address: " + 
-							iaAddr.getIpAddress().getHostAddress());
-				iaMgr.updateIaAddr(iaAddr);
+				// if only one, then update the whole IA/Binding,
+				// and clear out any DhcpOptions on that IA/Binding
+				if ((ia.getIaAddresses().size() == 1) &&
+						ia.getIaAddresses().contains(iaAddr)) {
+					Binding binding = new Binding(ia, null);
+					binding.setDhcpOptions(null);
+					log.debug("Updating expired IA/binding");
+					iaMgr.updateIA(binding, null, Collections.singletonList(iaAddr), null, null);
+				}
+				else {
+					log.debug("Updating expired iaAddr");
+					iaMgr.updateIaAddr(iaAddr);
+				}
+				log.info("Address expired: " + iaAddr.toString());
 			}
 		}
 		catch (Exception ex) {
@@ -199,8 +225,9 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 			for (IdentityAssoc ia : expiredIAs) {
 				Collection<? extends IaAddress> expiredAddrs = ia.getIaAddresses();
 				if ((expiredAddrs != null) && !expiredAddrs.isEmpty()) {
-					// due to the implementation of findExpiredIAs, each IdentityAssoc
-					// SHOULD have only one IaAddress within it to be expired
+					// due to the implementation of findExpiredIAs and more so
+					// LeaseManager.toIdentityAssocs(), each IdentityAssoc
+					// will have only one IaAddress within it to be expired
 					log.info("Found " + expiredAddrs.size() + " expired bindings for IA: " + 
 							"duid=" + Util.toHexString(ia.getDuid()) + " iaid=" + ia.getIaid());
 					for (IaAddress iaAddress : expiredAddrs) {

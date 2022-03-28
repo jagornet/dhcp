@@ -39,6 +39,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -89,6 +91,7 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6VendorClassOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Subnet;
 import com.jagornet.dhcp.core.util.Util;
+import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.xml.ClientClassExpression;
 import com.jagornet.dhcp.server.config.xml.DhcpServerConfig;
@@ -158,10 +161,14 @@ public class DhcpServerConfiguration
 
 	/** The INSTANCE. */
 	private static DhcpServerConfiguration INSTANCE;
+
+	private static String serverConfigFilename;
     
     private static JacksonObjectMapper jacksonMapper = null;
 	
 	public static enum ConfigSyntax { XML, JSON, YAML }
+	
+	private DhcpServerConfig jaxbServerConfig;
     
 	private DhcpV6ServerIdOption dhcpV6ServerIdOption;
 	private DhcpV4ServerIdOption dhcpV4ServerIdOption;
@@ -179,7 +186,7 @@ public class DhcpServerConfiguration
     
     private FiltersType globalFilters;
     
-    private SortedMap<Subnet, DhcpLink> linkMap;
+    private SortedMap<Subnet, DhcpLink> dhcpLinkMap;
     
     private V6NaAddrBindingManager v6NaAddrBindingMgr;
     private V6TaAddrBindingManager v6TaAddrBindingMgr;
@@ -211,61 +218,162 @@ public class DhcpServerConfiguration
      */
     private DhcpServerConfiguration()
     {
-    	// empty constructor
+    	jacksonMapper = new JacksonObjectMapper();
     }
     
     public void init(String configFilename) throws DhcpServerConfigException, JAXBException, IOException
     {
-    	jacksonMapper = new JacksonObjectMapper();
-    	DhcpServerConfig xmlServerConfig = loadConfig(configFilename);
-    	if (xmlServerConfig != null) {
-    		boolean needWrite = false;
-        	
-        	V4ServerIdOption v4ServerId = xmlServerConfig.getV4ServerIdOption();
-        	if ((v4ServerId == null) ||
-        		(v4ServerId.getIpAddress() == null)) {
-        		v4ServerId = generateV4ServerId();
-        		xmlServerConfig.setV4ServerIdOption(v4ServerId);
-        		needWrite = true;
+    	jaxbServerConfig = loadConfig(configFilename);
+    	if (jaxbServerConfig != null) {
+        	if (init(jaxbServerConfig)) {
+        		saveConfig(jaxbServerConfig, configFilename);
         	}
-        	dhcpV4ServerIdOption = new DhcpV4ServerIdOption(v4ServerId.getIpAddress());
-
-        	V6ServerIdOption v6ServerId = xmlServerConfig.getV6ServerIdOption();
-        	if ((v6ServerId == null) ||
-        		(v6ServerId.getOpaqueData() == null)) {
-        		v6ServerId = generateV6ServerId();
-        		xmlServerConfig.setV6ServerIdOption(v6ServerId);
-        		needWrite = true;
-        	}
-        	BaseOpaqueData baseOpaqueData = 
-        			OpaqueDataUtil.toBaseOpaqueData(v6ServerId.getOpaqueData());
-        	dhcpV6ServerIdOption = new DhcpV6ServerIdOption(baseOpaqueData);
-        	
-        	globalPolicies = xmlServerConfig.getPolicies();
-	    	globalV6MsgConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6MsgConfigOptions());
-	    	globalV6IaNaConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaNaConfigOptions());
-	    	globalV6NaAddrConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6NaAddrConfigOptions());
-	    	globalV6IaTaConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaTaConfigOptions());
-	    	globalV6TaAddrConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6TaAddrConfigOptions());
-	    	globalV6IaPdConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6IaPdConfigOptions());
-	    	globalV6PrefixConfigOptions = new DhcpV6ConfigOptions(xmlServerConfig.getV6PrefixConfigOptions());
-	    	globalV4ConfigOptions = new DhcpV4ConfigOptions(xmlServerConfig.getV4ConfigOptions());
-	    	
-	    	globalFilters = xmlServerConfig.getFilters();
-	    	
-	    	initLinkMap(xmlServerConfig.getLinks());
-	    	
-	        // must initLinkMap before initHighAvailability because
-	        // the HA FSMs need to sync leases by link (link-sync "TM")
-	        initHighAvailability();
-	    	
-	    	if (needWrite) {
-	    		saveConfig(xmlServerConfig, configFilename);
-	    	}
     	}
     	else {
     		throw new IllegalStateException("Failed to load configuration file: " + configFilename);
     	}
+    }
+    
+    /**
+     * Initialize this DhcpServerConfiguration instance that wraps
+     * the JAXB DhcpServerConfig object.
+     * 
+     * @param jaxbServerConfig	the JAXB DhcpServerConfig object
+     * @return true if either the v4 or v6 server ids was generated, indicating
+     *         to the caller that the resulting configuration has been updated
+     * @throws DhcpServerConfigException
+     * @throws JAXBException
+     * @throws IOException
+     */
+    public boolean init(DhcpServerConfig jaxbServerConfig) throws DhcpServerConfigException, JAXBException, IOException {
+    	
+		boolean updated = false;
+		
+    	validateConfigPolicies(jaxbServerConfig);
+    	
+    	if (initV4ServerId(jaxbServerConfig)) {
+    		updated = true;
+    	}
+    	
+    	if (initV6ServerId(jaxbServerConfig)) {
+    		updated = true;
+    	}
+    	
+    	initGlobals(jaxbServerConfig);
+
+    	dhcpLinkMap = buildDhcpLinkMap(jaxbServerConfig.getLinks());
+    	
+        // must initLinkMap before initHighAvailability because
+        // the HA FSMs need to sync leases by link (link-sync "TM")
+        initHighAvailability();
+    	
+        return updated;    	
+    }
+
+	private boolean initV4ServerId(DhcpServerConfig jaxbServerConfig) throws IOException {
+		boolean serverIdGenerated = false;
+		V4ServerIdOption v4ServerId = jaxbServerConfig.getV4ServerIdOption();
+    	if ((v4ServerId == null) ||
+    		(v4ServerId.getIpAddress() == null)) {
+    		v4ServerId = generateV4ServerId();
+    		jaxbServerConfig.setV4ServerIdOption(v4ServerId);
+    		serverIdGenerated = true;
+    	}
+    	dhcpV4ServerIdOption = new DhcpV4ServerIdOption(v4ServerId.getIpAddress());
+		return serverIdGenerated;
+	}
+    
+    public static V4ServerIdOption generateV4ServerId() throws IOException {
+    	V4ServerIdOption v4ServerId = new V4ServerIdOption();
+		String ip = v4ServerId.getIpAddress();
+		if ((ip == null) || (ip.length() <= 0)) {
+			//v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
+			List<InetAddress> addrs = JagornetDhcpServer.getFilteredIPv4Addrs();
+			if ((addrs == null) || addrs.isEmpty()) {
+				throw new IllegalStateException("No IPv4 addresses available on host");
+			}
+			v4ServerId.setIpAddress(addrs.get(0).getHostAddress());
+		}
+		return v4ServerId;
+    }
+    
+	private boolean initV6ServerId(DhcpServerConfig jaxbServerConfig) throws IOException {
+		boolean serverIdGenerated = false;
+    	V6ServerIdOption v6ServerId = jaxbServerConfig.getV6ServerIdOption();
+    	if ((v6ServerId == null) ||
+    		(v6ServerId.getOpaqueData() == null)) {
+    		v6ServerId = generateV6ServerId();
+    		jaxbServerConfig.setV6ServerIdOption(v6ServerId);
+    		serverIdGenerated = true;
+    	}
+    	BaseOpaqueData baseOpaqueData = 
+    			OpaqueDataUtil.toBaseOpaqueData(v6ServerId.getOpaqueData());
+    	dhcpV6ServerIdOption = new DhcpV6ServerIdOption(baseOpaqueData);
+		return serverIdGenerated;
+	}
+    
+    public static V6ServerIdOption generateV6ServerId() {
+    	V6ServerIdOption v6ServerId = new V6ServerIdOption();
+    	OpaqueData opaque = v6ServerId.getOpaqueData();
+    	if ( ( (opaque == null) ||
+    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().length() <= 0)) &&
+    		   ((opaque.getHexValue() == null) || (opaque.getHexValue().length <= 0)) ) ) {
+    		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
+    		if (duid == null) {
+    			throw new IllegalStateException("Failed to create ServerID");
+    		}
+    		v6ServerId.setOpaqueData(duid);
+    	}
+    	return v6ServerId;
+    }
+
+	private void initGlobals(DhcpServerConfig jaxbServerConfig) {
+		globalPolicies = jaxbServerConfig.getPolicies();
+    	globalV6MsgConfigOptions = new DhcpV6ConfigOptions(jaxbServerConfig.getV6MsgConfigOptions());
+    	globalV6IaNaConfigOptions = new DhcpV6ConfigOptions(jaxbServerConfig.getV6IaNaConfigOptions());
+    	globalV6NaAddrConfigOptions = new DhcpV6ConfigOptions(jaxbServerConfig.getV6NaAddrConfigOptions());
+    	globalV6IaTaConfigOptions = new DhcpV6ConfigOptions(jaxbServerConfig.getV6IaTaConfigOptions());
+    	globalV6TaAddrConfigOptions = new DhcpV6ConfigOptions(jaxbServerConfig.getV6TaAddrConfigOptions());
+    	globalV6IaPdConfigOptions = new DhcpV6ConfigOptions(jaxbServerConfig.getV6IaPdConfigOptions());
+    	globalV6PrefixConfigOptions = new DhcpV6ConfigOptions(jaxbServerConfig.getV6PrefixConfigOptions());
+    	globalV4ConfigOptions = new DhcpV4ConfigOptions(jaxbServerConfig.getV4ConfigOptions());
+    	globalFilters = jaxbServerConfig.getFilters();
+	}
+	
+    public DhcpServerConfig reload(DhcpServerConfig jaxbServerConfig) throws DhcpServerConfigException, JAXBException, IOException {
+    	
+    	if (jaxbServerConfig != null) {    		
+        	validateConfigPolicies(jaxbServerConfig);
+    		initGlobals(jaxbServerConfig);
+    		updateDhcpLinkMap(buildDhcpLinkMap(jaxbServerConfig.getLinks()));
+    		saveConfig(jaxbServerConfig, serverConfigFilename);
+    		this.jaxbServerConfig = jaxbServerConfig;
+    	}
+    	return this.jaxbServerConfig;
+    }
+    
+    public void updateDhcpLinkMap(SortedMap<Subnet, DhcpLink> newLinkMap) {
+		if (newLinkMap != null) {			
+			Iterator<Map.Entry<Subnet, DhcpLink>> mapIter = dhcpLinkMap.entrySet().iterator();
+			while (mapIter.hasNext()) {
+				Map.Entry<Subnet, DhcpLink> entry = mapIter.next();
+				if (!newLinkMap.containsKey(entry.getKey())) {
+					// delete links that are not in the new map
+					entry.getValue().setState(DhcpLink.State.REMOVED);
+					mapIter.remove();					
+				}
+			}
+			// add or update any and all links in the new link map
+			dhcpLinkMap.putAll(newLinkMap);
+		}    	
+    }
+    
+    /**
+     * Return the underlying XML object representing the server config
+     * @return
+     */
+    public DhcpServerConfig getJaxbServerConfig() {
+    	return jaxbServerConfig;
     }
     
     public DhcpV6ServerIdOption getDhcpV6ServerIdOption() {
@@ -288,7 +396,8 @@ public class DhcpServerConfiguration
 		return globalPolicies;
 	}
 
-	public void setGlobalPolicies(PoliciesType globalPolicies) {
+	public void setGlobalPolicies(PoliciesType globalPolicies) throws DhcpServerConfigException {
+    	validatePolicies("server", globalPolicies);
 		this.globalPolicies = globalPolicies;
 	}
 
@@ -363,70 +472,6 @@ public class DhcpServerConfiguration
 	public void setGlobalFilters(FiltersType globalFilters) {
 		this.globalFilters = globalFilters;
 	}
-
-	/**
-     * Initialize the server ids.
-     * 
-     * @return true if server ID(s) were generated
-     * 
-     * @throws IOException the exception
-     */
-    protected boolean initServerIds(DhcpServerConfig xmlServerConfig) throws IOException
-    {
-    	boolean generated = false;
-    	V6ServerIdOption v6ServerId = xmlServerConfig.getV6ServerIdOption();
-    	if (v6ServerId == null) {
-    		v6ServerId = new V6ServerIdOption();
-    	}
-    	OpaqueData opaque = v6ServerId.getOpaqueData();
-    	if ( ( (opaque == null) ||
-    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().length() <= 0)) &&
-    		   ((opaque.getHexValue() == null) || (opaque.getHexValue().length <= 0)) ) ) {
-    		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
-    		if (duid == null) {
-    			throw new IllegalStateException("Failed to create ServerID");
-    		}
-    		v6ServerId.setOpaqueData(duid);
-    		xmlServerConfig.setV6ServerIdOption(v6ServerId);
-    		generated = true;
-    	}
-    	
-    	V4ServerIdOption v4ServerId = xmlServerConfig.getV4ServerIdOption();
-    	if (v4ServerId == null) {
-    		v4ServerId = new V4ServerIdOption();
-    	}
-		String ip = v4ServerId.getIpAddress();
-		if ((ip == null) || (ip.length() <= 0)) {
-			v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
-			xmlServerConfig.setV4ServerIdOption(v4ServerId);
-			generated = true;
-		}
-		return generated;
-    }
-    
-    public static V6ServerIdOption generateV6ServerId() {
-    	V6ServerIdOption v6ServerId = new V6ServerIdOption();
-    	OpaqueData opaque = v6ServerId.getOpaqueData();
-    	if ( ( (opaque == null) ||
-    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().length() <= 0)) &&
-    		   ((opaque.getHexValue() == null) || (opaque.getHexValue().length <= 0)) ) ) {
-    		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
-    		if (duid == null) {
-    			throw new IllegalStateException("Failed to create ServerID");
-    		}
-    		v6ServerId.setOpaqueData(duid);
-    	}
-    	return v6ServerId;
-    }
-    
-    public static V4ServerIdOption generateV4ServerId() throws IOException {
-    	V4ServerIdOption v4ServerId = new V4ServerIdOption();
-		String ip = v4ServerId.getIpAddress();
-		if ((ip == null) || (ip.length() <= 0)) {
-			v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
-		}
-		return v4ServerId;
-    }
     
     private void initHighAvailability() throws DhcpServerConfigException {
         String haRole = DhcpServerPolicies.globalPolicy(Property.HA_ROLE);
@@ -483,92 +528,133 @@ public class DhcpServerConfiguration
     }
     
     /**
-     * Initialize the link map.
+     * Build the DhcpLink map from the Links in the configuration
      * 
+     * @return the map of DhcpLinks, which may be empty
      * @throws DhcpServerConfigException the exception
      */
-    protected void initLinkMap(LinksType linksType) throws DhcpServerConfigException
+    protected SortedMap<Subnet, DhcpLink> buildDhcpLinkMap(LinksType linksType) throws DhcpServerConfigException
     {
+    	SortedMap<Subnet, DhcpLink> linkMap = 
+    			Collections.synchronizedSortedMap(new TreeMap<Subnet, DhcpLink>());
     	if (linksType != null) {
         	List<Link> links = linksType.getLinkList();
             if ((links != null) && !links.isEmpty()) {
-                linkMap = new TreeMap<Subnet, DhcpLink>();
-                for (Link link : links) {
-                	String ifname = link.getInterface();
-                	if (ifname != null) {
-                		try {
-	                		NetworkInterface netIf = NetworkInterface.getByName(ifname);
-	            			if (netIf == null) {
-	            				// if not found by name, see if the name is actually an address
-	            				try {
-	            					InetAddress ipaddr = InetAddress.getByName(ifname);
-	            					netIf = NetworkInterface.getByInetAddress(ipaddr);
-	            				}
-	            				catch (UnknownHostException ex) {
-	            					log.warn("Unknown interface: " + ifname + ": " + ex);
-	            				}
-	            			}
-	                		if (netIf == null) {
-	                			throw new DhcpServerConfigException(
-	                					"Network interface not found: " + ifname);
-	                		}
-	                		if (!netIf.supportsMulticast()) {
-	                			throw new DhcpServerConfigException(
-	                					"Network interface does not support multicast: " + ifname);
-	                		}
-	                		if (!netIf.getInetAddresses().hasMoreElements()) {
-	                			throw new DhcpServerConfigException(
-	                					"Network interface has no configured addresses: " + ifname);
-	                		}
-	                		// set this link's address to the IPv6 link-local address of the interface
-	                		// when a packet is received on the link-local address, we use it
-	                		// to find the client's Link as configured for the server
-	                		link.setAddress(
-	                				Util.netIfIPv6LinkLocalAddress(netIf).getHostAddress()
-	                				+ "/128");	// subnet of one
-                		}
-                		catch (SocketException ex) {
-                			throw new DhcpServerConfigException(
-                					"Invalid network interface: " + ifname, ex);
-                		}
+            	for (Link link : links) {
+                	DhcpLink dhcpLink = buildDhcpLink(link);
+                	if (dhcpLink != null) {
+                		putDhcpLink(linkMap, dhcpLink);
                 	}
-                    String addr = link.getAddress();
-                    if (addr != null) {
-                        String[] s = addr.split("/");
-                        if ((s != null) && (s.length == 2)) {
-                            try {
-								Subnet subnet = new Subnet(s[0], s[1]);
-								log.info("Adding subnet=" + subnet.toString() +
-										" to link map for link:" +
-										" name='" + link.getName() + 
-										((link.getInterface() != null) ?  
-												"' interface=" + link.getInterface() :
-												"' address=" + link.getAddress())); 
-								linkMap.put(subnet, new DhcpLink(subnet, link));
-							} 
-                            catch (NumberFormatException ex) {
-                            	throw new DhcpServerConfigException(
-                            			"Invalid link address" + addr, ex);
-							} 
-                            catch (UnknownHostException ex) {
-                            	throw new DhcpServerConfigException(
-                            			"Invalid link address" + addr, ex);
-							}
-                        }
-                        else {
-                        	throw new DhcpServerConfigException(
-                        			"Unsupported Link address=" + addr +
-                        			": expected prefix/prefixlen format");
-                        }
-                    }
-                    else {
-                    	throw new DhcpServerConfigException(
-                    			"Link must specify an interface or address element");
-                    }
                 }
         	}
     	}
+    	return linkMap;
     }
+
+	private DhcpLink buildDhcpLink(Link link) throws DhcpServerConfigException {
+		String ifname = link.getInterface();
+		if (ifname != null) {
+			try {
+				NetworkInterface netIf = getNetworkInterface(ifname);
+				// set this link's address to the IPv6 link-local address of the interface
+				// when a packet is received on the link-local address, we use it
+				// to find the client's Link as configured for the server
+				link.setAddress(
+						Util.netIfIPv6LinkLocalAddress(netIf).getHostAddress()
+						+ "/128");	// subnet of one
+			}
+			catch (SocketException ex) {
+				throw new DhcpServerConfigException(
+						"Invalid network interface: " + ifname, ex);
+			}
+		}
+		String addr = link.getAddress();
+		if (addr != null) {
+		    String[] s = addr.split("/");
+		    if ((s != null) && (s.length == 2)) {
+		        try {
+					Subnet subnet = new Subnet(s[0], s[1]);
+					return new DhcpLink(subnet, link);
+				} 
+		        catch (NumberFormatException ex) {
+		        	throw new DhcpServerConfigException(
+		        			"Invalid link address" + addr, ex);
+				} 
+		        catch (UnknownHostException ex) {
+		        	throw new DhcpServerConfigException(
+		        			"Invalid link address" + addr, ex);
+				}
+		    }
+		    else {
+		    	throw new DhcpServerConfigException(
+		    			"Unsupported Link address=" + addr +
+		    			": expected prefix/prefixlen format");
+		    }
+		}
+		else {
+			throw new DhcpServerConfigException(
+					"Link must specify an interface or address element");
+		}
+	}
+
+	public void putDhcpLink(SortedMap<Subnet, DhcpLink> map, DhcpLink dhcpLink) {
+		Subnet subnet = dhcpLink.getSubnet();
+		Link link = dhcpLink.getLink();
+		log.info("Putting subnet=" + subnet.toString() +
+				" to DhcpLink map for link:" +
+				" name='" + link.getName() + 
+				((link.getInterface() != null) ?  
+						"' interface=" + link.getInterface() :
+						"' address=" + link.getAddress())); 
+		DhcpLink prevDhcpLink = map.put(subnet, dhcpLink);
+		if (prevDhcpLink == null) {
+			log.debug("Subnet link added");
+		}
+		else {
+			log.debug("Subnet link updated");
+		}
+	}
+	
+	public void removeDhcpLink(SortedMap<Subnet, DhcpLink> map, Subnet subnet) {
+		log.info("Removing subnet=" + subnet.toString() +
+				" from link map");
+		if (map.containsKey(subnet)) {
+			DhcpLink oldDhcpLink = map.get(subnet);
+			oldDhcpLink.setState(DhcpLink.State.REMOVED);
+			map.remove(subnet);
+			log.debug("Subnet link removed");
+		}
+		else {
+			log.debug("Subnet link does not exist");
+		}
+	}
+
+	private NetworkInterface getNetworkInterface(String ifname) throws SocketException, DhcpServerConfigException {
+		NetworkInterface netIf = NetworkInterface.getByName(ifname);
+		if (netIf == null) {
+			// if not found by name, see if the name is actually an address
+			try {
+				InetAddress ipaddr = InetAddress.getByName(ifname);
+				netIf = NetworkInterface.getByInetAddress(ipaddr);
+			}
+			catch (UnknownHostException ex) {
+				log.warn("Unknown interface: " + ifname + ": " + ex);
+			}
+		}
+		if (netIf == null) {
+			throw new DhcpServerConfigException(
+					"Network interface not found: " + ifname);
+		}
+		if (!netIf.supportsMulticast()) {
+			throw new DhcpServerConfigException(
+					"Network interface does not support multicast: " + ifname);
+		}
+		if (!netIf.getInetAddresses().hasMoreElements()) {
+			throw new DhcpServerConfigException(
+					"Network interface has no configured addresses: " + ifname);
+		}
+		return netIf;
+	}
     
     /**
      * Gets the link map.
@@ -577,7 +663,7 @@ public class DhcpServerConfiguration
      */
     public SortedMap<Subnet, DhcpLink> getLinkMap()
     {
-        return linkMap;
+        return dhcpLinkMap;
     }
     
     public V6NaAddrBindingManager getV6NaAddrBindingMgr() {
@@ -631,8 +717,8 @@ public class DhcpServerConfiguration
     public DhcpLink findLinkForAddress(InetAddress inetAddr)
     {
     	if (inetAddr instanceof Inet6Address) {
-            if ((linkMap != null) && !linkMap.isEmpty()) {
-            	for (DhcpLink link : linkMap.values()) {
+            if ((dhcpLinkMap != null) && !dhcpLinkMap.isEmpty()) {
+            	for (DhcpLink link : dhcpLinkMap.values()) {
             		V6AddressPoolsType addrPoolType = link.getLink().getV6NaAddrPools();
             		if (addrPoolType != null) {
             			List<V6AddressPool> addrPools = addrPoolType.getPoolList();
@@ -673,8 +759,8 @@ public class DhcpServerConfiguration
             }
     	}
     	else {
-            if ((linkMap != null) && !linkMap.isEmpty()) {
-            	for (DhcpLink link : linkMap.values()) {
+            if ((dhcpLinkMap != null) && !dhcpLinkMap.isEmpty()) {
+            	for (DhcpLink link : dhcpLinkMap.values()) {
             		V4AddressPoolsType addrPoolType = link.getLink().getV4AddrPools();
             		if (addrPoolType != null) {
             			List<V4AddressPool> addrPools = addrPoolType.getPoolList();
@@ -698,6 +784,35 @@ public class DhcpServerConfiguration
     	}
         return null;
     }
+    
+    /*
+    public DhcpLink findLinkForAddressV6(Inet6Address inet6Addr)
+    {
+        if ((dhcpLinkMap != null) && !dhcpLinkMap.isEmpty()) {
+        	dhcpLinkMap.values().stream()
+        		.filter((DhcpLink dhcpLink) -> {
+            		V6AddressPoolsType addrPoolType = dhcpLink.getLink().getV6NaAddrPools();
+            		if (addrPoolType != null) {
+            			List<V6AddressPool> addrPools = addrPoolType.getPoolList();
+            			if (addrPools != null) {
+            				addrPools.stream()
+            					.filter((addrPool) -> {
+    	        					Range range = new Range(addrPool.getRange());
+    	        					if (range.contains(inet6Addr)) {
+    	        						return dhcpLink;
+    	        					}
+             					}
+            			}
+            		}
+            		return null;
+        		})
+            	.
+        	for (DhcpLink link : dhcpLinkMap.values()) {
+        		V6AddressPoolsType addrPoolType = link.getLink().getV6NaAddrPools();
+        	}
+        }
+    }
+    */
 
     /**
      * Find dhcp link.
@@ -710,14 +825,14 @@ public class DhcpServerConfiguration
     public DhcpLink findDhcpLink(Inet6Address local, Inet6Address remote)
     {
         DhcpLink link = null;
-        if ((linkMap != null) && !linkMap.isEmpty()) {
+        if ((dhcpLinkMap != null) && !dhcpLinkMap.isEmpty()) {
         	if (local.isLinkLocalAddress()) {
         		// if the local address is link-local, then the request
         		// was received directly from the client on the interface
         		// with that link-local address, which is the linkMap key
         		log.debug("Looking for Link by link local address: " + local.getHostAddress());
 	            Subnet s = new Subnet(local, 128);
-        		link = linkMap.get(s);
+        		link = dhcpLinkMap.get(s);
         	}
         	else if (!remote.isLinkLocalAddress()) { 
         		// if the remote (client) address is not link-local, then the client
@@ -754,7 +869,7 @@ public class DhcpServerConfiguration
     public DhcpLink findDhcpLink(Inet4Address local, Inet4Address remote)
     {
         DhcpLink link = null;
-        if ((linkMap != null) && !linkMap.isEmpty()) {
+        if ((dhcpLinkMap != null) && !dhcpLinkMap.isEmpty()) {
         	if (remote.equals(DhcpConstants.ZEROADDR_V4)) {
         		// if the remote address is zero, then the request was received
         		// from a client without an address on the broadcast channel, so
@@ -790,7 +905,7 @@ public class DhcpServerConfiguration
         	s = new Subnet(addr, 128);
         }
         // find links less than the given address
-        SortedMap<Subnet, DhcpLink> subMap = linkMap.headMap(s);
+        SortedMap<Subnet, DhcpLink> subMap = dhcpLinkMap.headMap(s);
         if ((subMap != null) && !subMap.isEmpty()) {
         	// the last one in the sub map should contain the address
             Subnet k = subMap.lastKey();
@@ -799,7 +914,7 @@ public class DhcpServerConfiguration
             }
         }
         // find links greater or equal to given address
-        subMap = linkMap.tailMap(s);
+        subMap = dhcpLinkMap.tailMap(s);
         if ((subMap != null) && !subMap.isEmpty()) {
         	// the first one in the sub map should contain the address
             Subnet k = subMap.firstKey();
@@ -966,18 +1081,12 @@ public class DhcpServerConfiguration
     		else if (syntax == ConfigSyntax.YAML) {
     			config = loadYamlConfig(inputStream);
     		}
+    		serverConfigFilename = filename;
     	}
     	finally {
     		if (inputStream != null) {
     			inputStream.close();
     		}
-    	}
-    	if (config != null) {
-    		validateConfigPolicies(config);
-        	log.info("Server configuration file loaded.");
-    	}
-    	else {
-    		log.error("No server configuration loaded.");
     	}
     	return config;
     }
@@ -1219,7 +1328,7 @@ public class DhcpServerConfiguration
     	yamlMapper.writeValue(outputStream, config);
     }
     
-    public static void convertConfig(String configFileIn, String configFileOut) 
+    public void convertConfig(String configFileIn, String configFileOut) 
     		throws DhcpServerConfigException, JAXBException, IOException {
     	
     	DhcpServerConfig config = loadConfig(configFileIn);
@@ -2761,7 +2870,8 @@ public class DhcpServerConfiguration
 			System.exit(1);
 		}
 		try {
-			convertConfig(args[0], args[1]);
+			DhcpServerConfiguration instance = DhcpServerConfiguration.getInstance();
+			instance.convertConfig(args[0], args[1]);
 		}
 		catch (Exception ex) {
 			ex.printStackTrace();

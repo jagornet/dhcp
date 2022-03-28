@@ -1,6 +1,7 @@
 package com.jagornet.dhcp.server.rest.api;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
@@ -25,6 +26,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4OptionFactory;
+import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
 import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.config.xml.Filter;
 import com.jagornet.dhcp.server.config.xml.FiltersType;
@@ -110,6 +114,8 @@ public class JacksonObjectMapper {
     	// it is handled in XML via the hexBinary XML Schema data type
 		module.addDeserializer(OpaqueData.class, new OpaqueDataJsonDeserializer());
 		
+		module.addDeserializer(DhcpOption.class, new DhcpOptionJsonDeserializer());
+		
 		/*
 		 * Not needed after XML schema change to make bindings
 		 * more friendly for JSON and YAML configuration files.
@@ -138,6 +144,8 @@ public class JacksonObjectMapper {
     	// not sure why OpaqueDataSeriaizer is not needed, but
     	// it appears that Jackson can interpret the hexBinary
     	// XML Schema data type when writing, but not reading?
+    	
+//    	module.addSerializer(DhcpLease.class, new DhcpOptionJsonSerializer());
     	
     	/*
 		 * Not needed after XML schema change to make bindings
@@ -398,6 +406,41 @@ public class JacksonObjectMapper {
 
 			String hex = p.getText();
 			return Util.fromHexString(hex);
+		}    	
+    }
+    
+//    private static final class DhcpOptionLeaseJsonSerializer extends JsonSerializer<DhcpOption> {
+//
+//		@Override
+//		public void serialize(DhcpOption value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+//			gen.writeObject(Util.toHexString(value));
+//		}
+//    }
+        
+    private static final class DhcpOptionJsonDeserializer extends JsonDeserializer<DhcpOption> {
+
+		@Override
+		public DhcpOption deserialize(JsonParser p, DeserializationContext ctxt)
+				throws IOException, JsonProcessingException {
+			JsonNode node = p.getCodec().readTree(p);
+			DhcpOption option = null;
+			boolean v4 = node.get("v4").asBoolean();
+			int code = node.get("code").asInt();
+			String hex = node.get("rawData").asText();
+			byte[] raw = Util.fromHexString(hex);
+			ByteBuffer buf = ByteBuffer.wrap(raw);
+			if (v4) {
+				option = DhcpV4OptionFactory.getDhcpOption(code);
+				buf.position(1);	// skip over the 1-byte code
+				option.decode(buf.slice());
+			}				
+			else {
+				option = DhcpV6OptionFactory.getDhcpOption(code);
+				buf.position(2);	// skip over the 2-byte code
+				option.decode(buf);
+			}
+			
+			return option;
 		}    	
     }
 

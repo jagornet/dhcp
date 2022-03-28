@@ -36,7 +36,7 @@ import com.jagornet.dhcp.core.util.Util;
  * @author A. Gregory Rabil
  */
 
-public class DhcpOption
+public class DbDhcpOption
 {
 	protected Long id;	// the database-generated object ID
 	protected int code;	// int = ushort
@@ -163,9 +163,9 @@ public class DhcpOption
 		return "\"" + getCode() + "\":\"" + Util.toHexString(getValue()) + "\"";
 	}
 	
-	public static DhcpOption fromConfigDhcpOption(
+	public static DbDhcpOption fromConfigDhcpOption(
 			com.jagornet.dhcp.core.option.base.DhcpOption configDhcpOption) throws IOException {
-		DhcpOption dhcpOption = new DhcpOption();
+		DbDhcpOption dhcpOption = new DbDhcpOption();
 		dhcpOption.setCode(configDhcpOption.getCode());
 		dhcpOption.setValue(configDhcpOption.encode().array());
 		return dhcpOption;
@@ -192,7 +192,7 @@ public class DhcpOption
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DhcpOption other = (DhcpOption) obj;
+		DbDhcpOption other = (DbDhcpOption) obj;
 		if (code != other.code)
 			return false;
 		if (iaAddressId == null) {

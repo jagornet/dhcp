@@ -42,9 +42,14 @@ public class DhcpUnknownOption extends BaseOpaqueDataOption
 	/**
 	 * Instantiates a new dhcp unknown option.
 	 */
-	public DhcpUnknownOption()
-	{
+	public DhcpUnknownOption() {
 		super();
 	}
 
+	public String getName() {
+		if (name == null) {
+			name = "Dhcp" + (isV4() ? "V4-" : "V6-") + "Option-" + this.getCode();
+		}
+		return name;
+	}
 }

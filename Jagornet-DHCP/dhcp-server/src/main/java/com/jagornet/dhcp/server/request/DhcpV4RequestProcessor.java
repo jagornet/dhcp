@@ -144,12 +144,12 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
     public boolean process()
     {
 		boolean sendReply = true;
-		byte chAddr[] = requestMsg.getChAddr();
+		byte clientId[] = requestMsg.getClientId();
 		
 		V4AddrBindingManager bindingMgr = dhcpServerConfig.getV4AddrBindingMgr();
 		if (bindingMgr != null) {
 			log.info("Processing " + type +
-					 " from chAddr=" + Util.toHexString(chAddr) +
+					 " from clientId=" + Util.toHexString(clientId) +
 					 " ciAddr=" + requestMsg.getCiAddr().getHostAddress() +
 					 " requestedIpAddrOption=" + requestedIpAddrOption);
 
@@ -160,23 +160,23 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
     		}
     		else {
     			Binding binding = bindingMgr.findCurrentBinding(clientLink, 
-    															chAddr, requestMsg);
+    					clientId, requestMsg);
 				if (binding != null) {
 					binding = bindingMgr.updateBinding(binding, clientLink, 
-							chAddr, requestMsg, IdentityAssoc.LEASED);
+							clientId, requestMsg, IdentityAssoc.LEASED);
 					if (binding != null) {
 						addBindingToReply(clientLink, binding);
 						bindings.add(binding);
 					}
 					else {
 						log.error("Failed to update binding for client: " + 
-								Util.toHexString(chAddr));
+								Util.toHexString(clientId));
 						sendReply = false;
 					}
 				}
 				else {
 					log.error("No Binding available for client: " + 
-							Util.toHexString(chAddr));
+							Util.toHexString(clientId));
 					sendReply = false;
 				}
 			}

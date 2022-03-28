@@ -233,7 +233,7 @@ public class DhcpV6DeclineProcessor extends BaseDhcpV6Processor
 						Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 						if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 							for (BindingObject bindingObj : bindingObjs) {
-								bindingMgr.declineIaPrefix((V6BindingPrefix)bindingObj);
+								bindingMgr.declineIaPrefix(binding, (V6BindingPrefix)bindingObj);
 							}
 						}
 					}

@@ -57,15 +57,15 @@ public abstract class BaseDhcpOption implements DhcpOption
     protected ByteBuffer encodeCodeAndLength() throws IOException
 	{
     	ByteBuffer buf = null;
-    	if (!v4) {
-			buf = ByteBuffer.allocate(2 + 2 + getLength());
-			buf.putShort((short)getCode());
-			buf.putShort((short)getLength());
-    	}
-    	else {
+    	if (v4) {
     		buf = ByteBuffer.allocate(1 + 1 + getLength());
 			buf.put((byte)getCode());
 			buf.put((byte)getLength());
+    	}
+    	else {
+			buf = ByteBuffer.allocate(2 + 2 + getLength());
+			buf.putShort((short)getCode());
+			buf.putShort((short)getLength());
     	}
 		return buf;
 	}
@@ -86,15 +86,16 @@ public abstract class BaseDhcpOption implements DhcpOption
         if ((buf != null) && buf.hasRemaining()) {
             // already have the code, so length is next
             int len = 0;
-            if (!v4) {
-            	len = Util.getUnsignedShort(buf);
-            }
-            else {
+            if (v4) {
             	len = Util.getUnsignedByte(buf);
             }
-            if (log.isDebugEnabled())
-                log.debug(getName() + " reports length=" + len +
+            else {
+            	len = Util.getUnsignedShort(buf);
+            }
+            if (log.isTraceEnabled()) {
+                log.trace(getName() + " reports length=" + len +
                           ":  bytes remaining in buffer=" + buf.remaining());
+            }
             return len;
         }
         return 0;
@@ -110,14 +111,16 @@ public abstract class BaseDhcpOption implements DhcpOption
 	 */
 	public String getName()
 	{
-		if (name != null)
-			return name;
-		
-		String className = this.getClass().getSimpleName();
-		if (className.startsWith("Dhcp"))
-			return className;
-		
-		return "Option-" + this.getCode(); 
+		if (name == null) {
+			String className = this.getClass().getSimpleName();
+			if (className.startsWith("Dhcp")) {
+				name = className;
+			}
+			else {
+				name = "Dhcp" + (isV4() ? "V4-" : "V6-") + "Option-" + this.getCode();
+			}
+		}
+		return name; 
 	}
 	
 	public void setCode(int code) {
@@ -134,6 +137,56 @@ public abstract class BaseDhcpOption implements DhcpOption
 
 	public void setV4(boolean v4) {
 		this.v4 = v4;
+	}
+	
+	private byte[] rawData;
+	public byte[] getRawData() {
+		if (rawData == null) {
+			try {
+				ByteBuffer buf = this.encode();
+				if (buf != null) {
+					rawData = buf.array();
+				}
+			}
+			catch (Exception ex) {
+				log.error("Failed to encode option value: " + ex);
+			}
+		}
+		return rawData;
+	}
+	public void setRawData(byte[] value) {
+		this.rawData = value;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + code;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (v4 ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BaseDhcpOption other = (BaseDhcpOption) obj;
+		if (code != other.code)
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (v4 != other.v4)
+			return false;
+		return true;
 	}
 	
 }

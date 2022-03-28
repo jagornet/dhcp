@@ -39,7 +39,7 @@ import com.jagornet.dhcp.server.db.IdentityAssoc;
  * 
  * @author A. Gregory Rabil
  */
-public interface V6TaAddrBindingManager extends StaticBindingManager
+public interface V6TaAddrBindingManager
 {
 	/**
 	 * Initialize the manager.

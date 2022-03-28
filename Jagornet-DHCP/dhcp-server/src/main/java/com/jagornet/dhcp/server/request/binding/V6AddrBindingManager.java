@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
@@ -52,7 +53,6 @@ import com.jagornet.dhcp.server.config.xml.V6AddressBinding;
 import com.jagornet.dhcp.server.config.xml.V6AddressBindingsType;
 import com.jagornet.dhcp.server.config.xml.V6AddressPool;
 import com.jagornet.dhcp.server.config.xml.V6AddressPoolsType;
-import com.jagornet.dhcp.server.db.DhcpOption;
 import com.jagornet.dhcp.server.db.IaAddress;
 import com.jagornet.dhcp.server.db.IdentityAssoc;
 import com.jagornet.dhcp.server.request.ddns.DdnsCallback;
@@ -151,30 +151,8 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 		else {
 			log.info("PoolsType is null for Link: " + link.getName());
 		}
-
-//TODO this is very dangerous if the server is managing
-//	    both NA and TA address pools because we'd delete
-//	    all the addresses in pools of the other type
-//		reconcilePools(bindingPools);
 		
 		return bindingPools;
-    }
-    
-    /**
-     * Reconcile pools.  Delete any IaAddress objects not contained
-     * within the given list of AddressBindingPools.
-     * 
-     * @param bindingPools the list of AddressBindingPools
-     */
-    protected void reconcilePools(List<V6AddressBindingPool> bindingPools)
-    {
-    	if ((bindingPools != null) && !bindingPools.isEmpty()) {
-    		List<Range> ranges = new ArrayList<Range>();
-    		for (V6AddressBindingPool bp : bindingPools) {
-				ranges.add(bp.getRange());
-			}
-        	iaMgr.reconcileIaAddresses(ranges);
-    	}
     }
     
     /**
@@ -300,8 +278,9 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 	    		if (opts != null) {
 	    			for (DhcpOption opt : opts) {
 	    				if (opt.getCode() == DhcpConstants.V6OPTION_CLIENT_FQDN) {
-	    					clientFqdnOption = new DhcpV6ClientFqdnOption();
-	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
+//	    					clientFqdnOption = new DhcpV6ClientFqdnOption();
+//	    					clientFqdnOption.decode(ByteBuffer.wrap(opt.getValue()));
+	    					clientFqdnOption = (DhcpV6ClientFqdnOption)opt;
 	    					break;
 	    				}
 	    			}

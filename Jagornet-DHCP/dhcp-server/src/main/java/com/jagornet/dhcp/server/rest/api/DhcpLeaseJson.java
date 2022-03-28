@@ -5,8 +5,8 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Date;
 
+import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.server.db.DhcpLease;
-import com.jagornet.dhcp.server.db.DhcpOption;
 
 /**
  * Container/wrapper class for auto-marshalling of DhcpLease to/from JSON
