@@ -42,7 +42,7 @@ public class DhcpLinksResource {
 				Subnet subnet = new Subnet(s[0], s[1]);
 				DhcpLink.State state = service.getLinkState(subnet);
 				if (state != null) {
-					return Response.ok(state).build();
+					return Response.ok(state.toString()).build();
 				}
 				else {
 					return Response
