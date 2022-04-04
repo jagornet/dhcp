@@ -1,0 +1,16 @@
+resourcePackages:
+- com.jagornet.dhcp.server.rest.api
+prettyPrint: true
+cacheTTL: 0
+openAPI:
+  info:
+    version: '4.0.0'
+    title: 'Jagornet DHCP Server REST API'
+    description: 'This is the REST API for the Jagornet DHCP server.  You can find 
+      out more about Jagornet at [https://jagornet.com](https://jagornet.com).'
+    termsOfService: https://jagornet.com/license
+    contact:
+      email: admin@jagornet.com
+    license:
+      name: GPL 3.0
+      url: https://www.gnu.org/licenses/gpl-3.0.html
