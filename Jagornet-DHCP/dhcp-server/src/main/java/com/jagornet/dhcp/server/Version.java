@@ -25,7 +25,11 @@
  */
 package com.jagornet.dhcp.server;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Calendar;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 /**
  * @author A. Gregory Rabil
@@ -33,24 +37,81 @@ import java.util.Calendar;
  */
 public class Version
 {
-	public static void main(String[] args)
-	{
-		System.out.println(getVersion());
+	static String MANIFEST_FILE = "/META-INF/MANIFEST.MF";
+	
+	String implVendor = null;
+	String implTitle = null;
+	String implVersion = null;
+	
+	public Version() {
+		Package pkg = Package.getPackage("com.jagornet.dhcp.server");
+		implVendor = pkg.getImplementationTitle();
+		implTitle = pkg.getImplementationTitle();
+		implVersion = pkg.getImplementationVersion();
+		// the Package values are null on Docker because there is
+		// no jar file, so go find the Manifest in the classpath
+		if ((implVendor == null) || (implTitle == null) || (implVersion == null)) {
+			getImplAttrsFromManifest();
+		}
+		if (implVendor == null) {
+			implVendor = "Jagornet Technologies, LLC";
+		}
+		if (implTitle == null) {
+			implTitle = "Jagornet DHCP Server";
+		}
+		if (implVersion == null) {
+			implVersion = "";
+		}
 	}
 	
-	public static String getVersion()
-	{
-		Package pkg = Package.getPackage("com.jagornet.dhcp.server"); 
+	public String getVersion() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(pkg.getImplementationTitle());
+		sb.append(implTitle);
 		sb.append(' ');
-		sb.append(pkg.getImplementationVersion());
+		sb.append(implVersion);
 		sb.append(System.getProperty("line.separator"));
 		sb.append("Copyright ");
-		sb.append(pkg.getImplementationVendor());
-		sb.append(" 2009-");
+		sb.append("2009-");
 		sb.append(Calendar.getInstance().get(Calendar.YEAR));
+		sb.append(" ");
+		sb.append(implVendor);
 		sb.append(".  All Rights Reserved.");
 		return sb.toString();
+	}
+	
+	private void getImplAttrsFromManifest() {
+		InputStream is = null;
+		try {
+			is = this.getClass().getResourceAsStream(MANIFEST_FILE);
+			if (is != null) {
+				Manifest mf = new Manifest(is);
+				Attributes attrs = mf.getMainAttributes();
+				if (attrs != null) {
+					implVendor = attrs.getValue("Implementation-Vendor");
+					implTitle = attrs.getValue("Implementation-Title");
+					implVersion = attrs.getValue("Implementation-Version");
+				}
+			}
+			else {
+				System.err.println("Resource not found: " + MANIFEST_FILE);
+			}
+		}
+		catch (IOException ex) {
+			System.err.println(ex);
+		}
+		finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					// nothing
+				}
+			}
+		}
+	}
+	
+	public static void main(String[] args) {
+		Version v = new Version();
+		System.out.println(v.getVersion());
 	}
 }

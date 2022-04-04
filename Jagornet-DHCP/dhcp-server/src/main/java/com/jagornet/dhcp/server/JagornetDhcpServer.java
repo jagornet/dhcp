@@ -102,6 +102,8 @@ public class JagornetDhcpServer
     
     public static String JAGORNET_DHCP_SERVER = "Jagornet DHCP Server";
     
+    public static Version version = null;
+    
     /** The default config filename. */
     public static String DEFAULT_CONFIG_FILENAME = 
     		DhcpConstants.JAGORNET_DHCP_HOME != null ? 
@@ -165,6 +167,7 @@ public class JagornetDhcpServer
      */
     public JagornetDhcpServer(String[] args)
     {
+    	version = new Version();
         options = new Options();
         parser = new BasicParser();
         setupOptions();
@@ -183,7 +186,7 @@ public class JagornetDhcpServer
 //        formatter.printHelp(cliName, options);
         PrintWriter stderr = new PrintWriter(System.err, true);	// auto-flush=true
         formatter.printHelp(stderr, 80, cliName + " [options]", 
-        				    Version.getVersion(), options, 2, 2, null);    	
+        				    version.getVersion(), options, 2, 2, null);    	
     }
     
     /**
@@ -194,7 +197,8 @@ public class JagornetDhcpServer
     protected void start() throws Exception
     {
     	log.info("Starting " + JAGORNET_DHCP_SERVER);
-    	log.info(Version.getVersion());
+    	log.info(version.getVersion());
+    	log.info("jagornet.dhcp.home=" + DhcpConstants.JAGORNET_DHCP_HOME);
     	log.info("Arguments: " + Arrays.toString(args));
     	int cores = Runtime.getRuntime().availableProcessors();
     	log.info("Number of available core processors: " + cores);
@@ -781,7 +785,7 @@ public class JagornetDhcpServer
             }
             
             if (cmd.hasOption("v")) {
-            	System.err.println(Version.getVersion());
+            	System.err.println(version.getVersion());
             	System.exit(0);
             }
             
@@ -1173,7 +1177,7 @@ public class JagornetDhcpServer
         try {
             JagornetDhcpServer server = new JagornetDhcpServer(args);
             System.out.println("Starting " + JAGORNET_DHCP_SERVER + ": " + new Date());
-            System.out.println(Version.getVersion());
+            System.out.println(version.getVersion());
             System.out.println("jagornet.dhcp.home=" + DhcpConstants.JAGORNET_DHCP_HOME);
             server.start();
         }
