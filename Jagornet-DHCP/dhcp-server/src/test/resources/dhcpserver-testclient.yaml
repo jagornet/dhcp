@@ -47,3 +47,4 @@ links:
     v6NaAddrPools:
       poolList:
       - range: "2001:db8:1::1:0-2001:db8:1::1:FF"
+        notInLinkSubnet: true

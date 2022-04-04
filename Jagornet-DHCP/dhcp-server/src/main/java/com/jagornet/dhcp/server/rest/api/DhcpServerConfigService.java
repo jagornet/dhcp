@@ -31,7 +31,13 @@ public class DhcpServerConfigService {
 	}
 	
 	public PoliciesType updateGlobalPolicies(PoliciesType globalPolicies) throws DhcpServerConfigException, JAXBException, IOException {
+		DhcpServerConfig currentConfig = getDhcpServerConfig();
+		// this will validate the policies
 		dhcpServerConfiguration.setGlobalPolicies(globalPolicies);
+		// validation passed, so set the config object
+		currentConfig.setPolicies(globalPolicies);
+		// now re-save the config object
+		dhcpServerConfiguration.saveConfig(currentConfig);
 		return dhcpServerConfiguration.getGlobalPolicies();
 	}
 }

@@ -342,12 +342,17 @@ public class DhcpServerConfiguration
 	
     public DhcpServerConfig reload(DhcpServerConfig jaxbServerConfig) throws DhcpServerConfigException, JAXBException, IOException {
     	
-    	if (jaxbServerConfig != null) {    		
+    	if (jaxbServerConfig != null) { 
+    		log.info("DhcpServerConfig reloading...");
         	validateConfigPolicies(jaxbServerConfig);
     		initGlobals(jaxbServerConfig);
     		updateDhcpLinkMap(buildDhcpLinkMap(jaxbServerConfig.getLinks()));
-    		saveConfig(jaxbServerConfig, serverConfigFilename);
+    		saveConfig(jaxbServerConfig);
     		this.jaxbServerConfig = jaxbServerConfig;
+    		log.info("DhcpServerConfig reload complete.");
+    	}
+    	else {
+    		log.error("Unable to reload null DhcpServerConfig!");
     	}
     	return this.jaxbServerConfig;
     }
@@ -366,6 +371,9 @@ public class DhcpServerConfiguration
 			// add or update any and all links in the new link map
 			dhcpLinkMap.putAll(newLinkMap);
 		}    	
+    	else {
+    		log.error("Unable to update null LinkMap!");
+    	}
     }
     
     /**
@@ -574,6 +582,7 @@ public class DhcpServerConfiguration
 		    if ((s != null) && (s.length == 2)) {
 		        try {
 					Subnet subnet = new Subnet(s[0], s[1]);
+					validateLinkPools(subnet, link);
 					return new DhcpLink(subnet, link);
 				} 
 		        catch (NumberFormatException ex) {
@@ -596,7 +605,71 @@ public class DhcpServerConfiguration
 					"Link must specify an interface or address element");
 		}
 	}
+	
+	public static void validateLinkPools(Subnet subnet, Link link) throws DhcpServerConfigException {
+		if ((subnet != null) && (link != null)) {
+			if (!subnet.isV6()) {
+				V4AddressPoolsType addrPoolsType = link.getV4AddrPools();
+				if (addrPoolsType != null) {
+					for (V4AddressPool pool : addrPoolsType.getPoolList()) {
+						if (!pool.isNotInLinkSubnet()) {
+							validateRangeInSubnet(subnet, pool.getRange());
+						}
+					}
+				}
+			}
+			else {
+				V6AddressPoolsType addrPoolsType = link.getV6NaAddrPools();
+				if (addrPoolsType != null) {
+					for (V6AddressPool pool : addrPoolsType.getPoolList()) {
+						if (!pool.isNotInLinkSubnet()) {
+							validateRangeInSubnet(subnet, pool.getRange());
+						}
+					}
+				}				
+				addrPoolsType = link.getV6TaAddrPools();
+				if (addrPoolsType != null) {
+					for (V6AddressPool pool : addrPoolsType.getPoolList()) {
+						if (!pool.isNotInLinkSubnet()) {
+							validateRangeInSubnet(subnet, pool.getRange());
+						}
+					}
+				}				
+				V6PrefixPoolsType prefixPoolsType = link.getV6PrefixPools();
+				if (prefixPoolsType != null) {
+					for (V6PrefixPool pool : prefixPoolsType.getPoolList()) {
+						if (!pool.isNotInLinkSubnet()) {
+							validateRangeInSubnet(subnet, pool.getRange());
+						}
+					}
+				}				
+			}
+		}
+	}
 
+	public static void validateRangeInSubnet(Subnet subnet, String range) throws DhcpServerConfigException {
+		if ((subnet != null) && (range != null)) {
+			String[] addrs = range.split("-");
+			if (addrs.length == 2) {
+				try {
+					InetAddress start = InetAddress.getByName(addrs[0]);
+					if (!subnet.contains(start)) {
+						throw new DhcpServerConfigException("Range start address: " + start.getHostAddress() +
+															" is not in Link subnet: " + subnet);
+					}
+					InetAddress end = InetAddress.getByName(addrs[1]);
+					if (!subnet.contains(end)) {
+						throw new DhcpServerConfigException("Range end address: " + end.getHostAddress() +
+															" is not in Link subnet: " + subnet);
+					}
+				}
+				catch (UnknownHostException ex) {
+					throw new DhcpServerConfigException("Invalid range=" + range + ": " + ex);
+				}
+			}
+		}
+	}
+	
 	public void putDhcpLink(SortedMap<Subnet, DhcpLink> map, DhcpLink dhcpLink) {
 		Subnet subnet = dhcpLink.getSubnet();
 		Link link = dhcpLink.getLink();
@@ -1264,6 +1337,19 @@ public class DhcpServerConfiguration
 				}
 	    	}
     	}
+    }
+    
+    /**
+     * Re-save the current configuration to the file used at startup
+     * @param config
+     * @throws DhcpServerConfigException
+     * @throws JAXBException
+     * @throws IOException
+     */
+    public void saveConfig(DhcpServerConfig config)
+    		throws DhcpServerConfigException, JAXBException, IOException
+    {
+    	saveConfig(config, serverConfigFilename);
     }
     
     /**

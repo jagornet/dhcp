@@ -27,6 +27,7 @@ package com.jagornet.dhcp.core.util;
 
 import java.math.BigInteger;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -165,6 +166,13 @@ public class Subnet implements Comparable<Subnet>
 	        }
         }
         return endAddress;
+    }
+    
+    public boolean isV6() {
+    	if (subnetAddress instanceof Inet6Address) {
+    		return true;
+    	}
+    	return false;
     }
     
     /**
