@@ -296,6 +296,7 @@
 			<xs:element name="configOptions" type="v4ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
+		<xs:attribute name="notInLinkSubnet" type="xs:boolean" default="false"/>	
 	</xs:complexType>
 
 	<xs:complexType name="v4AddressBindingsType">
@@ -311,6 +312,7 @@
 			<xs:element name="policies" type="policiesType" minOccurs="0"/>
 			<xs:element name="configOptions" type="v4ConfigOptionsType" minOccurs="0"/>
 		</xs:sequence>
+		<xs:attribute name="notInLinkSubnet" type="xs:boolean" default="false"/>	
 	</xs:complexType>
 
 	<xs:complexType name="v6AddressPoolsType">
@@ -328,6 +330,7 @@
 			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
+		<xs:attribute name="notInLinkSubnet" type="xs:boolean" default="false"/>	
 	</xs:complexType>
 
 	<xs:complexType name="v6PrefixPoolsType">
@@ -346,6 +349,7 @@
 			<xs:element name="prefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="filters" type="filtersType" minOccurs="0"/>
 		</xs:sequence>
+		<xs:attribute name="notInLinkSubnet" type="xs:boolean" default="false"/>	
 	</xs:complexType>
 
 	<xs:complexType name="v6AddressBindingsType">
@@ -364,6 +368,7 @@
 			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="addrConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 		</xs:sequence>
+		<xs:attribute name="notInLinkSubnet" type="xs:boolean" default="false"/>	
 	</xs:complexType>
 
 	<xs:complexType name="v6PrefixBindingsType">
@@ -383,6 +388,7 @@
 			<xs:element name="iaConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 			<xs:element name="prefixConfigOptions" type="v6ConfigOptionsType" minOccurs="0"/>
 		</xs:sequence>
+		<xs:attribute name="notInLinkSubnet" type="xs:boolean" default="false"/>	
 	</xs:complexType>
 	
 	<xs:simpleType name="range">
