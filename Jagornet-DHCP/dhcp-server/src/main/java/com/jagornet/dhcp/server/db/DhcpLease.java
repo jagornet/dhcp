@@ -414,6 +414,8 @@ public class DhcpLease implements Cloneable
 //		} else if (!iaAddrDhcpOptions.equals(other.iaAddrDhcpOptions))
 		} else if (other.iaAddrDhcpOptions == null) {
 			return false;
+		} else if (iaAddrDhcpOptions.size() != other.iaAddrDhcpOptions.size()) {
+			return false;
 		} else if (!(iaAddrDhcpOptions.containsAll(other.iaAddrDhcpOptions) && 
 					 other.iaAddrDhcpOptions.containsAll(iaAddrDhcpOptions))) {
 			return false;
@@ -423,6 +425,8 @@ public class DhcpLease implements Cloneable
 				return false;
 //		} else if (!iaDhcpOptions.equals(other.iaDhcpOptions))
 		} else if (other.iaDhcpOptions == null) {
+			return false;
+		} else if (iaDhcpOptions.size() != other.iaDhcpOptions.size()) {
 			return false;
 		} else if (!(iaDhcpOptions.containsAll(other.iaDhcpOptions) && 
 					 other.iaDhcpOptions.containsAll(iaDhcpOptions))) {

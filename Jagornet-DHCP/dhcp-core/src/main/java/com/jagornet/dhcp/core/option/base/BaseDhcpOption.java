@@ -179,10 +179,10 @@ public abstract class BaseDhcpOption implements DhcpOption
 		BaseDhcpOption other = (BaseDhcpOption) obj;
 		if (code != other.code)
 			return false;
-		if (name == null) {
-			if (other.name != null)
+		if (this.getName() == null) {
+			if (other.getName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!this.getName().equals(other.getName()))
 			return false;
 		if (v4 != other.v4)
 			return false;
