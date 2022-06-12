@@ -39,9 +39,9 @@
     <fileSet>
       <directory>${project.basedir}/../dhcp-server/db</directory>
       <outputDirectory>db</outputDirectory>
-      <includes>
-      	<include>jagornet-*.sql</include>
-      </includes>
+      <excludes>
+      	<exclude>**/*</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/../dhcp-server/docs</directory>
