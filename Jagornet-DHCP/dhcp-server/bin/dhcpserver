@@ -131,17 +131,27 @@ stop() {
 		echo "$NAME is not running."
 	else
 		if [ -f "$JAGORNET_DHCP_PID" ]; then
-		   echo "Stopping $NAME..."
-		   kill `cat $JAGORNET_DHCP_PID` 2>&1
-		   sleep 3
-		   isRunning
-		   if [ "$?" -eq "0" ]; then
-			  echo "$NAME stopped."
-		      rm -f $JAGORNET_DHCP_PID
-		   else
-		      echo "Failed to stop $NAME."
-		      exit 1
-		   fi
+			echo "Stopping $NAME..."
+			kill `cat $JAGORNET_DHCP_PID` 2>&1
+			i=1
+			sleep 1
+			isRunning
+			while  [ "$?" -eq "1" ]; do
+				i=`expr $i + 1`
+				if [ "$i" -eq "10" ]; then
+					break
+				fi
+				sleep 1
+				isRunning
+			done
+			isRunning
+			if [ "$?" -eq "0" ]; then
+				echo "$NAME stopped."
+				rm -f $JAGORNET_DHCP_PID
+			else
+				echo "Failed to stop $NAME."
+				exit 1
+			fi
 		fi
 	fi
 }
