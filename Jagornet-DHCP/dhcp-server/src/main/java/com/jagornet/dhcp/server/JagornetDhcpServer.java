@@ -189,6 +189,10 @@ public class JagornetDhcpServer
         				    version.getVersion(), options, 2, 2, null);    	
     }
     
+    private static void logSystemProperties() {
+    	log.debug("System properties: " + System.getProperties());
+    }
+    
     /**
      * Start the DHCP server with an array of command line args
      * 
@@ -202,6 +206,10 @@ public class JagornetDhcpServer
     	log.info("Arguments: " + Arrays.toString(args));
     	int cores = Runtime.getRuntime().availableProcessors();
     	log.info("Number of available core processors: " + cores);
+    	
+    	if (log.isDebugEnabled()) {
+    		logSystemProperties();
+    	}
 
     	Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
