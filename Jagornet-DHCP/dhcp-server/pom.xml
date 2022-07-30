@@ -323,11 +323,14 @@
  	              </auth>
   	            </to>
  	            <container>
+ 	            	<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
  	                <jvmFlags>
  	                  <!-- user.dir=/, so set friendly home dir -->
  	                  <jvmFlag>-Djagornet.dhcp.home=/app</jvmFlag>
  	                </jvmFlags>
- 	                <extraClasspath>/app/config</extraClasspath>
+ 	                <extraClasspath>
+ 	                	<extraClasspath>/app/config</extraClasspath>
+ 	                </extraClasspath>
  	            	<mainClass>com.jagornet.dhcp.server.JagornetDhcpServer</mainClass>
  	            	<args>
  	            	  <!-- Initial server config is empty -->
@@ -410,7 +413,7 @@
                     <outputFileName>openapi</outputFileName>
                     <outputPath>${project.build.directory}/openapi</outputPath>
                     <outputFormat>JSONANDYAML</outputFormat>
-                    <configurationFilePath>src/main/openapi/openapi-config.yaml</configurationFilePath>
+                    <configurationFilePath>${project.basedir}/src/main/openapi/openapi-config.yaml</configurationFilePath>
                 </configuration>
                 <executions>
                     <execution>
