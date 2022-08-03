@@ -3,8 +3,9 @@
 :author: A. Gregory Rabil
 :email: greg.rabil@jagornet.com
 :homepage: http://jagornet.com[Jagornet Technologies, LLC]
-:appversion: 3.2
+:appversion: 4.0
 :appbuild: 0
+:fullversion: {appversion}.{appbuild}
 :toc:
 
 {author} {email} 
@@ -38,11 +39,12 @@ The server supports the following features:
 ** DNS Options - http://www.ietf.org/rfc/rfc3646.txt[RFC 3646]
 ** Stateless DHCPv6 - http://www.ietf.org/rfc/rfc3736.txt[RFC 3736]
 * Other
-** High Availability (HA) - Primary/Backup
+** High Availability (HA) - Primary/Backup failover
 ** Dynamic DNS for DHCPv4/v6 - http://www.ietf.org/rfc/rfc4703.txt[RFC 4703], http://www.ietf.org/rfc/rfc4704.txt[RFC 4704]
 ** Highly-scalable, multithreaded architecture using http://netty.io[Netty]
-** Flexible XML, JSON, or YAML configuration file format - Schema
-** Java Management Extensions (JMX) support - http://download.oracle.com/javase/8/docs/technotes/guides/jmx/index.html[Java 8 JMX]
+** Flexible XML/JSON/YAML configuration file format - https://raw.githubusercontent.com/jagornet/dhcp-docs/main/dhcpserver.xsd[Schema]
+** Open API 3.0 REST API using https://jersey.github.io[Jersey]
+** Optimized Docker/OCI Images using https://github.com/GoogleContainerTools/jib[Jib]
 
 == Getting Started
 
@@ -61,16 +63,16 @@ your Java 8+ JRE.
 installation file for your target platform.
 * Linux/Unix/Mac
 ** Installation folder: `/opt/jagornet`
-** Compressed install file: `jagornet-dhcpserver-{fullversion}.tar.gz`
-** `JAGORNET_DHCP_HOME=/opt/jagornet/jagornet-dhcpserver-{fullversion}`
+** Compressed install file: `jagornet-dhcpserver-dist-{fullversion}-all.tar.gz`
+** `JAGORNET_DHCP_HOME=/opt/jagornet/jagornet-dhcpserver-dist-{fullversion}`
 * Windows
 ** Installation folder: `C:\jagornet`
-** Compressed install file: `jagornet-dhcpserver-{fullversion}.zip`
-** `JAGORNET_DHCP_HOME=C:\jagornet\jagornet-dhcpserver-{fullversion}`
-. After extracting the compressed files, a jagornet-dhcpserver-{fullversion} directory will 
+** Compressed install file: `jagornet-dhcpserver-dist-{fullversion}-all.zip`
+** `JAGORNET_DHCP_HOME=C:\jagornet\jagornet-dhcpserver-dist-{fullversion}`
+. After extracting the compressed files, a jagornet-dhcpserver-dist-{fullversion} directory will 
 be created in the installation folder, with the following contents.
 * `JAGORNET_DHCP_HOME/bin` - executable command line files. See the section on <<Running the Server>>.
-* `JAGORNET_DHCP_HOME/conf` - configuration files. See the section on Configuration.
+* `JAGORNET_DHCP_HOME/config` - configuration files. See the section on Configuration.
 * `JAGORNET_DHCP_HOME/db` - database directory. See the section on Binding Database.
 * `JAGORNET_DHCP_HOME/docs` - documentation files.
 * `JAGORNET_DHCP_HOME/lib` - Java library files.
@@ -94,8 +96,8 @@ Enable DHCPv4 and DHCPv6 UDP port traffic on all intervening network equipment.
 The main Java class of the Jagornet DHCP Server supports the following usage:
 
  usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
- Jagornet DHCP Server Community Edition 3.1.0
- Copyright Jagornet Technologies 2009-2021.  All Rights Reserved.
+ Jagornet DHCP Server Community Edition 4.0.0
+ Copyright Jagornet Technologies 2009-2022.  All Rights Reserved.
   -4b,--v4bcast <interface>         DHCPv4 broadcast interface (default = none).
                                     Use this option to specify the interface for
                                     the server to receive and send broadcast
@@ -246,11 +248,11 @@ Edit this file using a standard text editor (i.e. notepad.exe), and locate the f
  
 The following batch files are provided for operating the Jagornet DHCP Server as a Windows Service.
 
-- `JAGORNET_DHCP_HOME%\bin\InstallJagornetDhcpServer.bat` - install the Jagornet DHCP Server as a Windows Service. On Windows 7 / Server 2008 this must be "Run As Administrator".
-- `JAGORNET_DHCP_HOME%\bin\UninstallJagornetDhcpServer.bat` - remove the Jagornet DHCP Server as a Windows Service. On Windows 7 / Server 2008 this must be "Run As Administrator".
-- `JAGORNET_DHCP_HOME%\bin\StartJagornetDhcpServer.bat` - start the Jagornet DHCP Server as a Windows Service. The server can also be started using Windows Control Panel -> Administrative Tools -> System or the Microsoft Management Console (MMC) Services controller.
-- `JAGORNET_DHCP_HOME%\bin\StopJagornetDhcpServer.bat` - stop the Jagornet DHCP Server as a Windows Service. The server can also be stopped using Windows Control Panel -> Administrative Tools -> System or the Microsoft Management Console (MMC) Services controller.
-- `JAGORNET_DHCP_HOME%\bin\JagornetDhcpServer.bat` - run the server in the command window. Use Ctrl+C to stop.
+- `%JAGORNET_DHCP_HOME%\bin\InstallJagornetDhcpServer.bat` - install the Jagornet DHCP Server as a Windows Service. On Windows 7 / Server 2008 this must be "Run As Administrator".
+- `%JAGORNET_DHCP_HOME%\bin\UninstallJagornetDhcpServer.bat` - remove the Jagornet DHCP Server as a Windows Service. On Windows 7 / Server 2008 this must be "Run As Administrator".
+- `%JAGORNET_DHCP_HOME%\bin\StartJagornetDhcpServer.bat` - start the Jagornet DHCP Server as a Windows Service. The server can also be started using Windows Control Panel -> Administrative Tools -> System or the Microsoft Management Console (MMC) Services controller.
+- `%JAGORNET_DHCP_HOME%\bin\StopJagornetDhcpServer.bat` - stop the Jagornet DHCP Server as a Windows Service. The server can also be stopped using Windows Control Panel -> Administrative Tools -> System or the Microsoft Management Console (MMC) Services controller.
+- `%JAGORNET_DHCP_HOME%\bin\JagornetDhcpServer.bat` - run the server in the command window. Use Ctrl+C to stop.
 
 ==== Command Shell
 
@@ -890,25 +892,12 @@ on the peer server matches this value.
 === REST API
 The REST API is enabled by default over HTTPS port 9067 on the server host.  See
 startup options for controlling the port or network interfaces used for HTTPS.  The
-API is hosted at https:\\{jagornet-dhcp-server-name-or-ip}:9067.  The following
-resources are available via the API:
+API is hosted at https://{jagornet-dhcp-server-name-or-ip}:9067.  Please view the
+Open API 3.0 documentation in the Swagger Editor:
 
-* `[GET] dhcpserverstatus`
-* `[GET] dhcpserverstatus/hastate`
-* `[GET] dhcplinks/{subnet}`
-** Where `{subnet}` is the form of:
-*** DHCPv4: `10.0.0.0-24`
-*** DHCPv6: `2001:db8::0-64`
-* `[GET] dhcpleases/{ipaddress}
-** Where `{ipaddress}` is the form of:
-*** DHCPv4: `10.0.0.10`
-*** DHCPv6: `2001:db8::10`
-* `[GET] dhcpleases/ips[?start={start-ipaddress}&end={end-ipaddress}]`
-* `[GET] dhcpleases/ipstream[?start={start-ipaddress}&end={end-ipaddress}]`
-* `[GET] dhcpleases/dhcpleasestream[?start={start-ipaddress}&end={end-ipaddress}]`
-* `[POST] dhcpleases`
-* `[PUT] dhcpleases/{ipaddress}`
-* `[DELETE] dhcpleases/{ipaddress}`
+WARNING: The dhcpleases POST/PUT/DELETE endpoints are intended for internal use only!
+
+https://editor.swagger.io/?url=https://raw.githubusercontent.com/jagornet/dhcp-docs/main/openapi.yaml[View Jagornet DHCP Server Open API docs in Swagger Editor]
 
 .REST API Policies
 // 4 columns: monospace, monospace, asciidoc, asciidoc

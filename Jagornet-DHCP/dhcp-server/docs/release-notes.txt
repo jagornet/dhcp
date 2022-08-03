@@ -1,3 +1,48 @@
+Changes in 4.0.0
+----------------
+	- Fix #41: Set name of undefined options to DHCP version and option code
+	- Fix #42: Add check for link state in BaseDhcpV6Processor
+	- Fix #43: Update Log4j2 initialization and configuration
+		- Set user.dir as default jagornet.dhcp.home property value
+		- Add fileIndex="min" to DefaultRolloverStrategy in Log4j2 configs
+	- Fix #44: Enhance REST API to support server configuration and Swagger/OpenAPI
+	- Fix #45: Create Docker/OCI images
+	- Fix #46: Revamp lease reconciliation with pools at server startup
+		- Collect all pools from all binding managers and reconcile existing
+		  leases against this list of all pools
+		- Add global policy for controlling pool reconciliation at startup
+		- Refactor StaticBindingManager interface to BindingManager interface
+	- Fix #47: Fix option parsing for unicast addresses
+		- Correct the option parsing logic when a single argument is provided 
+		  for the unicast address (-4u or -6u) options.
+	- Fix #48: Refactor checkSocket logic to use individual IPs.
+	- Fix #49: Delete IA level options when lease is declined or released
+		- Update handling of declined or released leases to delete any IA level
+		  options when there are no more addresses or prefixes in the binding and
+		  the server is configured with deleteOldBindings = false(default).
+	- Move setupPolicies to constructor for efficiency
+	- Fix #50: Update DHCPv4 server to use client-id if available	
+		- If available in the request message, use the client-id option (61) for
+		  identifying the client, otherwise fallback to using the chAddr as the
+		  identifier.
+	- Fix #51: Minimize DHCP Option marshalling
+		- Use the com.jagornet.dhcp.core.option.base.DhcpOption class wherever possible, 
+		  and convert to/from the old, deprecated, v1 database schema 
+		  com.jagornet.dhcp.server.db.DbDhcpOption class only when necessary.
+	- Fix several security vulnerabilities from dependabot alerts
+		- #58 (supersedes #52, #54, #56): Bump log4j-api to 2.17.1
+		- #59 (supersedes #53, #55, #57): Bump log4j-core to 2.17.1
+		- #66 (supersedes #60, #62, #63): Bump h2 to 2.1.210
+		- #64: Bump spring-beans to 5.3.18
+		- #65 (supersedes #61): bump spring-core to 5.3.18
+		- #67: Bump spring to 5.3.19
+	- Fix DhcpLease equals method for options comparison
+	- Fix base-component-assembly
+		- Do not include test-created folders in 'db' target directory
+	- Enhance dhcpserver script shutdown loop
+	- Add DockerTest main class for troubleshooting JIB container
+
+	
 Changes in 3.2.0
 ----------------
     - Fix #36: Fix DHCPv6 status code handling in test client an server
