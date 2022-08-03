@@ -316,7 +316,7 @@
 	          <!-- defined in parent pom <version>3.1.4/version> -->
 	          <configuration>
 	            <to>
- 	              <image>jagornet/dhcp-server-private:${project.version}</image>
+ 	              <image>jagornet/${docker.repo}:${project.version}</image>
  	              <auth>
  	              	<username>${docker.io-auth-username}</username>
  	              	<password>${docker.io-auth-password}</password>
