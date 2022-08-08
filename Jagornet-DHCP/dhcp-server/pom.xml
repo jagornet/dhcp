@@ -11,6 +11,8 @@
   <artifactId>jagornet-dhcp-server</artifactId>
   
   <properties>
+    <!-- Default to NOT build Docker image -->
+  	<skip.jib>true</skip.jib>
   	<commons.cli.version>1.2</commons.cli.version>
   	<commons.dbcp2.version>2.7.0</commons.dbcp2.version>
   	<commons.io.version>2.7</commons.io.version>
@@ -315,6 +317,7 @@
 	          <artifactId>jib-maven-plugin</artifactId>
 	          <!-- defined in parent pom <version>3.1.4/version> -->
 	          <configuration>
+				<skip>${skip.jib}</skip>
 	            <to>
  	              <image>jagornet/${docker.repo}:${project.version}</image>
  	              <auth>
@@ -535,13 +538,13 @@
 				</configuration>
 				<executions>
 				  <execution>
+				    <!-- <phase>generate-sources</phase> -->
+				    <phase>process-resources</phase>
 				    <goals>
 				      <!-- <goal>generate-html</goal> -->
 				      <goal>generate-pdf</goal>
 				      <!-- <goal>generate-eclipse</goal> -->
 				    </goals>
-				    <!-- <phase>generate-sources</phase> -->
-				    <phase>process-resources</phase>
 				  </execution>
 				</executions>
 			</plugin>
