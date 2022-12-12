@@ -24,6 +24,12 @@
     				<ipAddress>1.2.3.4</ipAddress>
     			</ipAddressOption>
     		</optionDefList>
+    		<optionDefList code="185" name="Option185" v4="true">
+    			<ipAddressListOption>
+    				<ipAddressList>1.1.1.1</ipAddressList>
+    				<ipAddressList>2.2.2.2</ipAddressList>
+    			</ipAddressListOption>
+    		</optionDefList>
     	</v4OtherOptions>
     </v4ConfigOptions>
     <v6MsgConfigOptions>
@@ -31,10 +37,16 @@
             <ipAddressList>3ffe::0001</ipAddressList>
         </v6DnsServersOption>
         <v6OtherOptions>
-            <optionDefList code="186" name="Option184">
+            <optionDefList code="186" name="Option186">
                 <ipAddressOption>
                     <ipAddress>fd00::0006</ipAddress>
                 </ipAddressOption>                    
+            </optionDefList>
+            <optionDefList code="187" name="Option187">
+                <ipAddressListOption>
+                    <ipAddressList>fd00::0001</ipAddressList>
+                    <ipAddressList>fd00::0002</ipAddressList>
+                </ipAddressListOption>                    
             </optionDefList>
         </v6OtherOptions>
     </v6MsgConfigOptions>
