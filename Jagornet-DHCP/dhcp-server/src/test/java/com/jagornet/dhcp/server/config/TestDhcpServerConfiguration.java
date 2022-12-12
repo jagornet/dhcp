@@ -26,9 +26,17 @@
 package com.jagornet.dhcp.server.config;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.SortedMap;
 
+import com.jagornet.dhcp.core.message.DhcpV4Message;
+import com.jagornet.dhcp.core.message.DhcpV6Message;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import com.jagornet.dhcp.core.option.generic.GenericIpAddressOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4SubnetMaskOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6DnsServersOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Subnet;
 import com.jagornet.dhcp.core.util.Util;
@@ -186,5 +194,35 @@ public class TestDhcpServerConfiguration extends TestCase
         // the last subnet from the head list is the one we want
         assertEquals(InetAddress.getByName("2001:DB8:3::"), 
                      subMap.lastKey().getSubnetAddress());
+    }
+    
+    public void testGlobalOptionDefs() throws Exception {
+    	String configFilename = "file:src/test/resources/dhcpserver-test-optiondefs.xml";
+        DhcpServerConfiguration serverConfig = DhcpServerConfiguration.getInstance();
+        serverConfig.init(configFilename);
+        assertNotNull(serverConfig);
+        InetSocketAddress localAddress = new InetSocketAddress(11111);
+        InetSocketAddress remoteAddress = new InetSocketAddress(22222);
+        DhcpV4Message v4RequestMsg = new DhcpV4Message(localAddress, remoteAddress);
+        Map<Integer, DhcpOption> v4map = serverConfig.effectiveV4AddrOptions(v4RequestMsg);
+        assertNotNull(v4map);
+        assertEquals(2, v4map.size());
+        DhcpOption v4SubnetMaskOption = v4map.get(1);
+        assertNotNull(v4SubnetMaskOption);
+        assertTrue(v4SubnetMaskOption instanceof DhcpV4SubnetMaskOption);
+        DhcpOption v4OtherOption = v4map.get(184);
+        assertNotNull(v4OtherOption);
+        assertTrue(v4OtherOption instanceof GenericIpAddressOption);
+        
+        DhcpV6Message v6RequestMsg = new DhcpV6Message(localAddress, remoteAddress);
+        Map<Integer, DhcpOption> v6map = serverConfig.effectiveMsgOptions(v6RequestMsg);
+        assertNotNull(v6map);
+        assertEquals(2, v6map.size());
+        DhcpOption v6DnsServersOption = v6map.get(23);
+        assertNotNull(v6DnsServersOption);
+        assertTrue(v6DnsServersOption instanceof DhcpV6DnsServersOption);
+        DhcpOption v6OtherOption = v6map.get(186);
+        assertNotNull(v6OtherOption);
+        assertTrue(v6OtherOption instanceof GenericIpAddressOption);
     }
 }

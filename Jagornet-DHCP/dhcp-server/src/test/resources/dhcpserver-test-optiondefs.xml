@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dhc:dhcpServerConfig xmlns:dhc="http://jagornet.com/dhcp/xml">
+    <v6ServerIdOption>
+        <opaqueData>
+            <hexValue>abcdef0123456789</hexValue>
+        </opaqueData>
+    </v6ServerIdOption>
+    <v4ServerIdOption>
+        <ipAddress>192.168.0.4</ipAddress>
+    </v4ServerIdOption>
+    <policies>
+        <policyList>
+            <name>dhcp.sendRequestedOptionsOnly</name>
+            <value>true</value>
+        </policyList>
+    </policies>
+    <v4ConfigOptions>
+    	<v4SubnetMaskOption>
+    		<ipAddress>255.255.255.0</ipAddress>
+    	</v4SubnetMaskOption>
+    	<v4OtherOptions>
+    		<optionDefList code="184" name="Option184" v4="true">
+    			<ipAddressOption>
+    				<ipAddress>1.2.3.4</ipAddress>
+    			</ipAddressOption>
+    		</optionDefList>
+    	</v4OtherOptions>
+    </v4ConfigOptions>
+    <v6MsgConfigOptions>
+        <v6DnsServersOption>
+            <ipAddressList>3ffe::0001</ipAddressList>
+        </v6DnsServersOption>
+        <v6OtherOptions>
+            <optionDefList code="186" name="Option184">
+                <ipAddressOption>
+                    <ipAddress>fd00::0006</ipAddress>
+                </ipAddressOption>                    
+            </optionDefList>
+        </v6OtherOptions>
+    </v6MsgConfigOptions>
+</dhc:dhcpServerConfig>
