@@ -18,7 +18,7 @@
     which necessitates flatten-maven-plugin in module builds in order to remove
     and replace the installed or deployed module
      -->
-  	<revision>4.0.0</revision>
+  	<revision>4.0.1</revision>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
