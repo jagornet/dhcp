@@ -101,55 +101,61 @@ public class GenericOptionFactory
 		String name = optionDef.getName();
 		if (optionDef.getDomainNameListOption() != null) {
 			DomainNameListOptionType domainNameListOption = optionDef.getDomainNameListOption();
-			GenericDomainNameListOption genericDomainNameListOption = 
-					new GenericDomainNameListOption(code, name);
 			if (domainNameListOption.getDomainNameList() != null) {
+				GenericDomainNameListOption genericDomainNameListOption = 
+						new GenericDomainNameListOption(code, name);
 				genericDomainNameListOption.setDomainNameList(domainNameListOption.getDomainNameList());
+				return genericDomainNameListOption;
 			}
 		}
 		else if (optionDef.getDomainNameOption() != null) {
 			DomainNameOptionType domainNameOption = optionDef.getDomainNameOption();
-			GenericDomainNameOption genericDomainNameOption = 
-					new GenericDomainNameOption(code, name);
 			if (domainNameOption.getDomainName() != null) {
+				GenericDomainNameOption genericDomainNameOption = 
+						new GenericDomainNameOption(code, name);
 				genericDomainNameOption.setDomainName(domainNameOption.getDomainName());
+				return genericDomainNameOption;
 			}
 		}
 		else if (optionDef.getIpAddressListOption() != null) {
 			IpAddressListOptionType ipAddressListOption = optionDef.getIpAddressListOption();
-			GenericIpAddressListOption genericIpAddressListOption =
-					new GenericIpAddressListOption(code, name);
 			if (ipAddressListOption.getIpAddressList() != null) {
+				GenericIpAddressListOption genericIpAddressListOption =
+						new GenericIpAddressListOption(code, name);
 				genericIpAddressListOption.setIpAddressList(ipAddressListOption.getIpAddressList());
+				return genericIpAddressListOption;
 			}
 		}
 		else if (optionDef.getIpAddressOption() != null) {
 			IpAddressOptionType ipAddressOption = optionDef.getIpAddressOption();
-			GenericIpAddressOption genericIpAddressOption = 
-					new GenericIpAddressOption(code, name);
 			if (ipAddressOption.getIpAddress() != null) {
+				GenericIpAddressOption genericIpAddressOption = 
+						new GenericIpAddressOption(code, name);
 				genericIpAddressOption.setIpAddress(ipAddressOption.getIpAddress());
+				return genericIpAddressOption;
 			}
 		}
 		else if (optionDef.getOpaqueDataListOption() != null) {
 			OpaqueDataListOptionType opaqueDataListOption = optionDef.getOpaqueDataListOption();
-			GenericOpaqueDataListOption genericOpaqueDataListOption = 
-					new GenericOpaqueDataListOption(code, name);
 			if (opaqueDataListOption.getOpaqueDataList() != null) {
+				GenericOpaqueDataListOption genericOpaqueDataListOption = 
+						new GenericOpaqueDataListOption(code, name);
         		for (OpaqueData opaqueData : opaqueDataListOption.getOpaqueDataList()) {
         			genericOpaqueDataListOption.addOpaqueData(
         					OpaqueDataUtil.toBaseOpaqueData(opaqueData));
 				}
+    			return genericOpaqueDataListOption;
 			}
 		}
 		else if (optionDef.getOpaqueDataOption() != null) {
 			OpaqueDataOptionType opaqueDataOption = optionDef.getOpaqueDataOption();
-			GenericOpaqueDataOption genericOpaqueDataOption = 
-					new GenericOpaqueDataOption(code, name);
 			if (opaqueDataOption.getOpaqueData() != null) {
+				GenericOpaqueDataOption genericOpaqueDataOption = 
+						new GenericOpaqueDataOption(code, name);
 				OpaqueData opaqueData = opaqueDataOption.getOpaqueData();
 				genericOpaqueDataOption.setOpaqueData(
 						OpaqueDataUtil.toBaseOpaqueData(opaqueData));
+				return genericOpaqueDataOption;
 			}
 		}
 		else if (optionDef.getStringOption() != null) {

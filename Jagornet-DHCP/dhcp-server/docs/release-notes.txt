@@ -1,3 +1,9 @@
+Changes in 4.0.1
+----------------
+	- Fix #73: Fix option map building for complex types
+		- Correct the implementation of GenericOptionFactory.getDhcpOption to
+		  return the built generic option for complex option types
+	
 Changes in 4.0.0
 ----------------
 	- Fix #41: Set name of undefined options to DHCP version and option code
