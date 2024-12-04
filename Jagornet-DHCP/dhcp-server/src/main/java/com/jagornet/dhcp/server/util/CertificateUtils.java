@@ -1,4 +1,4 @@
-package com.jagornet.dhcp.server.rest.util;
+package com.jagornet.dhcp.server.util;
 
 import java.io.File;
 import java.io.FileInputStream;

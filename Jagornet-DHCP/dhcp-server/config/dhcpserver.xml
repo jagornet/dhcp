@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:dhcpServerConfig xmlns:ns2="http://jagornet.com/dhcp/xml">
-    <v4ServerIdOption/>
-    <v6ServerIdOption/>
+    <v4ServerIdOption>
+        <ipAddress>192.168.86.33</ipAddress>
+    </v4ServerIdOption>
+    <v6ServerIdOption>
+        <opaqueData>
+            <hexValue>000100016733F864A6917F323F75</hexValue>
+        </opaqueData>
+    </v6ServerIdOption>
 </ns2:dhcpServerConfig>

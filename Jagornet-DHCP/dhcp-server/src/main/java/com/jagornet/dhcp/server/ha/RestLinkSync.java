@@ -23,9 +23,9 @@ import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
 import com.jagornet.dhcp.server.rest.api.JacksonObjectMapper;
 import com.jagornet.dhcp.server.rest.cli.JerseyRestClient;
 
-public class LinkSyncThread implements Runnable {
+public class RestLinkSync implements Runnable {
 
-	private static Logger log = LoggerFactory.getLogger(LinkSyncThread.class);
+	private static Logger log = LoggerFactory.getLogger(RestLinkSync.class);
 
 	// the DhcpLink to be synced
 	private DhcpLink dhcpLink;
@@ -33,22 +33,22 @@ public class LinkSyncThread implements Runnable {
 	private CountDownLatch linkSyncLatch;
 	// REST client for communicating to peer
 	private JerseyRestClient restClient;
-	// REST service for handling requests from peer
+	// service for handling requests from peer
 	private DhcpLeasesService dhcpLeasesService;
 	private boolean unsyncedLeasesOnly;
 	private ObjectMapper objectMapper;
 	
-	public LinkSyncThread(DhcpLink dhcpLink,
+	public RestLinkSync(DhcpLink dhcpLink,
 							CountDownLatch linkSyncLatch,
-							JerseyRestClient restClient,
-							DhcpLeasesService dhcpLeasesService,
-							boolean unsyncedLeasesOnly) {
-		super();
+							boolean unsyncedLeasesOnly,
+							JerseyRestClient restClient) {
+
 		this.dhcpLink = dhcpLink;
 		this.linkSyncLatch = linkSyncLatch;
-		this.restClient = restClient;
-		this.dhcpLeasesService = dhcpLeasesService;
 		this.unsyncedLeasesOnly = unsyncedLeasesOnly;
+		this.restClient = restClient;
+
+		dhcpLeasesService = new DhcpLeasesService();
 		objectMapper = new JacksonObjectMapper().getJsonObjectMapper();
 	}
 	

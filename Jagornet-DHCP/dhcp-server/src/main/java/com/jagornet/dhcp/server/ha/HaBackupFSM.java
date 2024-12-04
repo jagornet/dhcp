@@ -16,10 +16,7 @@ import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
-import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
-import com.jagornet.dhcp.server.rest.api.DhcpServerStatusResource;
 import com.jagornet.dhcp.server.rest.api.DhcpServerStatusService;
-import com.jagornet.dhcp.server.rest.cli.JerseyRestClient;
 
 public class HaBackupFSM implements Runnable {
 
@@ -51,38 +48,27 @@ public class HaBackupFSM implements Runnable {
 	private Collection<DhcpLink> dhcpLinks;
 	private CountDownLatch linkSyncLatch;
 
-	// REST client for communicating to primary
-	private JerseyRestClient restClient;
-	// REST service for handling requests from primary
-	private DhcpLeasesService dhcpLeasesService;
+	// HA client for communicating to primary
+	private HaClient haClient;
 	
 	private ScheduledExecutorService pollingTaskExecutor = null;
 	private ScheduledFuture<?> scheduledPollingFuture = null;
 	private PollingTask pollingTask = null;
 	private int pollReplyTimeoutCnt = 0;
 	
-	public HaBackupFSM(String primaryHost, int primaryPort) {
+	public HaBackupFSM(String primaryHost, int primaryPort, HaClient haClient) {
 		this.primaryHost = primaryHost;
 		this.primaryPort = primaryPort;
+		this.haClient = haClient;
 		requestAllLeasesOnRestart = 
 				DhcpServerPolicies.globalPolicyAsBoolean(Property.HA_CONTROL_REQUEST_ALL_LEASES_ON_RESTART);
     	pollingTaskExecutor = Executors.newSingleThreadScheduledExecutor();
     	pollingTask = new PollingTask();
 	}
 
-	public void init() throws Exception {
+	public void startFSM() throws Exception {
 		
 		dhcpLinks = DhcpServerConfiguration.getInstance().getLinkMap().values();
-		
-		// service implementation for processing leases synced from backup server
-		dhcpLeasesService = new DhcpLeasesService();
-		
-		String haUsername = DhcpServerPolicies.globalPolicy(Property.HA_USERNAME);
-		String haPassword = DhcpServerPolicies.globalPolicy(Property.HA_PASSWORD);
-
-		// client implementation for getting updates from primary server
-		restClient = new JerseyRestClient(primaryHost, primaryPort,
-										  haUsername, haPassword);
 
 		// get the last stored state and take the appropriate action for startup
 		haStateDbManager = new HaStateDbManager();
@@ -98,20 +84,16 @@ public class HaBackupFSM implements Runnable {
 
 	@Override
 	public void run() {
-		String primaryHaState = 
-				restClient.doGetString(DhcpServerStatusResource.PATH +
-										DhcpServerStatusResource.HASTATE);
-		if (primaryHaState == null) {
-			log.info("Null response from HA Primary server");
-			primaryState = null;
+		
+		primaryState = haClient.getPrimaryHaState();
+		if (primaryState == null) {
 			// we are backup, so start polling and
 			// if polling fails, then take over
 			startPollingTask();
 			return;
 		}
-		log.info("HA Primary state: " + primaryHaState);
-		primaryState = HaPrimaryFSM.State.valueOf(primaryHaState);
-		
+		log.info("HA Primary state: " + primaryState);
+	
 		// primary is available, start link sync from primary
 		try {
 			startLinkSync();
@@ -144,9 +126,7 @@ public class HaBackupFSM implements Runnable {
 			for (DhcpLink dhcpLink : dhcpLinks) {
 				dhcpLink.setState(DhcpLink.State.NOT_SYNCED);
 				Thread linkSyncThread = new Thread(
-						new LinkSyncThread(dhcpLink, 
-						linkSyncLatch, restClient, 
-						dhcpLeasesService, unsyncedLeasesOnly), 
+						haClient.buildLinkSyncThread(dhcpLink, linkSyncLatch, unsyncedLeasesOnly), 
 						"BackupLinkSyncFromPrimary-" + dhcpLink.getLinkAddress()
 						);
 				linkSyncThread.start();
@@ -243,7 +223,7 @@ public class HaBackupFSM implements Runnable {
 		
 		@Override
 		public void run() {
-			String status = restClient.doGetString(DhcpServerStatusResource.PATH);
+			String status = haClient.getStatus();
 			if (status == null) {
 				log.error("No response to status request");
 				pollReplyTimeoutCnt++;

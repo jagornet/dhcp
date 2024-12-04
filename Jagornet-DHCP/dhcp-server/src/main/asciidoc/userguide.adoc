@@ -129,9 +129,7 @@ The main Java class of the Jagornet DHCP Server supports the following usage:
                                     client links.
   -?,--help                         Show this help page.
   -c,--configfile <filename>        Configuration file (default =
-                                    /Users/agrabil/opt/gitlocal/jagornet-dhcp/Ja
-                                    gornet-DHCP/dhcp-server/config/dhcpserver.xm
-                                    l).
+                                    `JAGORNET_DHCP_HOME/config/dhcpserver.xml`).
   -ha,--haddr <address>             HTTPS address (default = all IP addresses).
                                     Use this option to instruct the server to
                                     bind to a specific IP address for HTTPS

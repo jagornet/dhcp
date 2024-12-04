@@ -51,6 +51,7 @@ import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
+import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
@@ -107,8 +108,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     {
         this.requestMsg = requestMsg;
         this.clientLinkAddress = clientLinkAddress;
-        haPrimaryFSM = dhcpServerConfig.getHaPrimaryFSM();
-        haBackupFSM = dhcpServerConfig.getHaBackupFSM();
+        haPrimaryFSM = JagornetDhcpServer.haPrimaryFSM;
+        haBackupFSM = JagornetDhcpServer.haBackupFSM;
     }
 
     protected Map<Integer, DhcpOption> requestedOptions(Map<Integer, DhcpOption> optionMap,

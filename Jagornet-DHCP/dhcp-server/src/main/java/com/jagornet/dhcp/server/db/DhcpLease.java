@@ -486,7 +486,7 @@ public class DhcpLease implements Cloneable
 	}
 
 	public String toJson() {
-		return DhcpLeaseJsonUtil.dhcpLeaseToJson(this);
+		return DhcpLeaseUtil.dhcpLeaseToJson(this);
 	}
 	
 	public static DhcpLease fromJson(Reader reader) throws IOException {
@@ -499,7 +499,7 @@ public class DhcpLease implements Cloneable
 	}
 	
 	public static DhcpLease fromJson(String json) {
-		return DhcpLeaseJsonUtil.jsonToDhcpLease(json);
+		return DhcpLeaseUtil.jsonToDhcpLease(json);
 	}
 	
 	@Override

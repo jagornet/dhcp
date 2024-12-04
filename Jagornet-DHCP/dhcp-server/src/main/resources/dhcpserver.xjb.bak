@@ -1,0 +1,35 @@
+<jaxb:bindings xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               version="2.0">
+
+    <jaxb:bindings schemaLocation="dhcpserver.xsd">
+        <jaxb:bindings node="//xs:complexType[@name='policiesType']//xs:element[@name='policy']">
+            <jaxb:property name="policies"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='filtersType']//xs:element[@name='filter']">
+            <jaxb:property name="filters"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='linksType']//xs:element[@name='link']">
+            <jaxb:property name="links"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='genericOptionsType']//xs:element[@name='optionDef']">
+            <jaxb:property name="optionDefs"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='unsignedByteListOptionType']//xs:element[@name='unsignedByte']">
+            <jaxb:property name="unsignedByteList"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='unsignedShortListOptionType']//xs:element[@name='unsignedShort']">
+            <jaxb:property name="unsignedShortList"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='ipAddressListOptionType']//xs:element[@name='ipAddress']">
+            <jaxb:property name="ipAddressList"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='domainNameListOptionType']//xs:element[@name='domainName']">
+            <jaxb:property name="domainNameList"/>
+        </jaxb:bindings>
+        <jaxb:bindings node="//xs:complexType[@name='opaqueDataListOptionType']//xs:element[@name='opaqueData']">
+            <jaxb:property name="opaqueDataList"/>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+</jaxb:bindings>

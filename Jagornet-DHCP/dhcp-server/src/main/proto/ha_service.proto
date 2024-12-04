@@ -1,13 +1,27 @@
 syntax = "proto3";
 option java_multiple_files = true;
 package com.jagornet.dhcp.server.grpc;
+import "google/protobuf/empty.proto";
 
-message DhcpOption {
-	uint32 code = 1;	// java int for unsigned short
-	string name = 2;
-	uint32 len = 3;
-	bytes data = 4;
-	boolean v4 = 5;
+service HaService {
+    rpc getStatus(google.protobuf.Empty) returns (StatusResponse);
+    rpc getHaState(google.protobuf.Empty) returns (HaStateResponse);
+    rpc updateLease(DhcpLeaseUpdate) returns (DhcpLeaseUpdate);
+	rpc getLeases(DhcpLeasesRequest) returns (stream DhcpLeaseUpdate);
+}
+
+message StatusResponse {
+	string status = 1;
+}
+
+message HaStateResponse {
+	string haState = 1;
+}
+
+message DhcpLeasesRequest {
+	bytes startIpAddress = 1;
+	bytes endIpAddress = 2;
+	bool unsyncedLeasesOnly = 3;
 }
 
 message DhcpLeaseUpdate {
@@ -26,6 +40,10 @@ message DhcpLeaseUpdate {
 	repeated DhcpOption iaAddrDhcpOptions = 13;	// v6 IA_ADDR level options
 }
 
-service DhcpLeaseUpdateService {
-    rpc updateLease(DhcpLeaseUpdate) returns (DhcpLeaseUpdate);
+message DhcpOption {
+	uint32 code = 1;	// java int for unsigned short
+	string name = 2;
+	uint32 len = 3;
+	bytes data = 4;
+	bool v4 = 5;
 }

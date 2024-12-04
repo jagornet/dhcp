@@ -195,8 +195,7 @@ public class DhcpServerConfiguration
     private IaManager iaMgr;
 
 	public static enum HaRole { PRIMARY, BACKUP };
-    private HaPrimaryFSM haPrimaryFSM;
-    private HaBackupFSM haBackupFSM;
+	private HaRole haRole;
     
     /**
      * Gets the single instance of DhcpServerConfiguration.
@@ -263,12 +262,23 @@ public class DhcpServerConfiguration
 
     	dhcpLinkMap = buildDhcpLinkMap(jaxbServerConfig.getLinks());
     	
-        // must initLinkMap before initHighAvailability because
-        // the HA FSMs need to sync leases by link (link-sync "TM")
-        initHighAvailability();
-    	
+		String haRolePolicy = DhcpServerPolicies.globalPolicy(Property.HA_ROLE);
+		if ((haRolePolicy != null) && !haRolePolicy.isEmpty()) {
+			try {
+				haRole = HaRole.valueOf(haRolePolicy.toUpperCase());
+			}
+			catch (IllegalArgumentException ex) {
+				throw new DhcpServerConfigException("Unknown " + Property.HA_ROLE.key() + 
+													": " + haRole);
+			}
+		}
+
         return updated;    	
     }
+
+	public HaRole getHaRole() {
+		return haRole;
+	}
 
 	private boolean initV4ServerId(DhcpServerConfig jaxbServerConfig) throws IOException {
 		boolean serverIdGenerated = false;
@@ -480,7 +490,8 @@ public class DhcpServerConfiguration
 	public void setGlobalFilters(FiltersType globalFilters) {
 		this.globalFilters = globalFilters;
 	}
-    
+
+/* 
     private void initHighAvailability() throws DhcpServerConfigException {
         String haRole = DhcpServerPolicies.globalPolicy(Property.HA_ROLE);
         if (!haRole.isEmpty()) {
@@ -534,7 +545,8 @@ public class DhcpServerConfiguration
     public void setHaBackupFSM(HaBackupFSM haBackupFSM) {
     	this.haBackupFSM = haBackupFSM;
     }
-    
+*/
+
     /**
      * Build the DhcpLink map from the Links in the configuration
      * 

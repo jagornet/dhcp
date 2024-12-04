@@ -53,6 +53,7 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6StatusCodeOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
@@ -112,8 +113,8 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     {
         this.requestMsg = requestMsg;
         this.clientLinkAddress = clientLinkAddress;
-        haPrimaryFSM = dhcpServerConfig.getHaPrimaryFSM();
-        haBackupFSM = dhcpServerConfig.getHaBackupFSM();
+        haPrimaryFSM = JagornetDhcpServer.haPrimaryFSM;
+        haBackupFSM = JagornetDhcpServer.haBackupFSM;
     }
 
     protected Map<Integer, DhcpOption> requestedOptions(Map<Integer, DhcpOption> optionMap,

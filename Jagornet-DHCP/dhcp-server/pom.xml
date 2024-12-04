@@ -18,7 +18,7 @@
   	<commons.io.version>2.7</commons.io.version>
   	<commons.pool2.version>2.7.0</commons.pool2.version>
   	<dnsjava.version>2.1.9</dnsjava.version>
-  	<netty.version>4.1.48.Final</netty.version>
+  	<netty.version>4.1.110.Final</netty.version>
   	<spring.version>5.3.20</spring.version>
   	<derby.version>10.14.2.0</derby.version>
   	<h2.version>2.1.210</h2.version>
@@ -32,7 +32,9 @@
   	<httpclient.version>4.5.13</httpclient.version>
   	<jackson.version>2.11.2</jackson.version>
   	<swagger.version>2.1.13</swagger.version>
-	<grpc.version>1.16.1</grpc.version>
+	<grpc.version>1.64.0</grpc.version>
+	<osplugin.version>1.7.1</osplugin.version>
+	<protobuf.version>4.27.1</protobuf.version>
   </properties>
 
   <dependencies>
@@ -258,17 +260,18 @@
 	<dependency>
 	  <groupId>kr.motd.maven</groupId>
 	  <artifactId>os-maven-plugin</artifactId>
-	  <version>1.7.0</version>
+	  <version>${osplugin.version}</version>
 	  <type>maven-plugin</type>
 	</dependency>
 
 	<!-- gRPC -->
+	<!-- see https://github.com/grpc/grpc-java/blob/master/SECURITY.md -->
 	<dependency>
 	    <groupId>io.grpc</groupId>
 	    <artifactId>grpc-netty</artifactId>
 	    <version>${grpc.version}</version>
 	</dependency>
-	<dependency>
+	  <dependency>
 	    <groupId>io.grpc</groupId>
 	    <artifactId>grpc-protobuf</artifactId>
 	    <version>${grpc.version}</version>
@@ -277,6 +280,16 @@
 	    <groupId>io.grpc</groupId>
 	    <artifactId>grpc-stub</artifactId>
 	    <version>${grpc.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.google.protobuf</groupId>
+	    <artifactId>protobuf-java</artifactId>
+	    <version>${protobuf.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.google.protobuf</groupId>
+	    <artifactId>protobuf-java-util</artifactId>
+	    <version>${protobuf.version}</version>
 	</dependency>
 
 	<!-- Test dependency jars -->
@@ -323,14 +336,29 @@
 		    </plugin>
 		  </plugins>
 		</pluginManagement>
-		<extensions>
+
+<!-- 		<extensions>
 		    <extension>
 		      <groupId>kr.motd.maven</groupId>
 		      <artifactId>os-maven-plugin</artifactId>
-		      <version>1.6.1</version>
+		      <version>${osplugin.version}</version>
 		    </extension>
 		</extensions>
+ -->
 		<plugins>
+		    <plugin>
+		      <groupId>kr.motd.maven</groupId>
+		      <artifactId>os-maven-plugin</artifactId>
+		      <version>${osplugin.version}</version>
+		      <executions>
+		        <execution>
+		          <phase>initialize</phase>
+		          <goals>
+		            <goal>detect</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -416,8 +444,10 @@
 	            but since the parent pom.xml defines maven.complier 1.8,
 	            then Eclipse will reset the project to use JRE 8, and then
 	            then v2.5.0 of this plugin fails for some reason.
+	            
+	            ... maybe not anymore?
 	             -->
-	            <version>2.3.1</version>
+	            <version>2.5.0</version>
 	            <executions>
 	                <execution>
 	                	<phase>generate-sources</phase>
@@ -588,11 +618,11 @@
 		      <version>0.6.1</version>
 		      <configuration>
 		        <protocArtifact>
-		          com.google.protobuf:protoc:3.3.0:exe:${os.detected.classifier}
+		          com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
 		        </protocArtifact>
 		        <pluginId>grpc-java</pluginId>
 		        <pluginArtifact>
-		          io.grpc:protoc-gen-grpc-java:1.4.0:exe:${os.detected.classifier}
+		          io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
 		        </pluginArtifact>
 		      </configuration>
 		      <executions>

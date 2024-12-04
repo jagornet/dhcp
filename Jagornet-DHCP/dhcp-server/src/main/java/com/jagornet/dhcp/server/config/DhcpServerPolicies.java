@@ -122,13 +122,14 @@ public class DhcpServerPolicies
 		V6_VERIFY_UNKNOWN_REBIND("v6.verifyUnknownRebind", "false"),
 		
 		HA_ROLE("ha.role", ""),
+		HA_PROTOCOL("ha.protocol", "rest"),	// rest or grpc
 		HA_USERNAME("ha.username", "hapeer"),
 		HA_PASSWORD("ha.password", "jagornet"),
 		HA_PEER_USERNAME("ha.peerUsername", "hapeer"),
 		HA_PEER_PASSWORD("ha.peerPassword", "jagornet"),
 		HA_DATABASE_FILE("ha.stateDbFile", "db/ha/jagornet-ha-state.db"),
 		HA_DATABASE_MAX_STORED_STATES("ha.maxStoredStates", "10"),
-		HA_BINDING_UPDATE_MODE("ha.bindingUpdateMode", "sync"),	// sync, async, database
+		HA_BINDING_UPDATE_MODE("ha.bindingUpdateMode", "sync"),	// sync, async, database 
 		HA_PEER_SERVER("ha.peerServer", ""),
 		HA_PEER_PORT("ha.peerPort", String.valueOf(JerseyRestServer.HTTPS_SERVER_PORT)),
 		HA_POLL_SECONDS("ha.pollSeconds", "30"),

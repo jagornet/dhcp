@@ -1,0 +1,69 @@
+{
+  "v4ServerIdOption" : {
+    "ipAddress" : "10.9.5.100"
+  },
+  "v6ServerIdOption" : {
+    "opaqueData" : {
+      "hexValue" : "00010001621BD249CA0D87E5ED8D"
+    }
+  },
+  "links" : {
+    "linkList" : [ {
+      "name" : "IPv4 Test Link 1",
+      "address" : "10.0.0.0/24",
+      "v4ConfigOptions" : {
+        "v4SubnetMaskOption" : {
+          "ipAddress" : "255.255.255.0"
+        },
+        "v4RoutersOption" : {
+          "ipAddressList" : [ "10.0.0.1" ]
+        },
+        "v4DomainServersOption" : {
+          "ipAddressList" : [ "8.8.8.8", "4.4.4.4" ]
+        },
+        "v4DomainNameOption" : {
+          "domainName" : "dhcpv4.jagornet.test."
+        }
+      },
+      "v4AddrPools" : {
+        "poolList" : [ {
+          "range" : "10.0.0.100-10.0.0.199"
+        } ]
+      }
+    }, {
+      "name" : "Local IPv6 Client Link (Multicast traffic)",
+      "interface" : "en0",
+      "address" : "fe80:0:0:0:142a:2f66:94c6:12e6%en0/128",
+      "v6MsgConfigOptions" : {
+        "v6DnsServersOption" : {
+          "ipAddressList" : [ "2001:4860:4860::8888" ]
+        },
+        "v6DomainSearchListOption" : {
+          "domainNameList" : [ "local.dhcpv6.jagornet.test." ]
+        }
+      },
+      "v6NaAddrPools" : {
+        "poolList" : [ {
+          "notInLinkSubnet" : true,
+          "range" : "2001:db8:1::0A-2001:db8:1::FF"
+        } ]
+      }
+    }, {
+      "name" : "Remote IPv6 Client Link (Unicast/Multicast traffic)",
+      "address" : "2001:db8:2::/48",
+      "v6MsgConfigOptions" : {
+        "v6DnsServersOption" : {
+          "ipAddressList" : [ "2001:4860:4860::8888" ]
+        },
+        "v6DomainSearchListOption" : {
+          "domainNameList" : [ "remote.dhcpv6.jagornet.test." ]
+        }
+      },
+      "v6NaAddrPools" : {
+        "poolList" : [ {
+          "range" : "2001:db8:2::0A-2001:db8:2::FF"
+        } ]
+      }
+    } ]
+  }
+}
