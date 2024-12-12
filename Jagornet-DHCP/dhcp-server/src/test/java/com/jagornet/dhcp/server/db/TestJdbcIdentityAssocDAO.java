@@ -50,7 +50,7 @@ public class TestJdbcIdentityAssocDAO extends BaseTestCase
 	@BeforeClass
 	public static void oneTimeSetUp() throws Exception 
 	{
-		initializeContext("jdbc-derby", 1);
+		initializeContext(DbSchemaManager.SCHEMATYPE_JDBC_DERBY, BaseTestCase.DEFAULT_SCHEMA_VERSION);
 		iaDao = (IdentityAssocDAO) ctx.getBean("identityAssocDAO");
 	}
 

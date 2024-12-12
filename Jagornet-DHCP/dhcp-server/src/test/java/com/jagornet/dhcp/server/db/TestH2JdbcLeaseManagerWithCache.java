@@ -21,7 +21,7 @@ public class TestH2JdbcLeaseManagerWithCache extends AbstractTestLeaseManager {
 		AbstractTestLeaseManager.oneTimeSetUp();
 		DhcpServerPolicies.setProperty(Property.BINDING_MANAGER_IA_CACHE_SIZE, "1000");
 		DhcpServerPolicies.setProperty(Property.BINDING_MANAGER_LEASE_CACHE_SIZE, "1000");
-		initializeContext("jdbc-h2", 2);
+		initializeContext(DbSchemaManager.SCHEMATYPE_JDBC_H2, BaseTestCase.DEFAULT_SCHEMA_VERSION);
 		leaseManager =  (LeaseManager)config.getIaMgr();
 		log.info("oneTimeSetUp complete");
 	}
