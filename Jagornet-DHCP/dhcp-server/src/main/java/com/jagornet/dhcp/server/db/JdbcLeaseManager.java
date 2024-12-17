@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
@@ -478,6 +479,7 @@ public class JdbcLeaseManager extends LeaseManager
 								   final InetAddress endAddr,
 								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler)
 	{
+		log.debug("findExistingLeases begin");
         getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where ipaddress >= ? and ipaddress <= ?" +
@@ -496,6 +498,7 @@ public class JdbcLeaseManager extends LeaseManager
                 	    	ResultSetExtractor<DhcpLease> rsExtractor = 
                 	    			new DhcpLeaseResultSetExtractor();
                 	    	DhcpLease dhcpLease = rsExtractor.extractData(rs);
+							log.debug("processRow: " + dhcpLease);
                 			dhcpLeaseCallbackHandler.processDhcpLease(dhcpLease);
                 		} 
                     	catch (Exception e) {
@@ -504,6 +507,7 @@ public class JdbcLeaseManager extends LeaseManager
                 		}
                 	}
                 });
+		log.debug("findExistingLeases return");
 	}
 
 	@Override
@@ -511,6 +515,7 @@ public class JdbcLeaseManager extends LeaseManager
 								   final InetAddress endAddr,
 								   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler)
 	{
+		log.debug("findUnsyncedLeases begin");
         getJdbcTemplate().query(
                 "select * from dhcplease" +
                 " where hapeerstate = " + IaAddress.UNKNOWN +
@@ -530,6 +535,7 @@ public class JdbcLeaseManager extends LeaseManager
                 	    	ResultSetExtractor<DhcpLease> rsExtractor = 
                 	    			new DhcpLeaseResultSetExtractor();
                 	    	DhcpLease dhcpLease = rsExtractor.extractData(rs);
+							log.debug("processRow: " + dhcpLease);
                 			dhcpLeaseCallbackHandler.processDhcpLease(dhcpLease);
                 		} 
                     	catch (Exception e) {
@@ -538,6 +544,43 @@ public class JdbcLeaseManager extends LeaseManager
                 		}
                 	}
                 });
+		log.debug("findUnsyncedLeases return");
+	}
+
+	public Stream<DhcpLease> findExistingLeases(final InetAddress startAddr, 
+												final InetAddress endAddr) {
+
+		return getJdbcTemplate().queryForStream(
+			"select * from dhcplease" +
+			" where ipaddress >= ? and ipaddress <= ?" +
+			" order by ipaddress", 
+			new PreparedStatementSetter() {
+				@Override
+				public void setValues(PreparedStatement ps) throws SQLException {
+					ps.setBytes(1, startAddr.getAddress());
+					ps.setBytes(2, endAddr.getAddress());
+				}                	
+			},
+			new DhcpLeaseRowMapper()
+		);
+	}
+
+	public Stream<DhcpLease> findUnsyncedLeases(final Inet4Address startAddr,
+												final Inet4Address endAddr) {
+		return getJdbcTemplate().queryForStream(
+			"select * from dhcplease" +
+			" where hapeerstate = " + IaAddress.UNKNOWN +
+			" and ipaddress >= ? and ipaddress <= ?" +
+			" order by ipaddress", 
+			new PreparedStatementSetter() {
+				@Override
+				public void setValues(PreparedStatement ps) throws SQLException {
+					ps.setBytes(1, startAddr.getAddress());
+					ps.setBytes(2, endAddr.getAddress());
+				}                	
+			},
+			new DhcpLeaseRowMapper()
+		);
 	}
 	
 	@Override
