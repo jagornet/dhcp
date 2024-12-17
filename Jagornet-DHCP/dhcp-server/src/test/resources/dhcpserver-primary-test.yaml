@@ -30,7 +30,7 @@ links:
         ipAddress: "255.255.0.0"
       v4RoutersOption:
         ipAddressList:
-        - "10.0.0.1"
+        - "192.168.0.1"
       v4DomainServersOption:
         ipAddressList:
         - "1.1.1.1"
@@ -39,8 +39,8 @@ links:
         domainName: "test.jagornet.com."
     v4AddrPools:
       poolList:
-      - range: "10.0.1.0-10.0.255.254"
-        notInLinkSubnet: true
+      - range: "192.168.0.0-192.168.255.254"
+        #notInLinkSubnet: true
   - name: "Local IPv6 Client Link (Multicast traffic)"
     interface: "en0"
     v6MsgConfigOptions:
