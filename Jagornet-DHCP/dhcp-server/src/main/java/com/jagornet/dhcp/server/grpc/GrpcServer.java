@@ -68,7 +68,7 @@ public class GrpcServer {
                     shutdown();
                 }
             });
-                return server;
+            return server;
         }
         catch (Exception ex) {
         	log.error("Failed to start Netty gRPC Server: " + ex);
