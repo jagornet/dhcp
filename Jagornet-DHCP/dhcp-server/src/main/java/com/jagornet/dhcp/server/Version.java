@@ -44,7 +44,7 @@ public class Version
 	String implVersion = null;
 	
 	public Version() {
-		Package pkg = Package.getPackage("com.jagornet.dhcp.server");
+		Package pkg = Version.class.getClassLoader().getDefinedPackage("com.jagornet.dhcp.server");
 		implVendor = pkg.getImplementationTitle();
 		implTitle = pkg.getImplementationTitle();
 		implVersion = pkg.getImplementationVersion();
@@ -87,9 +87,12 @@ public class Version
 				Manifest mf = new Manifest(is);
 				Attributes attrs = mf.getMainAttributes();
 				if (attrs != null) {
-					implVendor = attrs.getValue("Implementation-Vendor");
-					implTitle = attrs.getValue("Implementation-Title");
-					implVersion = attrs.getValue("Implementation-Version");
+					String mfImplVendor = attrs.getValue("Implementation-Vendor");
+					if ((mfImplVendor != null) && mfImplVendor.startsWith("Jagornet")) {
+						implVendor = mfImplVendor;
+						implTitle = attrs.getValue("Implementation-Title");
+						implVersion = attrs.getValue("Implementation-Version");	
+					}
 				}
 			}
 			else {
