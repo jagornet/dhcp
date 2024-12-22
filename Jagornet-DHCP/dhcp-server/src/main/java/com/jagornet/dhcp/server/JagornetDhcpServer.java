@@ -190,10 +190,6 @@ public class JagornetDhcpServer
         				    version.getVersion(), options, 2, 2, null);    	
     }
     
-    private static void logSystemProperties() {
-    	log.debug("System properties: " + System.getProperties());
-    }
-    
     /**
      * Start the DHCP server with an array of command line args
      * 
@@ -208,8 +204,8 @@ public class JagornetDhcpServer
     	int cores = Runtime.getRuntime().availableProcessors();
     	log.info("Number of available core processors: " + cores);
     	
-    	if (log.isDebugEnabled()) {
-    		logSystemProperties();
+    	if (log.isTraceEnabled()) {
+			log.trace("System properties: " + System.getProperties());
     	}
 
     	Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -313,30 +309,17 @@ public class JagornetDhcpServer
     	nettyServer.start();
     	
 		HaRole haRole = serverConfig.getHaRole();
-    	if ((httpsAddr != null) || (grpcAddr != null)) {
+    	if ((grpcAddr != null) || (httpsAddr != null)) {
 			
 			MtlsConfig serverMtlsConfig = MtlsConfig.getDefaultServerInstance();
 
-			if (httpsAddr != null) {
-				System.out.println("HTTPS address: " + httpsAddr.getHostAddress());
-				System.out.println("HTTPS port: " + httpsPortNumber);
-				//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
-				JerseyRestServer restServer = new JerseyRestServer(httpsAddr, httpsPortNumber, serverMtlsConfig);
-				Channel jerseyHttpServer = restServer.startNettyServer();
-				if (jerseyHttpServer == null) {
-					log.error("Failed to create Jersey JAX-RS Netty HTTPS Server");
-				}
-				else if (!jerseyHttpServer.isActive()) {
-					log.warn("Jersey JAX-RS Netty HTTPS Server is not active");
-				}
-				else {
-					log.info("Jersey JAX-RS Netty HTTPS Server started");
-				}
-			}
-
 			if (grpcAddr != null) {
-				System.out.println("gRPC address: " + grpcAddr.getHostAddress());
-				System.out.println("gRPC port: " + grpcPortNumber);
+				msg = "gRPC address: " + grpcAddr.getHostAddress();
+				System.out.println(msg);
+				log.info(msg);
+				msg = "gRPC port: " + grpcPortNumber;
+				System.out.println(msg);
+				log.info(msg);
 				GrpcServer grpcServer = new GrpcServer(grpcAddr, grpcPortNumber, serverMtlsConfig);
 				Server nettyGrpcServer = grpcServer.startNettyServer();
 				if (nettyGrpcServer == null) {
@@ -351,6 +334,27 @@ public class JagornetDhcpServer
 
 				if (haRole == null) {
 					log.warn("No HA role defined, gRPC server is obsolete");
+				}
+			}
+
+			if (httpsAddr != null) {
+				msg = "HTTPS address: " + httpsAddr.getHostAddress();
+				System.out.println(msg);
+				log.info(msg);
+				msg = "HTTPS port: " + httpsPortNumber;
+				System.out.println(msg);
+				log.info(msg);
+				//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
+				JerseyRestServer restServer = new JerseyRestServer(httpsAddr, httpsPortNumber, serverMtlsConfig);
+				Channel jerseyHttpServer = restServer.startNettyServer();
+				if (jerseyHttpServer == null) {
+					log.error("Failed to create Jersey JAX-RS Netty HTTPS Server");
+				}
+				else if (!jerseyHttpServer.isActive()) {
+					log.warn("Jersey JAX-RS Netty HTTPS Server is not active");
+				}
+				else {
+					log.info("Jersey JAX-RS Netty HTTPS Server started");
 				}
 			}
 		
@@ -704,26 +708,6 @@ public class JagornetDhcpServer
         	.create("6p");
         options.addOption(portOption);
 
-        Option hAddrOption =
-        	OptionBuilder.withLongOpt("haddr")
-        	.withArgName("address")
-        	.withDescription("HTTPS address (default = all IP addresses). " +
-        			"Use this option to instruct the server to bind to a specific " +
-        			"IP address for HTTPS communications. Set the value to 'none' " +
-        			"(without quotes) to disable HTTPS.")
-        	.hasOptionalArgs()
-        	.create("ha");        				 
-        options.addOption(hAddrOption);
-        
-        Option hPortOption =
-        	OptionBuilder.withLongOpt("hport")
-        	.withArgName("portnum")
-        	.withDescription("HTTPS Port number (default = " +
-        					JerseyRestServer.HTTPS_SERVER_PORT + ").")
-        	.hasArg()
-        	.create("hp");
-        options.addOption(hPortOption);
-
         Option gAddrOption =
         	OptionBuilder.withLongOpt("gaddr")
         	.withArgName("address")
@@ -743,6 +727,26 @@ public class JagornetDhcpServer
         	.hasArg()
         	.create("gp");
         options.addOption(gPortOption);
+
+        Option hAddrOption =
+        	OptionBuilder.withLongOpt("haddr")
+        	.withArgName("address")
+        	.withDescription("HTTPS address (default = all IP addresses). " +
+        			"Use this option to instruct the server to bind to a specific " +
+        			"IP address for HTTPS communications. Set the value to 'none' " +
+        			"(without quotes) to disable HTTPS.")
+        	.hasOptionalArgs()
+        	.create("ha");        				 
+        options.addOption(hAddrOption);
+        
+        Option hPortOption =
+        	OptionBuilder.withLongOpt("hport")
+        	.withArgName("portnum")
+        	.withDescription("HTTPS Port number (default = " +
+        					JerseyRestServer.HTTPS_SERVER_PORT + ").")
+        	.hasArg()
+        	.create("hp");
+        options.addOption(hPortOption);
 
         Option testConfigFileOption =
         	OptionBuilder.withLongOpt("test-configfile")
@@ -1304,6 +1308,16 @@ public class JagornetDhcpServer
 	    return multipleV4Interfaces.booleanValue();
     }
 	
+	public static InetAddress getGrpcAddr(String addr) throws UnknownHostException {
+		if (addr.equalsIgnoreCase(NONE)) {
+			return null;
+		}
+		if (addr.equalsIgnoreCase(ALL)) {
+			return DhcpConstants.ZEROADDR_V4;
+		}
+		return InetAddress.getByName(addr);
+	}
+	
 	public static InetAddress getHttpsAddr(String addr) throws UnknownHostException {
 		if (addr.equalsIgnoreCase(NONE)) {
 			return null;
@@ -1315,16 +1329,6 @@ public class JagornetDhcpServer
 		// see: https://github.com/eclipse-ee4j/jersey/issues/4045
 		//return InetAddress.getByName(addr);
 		return DhcpConstants.ZEROADDR_V4;
-	}
-	
-	public static InetAddress getGrpcAddr(String addr) throws UnknownHostException {
-		if (addr.equalsIgnoreCase(NONE)) {
-			return null;
-		}
-		if (addr.equalsIgnoreCase(ALL)) {
-			return DhcpConstants.ZEROADDR_V4;
-		}
-		return InetAddress.getByName(addr);
 	}
 	
     /**
