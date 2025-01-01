@@ -140,7 +140,7 @@ public class DhcpLeasesResource {
 			   						   @QueryParam(QUERYPARAM_END) String end,
 		    						   @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
 
-		log.debug("getDhcpLeaseIps: start=" + start + " end=" + end);
+		log.debug("getDhcpLeaseStream: start=" + start + " end=" + end);
     	// this will be served at http://localhost/dhcpleases/dhcpleasestream
     	Response response = getJsonDhcpLeaseStream(start, end, haUpdate);
     	
@@ -171,10 +171,12 @@ public class DhcpLeasesResource {
 							new DhcpLeaseCallbackHandler() {
 						@Override
 						public void processDhcpLease(DhcpLease dhcpLease) throws Exception {
+							log.debug("Writing DhcpLease to JSON stream: " + dhcpLease);
 							generator.writeObject(dhcpLease);
 							generator.flush();
 						}
 					}, unsyncedLeasesOnly);
+					log.debug("DhcpLease JSON stream complete");
 					generator.writeEndArray();
 					generator.close();
 			    }
@@ -264,30 +266,14 @@ public class DhcpLeasesResource {
 					// syncing the lease, so set the haPeerState=state
 					dhcpLease.setHaPeerState(dhcpLease.getState());
 				}
-				InetAddress inetAddr = dhcpLease.getIpAddress();
-				DhcpLease existingDhcpLease = leasesService.getDhcpLease(inetAddr);
-				if (existingDhcpLease != null) {
-					if (leasesService.updateDhcpLease(inetAddr, dhcpLease)) {
-						return Response.ok(dhcpLease).build();
-					}
-					else {
-						return Response
-								.serverError()
-								.entity("PUT - updateDhcpLease failed!")
-								.build();
-					}
+				if (leasesService.createOrUpdateDhcpLease(dhcpLease)) {
+					return Response.ok(dhcpLease).build();
 				}
 				else {
-					log.debug("PUT called with new lease");
-					if (leasesService.createDhcpLease(dhcpLease)) {
-						return Response.ok(dhcpLease).build();	    	    		
-					}
-					else {
-						return Response
-								.serverError()
-								.entity("PUT - createDhcpLease failed!")
-								.build();
-					}
+					return Response
+							.serverError()
+							.entity("PUT - createOrUpdateDhcpLease failed!")
+							.build();
 				}
 			}
 			else {
