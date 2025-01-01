@@ -2,6 +2,7 @@ package com.jagornet.dhcp.server.db;
 
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -9,10 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
+import com.jagornet.dhcp.core.option.v4.DhcpV4OptionFactory;
+import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.grpc.DhcpLeaseUpdate;
 import com.jagornet.dhcp.server.grpc.DhcpOption;
 import com.jagornet.dhcp.server.rest.api.JacksonObjectMapper;
-// import com.jagornet.dhcp.grpc;
 
 public class DhcpLeaseUtil {
 	
@@ -100,13 +103,11 @@ public class DhcpLeaseUtil {
 
 	public static DhcpOption dhcpOptionToGrpc(com.jagornet.dhcp.core.option.base.DhcpOption option) {
 		try {
+			ByteBuffer data = option.encode();
 			DhcpOption.Builder optionBuilder =
 						DhcpOption.newBuilder()
-							.setCode(option.getCode())
-							.setName(option.getName())
-							.setLen(option.getLength())
-							.setData(ByteString.copyFrom(option.getRawData()))
-							.setV4(option.isV4());
+							.setV4(option.isV4())
+							.setRawData(ByteString.copyFrom(data));
 
 			return optionBuilder.build();
 		} 
@@ -129,6 +130,24 @@ public class DhcpLeaseUtil {
 			dhcpLease.setStartTime(new Date(leaseUpdate.getStartTime()));
 			dhcpLease.setPreferredEndTime(new Date(leaseUpdate.getPreferredEndTime()));
 			dhcpLease.setValidEndTime(new Date(leaseUpdate.getValidEndTime()));
+			
+			if (leaseUpdate.getDhcpOptionsList() != null) {
+				for (com.jagornet.dhcp.server.grpc.DhcpOption option : leaseUpdate.getDhcpOptionsList()) {
+					dhcpLease.addDhcpOption(grpcToDhcpOption(option));
+				}
+			}
+			
+			if (leaseUpdate.getIaDhcpOptionsList() != null) {
+				for (com.jagornet.dhcp.server.grpc.DhcpOption option : leaseUpdate.getIaDhcpOptionsList()) {
+					dhcpLease.addIaDhcpOption(grpcToDhcpOption(option));
+				}
+			}
+			
+			if (leaseUpdate.getIaAddrDhcpOptionsList() != null) {
+				for (com.jagornet.dhcp.server.grpc.DhcpOption option : leaseUpdate.getIaAddrDhcpOptionsList()) {
+					dhcpLease.addIaAddrDhcpOption(grpcToDhcpOption(option));
+				}
+			}
 			return dhcpLease;
 		} 
 		catch (Exception e) {
@@ -139,14 +158,23 @@ public class DhcpLeaseUtil {
 
 	public static com.jagornet.dhcp.core.option.base.DhcpOption grpcToDhcpOption(DhcpOption option) {
 		try {
-			com.jagornet.dhcp.core.option.base.DhcpOption dhcpOption = 
-				new com.jagornet.dhcp.core.option.generic.GenericOpaqueDataOption(option.getCode(), option.getName());
-			dhcpOption.setRawData(option.getData().asReadOnlyByteBuffer().array());
-			dhcpOption.setV4(option.getV4());
+			ByteBuffer buf = option.getRawData().asReadOnlyByteBuffer();
+			com.jagornet.dhcp.core.option.base.DhcpOption dhcpOption = null;
+			if (option.getV4()) {
+	            short code = Util.getUnsignedByte(buf);
+				dhcpOption = DhcpV4OptionFactory.getDhcpOption(code);
+			}
+			else {
+				int code = Util.getUnsignedShort(buf);
+				dhcpOption = DhcpV6OptionFactory.getDhcpOption(code);
+			}
+            if (dhcpOption != null) {
+                dhcpOption.decode(buf);
+			}
 			return dhcpOption;
 		} 
 		catch (Exception e) {
-			log.error("Failed to convert gRPC DhcpOption to generic opaque data DhcpOption", e);
+			log.error("Failed to convert gRPC DhcpOption rawData to DhcpOption", e);
 			return null;
 		}
 	}

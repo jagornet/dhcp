@@ -285,6 +285,19 @@ public class DhcpLease implements Cloneable
 	public void setDhcpOptions(Collection<DhcpOption> dhcpOptions) {
 		this.dhcpOptions = dhcpOptions;
 	}
+	
+	/**
+	 * Adds the hcp option.
+	 *
+	 * @param dhcpOption the dhcp option
+	 */
+	public void addDhcpOption(DhcpOption dhcpOption) {
+		if (dhcpOptions == null) {			
+			//TODO: consider a Set?
+			dhcpOptions = new ArrayList<DhcpOption>();
+		}
+		dhcpOptions.add(dhcpOption);
+	}
 
 	
 	/**
@@ -468,21 +481,27 @@ public class DhcpLease implements Cloneable
 	 */
 	@Override
 	public String toString() {
-		return "DhcpLease [ipAddress=" + ipAddress.getHostAddress() + 
-				", duid=" + Util.toHexString(duid) + 
-				", iatype=" + iatype + 
-				", iaid=" + iaid + 
-				", state=" + state + 
-				", haPeerState=" + haPeerState + 
-				", startTime=" + 
+		return "DhcpLease:" + 
+				System.lineSeparator() +
+				"ipAddress=" + ipAddress.getHostAddress() +
+				" duid=" + Util.toHexString(duid) + 
+				" iatype=" + iatype + 
+				" iaid=" + iaid + 
+				" state=" + state + 
+				" haPeerState=" + haPeerState + 
+				System.lineSeparator() +
+				"startTime=" + 
 					(startTime == null ? "" : Util.GMT_DATEFORMAT.format(startTime)) +
-				", preferredEndTime=" + 
+				" preferredEndTime=" + 
 					(preferredEndTime == null ? "" : Util.GMT_DATEFORMAT.format(preferredEndTime)) +
-				", validEndTime=" +  
+				" validEndTime=" +  
 					(validEndTime == null ? "" : Util.GMT_DATEFORMAT.format(validEndTime)) +
-				", dhcpOptions=" + dhcpOptions + 
-				", iaDhcpOptions=" + iaDhcpOptions + 
-				", iaAddrDhcpOptions=" + iaAddrDhcpOptions + "]";
+				System.lineSeparator() +
+				"dhcpOptions=" + dhcpOptions + 
+				System.lineSeparator() +
+				"iaDhcpOptions=" + iaDhcpOptions + 
+				System.lineSeparator() +
+				"iaAddrDhcpOptions=" + iaAddrDhcpOptions;
 	}
 
 	public String toJson() {

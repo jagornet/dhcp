@@ -50,6 +50,7 @@ public class GrpcClient {
 
     public String getStatus() {
         try {
+            log.debug("Invoking blockingStub: getStatus");
             StatusResponse response = blockingStub.getStatus(Empty.newBuilder().build());
             return response.getStatus();
         }
@@ -61,6 +62,7 @@ public class GrpcClient {
 
     public String getHaState() {
         try {
+            log.debug("Invoking blockingStub: getHaState");
             HaStateResponse response = blockingStub.getHaState(Empty.newBuilder().build());
             return response.getHaState();
         }
@@ -72,6 +74,7 @@ public class GrpcClient {
 
     public DhcpLease updateDhcpLease(DhcpLease dhcpLease) {
         try {
+            log.debug("Invoking blockingStub: updateLease");
             DhcpLeaseUpdate update = blockingStub.updateLease(DhcpLeaseUtil.dhcpLeaseToGrpc(dhcpLease));
             return DhcpLeaseUtil.grpcToDhcpLease(update);
         }
@@ -82,6 +85,7 @@ public class GrpcClient {
     }
 
     public void updateDhcpLeaseAsync(DhcpLease dhcpLease, StreamObserver<DhcpLeaseUpdate> responseObserver) {
+        log.debug("Invoking asyncStub: updateLease");
         asyncStub.updateLease(DhcpLeaseUtil.dhcpLeaseToGrpc(dhcpLease), responseObserver);
     }
 
@@ -93,11 +97,13 @@ public class GrpcClient {
 		builder.setEndIpAddress(ByteString.copyFrom(endIp));
 		builder.setUnsyncedLeasesOnly(unsyncedLeasesOnly);
 		DhcpLeasesRequest request = builder.build();
+        log.debug("Invoking asyncStub: getLeases");
         asyncStub.getLeases(request, responseObserver);
     }
 
     public void shutdown() {
         if (channel != null) {
+            log.info("Shutdown");
             channel.shutdown();
         }
     }

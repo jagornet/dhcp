@@ -29,8 +29,10 @@ public class HaService extends HaServiceImplBase {
 
     @Override
     public void getStatus(Empty request, StreamObserver<StatusResponse> responseObserver) {
+        // this is the server-side implementation of the HA server, so imitate the
+        // behavior of the REST server which has a special haPeer endpoint for getStatus
         StatusResponse response = StatusResponse.newBuilder()
-                                                .setStatus(statusService.getStatus())
+                                                .setStatus(statusService.haPeerGetStatus())
                                                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -38,8 +40,10 @@ public class HaService extends HaServiceImplBase {
 
     @Override
     public void getHaState(Empty request, StreamObserver<HaStateResponse> responseObserver) {
+        // this is the server-side implementation of the HA server, so imitate the
+        // behavior of the REST server which has a special haPeer endpoint for getHaState
         HaStateResponse response = HaStateResponse.newBuilder()
-                                                .setHaState(statusService.getHaState())
+                                                .setHaState(statusService.haPeerGetHaState())
                                                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -47,16 +51,17 @@ public class HaService extends HaServiceImplBase {
     
     @Override
     public void updateLease(DhcpLeaseUpdate request, StreamObserver<DhcpLeaseUpdate> responseObserver) {
-        DhcpLease lease = DhcpLeaseUtil.grpcToDhcpLease(request);
-        log.debug("Update lease: " + lease);
-        // ?? leasesService.createOrUpdateDhcpLease(lease);
-        if (leasesService.updateDhcpLease(lease.getIpAddress(), lease)) {
-            // if the update succeeded, then return the request lease
-            responseObserver.onNext(request);
+        DhcpLease dhcpLease = DhcpLeaseUtil.grpcToDhcpLease(request);
+        log.debug("Update lease: " + dhcpLease);
+        // this update is from the HA peer, so set the haPeerState=state
+        dhcpLease.setHaPeerState(dhcpLease.getState());
+        if (leasesService.createOrUpdateDhcpLease(dhcpLease)) {
+            DhcpLeaseUpdate response = DhcpLeaseUtil.dhcpLeaseToGrpc(dhcpLease);
+            responseObserver.onNext(response);
             responseObserver.onCompleted();
         }
         else {
-            responseObserver.onError(new IllegalStateException("updateLease failed"));
+            responseObserver.onError(new IllegalStateException("createOrUpdateDhcpLease failed"));
         }
     }
 

@@ -41,9 +41,6 @@ message DhcpLeaseUpdate {
 }
 
 message DhcpOption {
-	uint32 code = 1;	// java int for unsigned short
-	string name = 2;
-	uint32 len = 3;
-	bytes data = 4;
-	bool v4 = 5;
+	bool v4 = 1;
+	bytes rawData = 2;	// encoded the same as in DHCP protocol
 }
