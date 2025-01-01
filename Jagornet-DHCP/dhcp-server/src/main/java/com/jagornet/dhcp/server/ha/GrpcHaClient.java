@@ -47,29 +47,29 @@ public class GrpcHaClient implements HaClient {
     @Override
     public HaPrimaryFSM.State getPrimaryHaState() {
 		String primaryHaState = grpcClient.getHaState();
+		log.debug("getPrimaryHaState=" + primaryHaState);
 		if (primaryHaState == null) {
-			log.info("Null response from HA Primary server");
 			return null;
 		}
-		log.info("HA Primary state: " + primaryHaState);
 		return HaPrimaryFSM.State.valueOf(primaryHaState);
     }
 
     @Override
     public HaBackupFSM.State getBackupHaState() {
 		String backupHaState = grpcClient.getHaState();
+        log.debug("getBackupHaState=" + backupHaState);
 		if (backupHaState == null) {
-			log.info("Null response from HA Backup server");
 			return null;
 		}
-		log.info("HA Backup state: " + backupHaState);
 		return HaBackupFSM.State.valueOf(backupHaState);
     }
 
     @Override
     public DhcpLease updateDhcpLease(DhcpLease dhcpLease) {
         DhcpLease responseDhcpLease = grpcClient.updateDhcpLease(dhcpLease);
-        log.info("Binding update response: " + responseDhcpLease);
+        if (log.isDebugEnabled()) {
+            log.debug("updateDhcpLease response: " + responseDhcpLease);
+        }
         return responseDhcpLease;
     }
 
@@ -91,21 +91,28 @@ public class GrpcHaClient implements HaClient {
 
         @Override
         public void onNext(DhcpLeaseUpdate value) {
-			log.info("DhcpLease update onNext for: " + dhcpLease);
+            if (log.isDebugEnabled()) {
+			    log.debug("HA (async) DhcpLease update onNext value: " + value);
+            }
+            else if (log.isInfoEnabled()) {
+                log.info("HA (async) DhcpLease update onNext: IP=" + 
+                        dhcpLease.getIpAddress().getHostAddress());
+            }
             DhcpLease responseDhcpLease = DhcpLeaseUtil.grpcToDhcpLease(value);
 			if (expectedDhcpLease.equals(responseDhcpLease)) {
 				// if response matches what we sent, then success
 				// so update the HA peer state of the lease as synced
 				dhcpLease.setHaPeerState(dhcpLease.getState());
-				if (dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
-					log.info("HA peer state updated successfully");
-				}
-				else {
-					log.error("HA peer state update failed");
+				if (!dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
+					log.error("HA (async) peer state update failed");
 				}
 			}
 			else {
-				log.warn("Response (async) does not match posted DhcpLease");
+                log.warn("HA (async) DhcpLease update does not match:" +
+                        System.lineSeparator() +
+                        "expected: " + expectedDhcpLease +
+                        System.lineSeparator() +
+                        "response: " + responseDhcpLease);
 				// if the response doesn't match what we sent, then failure
 				// so update the HA peer state of the lease as unknown
 // not necessary, since we set haPeerState=UNKNOWN when creating/updating the lease
@@ -116,7 +123,9 @@ public class GrpcHaClient implements HaClient {
 
         @Override
         public void onError(Throwable t) {
-			log.error("DhcpLease update onError for: " + dhcpLease + ": " + t);
+			log.error("HA (async) DhcpLease update onError:" +
+                      " IP=" + dhcpLease.getIpAddress().getHostAddress() + 
+                      " error=" + t);
         }
 
         @Override

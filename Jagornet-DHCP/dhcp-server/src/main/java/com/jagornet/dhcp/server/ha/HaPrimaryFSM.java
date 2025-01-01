@@ -91,13 +91,12 @@ public class HaPrimaryFSM implements Runnable {
 	public void run() {
 
 		backupState = haClient.getBackupHaState();
+		log.info("HA Backup state: " + backupState);
 		if (backupState == null) {
-			log.info("Null response from HA Backup server");
 			// backup unavailable, so just get going
 			setState(State.PRIMARY_RUNNING);
 			return;
 		}
-		log.info("HA Backup state: " + backupState);
 
 		// backup is available, start link sync from backup
 		try {
@@ -225,22 +224,26 @@ public class HaPrimaryFSM implements Runnable {
 						expectedDhcpLease.setHaPeerState(expectedDhcpLease.getState());
 						if (!asyncUpdate) {
 							DhcpLease responseDhcpLease = haClient.updateDhcpLease(dhcpLease);
-							log.info("Binding update response: " + responseDhcpLease);
+							// debug detail handled in HaClient implementation
+							if (log.isInfoEnabled()) {
+								log.info("HA (sync) DhcpLease update:"+
+										" IP=" + dhcpLease.getIpAddress().getHostAddress());
+							}
 							if (expectedDhcpLease.equals(responseDhcpLease)) {
 								// if response matches what we sent, then success
 								// so update the HA peer state of the lease as synced
 								dhcpLease.setHaPeerState(dhcpLease.getState());
-								if (dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
-									log.info("HA peer state updated (sync) successfully");
-								}
-								else {
-									log.error("HA peer state update (sync) failed");
+								if (!dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
+									log.error("HA (sync) peer state update failed");
 								}
 							}
 							else {
-								log.warn("Response (sync) does not match expected DhcpLease: " +
-											expectedDhcpLease);
-								// if the response doesn't match what we sent, then failure
+								log.warn("HA (sync) DhcpLease update does not match:" +
+										System.lineSeparator() +
+										"expected: " + expectedDhcpLease +
+										System.lineSeparator() +
+										"response: " + responseDhcpLease);
+										// if the response doesn't match what we sent, then failure
 								// so update the HA peer state of the lease as unknown
 // not necessary, since we set haPeerState=UNKNOWN when creating/updating the lease
 //								dhcpLease.setHaPeerState(IaAddress.UNKNOWN);

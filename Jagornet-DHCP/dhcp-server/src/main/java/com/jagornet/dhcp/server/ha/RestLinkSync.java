@@ -127,6 +127,7 @@ public class RestLinkSync implements Runnable {
 		        return true;
 			}
 			else {
+				log.error("Stream is null!");
 				return false;
 			}
 		} 

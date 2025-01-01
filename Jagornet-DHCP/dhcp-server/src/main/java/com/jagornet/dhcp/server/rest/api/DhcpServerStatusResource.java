@@ -41,12 +41,15 @@ public class DhcpServerStatusResource {
     public String getStatus(@Context ContainerRequestContext context) {
     	SecurityContext securityContext = context.getSecurityContext();
 		if (securityContext != null) {
+			// AuthRole determines endpoint
 			if (securityContext.isUserInRole(
 					AuthenticationFilter.AuthRole.HA_PEER.toString())) {
+				// "internal" HA peer endpoint
 				return service.haPeerGetStatus();
 			}
 			else if (securityContext.isUserInRole(
 					AuthenticationFilter.AuthRole.REST_API.toString())) {
+				// external REST API endpoint
 				return service.getStatus();
 			}
 		}
@@ -61,12 +64,15 @@ public class DhcpServerStatusResource {
     public String getHaState(@Context ContainerRequestContext context) {
     	SecurityContext securityContext = context.getSecurityContext();
 		if (securityContext != null) {
+			// AuthRole determines endpoint
 			if (securityContext.isUserInRole(
 					AuthenticationFilter.AuthRole.HA_PEER.toString())) {
+				// "internal" HA peer endpoint
 				return service.haPeerGetHaState();
 			}
 			else if (securityContext.isUserInRole(
 					AuthenticationFilter.AuthRole.REST_API.toString())) {
+				// external REST API endpoint
 				return service.getHaState();
 			}
 		}

@@ -8,38 +8,29 @@ policies:
   policyList:
   - name: "dhcp.ignoreSelfPackets"
     value: "false"
-  # can't run two H2 servers on the same host
-  # so use Derby database on the backup
-  - name: "database.schemaType"
-    value: "jdbc-derby-backup"
   - name: "ha.role"
-    value: "backup"
+    value: "primary"
+  # bindingUpdateMode for primary role
+  - name: "ha.bindingUpdateMode"
+    value: "sync"
   - name: "ha.protocol"
     value: "grpc"
   - name: "ha.peerServer"
     value: "127.0.0.1"
-  # make sure this aligns with the launch config of the primary!
+  # make sure this aligns with the launch config of the backup!
   - name: "ha.peerPort"
-    value: "9066"
-  # separate HA state file for the backup
-  - name: "ha.stateDbFile"
-    value: "db/ha/jagornet-ha-state-backup.db"
-  - name: "ha.pollReplyTimeout"
-    value: "100000"
-  - name: "ha.pollReplyFailureCount"
-    value: "2"
-  - name: "ha.requestAllLeasesOnRestart"
-    value: "false"
+    value: "19066"
 links:
   linkList:
   - name: "IPv4 Client Link 1"
+    #address: "10.0.0.0/16"
     address: "192.168.0.0/16"
     v4ConfigOptions:
       v4SubnetMaskOption:
         ipAddress: "255.255.0.0"
       v4RoutersOption:
         ipAddressList:
-        - "192.168.0.1"
+        - "10.0.0.1"
       v4DomainServersOption:
         ipAddressList:
         - "1.1.1.1"
@@ -48,7 +39,8 @@ links:
         domainName: "test.jagornet.com."
     v4AddrPools:
       poolList:
-      - range: "192.168.0.0-192.168.255.254"
+      - range: "10.0.1.0-10.0.255.254"
+        notInLinkSubnet: true
   - name: "Local IPv6 Client Link (Multicast traffic)"
     interface: "en0"
     v6MsgConfigOptions:

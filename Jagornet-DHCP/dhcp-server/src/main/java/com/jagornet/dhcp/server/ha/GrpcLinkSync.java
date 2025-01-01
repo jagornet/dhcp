@@ -63,13 +63,22 @@ public class GrpcLinkSync implements Runnable {
 
         @Override
         public void onNext(DhcpLeaseUpdate value) {
-			log.info("DhcpLease update onNext with value: " + value);
+			if (log.isDebugEnabled()) {
+				log.debug("DhcpLease update onNext value: " + value);
+			}
+			else if (log.isInfoEnabled()) {
+				log.info("DhcpLase update onNext: IP= " + value.getIpAddress());
+			}
             DhcpLease dhcpLease = DhcpLeaseUtil.grpcToDhcpLease(value);
 			// mark this lease as 'synced'
 			dhcpLease.setHaPeerState(dhcpLease.getState());
 			if (dhcpLeasesService.createOrUpdateDhcpLease(dhcpLease)) {
 				// now tell the peer server we're in sync
 				grpcClient.updateDhcpLease(dhcpLease);
+			}
+			else {
+				// should be caught by onError anyway
+				log.warn("DhcpLease update failed");
 			}
         }
 
@@ -88,7 +97,6 @@ public class GrpcLinkSync implements Runnable {
 
         @Override
         public void onCompleted() {
-			log.debug("DhcpLease update onCompleted");
 			Instant finish = Instant.now();
 			long timeElapsed = Duration.between(startInstant, finish).toMillis();
 			dhcpLink.setState(DhcpLink.State.OK);

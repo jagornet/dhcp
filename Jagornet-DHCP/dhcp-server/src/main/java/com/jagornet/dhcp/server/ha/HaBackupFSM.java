@@ -86,13 +86,13 @@ public class HaBackupFSM implements Runnable {
 	public void run() {
 		
 		primaryState = haClient.getPrimaryHaState();
+		log.info("HA Primary state: " + primaryState);
 		if (primaryState == null) {
 			// we are backup, so start polling and
 			// if polling fails, then take over
 			startPollingTask();
 			return;
 		}
-		log.info("HA Primary state: " + primaryState);
 	
 		// primary is available, start link sync from primary
 		try {

@@ -18,14 +18,31 @@ public class DhcpServerStatusService {
     protected static DhcpServerConfiguration dhcpServerConfig = 
                                         DhcpServerConfiguration.getInstance();
 
+	/**
+	 * Return this server's status as OK,
+	 * because if it works, then we are OK!
+	 * 
+	 * @return this server's status
+	 */
 	public String getStatus() {
 		return STATUS_OK;
 	}
 	
+	/**
+	 * This method is used when the HA peer
+	 * server requests this server's status.
+	 * 
+	 * @return this HA server's status
+	 */
 	public String haPeerGetStatus() {
 		return getStatus();
 	}
 	
+	/**
+	 * Get the current HA state as recorded by this server.
+	 * 
+	 * @return this server's HA state 
+	 */
 	public String getHaState() {
 		if (JagornetDhcpServer.haPrimaryFSM != null) {
 			return getHaPrimaryState(JagornetDhcpServer.haPrimaryFSM);
@@ -36,6 +53,12 @@ public class DhcpServerStatusService {
 		return "HA not configured";
 	}
 	
+	/**
+	 * This method is used when the HA peer
+	 * requests this server's HA state
+	 * 
+	 * @return this server's HA state
+	 */
 	public String haPeerGetHaState() {
 		if (JagornetDhcpServer.haPrimaryFSM != null) {
 			HaPrimaryFSM haPrimaryFSM = JagornetDhcpServer.haPrimaryFSM;

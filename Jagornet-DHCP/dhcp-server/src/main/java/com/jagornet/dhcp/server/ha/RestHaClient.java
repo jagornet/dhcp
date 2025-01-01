@@ -52,11 +52,10 @@ public class RestHaClient implements HaClient {
 		String primaryHaState = 
 				restClient.doGetString(DhcpServerStatusResource.PATH +
 										DhcpServerStatusResource.HASTATE);
+		log.debug("getPrimaryHaState=" + primaryHaState);
 		if (primaryHaState == null) {
-			log.info("Null response from HA Primary server");
 			return null;
 		}
-		log.info("HA Primary state: " + primaryHaState);
 		return HaPrimaryFSM.State.valueOf(primaryHaState);
     }
 
@@ -65,11 +64,10 @@ public class RestHaClient implements HaClient {
 		String backupHaState = 
 				restClient.doGetString(DhcpServerStatusResource.PATH +
 										DhcpServerStatusResource.HASTATE);
+        log.debug("getBackupHaState=" + backupHaState);
 		if (backupHaState == null) {
-			log.info("Null response from HA Backup server");
 			return null;
 		}
-		log.info("HA Backup state: " + backupHaState);
 		return HaBackupFSM.State.valueOf(backupHaState);
     }
 
@@ -86,7 +84,9 @@ public class RestHaClient implements HaClient {
                 DhcpLeasesResource.buildPutPath(
                         dhcpLease.getIpAddress().getHostAddress()), 
                         dhcpLease, queryParams);
-        log.info("Binding update response: " + responseDhcpLease);
+        if (log.isDebugEnabled()) {
+            log.debug("updateDhcpLease response: " + responseDhcpLease);
+        }
         return responseDhcpLease;
     }
 
@@ -116,20 +116,27 @@ public class RestHaClient implements HaClient {
 
 		@Override
 		public void completed(DhcpLease responseDhcpLease) {
-			log.info("DhcpLease update completed for: " + dhcpLease);
+            if (log.isDebugEnabled()) {
+			    log.debug("HA (async) DhcpLease update completed response: " + responseDhcpLease);
+            }
+            else if (log.isInfoEnabled()) {
+                log.info("HA (async) DhcpLease update completed:"+
+                        " IP=" + dhcpLease.getIpAddress().getHostAddress());
+            }
 			if (expectedDhcpLease.equals(responseDhcpLease)) {
 				// if response matches what we sent, then success
 				// so update the HA peer state of the lease as synced
 				dhcpLease.setHaPeerState(dhcpLease.getState());
-				if (dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
-					log.info("HA peer state updated successfully");
-				}
-				else {
-					log.error("HA peer state update failed");
+				if (!dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
+					log.error("HA (async) peer state update failed");
 				}
 			}
 			else {
-				log.warn("Response (async) does not match posted DhcpLease");
+                log.warn("HA (async) DhcpLease update does not match:" +
+                        System.lineSeparator() +
+                        "expected:" + expectedDhcpLease +
+                        System.lineSeparator() +
+                        "response:" + responseDhcpLease);
 				// if the response doesn't match what we sent, then failure
 				// so update the HA peer state of the lease as unknown
 // not necessary, since we set haPeerState=UNKNOWN when creating/updating the lease
@@ -140,8 +147,10 @@ public class RestHaClient implements HaClient {
 		}
 
 		@Override
-		public void failed(Throwable throwable) {
-			log.error("DhcpLease update failed for: " + dhcpLease + ": " + throwable);
+		public void failed(Throwable t) {
+			log.error("HA (async) DhcpLease update failed:" +
+                      " IP=" + dhcpLease.getIpAddress().getHostAddress() + 
+                      " error=" + t);
 // not necessary, since we set haPeerState=UNKNOWN when creating/updating the lease
 //			dhcpLease.setHaPeerState(IaAddress.UNKNOWN);
 //			dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease);
