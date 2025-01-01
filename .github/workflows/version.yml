@@ -34,10 +34,11 @@ jobs:
         distribution: 'adopt'
         # cache requires pom.xml
         #cache: maven
-    # Runs a series of commands using the runners shell
-    - name: Send greeting
-      run: |
-        wget "https://github.com/jagornet/dhcp/releases/download/${{ inputs.release }}/jagornet-dhcp-dist-${{ inputs.release }}-all.tar.gz"
-        tar xvf "jagornet-dhcp-dist-${{ inputs.release }}-all.tar.gz"
-        "jagornet-dhcp-dist-${{ inputs.release }}/bin/dhcpserver" version 2>&1 |grep "${{ inputs.release}}"
+    # Runs a command using the runners shell
+    - name: Download release
+      run: wget "https://github.com/jagornet/dhcp/releases/download/${{ inputs.release }}/jagornet-dhcp-dist-${{ inputs.release }}-all.tar.gz"
+    - name: Unpack the release package
+      run: tar xvf "jagornet-dhcp-dist-${{ inputs.release }}-all.tar.gz"
+    - name: Test the server version
+      run: "jagornet-dhcp-dist-${{ inputs.release }}/bin/dhcpserver version 2>&1 |grep ${{ inputs.release}}"
         
