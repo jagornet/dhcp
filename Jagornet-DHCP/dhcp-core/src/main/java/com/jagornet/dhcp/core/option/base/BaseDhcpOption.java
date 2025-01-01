@@ -27,6 +27,7 @@ package com.jagornet.dhcp.core.option.base;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,7 +175,9 @@ public abstract class BaseDhcpOption implements DhcpOption
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		// if (getClass() != obj.getClass())
+		// 	return false;
+		if (!(obj instanceof BaseDhcpOption))
 			return false;
 		BaseDhcpOption other = (BaseDhcpOption) obj;
 		if (code != other.code)
@@ -185,6 +188,12 @@ public abstract class BaseDhcpOption implements DhcpOption
 		} else if (!this.getName().equals(other.getName()))
 			return false;
 		if (v4 != other.v4)
+			return false;
+		if (this.getRawData() == null) {
+			if (other.getRawData() != null)
+				return false;
+		}
+		else if (!Arrays.equals(this.getRawData(), other.getRawData()))
 			return false;
 		return true;
 	}
