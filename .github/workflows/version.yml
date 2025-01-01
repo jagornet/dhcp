@@ -38,6 +38,6 @@ jobs:
     - name: Send greeting
       run: |
         wget "https://github.com/jagornet/dhcp/releases/download/${{ inputs.release }}/jagornet-dhcp-dist-${{ inputs.release }}-all.tar.gz"
-        tar xvf "jagornet-dhcp-dist${{ inputs.release }}-all.tar.gz"
-        "jagornet-dhcp-dist${{ inputs.release }}/bin/dhcpserver" version 2>&1 |grep "${{ inputs.release}}"
+        tar xvf "jagornet-dhcp-dist-${{ inputs.release }}-all.tar.gz"
+        "jagornet-dhcp-dist-${{ inputs.release }}/bin/dhcpserver" version 2>&1 |grep "${{ inputs.release}}"
         
