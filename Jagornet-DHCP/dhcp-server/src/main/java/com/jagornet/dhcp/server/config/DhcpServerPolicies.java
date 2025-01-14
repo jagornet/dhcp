@@ -122,11 +122,11 @@ public class DhcpServerPolicies
 		V6_VERIFY_UNKNOWN_REBIND("v6.verifyUnknownRebind", "false"),
 		
 		HA_ROLE("ha.role", ""),
-		HA_PROTOCOL("ha.protocol", "rest"),	// rest or grpc
-		HA_USERNAME("ha.username", "hapeer"),
-		HA_PASSWORD("ha.password", "jagornet"),
-		HA_PEER_USERNAME("ha.peerUsername", "hapeer"),
-		HA_PEER_PASSWORD("ha.peerPassword", "jagornet"),
+		HA_PROTOCOL("ha.protocol", "grpc"),	// rest or grpc
+		HA_USERNAME("ha.username", "hapeer"),		// for rest
+		HA_PASSWORD("ha.password", "jagornet"),	// for rest
+		HA_PEER_USERNAME("ha.peerUsername", "hapeer"),	// for rest
+		HA_PEER_PASSWORD("ha.peerPassword", "jagornet"),	// for rest
 		HA_DATABASE_FILE("ha.stateDbFile", "db/ha/jagornet-ha-state.db"),
 		HA_DATABASE_MAX_STORED_STATES("ha.maxStoredStates", "10"),
 		HA_BINDING_UPDATE_MODE("ha.bindingUpdateMode", "sync"),	// sync, async, database 

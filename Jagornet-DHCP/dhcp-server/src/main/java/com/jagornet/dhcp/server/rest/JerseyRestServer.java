@@ -79,7 +79,9 @@ public class JerseyRestServer {
         try {
 	        SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(mtlsConfig.getKeyManagerFactory());
 	        sslContextBuilder.trustManager(mtlsConfig.getTrustManagerFactory());
-// off for testing via browser	        sslContextBuilder.clientAuth(ClientAuth.REQUIRE);
+			// the REST API requires username/password authentication,
+			// so we don't want to validate the client certificate
+			// sslContextBuilder.clientAuth(ClientAuth.REQUIRE);
 	        SslContext sslContext = sslContextBuilder.build();
 	        Channel server = NettyHttpContainerProvider
 	        		.createServer(baseUri, resourceConfig, sslContext, false);
