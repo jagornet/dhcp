@@ -1,0 +1,583 @@
+=== Links
+A link defines a network segment for client requests. At least one DHCPv4 or DHCPv6 
+link is required proper server configuration. The Jagornet DHCP Server uses the link 
+definition to classify each incoming client request. Once the client link is 
+determined, the server will use the link definition to determine which addresses are 
+available from the pools and/or bindings defined within the link. Additional 
+configuration elements can be specified within the link including filters, policies, 
+and options.
+
+==== DHCPv4 Links
+For DHCPv4, the link is determined by the 'giAddr' field of the DHCPv4 request 
+header. If the 'giAddr' field is zero, then the link is determined by the IP address 
+assigned to the IPv4 broadcast interface provided to the server at startup.
+
+===== DHCPv4 Link Example
+.xml
+[,xml]
+----
+<link>
+  <name>IPv4 Client Link 1</name>
+  <!-- All DHCPv4 links are defined in CIDR notation.
+       For local links, specify the interface as a
+       startup command-line option, and configure the
+       subnet for that interface's IPv4 address. -->
+    <address>10.0.0.0/24</address>
+    ...
+</link>
+----
+
+.json
+[,json]
+----
+{
+  "link" : {
+    "name" : "IPv4 Client Link 1",
+    "address" : "10.0.0.0/24"
+    ...
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+link:
+  name: "IPv4 Client Link 1"
+  # All DHCPv4 links are defined in CIDR notation.
+  # For local links, specify the interface as a
+  # startup command-line option, and configure the
+  # subnet for that interface's IPv4 address.
+  address: "10.0.0.0/24"
+  ...
+----
+
+==== DHCPv6 Links
+For DHCPv6, the link is determined by the server according to section 11 of RFC 
+3315. If the message is received directly and the source address is link-local, 
+then the client is on the link attached to the server interface which received 
+the message. If the message is received directly and the source address is not 
+link-local, then the client is on the link identified by the source address. If 
+the message is received from a relay agent, then the client is on the link 
+identified by the link-address of the Relay-Forward message. Therefore, DHCPv6 
+link definitions are either local or remote.
+
+===== Local DHCPv6 Link Example
+Local links require the interface element to specify the name of the server 
+interface.
+
+.xml
+[,xml]
+----
+<link>
+  <name>Local IPv6 Client Link (Multicast traffic)</name>
+  <!-- Local DHCPv6 links are defined by interface name -->
+  <interface>eth2</interface>
+  ...
+</link>
+----
+
+.json
+[,json]
+----
+{
+  "link" : {
+    "name" : "Local IPv6 Client Link (Multicast traffic)",
+    "interface" : "eth2"
+    ...
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+link:
+  name: "Local IPv6 Client Link (Multicast traffic)"
+  # Local DHCPv6 links are defined by interface name
+  interface: "eth2"
+  ...
+----
+
+===== Remote DHCPv6 Link Example
+Remote links require the address element to specify the address of the remote link.
+
+.xml
+[,xml]
+----
+<link>
+  <name>Remote IPv6 Client Link (Unicast/Multicast traffic)</name>
+  <!-- Remote DHCPv6 links are defined in CIDR notation -->
+  <address>2001:db8:2::/48</address>
+  ...
+</link>
+----
+
+.json
+[,json]
+----
+{
+  "link" : {
+    "name" : "Remote IPv6 Client Link (Unicast/Multicast traffic)",
+    "address" : "2001:db8:2::/48"
+    ...
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+link:
+  name: "Remote IPv6 Client Link (Unicast/Multicast traffic)"
+  # Remote DHCPv6 links are defined in CIDR notation
+  address: "2001:db8:2::/48"
+  ...
+----
+
+=== Pools
+Pools may be defined only within Links or Link Filters. The Jagornet DHCP Server 
+supports four types of pools.
+
+. `v4AddrPools` - DHCPv4 address (V4) pools
+. `v6NaAddrPools` - DHCPv6 Non-temporary address (NA) pools
+. `v6TaAddrPools` - DHCPv6 Temporary address (TA) pools
+. `v6PrefixPools` - DHCPv6 Prefix delegation (PD) pools
+
+==== DHCPv4 Address Pools
+DHCPv4 address pools are defined by the `v4AddressPool` type. The address pool 
+must contain a `range` element to define the addresses available for allocation 
+in  the pool. The range is specified using the start and end address of a range 
+of addresses. For example:
+
+.xml
+[,xml]
+----
+<link>
+    <name>DHCPv4 Client Subnet</name>
+    <address>10.0.0.0/24</address>
+    <v4ConfigOptions>
+        <v4SubnetMaskOption>
+            <ipAddress>255.255.255.0</ipAddress>s
+        </v4SubnetMaskOption>
+        <v4RoutersOption>
+            <ipAddressList>10.0.0.1</ipAddressList>
+            <ipAddressList>10.0.0.2</ipAddressList>
+        </v4RoutersOption>
+    </v4ConfigOptions>
+    <v4AddrPools>
+        <poolList>
+            <range>10.0.0.100-10.0.0.199</range>
+            <configOptions>
+                <v4DomainNameOption>
+                    <domainName>foo.com.</domainName>
+                </v4DomainNameOption>
+            </configOptions>
+        </poolList>
+        <poolList>
+            <range>10.0.0.200-10.0.0.254</range>
+            <configOptions>
+                <v4DomainNameOption>
+                    <domainName>bar.com.</domainName>
+                </v4DomainNameOption>
+            </configOptions>
+        </poolList>
+    </v4AddrPools>
+</link>
+----
+
+.json
+[,json]
+----
+{
+  "link" : {
+    "name" : "DHCPv4 Client Subnet",
+    "address" : "10.0.0.0/24",
+    "v4ConfigOptions" : {
+      "v4SubnetMaskOption" : {
+        "ipAddress" : "255.255.255.0"
+      },
+      "v4RoutersOption" : {
+        "ipAddressList" : [ "10.0.0.1", "10.0.0.2" ]
+      }
+    },
+    "v4AddrPools" : {
+      "poolList" : [ {
+        "range" : "10.0.0.100-10.0.0.199",
+        "configOptions" : {
+          "v4DomainNameOption" : {
+            "domainName" : "foo.com."
+          }
+        }
+      }, {
+        "range" : "10.0.0.200-10.0.0.254",
+        "configOptions" : {
+          "v4DomainNameOption" : {
+            "domainName" : "bar.com."
+          }
+        }
+      } ]
+    }
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+link:
+  name: "DHCPv4 Client Subnet"
+  address: "10.0.0.0/24"
+  v4ConfigOptions:
+    v4SubnetMaskOption:
+      ipAddress: "255.255.255.0"
+    v4RoutersOption:
+      ipAddressList:
+      - "10.0.0.1"
+      - "10.0.0.2"
+  v4AddrPools:
+    poolList:
+    - range: "10.0.0.100-10.0.0.199"
+      configOptions:
+        v4DomainNameOption:
+          domainName: "foo.com."
+    - range: "10.0.0.200-10.0.0.254"
+      configOptions:
+        v4DomainNameOption:
+          domainName: "bar.com."
+----
+
+==== DHCPv6 Address Pools
+Non-temporary and temporary address pools are defined by the `addressPool` type. 
+The address pool must contain a `range` element to define the addresses available 
+for allocation in the pool. The range is specified using the start and end address 
+of a range of addresses, or a prefix and length. For example:
+
+.xml
+[,xml]
+----
+<link>
+    <name>Client Link 2</name>
+    <address>2001:DB8:2::/48</address>
+    <v6IaNaConfigOptions>
+        <v6DnsServersOption>
+            <ipAddressList>2001:DB8:2::1</ipAddressList>
+        </v6DnsServersOption>
+    </v6IaNaConfigOptions>
+    <v6NaAddrPools>
+        <poolList>
+            <range>2001:DB8:2::0A-2001:DB8:2::FF</range>
+            <addrConfigOptions>
+                <v6SipServerAddressesOption>
+                    <ipAddressList>2001:DB8:2::1:1</ipAddressList>
+                </v6SipServerAddressesOption>
+            </addrConfigOptions>
+        </poolList>
+        <poolList>
+            <range>2001:DB8:2:1::/64</range>
+            <addrConfigOptions>
+                <v6SipServerAddressesOption>
+                    <ipAddressList>2001:DB8:2:1::1:1</ipAddressList>
+                </v6SipServerAddressesOption>
+            </addrConfigOptions>
+        </poolList>
+    </v6NaAddrPools>
+</link>
+----
+
+.json
+[,json]
+----
+{
+  "link" : {
+    "name" : "Client Link 2",
+    "address" : "2001:DB8:2::/48",
+    "v6IaNaConfigOptions" : {
+      "v6DnsServersOption" : {
+        "ipAddressList" : [ "2001:DB8:2::1" ]
+      }
+    },
+    "v6NaAddrPools" : {
+      "poolList" : [ {
+        "range" : "2001:DB8:2::0A-2001:DB8:2::FF",
+        "addrConfigOptions" : {
+          "v6SipServerAddressesOption" : {
+            "ipAddressList" : [ "2001:DB8:2::1:1" ]
+          }
+        }
+      }, {
+        "range" : "2001:DB8:2:1::/64",
+        "addrConfigOptions" : {
+          "v6SipServerAddressesOption" : {
+            "ipAddressList" : [ "2001:DB8:2:1::1:1" ]
+          }
+        }
+      } ]
+    }
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+link:
+  name: "Client Link 2"
+  address: "2001:DB8:2::/48"
+  v6IaNaConfigOptions:
+    v6DnsServersOption:
+      ipAddressList:
+      - "2001:DB8:2::1"
+  v6NaAddrPools:
+    poolList:
+    - range: "2001:DB8:2::0A-2001:DB8:2::FF"
+      addrConfigOptions:
+        v6SipServerAddressesOption:
+          ipAddressList:
+          - "2001:DB8:2::1:1"
+    - range: "2001:DB8:2:1::/64"
+      addrConfigOptions:
+        v6SipServerAddressesOption:
+          ipAddressList:
+          - "2001:DB8:2:1::1:1"
+----
+
+==== DHCPv6 Prefix Pools
+Prefix delegation pools are defined by the `prefixPool` type. The prefix pool must 
+contain a `range` element to define the prefix available for delegation, and the 
+prefixLength element to define the size of the prefixes to allocate to requesting 
+routers. For example:
+
+.xml
+[,xml]
+----
+<link>
+    <name>Prefix Delegation Link</name>
+    <address>2001:DB8:1::/48</address>
+    <v6IaPdConfigOptions>
+        <v6DnsServersOption>
+            <ipAddressList>2001:DB8:2::1</ipAddressList>
+        </v6DnsServersOption>
+    </v6IaPdConfigOptions>
+    <v6PrefixPools>
+        <poolList>
+            <range>2001:DB8:2::/48</range>
+            <prefixLength>64</prefixLength>
+            <prefixConfigOptions>
+                <v6SipServerAddressesOption>
+                    <ipAddressList>2001:DB8:2:1::1:1</ipAddressList>
+                </v6SipServerAddressesOption>
+            </prefixConfigOptions>
+        </poolList>
+    </v6PrefixPools>
+</link>
+----
+
+.json
+[,json]
+----
+{
+  "link" : {
+    "name" : "Prefix Delegation Link",
+    "address" : "2001:DB8:1::/48",
+    "v6IaPdConfigOptions" : {
+      "v6DnsServersOption" : {
+        "ipAddressList" : [ "2001:DB8:2::1" ]
+      }
+    },
+    "v6PrefixPools" : {
+      "poolList" : [ {
+        "range" : "2001:DB8:2::/48",
+        "prefixLength" : 64,
+        "prefixConfigOptions" : {
+          "v6SipServerAddressesOption" : {
+            "ipAddressList" : [ "2001:DB8:2:1::1:1" ]
+          }
+        }
+      } ]
+    }
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+link:
+  name: "Prefix Delegation Link"
+  address: "2001:DB8:1::/48"
+  v6IaPdConfigOptions:
+    v6DnsServersOption:
+      ipAddressList:
+      - "2001:DB8:2::1"
+  v6PrefixPools:
+    poolList:
+    - range: "2001:DB8:2::/48"
+      prefixLength: 64
+      prefixConfigOptions:
+        v6SipServerAddressesOption:
+          ipAddressList:
+          - "2001:DB8:2:1::1:1"
+----
+
+=== Static Bindings
+Static bindings are used to reserve a specific IP address for a specific client. 
+Bindings may be defined only within Links. The Jagornet DHCP Server supports four types of bindings.
+
+. v4AddrBindings - DHCPv4 address (V4) bindings
+. v6NaAddrBindings - DHCPv6 Non-temporary address (NA) bindings
+. v6TaAddrBindings - DHCPv6 Temporary address (TA) bindings
+. v6PrefixBindings - DHCPv6 Prefix delegation (PD) bindings
+
+==== DHCPv4 Address Bindings
+DHCPv4 static address bindings are defined by the `v4AddressBinding` type. 
+The address binding must contain a `ipAddress` element to specify the IP address 
+reserved for the client. The address binding must also contain the `chAddr` element 
+to identify the client from the corresponding field in the DHCPv4 request header. 
+For example:
+
+.xml
+[,xml]
+----
+<v4AddressBindings>
+  <bindingList>
+    <!-- Binding addresses should NOT be inside a pool -->
+    <ipAddress>10.0.0.200</ipAddress>
+    <!-- The MAC address of the client as hex string -->
+    <chaddr>0a1b2c3d4e5f</chaddr>
+  </bindingList>
+</v4AddressBindings>
+----
+
+.json
+[,json]
+----
+{
+  "v4AddressBindings" : {
+    "bindingList" : [ {
+      "ipAddress" : "10.0.0.200",
+      "chaddr" : "0A1B2C3D4E5F"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v4AddressBindings:
+  bindingList:
+  # Binding addresses should NOT be inside a pool
+  - ipAddress: "10.0.0.200"
+    # The MAC address of the client as hex string
+    chaddr: "0A1B2C3D4E5F"
+----
+
+==== DHCPv6 Address Bindings
+Non-temporary and temporary static address bindings are defined by the 
+`addressBinding` type. The address binding must contain the `ipAddress` element 
+to specify the IP address reserved for the client. The address binding must also 
+contain the `duid` element to identify the client. In addition to the DUID, a static 
+address binding may further identify the client request by specifying the optional 
+`iaid` element.  However, if the IA_ID is not specified, then all client requests 
+for the given DUID will be assigned the specified IP address. This may be acceptable
+if the clients are known to have a single network interface. If the administrator 
+understands the inherent risks with this configuration feature, it may be used with 
+caution. For example:
+
+.xml
+[,xml]
+----
+<v6NaAddressBindings>
+  <bindingList>
+    <ipAddress>2001:db8:1::100</ipAddress>
+    <!-- For DHCPv6, clients do not send a MAC address,
+         therefore, the DUID can be used for the binding. -->
+    <duid>
+      <hexValue>0a1b2c3d4e5f</hexValue>
+    </duid>
+    <!-- The IA_ID may or may not be predictable, so
+         it is an optional element for a DHCPv6 binding.  If
+         left undefined, then ANY IA_ID will match.
+    <iaid>0</iaid>
+    -->
+  </bindingList>
+</v6NaAddressBindings>
+----
+
+.json
+[,json]
+----
+{
+  "v6NaAddressBindings" : {
+    "bindingList" : [ {
+      "ipAddress" : "2001:db8:1::100",
+      "duid" : {
+        "hexValue" : "0A1B2C3D4E5F"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6NaAddressBindings:
+  bindingList:
+  - ipAddress: "2001:db8:1::100"
+    # For DHCPv6, clients do not send a MAC address,
+    # therefore, the DUID can be used for the binding.
+    duid:
+      hexValue: "0A1B2C3D4E5F"
+----
+
+==== DHCPv6 Prefix Bindings
+Prefix delegation static prefix bindings are defined by the `prefixBinding` type. 
+The prefix binding must contain the `prefix` element to define the prefix available 
+for delegation, and the `prefixLength` element to define the size of the prefixes 
+to allocate to requesting router. The same caveats and cautions as DHCPv6 address 
+bindings apply for prefix bindings as well. For example:
+
+.xml
+[,xml]
+----
+<v6PrefixBindings>
+  <bindingList>
+    <prefix>2001:db8:1::</prefix>
+    <prefixLength>64</prefixLength>
+    <!-- For DHCPv6, clients do not send a MAC address,
+         therefore, the DUID can be used for the binding. -->
+    <duid>
+      <hexValue>0a1b2c3d4e5f</hexValue>
+    </duid>
+  </bindingList>
+</v6PrefixBindings>
+----
+
+.json
+[,json]
+----
+{
+  "v6PrefixBindings" : {
+    "bindingList" : [ {
+      "prefix" : "2001:db8:1::",
+      "prefixLength" : 64,
+      "duid" : {
+        "hexValue" : "0A1B2C3D4E5F"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6PrefixBindings:
+  bindingList:
+  - prefix: "2001:db8:1::"
+    prefixLength: 64
+    duid:
+      hexValue: "0A1B2C3D4E5F"
+----

@@ -1,0 +1,34 @@
+== Configuration
+=== Hierarchy
+The Jagornet DHCP server is configured via the `config/dhcpserver.xml` XML document. 
+See the <<Startup Options>> to change the name and location of the configuration file. 
+The XML schema which defines all server configuration elements is available at 
+`config/dhcpserver.xsd`. The configuration file has this general hierarchical structure:
+
+* Global policies and options
+* Global filters
+** Filter policies and options
+* Links
+** Link policies and options
+** V4/V6address/v6prefix pools
+*** Pool policies and options
+*** Pool filters
+**** Pool filter policies and options
+** Link filters
+*** Link filter policies and options
+*** Link filter v6address/v6prefix/v4 pools
+**** Link filter pool policies and options
+
+Policies and options are defined below and follow the natural hierarchy rules. 
+That is, policies and options defined at a higher level apply to all lower levels 
+unless override by another level in the hierarchy, which then takes precedence to 
+the further lower levels. Options and polices cannot be removed or set to null at 
+any level, unless specifically stated otherwise.
+
+include::configuration/policies.adoc[]
+
+include::configuration/options.adoc[]
+
+include::configuration/filters.adoc[]
+
+include::configuration/links.adoc[]

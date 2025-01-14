@@ -1,0 +1,635 @@
+=== Generic Options
+Generic options are used to define new option types for experimental, future or
+any standard options that are not defined above for DHCPv4 and DHCPv6 configuration
+options. Generic options are defined using `optionDefList` elements when
+specifying `v4OtherOptions` or `v6OtherOptions` element of the configuration options 
+can be used to add one or more undefined options to the options that will be sent 
+by the server to the client. Generic options are also used when defining the 
+`subOptions` of the DHCPv4 and DHCPv6 Vendor Information Options as shown in the 
+table above.
+
+==== Option Definition Type
+The option definition type predefines several option types for use in creating new,
+experimental, or vendor options.
+
+NOTE: The option definition type examples in the table below are shown for the
+`subOptions` element, but the syntax is also used for the `v4OtherOptions` and
+`v6OtherOptions` elements.
+
+IMPORTANT: DHCPv4 option definitions must include the `v4="true"` attribute.
+
+===== Nil Option
+- Element: `nilOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <nilOption/>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "nilOption" : { },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - nilOption: {}
+    code: 99
+    name: "MyOption"
+----
+
+===== Unsigned Byte Option
+- Element: `uByteOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <uByteOption>
+      <unsignedByte>255</unsignedByte>
+    </uByteOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "uByteOption" : {
+        "unsignedByte" : 255
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - uByteOption:
+      unsignedByte: 255
+    code: 99
+    name: "MyOption"
+----
+
+===== Unsigned Byte List Option
+- Element: `uByteListOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <uByteListOption>
+      <unsignedByteList>1</unsignedByteList>
+      <unsignedByteList>10</unsignedByteList>
+      <unsignedByteList>255</unsignedByteList>
+    </uByteListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "uByteListOption" : {
+        "unsignedByteList" : [ 1, 10, 255 ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - uByteListOption:
+      unsignedByteList:
+      - 1
+      - 10
+      - 255
+    code: 99
+    name: "MyOption"
+----
+
+===== Unsigned Short Option
+- Element: `uShortOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <uShortOption>
+      <unsignedShort>65535</unsignedShort>
+    </uShortOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "genericOptionsType" : {
+    "optionDefList" : [ {
+      "uShortOption" : {
+        "unsignedShort" : 65535
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+genericOptionsType:
+  optionDefList:
+  - uShortOption:
+      unsignedShort: 65535
+    code: 99
+    name: "MyOption"
+----
+
+===== Unsigned Short List Option
+- Element: `uShortListOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+<optionDefList code="99" name="MyOption">
+  <uShortListOption>
+    <unsignedShortList>1</unsignedShortList>
+      <unsignedShortList>999</unsignedShortList>
+      <unsignedShortList>65535</unsignedShortList>
+    </uShortListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "uShortListOption" : {
+        "unsignedShortList" : [ 1, 999, 65535 ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - uShortListOption:
+      unsignedShortList:
+      - 1
+      - 999
+      - 65535
+    code: 99
+    name: "MyOption"
+----
+
+===== Unsigned Integer Option
+- Element: `uIntOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <uIntOption>
+      <unsignedInt>4294697295</unsignedInt>
+    </uIntOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "uIntOption" : {
+        "unsignedInt" : 4294697295
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - uIntOption:
+      unsignedInt: 4294697295
+    code: 99
+    name: "MyOption"
+----
+
+===== String Option
+- Element: `stringOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <stringOption>
+      <string>myOptionStringValue</string>
+    </stringOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "stringOption" : {
+        "string" : "myOptionStringValue"
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - stringOption:
+      string: "myOptionStringValue"
+    code: 99
+    name: "MyOption"
+----
+
+===== IP Address Option
+- Element: `ipAddressOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <ipAddressOption>
+      <ipAddress>2001:db8::1</ipAddress>
+    </ipAddressOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "ipAddressOption" : {
+        "ipAddress" : "2001:db8::1"
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - ipAddressOption:
+      ipAddress: "2001:db8::1"
+    code: 99
+    name: "MyOption"
+----
+
+===== IP Address List Option
+- Element: `ipAddressListOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <ipAddressListOption>
+      <ipAddressList>2001:db8::1</ipAddressList>
+      <ipAddressList>2001:db8::2</ipAddressList>
+      <ipAddressList>2001:db8::3</ipAddressList>
+    </ipAddressListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "ipAddressListOption" : {
+        "ipAddressList" : [ "2001:db8::1", "2001:db8::2", "2001:db8::3" ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - ipAddressListOption:
+      ipAddressList:
+      - "2001:db8::1"
+      - "2001:db8::2"
+      - "2001:db8::3"
+    code: 99
+    name: "MyOption"
+----
+
+===== Domain Name Option
+- Element: `domainNameOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <domainNameOption>
+      <domainName>my.foo.com.</domainName>
+    </domainNameOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "domainNameOption" : {
+        "domainName" : "my.foo.com."
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - domainNameOption:
+      domainName: "my.foo.com."
+    code: 99
+    name: "MyOption"
+----
+
+===== Domain Name List Option
+- Element: `domainNameListOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <domainNameListOption>
+      <domainNameList>my.foo.com.</domainNameList>
+      <domainNameList>my.bar.com.</domainNameList>
+      <domainNameList>my.yuk.com.</domainNameList>
+    </domainNameListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "domainNameListOption" : {
+        "domainNameList" : [ "my.foo.com.", "my.bar.com.", "my.yuk.com." ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - domainNameListOption:
+      domainNameList:
+      - "my.foo.com."
+      - "my.bar.com."
+      - "my.yuk.com."
+    code: 99
+    name: "MyOption"
+----
+
+===== Opaque Data Option
+- Element: `opaqueDataOption`
+
+Syntax:
+
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <opaqueDataOption>
+      <opaqueData>
+        <hexValue>0123456789abcdef</hexValue>
+      </opaqueData>
+    </opaqueDataOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "opaqueDataOption" : {
+        "opaqueData" : {
+          "hexValue" : "0123456789ABCDEF"
+        }
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - opaqueDataOption:
+      opaqueData:
+        hexValue: "0123456789ABCDEF"
+    code: 99
+    name: "MyOption"
+----
+
+
+===== Opaque Data List Option
+- Element: `opaqueDataListOption`
+
+Syntax:
+.xml
+[,xml]
+----
+<subOptions>
+  <optionDefList code="99" name="MyOption">
+    <opaqueDataListOption>
+      <opaqueDataList>
+        <hexValue>0123456789abcdef</hexValue>
+      </opaqueDataList>
+      <opaqueDataList>
+        <asciiValue>HelloWorld</asciiValue>
+      </opaqueDataList>
+      <opaqueDataList>
+        <hexValue>0a1b2c3d4e5f</hexValue>
+      </opaqueDataList>
+    </opaqueDataListOption>
+  </optionDefList>
+</subOptions>
+----
+
+.json
+[,json]
+----
+{
+  "subOptions" : {
+    "optionDefList" : [ {
+      "opaqueDataListOption" : {
+        "opaqueDataList" : [ {
+          "hexValue" : "0123456789ABCDEF"
+        }, {
+          "asciiValue" : "HelloWorld"
+        }, {
+          "hexValue" : "0A1B2C3D4E5F"
+        } ]
+      },
+      "code" : 99,
+      "name" : "MyOption"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+subOptions:
+  optionDefList:
+  - opaqueDataListOption:
+      opaqueDataList:
+      - hexValue: "0123456789ABCDEF"
+      - asciiValue: "HelloWorld"
+      - hexValue: "0A1B2C3D4E5F"
+    code: 99
+    name: "MyOption"
+----
+
+===== Opaque Data Option
+Opaque data options are those options which can contain opaque, binary data. 
+Often, these options actually contain simple ASCII strings. Therefore, the 
+`opaqueData` element contains either a `hexValue` element, which specifies the 
+binary value as a hexadecimal string, or an `asciiValue` element, which specifies 
+the ASCII string value.

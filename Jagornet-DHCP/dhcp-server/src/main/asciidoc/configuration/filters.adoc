@@ -1,0 +1,970 @@
+=== Filters
+Filters are used to classify DHCP clients so that specific configuration options 
+can be supplied to certain classes of clients. A typical use of filters is to 
+define a vendor class mapping to provide vendor specific information option data 
+for clients that include the vendor class option in the request. Filters can also 
+be used to arbitrarily group clients according to any criteria which matches one 
+or more options supplied by the client. Each filter definition includes a name, 
+one or more filter expressions, a set of one or more configured options, and 
+optional server policies.
+
+==== Filter Expressions
+If more than one filter expression is defined in a filter, then the client 
+request must match _all_ of the expressions. That is, multiple filter expressions 
+are logically _anded_ together to form the match criteria. Each filter expression 
+must contain at least one client class, option or custom expression.
+
+===== Client Class Expression
+A client class expression defines criteria for matching all or part of a DHCPv4 
+vendor class, or a DHCPv6 user or vendor class option provided in the client 
+request. The `clientClassExpression` element must specify only one of the three 
+supported client class options - DHCPv4 vendor class, or DHCPv6 user or vendor 
+class - and the required `operator` attribute, which defaults to `equals` and 
+defines the match criteria.
+
+====== DHCPv4 Vendor Class Filter Example
+As another example, consider the following filter definition which matches DHCPv4 
+clients which supply a vendor class option beginning with the specified ASCII 
+value. This filter is configured to provide the vendor specific information 
+option for such clients.
+
+.xml
+[,xml]
+----
+<filter>
+  <name>DHCPv4 VendorClass Filter</name>
+  <filterExpressions>
+    <filterExpressionList>
+      <clientClassExpression operator="startsWith">
+        <v4VendorClassOption>
+          <opaqueData>
+            <asciiValue>MyVendorPrefix</asciiValue>
+          </opaqueData>
+        </v4VendorClassOption>
+      </clientClassExpression>
+    </filterExpressionList>
+  </filterExpressions>
+  <v4ConfigOptions>
+    <v4VendorSpecificOption>
+      <opaqueData>
+        <hexValue>01020304</hexValue>
+      </opaqueData>
+    </v4VendorSpecificOption>
+  </v4ConfigOptions>
+</filter>
+----
+
+.json
+[,json]
+----
+{
+  "filter" : {
+    "name" : "DHCPv4 VendorClass Filter",
+    "filterExpressions" : {
+      "filterExpressionList" : [ {
+        "clientClassExpression" : {
+          "v4VendorClassOption" : {
+            "opaqueData" : {
+              "asciiValue" : "MyVendorPrefix"
+            }
+          },
+          "operator" : "startsWith"
+        }
+      } ]
+    },
+    "v4ConfigOptions" : {
+      "v4VendorSpecificOption" : {
+        "opaqueData" : {
+          "hexValue" : "01020304"
+        }
+      }
+    }
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filter:
+  name: "DHCPv4 VendorClass Filter"
+  filterExpressions:
+    filterExpressionList:
+    - clientClassExpression:
+        v4VendorClassOption:
+          opaqueData:
+            asciiValue: "MyVendorPrefix"
+        operator: "startsWith"
+  v4ConfigOptions:
+    v4VendorSpecificOption:
+      opaqueData:
+        hexValue: "01020304"
+----
+
+====== DHCPv6 User Class Filter Example
+The following filter definition matches clients which supply a specific DHCPv6 
+user class option value. This filter is configured to provide a specific DNS 
+domain name for such clients.
+
+.xml
+[,xml]
+----
+<filter>
+  <name>DHCPv6 UserClass Filter</name>
+  <filterExpressions>
+    <filterExpressionList>
+      <clientClassExpression operator="equals">
+        <v6UserClassOption>
+          <opaqueDataList>
+            <asciiValue>MyUserClass</asciiValue>
+          </opaqueDataList>
+        </v6UserClassOption>
+      </clientClassExpression>
+    </filterExpressionList>
+  </filterExpressions>
+  <v6MsgConfigOptions>
+    <v6DomainSearchListOption>
+      <domainNameList>filter.com.</domainNameList>
+    </v6DomainSearchListOption>
+  </v6MsgConfigOptions>
+</filter>
+----
+
+.json
+[,json]
+----
+{
+  "filter" : {
+    "name" : "DHCPv6 UserClass Filter",
+    "filterExpressions" : {
+      "filterExpressionList" : [ {
+        "clientClassExpression" : {
+          "v6UserClassOption" : {
+            "opaqueDataList" : [ {
+              "asciiValue" : "MyUserClass"
+            } ]
+          },
+          "operator" : "equals"
+        }
+      } ]
+    },
+    "v6MsgConfigOptions" : {
+      "v6DomainSearchListOption" : {
+        "domainNameList" : [ "filter.com." ]
+      }
+    }
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filter:
+  name: "DHCPv6 UserClass Filter"
+  filterExpressions:
+    filterExpressionList:
+    - clientClassExpression:
+        v6UserClassOption:
+          opaqueDataList:
+          - asciiValue: "MyUserClass"
+        operator: "equals"
+  v6MsgConfigOptions:
+    v6DomainSearchListOption:
+      domainNameList:
+      - "filter.com."
+----
+
+====== DHCPv6 Vendor Class Filter Example
+The following filter definition matches client which supply a specific DHCPv6 
+vendor class option value. This filter is configured to provide a vendor specific 
+information option, which contains two suboptions, for such clients.
+
+.xml
+[,xml]
+----
+<filter>
+  <name>DHCPv6 VendorClass Filter</name>
+  <filterExpressions>
+    <filterExpressionList>
+      <clientClassExpression operator="equals">
+        <v6VendorClassOption>
+          <opaqueDataList>
+            <asciiValue>VendorXYZ</asciiValue>
+          </opaqueDataList>
+          <enterpriseNumber>12345</enterpriseNumber>
+        </v6VendorClassOption>
+      </clientClassExpression>
+    </filterExpressionList>
+  </filterExpressions>
+  <v6MsgConfigOptions>
+    <v6VendorInfoOption>
+      <enterpriseNumber>12345</enterpriseNumber>
+      <suboptionList>
+        <optionDefList code="1">
+          <stringOption>
+            <string>hello</string>
+          </stringOption>
+        </optionDefList>
+        <optionDefList code="2">
+          <ipAddressOption>
+            <ipAddress>2001:db8::1</ipAddress>
+          </ipAddressOption>
+        </optionDefList>
+      </suboptionList>
+    </v6VendorInfoOption>
+  </v6MsgConfigOptions>
+</filter>
+----
+
+.json
+[,json]
+----
+{
+  "filter" : {
+    "name" : "DHCPv6 VendorClass Filter",
+    "filterExpressions" : {
+      "filterExpressionList" : [ {
+        "clientClassExpression" : {
+          "v6VendorClassOption" : {
+            "enterpriseNumber" : 12345,
+            "opaqueDataList" : [ {
+              "asciiValue" : "VendorXYZ"
+            } ]
+          },
+          "operator" : "equals"
+        }
+      } ]
+    },
+    "v6MsgConfigOptions" : {
+      "v6VendorInfoOption" : {
+        "enterpriseNumber" : 12345,
+        "suboptionList" : {
+          "optionDefList" : [ {
+            "stringOption" : {
+              "string" : "hello"
+            },
+            "code" : 1
+          }, {
+            "ipAddressOption" : {
+              "ipAddress" : "2001:db8::1"
+            },
+            "code" : 2
+          } ]
+        }
+      }
+    }
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filter:
+  name: "DHCPv6 VendorClass Filter"
+  filterExpressions:
+    filterExpressionList:
+    - clientClassExpression:
+        v6VendorClassOption:
+          enterpriseNumber: 12345
+          opaqueDataList:
+          - asciiValue: "VendorXYZ"
+        operator: "equals"
+  v6MsgConfigOptions:
+    v6VendorInfoOption:
+      enterpriseNumber: 12345
+      suboptionList:
+        optionDefList:
+        - stringOption:
+            string: "hello"
+          code: 1
+        - ipAddressOption:
+            ipAddress: "2001:db8::1"
+          code: 2
+----
+
+
+==== Option Expression
+An option expression defines the criteria for matching all or part of an option 
+provided in the client request using the generic option definition, along with a 
+value and operator, which forms the expression. The `optionExpression` element 
+must specify the DHCPv6 option code in the `code` attribute, followed by the 
+optional `name` attribute from the generic option definition type above, and the 
+required `operator` attribute, which defaults to `equals`.
+
+===== Filter Option Expressions
+
+====== Unsigned Byte Option Expression
+- Type: `uByteOption`
+- Operators: `equals`, `lessThan`, `lessThanOrEqual`, `greaterThan`, `greaterThanOrEqual`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <uByteOption>
+        <unsignedByte>255</unsignedByte>
+      </uByteOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uByteOption" : {
+          "unsignedByte" : 255
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uByteOption:
+        unsignedByte: 255
+      code: 99
+      operator: "equals"
+----
+
+====== Unsigned Byte List Option Expression
+- Type: `uByteListOption`
+- Operators: `equals`, `contains`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <uByteListOption>
+        <unsignedByteList>1</unsignedByteList>
+        <unsignedByteList>255</unsignedByteList>
+      </uByteListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uByteListOption" : {
+          "unsignedByteList" : [ 1, 255 ]
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uByteListOption:
+        unsignedByteList:
+        - 1
+        - 255
+      code: 99
+      operator: "equals"
+----
+
+====== Unsigned Short Option Expression
+- Type: `uShortOption`
+- Operators: `equals`, `lessThan`, `lessThanOrEqual`, `greaterThan`, `greaterThanOrEqual`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="lessThan">
+      <uShortOption>
+        <unsignedShort>65535</unsignedShort>
+      </uShortOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uShortOption" : {
+          "unsignedShort" : 65535
+        },
+        "code" : 99,
+        "operator" : "lessThan"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uShortOption:
+        unsignedShort: 65535
+      code: 99
+      operator: "lessThan"
+----
+
+====== Unsigned Short Option List Expression
+- Type: `uShortListOption`
+- Operators: `equals`, `contains`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <uShortListOption>
+        <unsignedShortList>1</unsignedShortList>
+        <unsignedShortList>65535</unsignedShortList>
+      </uShortListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uShortListOption" : {
+          "unsignedShortList" : [ 1, 65535 ]
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uShortListOption:
+        unsignedShortList:
+        - 1
+        - 65535
+      code: 99
+      operator: "equals"
+----
+
+====== Unsigned Integer Option Expression
+- Type: `uIntOption`
+- Operators: `equals`, `lessThan`, `lessThanOrEqual`, `greaterThan`, `greaterThanOrEqual`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="lessThan">
+      <uIntOption>
+        <unsignedInt>10000</unsignedInt>
+      </uIntOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uIntOption" : {
+          "unsignedInt" : 10000
+        },
+        "code" : 99,
+        "operator" : "lessThan"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uIntOption:
+        unsignedInt: 10000
+      code: 99
+      operator: "lessThan"
+----
+
+====== String Option Expression
+- Type: `stringOption`
+- Operators: `equals`, `startsWith`, `endsWith`, `contains`, `regExp`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="endsWith">
+      <stringOption>
+        <string>mySuffix</string>
+      </stringOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "stringOption" : {
+          "string" : "mySuffix"
+        },
+        "code" : 99,
+        "operator" : "endsWith"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      stringOption:
+        string: "mySuffix"
+      code: 99
+      operator: "endsWith"
+----
+
+====== IP Address Option Expression
+- Type: `ipAddressOption`
+- Operators: `equals`, `startsWith`, `endsWith`, `contains`, `regExp`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <ipAddressOption>
+        <ipAddress>2001:db8::1</ipAddress>
+      </ipAddressOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "ipAddressOption" : {
+          "ipAddress" : "2001:db8::1"
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      ipAddressOption:
+        ipAddress: "2001:db8::1"
+      code: 99
+      operator: "equals"
+----
+
+====== IP Address List Option Expression
+- Type: `ipAddressListOption`
+- Operators: `equals`, `contains`
+
+Example sytax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="contains">
+      <ipAddressListOption>
+        <ipAddressList>2001:db8::1</ipAddressList>
+      </ipAddressListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "ipAddressListOption" : {
+          "ipAddressList" : [ "2001:db8::1" ]
+        },
+        "code" : 99,
+        "operator" : "contains"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      ipAddressListOption:
+        ipAddressList:
+        - "2001:db8::1"
+      code: 99
+      operator: "contains"
+----
+
+====== Domain Name Option Expression
+- Type: `domainNameOption`
+- Operators: `equals`, `startsWith`, `endsWith`, `contains`, `regExp`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <domainNameOption>
+        <domainName>foo.com.</domainName>
+      </domainNameOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "domainNameOption" : {
+          "domainName" : "foo.com."
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      domainNameOption:
+        domainName: "foo.com."
+      code: 99
+      operator: "equals"
+----
+
+====== Domain Name List Option Expression
+- Type: `domainNameListOption`
+- Operators: `equals`, `contains`
+
+Example sytax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="contains">
+      <domainNameListOption>
+        <domainNameList>foo.com.</domainNameList>
+      </domainNameListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "domainNameListOption" : {
+          "domainNameList" : [ "foo.com." ]
+        },
+        "code" : 99,
+        "operator" : "contains"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      domainNameListOption:
+        domainNameList:
+        - "foo.com."
+      code: 99
+      operator: "contains"
+----
+
+====== Opaque Data Option Expression
+- Type: `opaqueDataOption`
+- Operators: `equals`, `startsWith`, `endsWith`, `contains`, `regExp`
+
+Example syntax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="regExp">
+      <opaqueDataOption>
+        <opaqueData>
+          <asciiValue>myRegularExpression</asciiValue>
+        </opaqueData>
+      </opaqueDataOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "opaqueDataOption" : {
+          "opaqueData" : {
+            "asciiValue" : "myRegularExpression"
+          }
+        },
+        "code" : 99,
+        "operator" : "regExp"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      opaqueDataOption:
+        opaqueData:
+          asciiValue: "myRegularExpression"
+      code: 99
+      operator: "regExp"
+----
+
+====== Opaque Data List Option Expression
+- Type: `opaqueDataListOption`
+- Operators: `equals`, `contains`
+
+Example sytax:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression code="99" operator="equals">
+      <opaqueDataListOption>
+        <opaqueDataList>
+          <asciiValue>opaqueAsciiData</asciiValue>
+        </opaqueDataList>
+      </opaqueDataListOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "opaqueDataListOption" : {
+          "opaqueDataList" : [ {
+            "asciiValue" : "opaqueAsciiData"
+          } ]
+        },
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      opaqueDataListOption:
+        opaqueDataList:
+        - asciiValue: "opaqueAsciiData"
+      code: 99
+      operator: "equals"
+----
+
+==== DHCPv4 Option Expression
+DHCPv4 option expressions use the same syntax as DHCPv6 option expressions, 
+but must identify the option as a DHCPv4 option using the `v4` attribute. 
+For example:
+
+.xml
+[,xml]
+----
+<filterExpressions>
+  <filterExpressionList>
+    <optionExpression v4="true" code="99" operator="equals">
+      <uByteOption>
+        <unsignedByte>255</unsignedByte>
+      </uByteOption>
+    </optionExpression>
+  </filterExpressionList>
+</filterExpressions>
+----
+
+.json
+[,json]
+----
+{
+  "filterExpressions" : {
+    "filterExpressionList" : [ {
+      "optionExpression" : {
+        "uByteOption" : {
+          "unsignedByte" : 255
+        },
+        "v4" : true,
+        "code" : 99,
+        "operator" : "equals"
+      }
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+filterExpressions:
+  filterExpressionList:
+  - optionExpression:
+      uByteOption:
+        unsignedByte: 255
+      v4: true
+      code: 99
+      operator: "equals"
+----
+
+==== Custom Expressions
+_Custom expressions are used to define filter expressions that cannot be configured 
+using standard option expressions. Currently, Jagornet DHCP Server Community Edition 
+does not support custom expressions._
