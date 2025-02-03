@@ -118,7 +118,7 @@ public abstract class BaseBindingManager implements BindingManager
     {
 		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
 		if ((linkMap != null) && !linkMap.isEmpty()) {
-    		bindingPoolMap = new HashMap<String, List<? extends BindingPool>>();
+    		bindingPoolMap = new HashMap<>();
 			for (DhcpLink dhcpLink : linkMap.values()) {
 				List<? extends BindingPool> bindingPools = buildBindingPools(dhcpLink.getLink());
 				if ((bindingPools != null) && !bindingPools.isEmpty()) {
@@ -160,7 +160,7 @@ public abstract class BaseBindingManager implements BindingManager
     {
 		SortedMap<Subnet, DhcpLink> linkMap = serverConfig.getLinkMap();
 		if (linkMap != null) {
-    		staticBindingMap = new HashMap<String, List<? extends StaticBinding>>();
+    		staticBindingMap = new HashMap<>();
 			for (DhcpLink dhcpLink : linkMap.values()) {
 				List<? extends StaticBinding> staticBindings = buildStaticBindings(dhcpLink.getLink());
 				if ((staticBindings != null) && !staticBindings.isEmpty()) {
@@ -637,7 +637,7 @@ public abstract class BaseBindingManager implements BindingManager
 	protected List<InetAddress> getInetAddrs(DhcpLink clientLink, byte[] duid, byte iatype, long iaid,
 			List<InetAddress> requestAddrs, DhcpMessage requestMsg)
 	{
-		List<InetAddress> inetAddrs = new ArrayList<InetAddress>();
+		List<InetAddress> inetAddrs = new ArrayList<>();
 		
 		if ((requestAddrs != null) && !requestAddrs.isEmpty() ) {
 			for (InetAddress reqAddr : requestAddrs) {
@@ -897,7 +897,7 @@ public abstract class BaseBindingManager implements BindingManager
 			List<InetAddress> inetAddrs, DhcpMessage requestMsg,
 			byte state)
 	{
-		Set<BindingObject> bindingObjs = new HashSet<BindingObject>();
+		Set<BindingObject> bindingObjs = new HashSet<>();
 		for (InetAddress inetAddr : inetAddrs) {
 			if (log.isDebugEnabled())
 				log.debug("Creating BindingObject for IP=" + inetAddr.getHostAddress());
@@ -966,13 +966,13 @@ public abstract class BaseBindingManager implements BindingManager
     		List<Integer> requestedCodes = requestMsg.getRequestedOptionCodes();
     		if ((requestedCodes != null) && !requestedCodes.isEmpty()) {
     			log.debug("Client requested option codes: " + requestedCodes);
-    			Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> _optionMap = new HashMap<Integer, com.jagornet.dhcp.core.option.base.DhcpOption>();
+    			Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> filteredMap = new HashMap<>();
     			for (Map.Entry<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> option : optionMap.entrySet()) {
 					if (requestedCodes.contains(option.getKey())) {
-						_optionMap.put(option.getKey(), option.getValue());
+						filteredMap.put(option.getKey(), option.getValue());
 					}
 				}
-    			optionMap = _optionMap;
+    			optionMap = filteredMap;
     		}
     		else {
     			log.debug("No options requested by client, including all configured options");
@@ -995,7 +995,7 @@ public abstract class BaseBindingManager implements BindingManager
 		
 		Collection<DbDhcpOption> dhcpOptions = null;
 		if ((effectiveDhcpOptionMap != null) && !effectiveDhcpOptionMap.isEmpty()) {
-			dhcpOptions = new ArrayList<DbDhcpOption>();
+			dhcpOptions = new ArrayList<>();
 			for (com.jagornet.dhcp.core.option.base.DhcpOption effectiveDhcpOption : 
 				 effectiveDhcpOptionMap.values()) {
 				try {

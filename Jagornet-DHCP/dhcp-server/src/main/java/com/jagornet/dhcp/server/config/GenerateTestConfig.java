@@ -73,7 +73,7 @@ public class GenerateTestConfig {
     protected InetAddress ipv6Address;
     protected String protocolVersion;
     
-    public GenerateTestConfig(String args[]) {
+    public GenerateTestConfig(String[] args) {
     	
         setupOptions();
 
@@ -105,7 +105,7 @@ public class GenerateTestConfig {
         options.addOption(helpOption);
     }
 
-	private boolean parseOptions(String args[]) {
+	private boolean parseOptions(String[] args) {
         try {
 			CommandLine cmd = parser.parse(options, args);
 			if (cmd.hasOption("?")) {
@@ -129,6 +129,7 @@ public class GenerateTestConfig {
 			
 			if (networkInterface == null) {
 				System.err.println("Network interface '" + netIfName + "' not found");
+				return false;
 			}
 			
 			String protoVersion = null;
@@ -271,20 +272,9 @@ public class GenerateTestConfig {
 			config.setLinks(links);
 			DhcpServerConfiguration.saveConfig(config, filename);
 			
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (DhcpServerConfigException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		}		
 	}
 	
 	/**

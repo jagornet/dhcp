@@ -57,10 +57,10 @@ public class GrpcServer {
             //                                     .start();
 
             log.debug("Creating Netty gRPC server on: " +  socketAddr);
-            Server server = NettyServerBuilder.forAddress(socketAddr, serverCreds)
-                                                .addService(new HaService())
-                                                .build()
-                                                .start();
+            server = NettyServerBuilder.forAddress(socketAddr, serverCreds)
+                                        .addService(new HaService())
+                                        .build()
+                                        .start();
             
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override

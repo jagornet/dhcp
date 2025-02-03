@@ -215,8 +215,6 @@ public class DbDhcpOption
 				return false;
 		} else if (!identityAssocId.equals(other.identityAssocId))
 			return false;
-		if (!Arrays.equals(value, other.value))
-			return false;
-		return true;
+		return Arrays.equals(value, other.value);
 	}
 }

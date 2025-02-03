@@ -54,7 +54,7 @@ public class RestLinkSync implements Runnable {
 	
 	@Override
 	public void run() {
-		Map<String, Object> paramMap = new HashMap<String, Object>();
+		Map<String, Object> paramMap = new HashMap<>();
 		String linkStartIp = dhcpLink.getSubnet().getSubnetAddress().getHostAddress();
 		paramMap.put(DhcpLeasesResource.QUERYPARAM_START, linkStartIp);
 		String linkEndIp = dhcpLink.getSubnet().getEndAddress().getHostAddress();
@@ -90,59 +90,40 @@ public class RestLinkSync implements Runnable {
 	}
 	
 	private boolean processJsonStream(Map<String, Object> paramMap) {
-		InputStream stream = restClient.doGetStream(
-				DhcpLeasesResource.PATH + DhcpLeasesResource.DHCPLEASESTREAM,
-				paramMap);
-		JsonParser parser = null;
-		try {
-			if (stream != null) {
-				//ObjectMapper objectMapper = new ObjectMapper();
-				JsonFactory factory = objectMapper.getFactory();
-				parser = factory.createParser(new InputStreamReader(stream));
-				JsonToken token = parser.nextToken();
-				if (JsonToken.START_ARRAY.equals(token)) {
-		            // Iterate through the objects of the array.
-		            while (JsonToken.START_OBJECT.equals(parser.nextToken())) {
-		            	DhcpLease dhcpLease = parser.readValueAs(DhcpLease.class);
-						// mark this lease as 'synced'
-						dhcpLease.setHaPeerState(dhcpLease.getState());
-						if (dhcpLeasesService.createOrUpdateDhcpLease(dhcpLease)) {
-							// now tell the peer server we're in sync
+		JsonFactory factory = objectMapper.getFactory();
+		String endpoint = DhcpLeasesResource.PATH + DhcpLeasesResource.DHCPLEASESTREAM;
+		try (InputStream stream = restClient.doGetStream(endpoint, paramMap);
+			 JsonParser parser = factory.createParser(new InputStreamReader(stream))) {
+			JsonToken token = parser.nextToken();
+			if (JsonToken.START_ARRAY.equals(token)) {
+				// Iterate through the objects of the array.
+				while (JsonToken.START_OBJECT.equals(parser.nextToken())) {
+					DhcpLease dhcpLease = parser.readValueAs(DhcpLease.class);
+					// mark this lease as 'synced'
+					dhcpLease.setHaPeerState(dhcpLease.getState());
+					if (dhcpLeasesService.createOrUpdateDhcpLease(dhcpLease)) {
+						// now tell the peer server we're in sync
 //							restClient.doPutString(
 //									DhcpLeasesResource.buildPutPath(
 //											dhcpLease.getIpAddress().getHostAddress()),
 //									DhcpLeaseJsonUtil.dhcpLeaseToJson(dhcpLease));
-							restClient.doPutDhcpLease(
-									DhcpLeasesResource.buildPutPath(
-											dhcpLease.getIpAddress().getHostAddress()),
-											dhcpLease);
+						restClient.doPutDhcpLease(
+								DhcpLeasesResource.buildPutPath(
+										dhcpLease.getIpAddress().getHostAddress()),
+										dhcpLease);
 
-						}
-		            }
+					}
 				}
-				else {
-					log.error("Expected start_array token in JsonStream for link: " + 
-							   dhcpLink.getLinkAddress());
-				}
-		        return true;
 			}
 			else {
-				log.error("Stream is null!");
-				return false;
+				log.error("Expected start_array token in JsonStream for link: " + 
+							dhcpLink.getLinkAddress());
 			}
+			return true;
 		} 
 		catch (Exception ex) {
 			log.error("Link sync failure", ex);
 			return false;
-		}
-		finally {
-			if (parser != null) {
-				try {
-					parser.close();
-				} catch (IOException e) {
-					log.warn("Failed to close JsonParser: " + e);
-				}
-			}
 		}
 	}
 }	

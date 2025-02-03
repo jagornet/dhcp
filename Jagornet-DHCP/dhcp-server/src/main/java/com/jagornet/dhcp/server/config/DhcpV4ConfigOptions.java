@@ -62,7 +62,7 @@ public class DhcpV4ConfigOptions
 	protected V4ConfigOptionsType configOptions;
 	
 	/** The option map. */
-	protected Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+	protected Map<Integer, DhcpOption> optionMap = new TreeMap<>();
 	
 	
 	/**

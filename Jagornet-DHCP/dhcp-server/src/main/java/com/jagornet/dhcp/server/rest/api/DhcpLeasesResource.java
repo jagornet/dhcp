@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jagornet.dhcp.server.db.DhcpLease;
 import com.jagornet.dhcp.server.db.DhcpLeaseCallbackHandler;
 import com.jagornet.dhcp.server.db.InetAddressCallbackHandler;
+import com.jagornet.dhcp.server.db.ProcessLeaseException;
 
 @Path(DhcpLeasesResource.PATH)
 public class DhcpLeasesResource {
@@ -165,20 +166,26 @@ public class DhcpLeasesResource {
 				@Override
 				public void write(OutputStream os) throws IOException, WebApplicationException {
 					JsonFactory factory = objectMapper.getFactory();
-					JsonGenerator generator = factory.createGenerator(os);
-					generator.writeStartArray();
-					leasesService.getRangeLeases(start, end,
-							new DhcpLeaseCallbackHandler() {
-						@Override
-						public void processDhcpLease(DhcpLease dhcpLease) throws Exception {
-							log.debug("Writing DhcpLease to JSON stream: " + dhcpLease);
-							generator.writeObject(dhcpLease);
-							generator.flush();
-						}
-					}, unsyncedLeasesOnly);
-					log.debug("DhcpLease JSON stream complete");
-					generator.writeEndArray();
-					generator.close();
+					try (JsonGenerator generator = factory.createGenerator(os)) {
+						generator.writeStartArray();
+						leasesService.getRangeLeases(start, end,
+								new DhcpLeaseCallbackHandler() {
+							@Override
+							public void processDhcpLease(DhcpLease dhcpLease) throws ProcessLeaseException {
+								log.debug("Writing DhcpLease to JSON stream: " + dhcpLease);
+								try{
+									generator.writeObject(dhcpLease);
+									generator.flush();
+								}
+								catch (IOException e) {
+									log.error("Failed to write DhcpLease to JSON stream", e);
+									throw new ProcessLeaseException(e);
+								}
+							}
+						}, unsyncedLeasesOnly);
+						log.debug("DhcpLease JSON stream complete");
+						generator.writeEndArray();
+					}
 			    }
 			};
 			return Response.ok(stream).build();    	

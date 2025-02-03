@@ -241,9 +241,7 @@ public class IdentityAssoc
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (state != other.state)
-			return false;
-		return true;
+		return state == other.state;
 	}
 	
 	/* (non-Javadoc)
@@ -278,24 +276,24 @@ public class IdentityAssoc
 		return sb.toString();
 	}
 	
-	public static String keyToString(byte[] _duid, byte _iatype, long _iaid)
+	public static String keyToString(byte[] duid, byte iatype, long iaid)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append("IA: duid=");
-		sb.append(Util.toHexString(_duid));
+		sb.append(Util.toHexString(duid));
 		sb.append(" iatype=");
-		sb.append(_iatype);
+		sb.append(iatype);
 		sb.append('(');
-		sb.append(iaTypeToString(_iatype));
+		sb.append(iaTypeToString(iatype));
 		sb.append(')');
 		sb.append(" iaid=");
-		sb.append(_iaid);
+		sb.append(iaid);
 		return sb.toString();
 	}
 	
-	public static String iaTypeToString(byte _iatype) {
+	public static String iaTypeToString(byte iatype) {
 		String s = null;
-		switch (_iatype) {
+		switch (iatype) {
 			case V4_TYPE:
 				s = "V4";
 				break;

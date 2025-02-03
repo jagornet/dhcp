@@ -64,6 +64,11 @@ public class GenericOptionFactory
 {
 	private static Logger log = LoggerFactory.getLogger(GenericOptionFactory.class);
 
+	// Private constructor to hide the implicit public one
+	private GenericOptionFactory() {
+		// Prevent instantiation
+	}
+	
 	/**
 	 * Convert a list of XML Generic options to a map of DhcpOptions
 	 * 
@@ -72,14 +77,14 @@ public class GenericOptionFactory
 	 */
 	public static Map<Integer, DhcpOption> genericOptions(GenericOptionsType genericOptions) 
 	{
-		Map<Integer, DhcpOption> optMap = new TreeMap<Integer, DhcpOption>(); 
+		Map<Integer, DhcpOption> optMap = new TreeMap<>(); 
 		if (genericOptions != null) {
 			List<OptionDefType> optionDefs = genericOptions.getOptionDefList();
 			if ((optionDefs != null) && !optionDefs.isEmpty()) {
 				for (OptionDefType optionDefType : optionDefs) {
 					
 					int code = optionDefType.getCode();
-					String name = optionDefType.getName();
+					//String name = optionDefType.getName();
 
 					DhcpOption dhcpOption = getDhcpOption(optionDefType);
 					optMap.put(code, dhcpOption);

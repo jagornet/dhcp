@@ -58,9 +58,6 @@ public class GrpcLinkSync implements Runnable {
 	
 	public class HaDhcpLeaseUpdateObserver implements StreamObserver<DhcpLeaseUpdate> {
 		
-		public HaDhcpLeaseUpdateObserver() {
-		}
-
         @Override
         public void onNext(DhcpLeaseUpdate value) {
 			if (log.isDebugEnabled()) {

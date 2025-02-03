@@ -19,14 +19,15 @@ import com.jagornet.dhcp.server.rest.api.JacksonObjectMapper;
 
 public class DhcpLeaseUtil {
 	
-	private static Logger log = LoggerFactory.getLogger(DhcpLeaseUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(DhcpLeaseUtil.class);
 	
-	public static JacksonObjectMapper jsonMapper = null;
-	
+	private static JacksonObjectMapper jsonMapper = new JacksonObjectMapper();
+
+	private DhcpLeaseUtil() {
+		// private constructor to hide the implicit public one
+	}
+		
 	public static ObjectMapper getMapper() {
-		if (jsonMapper == null) {
-			jsonMapper = new JacksonObjectMapper();
-		}
 		return jsonMapper.getJsonObjectMapper();
 	}
 

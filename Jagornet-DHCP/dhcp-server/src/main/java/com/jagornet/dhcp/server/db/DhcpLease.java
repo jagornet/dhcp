@@ -44,8 +44,6 @@ import com.jagornet.dhcp.core.util.Util;
 
 public class DhcpLease implements Cloneable
 {
-//	private static Logger log = LoggerFactory.getLogger(DhcpLease.class);
-	
 	protected InetAddress ipAddress;
 	protected byte[] duid;
 	protected byte iatype;
@@ -294,7 +292,7 @@ public class DhcpLease implements Cloneable
 	public void addDhcpOption(DhcpOption dhcpOption) {
 		if (dhcpOptions == null) {			
 			//TODO: consider a Set?
-			dhcpOptions = new ArrayList<DhcpOption>();
+			dhcpOptions = new ArrayList<>();
 		}
 		dhcpOptions.add(dhcpOption);
 	}
@@ -327,7 +325,7 @@ public class DhcpLease implements Cloneable
 	public void addIaDhcpOption(DhcpOption iaDhcpOption) {
 		if (iaDhcpOptions == null) {			
 			//TODO: consider a Set?
-			iaDhcpOptions = new ArrayList<DhcpOption>();
+			iaDhcpOptions = new ArrayList<>();
 		}
 		iaDhcpOptions.add(iaDhcpOption);
 	}
@@ -360,7 +358,7 @@ public class DhcpLease implements Cloneable
 	public void addIaAddrDhcpOption(DhcpOption iaDhcpOption) {
 		if (iaAddrDhcpOptions == null) {			
 			//TODO: consider a Set?
-			iaAddrDhcpOptions = new ArrayList<DhcpOption>();
+			iaAddrDhcpOptions = new ArrayList<>();
 		}
 		iaAddrDhcpOptions.add(iaDhcpOption);
 	}

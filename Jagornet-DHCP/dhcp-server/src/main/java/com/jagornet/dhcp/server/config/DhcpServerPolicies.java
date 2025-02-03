@@ -55,6 +55,11 @@ import com.jagornet.dhcp.server.rest.JerseyRestServer;
  */
 public class DhcpServerPolicies
 {
+			
+	private static final String TRUE = "true";
+	private static final String FALSE = "false";
+	private static final String JAGORNET = "jagornet";
+
 	/**
 	 * The Property enum.
 	 */
@@ -63,12 +68,12 @@ public class DhcpServerPolicies
 		BINDING_MANAGER_REAPER_STARTUP_DELAY("binding.manager.reaper.startupDelay", "10000"),
 		BINDING_MANAGER_REAPER_RUN_PERIOD("binding.manager.reaper.runPeriod", "60000"),
 		BINDING_MANAGER_OFFER_EXPIRATION("binding.manager.offerExpiration", "120000"),
-		BINDING_MANAGER_DELETE_OLD_BINDINGS("binding.manager.deleteOldBindings", "false"),
+		BINDING_MANAGER_DELETE_OLD_BINDINGS("binding.manager.deleteOldBindings", FALSE),
 		// caching is buggy and not really faster, so turn it off for now
 		BINDING_MANAGER_IA_CACHE_SIZE("binding.manager.iaCacheSize", "0"),
 		// caching is buggy and not really faster, so turn it off for now
 		BINDING_MANAGER_LEASE_CACHE_SIZE("binding.manager.leaseCacheSize", "0"),
-		BINDING_MANAGER_RECONCILE_POOLS_ON_STARTUP("binding.manager.reconcilePoolsOnStartup", "true"),
+		BINDING_MANAGER_RECONCILE_POOLS_ON_STARTUP("binding.manager.reconcilePoolsOnStartup", TRUE),
 
 		CHANNEL_THREADPOOL_SIZE("channel.threadPoolSize", "16"),
 		CHANNEL_READ_BUFFER_SIZE("channel.readBufferSize", "307200"),		// 300 bytes x 1K clients
@@ -78,7 +83,7 @@ public class DhcpServerPolicies
 		DATABASE_SCHEMA_VERSION("database.schemaVersion", "2"),
 		
 		DDNS_UPDATE("ddns.update", "none"),	// acceptable values: none, server, client, etc...
-		DDNS_SYNCHRONIZE("ddns.synchronize", "false"),
+		DDNS_SYNCHRONIZE("ddns.synchronize", FALSE),
 		DDNS_DOMAIN("ddns.domain", ""),
 		DDNS_TTL("ddns.ttl", "0.3"),	// 1/3 of the lifetime
 		DDNS_SERVER("ddns.server", ""),
@@ -100,12 +105,12 @@ public class DhcpServerPolicies
 		DDNS_REVERSE_ZONE_TSIG_KEYDATA("ddns.reverse.zone.tsig.keyData", ""),
 		
 		DHCP_PROCESSOR_RECENT_MESSAGE_TIMER("dhcp.processor.recentMessageTimer", "5000"),
-		DHCP_IGNORE_LOOPBACK("dhcp.ignoreLoopback", "true"),
-		DHCP_IGNORE_LINKLOCAL("dhcp.ignoreLinkLocal", "true"),
-		DHCP_IGNORE_SELF_PACKETS("dhcp.ignoreSelfPackets", "true"),
+		DHCP_IGNORE_LOOPBACK("dhcp.ignoreLoopback", TRUE),
+		DHCP_IGNORE_LINKLOCAL("dhcp.ignoreLinkLocal", TRUE),
+		DHCP_IGNORE_SELF_PACKETS("dhcp.ignoreSelfPackets", TRUE),
 		
-		DHCP_SEND_REQUESTED_OPTIONS_ONLY("dhcp.sendRequestedOptionsOnly", "false"),
-		DHCP_SUPPORT_RAPID_COMMIT("dhcp.supportRapidCommit", "false"),
+		DHCP_SEND_REQUESTED_OPTIONS_ONLY("dhcp.sendRequestedOptionsOnly", FALSE),
+		DHCP_SUPPORT_RAPID_COMMIT("dhcp.supportRapidCommit", FALSE),
 		
 		V4_HEADER_SNAME("v4.header.sname", ""),
 		V4_HEADER_FILENAME("v4.header.filename", ""),
@@ -119,14 +124,14 @@ public class DhcpServerPolicies
 		V6_IA_PD_T2("v6.iaPdT2", "0.8"),
 		V6_PREFERRED_LIFETIME("v6.preferredLifetime", "3600"),
 		V6_VALID_LIFETIME("v6.validLifetime", "3600"),
-		V6_VERIFY_UNKNOWN_REBIND("v6.verifyUnknownRebind", "false"),
+		V6_VERIFY_UNKNOWN_REBIND("v6.verifyUnknownRebind", FALSE),
 		
 		HA_ROLE("ha.role", ""),
 		HA_PROTOCOL("ha.protocol", "grpc"),	// rest or grpc
 		HA_USERNAME("ha.username", "hapeer"),		// for rest
-		HA_PASSWORD("ha.password", "jagornet"),	// for rest
+		HA_PASSWORD("ha.password", JAGORNET),	// for rest
 		HA_PEER_USERNAME("ha.peerUsername", "hapeer"),	// for rest
-		HA_PEER_PASSWORD("ha.peerPassword", "jagornet"),	// for rest
+		HA_PEER_PASSWORD("ha.peerPassword", JAGORNET),	// for rest
 		HA_DATABASE_FILE("ha.stateDbFile", "db/ha/jagornet-ha-state.db"),
 		HA_DATABASE_MAX_STORED_STATES("ha.maxStoredStates", "10"),
 		HA_BINDING_UPDATE_MODE("ha.bindingUpdateMode", "sync"),	// sync, async, database 
@@ -135,13 +140,13 @@ public class DhcpServerPolicies
 		HA_POLL_SECONDS("ha.pollSeconds", "30"),
 		HA_POLL_REPLY_TIMEOUT("ha.pollReplyTimeout", "1000"),	// milliseconds
 		HA_POLL_REPLY_FAILURE_COUNT("ha.pollReplyFailureCount", "5"),
-		HA_CONTROL_REQUEST_ALL_LEASES_ON_RESTART("ha.requestAllLeasesOnRestart", "true"),
+		HA_CONTROL_REQUEST_ALL_LEASES_ON_RESTART("ha.requestAllLeasesOnRestart", TRUE),
 		
-		REST_API_USERNAME("rest.api.username", "jagornet"),
-		REST_API_PASSWORD("rest.api.password", "jagornet"),
+		REST_API_USERNAME("rest.api.username", JAGORNET),
+		REST_API_PASSWORD("rest.api.password", JAGORNET),
 		;
-		
-	    /** The key. */
+
+		/** The key. */
     	private final String key;
 	    
     	/** The value. */

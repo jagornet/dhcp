@@ -29,7 +29,7 @@ public class HaBackupFSM implements Runnable {
 						BACKUP_POLLING_FAILURE,
 						BACKUP_RUNNING,
 						BACKUP_RETURNING_CONTROL,
-						BACKUP_BULK_BINDINGS_SENT };
+						BACKUP_BULK_BINDINGS_SENT }
 	*/
 	
 	public enum State { BACKUP_INIT,
@@ -37,7 +37,7 @@ public class HaBackupFSM implements Runnable {
 						// don't care BACKUP_SYNCING_TO_PRIMARY,
 						BACKUP_POLLING,
 						BACKUP_RUNNING,
-						BACKUP_CONFLICT };
+						BACKUP_CONFLICT }
 
 	private String primaryHost;
 	private int primaryPort;
@@ -113,12 +113,11 @@ public class HaBackupFSM implements Runnable {
 				pollingTask, 0, pollSeconds, TimeUnit.SECONDS);
 	}
 	
-	protected void startLinkSync() throws Exception {
+	protected void startLinkSync() throws HaException {
 		if (!dhcpLinks.isEmpty()) {
 	    	linkSyncLatch = new CountDownLatch(dhcpLinks.size());
-	    	boolean unsyncedLeasesOnly =  requestAllLeasesOnRestart ||
-										  getState().equals(State.BACKUP_INIT) ?
-												  false : true;
+	    	boolean unsyncedLeasesOnly =  !requestAllLeasesOnRestart ||
+										  getState().equals(State.BACKUP_INIT);
 			setState(State.BACKUP_SYNCING_FROM_PRIMARY);
 			Instant start = Instant.now();
 			// check the state of the primary
@@ -147,6 +146,7 @@ public class HaBackupFSM implements Runnable {
 			} 
 	    	catch (InterruptedException e) {
 				log.error("Link sync interrupted: ", e);
+				throw new HaException(e);
 			}
 		}
 		else {
@@ -170,7 +170,7 @@ public class HaBackupFSM implements Runnable {
 		this.primaryPort = primaryPort;
 	}
 	
-	public State getState() {
+	public synchronized State getState() {
 		return state;
 	}
 
@@ -187,7 +187,7 @@ public class HaBackupFSM implements Runnable {
 		}
 	}
 	
-	public HaPrimaryFSM.State getPrimaryState() {
+	public synchronized HaPrimaryFSM.State getPrimaryState() {
 		return primaryState;
 	}
 

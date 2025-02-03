@@ -37,7 +37,7 @@ import java.util.jar.Manifest;
  */
 public class Version
 {
-	static String MANIFEST_FILE = "/META-INF/MANIFEST.MF";
+	static final String MANIFEST_FILE = "/META-INF/MANIFEST.MF";
 	
 	String implVendor = null;
 	String implTitle = null;

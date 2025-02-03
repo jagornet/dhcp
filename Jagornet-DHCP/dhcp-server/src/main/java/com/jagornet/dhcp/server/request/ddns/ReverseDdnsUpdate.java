@@ -71,7 +71,7 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.ddns.DdnsUpdate#sendAdd()
 	 */
-	public boolean sendAdd() throws TextParseException, IOException
+	public boolean sendAdd() throws IOException
 	{
 		boolean rc = false;
 		
@@ -111,7 +111,7 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 	/* (non-Javadoc)
 	 * @see com.jagornet.dhcpv6.server.request.ddns.DdnsUpdate#sendDelete()
 	 */
-	public boolean sendDelete() throws TextParseException, IOException
+	public boolean sendDelete() throws IOException
 	{
 		boolean rc = false;
 		

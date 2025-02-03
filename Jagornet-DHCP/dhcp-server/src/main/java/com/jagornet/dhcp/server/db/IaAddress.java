@@ -42,14 +42,6 @@ import com.jagornet.dhcp.core.util.Util;
 public class IaAddress
 {
 	// states
-	/*
-	public static final byte ADVERTISED = 1;
-	public static final byte COMMITTED = 2;
-	public static final byte EXPIRED = 3;
-	public static final byte RELEASED = 4;
-	public static final byte DECLINED = 5;
-	public static final byte STATIC = 6;
-	*/
 	public static final byte UNKNOWN = -1;
 	public static final byte AVAILABLE = 0;
 	public static final byte RESERVED = 1;
@@ -228,7 +220,7 @@ public class IaAddress
 	public void setDhcpOption(DhcpOption newOption)
 	{
 		if (dhcpOptions == null) {
-			dhcpOptions = new ArrayList<DhcpOption>();
+			dhcpOptions = new ArrayList<>();
 		}
 		// first remove the option, if it exists
 		for (DhcpOption dhcpOption : dhcpOptions) {
@@ -398,26 +390,6 @@ public class IaAddress
 	{
 		String s = null;
 		switch (state) {
-		/*
-			case ADVERTISED:
-				s = "Advertised";
-				break;
-			case COMMITTED:
-				s = "Committed";
-				break;
-			case EXPIRED:
-				s = "Expired";
-				break;
-			case RELEASED:
-				s = "Released";
-				break;
-			case DECLINED:
-				s = "Declined";
-				break;
-			case STATIC:
-				s = "Static";
-				break;
-		*/
 		case AVAILABLE:
 			s = "Available";
 			break;

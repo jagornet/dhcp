@@ -114,7 +114,7 @@ public class DhcpV4ChannelHandler extends SimpleChannelInboundHandler<DhcpV4Mess
         }
         else {
         	// don't log a warning for release, which has no reply message
-        	if (!(msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE)) {
+        	if (msg.getMessageType() != DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
         		log.warn("Null DHCP reply message returned from handler");
         	}
         }

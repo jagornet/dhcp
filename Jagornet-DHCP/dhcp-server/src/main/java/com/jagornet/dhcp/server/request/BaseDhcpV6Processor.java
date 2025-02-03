@@ -95,7 +95,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     protected DhcpV6Message replyMsg;
     protected final InetAddress clientLinkAddress;
     protected DhcpLink clientLink;
-    protected List<Binding> bindings = new ArrayList<Binding>();
+    protected List<Binding> bindings = new ArrayList<>();
     protected static Set<DhcpV6Message> recentMsgs = 
     	Collections.synchronizedSet(new HashSet<DhcpV6Message>());
     protected static Timer recentMsgPruner = new Timer("RecentMsgPruner");
@@ -123,7 +123,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
     	if ((optionMap != null)  && !optionMap.isEmpty()) {
     		List<Integer> requestedCodes = requestMsg.getRequestedOptionCodes();
     		if ((requestedCodes != null) && !requestedCodes.isEmpty()) {
-    			Map<Integer, DhcpOption> _optionMap = new HashMap<Integer, DhcpOption>();
+    			Map<Integer, DhcpOption> _optionMap = new HashMap<>();
     			for (Map.Entry<Integer, DhcpOption> option : optionMap.entrySet()) {
 					if (requestedCodes.contains(option.getKey())) {
 						_optionMap.put(option.getKey(), option.getValue());
@@ -412,7 +412,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			minPreferredLifetime = 0xffffffff;
-			List<DhcpV6IaAddrOption> dhcpIaAddrOptions = new ArrayList<DhcpV6IaAddrOption>(); 
+			List<DhcpV6IaAddrOption> dhcpIaAddrOptions = new ArrayList<>(); 
 			for (BindingObject bindingObj : bindingObjs) {
 				DhcpV6IaAddrOption dhcpIaAddrOption = new DhcpV6IaAddrOption();
 				InetAddress inetAddr = bindingObj.getIpAddress();

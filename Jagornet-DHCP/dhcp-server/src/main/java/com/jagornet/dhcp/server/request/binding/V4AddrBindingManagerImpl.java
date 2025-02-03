@@ -95,7 +95,7 @@ public class V4AddrBindingManagerImpl
     protected List<? extends BindingPool> buildBindingPools(Link link) 
     		throws DhcpServerConfigException
     {
-		List<V4AddressBindingPool> bindingPools = new ArrayList<V4AddressBindingPool>();
+		List<V4AddressBindingPool> bindingPools = new ArrayList<>();
 		// Put the filtered pools first in the list of pools on this link
 		LinkFiltersType linkFiltersType = link.getLinkFilters();
 		if (linkFiltersType != null) {
@@ -196,7 +196,7 @@ public class V4AddrBindingManagerImpl
     protected List<? extends StaticBinding> buildStaticBindings(Link link) 
 			throws DhcpServerConfigException
 	{
-		List<V4StaticAddressBinding> staticBindings = new ArrayList<V4StaticAddressBinding>();
+		List<V4StaticAddressBinding> staticBindings = new ArrayList<>();
 		V4AddressBindingsType bindingsType = link.getV4AddrBindings();
 		if (bindingsType != null) {
 			List<V4AddressBinding> bindings = bindingsType.getBindingList();
@@ -285,7 +285,7 @@ public class V4AddrBindingManagerImpl
 			try {
 				InetAddress inetAddr = 
 					InetAddress.getByName(reqIpOption.getIpAddress());
-				inetAddrs = new ArrayList<InetAddress>();
+				inetAddrs = new ArrayList<>();
 				inetAddrs.add(inetAddr);
 			}
 			catch (UnknownHostException ex) {
@@ -310,7 +310,7 @@ public class V4AddrBindingManagerImpl
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
 		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
-			List<V4BindingAddress> bindingAddrs = new ArrayList<V4BindingAddress>();
+			List<V4BindingAddress> bindingAddrs = new ArrayList<>();
 			for (IaAddress iaAddr : iaAddrs) {
 				if (!clientLink.getSubnet().contains(iaAddr.getIpAddress())) {
 					log.info("Ignoring off-link binding address: " + 
@@ -358,7 +358,7 @@ public class V4AddrBindingManagerImpl
 				findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			// binding loaded from DB will contain the stored options
-	    	V4BindingAddress bindingAddr = new V4BindingAddress(iaAddr, (V4AddressBindingPool)bp);
+	    	V4BindingAddress bindingAddr = new V4BindingAddress(iaAddr, bp);
 	    	// TODO: setBindingObjectTimes?  see buildBindingObject
 			// update the options with whatever may now be configured
 	    	setDhcpOptions(bindingAddr, clientLink, (DhcpV4Message)requestMsg, bp);

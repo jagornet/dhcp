@@ -51,7 +51,7 @@ public abstract class BaseAddrBindingManager extends BaseBindingManager
 {
 	private static Logger log = LoggerFactory.getLogger(BaseAddrBindingManager.class);
     
-	public BaseAddrBindingManager()
+	protected BaseAddrBindingManager()
 	{
 		super();
 	}

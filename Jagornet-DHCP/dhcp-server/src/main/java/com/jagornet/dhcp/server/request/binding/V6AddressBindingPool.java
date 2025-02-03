@@ -28,6 +28,7 @@ package com.jagornet.dhcp.server.request.binding;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.NumberFormat;
 import java.util.Timer;
 
 import org.slf4j.Logger;
@@ -77,14 +78,10 @@ public class V6AddressBindingPool implements BindingPool, DhcpV6OptionConfigObje
 		try {
 			this.range = new Range(pool.getRange());
 		} 
-		catch (NumberFormatException ex) {
+		catch (NumberFormatException | UnknownHostException ex) {
 			log.error("Invalid AddressPool definition", ex);
 			throw new DhcpServerConfigException("Invalid AddressPool definition", ex);
 		} 
-		catch (UnknownHostException ex) {
-			log.error("Invalid AddressPool definition", ex);
-			throw new DhcpServerConfigException("Invalid AddressPool definition", ex);
-		}
 		freeList = 
 			new FreeList(new BigInteger(range.getStartAddress().getAddress()),
 					new BigInteger(range.getEndAddress().getAddress()));

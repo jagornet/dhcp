@@ -32,27 +32,24 @@ public class DhcpLeasesService {
 	}
 	
 	private InetAddress createStartIp(String start) throws UnknownHostException {
-		InetAddress startIp = (start != null) ? 
-				  InetAddress.getByName(start) :
-				  InetAddress.getByName("0.0.0.0");
-		return startIp;
+		return (start != null) ? 
+				InetAddress.getByName(start) :
+				InetAddress.getByName("0.0.0.0");
 	}
 	
 	private InetAddress createEndIp(String end) throws UnknownHostException {
-		InetAddress endIp = (end != null) ? 
+		return (end != null) ? 
 				InetAddress.getByName(end):
 				InetAddress.getByName("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
-		return endIp;
 	}
 	
 	public List<InetAddress> getAllLeaseIPs() {
 		List<InetAddress> ips = null;
 		try {
-			//TODO: check/fix this hack that gets all IPs?
 			ips = getRangeLeaseIPs(null, null);
 		} 
 		catch (UnknownHostException e) {
-			log.error("Exception getting all leases: " + e);
+			log.error("Exception getting all lease ips: " + e);
 		}
 		return ips;
 	}
@@ -149,10 +146,7 @@ public class DhcpLeasesService {
 	}
 	public boolean createDhcpLease(DhcpLease dhcpLease) {
 		log.info("Creating DhcpLease: " + dhcpLease);
-		if (leaseManager.insertDhcpLease(dhcpLease) == 1) {
-			return true;
-		}
-		return false;
+		return (leaseManager.insertDhcpLease(dhcpLease) == 1);
 	}
 
 	public DhcpLease getDhcpLease(InetAddress ipAddress) {

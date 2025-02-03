@@ -34,6 +34,8 @@ public class JerseyRestServer {
 	private int httpsPort;
 	// the mTLS config for this server
 	private MtlsConfig mtlsConfig;
+	// the Netty server channel
+	private Channel serverChannel;
 
 	public JerseyRestServer(InetAddress httpsAddr, int httpsPort, MtlsConfig mtlsConfig) {
 		this.httpsAddr = httpsAddr;
@@ -83,9 +85,9 @@ public class JerseyRestServer {
 			// so we don't want to validate the client certificate
 			// sslContextBuilder.clientAuth(ClientAuth.REQUIRE);
 	        SslContext sslContext = sslContextBuilder.build();
-	        Channel server = NettyHttpContainerProvider
+	        serverChannel = NettyHttpContainerProvider
 	        		.createServer(baseUri, resourceConfig, sslContext, false);
-	        return server;
+	        return serverChannel;
         }
         catch (Exception ex) {
         	log.error("Failed to start Netty HTTP Server: " + ex);

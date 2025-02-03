@@ -69,7 +69,7 @@ public class JdbcLeaseManager extends LeaseManager
 	protected DataSource dataSource;
 	protected JdbcTemplate jdbcTemplate;
 	
-	protected static String LIMIT_ONE_CLAUSE = 
+	protected static final String LIMIT_ONE_CLAUSE = 
 			DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE).equals("jdbc-derby") ?
 					" fetch first 1 rows only" : " limit 1";
 	
@@ -329,7 +329,7 @@ public class JdbcLeaseManager extends LeaseManager
             		}
             	},
                 new DhcpLeaseRowMapper());
-        if ((leases != null) && (leases.size() > 0)) {
+        if ((leases != null) && (!leases.isEmpty())) {
         	if (leases.size() == 1) {
         		return leases.get(0);
         	}
@@ -604,6 +604,7 @@ public class JdbcLeaseManager extends LeaseManager
 					}                	
                 },
                 new DhcpLeaseRowMapper());
+		log.debug("Found " + leases.size() + " unused dhcplease objects");
 		return leases;
 	}
 
@@ -650,7 +651,7 @@ public class JdbcLeaseManager extends LeaseManager
 					}                	
                 },
                 new DhcpLeaseRowMapper());
-		if ((leases != null) && leases.size() > 0) {
+		if ((leases != null) && !leases.isEmpty()) {
 			return leases.get(0);
 		}
 		// no "available" leases, now see if any offers have expired
@@ -674,7 +675,7 @@ public class JdbcLeaseManager extends LeaseManager
 					}                	
                 },
                 new DhcpLeaseRowMapper());
-		if ((leases != null) && leases.size() > 0) {
+		if ((leases != null) && !leases.isEmpty()) {
 			return leases.get(0);
 		}
 		return null;		
@@ -701,7 +702,7 @@ public class JdbcLeaseManager extends LeaseManager
 	@Override
 	public void reconcileLeases(final List<Range> ranges) {
 		// TODO: what if the query string is huge?
-		List<byte[]> args = new ArrayList<byte[]>();
+		List<byte[]> args = new ArrayList<>();
 		StringBuilder query = new StringBuilder();
 		query.append("delete from dhcplease where ipaddress");
 		Iterator<Range> rangeIter = ranges.iterator();

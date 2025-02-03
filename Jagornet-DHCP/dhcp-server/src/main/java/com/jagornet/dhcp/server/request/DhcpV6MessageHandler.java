@@ -45,6 +45,10 @@ public class DhcpV6MessageHandler
 {
 	private static Logger log = LoggerFactory.getLogger(DhcpV6MessageHandler.class);
 	
+	private DhcpV6MessageHandler() {
+		// prevent instantiation
+	}
+
 	/**
 	 * -  The link to which the client is attached.  The server determines
 	 * the link as follows:

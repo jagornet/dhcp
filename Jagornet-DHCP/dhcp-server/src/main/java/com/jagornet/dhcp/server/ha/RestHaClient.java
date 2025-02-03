@@ -75,7 +75,7 @@ public class RestHaClient implements HaClient {
     public DhcpLease updateDhcpLease(DhcpLease dhcpLease) {
         // this is an HA update, so it will set the
         // haPeerState of the lease before updating
-        Map<String, Object> queryParams = new HashMap<String, Object>();
+        Map<String, Object> queryParams = new HashMap<>();
         queryParams.put(DhcpLeasesResource.QUERYPARAM_HAUPDATE, Boolean.TRUE.toString());
         // NOTE: relying on the PUT behavior with no
         // "format" query param, which defaults to JSON
@@ -93,7 +93,7 @@ public class RestHaClient implements HaClient {
     @Override
     public void updateDhcpLeaseAsync(DhcpLease dhcpLease, DhcpLease expectedDhcpLease) {
         HaDhcpLeaseCallback callback = new HaDhcpLeaseCallback(dhcpLease, expectedDhcpLease);
-        Map<String, Object> queryParams = new HashMap<String, Object>();
+        Map<String, Object> queryParams = new HashMap<>();
         queryParams.put(DhcpLeasesResource.QUERYPARAM_HAUPDATE, Boolean.TRUE.toString());
         Future<DhcpLease> future = restClient.doPutAsyncDhcpLease(
                 DhcpLeasesResource.buildPutPath(

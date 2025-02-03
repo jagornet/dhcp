@@ -149,8 +149,7 @@ public class JerseyRestClient {
 		Invocation.Builder invocationBuilder = method.request();
 		try {
 			log.debug("Invoking stream get on: '" + method.getUri());
-			InputStream responseStream = invocationBuilder.get(InputStream.class);
-			return responseStream;
+			return invocationBuilder.get(InputStream.class);
 		}
 		catch (Exception ex) {
 			log.error(apiMethod + " stream get failed: " + ex);
@@ -254,9 +253,8 @@ public class JerseyRestClient {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
 		// accept text/plain response data
 		Invocation.Builder invocationBuilder = method.request(MediaType.TEXT_PLAIN);
-        Future<String> entityFuture = invocationBuilder.async().put(
-				Entity.entity(data, MediaType.TEXT_PLAIN), callback);
-        return entityFuture;
+        return invocationBuilder.async().put(
+					Entity.entity(data, MediaType.TEXT_PLAIN), callback);
 	}
 	
 	public Future<DhcpLease> doPutAsyncDhcpLease(String apiMethod, DhcpLease dhcpLease, 
@@ -270,9 +268,8 @@ public class JerseyRestClient {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
 		// accept text/plain response data
 		Invocation.Builder invocationBuilder = method.request();
-        Future<DhcpLease> entityFuture = invocationBuilder.async().put(
-				Entity.entity(dhcpLease, MediaType.APPLICATION_JSON), callback);
-        return entityFuture;
+        return invocationBuilder.async().put(
+					Entity.entity(dhcpLease, MediaType.APPLICATION_JSON), callback);
 	}
 	
 	public String doPostString(String apiMethod, String data) {
@@ -348,9 +345,8 @@ public class JerseyRestClient {
 		// accept text/plain response data
 		Invocation.Builder invocationBuilder = method.request(MediaType.TEXT_PLAIN);
 		log.debug("Invoking async post on: " + method.getUri());
-        Future<String> entityFuture = invocationBuilder.async().post(
-				Entity.entity(data, MediaType.TEXT_PLAIN), callback);
-        return entityFuture;
+        return invocationBuilder.async().post(
+					Entity.entity(data, MediaType.TEXT_PLAIN), callback);
 	}
 
 	public Future<DhcpLease> doPostAsyncDhcpLease(String apiMethod, DhcpLease dhcpLease, 
@@ -364,9 +360,8 @@ public class JerseyRestClient {
 		WebTarget method = buildWebTarget(apiMethod, queryParams);
 		Invocation.Builder invocationBuilder = method.request();
 		log.debug("Invoking async post on: " + method.getUri());
-        Future<DhcpLease> entityFuture = invocationBuilder.async().post(
-				Entity.entity(dhcpLease, MediaType.APPLICATION_JSON), callback);
-        return entityFuture;
+        return invocationBuilder.async().post(
+					Entity.entity(dhcpLease, MediaType.APPLICATION_JSON), callback);
 	}
 
 	public String doDeleteString(String apiMethod) {
@@ -411,8 +406,7 @@ public class JerseyRestClient {
 		WebTarget method = api.path(apiMethod);
 		// accept text/plain response data
 		Invocation.Builder invocationBuilder = method.request(MediaType.TEXT_PLAIN);
-        Future<String> entityFuture = invocationBuilder.async().delete(callback);
-        return entityFuture;
+        return invocationBuilder.async().delete(callback);
 	}
 	
 	public Future<DhcpLease> doDeleteAsyncDhcpLease(String apiMethod,
@@ -421,13 +415,12 @@ public class JerseyRestClient {
 		WebTarget method = api.path(apiMethod);
 		// accept text/plain response data
 		Invocation.Builder invocationBuilder = method.request();
-        Future<DhcpLease> entityFuture = invocationBuilder.async().delete(callback);
-        return entityFuture;
+        return invocationBuilder.async().delete(callback);
 	}
 	
 	public static void main(String[] args) {
 		String host = "localhost";
-		int port = Integer.valueOf(DhcpServerPolicies.Property.HA_PEER_PORT.value());
+		int port = Integer.parseInt(DhcpServerPolicies.Property.HA_PEER_PORT.value());
 		String api = "dhcpserverstatus";
 		String format = null;
 		

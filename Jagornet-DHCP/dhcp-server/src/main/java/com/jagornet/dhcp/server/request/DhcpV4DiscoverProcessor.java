@@ -100,7 +100,7 @@ public class DhcpV4DiscoverProcessor extends BaseDhcpV4Processor
 		boolean sendReply = true;
 		boolean rapidCommit = isRapidCommit(requestMsg, clientLink.getLink());
 		byte state = rapidCommit ? IaAddress.LEASED : IaAddress.OFFERED;
-		byte clientId[] = requestMsg.getClientId();
+		byte[] clientId = requestMsg.getClientId();
 		
 		V4AddrBindingManager bindingMgr = dhcpServerConfig.getV4AddrBindingMgr();
 		if (bindingMgr != null) {

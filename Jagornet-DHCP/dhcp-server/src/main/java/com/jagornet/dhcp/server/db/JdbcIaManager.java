@@ -49,10 +49,12 @@ import com.jagornet.dhcp.server.request.binding.Range;
 
 /**
  * The JdbcIaManager implementation class for the IaManager interface.
- * This is the main database access class for handling client bindings.
+ * This is the main database access class for handling client bindings
+ * which are represented by the IdentityAssoc, IaAddress and IaPrefix objects.
  * 
  * @author A. Gregory Rabil
  */
+@Deprecated // use JdbcLeaseManager instead
 public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 {		
 	private static Logger log = LoggerFactory.getLogger(JdbcIaManager.class);

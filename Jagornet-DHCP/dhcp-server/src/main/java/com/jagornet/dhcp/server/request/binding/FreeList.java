@@ -69,7 +69,7 @@ public class FreeList
 		this.start = start;
 		this.end = end;
 		if (end.compareTo(start) >= 0) {
-			bitsetRanges = new ArrayList<BitSet>();
+			bitsetRanges = new ArrayList<>();
 			bitsetRanges.add(new BitSet());	// create one to start
 		}
 		else {
@@ -79,10 +79,7 @@ public class FreeList
 	
 	public boolean isInList(BigInteger bi)
 	{
-		if ((bi.compareTo(start) >= 0) && (bi.compareTo(end) <= 0)) {
-			return true;
-		}
-		return false;
+		return (bi.compareTo(start) >= 0) && (bi.compareTo(end) <= 0);
 	}
 	
 	

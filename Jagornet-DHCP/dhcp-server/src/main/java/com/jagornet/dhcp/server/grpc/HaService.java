@@ -9,6 +9,7 @@ import com.google.protobuf.Empty;
 import com.jagornet.dhcp.server.db.DhcpLease;
 import com.jagornet.dhcp.server.db.DhcpLeaseCallbackHandler;
 import com.jagornet.dhcp.server.db.DhcpLeaseUtil;
+import com.jagornet.dhcp.server.db.ProcessLeaseException;
 import com.jagornet.dhcp.server.grpc.HaServiceGrpc.HaServiceImplBase;
 import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
 import com.jagornet.dhcp.server.rest.api.DhcpServerStatusService;
@@ -77,9 +78,12 @@ public class HaService extends HaServiceImplBase {
                         + " unsyncedLeasesOnly=" + unsyncedLeasesOnly);
             leasesService.getRangeLeases(startIp, endIp, new DhcpLeaseCallbackHandler() {
                 @Override
-                public void processDhcpLease(DhcpLease dhcpLease) throws Exception {
+                public void processDhcpLease(DhcpLease dhcpLease) throws ProcessLeaseException {
                     log.debug("Next dhcpLease: " + dhcpLease);
                     DhcpLeaseUpdate leaseUpdate = DhcpLeaseUtil.dhcpLeaseToGrpc(dhcpLease);
+                    if (leaseUpdate == null) {
+                        throw new ProcessLeaseException("Failed to convert DhcpLease to gRPC DhcpLeaseUpdate");
+                    }
                     responseObserver.onNext(leaseUpdate);
                 }
             }, unsyncedLeasesOnly);

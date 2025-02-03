@@ -123,6 +123,6 @@ public class Binding extends IdentityAssoc
 	 * @return true, if successful
 	 */
 	public boolean hasChanged() {
-		return !this.equals(origIa);
+		return !super.equals(origIa);
 	}
 }

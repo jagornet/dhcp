@@ -31,7 +31,7 @@ public class HaPrimaryFSM implements Runnable {
 						PRIMARY_RUNNING,
 						PRIMARY_AWAITING_BNDACK,
 						PRIMARY_REQUESTING_CONTROL,
-						PRIMARY_RECEIVING_UPDATES };
+						PRIMARY_RECEIVING_UPDATES }
 	*/
 	
 	public enum State { PRIMARY_INIT,
@@ -39,9 +39,9 @@ public class HaPrimaryFSM implements Runnable {
 						PRIMARY_SYNCING_FROM_BACKUP,
 						// don't care PRIMARY_SYNCING_TO_BACKUP,
 						PRIMARY_RUNNING,
-						PRIMARY_CONFLICT };
+						PRIMARY_CONFLICT }
 
-	public enum UpdateMode { SYNC, ASYNC, DATABASE };
+	public enum UpdateMode { SYNC, ASYNC, DATABASE }
 	
 	private String backupHost;
 	private int backupPort;
@@ -108,7 +108,7 @@ public class HaPrimaryFSM implements Runnable {
 		setState(State.PRIMARY_RUNNING);
 	}
 	
-	protected void startLinkSync() throws Exception {
+	protected void startLinkSync() throws HaException {
 		if (!dhcpLinks.isEmpty()) {
 	    	linkSyncLatch = new CountDownLatch(dhcpLinks.size());
 	    	// request all leases from the backup if configured to do so,
@@ -144,6 +144,7 @@ public class HaPrimaryFSM implements Runnable {
 			} 
 	    	catch (InterruptedException e) {
 				log.error("Link sync interrupted: ", e);
+				throw new HaException(e);
 			}
 		}
 		else {
@@ -167,7 +168,7 @@ public class HaPrimaryFSM implements Runnable {
 		this.backupPort = backupPort;
 	}
 	
-	public State getState() {
+	public synchronized State getState() {
 		return state;
 	}
 
@@ -184,7 +185,7 @@ public class HaPrimaryFSM implements Runnable {
 		}
 	}
 
-	public HaBackupFSM.State getBackupState() {
+	public synchronized HaBackupFSM.State getBackupState() {
 		return backupState;
 	}
 
@@ -262,7 +263,7 @@ public class HaPrimaryFSM implements Runnable {
 		}
 	}
 	
-	@Deprecated
+	@Deprecated // use HaDhcpLeaseCallback instead
 	public class HaDhcpLeaseCallbackString implements InvocationCallback<String> {
 		
 		private DhcpLease dhcpLease;

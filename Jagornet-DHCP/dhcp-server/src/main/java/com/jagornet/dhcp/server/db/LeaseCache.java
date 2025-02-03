@@ -17,11 +17,11 @@ public class LeaseCache {
 	
 	private static Logger log = LoggerFactory.getLogger(LeaseCache.class);
 
-	private Map<InetAddress, DhcpLease> leaseCache;
+	private Map<InetAddress, DhcpLease> cache;
 	
 	public LeaseCache(int cacheSize) {
 		log.info("Creating Lease cache size=" + cacheSize);
-		leaseCache = Collections.synchronizedMap(
+		cache = Collections.synchronizedMap(
 				new LinkedHashMap<InetAddress, DhcpLease>(16, 0.75f, true) {
 					private static final long serialVersionUID = 1L;
 					@Override
@@ -34,28 +34,28 @@ public class LeaseCache {
 	}
 	
 	public void clear() {
-		leaseCache.clear();
+		cache.clear();
 	}
 	
 	public void putLease(DhcpLease lease) {
-		leaseCache.put(lease.getIpAddress(), lease);
+		cache.put(lease.getIpAddress(), lease);
 	}
 	
 	public DhcpLease getLease(InetAddress inetAddr) {
-		return leaseCache.get(inetAddr);
+		return cache.get(inetAddr);
 	}
 	
 	public DhcpLease removeLease(InetAddress inetAddr) {
-		return leaseCache.remove(inetAddr);
+		return cache.remove(inetAddr);
 	}
 	
 	public Collection<DhcpLease> getAllLeases() {
-		return leaseCache.values();
+		return cache.values();
 	}
 	
 	public List<DhcpLease> expiredLeases(byte iatype) {
 		long now = new Date().getTime();
-		return leaseCache.values().stream()
+		return cache.values().stream()
 			.filter(l -> 
 				(l.getIatype() == iatype) && 
 				(l.getState() != IaAddress.RESERVED) &&

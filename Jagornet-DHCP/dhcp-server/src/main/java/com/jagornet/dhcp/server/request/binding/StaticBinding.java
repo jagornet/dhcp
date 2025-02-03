@@ -34,7 +34,7 @@ import com.jagornet.dhcp.server.config.xml.FiltersType;
 
 public abstract class StaticBinding implements DhcpConfigObject
 {
-	public abstract boolean matches(byte duid[], byte iatype, long iaid,
+	public abstract boolean matches(byte[] duid, byte iatype, long iaid,
 			DhcpMessage requestMsg);
 	
 	public abstract String getIpAddress();
