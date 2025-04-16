@@ -56,7 +56,7 @@ public class GrpcServer {
             //                                     .build()
             //                                     .start();
 
-            log.debug("Creating Netty gRPC server on: " +  socketAddr);
+            log.info("Creating Netty gRPC server on: " +  socketAddr);
             server = NettyServerBuilder.forAddress(socketAddr, serverCreds)
                                         .addService(new HaService())
                                         .build()

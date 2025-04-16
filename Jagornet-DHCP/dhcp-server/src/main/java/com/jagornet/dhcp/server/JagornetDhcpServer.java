@@ -333,7 +333,7 @@ public class JagornetDhcpServer
 				}
 
 				if (haRole == null) {
-					log.warn("No HA role defined, gRPC server is obsolete");
+					log.debug("No HA role defined, gRPC server is not used");
 				}
 			}
 
