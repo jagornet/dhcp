@@ -24,6 +24,7 @@
 		6.1.x - JDK 17-23
 		6.0.x - JDK 17-21
 		5.3.X - JDK 8-21 
+		Jagornet 4.1.0 target is Java 11
 	-->
   	<spring.version>5.3.39</spring.version>
 	<!-- 
@@ -401,6 +402,22 @@
 	          <!-- defined in parent pom <version>3.1.4/version> -->
 	          <configuration>
 				<skip>${skip.jib}</skip>
+				<from>
+					<image>eclipse-temurin:11-jdk</image>
+					<platforms>
+						<platform>
+							<architecture>amd64</architecture>
+							<os>linux</os>
+						</platform>
+						<!-- needed to build for Apple M1/M2 chips
+							 but only build one platform at a time
+						<platform>
+							<architecture>arm64</architecture>
+							<os>linux</os>
+						</platform>
+						-->
+					</platforms>
+				</from>
 	            <to>
  	              <image>jagornet/${docker.repo}:${project.version}</image>
  	              <auth>
@@ -426,6 +443,7 @@
  	            	<ports>
  	            	  <port>67/udp</port>	<!-- DHCPv4 Server port -->
  	            	  <port>547/udp</port>	<!-- DHCPv6 Server port -->
+					  <port>9066/tcp</port> <!-- gRPC -->
  	            	  <port>9067/tcp</port>	<!-- HTTPS/REST -->
  	            	</ports>
  	            </container>
