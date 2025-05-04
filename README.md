@@ -10,18 +10,18 @@ Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configu
 * Static bindings (reservations)
 * Client filtering (client classes)
 * Dynamic DNS updates
-* High Availability (primary/backup)
+* High Availability (primary/backup) utilizing [gRPC](http://grpc.io)
 * REST API (Swagger/Open API)
-* Platform independent (Java 8+)
+* Platform independent (Java 11+)
 * Highly scalable, multithreaded architecture featuring [Netty](http://netty.io)
-* Flexible XML, JSON, or YAML configuration file format (new for v3.1.0)
-* Docker/OCI images (new for 4.0.0)
+* Flexible XML, JSON, or YAML configuration file format
+* Docker/OCI images
 
 ## Documentation
-[Jagornet DHCP Server Community Edition 4.0 User Guide](https://www.jagornet.com/documentation)
+[Jagornet DHCP Server Community Edition 4.1 User Guide](https://www.jagornet.com/documentation)
 
 ## Downloads
-[Jagornet DHCP Server Community Edition 4.0 Releases](https://github.com/jagornet/dhcp/releases)
+[Jagornet DHCP Server Community Edition 4.1 Releases](https://github.com/jagornet/dhcp/releases)
 
 ## User Forum
 [Jagornet DHCP Server Users Forum](https://groups.google.com/forum/#!forum/jagornet-dhcpv6-users)
