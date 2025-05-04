@@ -1,0 +1,267 @@
+== Getting Started
+
+=== System requirements
+Jagornet DHCP Server requires any platform with a certified Java 8+ runtime environment.
+
+The server has been successfully tested on Linux (RHEL/CentOS), Windows and Mac OS
+using the Oracle JRE 8 and OpenJDK 8 for the respective platforms.
+
+=== Installation
+Java 11+ runtime must be available on the host where the Jagornet DHCP server will be 
+installed. The JAVA_HOME environment variable should be set to the home directory of 
+your Java 11+ JRE.
+
+. Create the installation directory on the host system and expand the compressed 
+installation file for your target platform.
+* Linux/Unix/Mac
+** Installation folder: `/opt/jagornet`
+** Compressed install file: `jagornet-dhcpserver-dist-{fullversion}-all.tar.gz`
+** `JAGORNET_DHCP_HOME=/opt/jagornet/jagornet-dhcpserver-dist-{fullversion}`
+* Windows
+** Installation folder: `C:\jagornet`
+** Compressed install file: `jagornet-dhcpserver-dist-{fullversion}-all.zip`
+** `JAGORNET_DHCP_HOME=C:\jagornet\jagornet-dhcpserver-dist-{fullversion}`
+. After extracting the compressed files, a jagornet-dhcpserver-dist-{fullversion} directory will 
+be created in the installation folder, with the following contents.
+* `JAGORNET_DHCP_HOME/bin` - executable command line files. See the section on <<Running the Server>>.
+* `JAGORNET_DHCP_HOME/config` - configuration files. See the section on Configuration.
+* `JAGORNET_DHCP_HOME/db` - database directory. See the section on Binding Database.
+* `JAGORNET_DHCP_HOME/docs` - documentation files.
+* `JAGORNET_DHCP_HOME/lib` - Java library files.
+* `JAGORNET_DHCP_HOME/log` - server output files. See the section on Logging.
+
+=== Running the Server
+NOTE: To start the Jagornet DHCP Server, you must have superuser or administrator 
+access rights on the host system because the server must bind to privileged port 
+numbers 67 for DHCPv4 and 547 for DHCPv6 to service client requests. Optionally, 
+the server can be instructed to bind to different port numbers for testing purposes 
+only. See the <<Startup Options>> for more information.
+
+IMPORTANT: Ensure that the host system's firewall, if any, is configured to 
+enable inbound and outbound traffic for the UDP ports of the DHCPv4 and DHCPv6 server.
+
+IMPORTANT: Ensure that DHCP relay agents on network routers are configured to relay
+DHCP traffic from the client subnet(s) to the IP address of the Jagornet DHCP server.
+Enable DHCPv4 and DHCPv6 UDP port traffic on all intervening network equipment.
+
+==== Startup Options
+The main Java class of the Jagornet DHCP Server supports the following usage:
+
+[source]
+----
+usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
+Jagornet DHCP Server Community Edition 4.1.0
+Copyright 2009-2025 Jagornet Technologies, LLC.  All Rights Reserved.
+  -4b,--v4bcast <interface>         DHCPv4 broadcast interface (default = none).
+                                    Use this option to specify the interface for
+                                    the server to receive and send broadcast
+                                    DHCPv4 packets. The default IPv4 address on
+                                    the specified interface will be used for
+                                    determining the DHCPv4 client link within
+                                    the server configuration file.
+  -4p,--v4port <portnum>            DHCPv4 Port number (default = 67).
+  -4u,--v4ucast <addresses>         DHCPv4 Unicast addresses (default = all IPv4
+                                    addresses). Use this option to instruct the
+                                    server to bind to a specific list of IPv4
+                                    addresses, separated by spaces. These
+                                    addresses should be configured on one or
+                                    more DHCPv4 relay agents connected to DHCPv4
+                                    client links.
+  -6m,--v6mcast <interfaces>        DHCPv6 Multicast interfaces (default =
+                                    none). Use this option without arguments to
+                                    instruct the server to bind to all
+                                    multicast-enabled IPv6 interfaces on the
+                                    host. Optionally, use arguments to list
+                                    specific interfaces, separated by spaces.
+  -6p,--v6port <portnum>            DHCPv6 Port number (default = 547).
+  -6u,--v6ucast <addresses>         DHCPv6 Unicast addresses (default = all IPv6
+                                    addresses). Use this option to instruct the
+                                    server to bind to a specific list of global
+                                    IPv6 addresses, separated by spaces. These
+                                    addresses should be configured on one or
+                                    more DHCPv6 relay agents connected to DHCPv6
+                                    client links.
+  -?,--help                         Show this help page.
+  -c,--configfile <filename>        Configuration file (default =
+                                    file:${jagornet.dhcp.home}/config/dhcpserver
+                                    .xml).
+  -ga,--gaddr <address>             gRPC address (default = all IP addresses).
+                                    Use this option to instruct the server to
+                                    bind to a specific IP address for gRPC
+                                    communications. Set the value to 'none'
+                                    (without quotes) to disable gRPC.
+  -gp,--gport <portnum>             gRPC Port number (default = 9066).
+  -ha,--haddr <address>             HTTPS address (default = all IP addresses).
+                                    Use this option to instruct the server to
+                                    bind to a specific IP address for HTTPS
+                                    communications. Set the value to 'none'
+                                    (without quotes) to disable HTTPS.
+  -hp,--hport <portnum>             HTTPS Port number (default = 9067).
+  -li,--list-interfaces             Show detailed host interface list, then
+                                    exit.
+  -tc,--test-configfile <filename>  Test configuration file, then exit.
+  -v,--version                      Show version information, then exit.
+----
+
+NOTE: Users should NOT directly invoke the main Java class, but are encouraged
+to use the wrapper scripts which ensure the proper environment, classpath and
+Java VM arguments. See the following sections for Linux/Unix/Mac or Windows
+host systems.
+
+==== Linux/Mac
+The $JAGORNET_DHCP_HOME/bin/dhcpserver script can be used to operate the server
+from a command shell. This script supports the following options:
+
+`start [startup options]` - starts the server with any startup options provided.
+
+`stop` - stops the server.
+
+`restart [startup options]` - stop and start the server.
+
+`status` - check if the server is running.
+
+`version` - display server version and exit.  A convenience option which can be used instead of 'start -v' or 'start --version'.
+
+`test-configfile <configfile>` - test server configuration file and exit. A convenience option instead of 'start -tc <filename>' or 'start --test-configfile <filename>'.
+
+`list-interfaces` - list host interfaces and exit. A convenience method instead of 'start -li' or 'start --list-interfaces'.
+
+Startup examples:
+
+
+. Display the server version and exit (any of the following):
+
+ $JAGORNET_DHCP_HOME/bin/dhcpserver version
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start -v
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start --version
+
+. Display the startup options and exit (any of the following):
+
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start -?
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start --help
+
+. Start the server with the default options (DHCPv4 unicast on all interfaces, no DHCPv4 broadcast, DHCPv6 unicast on all interfaces, no DHCPv6 multicast):
+
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start
+
+. Start the server on a test DHCPv4 port with support for broadcast on the IPv4 broadcast-enabled interface named 'eth0':
+ 
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start -4p 10067 -4b eth0
+
+. Start the server on a test DHCPv6 port with support for multicast on all IPv6 multicast-enabled interfaces:
+ 
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start -6p 10547 -6m
+
+. Start the server with support for DHCPv4 broadcast on the interface named 'eth0' and DHCPv6 multicast on the interface named 'eth1':
+
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start -4b eth0 -6m eth1
+
+. Start the server with an alternate configuration file, one specific unicast address, and two specific multicast interfaces:
+
+ $JAGORNET_DHCP_HOME/bin/dhcpserver start -c conf/my-dhcpserver.xml -6u 2001:db8::1 -6m eth0 eth1
+
+==== Windows
+===== Windows Service
+
+Jagornet DHCP Server can operate as a Microsoft Windows Service courtesy of 
+http://yajsw.sourceforge.net[Yet Another Java Service Wrapper (YAJSW)].
+Startup options must be provided in `JAGORNET_DHCP_HOME\bin\yajsw-stable-11.0\conf\wrapper.conf`.
+Edit this file using a standard text editor (i.e. notepad.exe), and locate the following set of commented properties:
+
+ # Application parameters.  Add parameters as needed starting from 1
+ # YAJSW: to specify the main class please use wrapper.java.app.mainclass=
+ #wrapper.app.parameter.1=
+ #wrapper.app.parameter.2=
+ #wrapper.app.parameter.#=
+ 
+Provide desired startup options by adding uncommented `wrapper.app.parameter.#` entries for each option and each option value. For example:
+
+. Start the server on a test DHCPv4 port with support for broadcast on the IPv4 broadcast-enabled interface named 'eth0':
+
+ wrapper.app.parameter.1=-4p
+ wrapper.app.parameter.2=10067
+ wrapper.app.parameter.3=-4b
+ wrapper.app.parameter.4=eth0
+
+. Start the server on a test DHCPv6 port with support for multicast on all IPv6 multicast-enabled interfaces:
+
+ wrapper.app.parameter.1=-6p
+ wrapper.app.parameter.2=10547
+ wrapper.app.parameter.3=-6m
+ 
+. Start the server with support for DHCPv4 broadcast on the interface named 'eth0' and DHCPv6 multicast on the interface named 'eth1':
+
+ wrapper.app.parameter.1=-4b
+ wrapper.app.parameter.2=eth0
+ wrapper.app.parameter.3=-6m
+ wrapper.app.parameter.4=eth1
+
+. Start the server with an alternate configuration file, one specific unicast address, and two specific multicast interfaces:
+
+ wrapper.app.parameter.1=-c
+ wrapper.app.parameter.2=config\my-dhcpserver.xml
+ wrapper.app.parameter.3=-6u
+ wrapper.app.parameter.4=2001:db8::1
+ wrapper.app.parameter.5=-6m
+ wrapper.app.parameter.6=eth0
+ wrapper.app.parameter.7=eth1
+ 
+The following batch files are provided for operating the Jagornet DHCP Server as a Windows Service.
+
+- `%JAGORNET_DHCP_HOME%\bin\InstallJagornetDhcpServer.bat` - install the Jagornet DHCP Server as a Windows Service. On Windows 7 / Server 2008 this must be "Run As Administrator".
+- `%JAGORNET_DHCP_HOME%\bin\UninstallJagornetDhcpServer.bat` - remove the Jagornet DHCP Server as a Windows Service. On Windows 7 / Server 2008 this must be "Run As Administrator".
+- `%JAGORNET_DHCP_HOME%\bin\StartJagornetDhcpServer.bat` - start the Jagornet DHCP Server as a Windows Service. The server can also be started using Windows Control Panel -> Administrative Tools -> System or the Microsoft Management Console (MMC) Services controller.
+- `%JAGORNET_DHCP_HOME%\bin\StopJagornetDhcpServer.bat` - stop the Jagornet DHCP Server as a Windows Service. The server can also be stopped using Windows Control Panel -> Administrative Tools -> System or the Microsoft Management Console (MMC) Services controller.
+- `%JAGORNET_DHCP_HOME%\bin\JagornetDhcpServer.bat` - run the server in the command window. Use Ctrl+C to stop.
+
+==== Command Shell
+
+As an alternative to running Jagornet DHCP Server as a Windows Service, 
+the JAGORNET_DHCP_HOME%\bin\dhcpserver.bat batch file can be used to operate 
+the server from a command shell. Provide any desired startup options on the 
+command line. Enter <Ctrl+C> in the command shell window to stop the server.
+
+Startup examples:
+
+. Display the server version and exit (any of the following):
+
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver version
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start -v
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start --version
+
+. Display the startup options and exit (any of the following):
+
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start -?
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start --help
+
+. Start the server with the default options (DHCPv4 unicast on all interfaces, no DHCPv4 broadcast, DHCPv6 unicast on all interfaces, no DHCPv6 multicast):
+
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start
+
+. Start the server on a test DHCPv4 port with support for broadcast on the IPv4 broadcast-enabled interface named 'eth0':
+ 
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start -4p 10067 -4b eth0
+
+. Start the server on a test DHCPv6 port with support for multicast on all IPv6 multicast-enabled interfaces:
+ 
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start -6p 10547 -6m
+
+. Start the server with support for DHCPv4 broadcast on the interface named 'eth0' and DHCPv6 multicast on the interface named 'eth1':
+
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start -4b eth0 -6m eth1
+
+. Start the server with an alternate configuration file, one specific unicast address, and two specific multicast interfaces:
+
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver start -c conf\my-dhcpserver.xml -6u 2001:db8::1 -6m eth0 eth1
+
+=== Logging
+Logging for the Jagornet DHCP server is performed using the 
+https://logging.apache.org/log4j/2.x/[Apache Log4j 2] logging 
+logging service. The Log4j2 configuration file is located in the `config/log4j2.xml` 
+file. The server writes all initial startup messages to the standard output and 
+error streams. After the server initialization, all messages will be written to
+the `log/dhcpserver.log` file. When the file reaches 10MB, it is "rolled" over to a 
+new `log/dhcpserver-#.log` file up to ten files of logging history. These settings are 
+controlled by the  
+https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender[Log4j2 RollingFileAppender]
+for details.

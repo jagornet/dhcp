@@ -1,3 +1,4 @@
-/derby/
-/fileleases/
-/h2/
+/jdbc-derby/
+/jdbc-h2/
+/dhcpleases.json
+/ha/

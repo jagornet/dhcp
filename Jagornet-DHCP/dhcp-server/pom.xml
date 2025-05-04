@@ -15,14 +15,31 @@
   	<skip.jib>true</skip.jib>
   	<commons.cli.version>1.2</commons.cli.version>
   	<commons.dbcp2.version>2.7.0</commons.dbcp2.version>
-  	<commons.io.version>2.7</commons.io.version>
+  	<commons.io.version>2.18.0</commons.io.version>
   	<commons.pool2.version>2.7.0</commons.pool2.version>
-  	<dnsjava.version>2.1.9</dnsjava.version>
-  	<netty.version>4.1.48.Final</netty.version>
-  	<spring.version>5.3.20</spring.version>
-  	<derby.version>10.14.2.0</derby.version>
-  	<h2.version>2.1.210</h2.version>
-  	<sqlite.jdbc.version>3.30.1</sqlite.jdbc.version>
+  	<dnsjava.version>3.6.2</dnsjava.version>
+  	<netty.version>4.1.110.Final</netty.version>
+	<!--
+		Spring versions:
+		6.1.x - JDK 17-23
+		6.0.x - JDK 17-21
+		5.3.X - JDK 8-21 
+		Jagornet 4.1.0 target is Java 11
+	-->
+  	<spring.version>5.3.39</spring.version>
+	<!-- 
+		Derby DB is a runtime dependency only.
+		Only the latest, 10.17.1.0, is CVE-free,
+		but 10.17 requires Java 21 runtime.
+		10.17 - JRE 21
+		10.16 - JRE 17
+		10.15 - JRE 11
+		10.14 - JRE 8
+		Jagornet 4.1.0 target is Java 11 
+	-->
+  	<derby.version>10.15.2.0</derby.version>
+  	<h2.version>2.2.224</h2.version>
+  	<sqlite.jdbc.version>3.47.1.0</sqlite.jdbc.version>
   	<jersey.version>2.30</jersey.version>
   	<jaxb.api.version>2.3.1</jaxb.api.version>
   	<jaxb.core.version>2.3.0.1</jaxb.core.version>
@@ -32,6 +49,9 @@
   	<httpclient.version>4.5.13</httpclient.version>
   	<jackson.version>2.11.2</jackson.version>
   	<swagger.version>2.1.13</swagger.version>
+	<grpc.version>1.64.0</grpc.version>
+	<osplugin.version>1.7.1</osplugin.version>
+	<protobuf.version>4.28.3</protobuf.version>
   </properties>
 
   <dependencies>
@@ -131,6 +151,12 @@
 	<dependency>
 	    <groupId>org.apache.derby</groupId>
 	    <artifactId>derbyclient</artifactId>
+	    <version>${derby.version}</version>
+        <scope>runtime</scope>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.derby</groupId>
+	    <artifactId>derbytools</artifactId>
 	    <version>${derby.version}</version>
         <scope>runtime</scope>
 	</dependency>
@@ -253,6 +279,42 @@
       <version>3.1.0</version>
     </dependency>
 
+	<!-- for ${os} variables below -->
+	<dependency>
+	  <groupId>kr.motd.maven</groupId>
+	  <artifactId>os-maven-plugin</artifactId>
+	  <version>${osplugin.version}</version>
+	  <type>maven-plugin</type>
+	</dependency>
+
+	<!-- gRPC -->
+	<!-- see https://github.com/grpc/grpc-java/blob/master/SECURITY.md -->
+	<dependency>
+	    <groupId>io.grpc</groupId>
+	    <artifactId>grpc-netty</artifactId>
+	    <version>${grpc.version}</version>
+	</dependency>
+	  <dependency>
+	    <groupId>io.grpc</groupId>
+	    <artifactId>grpc-protobuf</artifactId>
+	    <version>${grpc.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>io.grpc</groupId>
+	    <artifactId>grpc-stub</artifactId>
+	    <version>${grpc.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.google.protobuf</groupId>
+	    <artifactId>protobuf-java</artifactId>
+	    <version>${protobuf.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.google.protobuf</groupId>
+	    <artifactId>protobuf-java-util</artifactId>
+	    <version>${protobuf.version}</version>
+	</dependency>
+
 	<!-- Test dependency jars -->
   	<dependency>
   		<groupId>com.jagornet</groupId>
@@ -297,7 +359,29 @@
 		    </plugin>
 		  </plugins>
 		</pluginManagement>
+
+<!-- 		<extensions>
+		    <extension>
+		      <groupId>kr.motd.maven</groupId>
+		      <artifactId>os-maven-plugin</artifactId>
+		      <version>${osplugin.version}</version>
+		    </extension>
+		</extensions>
+ -->
 		<plugins>
+		    <plugin>
+		      <groupId>kr.motd.maven</groupId>
+		      <artifactId>os-maven-plugin</artifactId>
+		      <version>${osplugin.version}</version>
+		      <executions>
+		        <execution>
+		          <phase>initialize</phase>
+		          <goals>
+		            <goal>detect</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -318,6 +402,22 @@
 	          <!-- defined in parent pom <version>3.1.4/version> -->
 	          <configuration>
 				<skip>${skip.jib}</skip>
+				<from>
+					<image>eclipse-temurin:11-jdk</image>
+					<platforms>
+						<platform>
+							<architecture>amd64</architecture>
+							<os>linux</os>
+						</platform>
+						<!-- needed to build for Apple M1/M2 chips
+							 but only build one platform at a time
+						<platform>
+							<architecture>arm64</architecture>
+							<os>linux</os>
+						</platform>
+						-->
+					</platforms>
+				</from>
 	            <to>
  	              <image>jagornet/${docker.repo}:${project.version}</image>
  	              <auth>
@@ -343,6 +443,7 @@
  	            	<ports>
  	            	  <port>67/udp</port>	<!-- DHCPv4 Server port -->
  	            	  <port>547/udp</port>	<!-- DHCPv6 Server port -->
+					  <port>9066/tcp</port> <!-- gRPC -->
  	            	  <port>9067/tcp</port>	<!-- HTTPS/REST -->
  	            	</ports>
  	            </container>
@@ -378,13 +479,7 @@
 	        <plugin>
 	            <groupId>org.codehaus.mojo</groupId>
 	            <artifactId>jaxb2-maven-plugin</artifactId>
-	            <!-- 
-	            Would like to use 2.5.0 version, which works with Java 11,
-	            but since the parent pom.xml defines maven.complier 1.8,
-	            then Eclipse will reset the project to use JRE 8, and then
-	            then v2.5.0 of this plugin fails for some reason.
-	             -->
-	            <version>2.3.1</version>
+	            <version>2.5.0</version>
 	            <executions>
 	                <execution>
 	                	<phase>generate-sources</phase>
@@ -472,20 +567,17 @@
 			<plugin>
 			    <groupId>org.asciidoctor</groupId>
 			    <artifactId>asciidoctor-maven-plugin</artifactId>
-			    <version>1.5.6</version>			    
-		        <!-- 
+			    <version>3.1.1</version>			    
                 <dependencies>
                     <dependency>
                         <groupId>org.asciidoctor</groupId>
                         <artifactId>asciidoctorj-pdf</artifactId>
-                        <version>1.5.3</version>
+                        <version>2.3.19</version>
                     </dependency>
                 </dependencies>
-                -->
 			    <configuration>
 			        <sourceDirectory>src/main/asciidoc</sourceDirectory>
-			        <headerFooter>true</headerFooter>
-			        <imagesDir>../resources/images</imagesDir> 
+					<sourceDocumentName>userguide.adoc</sourceDocumentName>
 			    </configuration>
 			    <executions>
 			        <execution>
@@ -495,7 +587,6 @@
 			                <goal>process-asciidoc</goal>
 			            </goals>
 			            <configuration>
-			                <sourceHighlighter>coderay</sourceHighlighter>
 			                <backend>html</backend>
 			                <attributes>
 			                    <toc/>
@@ -503,7 +594,7 @@
 			                </attributes>
 			            </configuration>
 			        </execution>
-			        <execution>
+			        <!-- <execution>
 			            <id>output-docbook</id>
 			            <phase>generate-resources</phase>
 			            <goals>
@@ -513,8 +604,7 @@
 			                <backend>docbook</backend>
 			                <doctype>book</doctype>
 			            </configuration>
-			        </execution>
-			        <!-- 
+			        </execution> -->
 			        <execution>
 			            <id>output-pdf</id>
 			            <phase>generate-resources</phase>
@@ -525,10 +615,9 @@
 			                <backend>pdf</backend>
 			            </configuration>
 			        </execution>
-			        -->
 			    </executions>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 				<groupId>com.agilejava.docbkx</groupId>
 				<artifactId>docbkx-maven-plugin</artifactId>
 				<version>2.0.14</version>
@@ -538,16 +627,39 @@
 				</configuration>
 				<executions>
 				  <execution>
-				    <!-- <phase>generate-sources</phase> -->
+				    - <phase>generate-sources</phase> -
 				    <phase>process-resources</phase>
 				    <goals>
-				      <!-- <goal>generate-html</goal> -->
+				      - <goal>generate-html</goal> -
 				      <goal>generate-pdf</goal>
-				      <!-- <goal>generate-eclipse</goal> -->
+				      - <goal>generate-eclipse</goal> -
 				    </goals>
 				  </execution>
 				</executions>
-			</plugin>
+			</plugin> -->
+			
+		    <plugin>
+		      <groupId>org.xolstice.maven.plugins</groupId>
+		      <artifactId>protobuf-maven-plugin</artifactId>
+		      <version>0.6.1</version>
+		      <configuration>
+		        <protocArtifact>
+		          com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+		        </protocArtifact>
+		        <pluginId>grpc-java</pluginId>
+		        <pluginArtifact>
+		          io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+		        </pluginArtifact>
+		      </configuration>
+		      <executions>
+		        <execution>
+		          <goals>
+		            <goal>compile</goal>
+		            <goal>compile-custom</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
  
 			<plugin>
 	        	<groupId>org.apache.maven.plugins</groupId>

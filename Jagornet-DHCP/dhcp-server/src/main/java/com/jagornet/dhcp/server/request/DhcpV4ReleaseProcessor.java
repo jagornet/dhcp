@@ -93,7 +93,7 @@ public class DhcpV4ReleaseProcessor extends BaseDhcpV4Processor
     @Override
     public boolean process()
     {
-		byte clientId[] = requestMsg.getClientId();
+		byte[] clientId = requestMsg.getClientId();
 		
 		V4AddrBindingManager bindingMgr = dhcpServerConfig.getV4AddrBindingMgr();
 		if (bindingMgr != null) {

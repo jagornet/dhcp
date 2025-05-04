@@ -85,9 +85,7 @@ public class IaPrefix extends IaAddress
 		if (!(obj instanceof IaPrefix))
 			return false;
 		IaPrefix other = (IaPrefix) obj;
-		if (prefixLength != other.prefixLength)
-			return false;
-		return true;
+		return prefixLength == other.prefixLength;
 	}
 	
 	/* (non-Javadoc)
@@ -108,17 +106,19 @@ public class IaPrefix extends IaAddress
 		if (this.getStartTime() != null)
 			sb.append(Util.GMT_DATEFORMAT.format(this.getStartTime()));
 		sb.append(" preferredEndTime=");
-		if (this.getPreferredEndTime() != null)
+		if (this.getPreferredEndTime() != null) {
 			if (this.getPreferredEndTime().getTime() < 0)
 				sb.append("infinite");
 			else
 				sb.append(Util.GMT_DATEFORMAT.format(this.getPreferredEndTime()));
+		}
 		sb.append(" validEndTime=");
-		if (this.getValidEndTime() != null)
-			if (this.getValidEndTime().getTime() < 0)
+		if (this.getValidEndTime() != null) {
+			if (this.getValidEndTime().getTime() < 0) 
 				sb.append("infinite");
 			else
 				sb.append(Util.GMT_DATEFORMAT.format(this.getValidEndTime()));
+		}
 		Collection<DhcpOption> opts = this.getDhcpOptions();
 		if (opts != null) {
 			for (DhcpOption dhcpOption : opts) {

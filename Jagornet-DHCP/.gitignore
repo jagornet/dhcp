@@ -1,5 +1,8 @@
-/dist/
-/log/
-/target/
-/build/
-/lib/
+.*
+!.gitignore
+*.log
+build/
+dist/
+lib/
+log/
+target/

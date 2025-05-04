@@ -27,7 +27,6 @@ package com.jagornet.dhcp.server.request.binding;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -70,7 +69,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 {
 	private static Logger log = LoggerFactory.getLogger(V6AddrBindingManager.class);
     
-	public V6AddrBindingManager()
+	protected V6AddrBindingManager()
 	{
 		super();
 	}
@@ -107,7 +106,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
     protected List<? extends BindingPool> buildBindingPools(Link link) 
     		throws DhcpServerConfigException
     {
-		List<V6AddressBindingPool> bindingPools = new ArrayList<V6AddressBindingPool>();
+		List<V6AddressBindingPool> bindingPools = new ArrayList<>();
 		// Put the filtered pools first in the list of pools on this link
 		LinkFiltersType linkFiltersType = link.getLinkFilters();
 		if (linkFiltersType != null) {
@@ -226,7 +225,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
     protected List<? extends StaticBinding> buildStaticBindings(Link link) 
 			throws DhcpServerConfigException
 	{
-		List<V6StaticAddressBinding> staticBindings = new ArrayList<V6StaticAddressBinding>();
+		List<V6StaticAddressBinding> staticBindings = new ArrayList<>();
 		V6AddressBindingsType bindingsType = getV6AddressBindingsType(link);
 		if (bindingsType != null) {
 			List<V6AddressBinding> bindings = bindingsType.getBindingList();
@@ -357,7 +356,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
 		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
-			List<V6BindingAddress> bindingAddrs = new ArrayList<V6BindingAddress>();
+			List<V6BindingAddress> bindingAddrs = new ArrayList<>();
 			for (IaAddress iaAddr : iaAddrs) {
 // off-link check needed only for v4?
 //				if (!clientLink.getSubnet().contains(iaAddr.getIpAddress())) {
@@ -406,7 +405,7 @@ public abstract class V6AddrBindingManager extends BaseAddrBindingManager
 				findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			// binding loaded from DB will contain the stored options
-	    	V6BindingAddress bindingAddr = new V6BindingAddress(iaAddr, (V6AddressBindingPool)bp);
+	    	V6BindingAddress bindingAddr = new V6BindingAddress(iaAddr, bp);
 	    	// TODO: setBindingObjectTimes?  see buildBindingObject
 			// update the options with whatever may now be configured
 	    	setDhcpOptions(bindingAddr, clientLink, (DhcpV6Message)requestMsg, bp);

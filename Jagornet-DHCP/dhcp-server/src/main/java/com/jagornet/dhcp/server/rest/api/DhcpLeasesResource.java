@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jagornet.dhcp.server.db.DhcpLease;
 import com.jagornet.dhcp.server.db.DhcpLeaseCallbackHandler;
 import com.jagornet.dhcp.server.db.InetAddressCallbackHandler;
+import com.jagornet.dhcp.server.db.ProcessLeaseException;
 
 @Path(DhcpLeasesResource.PATH)
 public class DhcpLeasesResource {
@@ -140,7 +141,7 @@ public class DhcpLeasesResource {
 			   						   @QueryParam(QUERYPARAM_END) String end,
 		    						   @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
 
-		log.debug("getDhcpLeaseIps: start=" + start + " end=" + end);
+		log.debug("getDhcpLeaseStream: start=" + start + " end=" + end);
     	// this will be served at http://localhost/dhcpleases/dhcpleasestream
     	Response response = getJsonDhcpLeaseStream(start, end, haUpdate);
     	
@@ -165,18 +166,26 @@ public class DhcpLeasesResource {
 				@Override
 				public void write(OutputStream os) throws IOException, WebApplicationException {
 					JsonFactory factory = objectMapper.getFactory();
-					JsonGenerator generator = factory.createGenerator(os);
-					generator.writeStartArray();
-					leasesService.getRangeLeases(start, end,
-							new DhcpLeaseCallbackHandler() {
-						@Override
-						public void processDhcpLease(DhcpLease dhcpLease) throws Exception {
-							generator.writeObject(dhcpLease);
-							generator.flush();
-						}
-					}, unsyncedLeasesOnly);
-					generator.writeEndArray();
-					generator.close();
+					try (JsonGenerator generator = factory.createGenerator(os)) {
+						generator.writeStartArray();
+						leasesService.getRangeLeases(start, end,
+								new DhcpLeaseCallbackHandler() {
+							@Override
+							public void processDhcpLease(DhcpLease dhcpLease) throws ProcessLeaseException {
+								log.debug("Writing DhcpLease to JSON stream: " + dhcpLease);
+								try{
+									generator.writeObject(dhcpLease);
+									generator.flush();
+								}
+								catch (IOException e) {
+									log.error("Failed to write DhcpLease to JSON stream", e);
+									throw new ProcessLeaseException(e);
+								}
+							}
+						}, unsyncedLeasesOnly);
+						log.debug("DhcpLease JSON stream complete");
+						generator.writeEndArray();
+					}
 			    }
 			};
 			return Response.ok(stream).build();    	
@@ -264,30 +273,14 @@ public class DhcpLeasesResource {
 					// syncing the lease, so set the haPeerState=state
 					dhcpLease.setHaPeerState(dhcpLease.getState());
 				}
-				InetAddress inetAddr = dhcpLease.getIpAddress();
-				DhcpLease existingDhcpLease = leasesService.getDhcpLease(inetAddr);
-				if (existingDhcpLease != null) {
-					if (leasesService.updateDhcpLease(inetAddr, dhcpLease)) {
-						return Response.ok(dhcpLease).build();
-					}
-					else {
-						return Response
-								.serverError()
-								.entity("PUT - updateDhcpLease failed!")
-								.build();
-					}
+				if (leasesService.createOrUpdateDhcpLease(dhcpLease)) {
+					return Response.ok(dhcpLease).build();
 				}
 				else {
-					log.debug("PUT called with new lease");
-					if (leasesService.createDhcpLease(dhcpLease)) {
-						return Response.ok(dhcpLease).build();	    	    		
-					}
-					else {
-						return Response
-								.serverError()
-								.entity("PUT - createDhcpLease failed!")
-								.build();
-					}
+					return Response
+							.serverError()
+							.entity("PUT - createOrUpdateDhcpLease failed!")
+							.build();
 				}
 			}
 			else {

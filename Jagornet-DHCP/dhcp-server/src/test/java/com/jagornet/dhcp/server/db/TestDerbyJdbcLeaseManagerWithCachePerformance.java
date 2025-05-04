@@ -22,7 +22,7 @@ public class TestDerbyJdbcLeaseManagerWithCachePerformance extends AbstractTestL
 	{
 		DhcpServerPolicies.setProperty(Property.BINDING_MANAGER_IA_CACHE_SIZE, "1000");
 		DhcpServerPolicies.setProperty(Property.BINDING_MANAGER_LEASE_CACHE_SIZE, "1000");
-		initializeContext("jdbc-derby", 2);
+		initializeContext(DbSchemaManager.SCHEMATYPE_JDBC_DERBY, BaseTestCase.DEFAULT_SCHEMA_VERSION);
 		leaseManager =  (LeaseManager)config.getIaMgr();
 		AbstractTestLeaseManagerPerformance.oneTimeSetUp();
 		Duration duration = AbstractTestLeaseManagerPerformance.createIAs();

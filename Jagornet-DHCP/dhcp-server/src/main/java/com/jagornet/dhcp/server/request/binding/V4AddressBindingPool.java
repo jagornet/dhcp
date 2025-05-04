@@ -77,14 +77,10 @@ public class V4AddressBindingPool implements BindingPool, DhcpV4OptionConfigObje
 		try {
 			this.range = new Range(pool.getRange());
 		} 
-		catch (NumberFormatException ex) {
+		catch (NumberFormatException | UnknownHostException ex) {
 			log.error("Invalid AddressPool definition", ex);
 			throw new DhcpServerConfigException("Invalid AddressPool definition", ex);
 		} 
-		catch (UnknownHostException ex) {
-			log.error("Invalid AddressPool definition", ex);
-			throw new DhcpServerConfigException("Invalid AddressPool definition", ex);
-		}
 		freeList = 
 			new FreeList(new BigInteger(range.getStartAddress().getAddress()),
 					new BigInteger(range.getEndAddress().getAddress()));
@@ -312,25 +308,21 @@ public class V4AddressBindingPool implements BindingPool, DhcpV4OptionConfigObje
 
 	@Override
 	public long getPreferredLifetime() {
-		// TODO: check this overloaded use of v6 interface
 		return getLeasetime();
 	}
 
 	@Override
 	public long getValidLifetime() {
-		// TODO: check this overloaded use of v6 interface
 		return getLeasetime();
 	}
 
 	@Override
 	public long getPreferredLifetimeMs() {
-		// TODO: check this overloaded use of v6 interface
 		return getLeasetimeMs();
 	}
 
 	@Override
 	public long getValidLifetimeMs() {
-		// TODO: check this overloaded use of v6 interface
 		return getLeasetimeMs();
 	}
 

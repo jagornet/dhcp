@@ -3,7 +3,6 @@ package com.jagornet.dhcp.server.ha;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -15,17 +14,13 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.server.config.DhcpLink;
-import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.db.DhcpLease;
 import com.jagornet.dhcp.server.db.LeaseManager;
 import com.jagornet.dhcp.server.request.binding.Binding;
-import com.jagornet.dhcp.server.rest.api.DhcpLeasesResource;
 import com.jagornet.dhcp.server.rest.api.DhcpLeasesService;
-import com.jagornet.dhcp.server.rest.api.DhcpServerStatusResource;
-import com.jagornet.dhcp.server.rest.cli.JerseyRestClient;
 
 public class HaPrimaryFSM implements Runnable {
 
@@ -36,7 +31,7 @@ public class HaPrimaryFSM implements Runnable {
 						PRIMARY_RUNNING,
 						PRIMARY_AWAITING_BNDACK,
 						PRIMARY_REQUESTING_CONTROL,
-						PRIMARY_RECEIVING_UPDATES };
+						PRIMARY_RECEIVING_UPDATES }
 	*/
 	
 	public enum State { PRIMARY_INIT,
@@ -44,9 +39,9 @@ public class HaPrimaryFSM implements Runnable {
 						PRIMARY_SYNCING_FROM_BACKUP,
 						// don't care PRIMARY_SYNCING_TO_BACKUP,
 						PRIMARY_RUNNING,
-						PRIMARY_CONFLICT };
+						PRIMARY_CONFLICT }
 
-	public enum UpdateMode { SYNC, ASYNC, DATABASE };
+	public enum UpdateMode { SYNC, ASYNC, DATABASE }
 	
 	private String backupHost;
 	private int backupPort;
@@ -58,45 +53,27 @@ public class HaPrimaryFSM implements Runnable {
 	private Collection<DhcpLink> dhcpLinks;
 	private CountDownLatch linkSyncLatch;
 
-	// REST client for communicating to backup
-	private JerseyRestClient restClient;
-	// REST service for handling requests from backup
+	private boolean asyncUpdate;
+
+	// HA client for communicating to backup
+	private HaClient haClient;
+	// service for handling requests from backup
 	private DhcpLeasesService dhcpLeasesService;
-	
-	public HaPrimaryFSM(String backupHost, int backupPort) {
+
+	public HaPrimaryFSM(String backupHost, int backupPort, HaClient haClient, boolean asyncUpdate) {
 		this.backupHost = backupHost;
 		this.backupPort = backupPort;
+		this.haClient = haClient;
+		this.asyncUpdate = asyncUpdate;
 		requestAllLeasesOnRestart = 
 				DhcpServerPolicies.globalPolicyAsBoolean(Property.HA_CONTROL_REQUEST_ALL_LEASES_ON_RESTART);
 	}
 
-	public void init() throws Exception {
-		String mode = DhcpServerPolicies.globalPolicy(Property.HA_BINDING_UPDATE_MODE);
-		if (mode.equalsIgnoreCase("sync")) {
-			updateMode = UpdateMode.SYNC;
-		}
-		else if (mode.equalsIgnoreCase("async")) {
-			updateMode = UpdateMode.ASYNC;
-		}
-		else if (mode.equalsIgnoreCase("database")) {
-			updateMode = UpdateMode.DATABASE;
-		}
-		else {
-			throw new DhcpServerConfigException("Unknown " + Property.HA_BINDING_UPDATE_MODE.key() +
-												": " + mode);
-		}
+	public void startFSM() throws Exception {
 		
 		dhcpLinks = DhcpServerConfiguration.getInstance().getLinkMap().values();
 		
-		// service implementation for processing leases synced from backup server
 		dhcpLeasesService = new DhcpLeasesService();
-		
-		String haUsername = DhcpServerPolicies.globalPolicy(Property.HA_USERNAME);
-		String haPassword = DhcpServerPolicies.globalPolicy(Property.HA_PASSWORD);
-
-		// client implementation for sending updates to backup server
-		restClient = new JerseyRestClient(backupHost, backupPort,
-										  haUsername, haPassword);
 
 		// get the last stored state and take the appropriate action for startup
 		haStateDbManager = new HaStateDbManager();
@@ -112,19 +89,15 @@ public class HaPrimaryFSM implements Runnable {
 	
 	@Override
 	public void run() {
-		String backupHaState = 
-				restClient.doGetString(DhcpServerStatusResource.PATH +
-										DhcpServerStatusResource.HASTATE);
-		if (backupHaState == null) {
-			log.info("Null response from HA Backup server");
-			backupState = null;
+
+		backupState = haClient.getBackupHaState();
+		log.info("HA Backup state: " + backupState);
+		if (backupState == null) {
 			// backup unavailable, so just get going
 			setState(State.PRIMARY_RUNNING);
 			return;
 		}
-		log.info("HA Backup state: " + backupHaState);
-		backupState = HaBackupFSM.State.valueOf(backupHaState);
-		
+
 		// backup is available, start link sync from backup
 		try {
 			startLinkSync();
@@ -135,7 +108,7 @@ public class HaPrimaryFSM implements Runnable {
 		setState(State.PRIMARY_RUNNING);
 	}
 	
-	protected void startLinkSync() throws Exception {
+	protected void startLinkSync() throws HaException {
 		if (!dhcpLinks.isEmpty()) {
 	    	linkSyncLatch = new CountDownLatch(dhcpLinks.size());
 	    	// request all leases from the backup if configured to do so,
@@ -149,10 +122,9 @@ public class HaPrimaryFSM implements Runnable {
 			// set links unavailable
 			for (DhcpLink dhcpLink : dhcpLinks) {
 				dhcpLink.setState(DhcpLink.State.NOT_SYNCED);
+
 				Thread linkSyncThread = new Thread(
-						new LinkSyncThread(dhcpLink, 
-						linkSyncLatch, restClient, 
-						dhcpLeasesService, unsyncedLeasesOnly), 
+						haClient.buildLinkSyncThread(dhcpLink, linkSyncLatch, unsyncedLeasesOnly), 
 						"PrimaryLinkSyncFromBackup-" + dhcpLink.getLinkAddress()
 						);
 				linkSyncThread.start();
@@ -172,6 +144,7 @@ public class HaPrimaryFSM implements Runnable {
 			} 
 	    	catch (InterruptedException e) {
 				log.error("Link sync interrupted: ", e);
+				throw new HaException(e);
 			}
 		}
 		else {
@@ -195,7 +168,7 @@ public class HaPrimaryFSM implements Runnable {
 		this.backupPort = backupPort;
 	}
 	
-	public State getState() {
+	public synchronized State getState() {
 		return state;
 	}
 
@@ -212,7 +185,7 @@ public class HaPrimaryFSM implements Runnable {
 		}
 	}
 
-	public HaBackupFSM.State getBackupState() {
+	public synchronized HaBackupFSM.State getBackupState() {
 		return backupState;
 	}
 
@@ -250,34 +223,28 @@ public class HaPrimaryFSM implements Runnable {
 						// TODO: consider an alternative, architected return value?
 						DhcpLease expectedDhcpLease = dhcpLease.clone();
 						expectedDhcpLease.setHaPeerState(expectedDhcpLease.getState());
-						// this is an HA update, so it will set the
-						// haPeerState of the lease before updating
-						Map<String, Object> queryParams = new HashMap<String, Object>();
-						queryParams.put(DhcpLeasesResource.QUERYPARAM_HAUPDATE, Boolean.TRUE.toString());
-						// NOTE: relying on the PUT behavior with no
-						// "format" query param, which defaults to JSON
-						if (updateMode == UpdateMode.SYNC) {
-							// PUT for create/update
-							DhcpLease responseDhcpLease = restClient.doPutDhcpLease(
-									DhcpLeasesResource.buildPutPath(
-											dhcpLease.getIpAddress().getHostAddress()), 
-											dhcpLease, queryParams);
-							log.info("Binding update response: " + responseDhcpLease);
+						if (!asyncUpdate) {
+							DhcpLease responseDhcpLease = haClient.updateDhcpLease(dhcpLease);
+							// debug detail handled in HaClient implementation
+							if (log.isInfoEnabled()) {
+								log.info("HA (sync) DhcpLease update:"+
+										" IP=" + dhcpLease.getIpAddress().getHostAddress());
+							}
 							if (expectedDhcpLease.equals(responseDhcpLease)) {
 								// if response matches what we sent, then success
 								// so update the HA peer state of the lease as synced
 								dhcpLease.setHaPeerState(dhcpLease.getState());
-								if (dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
-									log.info("HA peer state updated successfully");
-								}
-								else {
-									log.error("HA peer state update failed");
+								if (!dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
+									log.error("HA (sync) peer state update failed");
 								}
 							}
 							else {
-								log.warn("Response (sync) does not match expected DhcpLease: " +
-											expectedDhcpLease);
-								// if the response doesn't match what we sent, then failure
+								log.warn("HA (sync) DhcpLease update does not match:" +
+										System.lineSeparator() +
+										"expected: " + expectedDhcpLease +
+										System.lineSeparator() +
+										"response: " + responseDhcpLease);
+										// if the response doesn't match what we sent, then failure
 								// so update the HA peer state of the lease as unknown
 // not necessary, since we set haPeerState=UNKNOWN when creating/updating the lease
 //								dhcpLease.setHaPeerState(IaAddress.UNKNOWN);
@@ -285,12 +252,7 @@ public class HaPrimaryFSM implements Runnable {
 							}
 						}
 						else { 
-							//TODO: something with the callback!
-							HaDhcpLeaseCallback callback = new HaDhcpLeaseCallback(dhcpLease, expectedDhcpLease);
-							restClient.doPutAsyncDhcpLease(
-									DhcpLeasesResource.buildPutPath(
-											dhcpLease.getIpAddress().getHostAddress()),
-											dhcpLease, callback, queryParams);
+							haClient.updateDhcpLeaseAsync(dhcpLease, expectedDhcpLease);
 						}
 					}
 				}
@@ -301,6 +263,7 @@ public class HaPrimaryFSM implements Runnable {
 		}
 	}
 	
+	@Deprecated // use HaDhcpLeaseCallback instead
 	public class HaDhcpLeaseCallbackString implements InvocationCallback<String> {
 		
 		private DhcpLease dhcpLease;
@@ -313,16 +276,16 @@ public class HaPrimaryFSM implements Runnable {
 
 		@Override
 		public void completed(String response) {
-			log.info("DhcpLease update completed for: " + dhcpLease);
+			log.info("DhcpLease update (async) completed for: " + dhcpLease);
 			if (expectedLeaseJson.equals(response)) {
 				// if response matches what we sent, then success
 				// so update the HA peer state of the lease as synced
 				dhcpLease.setHaPeerState(dhcpLease.getState());
 				if (dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
-					log.info("HA peer state updated successfully");
+					log.info("HA peer state updated (async) successfully");
 				}
 				else {
-					log.error("HA peer state update failed");
+					log.error("HA peer state update (async) failed");
 				}
 			}
 			else {
@@ -338,7 +301,7 @@ public class HaPrimaryFSM implements Runnable {
 
 		@Override
 		public void failed(Throwable throwable) {
-			log.error("DhcpLease update failed for: " + dhcpLease + ": " + throwable);
+			log.error("DhcpLease update (async) failed for: " + dhcpLease + ": " + throwable);
 // not necessary, since we set haPeerState=UNKNOWN when creating/updating the lease
 //			dhcpLease.setHaPeerState(IaAddress.UNKNOWN);
 //			dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease);
@@ -357,16 +320,16 @@ public class HaPrimaryFSM implements Runnable {
 
 		@Override
 		public void completed(DhcpLease responseDhcpLease) {
-			log.info("DhcpLease update completed for: " + dhcpLease);
+			log.info("DhcpLease update (async) completed for: " + dhcpLease);
 			if (expectedDhcpLease.equals(responseDhcpLease)) {
 				// if response matches what we sent, then success
 				// so update the HA peer state of the lease as synced
 				dhcpLease.setHaPeerState(dhcpLease.getState());
 				if (dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease)) {
-					log.info("HA peer state updated successfully");
+					log.info("HA peer state updated (async) successfully");
 				}
 				else {
-					log.error("HA peer state update failed");
+					log.error("HA peer state update (async) failed");
 				}
 			}
 			else {
@@ -382,7 +345,7 @@ public class HaPrimaryFSM implements Runnable {
 
 		@Override
 		public void failed(Throwable throwable) {
-			log.error("DhcpLease update failed for: " + dhcpLease + ": " + throwable);
+			log.error("DhcpLease update (async) failed for: " + dhcpLease + ": " + throwable);
 // not necessary, since we set haPeerState=UNKNOWN when creating/updating the lease
 //			dhcpLease.setHaPeerState(IaAddress.UNKNOWN);
 //			dhcpLeasesService.updateDhcpLease(dhcpLease.getIpAddress(), dhcpLease);

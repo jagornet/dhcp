@@ -1,3 +1,9 @@
+Changes in 4.1.0
+----------------
+	- Java 11+ required
+	- Update third party libraries
+	- Update HA implementation to support gRPC for improved performance and security
+
 Changes in 4.0.1
 ----------------
 	- Fix #73: Fix option map building for complex types

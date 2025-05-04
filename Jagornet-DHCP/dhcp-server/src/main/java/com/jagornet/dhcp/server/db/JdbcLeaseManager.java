@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
@@ -68,7 +69,7 @@ public class JdbcLeaseManager extends LeaseManager
 	protected DataSource dataSource;
 	protected JdbcTemplate jdbcTemplate;
 	
-	protected static String LIMIT_ONE_CLAUSE = 
+	protected static final String LIMIT_ONE_CLAUSE = 
 			DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE).equals("jdbc-derby") ?
 					" fetch first 1 rows only" : " limit 1";
 	
@@ -328,7 +329,7 @@ public class JdbcLeaseManager extends LeaseManager
             		}
             	},
                 new DhcpLeaseRowMapper());
-        if ((leases != null) && (leases.size() > 0)) {
+        if ((leases != null) && (!leases.isEmpty())) {
         	if (leases.size() == 1) {
         		return leases.get(0);
         	}
@@ -539,6 +540,42 @@ public class JdbcLeaseManager extends LeaseManager
                 	}
                 });
 	}
+
+	public Stream<DhcpLease> findExistingLeases(final InetAddress startAddr, 
+												final InetAddress endAddr) {
+
+		return getJdbcTemplate().queryForStream(
+			"select * from dhcplease" +
+			" where ipaddress >= ? and ipaddress <= ?" +
+			" order by ipaddress", 
+			new PreparedStatementSetter() {
+				@Override
+				public void setValues(PreparedStatement ps) throws SQLException {
+					ps.setBytes(1, startAddr.getAddress());
+					ps.setBytes(2, endAddr.getAddress());
+				}                	
+			},
+			new DhcpLeaseRowMapper()
+		);
+	}
+
+	public Stream<DhcpLease> findUnsyncedLeases(final Inet4Address startAddr,
+												final Inet4Address endAddr) {
+		return getJdbcTemplate().queryForStream(
+			"select * from dhcplease" +
+			" where hapeerstate = " + IaAddress.UNKNOWN +
+			" and ipaddress >= ? and ipaddress <= ?" +
+			" order by ipaddress", 
+			new PreparedStatementSetter() {
+				@Override
+				public void setValues(PreparedStatement ps) throws SQLException {
+					ps.setBytes(1, startAddr.getAddress());
+					ps.setBytes(2, endAddr.getAddress());
+				}                	
+			},
+			new DhcpLeaseRowMapper()
+		);
+	}
 	
 	@Override
 	public int setAllLeasesUnsynced() {
@@ -567,6 +604,7 @@ public class JdbcLeaseManager extends LeaseManager
 					}                	
                 },
                 new DhcpLeaseRowMapper());
+		log.debug("Found " + leases.size() + " unused dhcplease objects");
 		return leases;
 	}
 
@@ -613,7 +651,7 @@ public class JdbcLeaseManager extends LeaseManager
 					}                	
                 },
                 new DhcpLeaseRowMapper());
-		if ((leases != null) && leases.size() > 0) {
+		if ((leases != null) && !leases.isEmpty()) {
 			return leases.get(0);
 		}
 		// no "available" leases, now see if any offers have expired
@@ -637,7 +675,7 @@ public class JdbcLeaseManager extends LeaseManager
 					}                	
                 },
                 new DhcpLeaseRowMapper());
-		if ((leases != null) && leases.size() > 0) {
+		if ((leases != null) && !leases.isEmpty()) {
 			return leases.get(0);
 		}
 		return null;		
@@ -664,7 +702,7 @@ public class JdbcLeaseManager extends LeaseManager
 	@Override
 	public void reconcileLeases(final List<Range> ranges) {
 		// TODO: what if the query string is huge?
-		List<byte[]> args = new ArrayList<byte[]>();
+		List<byte[]> args = new ArrayList<>();
 		StringBuilder query = new StringBuilder();
 		query.append("delete from dhcplease where ipaddress");
 		Iterator<Range> rangeIter = ranges.iterator();

@@ -3,6 +3,7 @@ package com.jagornet.dhcp.server.rest.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.ha.HaBackupFSM;
 import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
@@ -17,27 +18,50 @@ public class DhcpServerStatusService {
     protected static DhcpServerConfiguration dhcpServerConfig = 
                                         DhcpServerConfiguration.getInstance();
 
+	/**
+	 * Return this server's status as OK,
+	 * because if it works, then we are OK!
+	 * 
+	 * @return this server's status
+	 */
 	public String getStatus() {
 		return STATUS_OK;
 	}
 	
+	/**
+	 * This method is used when the HA peer
+	 * server requests this server's status.
+	 * 
+	 * @return this HA server's status
+	 */
 	public String haPeerGetStatus() {
 		return getStatus();
 	}
 	
+	/**
+	 * Get the current HA state as recorded by this server.
+	 * 
+	 * @return this server's HA state 
+	 */
 	public String getHaState() {
-		if (dhcpServerConfig.getHaPrimaryFSM() != null) {
-			return getHaPrimaryState(dhcpServerConfig.getHaPrimaryFSM());
+		if (JagornetDhcpServer.haPrimaryFSM != null) {
+			return getHaPrimaryState(JagornetDhcpServer.haPrimaryFSM);
 		}
-		else if (dhcpServerConfig.getHaBackupFSM() != null) {
-			return getHaBackupState(dhcpServerConfig.getHaBackupFSM());
+		else if (JagornetDhcpServer.haBackupFSM != null) {
+			return getHaBackupState(JagornetDhcpServer.haBackupFSM);
 		}
 		return "HA not configured";
 	}
 	
+	/**
+	 * This method is used when the HA peer
+	 * requests this server's HA state
+	 * 
+	 * @return this server's HA state
+	 */
 	public String haPeerGetHaState() {
-		if (dhcpServerConfig.getHaPrimaryFSM() != null) {
-			HaPrimaryFSM haPrimaryFSM = dhcpServerConfig.getHaPrimaryFSM();
+		if (JagornetDhcpServer.haPrimaryFSM != null) {
+			HaPrimaryFSM haPrimaryFSM = JagornetDhcpServer.haPrimaryFSM;
 			// if we are primary, and we get an HA state request
 			// from the backup, then the backup is available
 			log.info("HA Primary received HA state request from Backup, " + 
@@ -45,8 +69,8 @@ public class DhcpServerStatusService {
 			haPrimaryFSM.setBackupState(HaBackupFSM.State.BACKUP_POLLING);
 			return getHaPrimaryState(haPrimaryFSM);
 		}
-		else if (dhcpServerConfig.getHaBackupFSM() != null) {
-			HaBackupFSM haBackupFSM = dhcpServerConfig.getHaBackupFSM();
+		else if (JagornetDhcpServer.haBackupFSM != null) {
+			HaBackupFSM haBackupFSM = JagornetDhcpServer.haBackupFSM;
 			// if we are backup, and we get an HA state request
 			// from the primary, then assume the primary is running
 			// which means we should "cease and desist" and keep polling
@@ -61,18 +85,18 @@ public class DhcpServerStatusService {
 	
 	public void setHaState(String state) {
 		if (SYNCING_TO_PEER.equalsIgnoreCase(state)) {
-			if (dhcpServerConfig.getHaPrimaryFSM() != null) {
+			if (JagornetDhcpServer.haPrimaryFSM != null) {
 				// don't change "my" state
 				// dhcpServerConfig.getHaPrimaryFSM().setState(HaPrimaryFSM.State.PRIMARY_SYNCING_TO_BACKUP);
 				// change state of backup in this primary's FSM
-				dhcpServerConfig.getHaPrimaryFSM().setBackupState(
+				JagornetDhcpServer.haPrimaryFSM.setBackupState(
 						HaBackupFSM.State.BACKUP_SYNCING_FROM_PRIMARY);
 			}
-			else if (dhcpServerConfig.getHaBackupFSM() != null) {
+			else if (JagornetDhcpServer.haBackupFSM != null) {
 				// don't change "my" state
 				// dhcpServerConfig.getHaBackupFSM().setState(HaBackupFSM.State.BACKUP_SYNCING_TO_PRIMARY);
 				// change state of primary in this backup's FSM
-				dhcpServerConfig.getHaBackupFSM().setPrimaryState(
+				JagornetDhcpServer.haBackupFSM.setPrimaryState(
 						HaPrimaryFSM.State.PRIMARY_SYNCING_FROM_BACKUP);
 			}
 			else {

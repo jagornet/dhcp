@@ -1,6 +1,7 @@
 package com.jagornet.dhcp.server.ha;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -135,10 +136,15 @@ public class HaStateDbManager {
 		return haState;
 	}
 	
-	private void writeHaStateDb() throws Exception {
+	private void writeHaStateDb() throws HaException {
 		if (haStateDb.haStates.size() > maxStoredStates) {
 			haStateDb.haStates = haStateDb.haStates.subList(0, maxStoredStates);
 		}
-		objectMapper.writeValue(stateDbFile, haStateDb.haStates);
+		try {
+			objectMapper.writeValue(stateDbFile, haStateDb.haStates);
+		} catch (IOException e) {
+			log.error("Failed to write HA state DB", e);
+			throw new HaException(e);
+		}
 	}
 }

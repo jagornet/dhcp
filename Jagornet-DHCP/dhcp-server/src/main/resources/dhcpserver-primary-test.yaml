@@ -1,0 +1,56 @@
+---
+v4ServerIdOption:
+  ipAddress: "127.0.0.1"
+v6ServerIdOption:
+  opaqueData:
+    asciiValue: "Jagornet"
+policies:
+  policyList:
+  - name: "dhcp.ignoreSelfPackets"
+    value: "false"
+  - name: "ha.role"
+    value: "primary"
+  # bindingUpdateMode for primary role
+  - name: "ha.bindingUpdateMode"
+    value: "sync"
+  - name: "ha.protocol"
+    value: "grpc"
+  - name: "ha.peerServer"
+    value: "127.0.0.1"
+  # make sure this aligns with the launch config of the backup!
+  - name: "ha.peerPort"
+    value: "19066"
+links:
+  linkList:
+  - name: "IPv4 Client Link 1"
+    #address: "10.0.0.0/16"
+    address: "192.168.0.0/16"
+    v4ConfigOptions:
+      v4SubnetMaskOption:
+        ipAddress: "255.255.0.0"
+      v4RoutersOption:
+        ipAddressList:
+        - "10.0.0.1"
+      v4DomainServersOption:
+        ipAddressList:
+        - "1.1.1.1"
+        - "8.8.8.8"
+      v4DomainNameOption:
+        domainName: "test.jagornet.com."
+    v4AddrPools:
+      poolList:
+      - range: "10.0.1.0-10.0.255.254"
+        notInLinkSubnet: true
+  - name: "Local IPv6 Client Link (Multicast traffic)"
+    interface: "en0"
+    v6MsgConfigOptions:
+      v6DnsServersOption:
+        ipAddressList:
+        - "2001:db8:1::1"
+      v6DomainSearchListOption:
+        domainNameList:
+        - "testv6.jagornet.com."
+    v6NaAddrPools:
+      poolList:
+      - range: "2001:db8:1::1:0-2001:db8:1::1:FF"
+        notInLinkSubnet: true

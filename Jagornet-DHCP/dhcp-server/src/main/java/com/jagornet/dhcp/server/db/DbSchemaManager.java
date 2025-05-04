@@ -60,43 +60,47 @@ public class DbSchemaManager
     private static Logger log = LoggerFactory.getLogger(DbSchemaManager.class);
     
     // JDBC schema types support both v1 and v2 schemas
-    public static String SCHEMATYPE_JDBC_DERBY = "jdbc-derby";
-    public static String SCHEMATYPE_JDBC_H2 = "jdbc-h2";
-    public static String SCHEMATYPE_JDBC_SQLITE = "jdbc-sqlite";
+    public static final String SCHEMATYPE_JDBC_DERBY = "jdbc-derby";
+    public static final String SCHEMATYPE_JDBC_H2 = "jdbc-h2";
+    public static final String SCHEMATYPE_JDBC_SQLITE = "jdbc-sqlite";
 
-    public static String APP_CONTEXT_JDBC_DATASOURCE_FILENAME = "context_jdbc_datasource.xml";
-    public static String APP_CONTEXT_JDBC_V1SCHEMA_FILENAME = "context_jdbc_v1schema.xml";
-    public static String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "context_jdbc_v2schema.xml";  
+    public static final String APP_CONTEXT_JDBC_DATASOURCE_FILENAME = "context_jdbc_datasource.xml";
+    public static final String APP_CONTEXT_JDBC_V1SCHEMA_FILENAME = "context_jdbc_v1schema.xml";
+    public static final String APP_CONTEXT_JDBC_V2SCHEMA_FILENAME = "context_jdbc_v2schema.xml";  
     
     // other schema types support only v2 schema
-    public static String SCHEMATYPE_SQLITE = "sqlite";
-    public static String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "context_sqlite_v2schema.xml";    
-    public static String SCHEMATYPE_MONGO = "mongo";
-    public static String APP_CONTEXT_MONGO_V2SCHEMA_FILENAME = "context_mongo_v2schema.xml";    
-    public static String SCHEMATYPE_FILE = "file";
-    public static String APP_CONTEXT_FILE_V2SCHEMA_FILENAME = "context_file_v2schema.xml";    
+    public static final String SCHEMATYPE_SQLITE = "sqlite";
+    public static final String APP_CONTEXT_SQLITE_V2SCHEMA_FILENAME = "context_sqlite_v2schema.xml";    
+    public static final String SCHEMATYPE_MONGO = "mongo";
+    public static final String APP_CONTEXT_MONGO_V2SCHEMA_FILENAME = "context_mongo_v2schema.xml";    
+    public static final String SCHEMATYPE_FILE = "file";
+    public static final String APP_CONTEXT_FILE_V2SCHEMA_FILENAME = "context_file_v2schema.xml";    
     
 
-    public static String DB_HOME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
+    public static final String DB_HOME = DhcpConstants.JAGORNET_DHCP_HOME != null ? 
         							(DhcpConstants.JAGORNET_DHCP_HOME + "/db/") : "db/";
         							
-//	public static String SCHEMA_FILENAME = DB_HOME + "jagornet-dhcp-server-schema.sql";
-//	public static String SCHEMA_DERBY_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby.sql";
-    public static String SCHEMA_FILENAME = "classpath:jagornet-dhcp-server-schema.sql";
-	public static String SCHEMA_DERBY_FILENAME = "classpath:jagornet-dhcp-server-schema-derby.sql";
+//	public static final String SCHEMA_FILENAME = DB_HOME + "jagornet-dhcp-server-schema.sql";
+//	public static final String SCHEMA_DERBY_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby.sql";
+    public static final String SCHEMA_FILENAME = "classpath:jagornet-dhcp-server-schema.sql";
+	public static final String SCHEMA_DERBY_FILENAME = "classpath:jagornet-dhcp-server-schema-derby.sql";
 	
-	public static String[] TABLE_NAMES = { "DHCPOPTION", "IAADDRESS", "IAPREFIX", "IDENTITYASSOC" };
+	public static final String[] TABLE_NAMES = { "DHCPOPTION", "IAADDRESS", "IAPREFIX", "IDENTITYASSOC" };
 
-//	public static String SCHEMA_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-v2.sql";
-//	public static String SCHEMA_DERBY_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby-v2.sql";
-	public static String SCHEMA_V2_FILENAME = "classpath:jagornet-dhcp-server-schema-v2.sql";
-	public static String SCHEMA_DERBY_V2_FILENAME = "classpath:jagornet-dhcp-server-schema-derby-v2.sql";
+//	public static final String SCHEMA_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-v2.sql";
+//	public static final String SCHEMA_DERBY_V2_FILENAME = DB_HOME + "jagornet-dhcp-server-schema-derby-v2.sql";
+	public static final String SCHEMA_V2_FILENAME = "classpath:jagornet-dhcp-server-schema-v2.sql";
+	public static final String SCHEMA_DERBY_V2_FILENAME = "classpath:jagornet-dhcp-server-schema-derby-v2.sql";
 
-    public static String[] TABLE_NAMES_V2 = { "DHCPLEASE" };
+    public static final String[] TABLE_NAMES_V2 = { "DHCPLEASE" };
+
+	private DbSchemaManager() {
+		// prevent instantiation
+	}
     
     public static List<String> getDbContextFiles(String schemaType, int schemaVersion) throws Exception {
     	
-    	List<String> dbContexts = new ArrayList<String>();
+    	List<String> dbContexts = new ArrayList<>();
 
     	if (schemaType.startsWith("jdbc")) {
     		// convention over configuration
@@ -150,82 +154,90 @@ public class DbSchemaManager
 	{
 		boolean schemaCreated = false;
 		
-        List<String> tableNames = new ArrayList<String>();
+        List<String> tableNames = new ArrayList<>();
 
-        Connection conn = dataSource.getConnection();
-		DatabaseMetaData dbMetaData = conn.getMetaData();
-		
-		String dbProduct = dbMetaData.getDatabaseProductName();
-		log.info("JDBC Connection Info:\n" +
-				"url = " + dbMetaData.getURL() +
-				"\n" +
-				"database = " + dbProduct +
-				" " + dbMetaData.getDatabaseProductVersion() +
-				"\n" +
-				"driver = " + dbMetaData.getDriverName() +
-				" " + dbMetaData.getDriverVersion());
-		
-		ResultSet crs = dbMetaData.getCatalogs();
-		while (crs.next()) {
-			String cat = crs.getString("TABLE_CAT");
-			log.info("CATALOG: " + cat);
-		}
-		ResultSet srs = dbMetaData.getSchemas();
-		while (srs.next()) {
-			log.info("SCHEMA (CATALOG): " + 
-					 srs.getString("TABLE_SCHEM") +
-					 " (" + srs.getString("TABLE_CATALOG") + ")");
-		}
-		
-		String catalog = null;		// "JAGORNET-DHCP"
-		String schema = null;
-		if (dbProduct.equals("H2")) {
-			log.debug("Using PUBLIC schema for H2 2.0.206+");
-			schema = "PUBLIC";		// for H2 2.0.206: _not_ INFORMATION_SCHEMA
-		}
-        String[] types = { "TABLE" };
-        ResultSet rs = dbMetaData.getTables(catalog, schema, "%", types);
-        if (rs.next()) {
-            tableNames.add(rs.getString("TABLE_NAME"));
-        }
-        else {
-        	createSchema(dataSource, schemaFilename);
-            dbMetaData = conn.getMetaData();
-            rs = dbMetaData.getTables(catalog, schema, "%", types);
-            schemaCreated = true;
-        }
-        while (rs.next()){
-          tableNames.add(rs.getString("TABLE_NAME"));
-        }
-        
-        log.info("TABLE_NAMES: " + String.join(", ", tableNames));
-        String[] schemaTableNames;
-        if (schemaVersion <= 1) {
-        	schemaTableNames = TABLE_NAMES;
-        }
-        else {
-        	schemaTableNames = TABLE_NAMES_V2;
-        }
-        
-		if (tableNames.size() == schemaTableNames.length) {
-			for (int i=0; i<schemaTableNames.length; i++) {
-				if (!tableNames.contains(schemaTableNames[i])) {
-					throw new IllegalStateException("Invalid database schema: unknown tables");
+        Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			DatabaseMetaData dbMetaData = conn.getMetaData();
+			
+			String dbProduct = dbMetaData.getDatabaseProductName();
+			log.info("JDBC Connection Info:\n" +
+					"url = " + dbMetaData.getURL() +
+					"\n" +
+					"database = " + dbProduct +
+					" " + dbMetaData.getDatabaseProductVersion() +
+					"\n" +
+					"driver = " + dbMetaData.getDriverName() +
+					" " + dbMetaData.getDriverVersion());
+			
+			ResultSet crs = dbMetaData.getCatalogs();
+			while (crs.next()) {
+				String cat = crs.getString("TABLE_CAT");
+				log.info("CATALOG: " + cat);
+			}
+			ResultSet srs = dbMetaData.getSchemas();
+			while (srs.next()) {
+				log.info("SCHEMA (CATALOG): " + 
+						srs.getString("TABLE_SCHEM") +
+						" (" + srs.getString("TABLE_CATALOG") + ")");
+			}
+			
+			String catalog = null;		// "JAGORNET-DHCP"
+			String schema = null;
+			if (dbProduct.equals("H2")) {
+				log.debug("Using PUBLIC schema for H2 2.0.206+");
+				schema = "PUBLIC";		// for H2 2.0.206: _not_ INFORMATION_SCHEMA
+			}
+			String[] types = { "TABLE" };
+			ResultSet rs = dbMetaData.getTables(catalog, schema, "%", types);
+			if (rs.next()) {
+				tableNames.add(rs.getString("TABLE_NAME"));
+			}
+			else {
+				createSchema(dataSource, schemaFilename);
+				dbMetaData = conn.getMetaData();
+				rs = dbMetaData.getTables(catalog, schema, "%", types);
+				schemaCreated = true;
+			}
+			while (rs.next()){
+			tableNames.add(rs.getString("TABLE_NAME"));
+			}
+			
+			log.info("TABLE_NAMES: " + String.join(", ", tableNames));
+			String[] schemaTableNames;
+			if (schemaVersion <= 1) {
+				schemaTableNames = TABLE_NAMES;
+			}
+			else {
+				schemaTableNames = TABLE_NAMES_V2;
+			}
+			
+			if (tableNames.size() == schemaTableNames.length) {
+				for (int i=0; i<schemaTableNames.length; i++) {
+					if (!tableNames.contains(schemaTableNames[i])) {
+						throw new IllegalStateException("Invalid database schema: unknown tables");
+					}
 				}
 			}
+			else {
+				throw new IllegalStateException("Invalid database schema: wrong number of tables");
+			}
+			
+			return schemaCreated;
 		}
-		else {
-			throw new IllegalStateException("Invalid database schema: wrong number of tables");
+		finally {
+			if (conn != null) {
+				conn.close();
+			}
 		}
-		
-		return schemaCreated;
 	}
 	
 	public static List<String> getSchemaDDL(String schemaFilename) throws IOException {
 		ResourceLoader resourceLoader = new DefaultResourceLoader();
 		Resource resource = resourceLoader.getResource(schemaFilename);
 		InputStream is = resource.getInputStream();
-		List<String> schema = new ArrayList<String>();
+		List<String> schema = new ArrayList<>();
 		InputStreamReader isr = null;
 		BufferedReader br = null;
 		try {

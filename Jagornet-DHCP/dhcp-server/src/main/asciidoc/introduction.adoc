@@ -1,0 +1,33 @@
+
+== Introduction
+
+=== Welcome
+Welcome to Jagornet DHCP Server Community Edition Version {appversion}. 
+Please visit these links for the latest news and information on Jagornet DHCP Server.
+
+http://www.jagornet.com[Jagornet Technologies Website]
+
+https://github.com/jagornet/dhcp[Jagornet DHCP Community Server on Github]
+
+=== Features
+Jagornet DHCP Server is an open source Dynamic Host Configuration Protocol server for 
+IPv4 (DHCPv4) and IPv6 (DHCPv6) implemented in Java.
+The server supports the following features:
+
+* Standards compliant DHCPv4 server
+* Core DHCPv4 RFCs:
+** DHCPv4 - http://www.ietf.org/rfc/rfc2131.txt[RFC 2131]
+** DHCPv4 Options - http://www.ietf.org/rfc/rfc2132.txt[RFC 2132]
+* Certified IPv6 Phase II DHCPv6 server - http://www.ipv6ready.org[IPv6 Ready Logo]
+* Core DHCPv6 RFCs:
+** Stateful DHCPv6 - http://www.ietf.org/rfc/rfc3315.txt[RFC 3315]
+** Prefix Delegation - http://www.ietf.org/rfc/rfc3633.txt[RFC 3633]
+** DNS Options - http://www.ietf.org/rfc/rfc3646.txt[RFC 3646]
+** Stateless DHCPv6 - http://www.ietf.org/rfc/rfc3736.txt[RFC 3736]
+* Other
+** High Availability (HA) - Primary/Backup failover
+** Dynamic DNS for DHCPv4/v6 - http://www.ietf.org/rfc/rfc4703.txt[RFC 4703], http://www.ietf.org/rfc/rfc4704.txt[RFC 4704]
+** Highly-scalable, multithreaded architecture using http://netty.io[Netty]
+** Flexible XML/JSON/YAML configuration file format - https://raw.githubusercontent.com/jagornet/dhcp-docs/main/dhcpserver.xsd[Schema]
+** Open API 3.0 REST API using https://jersey.github.io[Jersey]
+** Optimized Docker/OCI Images using https://github.com/GoogleContainerTools/jib[Jib]

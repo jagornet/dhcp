@@ -262,7 +262,7 @@ public abstract class LeaseManager implements IaManager {
         if (lease != null) {
 	        // use a set here, so that if we are getting all bindings, then we don't
 	        // include the lease found above again in the returned collection
-	        Set<DhcpLease> leases = new LinkedHashSet<DhcpLease>();
+	        Set<DhcpLease> leases = new LinkedHashSet<>();
 	        leases.add(lease);
 	        if (allBindings) {
 	        	leases.addAll(findDhcpLeasesForIA(lease.getDuid(), lease.getIatype(), lease.getIaid()));
@@ -384,6 +384,7 @@ public abstract class LeaseManager implements IaManager {
 		boolean isPrefix = false;
 		short prefixLen = 0;
 		if (iaAddr instanceof IaPrefix) {
+			isPrefix = true;
 			prefixLen = ((IaPrefix)iaAddr).getPrefixLength();
 		}
 		if (!isPrefix) {
@@ -458,7 +459,7 @@ public abstract class LeaseManager implements IaManager {
 							break;
 						}
 					}
-					if (ia.iaAddresses.size() == 0) {
+					if (ia.iaAddresses.isEmpty()) {
 						iaCache.removeIA(ia);
 					}
 				}
@@ -811,7 +812,7 @@ public abstract class LeaseManager implements IaManager {
 	{
 		List<IaAddress> addrs = null;
         if (leases != null) {
-        	addrs = new ArrayList<IaAddress>();
+        	addrs = new ArrayList<>();
         	for (DhcpLease dhcpLease : leases) {
 				addrs.add(toIaAddress(dhcpLease));
 			}
@@ -843,7 +844,7 @@ public abstract class LeaseManager implements IaManager {
 	{
 		List<IaPrefix> prefixes = null;
         if (leases != null) {
-        	prefixes = new ArrayList<IaPrefix>();
+        	prefixes = new ArrayList<>();
         	for (DhcpLease dhcpLease : leases) {
 				prefixes.add(toIaPrefix(dhcpLease));
 			}
@@ -884,7 +885,7 @@ public abstract class LeaseManager implements IaManager {
 		if (ia != null) {
 			Collection<? extends IaAddress> iaAddrs = ia.getIaAddresses();
 			if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
-				List<DhcpLease> leases = new ArrayList<DhcpLease>();
+				List<DhcpLease> leases = new ArrayList<>();
 				for (IaAddress iaAddr : iaAddrs) {
 					DhcpLease lease = toDhcpLease(ia, iaAddr, dhcpOptions);
 					leases.add(lease);
@@ -977,7 +978,7 @@ public abstract class LeaseManager implements IaManager {
         	try {
         		int i=0;
 				ByteBuffer bb = ByteBuffer.wrap(buf);
-				options = new ArrayList<DhcpOption>();
+				options = new ArrayList<>();
 				while (bb.hasRemaining()) {
 					if (v4) {
 						short code = Util.getUnsignedByte(bb);

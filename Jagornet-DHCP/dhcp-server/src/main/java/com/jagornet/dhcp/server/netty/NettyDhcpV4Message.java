@@ -84,14 +84,14 @@ public class NettyDhcpV4Message extends DhcpV4Message {
         }
         messageByteBuf.writeBytes(Arrays.copyOf(chAddr, 16));	// pad to 16 bytes for encoded packet
         
-        StringBuffer sNameBuf = new StringBuffer();
+        StringBuilder sNameBuf = new StringBuilder();
         if (sName != null) {
         	sNameBuf.append(sName);
         }
         sNameBuf.setLength(64-sNameBuf.length());
         messageByteBuf.writeBytes(sNameBuf.toString().getBytes());
         
-        StringBuffer fileBuf = new StringBuffer();
+        StringBuilder fileBuf = new StringBuilder();
         if (file != null) {
         	fileBuf.append(file);
         }

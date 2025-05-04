@@ -110,7 +110,7 @@ public class V6PrefixBindingManagerImpl
     protected List<? extends BindingPool> buildBindingPools(Link link) 
     		throws DhcpServerConfigException
     {
-		List<V6PrefixBindingPool> bindingPools = new ArrayList<V6PrefixBindingPool>();
+		List<V6PrefixBindingPool> bindingPools = new ArrayList<>();
 		// Put the filtered pools first in the list of pools on this link
 		LinkFiltersType linkFiltersType = link.getLinkFilters();
 		if (linkFiltersType != null) {
@@ -169,7 +169,7 @@ public class V6PrefixBindingManagerImpl
     protected void reconcilePools(List<V6PrefixBindingPool> bindingPools)
     {
     	if ((bindingPools != null) && !bindingPools.isEmpty()) {
-    		List<Range> ranges = new ArrayList<Range>();
+    		List<Range> ranges = new ArrayList<>();
     		for (V6PrefixBindingPool bp : bindingPools) {
     			Range range = new Range(bp.getStartAddress(), bp.getEndAddress());
 				ranges.add(range);
@@ -234,7 +234,7 @@ public class V6PrefixBindingManagerImpl
     protected List<? extends StaticBinding> buildStaticBindings(Link link) 
 			throws DhcpServerConfigException
 	{
-		List<V6StaticPrefixBinding> staticBindings = new ArrayList<V6StaticPrefixBinding>();
+		List<V6StaticPrefixBinding> staticBindings = new ArrayList<>();
 		V6PrefixBindingsType bindingsType = link.getV6PrefixBindings();
 		if (bindingsType != null) {
 			List<V6PrefixBinding> bindings = bindingsType.getBindingList();
@@ -470,7 +470,7 @@ public class V6PrefixBindingManagerImpl
 		List<InetAddress> inetAddrs = null;
 		List<DhcpV6IaPrefixOption> iaPrefs = iaPdOption.getIaPrefixOptions();
 		if ((iaPrefs != null) && !iaPrefs.isEmpty()) {
-			inetAddrs = new ArrayList<InetAddress>();
+			inetAddrs = new ArrayList<>();
 			for (DhcpV6IaPrefixOption iaPrefix : iaPrefs) {
 				InetAddress inetAddr = iaPrefix.getInetAddress();
 				inetAddrs.add(inetAddr);
@@ -494,7 +494,7 @@ public class V6PrefixBindingManagerImpl
 		Binding binding = new Binding(ia, clientLink);
 		Collection<? extends IaAddress> iaPrefs = ia.getIaAddresses();
 		if ((iaPrefs != null) && !iaPrefs.isEmpty()) {
-			List<V6BindingPrefix> bindingPrefixes = new ArrayList<V6BindingPrefix>();
+			List<V6BindingPrefix> bindingPrefixes = new ArrayList<>();
 			for (IaAddress iaAddr : iaPrefs) {
 // off-link check needed only for v4?
 //				if (!clientLink.getSubnet().contains(iaAddr.getIpAddress())) {
@@ -543,7 +543,7 @@ public class V6PrefixBindingManagerImpl
 				findBindingPool(clientLink.getLink(), inetAddr, requestMsg);
 		if (bp != null) {
 			// binding loaded from DB will contain the stored options
-			V6BindingPrefix bindingPrefix = new V6BindingPrefix(iaPrefix, (V6PrefixBindingPool)bp);
+			V6BindingPrefix bindingPrefix = new V6BindingPrefix(iaPrefix, bp);
 	    	// TODO: setBindingObjectTimes?  see buildBindingObject
 			// update the options with whatever may now be configured
 	    	setDhcpOptions(bindingPrefix, clientLink, (DhcpV6Message)requestMsg, bp);
@@ -639,7 +639,7 @@ public class V6PrefixBindingManagerImpl
 			DhcpLink clientLink, DhcpV6Message requestMsg, V6PrefixBindingPool bp) {
 		
 		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
-				serverConfig.effectiveMsgOptions((DhcpV6Message)requestMsg, clientLink, bp);
+				serverConfig.effectiveMsgOptions(requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
     			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
@@ -669,7 +669,7 @@ public class V6PrefixBindingManagerImpl
 			DhcpLink clientLink, DhcpV6Message requestMsg, V6PrefixBindingPool bp) {
 		
 		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
-				serverConfig.effectivePrefixOptions((DhcpV6Message)requestMsg, clientLink, bp);
+				serverConfig.effectivePrefixOptions(requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
     			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {

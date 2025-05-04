@@ -138,8 +138,6 @@ import com.jagornet.dhcp.server.config.xml.V6ServerIdOption;
 import com.jagornet.dhcp.server.config.xml.V6UserClassOption;
 import com.jagornet.dhcp.server.config.xml.V6VendorClassOption;
 import com.jagornet.dhcp.server.db.IaManager;
-import com.jagornet.dhcp.server.ha.HaBackupFSM;
-import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
 import com.jagornet.dhcp.server.request.binding.Range;
 import com.jagornet.dhcp.server.request.binding.V4AddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
@@ -164,9 +162,9 @@ public class DhcpServerConfiguration
 
 	private static String serverConfigFilename;
     
-    private static JacksonObjectMapper jacksonMapper = null;
+    private static JacksonObjectMapper jacksonMapper = new JacksonObjectMapper();
 	
-	public static enum ConfigSyntax { XML, JSON, YAML }
+	public enum ConfigSyntax { XML, JSON, YAML }
 	
 	private DhcpServerConfig jaxbServerConfig;
     
@@ -194,9 +192,8 @@ public class DhcpServerConfiguration
     private V4AddrBindingManager v4AddrBindingMgr;
     private IaManager iaMgr;
 
-	public static enum HaRole { PRIMARY, BACKUP };
-    private HaPrimaryFSM haPrimaryFSM;
-    private HaBackupFSM haBackupFSM;
+	public enum HaRole { PRIMARY, BACKUP }
+	private HaRole haRole;
     
     /**
      * Gets the single instance of DhcpServerConfiguration.
@@ -218,8 +215,8 @@ public class DhcpServerConfiguration
      */
     private DhcpServerConfiguration()
     {
-    	jacksonMapper = new JacksonObjectMapper();
-    }
+
+	}
     
     public void init(String configFilename) throws DhcpServerConfigException, JAXBException, IOException
     {
@@ -263,12 +260,23 @@ public class DhcpServerConfiguration
 
     	dhcpLinkMap = buildDhcpLinkMap(jaxbServerConfig.getLinks());
     	
-        // must initLinkMap before initHighAvailability because
-        // the HA FSMs need to sync leases by link (link-sync "TM")
-        initHighAvailability();
-    	
+		String haRolePolicy = DhcpServerPolicies.globalPolicy(Property.HA_ROLE);
+		if ((haRolePolicy != null) && !haRolePolicy.isEmpty()) {
+			try {
+				haRole = HaRole.valueOf(haRolePolicy.toUpperCase());
+			}
+			catch (IllegalArgumentException ex) {
+				throw new DhcpServerConfigException("Unknown " + Property.HA_ROLE.key() + 
+													": " + haRole);
+			}
+		}
+
         return updated;    	
     }
+
+	public HaRole getHaRole() {
+		return haRole;
+	}
 
 	private boolean initV4ServerId(DhcpServerConfig jaxbServerConfig) throws IOException {
 		boolean serverIdGenerated = false;
@@ -286,7 +294,7 @@ public class DhcpServerConfiguration
     public static V4ServerIdOption generateV4ServerId() throws IOException {
     	V4ServerIdOption v4ServerId = new V4ServerIdOption();
 		String ip = v4ServerId.getIpAddress();
-		if ((ip == null) || (ip.length() <= 0)) {
+		if ((ip == null) || (ip.isEmpty())) {
 			//v4ServerId.setIpAddress(InetAddress.getLocalHost().getHostAddress());
 			List<InetAddress> addrs = JagornetDhcpServer.getFilteredIPv4Addrs();
 			if ((addrs == null) || addrs.isEmpty()) {
@@ -316,7 +324,7 @@ public class DhcpServerConfiguration
     	V6ServerIdOption v6ServerId = new V6ServerIdOption();
     	OpaqueData opaque = v6ServerId.getOpaqueData();
     	if ( ( (opaque == null) ||
-    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().length() <= 0)) &&
+    		   ((opaque.getAsciiValue() == null) || (opaque.getAsciiValue().isEmpty())) &&
     		   ((opaque.getHexValue() == null) || (opaque.getHexValue().length <= 0)) ) ) {
     		OpaqueData duid = OpaqueDataUtil.generateDUID_LLT();
     		if (duid == null) {
@@ -480,7 +488,8 @@ public class DhcpServerConfiguration
 	public void setGlobalFilters(FiltersType globalFilters) {
 		this.globalFilters = globalFilters;
 	}
-    
+
+/* 
     private void initHighAvailability() throws DhcpServerConfigException {
         String haRole = DhcpServerPolicies.globalPolicy(Property.HA_ROLE);
         if (!haRole.isEmpty()) {
@@ -534,7 +543,8 @@ public class DhcpServerConfiguration
     public void setHaBackupFSM(HaBackupFSM haBackupFSM) {
     	this.haBackupFSM = haBackupFSM;
     }
-    
+*/
+
     /**
      * Build the DhcpLink map from the Links in the configuration
      * 
@@ -1183,8 +1193,7 @@ public class DhcpServerConfiguration
     	return syntax;
     }
     
-    public static DhcpServerConfig loadXmlConfig(InputStream inputStream) 
-    		throws DhcpServerConfigException, JAXBException
+    public static DhcpServerConfig loadXmlConfig(InputStream inputStream) throws JAXBException
     {
         JAXBContext jc = JAXBContext.newInstance(DhcpServerConfig.class);
         Unmarshaller unmarshaller = jc.createUnmarshaller();
@@ -1194,15 +1203,13 @@ public class DhcpServerConfiguration
         return (DhcpServerConfig) unmarshaller.unmarshal(inputStream);
     }
     
-    public static DhcpServerConfig loadJsonConfig(InputStream inputStream)
-    		throws DhcpServerConfigException, IOException
+    public static DhcpServerConfig loadJsonConfig(InputStream inputStream) throws IOException
     {
 		ObjectMapper jsonMapper = jacksonMapper.getJsonObjectMapper();
 		return jsonMapper.readValue(inputStream, DhcpServerConfig.class);
     }
     
-    public static DhcpServerConfig loadYamlConfig(InputStream inputStream)
-    		throws DhcpServerConfigException, IOException
+    public static DhcpServerConfig loadYamlConfig(InputStream inputStream) throws IOException
     {
 		ObjectMapper yamlMapper = jacksonMapper.getYamlObjectMapper();
 		return yamlMapper.readValue(inputStream, DhcpServerConfig.class);
@@ -1498,7 +1505,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveIaNaOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<>();
     	if (globalV6IaNaConfigOptions != null) {
     		optionMap.putAll(globalV6IaNaConfigOptions.getDhcpOptionMap());
     	}
@@ -1567,7 +1574,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveNaAddrOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<>();
     	if (globalV6NaAddrConfigOptions != null) {
     		optionMap.putAll(globalV6NaAddrConfigOptions.getDhcpOptionMap());
     	}
@@ -1645,7 +1652,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveIaTaOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<>();
     	if (globalV6IaTaConfigOptions != null) {
     		optionMap.putAll(globalV6IaTaConfigOptions.getDhcpOptionMap());
     	}
@@ -1715,7 +1722,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveTaAddrOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<>();
     	if (globalV6TaAddrConfigOptions != null) {
     		optionMap.putAll(globalV6TaAddrConfigOptions.getDhcpOptionMap());
     	}
@@ -1740,7 +1747,7 @@ public class DhcpServerConfiguration
     													   DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectiveTaAddrOptions(requestMsg);
-    	if ((dhcpLink != null) && (dhcpLink != null)) {
+    	if ((dhcpLink != null) && (dhcpLink.getLink() != null)) {
 	    	DhcpV6ConfigOptions configOptions = dhcpLink.getTaAddrConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
@@ -1793,7 +1800,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveIaPdOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<>();
     	if (globalV6IaPdConfigOptions != null) {
     		optionMap.putAll(globalV6IaPdConfigOptions.getDhcpOptionMap());
     	}
@@ -1862,7 +1869,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectivePrefixOptions(DhcpV6Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<>();
     	if (globalV6PrefixConfigOptions != null) {
     		optionMap.putAll(globalV6PrefixConfigOptions.getDhcpOptionMap());
     	}
@@ -1887,7 +1894,7 @@ public class DhcpServerConfiguration
     													   DhcpLink dhcpLink)
     {
     	Map<Integer, DhcpOption> optionMap = effectivePrefixOptions(requestMsg);
-    	if ((dhcpLink != null) && (dhcpLink != null)) {
+    	if ((dhcpLink != null) && (dhcpLink.getLink() != null)) {
 	    	DhcpV6ConfigOptions configOptions = dhcpLink.getPrefixConfigOptions();
 	    	if (configOptions != null) {
 	    		optionMap.putAll(configOptions.getDhcpOptionMap());
@@ -1940,7 +1947,7 @@ public class DhcpServerConfiguration
      */
     public Map<Integer, DhcpOption> effectiveV4AddrOptions(DhcpV4Message requestMsg)
     {
-    	Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+    	Map<Integer, DhcpOption> optionMap = new TreeMap<>();
     	if (globalV4ConfigOptions != null) {
     		optionMap.putAll(globalV4ConfigOptions.getDhcpOptionMap());
     	}

@@ -2,7 +2,7 @@
 <!-- Configuration status is for Log4j2 internal status logging -->
 <Configuration status="WARN">
   <Properties>
-    <Property name="jagornet.dhcp.home">${sys.user.dir}</Property>
+    <Property name="jagornet.dhcp.home">${sys:user.dir}</Property>
   </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
@@ -22,7 +22,7 @@
   </Appenders>
   <Loggers>
     <Root level="INFO">
-      <!-- <AppenderRef ref="Console" level="INFO"/>  -->
+      <!-- <AppenderRef ref="Console" level="INFO"/> -->
       <AppenderRef ref="Logfile" level="DEBUG"/>
     </Root>
     <Logger name="com.jagornet" level="DEBUG">

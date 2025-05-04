@@ -1,0 +1,46 @@
+syntax = "proto3";
+option java_multiple_files = true;
+package com.jagornet.dhcp.server.grpc;
+import "google/protobuf/empty.proto";
+
+service HaService {
+    rpc getStatus(google.protobuf.Empty) returns (StatusResponse);
+    rpc getHaState(google.protobuf.Empty) returns (HaStateResponse);
+    rpc updateLease(DhcpLeaseUpdate) returns (DhcpLeaseUpdate);
+	rpc getLeases(DhcpLeasesRequest) returns (stream DhcpLeaseUpdate);
+}
+
+message StatusResponse {
+	string status = 1;
+}
+
+message HaStateResponse {
+	string haState = 1;
+}
+
+message DhcpLeasesRequest {
+	bytes startIpAddress = 1;
+	bytes endIpAddress = 2;
+	bool unsyncedLeasesOnly = 3;
+}
+
+message DhcpLeaseUpdate {
+	bytes ipAddress = 1;
+	bytes duid = 2;
+	bytes iatype = 3;	// java byte
+	uint32 iaid = 4;	// java long for unsigned 32-bit
+	uint32 prefixLength = 5;	// java short
+	bytes state = 6;	// java byte: states defined in IaAddress
+	bytes haPeerState = 7;	// java byte
+	uint64 startTime = 8;	// java long (epoch ms)
+	uint64 preferredEndTime = 9;	// java long (epoch ms)
+	uint64 validEndTime = 10;	// java long (epoch ms)
+	repeated DhcpOption dhcpOptions = 11;	// v4 options or v6 message level options
+	repeated DhcpOption iaDhcpOptions = 12;		// v6 IA level options
+	repeated DhcpOption iaAddrDhcpOptions = 13;	// v6 IA_ADDR level options
+}
+
+message DhcpOption {
+	bool v4 = 1;
+	bytes rawData = 2;	// encoded the same as in DHCP protocol
+}

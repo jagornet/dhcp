@@ -60,11 +60,21 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpServerConfigException;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
+import com.jagornet.dhcp.server.config.DhcpServerConfiguration.HaRole;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.xml.DhcpServerConfig;
 import com.jagornet.dhcp.server.db.DbSchemaManager;
 import com.jagornet.dhcp.server.db.IaManager;
+import com.jagornet.dhcp.server.grpc.GrpcServer;
+import com.jagornet.dhcp.server.ha.GrpcHaClient;
+import com.jagornet.dhcp.server.ha.HaBackupFSM;
+import com.jagornet.dhcp.server.ha.HaClient;
+import com.jagornet.dhcp.server.ha.HaException;
+import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
+import com.jagornet.dhcp.server.ha.HaPrimaryFSM.UpdateMode;
+import com.jagornet.dhcp.server.ha.RestHaClient;
+import com.jagornet.dhcp.server.ha.HaClient.HaProtocol;
 import com.jagornet.dhcp.server.netty.NettyDhcpServer;
 import com.jagornet.dhcp.server.request.binding.BaseBindingManager;
 import com.jagornet.dhcp.server.request.binding.BindingManager;
@@ -75,7 +85,9 @@ import com.jagornet.dhcp.server.request.binding.V6NaAddrBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6PrefixBindingManager;
 import com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManager;
 import com.jagornet.dhcp.server.rest.JerseyRestServer;
+import com.jagornet.dhcp.server.util.MtlsConfig;
 
+import io.grpc.Server;
 import io.netty.channel.Channel;
 
 /**
@@ -86,9 +98,7 @@ public class JagornetDhcpServer
     /** The log. */
     private static Logger log = LoggerFactory.getLogger(JagornetDhcpServer.class);
 
-	/** The INSTANCE. */
-	private static JagornetDhcpServer INSTANCE;
-	
+	/** The command line args. */
 	protected String[] args;
 
     /** The command line options. */
@@ -137,28 +147,19 @@ public class JagornetDhcpServer
     protected InetAddress httpsAddr = null;
     protected int httpsPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
     
+    /** gRPC Unicast address */
+    protected InetAddress grpcAddr = null;
+    protected int grpcPortNumber = GrpcServer.GRPC_SERVER_PORT;
+    
     protected DhcpServerConfiguration serverConfig = null;
     protected ApplicationContext context = null;
     
     protected JerseyRestServer jerseyServer = null;
-    
-    public static synchronized JagornetDhcpServer getInstance() throws Exception
-    {
-    	if (INSTANCE == null) {
-    		try {
-    			INSTANCE = new JagornetDhcpServer();
-    		}
-    		catch (Exception ex) {
-    			log.error("Failed to initialize JagornetDhcpServer", ex);
-    			throw ex;
-    		}
-    	}
-    	return INSTANCE;
-    }
-    
-    private JagornetDhcpServer() {
-    	
-    }
+	protected GrpcServer grpcServer = null;
+
+	// if configured for HA, then this server could be primary or backup
+	public static HaPrimaryFSM haPrimaryFSM;
+	public static HaBackupFSM haBackupFSM;
     
     /**
      * Instantiates the Jagornet DHCP server.
@@ -189,10 +190,6 @@ public class JagornetDhcpServer
         				    version.getVersion(), options, 2, 2, null);    	
     }
     
-    private static void logSystemProperties() {
-    	log.debug("System properties: " + System.getProperties());
-    }
-    
     /**
      * Start the DHCP server with an array of command line args
      * 
@@ -207,8 +204,8 @@ public class JagornetDhcpServer
     	int cores = Runtime.getRuntime().availableProcessors();
     	log.info("Number of available core processors: " + cores);
     	
-    	if (log.isDebugEnabled()) {
-    		logSystemProperties();
+    	if (log.isTraceEnabled()) {
+			log.trace("System properties: " + System.getProperties());
     	}
 
     	Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -310,38 +307,149 @@ public class JagornetDhcpServer
     			v6UcastAddrs, v6McastNetIfs, v6PortNumber);
     	
     	nettyServer.start();
-    	    	
-    	if (httpsAddr != null) {
-    		System.out.println("HTTPS address: " + httpsAddr.getHostAddress());
-    		System.out.println("HTTPS port: " + httpsPortNumber);
-	    	//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
-	    	Channel jerseyHttpServer = 
-	    			JerseyRestServer.startNettyServer(httpsAddr, httpsPortNumber);
-	    	if (jerseyHttpServer == null) {
-	    		log.error("Failed to create Jersey JAX-RS Netty HTTPS Server");
-	    	}
-	    	else if (!jerseyHttpServer.isActive()) {
-	    		log.warn("Jersey JAX-RS Netty HTTPS Server is not active");
-	    	}
-	    	if (serverConfig.getHaPrimaryFSM() != null) {
-	    		serverConfig.getHaPrimaryFSM().init();
-		    	log.info("HA Primary DHCP server startup with HTTPS complete");
-	    	}
-	    	else if (serverConfig.getHaBackupFSM() != null) {
-	    		serverConfig.getHaBackupFSM().init();
-		    	log.info("HA Backup DHCP server startup with HTTPS complete");
-	    	}
-	    	else {
-	    		log.info("Standalone server startup with HTTPS complete");
-	    	}
+    	
+		HaRole haRole = serverConfig.getHaRole();
+    	if ((grpcAddr != null) || (httpsAddr != null)) {
+			
+			MtlsConfig serverMtlsConfig = MtlsConfig.getDefaultServerInstance();
+
+			if (grpcAddr != null) {
+				msg = "gRPC address: " + grpcAddr.getHostAddress();
+				System.out.println(msg);
+				log.info(msg);
+				msg = "gRPC port: " + grpcPortNumber;
+				System.out.println(msg);
+				log.info(msg);
+				GrpcServer grpcServer = new GrpcServer(grpcAddr, grpcPortNumber, serverMtlsConfig);
+				Server nettyGrpcServer = grpcServer.startNettyServer();
+				if (nettyGrpcServer == null) {
+					log.error("Failed to create Netty gRPC Server");
+				}
+				else if (nettyGrpcServer.getImmutableServices() == null) {
+					log.warn("Netty gRPC Server is not active");
+				}
+				else {
+					log.info("Netty gRPC Server started");
+				}
+
+				if (haRole == null) {
+					log.debug("No HA role defined, gRPC server is not used");
+				}
+			}
+
+			if (httpsAddr != null) {
+				msg = "HTTPS address: " + httpsAddr.getHostAddress();
+				System.out.println(msg);
+				log.info(msg);
+				msg = "HTTPS port: " + httpsPortNumber;
+				System.out.println(msg);
+				log.info(msg);
+				//HttpServer jerseyHttpServer = JerseyRestServer.startGrizzlyServer();
+				JerseyRestServer restServer = new JerseyRestServer(httpsAddr, httpsPortNumber, serverMtlsConfig);
+				Channel jerseyHttpServer = restServer.startNettyServer();
+				if (jerseyHttpServer == null) {
+					log.error("Failed to create Jersey JAX-RS Netty HTTPS Server");
+				}
+				else if (!jerseyHttpServer.isActive()) {
+					log.warn("Jersey JAX-RS Netty HTTPS Server is not active");
+				}
+				else {
+					log.info("Jersey JAX-RS Netty HTTPS Server started");
+				}
+			}
+		
+			if (haRole != null) {
+				initHighAvailability(haRole);
+			}
+			else {
+				log.info("Standalone DHCP server startup complete");		
+			}
     	}
-    	else if (serverConfig.isHA()) {
-    		throw new DhcpServerConfigException("HTTPS is required for HA configuration");
+    	else if (haRole != null) {
+    		throw new DhcpServerConfigException("HTTPS or gRPC is required for HA configuration");
     	}
     	else {
-    		log.info("Standalone server startup complete");
+    		log.info("Standalone DHCP server startup complete");
     	}
     }
+    
+    private void initHighAvailability(HaRole haRole) throws DhcpServerConfigException, HaException {
+
+		log.info("Initializing HA for Role=" + haRole);
+		String peerServer = DhcpServerPolicies.globalPolicy(Property.HA_PEER_SERVER);
+		if ((peerServer == null) || peerServer.isEmpty()) {
+			throw new DhcpServerConfigException(Property.HA_PEER_SERVER +
+					" must be defined when " + Property.HA_ROLE + " is specified");
+		}
+		String peerAddress = null;
+		try {
+			peerAddress = InetAddress.getByName(peerServer).getHostAddress();
+		}
+		catch (UnknownHostException ex) {
+			throw new DhcpServerConfigException("Uknown " + Property.HA_PEER_SERVER.key() +
+												": " + peerServer);
+		}
+		int peerPort = DhcpServerPolicies.globalPolicyAsInt(Property.HA_PEER_PORT);
+		
+		HaProtocol haProtocol = null;
+		String haProtocolPolicy = DhcpServerPolicies.globalPolicy(Property.HA_PROTOCOL);
+		try {
+			haProtocol = HaProtocol.valueOf(haProtocolPolicy.toUpperCase());
+		}
+		catch (IllegalArgumentException ex) {
+			throw new DhcpServerConfigException("Unknown " + Property.HA_PROTOCOL.key() +
+												": " + haProtocolPolicy);
+		}	
+		log.info("HA Protocol=" + haProtocol);
+			
+		MtlsConfig clientMtlsConfig = MtlsConfig.getDefaultClientInstance();
+
+		HaClient haClient = null;
+		if (haProtocol.equals(HaProtocol.REST)) {
+			String haUsername = DhcpServerPolicies.globalPolicy(Property.HA_USERNAME);
+			String haPassword = DhcpServerPolicies.globalPolicy(Property.HA_PASSWORD);
+			haClient = new RestHaClient(peerAddress, peerPort, clientMtlsConfig, haUsername, haPassword);
+		}
+		else if (haProtocol.equals(HaProtocol.GRPC)) {
+			haClient = new GrpcHaClient(peerAddress, peerPort, clientMtlsConfig);
+		}
+		else {
+			throw new IllegalStateException("No HaClient available for protocol=" + haProtocol);
+		}
+
+		try {
+			// updateMode only applies to primary HA server
+			UpdateMode updateMode = null;
+			String updateModePolicy = DhcpServerPolicies.globalPolicy(Property.HA_BINDING_UPDATE_MODE);
+			try {
+				updateMode = UpdateMode.valueOf(updateModePolicy.toUpperCase());
+			}
+			catch (IllegalArgumentException ex) {
+				throw new DhcpServerConfigException("Unknown " + Property.HA_BINDING_UPDATE_MODE.key() +
+													": " + updateModePolicy);
+			}	
+			log.info("HA Binding UpdateMode=" + updateMode);
+
+			if (haRole.equals(HaRole.PRIMARY)) {
+				boolean asyncUpdate =  updateMode.equals(UpdateMode.ASYNC);
+				haPrimaryFSM = new HaPrimaryFSM(peerAddress, peerPort, haClient, asyncUpdate);
+        		haPrimaryFSM.startFSM();
+				log.info("HA Primary DHCP server startup complete");
+			}
+			else if (haRole.equals(HaRole.BACKUP)) {
+				haBackupFSM = new HaBackupFSM(peerAddress, peerPort, haClient);
+        		haBackupFSM.startFSM();
+				log.info("HA Backup DHCP server startup complete");
+			}
+			else {
+				throw new DhcpServerConfigException("Unknown " + Property.HA_ROLE.key() + 
+													": " + haRole);
+			}
+		}
+		catch (Exception ex) {
+			throw new DhcpServerConfigException("Failed to initialize HA: ", ex);
+		}
+	}
     
     public static String[] getAppContextFiles(String schemaType, int schemaVersion) throws Exception {
 
@@ -600,13 +708,33 @@ public class JagornetDhcpServer
         	.create("6p");
         options.addOption(portOption);
 
+        Option gAddrOption =
+        	OptionBuilder.withLongOpt("gaddr")
+        	.withArgName("address")
+        	.withDescription("gRPC address (default = all IP addresses). " +
+        			"Use this option to instruct the server to bind to a specific " +
+        			"IP address for gRPC communications. Set the value to 'none' " +
+        			"(without quotes) to disable gRPC.")
+        	.hasOptionalArgs()
+        	.create("ga");        				 
+        options.addOption(gAddrOption);
+        
+        Option gPortOption =
+        	OptionBuilder.withLongOpt("gport")
+        	.withArgName("portnum")
+        	.withDescription("gRPC Port number (default = " +
+        					GrpcServer.GRPC_SERVER_PORT + ").")
+        	.hasArg()
+        	.create("gp");
+        options.addOption(gPortOption);
+
         Option hAddrOption =
         	OptionBuilder.withLongOpt("haddr")
         	.withArgName("address")
         	.withDescription("HTTPS address (default = all IP addresses). " +
         			"Use this option to instruct the server to bind to a specific " +
         			"IP address for HTTPS communications. Set the value to 'none' " +
-        			"(without quotes) to disable HTTPS for standalone server.")
+        			"(without quotes) to disable HTTPS.")
         	.hasOptionalArgs()
         	.create("ha");        				 
         options.addOption(hAddrOption);
@@ -788,6 +916,24 @@ public class JagornetDhcpServer
             		httpsPortNumber = JerseyRestServer.HTTPS_SERVER_PORT;
             		System.err.println("Invalid HTTPS port number: '" + p +
             							"' using default: " + httpsPortNumber +
+            							" Exception=" + ex);
+            	}
+            }
+
+            grpcAddr = DhcpConstants.ZEROADDR_V4;
+            if (cmd.hasOption("ga")) {
+            	String addr = cmd.getOptionValue("ga", ALL);
+        		grpcAddr = getGrpcAddr(addr);
+            }            
+            if (cmd.hasOption("gp")) {
+            	String p = cmd.getOptionValue("gp");
+            	try {
+            		grpcPortNumber = Integer.parseInt(p);
+            	}
+            	catch (NumberFormatException ex) {
+            		grpcPortNumber = GrpcServer.GRPC_SERVER_PORT;
+            		System.err.println("Invalid gRPC port number: '" + p +
+            							"' using default: " + grpcPortNumber +
             							" Exception=" + ex);
             	}
             }
@@ -1161,6 +1307,16 @@ public class JagornetDhcpServer
     	}
 	    return multipleV4Interfaces.booleanValue();
     }
+	
+	public static InetAddress getGrpcAddr(String addr) throws UnknownHostException {
+		if (addr.equalsIgnoreCase(NONE)) {
+			return null;
+		}
+		if (addr.equalsIgnoreCase(ALL)) {
+			return DhcpConstants.ZEROADDR_V4;
+		}
+		return InetAddress.getByName(addr);
+	}
 	
 	public static InetAddress getHttpsAddr(String addr) throws UnknownHostException {
 		if (addr.equalsIgnoreCase(NONE)) {

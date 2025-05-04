@@ -22,7 +22,7 @@ public class TestH2JdbcLeaseManagerNoCachePerformance extends AbstractTestLeaseM
 	{
 		DhcpServerPolicies.setProperty(Property.BINDING_MANAGER_IA_CACHE_SIZE, "0");
 		DhcpServerPolicies.setProperty(Property.BINDING_MANAGER_LEASE_CACHE_SIZE, "0");
-		initializeContext("jdbc-h2", 2);
+		initializeContext(DbSchemaManager.SCHEMATYPE_JDBC_H2, BaseTestCase.DEFAULT_SCHEMA_VERSION);
 		leaseManager =  (LeaseManager)config.getIaMgr();
 		AbstractTestLeaseManagerPerformance.oneTimeSetUp();
 		Duration duration = AbstractTestLeaseManagerPerformance.createIAs();

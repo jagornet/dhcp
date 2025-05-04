@@ -1,0 +1,403 @@
+===== DHCPv4 Configuration Options
+Options are returned within the returned DHCPv4 reply packet.
+
+====== DHCPv4 Subnet Mask Option
+- Code: 1
+- Name: `v4SubnetMaskOption`
+- Reference: Section 3.3 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132]
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4SubnetMaskOption>
+  <ipAddress>255.255.255.0</ipAddress>
+</v4SubnetMaskOption>
+----
+
+.json
+[,json]
+----
+{
+  "v4SubnetMaskOption" : {
+    "ipAddress" : "255.255.255.0"
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v4SubnetMaskOption:
+  ipAddress: "255.255.255.0"
+----
+
+====== DHCPv4 Time Offset Option
+- Code: 2
+- Name: `v4TimeOffsetOption`
+- Reference: Section 3.4 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132]
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4TimeOffsetOption>
+  <unsignedInt>5000</unsignedInt>
+</v4TimeOffsetOption>
+----
+
+.json
+[,json]
+----
+"v4TimeOffsetOption" : {
+  "unsignedInt" : 5000
+}
+----
+
+.yaml
+[,yaml]
+----
+v4TimeOffsetOption:
+  unsignedInt: 5000
+----
+
+====== DHCPv4 Routers Option
+- Code: 3
+- Name: `v4RoutersOption`
+- Reference: (Section 3.5 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4RoutersOption>
+  <ipAddressList>10.0.0.1</ipAddressList>
+  <ipAddressList>10.0.0.2</ipAddressList>
+</v4RoutersOption>
+----
+
+.json
+[,json]
+----
+"v4RoutersOption" : {
+  ipAddressList: [
+    "10.0.0.1",
+    "10.0.0.2"
+  ]
+}
+----
+
+.yaml
+[,yaml]
+----
+v4RoutersOption:
+  ipAddressList:
+  - "10.0.0.1"
+  - "10.0.0.2"
+----
+
+====== DHCPv4 Time Servers Option
+- Code: 4
+- Name: `v4TimeServersOption`
+- Reference: (Section 3.6 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4TimeServersOption>
+  <ipAddressList>10.0.0.1</ipAddressList>
+  <ipAddressList>10.0.0.2</ipAddressList>
+</v4TimeServersOption>
+----
+
+.json
+[,json]
+----
+"v4TimeServersOption" : {
+  ipAddressList: [
+    "10.0.0.1",
+    "10.0.0.2"
+  ]
+}
+----
+
+.yaml
+[,yaml]
+----
+v4TimeServersOption:
+  ipAddressList:
+  - "10.0.0.1"
+  - "10.0.0.2"
+----
+
+====== DHCPv4 Domain Servers Option
+- Code: 6
+- Name: `v4DomainServersOption`
+- Reference: (Section 3.8 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4DomainServersOption>
+  <ipAddressList>10.0.0.1</ipAddressList>
+  <ipAddressList>10.0.0.2</ipAddressList>
+</v4DomainServersOption>
+----
+
+.xml
+[,xml]
+----
+"v4DomainServersOption" : {
+  ipAddressList: [
+    "10.0.0.1",
+    "10.0.0.2"
+  ]
+}
+----
+
+.yaml
+[,yaml]
+----
+v4DomainServersOption:
+  ipAddressList:
+  - "10.0.0.1"
+  - "10.0.0.2"
+----
+
+====== DHCPv4 Domain Name Option
+- Code: 15
+- Name: `v4DomainNameOption`
+- Reference: (Section 3.17 of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4DomainNameOption>
+  <domainName>foo.com.</domainName>
+</v4DomainNameOption>
+----
+
+.json
+[,json]
+----
+"v4DomainNameOption" : {
+  "domainName" : "foo.com."
+}
+----
+
+.yaml
+[,yaml]
+----
+v4DomainNameOption:
+  domainName: "foo.com."
+----
+
+====== DHCPv4 Vendor Specific Option
+- Code: 43
+- Name: `v4VendorSpecificOption`
+- Reference: (Section 8.4 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4VendorSpecificOption>
+  <opaqueData>
+    <subOptions>
+      <optionDefList v4="true" code="1" name="VendorSubopt1">
+        <stringOption>
+          <string>VendorSpecial</string>
+        </stringOption>
+      </optionDefList>
+      <optionDefList v4="true" code="2" name="VendorSubopt2">
+        <ipAddressOption>
+          <ipAddress>10.11.12.13</ipAddress>
+        </ipAddressOption>
+      </optionDefList>
+    </subOptions>
+  </opaqueData>
+</v4VendorSpecificOption>
+----
+
+.json
+[,json]
+----
+{
+  "v4VendorSpecificOption" : {
+    "opaqueData" : {
+      "subOptions" : {
+        "optionDefList" : [ {
+          "stringOption" : {
+            "string" : "VendorSpecial"
+          },
+          "v4" : true,
+          "code" : 1,
+          "name" : "VendorSubopt1"
+        }, {
+          "ipAddressOption" : {
+            "ipAddress" : "10.11.12.13"
+          },
+          "v4" : true,
+          "code" : 2,
+          "name" : "VendorSubopt2"
+        } ]
+      }
+    }
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v4VendorSpecificOption:
+  opaqueData:
+    subOptions:
+      optionDefList:
+      - stringOption:
+          string: "VendorSpecial"
+        v4: true
+        code: 1
+        name: "VendorSubopt1"
+      - ipAddressOption:
+          ipAddress: "10.11.12.13"
+        v4: true
+        code: 2
+        name: "VendorSubopt2"
+----
+
+====== DHCPv4 Netbios Name Servers Option
+- Code: 44
+- Name: `v4NetbiosNameServersOption`
+- Reference: (Section 8.5 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4NetbiosNameServersOption>
+  <ipAddressList>10.0.0.1</ipAddressList>
+  <ipAddressList>10.0.0.2</ipAddressList>
+</v4NetbiosNameServersOption>
+----
+
+.json
+[,json]
+----
+"v4NetbiosNameServersOption" : {
+  ipAddressList: [
+    "10.0.0.1",
+    "10.0.0.2"
+  ]
+}
+----
+
+.yaml
+[,yaml]
+----
+v4NetbiosNameServersOption:
+  ipAddressList:
+  - "10.0.0.1"
+  - "10.0.0.2"
+----
+
+====== DHCPv4 Netbios Node Type Option
+- Code: 46
+- Name: `v4NetbiosNodeTypeOption`
+- Reference: (Section 8.7 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4NetbiosNodeTypeOption>
+  <unsignedByte>8</unsignedByte>
+</v4NetbiosNodeTypeOption>
+----
+
+.json
+[,json]
+----
+"v4NetbiosNodeTypeOption" : {
+  "unsignedByte" : 8
+}
+----
+
+.yaml
+[,yaml]
+----
+v4NetbiosNodeTypeOption:
+  unsignedByte: 8
+----
+
+====== DHCPv4 TFTP Server Name Option
+- Code: 66
+- Name: `v4TftpServerNameOption`
+- Reference: (Section 9.4 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4TftpServerNameOption>
+  <string>tftp.foo.com.</string>
+</v4TftpServerNameOption>
+----
+
+.json
+[,json]
+----
+"v4TftpServerNameOption" : {
+  "string" : "tftp.foo.com."
+}
+----
+
+.yaml
+[,yaml]
+----
+v4TftpServerNameOption:
+  string: "tftp.foo.com."
+----
+
+====== DHCPv4 Bootfile Name Option
+- Code: 67
+- Name: `v4BootFileNameOption`
+- Reference: (Section 9.5 of of https://www.ietf.org/rfc/rfc2132.txt[RFC 2132])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v4BootFileNameOption>
+  <string>bootfile-name</string>
+</v4BootFileNameOption>
+----
+
+.json
+[,json]
+----
+"v4BootFileNameOption" : {
+  "string" : "bootfile-name"
+}
+----
+
+.yaml
+[,yaml]
+----
+v4BootFileNameOption:
+  string: "bootfile-name"
+----

@@ -32,27 +32,24 @@ public class DhcpLeasesService {
 	}
 	
 	private InetAddress createStartIp(String start) throws UnknownHostException {
-		InetAddress startIp = (start != null) ? 
-				  InetAddress.getByName(start) :
-				  InetAddress.getByName("0.0.0.0");
-		return startIp;
+		return (start != null) ? 
+				InetAddress.getByName(start) :
+				InetAddress.getByName("0.0.0.0");
 	}
 	
 	private InetAddress createEndIp(String end) throws UnknownHostException {
-		InetAddress endIp = (end != null) ? 
+		return (end != null) ? 
 				InetAddress.getByName(end):
 				InetAddress.getByName("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
-		return endIp;
 	}
 	
 	public List<InetAddress> getAllLeaseIPs() {
 		List<InetAddress> ips = null;
 		try {
-			//TODO: check/fix this hack that gets all IPs?
 			ips = getRangeLeaseIPs(null, null);
 		} 
 		catch (UnknownHostException e) {
-			log.error("Exception getting all leases: " + e);
+			log.error("Exception getting all lease ips: " + e);
 		}
 		return ips;
 	}
@@ -93,13 +90,15 @@ public class DhcpLeasesService {
 	
 	public void getAllLeases(DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler) {
 		try {
-			getRangeLeases(null, null, dhcpLeaseCallbackHandler, false);
+			InetAddress startIp = createStartIp(null);
+			InetAddress endIp = createEndIp(null);
+				getRangeLeases(startIp, endIp, dhcpLeaseCallbackHandler, false);
 		
 		} catch (UnknownHostException e) {
 			log.error("Exception getting all leases: " + e);
 		}
 	}
-	
+
 	public void getRangeLeases(String start, String end,
 			 				   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler,
 			 				   boolean unsyncedLeasesOnly)
@@ -107,9 +106,16 @@ public class DhcpLeasesService {
 			
 		InetAddress startIp = createStartIp(start);
 		InetAddress endIp = createEndIp(end);
+		this.getRangeLeases(startIp, endIp, dhcpLeaseCallbackHandler, unsyncedLeasesOnly);
+	}
+	
+	public void getRangeLeases(InetAddress startIp, InetAddress endIp,
+			 				   DhcpLeaseCallbackHandler dhcpLeaseCallbackHandler,
+			 				   boolean unsyncedLeasesOnly) {
+			
 		if (unsyncedLeasesOnly) {
 			log.info("Getting unsynced leases for IP range: " +
-					 start + "-" + end);
+					 startIp.getHostAddress() + "-" + endIp.getHostAddress());
 			leaseManager.findUnsyncedLeases(startIp, endIp, dhcpLeaseCallbackHandler);
 		}
 		else {
@@ -124,7 +130,7 @@ public class DhcpLeasesService {
 //			log.info("Resetting haPeerState on all leases");
 //			leaseManager.setAllLeasesUnsynced();
 			log.info("Getting all existing leases for IP range: " +
-					 start + "-" + end);
+					 startIp.getHostAddress() + "-" + endIp.getHostAddress());
 			leaseManager.findExistingLeases(startIp, endIp, dhcpLeaseCallbackHandler);
 		}
 	}
@@ -140,10 +146,7 @@ public class DhcpLeasesService {
 	}
 	public boolean createDhcpLease(DhcpLease dhcpLease) {
 		log.info("Creating DhcpLease: " + dhcpLease);
-		if (leaseManager.insertDhcpLease(dhcpLease) == 1) {
-			return true;
-		}
-		return false;
+		return (leaseManager.insertDhcpLease(dhcpLease) == 1);
 	}
 
 	public DhcpLease getDhcpLease(InetAddress ipAddress) {

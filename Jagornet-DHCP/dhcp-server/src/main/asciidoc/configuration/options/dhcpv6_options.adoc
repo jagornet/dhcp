@@ -1,0 +1,790 @@
+===== DHCPv6 Configuration Options
+Options can be returned at three distinct "levels" within the returned DHCPv6 reply 
+packet.
+
+`v6MsgConfigOptions` - Message configuration options will be returned to the client 
+at the outermost layer of the DHCPv6 packet. For Info-Request messages, only message 
+configuration options are returned to the client. All known configuration options 
+are returned to the client at the message level.
+
+`v6IaNaConfigOptions/v6IaTaConfigOptions/v6IaPdConfigOptions` - Identity 
+association configuration options will be returned to the client inside the Identity 
+Association (IA) option within the reply message. Separate configuration options 
+elements are available for each type of IA option, including IA_NA, IA_TA, and 
+IA_PD options. No known configuration options are returned to the client at the IA 
+level, therefore these elements are for experimental and future use.
+
+`v6NaAddrConfigOptions/v6TaAddrConfigOptions/v6PrefixConfigOptions` - Address 
+configuration options will be returned to the client inside the address or prefix 
+option within the IA option within the reply message. Separate configuration options 
+elements are available for each of the associated IA option type. No known 
+configuration options are returned to the client at the address level, therefore 
+these elements are for experimental and future use.
+
+====== DHCPv6 Preference Option
+- Code: 7
+- Name: `v6PreferenceOption`
+- Reference: (Section 22.8 of https://www.ietf.org/rfc/rfc3315.txt[RFC 3315])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6PreferenceOption>
+  <unsignedByte>10</unsignedByte>
+</v6PreferenceOption>
+----
+
+.json
+[,json]
+----
+"v6PreferenceOption" : {
+  "unsignedByte" : 10
+}
+----
+
+.yaml
+[,yaml]
+----
+v6PreferenceOption:
+  unsignedByte: 10
+----
+
+====== DHCPv6 Server Unicast Option
+- Code: 12
+- Name: `v6ServerUnicastOption`
+- Reference: (Section 22.8 of https://www.ietf.org/rfc/rfc3315.txt[RFC 3315])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6ServerUnicastOption>
+  <ipAddress>2001:db8::1</ipAddress>
+</v6ServerUnicastOption>
+----
+
+.json
+[,json]
+----
+"v6ServerUnicastOption" : {
+  "ipAddress" : "2001:db8::1"
+}
+----
+
+.yaml
+[,yaml]
+----
+v6ServerUnicastOption:
+  ipAddress: "2001:db8::1"
+----
+
+====== DHCPv6 Status Code Option
+- Code: 13
+- Name: `v6StatusCodeOption`
+- Reference: (Section 22.13 of https://www.ietf.org/rfc/rfc3315.txt[RFC 3315])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6StatusCodeOption>
+  <code>5</code>
+  <message>UseMulticast</message>
+</v6StatusCodeOption>
+----
+
+.json
+[,json]
+----
+"v6StatusCodeOption" : {
+  "code" : 5,
+  "message" : "UseMulticast"
+}
+----
+
+.yaml
+[,yaml]
+----
+v6StatusCodeOption:
+  code: 5
+  message: "UseMulticast"
+----
+
+====== DHCPv6 Vendor Information Option
+- Code: 17
+- Name: `v6VendorInfoOption`
+- Reference: (Section 22.16 of https://www.ietf.org/rfc/rfc3315.txt[RFC 3315])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6VendorInfoOption>
+  <enterpriseNumber>999</enterpriseNumber>
+  <subOptions>
+    <optionDefList code="1" name="VendorSubopt1">
+      <stringOption>
+        <string>VendorSpecial</string>
+      </stringOption>
+    </optionDefList>
+    <optionDefList code="2" name="VendorSubopt2">
+      <ipAddressOption>
+        <ipAddress>2001:db8::999</ipAddress>
+      </ipAddressOption>
+    </optionDefList>
+  </subOptions>
+</v6VendorInfoOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6VendorInfoOption" : {
+    "enterpriseNumber" : 999,
+    "subOptions" : {
+      "optionDefList" : [ {
+        "stringOption" : {
+          "string" : "VendorSpecial"
+        },
+        "code" : 1,
+        "name" : "VendorSubopt1"
+      }, {
+        "ipAddressOption" : {
+          "ipAddress" : "2001:db8::999"
+        },
+        "code" : 2,
+        "name" : "VendorSubopt2"
+      } ]
+    }
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6VendorInfoOption:
+  enterpriseNumber: 999
+  subOptions:
+    optionDefList:
+    - stringOption:
+        string: "VendorSpecial"
+      code: 1
+      name: "VendorSubopt1"
+    - ipAddressOption:
+        ipAddress: "2001:db8::999"
+      code: 2
+      name: "VendorSubopt2"
+----
+
+====== DHCPv6 SIP Server Domain Names Option
+- Code: 21
+- Name: `v6SipServerDomainNamesOption`
+- Reference: (https://www.ietf.org/rfc/rfc3319.txt[RFC 3319])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6SipServerDomainNamesOption>
+  <domainNameList>sip.foo.com.</domainNameList>
+  <domainNameList>sip.bar.com.</domainNameList>
+</v6SipServerDomainNamesOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6SipServerDomainNamesOption" : {
+    "domainNameList" : [ "sip.foo.com.", "sip.bar.com." ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6SipServerDomainNamesOption:
+  domainNameList:
+  - "sip.foo.com."
+  - "sip.bar.com."
+----
+
+====== DHCPv6 SIP Server Adresses Option
+- Code: 22
+- Name: `v6SipServerAddressesOption`
+- Reference: (https://www.ietf.org/rfc/rfc3319.txt[RFC 3319])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6SipServerAddressesOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6SipServerAddressesOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6SipServerAddressesOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6SipServerAddressesOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
+
+====== DHCPv6 DNS Servers Option
+- Code: 23
+- Name: `v6DnsServersOption`
+- Reference: (https://www.ietf.org/rfc/rfc3646.txt[RFC 3646])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6DnsServersOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6DnsServersOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6SipServerAddressesOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6SipServerAddressesOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
+
+====== DHCPv6 Domain Search Option
+- Code: 24
+- Name: `v6DomainSearchListOption`
+- Reference: (https://www.ietf.org/rfc/rfc3646.txt[RFC 3646])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6DomainSearchListOption>
+  <domainNameList>foo.com.</domainNameList>
+  <domainNameList>bar.com.</domainNameList>
+</v6DomainSearchListOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6DomainSearchListOption" : {
+    "domainNameList" : [ "foo.com.", "bar.com." ],
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+name: "DhcpV6DomainSearchListOption"
+  domainNameList:
+  - "foo.com."
+  - "bar.com."
+----
+
+====== DHCPv6 NIS Servers Option
+- Code: 27
+- Name: `v6NisServersOption`
+- Reference: (https://www.ietf.org/rfc/rfc3898.txt[RFC 3898])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6NisServersOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6NisServersOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6NisServersOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6NisServersOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
+
+====== DHCPv6 NIS+ Servers Option
+- Code: 28
+- Name: `v6NisPlusServersOption`
+- Reference: (https://www.ietf.org/rfc/rfc3898.txt[RFC 3898])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6NisPlusServersOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6NisPlusServersOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6NisServersOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6NisServersOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
+
+====== DHCPv6 NIS Domain Name Option
+- Code: 29
+- Name: `v6NisDomainNameOption`
+- Reference: (https://www.ietf.org/rfc/rfc3898.txt[RFC 3898])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6NisDomainNameOption>
+  <domainName>foo.com.</domainName>
+</v6NisDomainNameOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6NisDomainNameOption" : {
+    "domainName" : "foo.com."
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6NisDomainNameOption:
+  domainName: "foo.com."
+----
+
+====== DHCPv6 NIS+ Domain Name Option
+- Code:  30
+- Name: `v6NisPlusDomainNameOption`
+- Reference: (https://www.ietf.org/rfc/rfc3898.txt[RFC 3898])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6NisPlusDomainNameOption>
+  <domainName>foo.com.</domainName>
+</v6NisPlusDomainNameOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6NisDomainNameOption" : {
+    "domainName" : "foo.com."
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6NisDomainNameOption:
+  domainName: "foo.com."
+----
+
+====== DHCPv6 SNTP Servers Option
+- Code: 31
+- Name: `v6SntpServersOption`
+- Reference: (https://www.ietf.org/rfc/rfc4075.txt[RFC 4075])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6SntpServersOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6SntpServersOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6SntpServersOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6SntpServersOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
+
+====== DHCPv6 Info Refresh Time Option
+- Code: 32
+- Name: `v6InfoRefreshTimeOption`
+- Reference: (https://www.ietf.org/rfc/rfc4242.txt[RFC 4242])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6InfoRefreshTimeOption>
+  <unsignedInt>3600</unsignedInt>
+</v6InfoRefreshTimeOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6InfoRefreshTimeOption" : {
+    "unsignedInt" : 3600
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6InfoRefreshTimeOption:
+  unsignedInt: 3600
+----
+
+====== DHCPv6 BCMS Domain Names Option
+- Code: 33
+- Name: `v6BcmcsDomainNamesOption`
+- Reference: (https://www.ietf.org/rfc/rfc4280.txt[RFC 4280])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6BcmcsDomainNamesOption>
+  <domainNameList>bcmcs.foo.com.</domainNameList>
+  <domainNameList>bcmcs.bar.com.</domainNameList>
+</v6BcmcsDomainNamesOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6BcmcsDomainNamesOption" : {
+    "domainNameList" : [ "bcmcs.foo.com.", "bcmcs.bar.com." ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6BcmcsDomainNamesOption:
+  domainNameList:
+  - "bcmcs.foo.com."
+  - "bcmcs.bar.com."
+----
+
+====== DHCPv6 BCMS Adresses Option
+- Code: 34
+- Name: `v6BcmcsAddressesOption`
+- Reference: (https://www.ietf.org/rfc/rfc4280.txt[RFC 4280])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6BcmcsAddressesOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6BcmcsAddressesOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6BcmcsAddressesOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6BcmcsAddressesOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
+
+====== DHCPv6 Geoconf Civic Option
+- Code: 36
+- Name: `v6GeoconfCivicOption`
+- Reference: (https://www.ietf.org/rfc/rfc4776.txt[RFC 4776])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6GeoconfCivicOption>
+  <what>1</what>
+  <countryCode>US</countryCode>
+  <civicAddressElementList>
+    <caType>0</caType>
+    <caValue>de</caValue>
+  </civicAddressElementList>
+  <civicAddressElementList>
+    <caType>128</caType>
+    <caValue>Latn</caValue>
+  </civicAddressElementList>
+  <civicAddressElementList>
+    <caType>1</caType>
+    <caValue>Bayern</caValue>
+  </civicAddressElementList>
+</v6GeoconfCivicOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6GeoconfCivicOption" : {
+    "what" : 1,
+    "countryCode" : "US",
+    "civicAddressElementList" : [ {
+      "caType" : 0,
+      "caValue" : "de"
+    }, {
+      "caType" : 128,
+      "caValue" : "Latn"
+    }, {
+      "caType" : 1,
+      "caValue" : "Bayern"
+    } ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6GeoconfCivicOption:
+  what: 1
+  countryCode: "US"
+  civicAddressElementList:
+  - caType: 0
+    caValue: "de"
+  - caType: 128
+    caValue: "Latn"
+  - caType: 1
+    caValue: "Bayern"
+----
+
+====== DHCPv6 PANA Agent Addresses Option
+- Code: 40
+- Name: `v6PanaAgentAddressesOption`
+- Reference: (https://www.ietf.org/rfc/rfc5192.txt[RFC 5192])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6PanaAgentAddressesOption>
+  <ipAddressList>2001:db8::1</ipAddressList>
+  <ipAddressList>2001:db8::2</ipAddressList>
+</v6PanaAgentAddressesOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6PanaAgentAddressesOption" : {
+    "ipAddressList" : [ "2001:db8::1", "2001:db8::2" ]
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6PanaAgentAddressesOption:
+  ipAddressList:
+  - "2001:db8::1"
+  - "2001:db8::2"
+----
+
+====== DHCPv6 New Posix Timezone Option
+- Code: 41
+- Name: `v6NewPosixTimezoneOption`
+- Reference: (https://www.ietf.org/rfc/rfc4833.txt[RFC 4833])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6NewPosixTimezoneOption>
+  <string>EST5EDT4,M3.2.0/02:00,M11.1.0/02:00</string>
+</v6NewPosixTimezoneOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6NewPosixTimezoneOption" : {
+    "string" : "EST5EDT4,M3.2.0/02:00,M11.1.0/02:00"
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6NewPosixTimezoneOption:
+  string: "EST5EDT4,M3.2.0/02:00,M11.1.0/02:00"
+----
+
+====== DHCPv6 New TZ DB Timezone Option
+- Code: 42
+- Name: `v6NewTzdbTimezoneOption`
+- Reference: (https://www.ietf.org/rfc/rfc4833.txt[RFC 4833])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6NewTzdbTimezoneOption>
+  <string>Europe/Zurich</string>
+</v6NewTzdbTimezoneOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6NewTzdbTimezoneOption" : {
+    "string" : "Europe/Zurich"
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6NewTzdbTimezoneOption:
+  string: "Europe/Zurich"
+----
+
+====== DHCPv6 Lost Server Domain Name Option
+- Code: 51
+- Name: `v6LostServerDomainNameOption`
+- Reference: (https://www.ietf.org/rfc/rfc4523.txt[RFC 4253])
+
+Syntax:
+
+.xml
+[,xml]
+----
+<v6LostServerDomainNameOption>
+  <domainName>lost.foo.com.</domainName>
+</v6LostServerDomainNameOption>
+----
+
+.json
+[,json]
+----
+{
+  "v6LostServerDomainNameOption" : {
+    "domainName" : "lost.foo.com."
+  }
+}
+----
+
+.yaml
+[,yaml]
+----
+v6LostServerDomainNameOption:
+  domainName: "lost.foo.com."
+----

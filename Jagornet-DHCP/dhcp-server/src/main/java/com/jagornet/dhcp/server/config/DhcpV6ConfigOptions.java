@@ -87,7 +87,7 @@ public class DhcpV6ConfigOptions
 	protected V6ConfigOptionsType configOptions;
 	
 	/** The option map. */
-	protected Map<Integer, DhcpOption> optionMap = new TreeMap<Integer, DhcpOption>();
+	protected Map<Integer, DhcpOption> optionMap = new TreeMap<>();
 	
 	
 	/**
@@ -161,7 +161,7 @@ public class DhcpV6ConfigOptions
 						geoconfCivicOption.getCivicAddressElementList();
 				List<DhcpV6GeoconfCivicOption.CivicAddress> civicAddresses = null;
 				if (civicAddressElements != null) {
-					civicAddresses = new ArrayList<DhcpV6GeoconfCivicOption.CivicAddress>();
+					civicAddresses = new ArrayList<>();
 					for (CivicAddressElement cae : civicAddressElements) {
 						//civicAddresses.add(new DhcpV6GeoconfCivicOption.CivicAddress(cae.getCaType(), cae.getCaValue()));
 						new DhcpV6GeoconfCivicOption.CivicAddress(cae.getCaType(), cae.getCaValue());
@@ -303,7 +303,7 @@ public class DhcpV6ConfigOptions
 	    		List<DhcpOption> suboptionList = null;
 	    		GenericOptionsType genericOptions = vendorInfoOption.getSubOptions();
 	    		if (genericOptions != null) {
-	    			suboptionList = new ArrayList<DhcpOption>();
+	    			suboptionList = new ArrayList<>();
 	    			List<OptionDefType> optdefs = genericOptions.getOptionDefList();
 	    			if (optdefs != null) {
 	    				for (OptionDefType optdef : optdefs) {

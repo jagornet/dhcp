@@ -92,12 +92,13 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption
 	@Override
     public boolean equals(Object obj)
     {
+		/* 
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		// if (getClass() != obj.getClass())
+		// 	return false;
         if (obj instanceof BaseOpaqueDataOption) {
         	BaseOpaqueDataOption that = (BaseOpaqueDataOption) obj;
         	if (that.opaqueData != null) {
@@ -111,6 +112,8 @@ public abstract class BaseOpaqueDataOption extends BaseDhcpOption
         	}
         }
         return false;
+		*/
+		return super.equals(obj);
     }
 
 	@Override

@@ -132,11 +132,8 @@ public class Range
 	 */
 	public boolean contains(InetAddress inetAddr)
 	{
-		if ((Util.compareInetAddrs(startAddress, inetAddr) <= 0) &&
-				(Util.compareInetAddrs(endAddress, inetAddr) >= 0)) {
-			return true;
-		}
-		return false;
+		return (Util.compareInetAddrs(startAddress, inetAddr) <= 0) &&
+				(Util.compareInetAddrs(endAddress, inetAddr) >= 0);
 	}
 	
 	public BigInteger size() {

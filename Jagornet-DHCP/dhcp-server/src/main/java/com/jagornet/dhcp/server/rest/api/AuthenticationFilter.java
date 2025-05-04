@@ -35,15 +35,14 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     // NOTE: this is now public, and referenced by AuthFilterSecurityContext 
     public static final String AUTHENTICATION_SCHEME = "Basic";
     
-    public static enum AuthRole { REST_API, HA_PEER };
-    public static Map<String, String> userMap = new HashMap<String, String>();
+    public enum AuthRole { REST_API, HA_PEER }
+    public static Map<String, String> userMap;
     static {
-    	Map<String, String> map = new HashMap<String, String>();
-    	map.put(DhcpServerPolicies.globalPolicy(Property.REST_API_USERNAME),
+    	userMap = new HashMap<>();
+    	userMap.put(DhcpServerPolicies.globalPolicy(Property.REST_API_USERNAME),
     			DhcpServerPolicies.globalPolicy(Property.REST_API_PASSWORD));
-    	map.put(DhcpServerPolicies.globalPolicy(Property.HA_PEER_USERNAME),
+    	userMap.put(DhcpServerPolicies.globalPolicy(Property.HA_PEER_USERNAME),
     			DhcpServerPolicies.globalPolicy(Property.HA_PEER_PASSWORD));
-    	userMap = Collections.unmodifiableMap(map);
     }
 
     @Override

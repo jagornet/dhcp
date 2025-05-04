@@ -78,7 +78,7 @@ public class TestIaManager extends BaseTestCase
 	@BeforeClass
 	public static void oneTimeSetUp() throws Exception
 	{
-		initializeContext("jdbc-derby", 2);
+		initializeContext();
 		iaMgr = (IaManager) ctx.getBean("iaManager");
 	}
 

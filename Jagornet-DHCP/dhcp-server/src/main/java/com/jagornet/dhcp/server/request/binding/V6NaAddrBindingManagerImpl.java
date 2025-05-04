@@ -150,7 +150,7 @@ public class V6NaAddrBindingManagerImpl
 		List<InetAddress> inetAddrs = null;
 		List<DhcpV6IaAddrOption> iaAddrs = iaNaOption.getIaAddrOptions();
 		if ((iaAddrs != null) && !iaAddrs.isEmpty()) {
-			inetAddrs = new ArrayList<InetAddress>();
+			inetAddrs = new ArrayList<>();
 			for (DhcpV6IaAddrOption iaAddr : iaAddrs) {
 				InetAddress inetAddr = iaAddr.getInetAddress();
 				inetAddrs.add(inetAddr);
@@ -169,7 +169,7 @@ public class V6NaAddrBindingManagerImpl
 			DhcpLink clientLink, DhcpV6Message requestMsg, V6AddressBindingPool bp) {
 		
 		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
-				serverConfig.effectiveMsgOptions((DhcpV6Message)requestMsg, clientLink, bp);
+				serverConfig.effectiveMsgOptions(requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
     			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
@@ -184,7 +184,7 @@ public class V6NaAddrBindingManagerImpl
 			DhcpLink clientLink, DhcpV6Message requestMsg, V6AddressBindingPool bp) {
 		
 		Map<Integer, com.jagornet.dhcp.core.option.base.DhcpOption> configOptionMap = 
-				serverConfig.effectiveIaNaOptions((DhcpV6Message)requestMsg, clientLink, bp);
+				serverConfig.effectiveIaNaOptions(requestMsg, clientLink, bp);
 		
     	if (DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg,
     			clientLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {

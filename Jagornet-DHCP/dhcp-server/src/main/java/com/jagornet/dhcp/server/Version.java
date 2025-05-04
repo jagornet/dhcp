@@ -37,14 +37,14 @@ import java.util.jar.Manifest;
  */
 public class Version
 {
-	static String MANIFEST_FILE = "/META-INF/MANIFEST.MF";
+	static final String MANIFEST_FILE = "/META-INF/MANIFEST.MF";
 	
 	String implVendor = null;
 	String implTitle = null;
 	String implVersion = null;
 	
 	public Version() {
-		Package pkg = Package.getPackage("com.jagornet.dhcp.server");
+		Package pkg = Version.class.getClassLoader().getDefinedPackage("com.jagornet.dhcp.server");
 		implVendor = pkg.getImplementationTitle();
 		implTitle = pkg.getImplementationTitle();
 		implVersion = pkg.getImplementationVersion();
@@ -87,9 +87,12 @@ public class Version
 				Manifest mf = new Manifest(is);
 				Attributes attrs = mf.getMainAttributes();
 				if (attrs != null) {
-					implVendor = attrs.getValue("Implementation-Vendor");
-					implTitle = attrs.getValue("Implementation-Title");
-					implVersion = attrs.getValue("Implementation-Version");
+					String mfImplVendor = attrs.getValue("Implementation-Vendor");
+					if ((mfImplVendor != null) && mfImplVendor.startsWith("Jagornet")) {
+						implVendor = mfImplVendor;
+						implTitle = attrs.getValue("Implementation-Title");
+						implVersion = attrs.getValue("Implementation-Version");	
+					}
 				}
 			}
 			else {

@@ -42,9 +42,12 @@ import com.jagornet.dhcp.core.util.DhcpConstants;
  */
 public class DhcpV4MessageHandler
 {
-	
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpV4MessageHandler.class);
+	
+	private DhcpV4MessageHandler() {
+		// prevent instantiation
+	}
 	
     public static DhcpV4Message handleMessage(InetAddress localAddress, DhcpV4Message dhcpMessage)
     {

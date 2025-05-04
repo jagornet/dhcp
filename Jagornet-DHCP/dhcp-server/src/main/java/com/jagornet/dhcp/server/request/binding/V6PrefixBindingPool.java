@@ -93,14 +93,10 @@ public class V6PrefixBindingPool implements BindingPool, DhcpV6OptionConfigObjec
 			iaConfigOptions = new DhcpV6ConfigOptions(pool.getIaConfigOptions());
 			prefixConfigOptions = new DhcpV6ConfigOptions(pool.getPrefixConfigOptions());
 		} 
-		catch (NumberFormatException ex) {
+		catch (NumberFormatException | UnknownHostException ex) {
 			log.error("Invalid PrefixPool definition", ex);
 			throw new DhcpServerConfigException("Invalid PrefixPool definition", ex);
 		} 
-		catch (UnknownHostException ex) {
-			log.error("Invalid PrefixPool definition", ex);
-			throw new DhcpServerConfigException("Invalid PrefixPool definition", ex);
-		}		
 	}
 	
 	public int getAllocPrefixLen()

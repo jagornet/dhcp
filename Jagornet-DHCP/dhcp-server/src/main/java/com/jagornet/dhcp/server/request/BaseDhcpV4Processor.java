@@ -51,6 +51,7 @@ import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
+import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
@@ -89,7 +90,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     protected DhcpV4Message replyMsg;
     protected final InetAddress clientLinkAddress;
     protected DhcpLink clientLink;
-    protected List<Binding> bindings = new ArrayList<Binding>();
+    protected List<Binding> bindings = new ArrayList<>();
     protected static Set<DhcpV4Message> recentMsgs = 
     	Collections.synchronizedSet(new HashSet<DhcpV4Message>());
     protected static Timer recentMsgPruner = new Timer("RecentMsgPruner");
@@ -107,8 +108,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     {
         this.requestMsg = requestMsg;
         this.clientLinkAddress = clientLinkAddress;
-        haPrimaryFSM = dhcpServerConfig.getHaPrimaryFSM();
-        haBackupFSM = dhcpServerConfig.getHaBackupFSM();
+        haPrimaryFSM = JagornetDhcpServer.haPrimaryFSM;
+        haBackupFSM = JagornetDhcpServer.haBackupFSM;
     }
 
     protected Map<Integer, DhcpOption> requestedOptions(Map<Integer, DhcpOption> optionMap,
@@ -117,7 +118,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     	if ((optionMap != null)  && !optionMap.isEmpty()) {
     		List<Integer> requestedCodes = requestMsg.getRequestedOptionCodes();
     		if ((requestedCodes != null) && !requestedCodes.isEmpty()) {
-    			Map<Integer, DhcpOption> _optionMap = new HashMap<Integer, DhcpOption>();
+    			Map<Integer, DhcpOption> _optionMap = new HashMap<>();
     			for (Map.Entry<Integer, DhcpOption> option : optionMap.entrySet()) {
 					if (requestedCodes.contains(option.getKey())) {
 						_optionMap.put(option.getKey(), option.getValue());
@@ -222,7 +223,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 	
 	        if (!process()) {
 	        	// don't log a warning for release, which has no reply message
-	        	if (!(requestMsg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE)) {
+	        	if (requestMsg.getMessageType() != DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
 	        		log.warn("Message dropped by processor");
 	        	}
 	        	return null;
@@ -262,7 +263,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
     	
     	InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
     	
-    	byte chAddr[] = requestMsg.getChAddr();
+    	byte[] chAddr = requestMsg.getChAddr();
     	if ((chAddr == null) || (chAddr.length == 0) || isIgnoredMac(chAddr)) {
     		log.warn("Ignorning request message from client: mac=" +
     					Util.toHexString(chAddr));

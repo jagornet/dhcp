@@ -101,10 +101,10 @@ public class NettyDhcpServer
 	/** The DHCPv6 server port. */
 	private int v6Port;
 	
-	private Set<SocketAddress> checkedSockets = new HashSet<SocketAddress>();
+	private Set<SocketAddress> checkedSockets = new HashSet<>();
 	
     /** The collection of channels this server listens on. */
-    protected Collection<DatagramChannel> channels = new ArrayList<DatagramChannel>();
+    protected Collection<DatagramChannel> channels = new ArrayList<>();
     
     /** The executor service thread pool for processing requests. */
     //protected ExecutorService executorService = Executors.newCachedThreadPool();
@@ -159,7 +159,7 @@ public class NettyDhcpServer
         	// unordered avoids any bottlenecks from ordering, but adds some risk
         	eventExecutorGroup = new UnorderedThreadPoolEventExecutor(corePoolSize);
         	
-    		Map<InetAddress, Channel> v4UcastChannels = new HashMap<InetAddress, Channel>();
+    		Map<InetAddress, Channel> v4UcastChannels = new HashMap<>();
         	if (v4Addrs != null) {
 	        	for (InetAddress addr : v4Addrs) {
 	        		// local address for packets received on this channel
@@ -426,6 +426,7 @@ public class NettyDhcpServer
         log.info(channels.size() + " datagram channels configured");
         
     	Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
             public void run() {
             	  shutdown();
                 }
@@ -437,17 +438,10 @@ public class NettyDhcpServer
      */
     private void checkSocket(InetSocketAddress socket) throws SocketException {
     	if (!checkedSockets.contains(socket)) {
-	    	DatagramSocket ds = null;
-	    	try {
-	    		log.info("Checking for existing socket on " + socket);
-	    		ds = new DatagramSocket(socket);
-	    	}
-	    	finally {
-	    		if (ds != null) {
-	    			ds.close();
-	    		}
-	    	}
-	    	checkedSockets.add(socket);
+			log.info("Checking for existing socket on " + socket);
+			try (DatagramSocket ds = new DatagramSocket(socket)) {
+				checkedSockets.add(socket);
+			}
     	}
     }
         

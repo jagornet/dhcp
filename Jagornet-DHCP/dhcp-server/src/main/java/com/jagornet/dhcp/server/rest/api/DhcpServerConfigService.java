@@ -14,10 +14,6 @@ public class DhcpServerConfigService {
     protected static DhcpServerConfiguration dhcpServerConfiguration = 
                                         DhcpServerConfiguration.getInstance();
 
-    public DhcpServerConfigService() {
-    	
-	}
-    
     public DhcpServerConfig getDhcpServerConfig() {
     	return dhcpServerConfiguration.getJaxbServerConfig();
     }

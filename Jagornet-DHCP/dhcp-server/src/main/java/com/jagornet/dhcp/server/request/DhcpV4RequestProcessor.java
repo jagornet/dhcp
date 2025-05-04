@@ -144,7 +144,7 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
     public boolean process()
     {
 		boolean sendReply = true;
-		byte clientId[] = requestMsg.getClientId();
+		byte[] clientId = requestMsg.getClientId();
 		
 		V4AddrBindingManager bindingMgr = dhcpServerConfig.getV4AddrBindingMgr();
 		if (bindingMgr != null) {

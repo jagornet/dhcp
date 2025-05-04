@@ -88,7 +88,7 @@ public abstract class DdnsUpdate
 	 * @param inetAddr the inet addr
 	 * @param duid the duid
 	 */
-	public DdnsUpdate(String fqdn, InetAddress inetAddr, byte[] duid)
+	protected DdnsUpdate(String fqdn, InetAddress inetAddr, byte[] duid)
 	{
 		this.fqdn = fqdn;
 		this.inetAddr = inetAddr;
@@ -120,7 +120,7 @@ public abstract class DdnsUpdate
 	protected Resolver createResolver() throws UnknownHostException, TextParseException 
 	{
 		Resolver res = new SimpleResolver(server);
-		if ((tsigKeyName != null) && (tsigKeyName.length() > 0)) {
+		if ((tsigKeyName != null) && !tsigKeyName.isEmpty()) {
 			TSIG tsig = null;
 			if (tsigAlgorithm != null) {
 				tsig = new TSIG(new Name(tsigAlgorithm), tsigKeyName, tsigKeyData);
@@ -136,18 +136,16 @@ public abstract class DdnsUpdate
 	/**
 	 * Send add.
 	 * 
-	 * @throws TextParseException the text parse exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public abstract boolean sendAdd() throws TextParseException, IOException;
+	public abstract boolean sendAdd() throws IOException;
 	
 	/**
 	 * Send delete.
 	 * 
-	 * @throws TextParseException the text parse exception
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public abstract boolean sendDelete() throws TextParseException, IOException;
+	public abstract boolean sendDelete() throws IOException;
 	
 	/**
 	 * Gets the server.

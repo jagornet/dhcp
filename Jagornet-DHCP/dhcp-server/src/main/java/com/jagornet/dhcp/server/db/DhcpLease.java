@@ -44,8 +44,6 @@ import com.jagornet.dhcp.core.util.Util;
 
 public class DhcpLease implements Cloneable
 {
-//	private static Logger log = LoggerFactory.getLogger(DhcpLease.class);
-	
 	protected InetAddress ipAddress;
 	protected byte[] duid;
 	protected byte iatype;
@@ -285,6 +283,19 @@ public class DhcpLease implements Cloneable
 	public void setDhcpOptions(Collection<DhcpOption> dhcpOptions) {
 		this.dhcpOptions = dhcpOptions;
 	}
+	
+	/**
+	 * Adds the hcp option.
+	 *
+	 * @param dhcpOption the dhcp option
+	 */
+	public void addDhcpOption(DhcpOption dhcpOption) {
+		if (dhcpOptions == null) {			
+			//TODO: consider a Set?
+			dhcpOptions = new ArrayList<>();
+		}
+		dhcpOptions.add(dhcpOption);
+	}
 
 	
 	/**
@@ -314,7 +325,7 @@ public class DhcpLease implements Cloneable
 	public void addIaDhcpOption(DhcpOption iaDhcpOption) {
 		if (iaDhcpOptions == null) {			
 			//TODO: consider a Set?
-			iaDhcpOptions = new ArrayList<DhcpOption>();
+			iaDhcpOptions = new ArrayList<>();
 		}
 		iaDhcpOptions.add(iaDhcpOption);
 	}
@@ -347,7 +358,7 @@ public class DhcpLease implements Cloneable
 	public void addIaAddrDhcpOption(DhcpOption iaDhcpOption) {
 		if (iaAddrDhcpOptions == null) {			
 			//TODO: consider a Set?
-			iaAddrDhcpOptions = new ArrayList<DhcpOption>();
+			iaAddrDhcpOptions = new ArrayList<>();
 		}
 		iaAddrDhcpOptions.add(iaDhcpOption);
 	}
@@ -468,25 +479,31 @@ public class DhcpLease implements Cloneable
 	 */
 	@Override
 	public String toString() {
-		return "DhcpLease [ipAddress=" + ipAddress.getHostAddress() + 
-				", duid=" + Util.toHexString(duid) + 
-				", iatype=" + iatype + 
-				", iaid=" + iaid + 
-				", state=" + state + 
-				", haPeerState=" + haPeerState + 
-				", startTime=" + 
+		return "DhcpLease:" + 
+				System.lineSeparator() +
+				"ipAddress=" + ipAddress.getHostAddress() +
+				" duid=" + Util.toHexString(duid) + 
+				" iatype=" + iatype + 
+				" iaid=" + iaid + 
+				" state=" + state + 
+				" haPeerState=" + haPeerState + 
+				System.lineSeparator() +
+				"startTime=" + 
 					(startTime == null ? "" : Util.GMT_DATEFORMAT.format(startTime)) +
-				", preferredEndTime=" + 
+				" preferredEndTime=" + 
 					(preferredEndTime == null ? "" : Util.GMT_DATEFORMAT.format(preferredEndTime)) +
-				", validEndTime=" +  
+				" validEndTime=" +  
 					(validEndTime == null ? "" : Util.GMT_DATEFORMAT.format(validEndTime)) +
-				", dhcpOptions=" + dhcpOptions + 
-				", iaDhcpOptions=" + iaDhcpOptions + 
-				", iaAddrDhcpOptions=" + iaAddrDhcpOptions + "]";
+				System.lineSeparator() +
+				"dhcpOptions=" + dhcpOptions + 
+				System.lineSeparator() +
+				"iaDhcpOptions=" + iaDhcpOptions + 
+				System.lineSeparator() +
+				"iaAddrDhcpOptions=" + iaAddrDhcpOptions;
 	}
 
 	public String toJson() {
-		return DhcpLeaseJsonUtil.dhcpLeaseToJson(this);
+		return DhcpLeaseUtil.dhcpLeaseToJson(this);
 	}
 	
 	public static DhcpLease fromJson(Reader reader) throws IOException {
@@ -499,7 +516,7 @@ public class DhcpLease implements Cloneable
 	}
 	
 	public static DhcpLease fromJson(String json) {
-		return DhcpLeaseJsonUtil.jsonToDhcpLease(json);
+		return DhcpLeaseUtil.jsonToDhcpLease(json);
 	}
 	
 	@Override

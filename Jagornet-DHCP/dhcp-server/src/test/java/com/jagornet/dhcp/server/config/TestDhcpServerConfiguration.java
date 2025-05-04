@@ -27,10 +27,15 @@ package com.jagornet.dhcp.server.config;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+
+import org.codehaus.plexus.util.FileUtils;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.message.DhcpV6Message;
@@ -56,7 +61,22 @@ import junit.framework.TestCase;
  */
 public class TestDhcpServerConfiguration extends TestCase
 {
-	
+    Path tmpdir;
+
+	@Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        tmpdir = Files.createTempDirectory(Paths.get("target"), "tmp_test_config");
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        if (tmpdir != null) { 
+            FileUtils.deleteDirectory(tmpdir.toFile());
+        }
+        super.tearDown();
+    }
+
 	public void testSaveAndLoadXmlConfig() throws Exception
 	{
 		DhcpServerConfig config = new DhcpServerConfig();
@@ -73,9 +93,10 @@ public class TestDhcpServerConfiguration extends TestCase
 		policies.getPolicyList().add(policy);
 		config.setPolicies(policies);
 		
-		DhcpServerConfiguration.saveConfig(config, "file:src/test/resources/dhcpserver-test-config-save.xml");
+        String configResource = "file:" + tmpdir.toFile().toPath() + "/dhcpserver-test-config-save.xml";
+		DhcpServerConfiguration.saveConfig(config, configResource);
 		
-		config = DhcpServerConfiguration.loadConfig("file:src/test/resources/dhcpserver-test-config-save.xml");
+		config = DhcpServerConfiguration.loadConfig(configResource);
 		assertNotNull(config);
 		assertNotNull(config.getV6ServerIdOption());
 		assertTrue(Arrays.equals(serverId.getOpaqueData().getHexValue(), 
@@ -102,9 +123,10 @@ public class TestDhcpServerConfiguration extends TestCase
 		policies.getPolicyList().add(policy);
 		config.setPolicies(policies);
 		
-		DhcpServerConfiguration.saveConfig(config, "file:src/test/resources/dhcpserver-test-config-save.json");
+        String configResource = "file:" + tmpdir.toFile().toPath() + "/dhcpserver-test-config-save.json";
+		DhcpServerConfiguration.saveConfig(config, configResource);
 		
-		config = DhcpServerConfiguration.loadConfig("file:src/test/resources/dhcpserver-test-config-save.json");
+		config = DhcpServerConfiguration.loadConfig(configResource);
 		assertNotNull(config);
 		assertNotNull(config.getV6ServerIdOption());
 		assertTrue(Arrays.equals(serverId.getOpaqueData().getHexValue(), 
@@ -131,9 +153,10 @@ public class TestDhcpServerConfiguration extends TestCase
 		policies.getPolicyList().add(policy);
 		config.setPolicies(policies);
 		
-		DhcpServerConfiguration.saveConfig(config, "file:src/test/resources/dhcpserver-test-config-save.yaml");
+        String configResource = "file:" + tmpdir.toFile().toPath() + "/dhcpserver-test-config-save.yaml";
+		DhcpServerConfiguration.saveConfig(config, configResource);
 		
-		config = DhcpServerConfiguration.loadConfig("file:src/test/resources/dhcpserver-test-config-save.yaml");
+		config = DhcpServerConfiguration.loadConfig(configResource);
 		assertNotNull(config);
 		assertNotNull(config.getV6ServerIdOption());
 		assertTrue(Arrays.equals(serverId.getOpaqueData().getHexValue(), 
@@ -152,7 +175,7 @@ public class TestDhcpServerConfiguration extends TestCase
      */
     public void testLinkMap() throws Exception
     {
-    	String configFilename = "file:src/test/resources/dhcpserver-test-link.xml";
+    	String configFilename = "classpath:dhcpserver-test-link.xml";
         DhcpServerConfiguration serverConfig = DhcpServerConfiguration.getInstance();
         serverConfig.init(configFilename);
         assertNotNull(serverConfig);
