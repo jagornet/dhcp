@@ -37,6 +37,7 @@ import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.core.option.v4.DhcpV4SubnetSelectionOption;
 import com.jagornet.dhcp.core.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcp.core.option.DhcpUnknownOption;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
 import java.net.UnknownHostException;
 
@@ -80,6 +81,14 @@ public class DhcpV4MessageHandler
                                 relayData = ((BaseOpaqueDataOption) opt82).getOpaqueData().getHex();
                             } else if (((BaseOpaqueDataOption) opt82).getOpaqueData().getAscii() != null) {
                                 relayData = ((BaseOpaqueDataOption) opt82).getOpaqueData().getAscii().getBytes();
+                            }
+                        } else if (opt82 instanceof com.jagornet.dhcp.core.option.DhcpUnknownOption) {
+                            if (((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData() != null) {
+                                if (((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData().getHex() != null) {
+                                    relayData = ((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData().getHex();
+                                } else if (((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData().getAscii() != null) {
+                                    relayData = ((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData().getAscii().getBytes();
+                                }
                             }
                         }
                         if (relayData != null) {

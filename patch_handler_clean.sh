@@ -1,0 +1,1 @@
+sed -i 's/import com.jagornet.dhcp.core.option.base.BaseOpaqueDataOption;/import com.jagornet.dhcp.core.option.base.BaseOpaqueDataOption;\nimport com.jagornet.dhcp.core.option.DhcpUnknownOption;/' Jagornet-DHCP/dhcp-server/src/main/java/com/jagornet/dhcp/server/request/DhcpV4MessageHandler.java
