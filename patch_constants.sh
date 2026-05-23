@@ -1,0 +1,1 @@
+sed -i 's/public static final int V4OPTION_RELAY_INFO = 82;/public static final int V4OPTION_RELAY_INFO = 82;\n    public static final int V4OPTION_SUBNET_SELECTION = 118;/' Jagornet-DHCP/dhcp-core/src/main/java/com/jagornet/dhcp/core/util/DhcpConstants.java

@@ -1,0 +1,1 @@
+sed -i 's/V4_DEFAULT_LEASETIME("v4.defaultLeasetime", "3600"),/V4_DEFAULT_LEASETIME("v4.defaultLeasetime", "3600"),\n\t\tV4_SUBNET_SELECTION("v4.subnetSelection", FALSE),/' Jagornet-DHCP/dhcp-server/src/main/java/com/jagornet/dhcp/server/config/DhcpServerPolicies.java

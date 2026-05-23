@@ -33,6 +33,12 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.option.v4.DhcpV4MsgTypeOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies;
+import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.core.option.v4.DhcpV4SubnetSelectionOption;
+import com.jagornet.dhcp.core.option.base.BaseOpaqueDataOption;
+import com.jagornet.dhcp.core.option.base.DhcpOption;
+import java.net.UnknownHostException;
 
 /**
  * Title: DhcpV4MessageHandler
@@ -54,15 +60,66 @@ public class DhcpV4MessageHandler
 		DhcpV4Message replyMessage = null;
     	if (dhcpMessage.getOp() == DhcpConstants.V4_OP_REQUEST) {
     		InetAddress linkAddress = null;
-    		if (dhcpMessage.getGiAddr().equals(DhcpConstants.ZEROADDR_V4)) {
-    			linkAddress = localAddress;
+		if (DhcpServerPolicies.globalPolicyAsBoolean(Property.V4_SUBNET_SELECTION)) {
+		    DhcpOption opt118 = dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_SUBNET_SELECTION);
+		    if (opt118 != null && opt118 instanceof DhcpV4SubnetSelectionOption) {
+		        try {
+		            linkAddress = InetAddress.getByName(((DhcpV4SubnetSelectionOption) opt118).getIpAddress());
+                        log.info("Handling client request using Subnet Selection Option address: " +
+                                linkAddress.getHostAddress());
+		        } catch (UnknownHostException e) {
+		            log.error("Invalid IP address in Subnet Selection Option: " + e.getMessage());
+		        }
+		    }
+		    if (linkAddress == null) {
+                    DhcpOption opt82 = dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_RELAY_INFO);
+                    if (opt82 != null) {
+                        byte[] relayData = null;
+                        if (opt82 instanceof BaseOpaqueDataOption) {
+                            if (((BaseOpaqueDataOption) opt82).getOpaqueData().getHex() != null) {
+                                relayData = ((BaseOpaqueDataOption) opt82).getOpaqueData().getHex();
+                            } else if (((BaseOpaqueDataOption) opt82).getOpaqueData().getAscii() != null) {
+                                relayData = ((BaseOpaqueDataOption) opt82).getOpaqueData().getAscii().getBytes();
+                            }
+                        }
+                        if (relayData != null) {
+                            int offset = 0;
+                            while (offset < relayData.length) {
+                                int subOptCode = relayData[offset++] & 0xFF;
+                                if (offset >= relayData.length) break;
+                                int subOptLen = relayData[offset++] & 0xFF;
+                                if (offset + subOptLen > relayData.length) break;
+
+                                if (subOptCode == 5 && subOptLen == 4) { // Link Selection Sub-option
+                                    byte[] ipBytes = new byte[4];
+                                    System.arraycopy(relayData, offset, ipBytes, 0, 4);
+                                    try {
+                                        linkAddress = InetAddress.getByAddress(ipBytes);
+                                        log.info("Handling client request using Link Selection Sub-option address: " +
+                                                linkAddress.getHostAddress());
+                                    } catch (UnknownHostException e) {
+                                        log.error("Invalid IP address in Link Selection Sub-option: " + e.getMessage());
+                                    }
+                                    break;
+                                }
+                                offset += subOptLen;
+                            }
+                        }
+                    }
+		    }
+    		}
+
+		if (linkAddress == null) {
+			if (dhcpMessage.getGiAddr().equals(DhcpConstants.ZEROADDR_V4)) {
+				linkAddress = localAddress;
 				log.info("Handling client request on local client link address: " +
 						linkAddress.getHostAddress());
-    		}
-    		else {
-    			linkAddress = dhcpMessage.getGiAddr();
+			}
+			else {
+				linkAddress = dhcpMessage.getGiAddr();
 				log.info("Handling client request on remote client link address: " +
 						linkAddress.getHostAddress());
+			}
     		}
     		DhcpV4MsgTypeOption msgTypeOption = (DhcpV4MsgTypeOption) 
     				dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_MESSAGE_TYPE);

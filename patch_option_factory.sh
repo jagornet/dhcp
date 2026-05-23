@@ -1,0 +1,1 @@
+sed -i '/case DhcpConstants.V4OPTION_CLIENT_FQDN:/i \            case DhcpConstants.V4OPTION_SUBNET_SELECTION: // 118\n                option = new DhcpV4SubnetSelectionOption();\n                break;' Jagornet-DHCP/dhcp-core/src/main/java/com/jagornet/dhcp/core/option/v4/DhcpV4OptionFactory.java
