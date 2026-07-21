@@ -77,6 +77,9 @@ public class OpaqueDataUtil
     public static boolean matches(BaseOpaqueData myBaseOpaqueData, 
     								OpaqueData thatOpaqueData, Operator op)
     {
+        if (op == null) {
+            return false;
+        }
         if (thatOpaqueData != null) {
             String expAscii = thatOpaqueData.getAsciiValue();
             String myAscii = myBaseOpaqueData.getAscii();
@@ -179,7 +182,13 @@ public class OpaqueDataUtil
     public static boolean matches(List<BaseOpaqueData> myBaseOpaqueDataList,
     		List<OpaqueData> thatOpaqueDataList, Operator op) {
     	
-    	if (thatOpaqueDataList != null) {
+    	if (myBaseOpaqueDataList == null || thatOpaqueDataList == null) {
+    		return false;
+    	}
+    	if (op == null) {
+    		return false;
+    	}
+    	{
     		if (op.equals(Operator.EQUALS)) {
         		if (thatOpaqueDataList.size() != myBaseOpaqueDataList.size()) {
         			return false;
@@ -300,6 +309,9 @@ public class OpaqueDataUtil
     }
     
     public static BaseOpaqueData toBaseOpaqueData(OpaqueData opaque) {
+    	if (opaque == null) {
+    		return null;
+    	}
     	BaseOpaqueData baseOpaque = new BaseOpaqueData();
     	baseOpaque.setAscii(opaque.getAsciiValue());
     	baseOpaque.setHex(opaque.getHexValue());

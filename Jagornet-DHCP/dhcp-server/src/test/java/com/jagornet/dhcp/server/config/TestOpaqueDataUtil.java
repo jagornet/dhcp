@@ -66,5 +66,15 @@ public class TestOpaqueDataUtil extends TestCase
 		od2.setHex(Util.fromHexString("abcdef0123456789"));
 		assertTrue(OpaqueDataUtil.equals(od1, od2));
 	}
+
+	/** toBaseOpaqueData with null returns null. */
+	public void testToBaseOpaqueDataNull() {
+		assertNull(OpaqueDataUtil.toBaseOpaqueData(null));
+	}
+
+	/** toString with null returns null. */
+	public void testToStringNull() {
+		assertNull(OpaqueDataUtil.toString(null));
+	}
 	
 }
