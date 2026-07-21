@@ -218,7 +218,7 @@ public class JagornetDhcpServer
         serverConfig = DhcpServerConfiguration.getInstance();
         serverConfig.init(configFilename);
         
-        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
+        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYPE);
     	int schemaVersion = DhcpServerPolicies.globalPolicyAsInt(Property.DATABASE_SCHEMA_VERSION);
         String[] appContext = getAppContextFiles(schemaType, schemaVersion);     
         log.info("Loading application context: " + Arrays.toString(appContext));

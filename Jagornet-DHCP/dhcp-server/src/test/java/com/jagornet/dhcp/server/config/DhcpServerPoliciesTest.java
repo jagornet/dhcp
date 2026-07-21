@@ -66,4 +66,11 @@ public class DhcpServerPoliciesTest {
     public void testGlobalPolicyAsFloat() {
         assertEquals(0.5f, DhcpServerPolicies.globalPolicyAsFloat(DhcpServerPolicies.Property.V6_IA_NA_T1), 0.0f);
     }
+
+    @Test
+    public void testEffectivePolicyWithNullLinkReturnsGlobalPolicy() {
+        // effectivePolicy(Link, Property) should not NPE when link is null; it falls back to global policy
+        String policy = DhcpServerPolicies.effectivePolicy(null, DhcpServerPolicies.Property.CHANNEL_THREADPOOL_SIZE);
+        assertEquals("16", policy);
+    }
 }

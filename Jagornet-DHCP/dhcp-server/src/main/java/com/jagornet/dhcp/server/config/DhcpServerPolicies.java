@@ -79,7 +79,7 @@ public class DhcpServerPolicies
 		CHANNEL_READ_BUFFER_SIZE("channel.readBufferSize", "307200"),		// 300 bytes x 1K clients
 		CHANNEL_WRITE_BUFFER_SIZE("channel.writeBufferSize", "307200"),		// 300 bytes x 1K clients
 		
-		DATABASE_SCHEMA_TYTPE("database.schemaType", "jdbc-h2"),	// h2 performs best
+		DATABASE_SCHEMA_TYPE("database.schemaType", "jdbc-h2"),	// h2 performs best
 		DATABASE_SCHEMA_VERSION("database.schemaVersion", "2"),
 		
 		DDNS_UPDATE("ddns.update", "none"),	// acceptable values: none, server, client, etc...
@@ -399,6 +399,9 @@ public class DhcpServerPolicies
      */
     public static String effectivePolicy(Link link, Property prop)
     {
+    	if (link == null) {
+    		return globalPolicy(prop);
+    	}
     	String policy = getPolicy(link.getPolicies(), prop.key());
     	if (policy != null) {
     		return policy;

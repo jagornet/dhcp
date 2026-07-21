@@ -66,7 +66,7 @@ public class JdbcIaManager extends JdbcDaoSupport implements IaManager
 	
 	// Spring bean init-method
 	public void init() throws Exception {
-        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
+        String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYPE);
         if (schemaType.toLowerCase().endsWith("derby")) {
 			DbSchemaManager.validateSchema(getDataSource(), DbSchemaManager.SCHEMA_DERBY_FILENAME, 1);
         }

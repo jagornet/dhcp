@@ -89,7 +89,7 @@ public abstract class BaseTestCase
 			config = DhcpServerConfiguration.getInstance();
 			config.init(configFilename);
 
-			DhcpServerPolicies.setProperty(Property.DATABASE_SCHEMA_TYTPE, schemaType);
+			DhcpServerPolicies.setProperty(Property.DATABASE_SCHEMA_TYPE, schemaType);
 			DhcpServerPolicies.setProperty(Property.DATABASE_SCHEMA_VERSION, Integer.toString(schemaVersion));		
 			if (schemaType.contains("derby")) {
 				File dbDerby = new File("db/derby");
@@ -174,7 +174,7 @@ public abstract class BaseTestCase
 		if (bindingMgr != null) {
 			bindingMgr.close();
 		}
-		String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYTPE);
+		String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYPE);
 		if (schemaType.contains("derby")) {	
 			try {
 				DriverManager.getConnection("jdbc:derby:;shutdown=true");
