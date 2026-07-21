@@ -63,4 +63,12 @@ public class TestSubnet extends TestCase
         assertTrue(subnet.contains(InetAddress.getByName("2001:DB8:0:1:1:1:1:1")));
         assertFalse(subnet.contains(InetAddress.getByName("2001:DB8:1:1:1:1:1:1")));
     }
+
+    /**
+     * Test contains with null address returns false (null-safety).
+     */
+    public void testContainsNullAddress() throws Exception {
+        Subnet subnet = new Subnet("2001:DB8::", 48);
+        assertFalse(subnet.contains(null));
+    }
 }

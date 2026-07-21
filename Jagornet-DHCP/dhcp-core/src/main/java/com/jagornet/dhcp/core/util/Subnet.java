@@ -184,6 +184,9 @@ public class Subnet implements Comparable<Subnet>
      */
     public boolean contains(InetAddress inetAddr)
     {
+        if (inetAddr == null) {
+            return false;
+        }
         boolean rc = false;
         BigInteger start = new BigInteger(getSubnetAddress().getAddress());
         BigInteger end = new BigInteger(getEndAddress().getAddress());
