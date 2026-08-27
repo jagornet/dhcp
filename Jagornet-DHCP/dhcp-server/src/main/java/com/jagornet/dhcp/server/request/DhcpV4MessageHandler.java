@@ -51,6 +51,7 @@ public class DhcpV4MessageHandler
 	
     public static DhcpV4Message handleMessage(InetAddress localAddress, DhcpV4Message dhcpMessage)
     {
+		long startTime = System.nanoTime();
 		DhcpV4Message replyMessage = null;
     	if (dhcpMessage.getOp() == DhcpConstants.V4_OP_REQUEST) {
     		InetAddress linkAddress = null;
@@ -68,6 +69,7 @@ public class DhcpV4MessageHandler
     				dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_MESSAGE_TYPE);
     		if (msgTypeOption != null) {
     			short msgType = msgTypeOption.getUnsignedByte();
+    			String msgTypeStr = DhcpConstants.getV4MessageString(msgType);
     	    	DhcpV4MessageProcessor processor = null;
 	    		switch (msgType) {
 	    			case DhcpConstants.V4MESSAGE_TYPE_DISCOVER:
@@ -91,17 +93,28 @@ public class DhcpV4MessageHandler
 	        	}
 	        	if (processor != null) {
 	        		replyMessage = processor.processMessage();
+	        		String result = (replyMessage != null) ? "success" : "no_reply";
+	        		com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+	        			.incrementPacketCounter("v4", msgTypeStr, result);
+	        		com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+	        			.recordPacketLatency("v4", msgTypeStr, System.nanoTime() - startTime);
 	        	}
 	        	else {
 	        		log.error("No processor found for message type: " + msgType);
+	        		com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+	        			.incrementPacketCounter("v4", msgTypeStr, "unsupported");
 	        	}
     		}
     		else {
     			log.error("No message type option found in request.");
+    			com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+        			.incrementPacketCounter("v4", "UNKNOWN", "missing_option");
     		}
 	    }
 	    else {
 	        log.error("Unsupported op code: " + dhcpMessage.getOp());
+	        com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+    			.incrementPacketCounter("v4", "UNKNOWN", "unsupported_opcode");
 	    }
 		return replyMessage;
 	}
