@@ -104,6 +104,9 @@ public class DhcpV4OptionFactory
 	        case DhcpConstants.V4OPTION_BOOT_FILE_NAME:	// 67
 	        	option = new DhcpV4BootFileNameOption();
 	        	break;
+            case DhcpConstants.V4OPTION_SUBNET_SELECTION: // 118
+                option = new DhcpV4SubnetSelectionOption();
+                break;
             case DhcpConstants.V4OPTION_CLIENT_FQDN:	// 81
                 option = new DhcpV4ClientFqdnOption();
                 break;
