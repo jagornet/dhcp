@@ -117,6 +117,7 @@ public class DhcpServerPolicies
 		V4_IGNORED_MACS("v4.ignoredMacAddrs", "000000000000, FFFFFFFFFFFF"),
 		V4_DEFAULT_LEASETIME("v4.defaultLeasetime", "3600"),
 		V4_SUBNET_SELECTION("v4.subnetSelection", FALSE),
+		V4_SERVER_ID_OVERRIDE("v4.serverIdOverride", FALSE),
 		V4_PINGCHECK_TIMEOUT("v4.pingCheckTimeout", "0"),
 
 		V6_IA_NA_T1("v6.iaNaT1", "0.5"),

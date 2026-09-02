@@ -39,103 +39,99 @@ import org.slf4j.LoggerFactory;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpConstants
-{
+public class DhcpConstants {
     private static Logger log = LoggerFactory.getLogger(DhcpConstants.class);
-	
-	public static String JAGORNET_DHCP_HOME = null;	
-	public static boolean IS_WINDOWS = false;
-	
-	public static InetAddress WILDCARD_ADDR = null;
-	public static InetAddress ZEROADDR_V4 = null;
-	public static InetAddress ZEROADDR_V6 = null;
-	
+
+    public static String JAGORNET_DHCP_HOME = null;
+    public static boolean IS_WINDOWS = false;
+
+    public static InetAddress WILDCARD_ADDR = null;
+    public static InetAddress ZEROADDR_V4 = null;
+    public static InetAddress ZEROADDR_V6 = null;
+
     public static InetAddress LOCALHOST_V4 = null;
     public static InetAddress LOCALHOST_V6 = null;
-    
+
     public static InetAddress BROADCAST = null;
 
-	public static InetAddress ALL_DHCP_RELAY_AGENTS_AND_SERVERS = null;	
-	public static InetAddress ALL_DHCP_SERVERS = null;
+    public static InetAddress ALL_DHCP_RELAY_AGENTS_AND_SERVERS = null;
+    public static InetAddress ALL_DHCP_SERVERS = null;
 
     static {
-		try {
-			String jagornetHome = System.getProperty("jagornet.dhcp.home");
-			if (jagornetHome != null) {
-				JAGORNET_DHCP_HOME = jagornetHome;
-			}
-			else {
-				JAGORNET_DHCP_HOME = System.getProperty("user.dir");
-				// set the property so it gets interpreted in properties files
-				System.setProperty("jagornet.dhcp.home", JAGORNET_DHCP_HOME);
-			}
-			IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
-			WILDCARD_ADDR = (new InetSocketAddress(0)).getAddress();
-			ZEROADDR_V4 = InetAddress.getByName("0.0.0.0");
-			ZEROADDR_V6 = InetAddress.getByName("::");
+        try {
+            String jagornetHome = System.getProperty("jagornet.dhcp.home");
+            if (jagornetHome != null) {
+                JAGORNET_DHCP_HOME = jagornetHome;
+            } else {
+                JAGORNET_DHCP_HOME = System.getProperty("user.dir");
+                // set the property so it gets interpreted in properties files
+                System.setProperty("jagornet.dhcp.home", JAGORNET_DHCP_HOME);
+            }
+            IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
+            WILDCARD_ADDR = (new InetSocketAddress(0)).getAddress();
+            ZEROADDR_V4 = InetAddress.getByName("0.0.0.0");
+            ZEROADDR_V6 = InetAddress.getByName("::");
             LOCALHOST_V4 = InetAddress.getByName("127.0.0.1");
             LOCALHOST_V6 = InetAddress.getByName("::1");
             BROADCAST = InetAddress.getByName("255.255.255.255");
-			ALL_DHCP_RELAY_AGENTS_AND_SERVERS = InetAddress.getByName("FF02::1:2");
-			ALL_DHCP_SERVERS = InetAddress.getByName("FF05::1:3");
-		}
-		catch (UnknownHostException ex) { 
-			log.error("Failed to initialize IP constants: " + ex);
-		}
-	}
+            ALL_DHCP_RELAY_AGENTS_AND_SERVERS = InetAddress.getByName("FF02::1:2");
+            ALL_DHCP_SERVERS = InetAddress.getByName("FF05::1:3");
+        } catch (UnknownHostException ex) {
+            log.error("Failed to initialize IP constants: " + ex);
+        }
+    }
 
-	public static final int V6_CLIENT_PORT = 546;
-	public static final int V6_SERVER_PORT = 547;
+    public static final int V6_CLIENT_PORT = 546;
+    public static final int V6_SERVER_PORT = 547;
 
-	/** DHCPv6 Message Types - use short to support unsigned byte. */
-	public static final short V6MESSAGE_TYPE_SOLICIT = 1;
-	public static final short V6MESSAGE_TYPE_ADVERTISE = 2;
-	public static final short V6MESSAGE_TYPE_REQUEST = 3;
-	public static final short V6MESSAGE_TYPE_CONFIRM = 4;
-	public static final short V6MESSAGE_TYPE_RENEW = 5;
-	public static final short V6MESSAGE_TYPE_REBIND = 6;
-	public static final short V6MESSAGE_TYPE_REPLY = 7;
-	public static final short V6MESSAGE_TYPE_RELEASE = 8;
-	public static final short V6MESSAGE_TYPE_DECLINE = 9;
-	public static final short V6MESSAGE_TYPE_RECONFIGURE = 10;
-	public static final short V6MESSAGE_TYPE_INFO_REQUEST = 11;
-	public static final short V6MESSAGE_TYPE_RELAY_FORW = 12;
-	public static final short V6MESSAGE_TYPE_RELAY_REPL = 13;
+    /** DHCPv6 Message Types - use short to support unsigned byte. */
+    public static final short V6MESSAGE_TYPE_SOLICIT = 1;
+    public static final short V6MESSAGE_TYPE_ADVERTISE = 2;
+    public static final short V6MESSAGE_TYPE_REQUEST = 3;
+    public static final short V6MESSAGE_TYPE_CONFIRM = 4;
+    public static final short V6MESSAGE_TYPE_RENEW = 5;
+    public static final short V6MESSAGE_TYPE_REBIND = 6;
+    public static final short V6MESSAGE_TYPE_REPLY = 7;
+    public static final short V6MESSAGE_TYPE_RELEASE = 8;
+    public static final short V6MESSAGE_TYPE_DECLINE = 9;
+    public static final short V6MESSAGE_TYPE_RECONFIGURE = 10;
+    public static final short V6MESSAGE_TYPE_INFO_REQUEST = 11;
+    public static final short V6MESSAGE_TYPE_RELAY_FORW = 12;
+    public static final short V6MESSAGE_TYPE_RELAY_REPL = 13;
 
     public static final String[] V6MESSAGE_STRING = { "Unknown",
-                                                    "Solicit",
-                                                    "Advertise",
-                                                    "Request",
-                                                    "Confirm",
-                                                    "Renew",
-                                                    "Rebind",
-                                                    "Reply",
-                                                    "Release",
-                                                    "Decline",
-                                                    "Reconfigure",
-                                                    "Info-Request",
-                                                    "Relay-Forward",
-                                                    "Relay-Reply" };
-    
+            "Solicit",
+            "Advertise",
+            "Request",
+            "Confirm",
+            "Renew",
+            "Rebind",
+            "Reply",
+            "Release",
+            "Decline",
+            "Reconfigure",
+            "Info-Request",
+            "Relay-Forward",
+            "Relay-Reply" };
+
     /**
      * Get the string representation of a DHCPv6 message
-     * given the message type.  Note that the type is
+     * given the message type. Note that the type is
      * an unsigned byte, so we need a short to store
      * it properly.
      * 
-     * @param msg  the message type as a short (i.e. unsigned byte)
+     * @param msg the message type as a short (i.e. unsigned byte)
      * 
      * @return the message string
      */
-    public static final String getV6MessageString(short msg)
-    {
-        if ( (msg > 0) && (msg <= V6MESSAGE_TYPE_RELAY_REPL)) {
+    public static final String getV6MessageString(short msg) {
+        if ((msg > 0) && (msg <= V6MESSAGE_TYPE_RELAY_REPL)) {
             return V6MESSAGE_STRING[msg];
         }
         return "Unknown";
     }
-    
-	/** DHCPv6 Options. */
+
+    /** DHCPv6 Options. */
     public static final int V6OPTION_CLIENTID = 1;
     public static final int V6OPTION_SERVERID = 2;
     public static final int V6OPTION_IA_NA = 3;
@@ -179,7 +175,7 @@ public class DhcpConstants
     public static final int V6OPTION_NEW_TZDB_TIMEZONE = 42;
     public static final int V6OPTION_ECHO_REQUEST = 43;
     public static final int V6OPTION_LOST_SERVER_DOMAIN_NAME = 51;
-    
+
     public static final int V6STATUS_CODE_SUCCESS = 0;
     public static final int V6STATUS_CODE_UNSPEC_FAIL = 1;
     public static final int V6STATUS_CODE_NOADDRSAVAIL = 2;
@@ -188,28 +184,26 @@ public class DhcpConstants
     public static final int V6STATUS_CODE_USEMULTICAST = 5;
     public static final int V6STATUS_CODE_NOPREFIXAVAIL = 6;
 
-
     public static final String[] V6STATUS_CODE_STRING = { "Success",
-                                                    "UnspecFail",
-                                                    "NoAddrsAvail",
-                                                    "NoBinding",
-                                                    "NotOnLink",
-                                                    "UseMulticast",
-                                                    "NoPrefixAvail" };
-    
-    public static final String getV6StatusCodeString(int code)
-    {
-        if ( (code >= 0) && (code <= V6STATUS_CODE_NOPREFIXAVAIL)) {
+            "UnspecFail",
+            "NoAddrsAvail",
+            "NoBinding",
+            "NotOnLink",
+            "UseMulticast",
+            "NoPrefixAvail" };
+
+    public static final String getV6StatusCodeString(int code) {
+        if ((code >= 0) && (code <= V6STATUS_CODE_NOPREFIXAVAIL)) {
             return V6STATUS_CODE_STRING[code];
         }
         return "Unknown";
     }
-    
-    // V4 Constants
-	public static final int V4_CLIENT_PORT = 68;
-	public static final int V4_SERVER_PORT = 67;
 
-	public static final int V4_OP_REQUEST = 1;
+    // V4 Constants
+    public static final int V4_CLIENT_PORT = 68;
+    public static final int V4_SERVER_PORT = 67;
+
+    public static final int V4_OP_REQUEST = 1;
     public static final int V4_OP_REPLY = 2;
 
     public static final int V4MESSAGE_TYPE_DISCOVER = 1;
@@ -230,35 +224,34 @@ public class DhcpConstants
     public static final int V4MESSAGE_TYPE_ACTIVE_LEASE_QUERY = 16;
     public static final int V4MESSAGE_TYPE_LEASE_QUERY_STATUS = 17;
     public static final int V4MESSAGE_TYPE_TLS = 18;
-    
+
     public static final String[] V4MESSAGE_STRING = { "Unknown",
-											        "Discover",
-											        "Offer",
-											        "Request",
-											        "Decline",
-											        "Ack",
-											        "Nack",
-											        "Release",
-											        "Inform" };
+            "Discover",
+            "Offer",
+            "Request",
+            "Decline",
+            "Ack",
+            "Nack",
+            "Release",
+            "Inform" };
+
     /**
      * Get the string representation of a DHCPv4 message
-     * given the message type.  Note that the type is
+     * given the message type. Note that the type is
      * an unsigned byte, so we need a short to store
      * it properly.
      * 
-     * @param msg  the message type as a short (i.e. unsigned byte)
+     * @param msg the message type as a short (i.e. unsigned byte)
      * 
      * @return the message string
      */
-    public static final String getV4MessageString(short msg)
-    {
-        if ( (msg > 0) && (msg <= V4MESSAGE_TYPE_INFORM)) {
+    public static final String getV4MessageString(short msg) {
+        if ((msg > 0) && (msg <= V4MESSAGE_TYPE_INFORM)) {
             return V4MESSAGE_STRING[msg];
         }
         return "Unknown";
     }
 
-    
     public static final int V4OPTION_SUBNET_MASK = 1;
     public static final int V4OPTION_TIME_OFFSET = 2;
     public static final int V4OPTION_ROUTERS = 3;
@@ -280,10 +273,15 @@ public class DhcpConstants
     public static final int V4OPTION_BOOT_FILE_NAME = 67;
     public static final int V4OPTION_RAPID_COMMIT = 80;
     public static final int V4OPTION_CLIENT_FQDN = 81;
+
     public static final int V4OPTION_RELAY_INFO = 82;
+    // Suboptions for Relay Info option
+    public static final int V4OPTION_RELAY_INFO_LINK_SELECTION = 5;
+    public static final int V4OPTION_RELAY_INFO_SERVER_ID_OVERRIDE = 11;
+
     public static final int V4OPTION_SUBNET_SELECTION = 118;
     public static final int V4OPTION_EOF = 255;
 
-	public static Date EPOCH = new Date(0);
-    
+    public static Date EPOCH = new Date(0);
+
 }

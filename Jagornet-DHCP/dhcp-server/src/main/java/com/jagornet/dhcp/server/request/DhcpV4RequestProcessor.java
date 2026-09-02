@@ -118,7 +118,16 @@ public class DhcpV4RequestProcessor extends BaseDhcpV4Processor
         	if (type == RequestType.Request_Selecting) {
                 String requestedServerId = requestedServerIdOption.getIpAddress();
                 String myServerId = dhcpV4ServerIdOption.getIpAddress();
-                if (!myServerId.equals(requestedServerId)) {
+                boolean match = myServerId.equals(requestedServerId);
+                if (!match) {
+                    InetAddress overrideAddr = getServerIdOverride(requestMsg);
+                    if ((overrideAddr != null) && overrideAddr.getHostAddress().equals(requestedServerId)) {
+                        match = true;
+                        log.info("Accepting " + type + " message: requested ServerId matches RFC 5107 override address: " + 
+                                requestedServerId);
+                    }
+                }
+                if (!match) {
                     log.warn("Ignoring " + type + " message: " +
                              "Requested ServerId: " + requestedServerIdOption +
                              " My ServerId: " + dhcpV4ServerIdOption);

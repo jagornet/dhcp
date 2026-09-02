@@ -47,6 +47,7 @@ import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4HostnameOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4RelayAgentInfoOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4RequestedIpAddressOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ServerIdOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
@@ -75,271 +76,267 @@ import com.jagornet.dhcp.server.request.ddns.DhcpV4DdnsComplete;
  * @author A. Gregory Rabil
  */
 
-public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
-{
+public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor {
 	private static Logger log = LoggerFactory.getLogger(BaseDhcpV4Processor.class);
 
-    protected static DhcpServerConfiguration dhcpServerConfig = 
-                                        DhcpServerConfiguration.getInstance();
-    
-    // wrap the configured V4ServerId option in a DhcpOption for the wire
-    protected static DhcpV4ServerIdOption dhcpV4ServerIdOption = 
-    		dhcpServerConfig.getDhcpV4ServerIdOption();
-    
-    protected final DhcpV4Message requestMsg;
-    protected DhcpV4Message replyMsg;
-    protected final InetAddress clientLinkAddress;
-    protected DhcpLink clientLink;
-    protected List<Binding> bindings = new ArrayList<>();
-    protected static Set<DhcpV4Message> recentMsgs = 
-    	Collections.synchronizedSet(new HashSet<DhcpV4Message>());
-    protected static Timer recentMsgPruner = new Timer("RecentMsgPruner");
-    protected HaPrimaryFSM haPrimaryFSM;
-    protected HaBackupFSM haBackupFSM; 
-    
-    /**
-     * Construct an BaseDhcpRequest processor.  Since this class is
-     * abstract, this constructor is protected for implementing classes.
-     * 
-     * @param requestMsg the DhcpMessage received from the client
-     * @param clientLinkAddress the client link address
-     */
-    protected BaseDhcpV4Processor(DhcpV4Message requestMsg, InetAddress clientLinkAddress)
-    {
-        this.requestMsg = requestMsg;
-        this.clientLinkAddress = clientLinkAddress;
-        haPrimaryFSM = JagornetDhcpServer.haPrimaryFSM;
-        haBackupFSM = JagornetDhcpServer.haBackupFSM;
-    }
+	protected static DhcpServerConfiguration dhcpServerConfig = DhcpServerConfiguration.getInstance();
 
-    protected Map<Integer, DhcpOption> requestedOptions(Map<Integer, DhcpOption> optionMap,
-    		DhcpV4Message requestMsg)
-	{
-    	if ((optionMap != null)  && !optionMap.isEmpty()) {
-    		List<Integer> requestedCodes = requestMsg.getRequestedOptionCodes();
-    		if ((requestedCodes != null) && !requestedCodes.isEmpty()) {
-    			Map<Integer, DhcpOption> _optionMap = new HashMap<>();
-    			for (Map.Entry<Integer, DhcpOption> option : optionMap.entrySet()) {
+	// wrap the configured V4ServerId option in a DhcpOption for the wire
+	protected static DhcpV4ServerIdOption dhcpV4ServerIdOption = dhcpServerConfig.getDhcpV4ServerIdOption();
+
+	protected final DhcpV4Message requestMsg;
+	protected DhcpV4Message replyMsg;
+	protected final InetAddress clientLinkAddress;
+	protected DhcpLink clientLink;
+	protected List<Binding> bindings = new ArrayList<>();
+	protected static Set<DhcpV4Message> recentMsgs = Collections.synchronizedSet(new HashSet<DhcpV4Message>());
+	protected static Timer recentMsgPruner = new Timer("RecentMsgPruner");
+	protected HaPrimaryFSM haPrimaryFSM;
+	protected HaBackupFSM haBackupFSM;
+
+	/**
+	 * Construct an BaseDhcpRequest processor. Since this class is
+	 * abstract, this constructor is protected for implementing classes.
+	 * 
+	 * @param requestMsg        the DhcpMessage received from the client
+	 * @param clientLinkAddress the client link address
+	 */
+	protected BaseDhcpV4Processor(DhcpV4Message requestMsg, InetAddress clientLinkAddress) {
+		this.requestMsg = requestMsg;
+		this.clientLinkAddress = clientLinkAddress;
+		haPrimaryFSM = JagornetDhcpServer.haPrimaryFSM;
+		haBackupFSM = JagornetDhcpServer.haBackupFSM;
+	}
+
+	protected Map<Integer, DhcpOption> requestedOptions(Map<Integer, DhcpOption> optionMap,
+			DhcpV4Message requestMsg) {
+		if ((optionMap != null) && !optionMap.isEmpty()) {
+			List<Integer> requestedCodes = requestMsg.getRequestedOptionCodes();
+			if ((requestedCodes != null) && !requestedCodes.isEmpty()) {
+				Map<Integer, DhcpOption> _optionMap = new HashMap<>();
+				for (Map.Entry<Integer, DhcpOption> option : optionMap.entrySet()) {
 					if (requestedCodes.contains(option.getKey())) {
 						_optionMap.put(option.getKey(), option.getValue());
 					}
 				}
-    			optionMap = _optionMap;
-    		}
-    	}
-    	return optionMap;
+				optionMap = _optionMap;
+			}
+		}
+		return optionMap;
 	}
-	
-    /**
-     * Populate v4 options.
-     * 
-     * @param link the link
-     * @param configObj the config object or null if none
-     */
-    protected void populateV4Reply(DhcpLink dhcpLink, V4BindingAddress bindingAddr)
-    {
-    	DhcpV4OptionConfigObject configObj = null;
-    	if (bindingAddr != null) {
-    		configObj = (DhcpV4OptionConfigObject) bindingAddr.getConfigObj();
-    	}
-    	
-    	String sname = DhcpServerPolicies.effectivePolicy(requestMsg, configObj, 
-    			dhcpLink.getLink(), Property.V4_HEADER_SNAME);
-    	if ((sname != null) && !sname.isEmpty()) {
-    		replyMsg.setsName(sname);
-    	}
-    	
-    	String filename = DhcpServerPolicies.effectivePolicy(requestMsg, configObj, 
-    			dhcpLink.getLink(), Property.V4_HEADER_FILENAME);
-    	if ((filename != null) && !filename.isEmpty()) {
-    		replyMsg.setFile(filename);
-    	}
-    	
-    	if (bindingAddr != null) {
+
+	/**
+	 * Populate v4 options.
+	 * 
+	 * @param link      the link
+	 * @param configObj the config object or null if none
+	 */
+	protected void populateV4Reply(DhcpLink dhcpLink, V4BindingAddress bindingAddr) {
+		DhcpV4OptionConfigObject configObj = null;
+		if (bindingAddr != null) {
+			configObj = (DhcpV4OptionConfigObject) bindingAddr.getConfigObj();
+		}
+
+		String sname = DhcpServerPolicies.effectivePolicy(requestMsg, configObj,
+				dhcpLink.getLink(), Property.V4_HEADER_SNAME);
+		if ((sname != null) && !sname.isEmpty()) {
+			replyMsg.setsName(sname);
+		}
+
+		String filename = DhcpServerPolicies.effectivePolicy(requestMsg, configObj,
+				dhcpLink.getLink(), Property.V4_HEADER_FILENAME);
+		if ((filename != null) && !filename.isEmpty()) {
+			replyMsg.setFile(filename);
+		}
+
+		if (bindingAddr != null) {
 			// we have already determined the options to be returned
 			// to the client when the binding was created/built, so
 			// we just need to stuff them into the reply message now
-	    	// note that we need to put atop of the existing options
-	    	// which will consist of the ServerId option for DHCPv4
-	    	replyMsg.putAllDhcpOptions(bindingAddr.getDhcpOptionMap());
-    	}
-    	else {
-    		// if no binding, then should be an Inform request, 
-    		// therefore, populate options from link configuration
-        	Map<Integer, DhcpOption> optionMap = 
-            		dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink, configObj);
-        	if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
-        			dhcpLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
-        		optionMap = requestedOptions(optionMap, requestMsg);
-        	}
-        	replyMsg.putAllDhcpOptions(optionMap);    		
-    	}
-    	
-    	// copy the relay agent info option from request to reply 
-    	// in order to echo option back to router as required
-    	if (requestMsg.hasOption(DhcpConstants.V4OPTION_RELAY_INFO)) {
-    		replyMsg.putDhcpOption(requestMsg.getDhcpOption(DhcpConstants.V4OPTION_RELAY_INFO));
-    	}
-    }
+			// note that we need to put atop of the existing options
+			// which will consist of the ServerId option for DHCPv4
+			replyMsg.putAllDhcpOptions(bindingAddr.getDhcpOptionMap());
+		} else {
+			// if no binding, then should be an Inform request,
+			// therefore, populate options from link configuration
+			Map<Integer, DhcpOption> optionMap = dhcpServerConfig.effectiveV4AddrOptions(requestMsg, dhcpLink,
+					configObj);
+			if (DhcpServerPolicies.effectivePolicyAsBoolean(configObj,
+					dhcpLink.getLink(), Property.DHCP_SEND_REQUESTED_OPTIONS_ONLY)) {
+				optionMap = requestedOptions(optionMap, requestMsg);
+			}
+			replyMsg.putAllDhcpOptions(optionMap);
+		}
 
-    /**
-     * Process the client request.  Find appropriate configuration based on any
-     * criteria in the request message that can be matched against the server's
-     * configuration, then formulate a response message containing the options
-     * to be sent to the client.
-     * 
-     * @return a Reply DhcpMessage
-     */
-    public DhcpV4Message processMessage()
-    {
-    	try {
-        	if (!preProcess()) {
-        		log.warn("Message dropped by preProcess");
-        		return null;
-        	}
-            
-    		if (log.isDebugEnabled()) {
-    			log.debug("Processing: " + requestMsg.toStringWithOptions());
-    		}
-    		else if (log.isInfoEnabled()) {
-    	        log.info("Processing: " + requestMsg.toString());
-    		}
-	        
-	        // build a reply message using the local and remote sockets from the request
-	        //replyMsg = new DhcpV4Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
-    		replyMsg = new NettyDhcpV4Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
-	        
-	        replyMsg.setOp((short)DhcpConstants.V4_OP_REPLY);
-	        // copy fields from request to reply
-	        replyMsg.setHtype(requestMsg.getHtype());
-	        replyMsg.setHlen(requestMsg.getHlen());
-	        replyMsg.setTransactionId(requestMsg.getTransactionId());
-	        replyMsg.setFlags(requestMsg.getFlags());
-	        replyMsg.setGiAddr(requestMsg.getGiAddr());
-	        replyMsg.setChAddr(requestMsg.getChAddr());
-	
-	        // MUST put Server Identifier in REPLY message
-	        replyMsg.putDhcpOption(dhcpV4ServerIdOption);
-	
-	        if (!process()) {
-	        	// don't log a warning for release, which has no reply message
-	        	if (requestMsg.getMessageType() != DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
-	        		log.warn("Message dropped by processor");
-	        	}
-	        	return null;
-	        }
-	        
-	        if (log.isDebugEnabled()) {
-	        	log.debug("Returning: " + replyMsg.toStringWithOptions());
-	        }
-	        else if (log.isInfoEnabled()) {
-	        	log.info("Returning: " + replyMsg.toString());
-	        }
-	        
-    	}
-    	finally {
-	        if (!postProcess()) {
-	    		log.warn("Message dropped by postProcess");
-	        	replyMsg = null;
-	        }
-    	}
-        
-        return replyMsg;
-    }
+		// copy the relay agent info option from request to reply
+		// in order to echo option back to router as required
+		if (requestMsg.hasOption(DhcpConstants.V4OPTION_RELAY_INFO)) {
+			replyMsg.putDhcpOption(requestMsg.getDhcpOption(DhcpConstants.V4OPTION_RELAY_INFO));
+		}
+	}
 
-    /**
-     * Pre process.
-     * 
-     * @return true if processing should continue
-     */
-    public boolean preProcess()
-    {
-    	if (haBackupFSM != null) {
-    		if (haBackupFSM.getState() != HaBackupFSM.State.BACKUP_RUNNING) {
-    			log.debug("HA Backup is not running.  Dropping DHCPv4 Message");
-    			return false;
-    		}
-    	}
-    	
-    	InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
-    	
-    	byte[] chAddr = requestMsg.getChAddr();
-    	if ((chAddr == null) || (chAddr.length == 0) || isIgnoredMac(chAddr)) {
-    		log.warn("Ignorning request message from client: mac=" +
-    					Util.toHexString(chAddr));
-    		return false;
-    	}
-    	
-        clientLink = dhcpServerConfig.findDhcpLink(
-        		(Inet4Address)localSocketAddr.getAddress(),
-        		(Inet4Address)clientLinkAddress);
-        if (clientLink == null) {
-        	log.error("No Link configured for DHCPv4 client request: " +
-        			" localAddress=" + localSocketAddr.getAddress().getHostAddress() +
-        			" clientLinkAddress=" + clientLinkAddress.getHostAddress());
-        	return false;	// must configure link for server to reply
-        }
-        
-		if (!clientLink.getState().equals(DhcpLink.State.OK)) {
-			log.warn("Link '" + clientLink.getLinkAddress() +
-					 "' is unavailable: state=" + clientLink.getState());
+	/**
+	 * Process the client request. Find appropriate configuration based on any
+	 * criteria in the request message that can be matched against the server's
+	 * configuration, then formulate a response message containing the options
+	 * to be sent to the client.
+	 * 
+	 * @return a Reply DhcpMessage
+	 */
+	public DhcpV4Message processMessage() {
+		try {
+			if (!preProcess()) {
+				log.warn("Message dropped by preProcess");
+				return null;
+			}
+
+			if (log.isDebugEnabled()) {
+				log.debug("Processing: " + requestMsg.toStringWithOptions());
+			} else if (log.isInfoEnabled()) {
+				log.info("Processing: " + requestMsg.toString());
+			}
+
+			// build a reply message using the local and remote sockets from the request
+			// replyMsg = new DhcpV4Message(requestMsg.getLocalAddress(),
+			// requestMsg.getRemoteAddress());
+			replyMsg = new NettyDhcpV4Message(requestMsg.getLocalAddress(), requestMsg.getRemoteAddress());
+
+			replyMsg.setOp((short) DhcpConstants.V4_OP_REPLY);
+			// copy fields from request to reply
+			replyMsg.setHtype(requestMsg.getHtype());
+			replyMsg.setHlen(requestMsg.getHlen());
+			replyMsg.setTransactionId(requestMsg.getTransactionId());
+			replyMsg.setFlags(requestMsg.getFlags());
+			replyMsg.setGiAddr(requestMsg.getGiAddr());
+			replyMsg.setChAddr(requestMsg.getChAddr());
+
+			// MUST put Server Identifier in REPLY message
+			replyMsg.putDhcpOption(dhcpV4ServerIdOption);
+
+			if (!process()) {
+				// don't log a warning for release, which has no reply message
+				if (requestMsg.getMessageType() != DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
+					log.warn("Message dropped by processor");
+				}
+				return null;
+			}
+
+			InetAddress serverIdOverride = getServerIdOverride(requestMsg);
+			if (serverIdOverride != null) {
+				DhcpV4ServerIdOption overrideOpt = new DhcpV4ServerIdOption();
+				overrideOpt.setIpAddress(serverIdOverride.getHostAddress());
+				replyMsg.putDhcpOption(overrideOpt);
+				log.info("Overriding Server Identifier option with RFC 5107 address: " +
+						serverIdOverride.getHostAddress());
+			}
+
+			if (log.isDebugEnabled()) {
+				log.debug("Returning: " + replyMsg.toStringWithOptions());
+			} else if (log.isInfoEnabled()) {
+				log.info("Returning: " + replyMsg.toString());
+			}
+
+		} finally {
+			if (!postProcess()) {
+				log.warn("Message dropped by postProcess");
+				replyMsg = null;
+			}
+		}
+
+		return replyMsg;
+	}
+
+	/**
+	 * Pre process.
+	 * 
+	 * @return true if processing should continue
+	 */
+	public boolean preProcess() {
+		if (haBackupFSM != null) {
+			if (haBackupFSM.getState() != HaBackupFSM.State.BACKUP_RUNNING) {
+				log.debug("HA Backup is not running.  Dropping DHCPv4 Message");
+				return false;
+			}
+		}
+
+		InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
+
+		byte[] chAddr = requestMsg.getChAddr();
+		if ((chAddr == null) || (chAddr.length == 0) || isIgnoredMac(chAddr)) {
+			log.warn("Ignorning request message from client: mac=" +
+					Util.toHexString(chAddr));
 			return false;
 		}
 
-/* TODO: check if this DOS mitigation is useful
- * 
-		boolean isNew = recentMsgs.add(requestMsg);
-		if (!isNew) {
-			if (log.isDebugEnabled())
-				log.debug("Dropping recent message");
-			return false;	// don't process
+		clientLink = dhcpServerConfig.findDhcpLink(
+				(Inet4Address) localSocketAddr.getAddress(),
+				(Inet4Address) clientLinkAddress);
+		if (clientLink == null) {
+			log.error("No Link configured for DHCPv4 client request: " +
+					" localAddress=" + localSocketAddr.getAddress().getHostAddress() +
+					" clientLinkAddress=" + clientLinkAddress.getHostAddress());
+			return false; // must configure link for server to reply
 		}
 
-		if (log.isDebugEnabled())
-			log.debug("Processing new message");
-		
-		long timer = DhcpServerPolicies.effectivePolicyAsLong(clientLink.getLink(),
-				Property.DHCP_PROCESSOR_RECENT_MESSAGE_TIMER);
-		if (timer > 0) {
-			recentMsgPruner.schedule(new RecentMsgTimerTask(requestMsg), timer);
+		if (!clientLink.getState().equals(DhcpLink.State.OK)) {
+			log.warn("Link '" + clientLink.getLinkAddress() +
+					"' is unavailable: state=" + clientLink.getState());
+			return false;
 		}
-*/    	
-    	return true;	// ok to process
-    }
-    
-    /**
-     * Process.
-     * 
-     * @return true if a reply should be sent
-     */
-    public abstract boolean process();
-    
-    /**
-     * Post process.
-     * 
-     * @return true if a reply should be sent
-     */
-    public boolean postProcess()
-    {
-		//TODO consider the implications of always removing the
-		//     recently processed message b/c we could just keep
-		//     getting blasted by an attempted DOS attack?
-// Exactly!?... the comment above says it all
-//    		if (recentMsgs.remove(requestMsg)) {
-//    			if (log.isDebugEnabled())
-//    				log.debug("Removed recent message: " + requestMsg.toString());
-//    		}
-    	return true;
-    }
+
+		/*
+		 * TODO: check if this DOS mitigation is useful
+		 * 
+		 * boolean isNew = recentMsgs.add(requestMsg);
+		 * if (!isNew) {
+		 * if (log.isDebugEnabled())
+		 * log.debug("Dropping recent message");
+		 * return false; // don't process
+		 * }
+		 * 
+		 * if (log.isDebugEnabled())
+		 * log.debug("Processing new message");
+		 * 
+		 * long timer = DhcpServerPolicies.effectivePolicyAsLong(clientLink.getLink(),
+		 * Property.DHCP_PROCESSOR_RECENT_MESSAGE_TIMER);
+		 * if (timer > 0) {
+		 * recentMsgPruner.schedule(new RecentMsgTimerTask(requestMsg), timer);
+		 * }
+		 */
+		return true; // ok to process
+	}
+
+	/**
+	 * Process.
+	 * 
+	 * @return true if a reply should be sent
+	 */
+	public abstract boolean process();
+
+	/**
+	 * Post process.
+	 * 
+	 * @return true if a reply should be sent
+	 */
+	public boolean postProcess() {
+		// TODO consider the implications of always removing the
+		// recently processed message b/c we could just keep
+		// getting blasted by an attempted DOS attack?
+		// Exactly!?... the comment above says it all
+		// if (recentMsgs.remove(requestMsg)) {
+		// if (log.isDebugEnabled())
+		// log.debug("Removed recent message: " + requestMsg.toString());
+		// }
+		return true;
+	}
 
 	/**
 	 * Adds the v4 binding to reply.
 	 * 
 	 * @param clientLink the client link
-	 * @param binding the binding
+	 * @param binding    the binding
 	 */
-	protected void addBindingToReply(DhcpLink clientLink, Binding binding)
-	{
+	protected void addBindingToReply(DhcpLink clientLink, Binding binding) {
 		Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 		if ((bindingObjs != null) && !bindingObjs.isEmpty()) {
 			if (bindingObjs.size() == 1) {
@@ -352,57 +349,51 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 						if (bindingObj instanceof V4BindingAddress) {
 							V4BindingAddress bindingAddr = (V4BindingAddress) bindingObj;
 							populateV4Reply(clientLink, bindingAddr);
-							//TODO when do actually start the timer?  currently, two get
-							//     created - one during advertise, one during reply
-							//     policy to allow real-time expiration?
-		//					bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
-						}
-						else {
+							// TODO when do actually start the timer? currently, two get
+							// created - one during advertise, one during reply
+							// policy to allow real-time expiration?
+							// bp.startExpireTimerTask(bindingAddr, iaAddrOption.getValidLifetime());
+						} else {
 							log.error("Unsupported bindingObject type: " + bindingObj.getClass());
 						}
-					}
-					else {
+					} else {
 						log.error("Null address in binding: " + binding.toString());
 					}
-				}
-				else {
+				} else {
 					log.error("Null bindingObject in v4 Binding");
 				}
-			}
-			else {
+			} else {
 				log.error("Expected only one bindingObject in v4 Binding, but found " +
 						bindingObjs.size() + "bindingObjects");
 			}
-		}
-		else {
+		} else {
 			log.error("No V4 bindings in binding object!");
 		}
 	}
-	
+
 	/**
 	 * Process ddns updates.
 	 */
-	protected void processDdnsUpdates(boolean sendUpdates)
-	{
+	protected void processDdnsUpdates(boolean sendUpdates) {
 		boolean doForwardUpdate = true;
 
-		DhcpV4ClientFqdnOption clientFqdnOption = 
-			(DhcpV4ClientFqdnOption) requestMsg.getDhcpOption(DhcpConstants.V4OPTION_CLIENT_FQDN);
-		DhcpV4HostnameOption hostnameOption = 
-			(DhcpV4HostnameOption) requestMsg.getDhcpOption(DhcpConstants.V4OPTION_HOSTNAME);
-		
+		DhcpV4ClientFqdnOption clientFqdnOption = (DhcpV4ClientFqdnOption) requestMsg
+				.getDhcpOption(DhcpConstants.V4OPTION_CLIENT_FQDN);
+		DhcpV4HostnameOption hostnameOption = (DhcpV4HostnameOption) requestMsg
+				.getDhcpOption(DhcpConstants.V4OPTION_HOSTNAME);
+
 		if ((clientFqdnOption == null) && (hostnameOption == null)) {
-			//TODO allow name generation?
+			// TODO allow name generation?
 			log.debug("No Client FQDN nor hostname option in request.  Skipping DDNS update processing.");
 			return;
 		}
-		
+
 		String ddnsUpdatePolicy = DhcpServerPolicies.effectivePolicy(requestMsg,
 				clientLink.getLink(), Property.DDNS_UPDATE);
 		log.info("Server configuration for ddns.update policy: " + ddnsUpdatePolicy);
 
 		String fqdn = null;
-		String domain = DhcpServerPolicies.effectivePolicy(clientLink.getLink(), Property.DDNS_DOMAIN); 
+		String domain = DhcpServerPolicies.effectivePolicy(clientLink.getLink(), Property.DDNS_DOMAIN);
 		DhcpV4ClientFqdnOption replyFqdnOption = null;
 
 		if (clientFqdnOption != null) {
@@ -412,13 +403,13 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			replyFqdnOption.setOverrideBit(false);
 			replyFqdnOption.setNoUpdateBit(false);
 			replyFqdnOption.setEncodingBit(clientFqdnOption.getEncodingBit());
-			replyFqdnOption.setRcode1((short)0xff);		// RFC 4702 says server should set to 255
-			replyFqdnOption.setRcode2((short)0xff);		// RFC 4702 says server should set to 255
-			
+			replyFqdnOption.setRcode1((short) 0xff); // RFC 4702 says server should set to 255
+			replyFqdnOption.setRcode2((short) 0xff); // RFC 4702 says server should set to 255
+
 			fqdn = clientFqdnOption.getDomainName();
 			if ((fqdn == null) || (fqdn.length() <= 0)) {
 				log.error("Client FQDN option domain name is null/empty.  No DDNS udpates performed.");
-				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
 				replyMsg.putDhcpOption(replyFqdnOption);
 				return;
 			}
@@ -426,19 +417,19 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			if ((ddnsUpdatePolicy == null) || ddnsUpdatePolicy.equalsIgnoreCase("none")) {
 				log.info("Server configuration for ddns.update policy is null or 'none'." +
 						"  No DDNS updates performed.");
-				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
 				replyMsg.putDhcpOption(replyFqdnOption);
 				return;
 			}
-					
+
 			if (clientFqdnOption.getNoUpdateBit() && ddnsUpdatePolicy.equalsIgnoreCase("honorNoUpdate")) {
 				log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
 						"  No DDNS updates performed.");
-				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
 				replyMsg.putDhcpOption(replyFqdnOption);
-				//TODO: RFC 4704 Section 6.1
-				//		...the server SHOULD delete any RRs that it previously added 
-				//		via DNS updates for the client.
+				// TODO: RFC 4704 Section 6.1
+				// ...the server SHOULD delete any RRs that it previously added
+				// via DNS updates for the client.
 				return;
 			}
 
@@ -446,29 +437,27 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				log.info("Client FQDN NoA flag set.  Server configured to honor request." +
 						"  No FORWARD DDNS updates performed.");
 				doForwardUpdate = false;
-			}
-			else {
-				replyFqdnOption.setUpdateABit(true);	// server will do update
+			} else {
+				replyFqdnOption.setUpdateABit(true); // server will do update
 				if (!clientFqdnOption.getUpdateABit())
-					replyFqdnOption.setOverrideBit(true);	// tell client that we overrode request flag
+					replyFqdnOption.setOverrideBit(true); // tell client that we overrode request flag
 			}
-		
+
 			if ((domain != null) && !domain.isEmpty()) {
 				log.info("Server configuration for domain policy: " + domain);
-				// if there is a configured domain, then replace the domain provide by the client
+				// if there is a configured domain, then replace the domain provide by the
+				// client
 				int dot = fqdn.indexOf('.');
 				if (dot > 0) {
-					fqdn = fqdn.substring(0, dot+1) + domain;
-				}
-				else {
+					fqdn = fqdn.substring(0, dot + 1) + domain;
+				} else {
 					fqdn = fqdn + "." + domain;
 				}
 				replyFqdnOption.setDomainName(fqdn);
 			}
 			// since the client DID send option 81, return it in the reply
 			replyMsg.putDhcpOption(replyFqdnOption);
-		}
-		else {
+		} else {
 
 			if ((ddnsUpdatePolicy == null) || ddnsUpdatePolicy.equalsIgnoreCase("none")) {
 				log.info("Server configuration for ddns.update policy is null or 'none'." +
@@ -487,17 +476,16 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 				// since the client did NOT send option 81, do not put
 				// the fabricated fqdnOption into the reply packet
 				// but set the option so that is can be used below
-				// when storing the fqdnOption to the database, so 
+				// when storing the fqdnOption to the database, so
 				// that it can be used if/when the lease expires
 				replyFqdnOption.setDomainName(fqdn);
 				// server will do the A record update, so set the flag
 				// for the option stored in the database, so server will
 				// remove the A record when the lease expires
 				replyFqdnOption.setUpdateABit(true);
-			}
-			else {
+			} else {
 				log.error("No DDNS domain configured.  No DDNS udpates performed.");
-				replyFqdnOption.setNoUpdateBit(true);	// tell client that server did no updates
+				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
 				replyMsg.putDhcpOption(replyFqdnOption);
 				return;
 			}
@@ -509,20 +497,18 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 					Collection<BindingObject> bindingObjs = binding.getBindingObjects();
 					if (bindingObjs != null) {
 						for (BindingObject bindingObj : bindingObjs) {
-							
+
 							V4BindingAddress bindingAddr = (V4BindingAddress) bindingObj;
-							
-		        			DhcpConfigObject configObj = bindingAddr.getConfigObj();
-		        			
-		        			DdnsCallback ddnsComplete = 
-		        				new DhcpV4DdnsComplete(bindingAddr, replyFqdnOption);
-		        			
-							DdnsUpdater ddns =
-								new DdnsUpdater(requestMsg, clientLink.getLink(), configObj,
-										bindingAddr.getIpAddress(), fqdn, requestMsg.getChAddr(),
-										configObj.getValidLifetime(), doForwardUpdate, false,
-										ddnsComplete);
-							
+
+							DhcpConfigObject configObj = bindingAddr.getConfigObj();
+
+							DdnsCallback ddnsComplete = new DhcpV4DdnsComplete(bindingAddr, replyFqdnOption);
+
+							DdnsUpdater ddns = new DdnsUpdater(requestMsg, clientLink.getLink(), configObj,
+									bindingAddr.getIpAddress(), fqdn, requestMsg.getChAddr(),
+									configObj.getValidLifetime(), doForwardUpdate, false,
+									ddnsComplete);
+
 							ddns.processUpdates();
 						}
 					}
@@ -530,18 +516,16 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 			}
 		}
 	}
-	
+
 	protected void processHaBindingUpdates(Map<Integer, DhcpOption> dhcpOptionMap) {
 		if (haPrimaryFSM != null) {
 			haPrimaryFSM.updateBindings(bindings, dhcpOptionMap);
-		}
-		else {
+		} else {
 			log.debug("Not configured as HA Primary.  Skipping HA binding update processing.");
 		}
 	}
-	
-	protected boolean addrOnLink(DhcpV4RequestedIpAddressOption requestedIpOption, DhcpLink clientLink)
-	{
+
+	protected boolean addrOnLink(DhcpV4RequestedIpAddressOption requestedIpOption, DhcpLink clientLink) {
 		boolean onLink = true;
 		if (requestedIpOption != null) {
 			try {
@@ -555,52 +539,79 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor
 		}
 		return onLink;
 	}
-    
-    protected boolean isIgnoredMac(byte[] chAddr)
-    {
-    	String ignoredMacPolicy = DhcpServerPolicies.globalPolicy(Property.V4_IGNORED_MACS);
-    	if (ignoredMacPolicy != null) {
-    		String[] ignoredMacs = ignoredMacPolicy.split(",");
-    		if (ignoredMacs != null) {
-    			for (String ignoredMac : ignoredMacs) {
+
+	protected boolean isIgnoredMac(byte[] chAddr) {
+		String ignoredMacPolicy = DhcpServerPolicies.globalPolicy(Property.V4_IGNORED_MACS);
+		if (ignoredMacPolicy != null) {
+			String[] ignoredMacs = ignoredMacPolicy.split(",");
+			if (ignoredMacs != null) {
+				for (String ignoredMac : ignoredMacs) {
 					if (ignoredMac.trim().equalsIgnoreCase(Util.toHexString(chAddr))) {
 						return true;
 					}
 				}
-    		}
-    	}
-    	return false;
-    }
-		
-    /**
-     * The Class RecentMsgTimerTask.
-     */
-    class RecentMsgTimerTask extends TimerTask
-    {
-    	
-	    /** The dhcp msg. */
-	    private DhcpV4Message dhcpMsg;
-    	
-    	/**
-	     * Instantiates a new recent msg timer task.
-	     * 
-	     * @param dhcpMsg the dhcp msg
-	     */
-	    public RecentMsgTimerTask(DhcpV4Message dhcpMsg)
-    	{
-    		this.dhcpMsg = dhcpMsg;
-    	}
-    	
-    	/* (non-Javadoc)
-	     * @see java.util.TimerTask#run()
-	     */
-	    @Override
-    	public void run() {
-			if (recentMsgs.remove(dhcpMsg)) {
-    			if (log.isDebugEnabled())
-    				log.debug("Pruned recent message: " + dhcpMsg.toString());
 			}
-    	}
+		}
+		return false;
+	}
 
-    } 
+	/**
+	 * The Class RecentMsgTimerTask.
+	 */
+	class RecentMsgTimerTask extends TimerTask {
+
+		/** The dhcp msg. */
+		private DhcpV4Message dhcpMsg;
+
+		/**
+		 * Instantiates a new recent msg timer task.
+		 * 
+		 * @param dhcpMsg the dhcp msg
+		 */
+		public RecentMsgTimerTask(DhcpV4Message dhcpMsg) {
+			this.dhcpMsg = dhcpMsg;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.util.TimerTask#run()
+		 */
+		@Override
+		public void run() {
+			if (recentMsgs.remove(dhcpMsg)) {
+				if (log.isDebugEnabled())
+					log.debug("Pruned recent message: " + dhcpMsg.toString());
+			}
+		}
+
+	}
+
+	/**
+	 * Extract RFC 5107 Server Identifier Override address if present and enabled by
+	 * policy.
+	 * 
+	 * @param requestMsg the DHCP request message
+	 * @return the overriding InetAddress or null
+	 */
+	protected InetAddress getServerIdOverride(DhcpV4Message requestMsg) {
+		if (requestMsg == null) {
+			return null;
+		}
+		if (!DhcpServerPolicies.effectivePolicyAsBoolean(requestMsg, clientLink != null ? clientLink.getLink() : null,
+				Property.V4_SERVER_ID_OVERRIDE)) {
+			return null;
+		}
+		DhcpOption opt82 = requestMsg.getDhcpOption(DhcpConstants.V4OPTION_RELAY_INFO);
+		if (opt82 != null) {
+			if (opt82 instanceof DhcpV4RelayAgentInfoOption) {
+				return ((DhcpV4RelayAgentInfoOption) opt82).getServerIdOverrideAddress();
+			} else if (opt82 instanceof com.jagornet.dhcp.core.option.base.BaseOpaqueDataOption) {
+				DhcpV4RelayAgentInfoOption raiOpt = new DhcpV4RelayAgentInfoOption();
+				raiOpt.setOpaqueData(((com.jagornet.dhcp.core.option.base.BaseOpaqueDataOption) opt82).getOpaqueData());
+				return raiOpt.getServerIdOverrideAddress();
+			}
+		}
+		return null;
+	}
 }

@@ -35,6 +35,7 @@ import com.jagornet.dhcp.core.option.v4.DhcpV4MsgTypeOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.core.option.v4.DhcpV4RelayAgentInfoOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4SubnetSelectionOption;
 import com.jagornet.dhcp.core.option.base.BaseOpaqueDataOption;
 import com.jagornet.dhcp.core.option.DhcpUnknownOption;
@@ -47,129 +48,98 @@ import java.net.UnknownHostException;
  * 
  * @author A. Gregory Rabil
  */
-public class DhcpV4MessageHandler
-{
+public class DhcpV4MessageHandler {
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(DhcpV4MessageHandler.class);
-	
+
 	private DhcpV4MessageHandler() {
 		// prevent instantiation
 	}
-	
-    public static DhcpV4Message handleMessage(InetAddress localAddress, DhcpV4Message dhcpMessage)
-    {
+
+	public static DhcpV4Message handleMessage(InetAddress localAddress, DhcpV4Message dhcpMessage) {
 		DhcpV4Message replyMessage = null;
-    	if (dhcpMessage.getOp() == DhcpConstants.V4_OP_REQUEST) {
-    		InetAddress linkAddress = null;
-		if (DhcpServerPolicies.globalPolicyAsBoolean(Property.V4_SUBNET_SELECTION)) {
-		    DhcpOption opt118 = dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_SUBNET_SELECTION);
-		    if (opt118 != null && opt118 instanceof DhcpV4SubnetSelectionOption) {
-		        try {
-		            linkAddress = InetAddress.getByName(((DhcpV4SubnetSelectionOption) opt118).getIpAddress());
-                        log.info("Handling client request using Subnet Selection Option address: " +
-                                linkAddress.getHostAddress());
-		        } catch (UnknownHostException e) {
-		            log.error("Invalid IP address in Subnet Selection Option: " + e.getMessage());
-		        }
-		    }
-		    if (linkAddress == null) {
-                    DhcpOption opt82 = dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_RELAY_INFO);
-                    if (opt82 != null) {
-                        byte[] relayData = null;
-                        if (opt82 instanceof BaseOpaqueDataOption) {
-                            if (((BaseOpaqueDataOption) opt82).getOpaqueData().getHex() != null) {
-                                relayData = ((BaseOpaqueDataOption) opt82).getOpaqueData().getHex();
-                            } else if (((BaseOpaqueDataOption) opt82).getOpaqueData().getAscii() != null) {
-                                relayData = ((BaseOpaqueDataOption) opt82).getOpaqueData().getAscii().getBytes();
-                            }
-                        } else if (opt82 instanceof com.jagornet.dhcp.core.option.DhcpUnknownOption) {
-                            if (((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData() != null) {
-                                if (((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData().getHex() != null) {
-                                    relayData = ((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData().getHex();
-                                } else if (((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData().getAscii() != null) {
-                                    relayData = ((com.jagornet.dhcp.core.option.DhcpUnknownOption) opt82).getOpaqueData().getAscii().getBytes();
-                                }
-                            }
-                        }
-                        if (relayData != null) {
-                            int offset = 0;
-                            while (offset < relayData.length) {
-                                int subOptCode = relayData[offset++] & 0xFF;
-                                if (offset >= relayData.length) break;
-                                int subOptLen = relayData[offset++] & 0xFF;
-                                if (offset + subOptLen > relayData.length) break;
-
-                                if (subOptCode == 5 && subOptLen == 4) { // Link Selection Sub-option
-                                    byte[] ipBytes = new byte[4];
-                                    System.arraycopy(relayData, offset, ipBytes, 0, 4);
-                                    try {
-                                        linkAddress = InetAddress.getByAddress(ipBytes);
-                                        log.info("Handling client request using Link Selection Sub-option address: " +
-                                                linkAddress.getHostAddress());
-                                    } catch (UnknownHostException e) {
-                                        log.error("Invalid IP address in Link Selection Sub-option: " + e.getMessage());
-                                    }
-                                    break;
-                                }
-                                offset += subOptLen;
-                            }
-                        }
-                    }
-		    }
-    		}
-
-		if (linkAddress == null) {
-			if (dhcpMessage.getGiAddr().equals(DhcpConstants.ZEROADDR_V4)) {
-				linkAddress = localAddress;
-				log.info("Handling client request on local client link address: " +
-						linkAddress.getHostAddress());
+		if (dhcpMessage.getOp() == DhcpConstants.V4_OP_REQUEST) {
+			InetAddress linkAddress = null;
+			if (DhcpServerPolicies.globalPolicyAsBoolean(Property.V4_SUBNET_SELECTION)) {
+				DhcpOption opt118 = dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_SUBNET_SELECTION);
+				if (opt118 != null && opt118 instanceof DhcpV4SubnetSelectionOption) {
+					try {
+						linkAddress = InetAddress.getByName(((DhcpV4SubnetSelectionOption) opt118).getIpAddress());
+						log.info("Handling client request using Subnet Selection Option address: " +
+								linkAddress.getHostAddress());
+					} catch (UnknownHostException e) {
+						log.error("Invalid IP address in Subnet Selection Option: " + e.getMessage());
+					}
+				}
+				if (linkAddress == null) {
+					DhcpOption opt82 = dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_RELAY_INFO);
+					if (opt82 != null) {
+						DhcpV4RelayAgentInfoOption raiOpt = null;
+						if (opt82 instanceof DhcpV4RelayAgentInfoOption) {
+							raiOpt = (DhcpV4RelayAgentInfoOption) opt82;
+						} else if (opt82 instanceof BaseOpaqueDataOption) {
+							raiOpt = new DhcpV4RelayAgentInfoOption();
+							raiOpt.setOpaqueData(((BaseOpaqueDataOption) opt82).getOpaqueData());
+						}
+						if (raiOpt != null) {
+							linkAddress = raiOpt.getLinkSelectionAddress();
+							if (linkAddress != null) {
+								log.info("Handling client request using Link Selection Sub-option address: " +
+										linkAddress.getHostAddress());
+							}
+						}
+					}
+				}
 			}
-			else {
-				linkAddress = dhcpMessage.getGiAddr();
-				log.info("Handling client request on remote client link address: " +
-						linkAddress.getHostAddress());
+
+			if (linkAddress == null) {
+				if (dhcpMessage.getGiAddr().equals(DhcpConstants.ZEROADDR_V4)) {
+					linkAddress = localAddress;
+					log.info("Handling client request on local client link address: " +
+							linkAddress.getHostAddress());
+				} else {
+					linkAddress = dhcpMessage.getGiAddr();
+					log.info("Handling client request on remote client link address: " +
+							linkAddress.getHostAddress());
+				}
 			}
-    		}
-    		DhcpV4MsgTypeOption msgTypeOption = (DhcpV4MsgTypeOption) 
-    				dhcpMessage.getDhcpOption(DhcpConstants.V4OPTION_MESSAGE_TYPE);
-    		if (msgTypeOption != null) {
-    			short msgType = msgTypeOption.getUnsignedByte();
-    	    	DhcpV4MessageProcessor processor = null;
-	    		switch (msgType) {
-	    			case DhcpConstants.V4MESSAGE_TYPE_DISCOVER:
-	    				processor = new DhcpV4DiscoverProcessor(dhcpMessage, linkAddress);
-	    				break;
-	    			case DhcpConstants.V4MESSAGE_TYPE_REQUEST:
-	    				processor = new DhcpV4RequestProcessor(dhcpMessage, linkAddress);
-	    				break;
-	    			case DhcpConstants.V4MESSAGE_TYPE_DECLINE:
-	    				processor = new DhcpV4DeclineProcessor(dhcpMessage, linkAddress);
-	    				break;
-	    			case DhcpConstants.V4MESSAGE_TYPE_RELEASE:
-	    				processor = new DhcpV4ReleaseProcessor(dhcpMessage, linkAddress);
-	    				break;
-	    			case DhcpConstants.V4MESSAGE_TYPE_INFORM:
-	    				processor = new DhcpV4InformProcessor(dhcpMessage, linkAddress);
-	    				break;
-	    	        default:
-	    	            log.error("Unknown message type.");
-	    	            break;
-	        	}
-	        	if (processor != null) {
-	        		replyMessage = processor.processMessage();
-	        	}
-	        	else {
-	        		log.error("No processor found for message type: " + msgType);
-	        	}
-    		}
-    		else {
-    			log.error("No message type option found in request.");
-    		}
-	    }
-	    else {
-	        log.error("Unsupported op code: " + dhcpMessage.getOp());
-	    }
+			DhcpV4MsgTypeOption msgTypeOption = (DhcpV4MsgTypeOption) dhcpMessage
+					.getDhcpOption(DhcpConstants.V4OPTION_MESSAGE_TYPE);
+			if (msgTypeOption != null) {
+				short msgType = msgTypeOption.getUnsignedByte();
+				DhcpV4MessageProcessor processor = null;
+				switch (msgType) {
+					case DhcpConstants.V4MESSAGE_TYPE_DISCOVER:
+						processor = new DhcpV4DiscoverProcessor(dhcpMessage, linkAddress);
+						break;
+					case DhcpConstants.V4MESSAGE_TYPE_REQUEST:
+						processor = new DhcpV4RequestProcessor(dhcpMessage, linkAddress);
+						break;
+					case DhcpConstants.V4MESSAGE_TYPE_DECLINE:
+						processor = new DhcpV4DeclineProcessor(dhcpMessage, linkAddress);
+						break;
+					case DhcpConstants.V4MESSAGE_TYPE_RELEASE:
+						processor = new DhcpV4ReleaseProcessor(dhcpMessage, linkAddress);
+						break;
+					case DhcpConstants.V4MESSAGE_TYPE_INFORM:
+						processor = new DhcpV4InformProcessor(dhcpMessage, linkAddress);
+						break;
+					default:
+						log.error("Unknown message type.");
+						break;
+				}
+				if (processor != null) {
+					replyMessage = processor.processMessage();
+				} else {
+					log.error("No processor found for message type: " + msgType);
+				}
+			} else {
+				log.error("No message type option found in request.");
+			}
+		} else {
+			log.error("Unsupported op code: " + dhcpMessage.getOp());
+		}
 		return replyMessage;
 	}
-    
+
 }
