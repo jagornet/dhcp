@@ -40,6 +40,9 @@
   	<derby.version>10.15.2.0</derby.version>
   	<h2.version>2.2.224</h2.version>
   	<sqlite.jdbc.version>3.47.1.0</sqlite.jdbc.version>
+  	<postgresql.jdbc.version>42.7.4</postgresql.jdbc.version>
+  	<mariadb.jdbc.version>3.4.1</mariadb.jdbc.version>
+  	<testcontainers.version>1.20.4</testcontainers.version>
   	<jersey.version>2.30</jersey.version>
   	<jaxb.api.version>2.3.1</jaxb.api.version>
   	<jaxb.core.version>2.3.0.1</jaxb.core.version>
@@ -179,6 +182,24 @@
         <scope>runtime</scope>
 	</dependency>
 	<!-- SQLite -->
+
+	<!-- PostgreSQL -->
+	<dependency>
+	    <groupId>org.postgresql</groupId>
+	    <artifactId>postgresql</artifactId>
+	    <version>${postgresql.jdbc.version}</version>
+        <scope>runtime</scope>
+	</dependency>
+	<!-- PostgreSQL -->
+
+	<!-- MariaDB / MySQL -->
+	<dependency>
+	    <groupId>org.mariadb.jdbc</groupId>
+	    <artifactId>mariadb-java-client</artifactId>
+	    <version>${mariadb.jdbc.version}</version>
+        <scope>runtime</scope>
+	</dependency>
+	<!-- MariaDB / MySQL -->
 
 	<!-- Jersey -->
 <!-- 
@@ -330,6 +351,27 @@
 		<version>5.15.2</version>
 		<scope>test</scope>
 	</dependency>
+
+	<!-- Testcontainers -->
+	<dependency>
+		<groupId>org.testcontainers</groupId>
+		<artifactId>testcontainers</artifactId>
+		<version>${testcontainers.version}</version>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.testcontainers</groupId>
+		<artifactId>postgresql</artifactId>
+		<version>${testcontainers.version}</version>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.testcontainers</groupId>
+		<artifactId>mariadb</artifactId>
+		<version>${testcontainers.version}</version>
+		<scope>test</scope>
+	</dependency>
+	<!-- Testcontainers -->
   </dependencies>
 
 	<build>

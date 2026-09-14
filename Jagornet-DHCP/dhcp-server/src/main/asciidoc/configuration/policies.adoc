@@ -78,6 +78,9 @@ _expert_ policies can be adjusted if necessary.
 * `jdbc-h2` - this default schema type uses JDBC to access an embedded H2 database for lease bindings.
 * `jdbc-derby` - this schema type uses JDBC to access an embedded Apache Derby database for lease bindings.
 * `jdbc-sqlite` - this schema type uses JDBC to access an embedded SQLite database for lease bindings.
+* `jdbc-postgres` - this schema type uses JDBC to access an external PostgreSQL database for lease bindings.
+* `jdbc-mysql` - this schema type uses JDBC to access an external MySQL or MariaDB database for lease bindings.
+* `jdbc-mariadb` - alias for `jdbc-mysql`.
 
 - Hierarchy: global
 

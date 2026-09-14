@@ -114,13 +114,10 @@ public abstract class BaseTestCase
 					System.out.println("Cleaning " + dbSqlite + "...");
 					FileUtils.cleanDirectory(dbSqlite);
 				}
-			}
-			else if (schemaType.contains("file")) {
-				File dbFiles = new File("db/fileleases");
-				if (dbFiles.exists() && dbFiles.isDirectory()) {
-					// start with a fresh database
-					System.out.println("Cleaning " + dbFiles + "...");
-					FileUtils.cleanDirectory(dbFiles);
+				File dbJdbcSqlite = new File("db/jdbc-sqlite");
+				if (dbJdbcSqlite.exists() && dbJdbcSqlite.isDirectory()) {
+					System.out.println("Cleaning " + dbJdbcSqlite + "...");
+					FileUtils.cleanDirectory(dbJdbcSqlite);
 				}
 			}
 			String[] appContext = JagornetDhcpServer.getAppContextFiles(schemaType, schemaVersion);

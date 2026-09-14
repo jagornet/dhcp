@@ -6,6 +6,13 @@
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
-	<bean id="iaManager" class="com.jagornet.dhcp.server.db.SqliteLeaseManager" init-method="init"/>
-
+	<bean id="propertyConfigurer" 
+		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:jdbc-postgres.properties</value>
+    	</property>
+    	<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+    	<property name="ignoreResourceNotFound" value="true"/>
+  	</bean>
+  	
 </beans>

@@ -70,7 +70,7 @@ public class JdbcLeaseManager extends LeaseManager
 	protected JdbcTemplate jdbcTemplate;
 	
 	protected static final String LIMIT_ONE_CLAUSE = 
-			DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYPE).equals("jdbc-derby") ?
+			DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYPE).toLowerCase().contains("derby") ?
 					" fetch first 1 rows only" : " limit 1";
 	
 	public DataSource getDataSource() {
@@ -91,12 +91,8 @@ public class JdbcLeaseManager extends LeaseManager
 	public void init() throws Exception {
 		super.init();
         String schemaType = DhcpServerPolicies.globalPolicy(Property.DATABASE_SCHEMA_TYPE);
-        if (schemaType.toLowerCase().contains("derby")) {
-			DbSchemaManager.validateSchema(dataSource, DbSchemaManager.SCHEMA_DERBY_V2_FILENAME, 2);
-        }
-        else {
-        	DbSchemaManager.validateSchema(dataSource, DbSchemaManager.SCHEMA_V2_FILENAME, 2);
-        }
+        String schemaFilename = DbSchemaManager.getSchemaV2Filename(schemaType);
+        DbSchemaManager.validateSchema(dataSource, schemaFilename, 2);
 	}
 	
 	/**
