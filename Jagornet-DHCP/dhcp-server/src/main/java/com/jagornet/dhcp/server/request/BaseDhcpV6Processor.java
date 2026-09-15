@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientFqdnOption;
+import com.jagornet.dhcp.core.option.v6.DhcpV6ClientIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaAddrOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaPdOption;
@@ -53,12 +54,14 @@ import com.jagornet.dhcp.core.option.v6.DhcpV6IaTaOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ServerIdOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6StatusCodeOption;
 import com.jagornet.dhcp.core.util.DhcpConstants;
+import com.jagornet.dhcp.core.util.Util;
 import com.jagornet.dhcp.server.JagornetDhcpServer;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.config.DhcpV6DuidFilter;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
 import com.jagornet.dhcp.server.config.xml.V6AddressPool;
 import com.jagornet.dhcp.server.config.xml.V6PrefixPool;
@@ -229,6 +232,14 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
      */
     public boolean preProcess()
     {
+    	DhcpV6ClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
+    	byte[] duid = (clientIdOption != null) ? clientIdOption.getDuid() : null;
+    	if (isIgnoredDuid(duid)) {
+    		log.warn("Ignoring request message from client: duid=" +
+    				Util.toHexString(duid));
+    		return false;
+    	}
+
     	InetSocketAddress localSocketAddr = requestMsg.getLocalAddress();
     	
         clientLink = dhcpServerConfig.findDhcpLink(
@@ -1088,6 +1099,16 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor
 		return onLink;
 	}
 	
+	protected boolean isIgnoredDuid(byte[] duid) {
+		if (dhcpServerConfig != null) {
+			DhcpV6DuidFilter duidFilter = dhcpServerConfig.getDhcpV6DuidFilter();
+			if (duidFilter != null) {
+				return !duidFilter.isAllowed(duid);
+			}
+		}
+		return false;
+	}
+
     /**
      * The Class RecentMsgTimerTask.
      */

@@ -183,6 +183,8 @@ public class DhcpServerConfiguration
     private DhcpV4ConfigOptions globalV4ConfigOptions;
     
     private FiltersType globalFilters;
+    private DhcpV4MacFilter dhcpV4MacFilter;
+    private DhcpV6DuidFilter dhcpV6DuidFilter;
     
     private SortedMap<Subnet, DhcpLink> dhcpLinkMap;
     
@@ -346,6 +348,14 @@ public class DhcpServerConfiguration
     	globalV6PrefixConfigOptions = new DhcpV6ConfigOptions(jaxbServerConfig.getV6PrefixConfigOptions());
     	globalV4ConfigOptions = new DhcpV4ConfigOptions(jaxbServerConfig.getV4ConfigOptions());
     	globalFilters = jaxbServerConfig.getFilters();
+    	if (dhcpV4MacFilter == null) {
+    		dhcpV4MacFilter = new DhcpV4MacFilter();
+    	}
+    	dhcpV4MacFilter.init();
+    	if (dhcpV6DuidFilter == null) {
+    		dhcpV6DuidFilter = new DhcpV6DuidFilter();
+    	}
+    	dhcpV6DuidFilter.init();
 	}
 	
     public DhcpServerConfig reload(DhcpServerConfig jaxbServerConfig) throws DhcpServerConfigException, JAXBException, IOException {
@@ -415,6 +425,36 @@ public class DhcpServerConfiguration
 	public void setGlobalPolicies(PoliciesType globalPolicies) throws DhcpServerConfigException {
     	validatePolicies("server", globalPolicies);
 		this.globalPolicies = globalPolicies;
+		if (dhcpV4MacFilter != null) {
+			dhcpV4MacFilter.reload();
+		}
+		if (dhcpV6DuidFilter != null) {
+			dhcpV6DuidFilter.reload();
+		}
+	}
+
+	public DhcpV4MacFilter getDhcpV4MacFilter() {
+		if (dhcpV4MacFilter == null) {
+			dhcpV4MacFilter = new DhcpV4MacFilter();
+			dhcpV4MacFilter.init();
+		}
+		return dhcpV4MacFilter;
+	}
+
+	public void setDhcpV4MacFilter(DhcpV4MacFilter dhcpV4MacFilter) {
+		this.dhcpV4MacFilter = dhcpV4MacFilter;
+	}
+
+	public DhcpV6DuidFilter getDhcpV6DuidFilter() {
+		if (dhcpV6DuidFilter == null) {
+			dhcpV6DuidFilter = new DhcpV6DuidFilter();
+			dhcpV6DuidFilter.init();
+		}
+		return dhcpV6DuidFilter;
+	}
+
+	public void setDhcpV6DuidFilter(DhcpV6DuidFilter dhcpV6DuidFilter) {
+		this.dhcpV6DuidFilter = dhcpV6DuidFilter;
 	}
 
 	public DhcpV6ConfigOptions getGlobalV6MsgConfigOptions() {

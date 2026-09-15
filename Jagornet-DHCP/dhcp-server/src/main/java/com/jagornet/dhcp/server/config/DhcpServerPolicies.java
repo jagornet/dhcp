@@ -115,6 +115,8 @@ public class DhcpServerPolicies
 		V4_HEADER_SNAME("v4.header.sname", ""),
 		V4_HEADER_FILENAME("v4.header.filename", ""),
 		V4_IGNORED_MACS("v4.ignoredMacAddrs", "000000000000, FFFFFFFFFFFF"),
+		V4_EXCLUDED_MACS_FILE("v4.excludedMacAddrsFile", ""),
+		V4_INCLUDED_MACS_FILE("v4.includedMacAddrsFile", ""),
 		V4_DEFAULT_LEASETIME("v4.defaultLeasetime", "3600"),
 		V4_SUBNET_SELECTION("v4.subnetSelection", FALSE),
 		V4_SERVER_ID_OVERRIDE("v4.serverIdOverride", FALSE),
@@ -127,6 +129,8 @@ public class DhcpServerPolicies
 		V6_PREFERRED_LIFETIME("v6.preferredLifetime", "3600"),
 		V6_VALID_LIFETIME("v6.validLifetime", "3600"),
 		V6_VERIFY_UNKNOWN_REBIND("v6.verifyUnknownRebind", FALSE),
+		V6_EXCLUDED_DUIDS_FILE("v6.excludedDuidsFile", ""),
+		V6_INCLUDED_DUIDS_FILE("v6.includedDuidsFile", ""),
 		
 		HA_ROLE("ha.role", ""),
 		HA_PROTOCOL("ha.protocol", "grpc"),	// rest or grpc

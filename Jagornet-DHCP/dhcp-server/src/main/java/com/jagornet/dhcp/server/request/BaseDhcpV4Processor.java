@@ -58,6 +58,7 @@ import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.config.DhcpV4MacFilter;
 import com.jagornet.dhcp.server.config.DhcpV4OptionConfigObject;
 import com.jagornet.dhcp.server.ha.HaBackupFSM;
 import com.jagornet.dhcp.server.ha.HaPrimaryFSM;
@@ -263,7 +264,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor {
 
 		byte[] chAddr = requestMsg.getChAddr();
 		if ((chAddr == null) || (chAddr.length == 0) || isIgnoredMac(chAddr)) {
-			log.warn("Ignorning request message from client: mac=" +
+			log.warn("Ignoring request message from client: mac=" +
 					Util.toHexString(chAddr));
 			return false;
 		}
@@ -541,6 +542,12 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor {
 	}
 
 	protected boolean isIgnoredMac(byte[] chAddr) {
+		if (dhcpServerConfig != null) {
+			DhcpV4MacFilter macFilter = dhcpServerConfig.getDhcpV4MacFilter();
+			if (macFilter != null) {
+				return !macFilter.isAllowed(chAddr);
+			}
+		}
 		String ignoredMacPolicy = DhcpServerPolicies.globalPolicy(Property.V4_IGNORED_MACS);
 		if (ignoredMacPolicy != null) {
 			String[] ignoredMacs = ignoredMacPolicy.split(",");

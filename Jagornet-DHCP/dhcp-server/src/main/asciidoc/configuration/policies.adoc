@@ -306,8 +306,20 @@ _expert_ policies can be adjusted if necessary.
 ==== Ignored MAC Addresses
 - Name: `v4.ignoredMacAddrs`
 - Default: `000000000000, FFFFFFFFFFFF`
-- Description: A list of comma separated MAC addresses for the server to ignore requests from.	
+- Description: A list of comma separated MAC addresses for the server to ignore requests from.
 - Hierarchy: all
+
+==== Excluded MAC Addresses File
+- Name: `v4.excludedMacAddrsFile`
+- Default: empty
+- Description: Path to a file containing MAC addresses to ignore/exclude (denylist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. The file format contains one MAC address per line (supporting `00:11:22:33:44:55`, `00-11-22-33-44-55`, `0011.2233.4455`, or `001122334455`). Lines starting with `#`, `//`, or `;` are treated as comments. File changes are automatically hot-reloaded.
+- Hierarchy: global
+
+==== Included MAC Addresses File
+- Name: `v4.includedMacAddrsFile`
+- Default: empty
+- Description: Path to a file containing MAC addresses to allow (allowlist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. When configured and non-empty, only clients with MAC addresses in this list will be serviced; all others will be ignored. The file format is identical to `v4.excludedMacAddrsFile`. If an address appears in both the included and excluded lists, exclusion takes precedence. File changes are automatically hot-reloaded.
+- Hierarchy: global
 
 ==== Default Lease Time
 - Name: `v4.defaultLeasetime`
@@ -322,6 +334,18 @@ _expert_ policies can be adjusted if necessary.
 - Hierarchy: global
 
 === DHCPv6 Policies
+
+==== Excluded DUIDs File
+- Name: `v6.excludedDuidsFile`
+- Default: empty
+- Description: Path to a file containing client DUIDs to ignore/exclude (denylist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. The file format contains one DUID per line (supporting hex strings with or without colons, dashes, or dots). Lines starting with `#`, `//`, or `;` are treated as comments. File changes are automatically hot-reloaded.
+- Hierarchy: global
+
+==== Included DUIDs File
+- Name: `v6.includedDuidsFile`
+- Default: empty
+- Description: Path to a file containing client DUIDs to allow (allowlist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. When configured and non-empty, only clients with DUIDs in this list will be serviced; all others will be ignored. The file format is identical to `v6.excludedDuidsFile`. If a DUID appears in both the included and excluded lists, exclusion takes precedence. File changes are automatically hot-reloaded.
+- Hierarchy: global
 
 ==== Preferred Lifetime
 - Name: `v6.preferredLifetime`
