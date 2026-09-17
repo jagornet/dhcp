@@ -55,6 +55,7 @@
 	<grpc.version>1.64.0</grpc.version>
 	<osplugin.version>1.7.1</osplugin.version>
 	<protobuf.version>4.28.3</protobuf.version>
+	<micrometer.version>1.12.5</micrometer.version>
   </properties>
 
   <dependencies>
@@ -334,6 +335,18 @@
 	    <groupId>com.google.protobuf</groupId>
 	    <artifactId>protobuf-java-util</artifactId>
 	    <version>${protobuf.version}</version>
+	</dependency>
+
+	<!-- Micrometer / Prometheus -->
+	<dependency>
+	    <groupId>io.micrometer</groupId>
+	    <artifactId>micrometer-core</artifactId>
+	    <version>${micrometer.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>io.micrometer</groupId>
+	    <artifactId>micrometer-registry-prometheus</artifactId>
+	    <version>${micrometer.version}</version>
 	</dependency>
 
 	<!-- Test dependency jars -->

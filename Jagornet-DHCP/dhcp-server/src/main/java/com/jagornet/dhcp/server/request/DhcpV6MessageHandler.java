@@ -166,8 +166,11 @@ public class DhcpV6MessageHandler
      */
     public static DhcpV6Message handleClientRequest(InetAddress linkAddress, DhcpV6Message dhcpMessage)
     {
+		long startTime = System.nanoTime();
+		short msgType = dhcpMessage.getMessageType();
+		String msgTypeStr = com.jagornet.dhcp.core.util.DhcpConstants.getV6MessageString(msgType);
     	DhcpV6MessageProcessor processor = null;
-    	switch (dhcpMessage.getMessageType()) {        
+    	switch (msgType) {        
 	        case DhcpConstants.V6MESSAGE_TYPE_SOLICIT:
 	        	processor = new DhcpV6SolicitProcessor(dhcpMessage, linkAddress);
 	        	break;
@@ -193,14 +196,22 @@ public class DhcpV6MessageHandler
 	        	processor = new DhcpV6InfoRequestProcessor(dhcpMessage, linkAddress);
 	        	break;
 	        default:
-	            log.error("Unknown message type.");
+	            log.error("Unknown message type: " + msgType);
 	            break;
     	}
     	if (processor != null) {
-    		return processor.processMessage();
+    		DhcpV6Message reply = processor.processMessage();
+    		String result = (reply != null) ? "success" : "no_reply";
+    		com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+    			.incrementPacketCounter("v6", msgTypeStr, result);
+    		com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+    			.recordPacketLatency("v6", msgTypeStr, System.nanoTime() - startTime);
+    		return reply;
     	}
     	else {
-    		log.error("No processor found for message type: " + dhcpMessage.getMessageType());
+    		log.error("No processor found for message type: " + msgType);
+    		com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+    			.incrementPacketCounter("v6", msgTypeStr, "unsupported");
     	}
     	return null;
     }
