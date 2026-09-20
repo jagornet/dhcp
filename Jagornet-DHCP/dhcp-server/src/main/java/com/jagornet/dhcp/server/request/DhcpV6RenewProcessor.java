@@ -51,234 +51,222 @@ import com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManager;
  * @author A. Gregory Rabil
  */
 
-public class DhcpV6RenewProcessor extends BaseDhcpV6Processor
-{
+public class DhcpV6RenewProcessor extends BaseDhcpV6Processor {
 	private static Logger log = LoggerFactory.getLogger(DhcpV6RenewProcessor.class);
-    
-    /**
-     * Construct an DhcpRenewProcessor processor.
-     * 
-     * @param requestMsg the Renew message
-     * @param clientLinkAddress the client link address
-     */
-    public DhcpV6RenewProcessor(DhcpV6Message requestMsg, InetAddress clientLinkAddress)
-    {
-        super(requestMsg, clientLinkAddress);
-    }
 
-    /*
-     * FROM RFC 3315:
-     * 
-     * 15.6. Renew Message
-     * 
-     * Servers MUST discard any received Renew message that meets any of the
-     * following conditions:
-     * 
-     * -  the message does not include a Server Identifier option.
-     * 
-     * -  the contents of the Server Identifier option does not match the
-     *    server's identifier.
-     * 
-     * -  the message does not include a Client Identifier option.
-     * 
-     */
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#preProcess()
-     */
-    @Override
-    public boolean preProcess()
-    {
-    	if (!super.preProcess()) {
-    		return false;
-    	}
+	/**
+	 * Construct an DhcpRenewProcessor processor.
+	 * 
+	 * @param requestMsg        the Renew message
+	 * @param clientLinkAddress the client link address
+	 */
+	public DhcpV6RenewProcessor(DhcpV6Message requestMsg, InetAddress clientLinkAddress) {
+		super(requestMsg, clientLinkAddress);
+	}
 
-    	DhcpV6ServerIdOption requestedServerIdOption = requestMsg.getDhcpServerIdOption();
-        if (requestedServerIdOption == null) {
-            log.warn("Ignoring Renew message: " +
-                    "Requested ServerId option is null");
-           return false;
-        }
-        
-        if (!dhcpServerIdOption.equals(requestedServerIdOption)) {
-            log.warn("Ignoring Renew message: " +
-                     "Requested ServerId: " + requestedServerIdOption +
-                     "My ServerId: " + dhcpServerIdOption);
-            return false;
-        }
-    	
-    	if (requestMsg.getDhcpClientIdOption() == null) {
-    		log.warn("Ignoring Renew message: " +
-    				"ClientId option is null");
-    		return false;
-    	}
-        
-    	return true;
-    }
+	/*
+	 * FROM RFC 3315:
+	 * 
+	 * 15.6. Renew Message
+	 * 
+	 * Servers MUST discard any received Renew message that meets any of the
+	 * following conditions:
+	 * 
+	 * - the message does not include a Server Identifier option.
+	 * 
+	 * - the contents of the Server Identifier option does not match the
+	 * server's identifier.
+	 * 
+	 * - the message does not include a Client Identifier option.
+	 * 
+	 */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#preProcess()
+	 */
+	@Override
+	public boolean preProcess() {
+		if (!super.preProcess()) {
+			return false;
+		}
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#process()
-     */
-    @Override
-    public boolean process()
-    {
-//      When the server receives a Renew message via unicast from a client
-//      to which the server has not sent a unicast option, the server
-//      discards the Request message and responds with a Reply message
-//      containing a Status Code option with the value UseMulticast, a Server
-//      Identifier option containing the server's DUID, the Client Identifier
-//      option from the client message, and no other options.
-    	
-    	if (shouldMulticast()) {
-    		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
-    		setReplyStatus(DhcpConstants.V6STATUS_CODE_USEMULTICAST);
-    		return true;
-    	}
-    	
-//		If the server cannot find a client entry for the IA the server
-//		returns the IA containing no addresses with a Status Code option set
-//		to NoBinding in the Reply message.
-//
-//		If the server finds that any of the addresses are not appropriate for
-//		the link to which the client is attached, the server returns the
-//		address to the client with lifetimes of 0.
-//
-//		If the server finds the addresses in the IA for the client then the
-//		server sends back the IA to the client with new lifetimes and T1/T2
-//		times.  The server may choose to change the list of addresses and the
-//		lifetimes of addresses in IAs that are returned to the client.
+		DhcpV6ServerIdOption requestedServerIdOption = requestMsg.getDhcpServerIdOption();
+		if (requestedServerIdOption == null) {
+			log.warn("Ignoring Renew message: " +
+					"Requested ServerId option is null");
+			return false;
+		}
+
+		DhcpV6ServerIdOption myServerId = getDhcpV6ServerIdOption();
+		if ((myServerId == null) || !myServerId.equals(requestedServerIdOption)) {
+			log.warn("Ignoring Renew message: " +
+					"Requested ServerId: " + requestedServerIdOption +
+					" My ServerId: " + myServerId);
+			return false;
+		}
+
+		if (requestMsg.getDhcpClientIdOption() == null) {
+			log.warn("Ignoring Renew message: " +
+					"ClientId option is null");
+			return false;
+		}
+
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#process()
+	 */
+	@Override
+	public boolean process() {
+		// When the server receives a Renew message via unicast from a client
+		// to which the server has not sent a unicast option, the server
+		// discards the Request message and responds with a Reply message
+		// containing a Status Code option with the value UseMulticast, a Server
+		// Identifier option containing the server's DUID, the Client Identifier
+		// option from the client message, and no other options.
+
+		if (shouldMulticast()) {
+			replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
+			setReplyStatus(DhcpConstants.V6STATUS_CODE_USEMULTICAST);
+			return true;
+		}
+
+		// If the server cannot find a client entry for the IA the server
+		// returns the IA containing no addresses with a Status Code option set
+		// to NoBinding in the Reply message.
+		//
+		// If the server finds that any of the addresses are not appropriate for
+		// the link to which the client is attached, the server returns the
+		// address to the client with lifetimes of 0.
+		//
+		// If the server finds the addresses in the IA for the client then the
+		// server sends back the IA to the client with new lifetimes and T1/T2
+		// times. The server may choose to change the list of addresses and the
+		// lifetimes of addresses in IAs that are returned to the client.
 
 		boolean sendReply = true;
 		DhcpV6ClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
-		
+
 		List<DhcpV6IaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
-    	if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
-    		V6NaAddrBindingManager bindingMgr = dhcpServerConfig.getV6NaAddrBindingMgr();
-    		if (bindingMgr != null) {
-	    		for (DhcpV6IaNaOption dhcpIaNaOption : iaNaOptions) {
-	    			log.info("Processing IA_NA Renew: " + dhcpIaNaOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
+		if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
+			V6NaAddrBindingManager bindingMgr = dhcpServerConfig.getV6NaAddrBindingMgr();
+			if (bindingMgr != null) {
+				for (DhcpV6IaNaOption dhcpIaNaOption : iaNaOptions) {
+					log.info("Processing IA_NA Renew: " + dhcpIaNaOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink,
 							clientIdOption, dhcpIaNaOption, requestMsg);
 					if (binding != null) {
 						// zero out the lifetimes of any invalid addresses
-						if(!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
+						if (!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
 							replyMsg.addIaNaOption(dhcpIaNaOption);
-						}
-						else {
-							binding = bindingMgr.updateBinding(binding, clientLink, 
-									clientIdOption, dhcpIaNaOption, requestMsg, 
+						} else {
+							binding = bindingMgr.updateBinding(binding, clientLink,
+									clientIdOption, dhcpIaNaOption, requestMsg,
 									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
-							}
-							else {
+							} else {
 								addIaNaOptionStatusToReply(dhcpIaNaOption,
-			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+										DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
 						}
-					}
-					else {
+					} else {
 						addIaNaOptionStatusToReply(dhcpIaNaOption,
-	    						DhcpConstants.V6STATUS_CODE_NOBINDING);
+								DhcpConstants.V6STATUS_CODE_NOBINDING);
 					}
 				}
-    		}
-    		else {
-    			log.error("Unable to process IA_NA Renew:" +
-    					" No NaAddrBindingManager available");
-    		}
-    	}
-    	
+			} else {
+				log.error("Unable to process IA_NA Renew:" +
+						" No NaAddrBindingManager available");
+			}
+		}
+
 		List<DhcpV6IaTaOption> iaTaOptions = requestMsg.getIaTaOptions();
-    	if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
-    		V6TaAddrBindingManager bindingMgr = dhcpServerConfig.getV6TaAddrBindingMgr();
-    		if (bindingMgr != null) {
-	    		for (DhcpV6IaTaOption dhcpIaTaOption : iaTaOptions) {
-	    			log.info("Processing IA_TA Renew: " + dhcpIaTaOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
+		if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
+			V6TaAddrBindingManager bindingMgr = dhcpServerConfig.getV6TaAddrBindingMgr();
+			if (bindingMgr != null) {
+				for (DhcpV6IaTaOption dhcpIaTaOption : iaTaOptions) {
+					log.info("Processing IA_TA Renew: " + dhcpIaTaOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink,
 							clientIdOption, dhcpIaTaOption, requestMsg);
 					if (binding != null) {
 						// zero out the lifetimes of any invalid addresses
-						if(!allIaAddrsOnLink(dhcpIaTaOption, clientLink)) {
+						if (!allIaAddrsOnLink(dhcpIaTaOption, clientLink)) {
 							replyMsg.addIaTaOption(dhcpIaTaOption);
-						}
-						else {
-							binding = bindingMgr.updateBinding(binding, clientLink, 
-									clientIdOption, dhcpIaTaOption, requestMsg, 
+						} else {
+							binding = bindingMgr.updateBinding(binding, clientLink,
+									clientIdOption, dhcpIaTaOption, requestMsg,
 									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
-							}
-							else {
+							} else {
 								addIaTaOptionStatusToReply(dhcpIaTaOption,
-			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+										DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
 						}
-					}
-					else {
+					} else {
 						addIaTaOptionStatusToReply(dhcpIaTaOption,
-	    						DhcpConstants.V6STATUS_CODE_NOBINDING);
+								DhcpConstants.V6STATUS_CODE_NOBINDING);
 					}
 				}
-    		}
-    		else {
-    			log.error("Unable to process IA_TA Renew:" +
-    					" No TaAddrBindingManager available");
-    		}
-    	}
-    	
+			} else {
+				log.error("Unable to process IA_TA Renew:" +
+						" No TaAddrBindingManager available");
+			}
+		}
+
 		List<DhcpV6IaPdOption> iaPdOptions = requestMsg.getIaPdOptions();
-    	if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
-    		V6PrefixBindingManager bindingMgr = dhcpServerConfig.getV6PrefixBindingMgr();
-    		if (bindingMgr != null) {
-	    		for (DhcpV6IaPdOption dhcpIaPdOption : iaPdOptions) {
-	    			log.info("Processing IA_PD Renew: " + dhcpIaPdOption.toString());
-					Binding binding = bindingMgr.findCurrentBinding(clientLink, 
+		if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
+			V6PrefixBindingManager bindingMgr = dhcpServerConfig.getV6PrefixBindingMgr();
+			if (bindingMgr != null) {
+				for (DhcpV6IaPdOption dhcpIaPdOption : iaPdOptions) {
+					log.info("Processing IA_PD Renew: " + dhcpIaPdOption.toString());
+					Binding binding = bindingMgr.findCurrentBinding(clientLink,
 							clientIdOption, dhcpIaPdOption, requestMsg);
 					if (binding != null) {
 						// zero out the lifetimes of any invalid addresses
-						if(!allIaPrefixesOnLink(dhcpIaPdOption, clientLink)) {
+						if (!allIaPrefixesOnLink(dhcpIaPdOption, clientLink)) {
 							replyMsg.addIaPdOption(dhcpIaPdOption);
-						}
-						else {
-							binding = bindingMgr.updateBinding(binding, clientLink, 
-									clientIdOption, dhcpIaPdOption, requestMsg, 
+						} else {
+							binding = bindingMgr.updateBinding(binding, clientLink,
+									clientIdOption, dhcpIaPdOption, requestMsg,
 									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
-							}
-							else {
+							} else {
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
-			    						DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
+										DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 							}
 						}
-					}
-					else {
+					} else {
 						addIaPdOptionStatusToReply(dhcpIaPdOption,
-	    						DhcpConstants.V6STATUS_CODE_NOBINDING);
+								DhcpConstants.V6STATUS_CODE_NOBINDING);
 					}
 				}
-    		}
-    		else {
-    			log.error("Unable to process IA_PD Renew:" +
-    					" No PrefixBindingManager available");
-    		}
-    	}
-    	
-    	if (sendReply) {
-            replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
-            if (!bindings.isEmpty()) {
-            	// see addBindingToReply
-            	// populateReplyMsgOptions(clientLink);
-    			processDdnsUpdates(true);
-    			processHaBindingUpdates(replyMsg.getDhcpOptionMap());
-            }
-            else {
-            	log.warn("Reply message has no bindings");
-            }
-    	}
-    	return sendReply;    	
-    }
+			} else {
+				log.error("Unable to process IA_PD Renew:" +
+						" No PrefixBindingManager available");
+			}
+		}
+
+		if (sendReply) {
+			replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
+			if (!bindings.isEmpty()) {
+				// see addBindingToReply
+				// populateReplyMsgOptions(clientLink);
+				processDdnsUpdates(true);
+				processHaBindingUpdates(replyMsg.getDhcpOptionMap());
+			} else {
+				log.warn("Reply message has no bindings");
+			}
+		}
+		return sendReply;
+	}
 }

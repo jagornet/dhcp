@@ -51,248 +51,237 @@ import com.jagornet.dhcp.server.request.binding.V6TaAddrBindingManager;
  * @author A. Gregory Rabil
  */
 
-public class DhcpV6RequestProcessor extends BaseDhcpV6Processor
-{
+public class DhcpV6RequestProcessor extends BaseDhcpV6Processor {
 	private static Logger log = LoggerFactory.getLogger(DhcpV6RequestProcessor.class);
-    
-    /**
-     * Construct an DhcpRequestProcessor processor.
-     * 
-     * @param requestMsg the Request message
-     * @param clientLinkAddress the client link address
-     */
-    public DhcpV6RequestProcessor(DhcpV6Message requestMsg, InetAddress clientLinkAddress)
-    {
-        super(requestMsg, clientLinkAddress);
-    }
 
-    /*
-     * FROM RFC 3315:
-     * 
-     * 15.4. Request Message
-     * 
-     * Servers MUST discard any received Request message that meet any of
-     * the following conditions:
-     * 
-     * -  the message does not include a Server Identifier option.
-     * 
-     * -  the contents of the Server Identifier option do not match the
-     *    server's DUID.
-     * 
-     * -  the message does not include a Client Identifier option.
-     *  
-     */
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#preProcess()
-     */
-    @Override
-    public boolean preProcess()
-    {
-    	if (!super.preProcess()) {
-    		return false;
-    	}
+	/**
+	 * Construct an DhcpRequestProcessor processor.
+	 * 
+	 * @param requestMsg        the Request message
+	 * @param clientLinkAddress the client link address
+	 */
+	public DhcpV6RequestProcessor(DhcpV6Message requestMsg, InetAddress clientLinkAddress) {
+		super(requestMsg, clientLinkAddress);
+	}
 
-    	DhcpV6ServerIdOption requestedServerIdOption = requestMsg.getDhcpServerIdOption();
-        if (requestedServerIdOption == null) {
-            log.warn("Ignoring Request message: " +
-                    "Requested ServerId option is null");
-           return false;
-        }
-        
-        if (!dhcpServerIdOption.equals(requestedServerIdOption)) {
-            log.warn("Ignoring Request message: " +
-                     "Requested ServerId: " + requestedServerIdOption +
-                     " My ServerId: " + dhcpServerIdOption);
-            return false;
-        }
-    	
-    	if (requestMsg.getDhcpClientIdOption() == null) {
-    		log.warn("Ignoring Request message: " +
-    				"ClientId option is null");
-    		return false;
-    	}
-        
-    	return true;
-    }
+	/*
+	 * FROM RFC 3315:
+	 * 
+	 * 15.4. Request Message
+	 * 
+	 * Servers MUST discard any received Request message that meet any of
+	 * the following conditions:
+	 * 
+	 * - the message does not include a Server Identifier option.
+	 * 
+	 * - the contents of the Server Identifier option do not match the
+	 * server's DUID.
+	 * 
+	 * - the message does not include a Client Identifier option.
+	 * 
+	 */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#preProcess()
+	 */
+	@Override
+	public boolean preProcess() {
+		if (!super.preProcess()) {
+			return false;
+		}
 
-    /* (non-Javadoc)
-     * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#process()
-     */
-    @Override
-    public boolean process()
-    {
-//      When the server receives a Request message via unicast from a client
-//      to which the server has not sent a unicast option, the server
-//      discards the Request message and responds with a Reply message
-//      containing a Status Code option with the value UseMulticast, a Server
-//      Identifier option containing the server's DUID, the Client Identifier
-//      option from the client message, and no other options.
+		DhcpV6ServerIdOption requestedServerIdOption = requestMsg.getDhcpServerIdOption();
+		if (requestedServerIdOption == null) {
+			log.warn("Ignoring Request message: " +
+					"Requested ServerId option is null");
+			return false;
+		}
 
-    	if (shouldMulticast()) {
-    		replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
-    		setReplyStatus(DhcpConstants.V6STATUS_CODE_USEMULTICAST);
-    		return true;
-    	}
+		DhcpV6ServerIdOption myServerId = getDhcpV6ServerIdOption();
+		if ((myServerId == null) || !myServerId.equals(requestedServerIdOption)) {
+			log.warn("Ignoring Request message: " +
+					"Requested ServerId: " + requestedServerIdOption +
+					" My ServerId: " + myServerId);
+			return false;
+		}
 
-//		   If the server finds that the prefix on one or more IP addresses in
-//		   any IA in the message from the client is not appropriate for the link
-//		   to which the client is connected, the server MUST return the IA to
-//		   the client with a Status Code option with the value NotOnLink.
-//
-//		   If the server cannot assign any addresses to an IA in the message
-//		   from the client, the server MUST include the IA in the Reply message
-//		   with no addresses in the IA and a Status Code option in the IA
-//		   containing status code NoAddrsAvail.
+		if (requestMsg.getDhcpClientIdOption() == null) {
+			log.warn("Ignoring Request message: " +
+					"ClientId option is null");
+			return false;
+		}
+
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#process()
+	 */
+	@Override
+	public boolean process() {
+		// When the server receives a Request message via unicast from a client
+		// to which the server has not sent a unicast option, the server
+		// discards the Request message and responds with a Reply message
+		// containing a Status Code option with the value UseMulticast, a Server
+		// Identifier option containing the server's DUID, the Client Identifier
+		// option from the client message, and no other options.
+
+		if (shouldMulticast()) {
+			replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
+			setReplyStatus(DhcpConstants.V6STATUS_CODE_USEMULTICAST);
+			return true;
+		}
+
+		// If the server finds that the prefix on one or more IP addresses in
+		// any IA in the message from the client is not appropriate for the link
+		// to which the client is connected, the server MUST return the IA to
+		// the client with a Status Code option with the value NotOnLink.
+		//
+		// If the server cannot assign any addresses to an IA in the message
+		// from the client, the server MUST include the IA in the Reply message
+		// with no addresses in the IA and a Status Code option in the IA
+		// containing status code NoAddrsAvail.
 
 		boolean sendReply = true;
 		DhcpV6ClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
-		
+
 		List<DhcpV6IaNaOption> iaNaOptions = requestMsg.getIaNaOptions();
-    	if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
-    		V6NaAddrBindingManager bindingMgr = dhcpServerConfig.getV6NaAddrBindingMgr();
-    		if (bindingMgr != null) {
-	    		for (DhcpV6IaNaOption dhcpIaNaOption : iaNaOptions) {
-	    			log.info("Processing IA_NA Request: " + dhcpIaNaOption.toString());
-		    		if (!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
-		    			addIaNaOptionStatusToReply(dhcpIaNaOption,
-		    					DhcpConstants.V6STATUS_CODE_NOTONLINK);
-		    		}
-		    		else {
-						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
+		if ((iaNaOptions != null) && !iaNaOptions.isEmpty()) {
+			V6NaAddrBindingManager bindingMgr = dhcpServerConfig.getV6NaAddrBindingMgr();
+			if (bindingMgr != null) {
+				for (DhcpV6IaNaOption dhcpIaNaOption : iaNaOptions) {
+					log.info("Processing IA_NA Request: " + dhcpIaNaOption.toString());
+					if (!allIaAddrsOnLink(dhcpIaNaOption, clientLink)) {
+						addIaNaOptionStatusToReply(dhcpIaNaOption,
+								DhcpConstants.V6STATUS_CODE_NOTONLINK);
+					} else {
+						Binding binding = bindingMgr.findCurrentBinding(clientLink,
 								clientIdOption, dhcpIaNaOption, requestMsg);
 						if (binding != null) {
-							binding = bindingMgr.updateBinding(binding, clientLink, 
-									clientIdOption, dhcpIaNaOption, requestMsg, 
+							binding = bindingMgr.updateBinding(binding, clientLink,
+									clientIdOption, dhcpIaNaOption, requestMsg,
 									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
-							}
-							else {
+							} else {
 								addIaNaOptionStatusToReply(dhcpIaNaOption,
-			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+										DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
-						}
-						else {
-							//TODO: what is the right thing to do here - we have
-							//		a request, but the solicit failed somehow?
-//							addIaNaOptionStatusToReply(dhcpIaNaOption,
-//		    						DhcpConstants.STATUS_CODE_NOBINDING);
+						} else {
+							// TODO: what is the right thing to do here - we have
+							// a request, but the solicit failed somehow?
+							// addIaNaOptionStatusToReply(dhcpIaNaOption,
+							// DhcpConstants.STATUS_CODE_NOBINDING);
 							// assume that if we have no binding, then there were
 							// no addresses available to be given out on solicit
 							addIaNaOptionStatusToReply(dhcpIaNaOption,
-		    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+									DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 						}
-		    		}
+					}
 				}
-    		}
-    		else {
-    			log.error("Unable to process IA_NA Request:" +
-    					" No NaAddrBindingManager available");
-    		}
-    	}
-		
+			} else {
+				log.error("Unable to process IA_NA Request:" +
+						" No NaAddrBindingManager available");
+			}
+		}
+
 		List<DhcpV6IaTaOption> iaTaOptions = requestMsg.getIaTaOptions();
-    	if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
-    		V6TaAddrBindingManager bindingMgr = dhcpServerConfig.getV6TaAddrBindingMgr();
-    		if (bindingMgr != null) {
-	    		for (DhcpV6IaTaOption dhcpIaTaOption : iaTaOptions) {
-	    			log.info("Processing IA_TA Request: " + dhcpIaTaOption.toString());
-		    		if (!allIaAddrsOnLink(dhcpIaTaOption, clientLink)) {
-		    			addIaTaOptionStatusToReply(dhcpIaTaOption,
-		    					DhcpConstants.V6STATUS_CODE_NOTONLINK);
-		    		}
-		    		else {
-						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
+		if ((iaTaOptions != null) && !iaTaOptions.isEmpty()) {
+			V6TaAddrBindingManager bindingMgr = dhcpServerConfig.getV6TaAddrBindingMgr();
+			if (bindingMgr != null) {
+				for (DhcpV6IaTaOption dhcpIaTaOption : iaTaOptions) {
+					log.info("Processing IA_TA Request: " + dhcpIaTaOption.toString());
+					if (!allIaAddrsOnLink(dhcpIaTaOption, clientLink)) {
+						addIaTaOptionStatusToReply(dhcpIaTaOption,
+								DhcpConstants.V6STATUS_CODE_NOTONLINK);
+					} else {
+						Binding binding = bindingMgr.findCurrentBinding(clientLink,
 								clientIdOption, dhcpIaTaOption, requestMsg);
 						if (binding != null) {
-							binding = bindingMgr.updateBinding(binding, clientLink, 
-									clientIdOption, dhcpIaTaOption, requestMsg, 
+							binding = bindingMgr.updateBinding(binding, clientLink,
+									clientIdOption, dhcpIaTaOption, requestMsg,
 									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
-							}
-							else {
+							} else {
 								addIaTaOptionStatusToReply(dhcpIaTaOption,
-			    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+										DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 							}
-						}
-						else {
-							//TODO: what is the right thing to do here - we have
-							//		a request, but the solicit failed somehow?
-//							addIaTaOptionStatusToReply(dhcpIaTaOption,
-//		    						DhcpConstants.STATUS_CODE_NOBINDING);
+						} else {
+							// TODO: what is the right thing to do here - we have
+							// a request, but the solicit failed somehow?
+							// addIaTaOptionStatusToReply(dhcpIaTaOption,
+							// DhcpConstants.STATUS_CODE_NOBINDING);
 							// assume that if we have no binding, then there were
 							// no addresses available to be given out on solicit
 							addIaTaOptionStatusToReply(dhcpIaTaOption,
-		    						DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
+									DhcpConstants.V6STATUS_CODE_NOADDRSAVAIL);
 						}
-		    		}
+					}
 				}
-    		}
-    		else {
-    			log.error("Unable to process IA_TA Request:" +
-    					" No TaAddrBindingManager available");
-    		}
-    	}
-		
+			} else {
+				log.error("Unable to process IA_TA Request:" +
+						" No TaAddrBindingManager available");
+			}
+		}
+
 		List<DhcpV6IaPdOption> iaPdOptions = requestMsg.getIaPdOptions();
-    	if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
-    		V6PrefixBindingManager bindingMgr = dhcpServerConfig.getV6PrefixBindingMgr();
-    		if (bindingMgr != null) {
-	    		for (DhcpV6IaPdOption dhcpIaPdOption : iaPdOptions) {
-	    			log.info("Processing IA_PD Request: " + dhcpIaPdOption.toString());
-		    		if (!allIaPrefixesOnLink(dhcpIaPdOption, clientLink)) {
-		    			// for PD return NoPrefixAvail instead of NotOnLink
-		    			addIaPdOptionStatusToReply(dhcpIaPdOption,
-		    					DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
-		    		}
-		    		else {
-						Binding binding = bindingMgr.findCurrentBinding(clientLink, 
+		if ((iaPdOptions != null) && !iaPdOptions.isEmpty()) {
+			V6PrefixBindingManager bindingMgr = dhcpServerConfig.getV6PrefixBindingMgr();
+			if (bindingMgr != null) {
+				for (DhcpV6IaPdOption dhcpIaPdOption : iaPdOptions) {
+					log.info("Processing IA_PD Request: " + dhcpIaPdOption.toString());
+					if (!allIaPrefixesOnLink(dhcpIaPdOption, clientLink)) {
+						// for PD return NoPrefixAvail instead of NotOnLink
+						addIaPdOptionStatusToReply(dhcpIaPdOption,
+								DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
+					} else {
+						Binding binding = bindingMgr.findCurrentBinding(clientLink,
 								clientIdOption, dhcpIaPdOption, requestMsg);
 						if (binding != null) {
-							binding = bindingMgr.updateBinding(binding, clientLink, 
-									clientIdOption, dhcpIaPdOption, requestMsg, 
+							binding = bindingMgr.updateBinding(binding, clientLink,
+									clientIdOption, dhcpIaPdOption, requestMsg,
 									IdentityAssoc.LEASED);
 							if (binding != null) {
 								addBindingToReply(clientLink, binding);
 								bindings.add(binding);
-							}
-							else {
-				    			// for PD return NoPrefixAvail instead of NotOnLink
+							} else {
+								// for PD return NoPrefixAvail instead of NotOnLink
 								addIaPdOptionStatusToReply(dhcpIaPdOption,
-			    						DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
+										DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 							}
-						}
-						else {
-							//TODO: what is the right thing to do here - we have
-							//		a request, but the solicit failed somehow?
-//							addIaPdOptionStatusToReply(dhcpIaPdOption,
-//		    						DhcpConstants.STATUS_CODE_NOBINDING);
+						} else {
+							// TODO: what is the right thing to do here - we have
+							// a request, but the solicit failed somehow?
+							// addIaPdOptionStatusToReply(dhcpIaPdOption,
+							// DhcpConstants.STATUS_CODE_NOBINDING);
 							// assume that if we have no binding, then there were
 							// no prefixes available to be given out on solicit
 							addIaPdOptionStatusToReply(dhcpIaPdOption,
-		    						DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
+									DhcpConstants.V6STATUS_CODE_NOPREFIXAVAIL);
 						}
-		    		}
+					}
 				}
-    		}
-    		else {
-    			log.error("Unable to process IA_PD Request:" +
-    					" No PrefixBindingManager available");
-    		}
-    	}
-    	
-    	if (sendReply) {
-            replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
-            if (!bindings.isEmpty()) {
-            	// see addBindingToReply
-            	// populateReplyMsgOptions(clientLink);
-    			processDdnsUpdates(true);
-    			processHaBindingUpdates(replyMsg.getDhcpOptionMap());
-            }
-    	}
-		return sendReply;    	
-    }
+			} else {
+				log.error("Unable to process IA_PD Request:" +
+						" No PrefixBindingManager available");
+			}
+		}
+
+		if (sendReply) {
+			replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
+			if (!bindings.isEmpty()) {
+				// see addBindingToReply
+				// populateReplyMsgOptions(clientLink);
+				processDdnsUpdates(true);
+				processHaBindingUpdates(replyMsg.getDhcpOptionMap());
+			}
+		}
+		return sendReply;
+	}
 }

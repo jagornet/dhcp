@@ -41,77 +41,77 @@ import com.jagornet.dhcp.core.util.DhcpConstants;
  * @author A. Gregory Rabil
  */
 
-public class DhcpV6InfoRequestProcessor extends BaseDhcpV6Processor
-{
-	private static Logger log = LoggerFactory.getLogger(DhcpV6InfoRequestProcessor.class);
-    
+public class DhcpV6InfoRequestProcessor extends BaseDhcpV6Processor {
+    private static Logger log = LoggerFactory.getLogger(DhcpV6InfoRequestProcessor.class);
+
     /**
      * Construct an DhcpInfoRequest processor.
      * 
-     * @param requestMsg the Info-Request message
+     * @param requestMsg        the Info-Request message
      * @param clientLinkAddress the client link address
      */
-    public DhcpV6InfoRequestProcessor(DhcpV6Message requestMsg, InetAddress clientLinkAddress)
-    {
-    	super(requestMsg, clientLinkAddress);
+    public DhcpV6InfoRequestProcessor(DhcpV6Message requestMsg, InetAddress clientLinkAddress) {
+        super(requestMsg, clientLinkAddress);
     }
-    
+
     /*
      * FROM RFC 3315:
      * 
      * 15.12. Information-request Message
      *
-     *  Servers MUST discard any received Information-request message that
-     *  meets any of the following conditions:
+     * Servers MUST discard any received Information-request message that
+     * meets any of the following conditions:
      *
-     *  -  The message includes a Server Identifier option and the DUID in
-     *     the option does not match the server's DUID.
+     * - The message includes a Server Identifier option and the DUID in
+     * the option does not match the server's DUID.
      *
-     *  -  The message includes an IA option.
-     *  
+     * - The message includes an IA option.
+     * 
      */
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.jagornet.dhcpv6.server.request.BaseDhcpProcessor#preProcess()
      */
     @Override
-    public boolean preProcess()
-    {
-    	if (!super.preProcess()) {
-    		return false;
-    	}
-    	
-    	// this check enforced by TAHI DHCP server tests
-    	if (requestMsg.isUnicast()) {
-    		log.warn("Ignoring unicast InfoRequest Message");
-    		return false;
-    	}
+    public boolean preProcess() {
+        if (!super.preProcess()) {
+            return false;
+        }
 
-    	// if the client provided a ServerID option, then it MUST
+        // this check enforced by TAHI DHCP server tests
+        if (requestMsg.isUnicast()) {
+            log.warn("Ignoring unicast InfoRequest Message");
+            return false;
+        }
+
+        // if the client provided a ServerID option, then it MUST
         // match our configured ServerID, otherwise ignore the request
-    	DhcpV6ServerIdOption requestedServerIdOption = requestMsg.getDhcpServerIdOption();
-        if ( (requestedServerIdOption != null) &&
-             !dhcpServerIdOption.equals(requestedServerIdOption) ) {
+        DhcpV6ServerIdOption requestedServerIdOption = requestMsg.getDhcpServerIdOption();
+        DhcpV6ServerIdOption myServerId = getDhcpV6ServerIdOption();
+        if ((requestedServerIdOption != null) &&
+                ((myServerId == null) || !myServerId.equals(requestedServerIdOption))) {
             log.warn("Ignoring Info-Request message: " +
-                     "Requested ServerId: " + requestedServerIdOption +
-                     " My ServerId: " + dhcpServerIdOption);
+                    "Requested ServerId: " + requestedServerIdOption +
+                    " My ServerId: " + myServerId);
             return false;
         }
 
         // if the client message has an IA option (IA_NA, IA_TA)
         // then the DHCPv6 server must ignore the request
-        if ( ((requestMsg.getIaNaOptions() != null) && !requestMsg.getIaNaOptions().isEmpty()) ||
-        	 ((requestMsg.getIaTaOptions() != null) && !requestMsg.getIaTaOptions().isEmpty()) ||
-        	 ((requestMsg.getIaPdOptions() != null) && !requestMsg.getIaPdOptions().isEmpty()) ) {
+        if (((requestMsg.getIaNaOptions() != null) && !requestMsg.getIaNaOptions().isEmpty()) ||
+                ((requestMsg.getIaTaOptions() != null) && !requestMsg.getIaTaOptions().isEmpty()) ||
+                ((requestMsg.getIaPdOptions() != null) && !requestMsg.getIaPdOptions().isEmpty())) {
             log.warn("Ignoring Info-Request message: " +
-                     " client message contains IA option(s).");
+                    " client message contains IA option(s).");
             return false;
         }
-        
-    	return true;
+
+        return true;
     }
 
     /**
-     * Process the client request.  Find appropriate configuration based on any
+     * Process the client request. Find appropriate configuration based on any
      * criteria in the request message that can be matched against the server's
      * configuration, then formulate a response message containing the options
      * to be sent to the client.
@@ -119,17 +119,16 @@ public class DhcpV6InfoRequestProcessor extends BaseDhcpV6Processor
      * @return true if a reply should be sent, false otherwise
      */
     @Override
-    public boolean process()
-    {
-//    	   When the server receives an Information-request message, the client
-//    	   is requesting configuration information that does not include the
-//    	   assignment of any addresses.  The server determines all configuration
-//    	   parameters appropriate to the client, based on the server
-//    	   configuration policies known to the server.
+    public boolean process() {
+        // When the server receives an Information-request message, the client
+        // is requesting configuration information that does not include the
+        // assignment of any addresses. The server determines all configuration
+        // parameters appropriate to the client, based on the server
+        // configuration policies known to the server.
 
-    	replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
-    	populateReplyMsgOptions(clientLink);
+        replyMsg.setMessageType(DhcpConstants.V6MESSAGE_TYPE_REPLY);
+        populateReplyMsgOptions(clientLink);
 
-    	return true;
+        return true;
     }
 }

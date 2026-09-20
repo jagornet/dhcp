@@ -82,8 +82,9 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor {
 
 	protected static DhcpServerConfiguration dhcpServerConfig = DhcpServerConfiguration.getInstance();
 
-	// wrap the configured V4ServerId option in a DhcpOption for the wire
-	protected static DhcpV4ServerIdOption dhcpV4ServerIdOption = dhcpServerConfig.getDhcpV4ServerIdOption();
+	public DhcpV4ServerIdOption getDhcpV4ServerIdOption() {
+		return dhcpServerConfig.getDhcpV4ServerIdOption();
+	}
 
 	protected final DhcpV4Message requestMsg;
 	protected DhcpV4Message replyMsg;
@@ -212,7 +213,7 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor {
 			replyMsg.setChAddr(requestMsg.getChAddr());
 
 			// MUST put Server Identifier in REPLY message
-			replyMsg.putDhcpOption(dhcpV4ServerIdOption);
+			replyMsg.putDhcpOption(getDhcpV4ServerIdOption());
 
 			if (!process()) {
 				// don't log a warning for release, which has no reply message
