@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE xml>
+<!-- it should be like this to avoid the warning, but then no auto-completion in VS Code, why?
+<dhcpServerConfig xmlns="http://jagornet.com/dhcp/xml"
+-->
+<dhcpServerConfig 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="dhcpserver.xsd">
+    
+    <v4ServerIdOption>
+        <ipAddress>1.2.3.4</ipAddress>
+    </v4ServerIdOption>
+    <v6ServerIdOption>
+        <opaqueData>
+            JagornetDHCPServer
+        </opaqueData>
+    </v6ServerIdOption>
+
+    <links>
+        <linkList>
+            <name>hello</name>
+            <interface>eth0</interface>
+        </linkList>
+    </links>
+
+    <policies>
+        <policyList>
+            <name>hello</name>
+            <value>world</value>
+        </policyList>
+    </policies>
+
+</dhcpServerConfig>

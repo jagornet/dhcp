@@ -1,257 +1,123 @@
 #!/bin/sh
+#
+# Jagornet DHCP Server Launcher
+#
 
-NAME="Jagornet DHCP Server"
+show_help() {
+  cat << 'EOF'
+Jagornet DHCP Server
+Usage: dhcpserver [options]
 
-OP=$1
-# shift causes all arguments to be moved left by one
-# which essentially removes this wrapper script's argument
-shift
-#echo "$@"
-JAGORNET_DHCP_OPTS="$@"
+Server Options:
+  -c,  --configfile <filename>    Configuration file (default = config/dhcpserver.xml)
+  -4b, --v4bcast <interface>      DHCPv4 broadcast interface (default = none)
+  -4u, --v4ucast <addresses...>   DHCPv4 unicast addresses (default = all IPv4 addresses)
+  -4p, --v4port <portnum>         DHCPv4 port number (default = 67)
+  -6m, --v6mcast <interfaces...>  DHCPv6 multicast interfaces (default = none)
+  -6u, --v6ucast <addresses...>   DHCPv6 unicast addresses (default = all IPv6 addresses)
+  -6p, --v6port <portnum>         DHCPv6 port number (default = 547)
+  -ga, --gaddr <address>          gRPC address (default = all IP addresses, or 'none')
+  -gp, --gport <portnum>          gRPC port number (default = 9066)
+  -ha, --haddr <address>          HTTPS address (default = all IP addresses, or 'none')
+  -hp, --hport <portnum>          HTTPS port number (default = 9067)
 
-if [ -n "$JAVA_HOME" ] ; then
-  JAVA="$JAVA_HOME/bin/java"
-else
-  if [ -x /usr/bin/java ] ; then
-    JAVA=/usr/bin/java
-  else
-    echo "Error - Java not found.  Please set JAVA_HOME environment variable."
-    exit 1
-  fi
+Utility Options:
+  -tc, --test-configfile <file>   Test configuration file syntax, then exit
+  -li, --list-interfaces          Show detailed host interface list, then exit
+  -v,  --version                  Show version information, then exit
+  -?,  --help                     Show this help page
+
+Service Management (systemd):
+  systemctl start jagornet-dhcp    Start the server service
+  systemctl stop jagornet-dhcp     Stop the server service
+  systemctl restart jagornet-dhcp  Restart the server service
+  systemctl status jagornet-dhcp   Check server status
+  journalctl -u jagornet-dhcp -f   Follow service logs
+EOF
+}
+
+# Fast intercept for help and empty arguments (< 5ms response, no JVM boot required)
+if [ $# -eq 0 ]; then
+  show_help
+  exit 0
 fi
 
-# This block of shell script for determining the
-# application's home directory was borrowed from 
-# the Apache ActiveMQ server startup script.
-if [ -z "$JAGORNET_DHCP_HOME" ] ; then
-  # try to find DHCP
-  if [ -d /opt/jagornet/dhcp ] ; then
-    JAGORNET_DHCP_HOME=/opt/jagornet/dhcp
-  fi
+case "$1" in
+  "-?"|"-h"|"--help"|"help")
+    show_help
+    exit 0
+    ;;
+esac
 
-  if [ -d "${HOME}/opt/jagornet/dhcp" ] ; then
-    JAGORNET_DHCP_HOME="${HOME}/opt/jagornet/dhcp"
-  fi
-
-  ## resolve links - $0 may be a link to dhcp's home
+# Resolve JAGORNET_DHCP_HOME
+if [ -z "$JAGORNET_DHCP_HOME" ]; then
   PRG="$0"
-  progname=`basename "$0"`
-  saveddir=`pwd`
-
-  # need this for relative symlinks
-  dirname_prg=`dirname "$PRG"`
-  cd "$dirname_prg"
-
-  while [ -h "$PRG" ] ; do
+  while [ -h "$PRG" ]; do
     ls=`ls -ld "$PRG"`
     link=`expr "$ls" : '.*-> \(.*\)$'`
-    if expr "$link" : '.*/.*' > /dev/null; then
-    PRG="$link"
+    if expr "$link" : '/.*' > /dev/null; then
+      PRG="$link"
     else
-    PRG=`dirname "$PRG"`"/$link"
+      PRG=`dirname "$PRG"`/"$link"
     fi
   done
-
   JAGORNET_DHCP_HOME=`dirname "$PRG"`/..
-
-  cd "$saveddir"
-
-  # make it fully qualified
   JAGORNET_DHCP_HOME=`cd "$JAGORNET_DHCP_HOME" && pwd`
 fi
 
-# Add the config directory to the beginning of the CLASSPATH
-# so that the server can find the log4j.properties file and
-# to allow this directory to be used in case of the need to
-# override resources that are packaged in the server jar file
-JAGORNET_DHCP_CLASSPATH="$JAGORNET_DHCP_HOME/config"
+# Locate Java executable
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+  JAVA="$JAVA_HOME/bin/java"
+elif command -v java >/dev/null 2>&1; then
+  JAVA="java"
+else
+  echo "Error: Java not found. Please set the JAVA_HOME environment variable or ensure 'java' is in your PATH." >&2
+  exit 1
+fi
 
-# Add all .jar files in JAGORNET_DHCP_HOME/lib/ to the CLASSPATH
-JAGORNET_DHCP_CLASSPATH="$JAGORNET_DHCP_CLASSPATH:$JAGORNET_DHCP_HOME/lib/*"
-
-CLASSPATH=$CLASSPATH:$JAGORNET_DHCP_CLASSPATH; export CLASSPATH
-
-# The "main" Java class for the Jagornet DHCP Server
-JAGORNET_DHCP_MAIN="com.jagornet.dhcp.server.JagornetDhcpServer"
-
-# The "main" Java classes for the DHCP Test Clients
-DHCPV4TESTCLIENT_MAIN="com.jagornet.dhcp.client.ClientSimulatorV4"
-DHCPV6TESTCLIENT_MAIN="com.jagornet.dhcp.client.ClientSimulatorV6"
-GENTESTCONFIG_MAIN="com.jagornet.dhcp.server.config.GenerateTestConfig"
-
-# Note: log4j.configuration property references a file in the classpath (see above)
-#       the default is shown, change only if necessary
-#LOG4J="-Dlog4j.configuration=log4j.properties"
-
-# The Jagornet DHCP server supports Java Management Extensions (JMX)
-# for managing logging parameters and monitoring server statistics.
-# Sun's JRE 6 provides out-of-the-box support for JMX as described at
-# http://java.sun.com/javase/6/docs/technotes/guides/management/agent.html.
-	 
-JAVA_OPTS="$JAVA_OPTS -server -Djava.awt.headless=true $LOG4J $JMX"
-
-JAGORNET_DHCP_PID="$JAGORNET_DHCP_HOME/jdhcpserver.pid"
-
-isRunning() {
-
-	if [ -f "$JAGORNET_DHCP_PID" ]; then
-	   ps -p `cat $JAGORNET_DHCP_PID` > /dev/null 2>&1
-	   if [ $? -eq 0 ]; then
-	      return 1;
-	   fi
-	fi
-	return 0;
-}
-
-start() {
-
-	isRunning
-	if [ "$?" -eq "1" ]; then
-		echo "$NAME already running."
-	else
-		echo "Starting $NAME..."
-		$JAVA $JAVA_OPTS -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-						 $JAGORNET_DHCP_MAIN $JAGORNET_DHCP_OPTS & 
-		echo "$!" > $JAGORNET_DHCP_PID
-		sleep 5
-		isRunning
-		if [ "$?" -eq "1" ]; then
-			echo "$NAME started."
-		else
-		   echo "Failed to start $NAME."
-		   exit 1
-		fi
-	fi
-}
-
-stop() {
-
-	isRunning
-	if [ "$?" -eq "0" ]; then
-		echo "$NAME is not running."
-	else
-		if [ -f "$JAGORNET_DHCP_PID" ]; then
-			echo "Stopping $NAME..."
-			kill `cat $JAGORNET_DHCP_PID` 2>&1
-			i=1
-			sleep 1
-			isRunning
-			while  [ "$?" -eq "1" ]; do
-				i=`expr $i + 1`
-				if [ "$i" -eq "10" ]; then
-					break
-				fi
-				sleep 1
-				isRunning
-			done
-			isRunning
-			if [ "$?" -eq "0" ]; then
-				echo "$NAME stopped."
-				rm -f $JAGORNET_DHCP_PID
-			else
-				echo "Failed to stop $NAME."
-				exit 1
-			fi
-		fi
-	fi
-}
-
-status() {
-	isRunning
-	if [ "$?" -eq "1" ]; then
-		echo "$NAME is running."
-	else
-		echo "$NAME is not running."
-		exit 1
-	fi
-}
-
-version() {
-	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			$JAGORNET_DHCP_MAIN -version
-}
-
-testconfigfile() {
-	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			$JAGORNET_DHCP_MAIN --test-configfile $JAGORNET_DHCP_OPTS
-	exit $? 
-}
-
-listinterfaces() {
-	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			$JAGORNET_DHCP_MAIN --list-interfaces
-	exit $? 
-}
-
-testclientv4() {
-	echo Running $DHCPV4TESTCLIENT_MAIN
-	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			-Dlog4j.configurationFile=log4j2-testclient.xml \
-			$DHCPV4TESTCLIENT_MAIN $JAGORNET_DHCP_OPTS 
-	exit $? 
-}
-
-testclientv6() {
-	echo Running $DHCPV6TESTCLIENT_MAIN
-	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			-Dlog4j.configurationFile=log4j2-testclient.xml \
-			$DHCPV6TESTCLIENT_MAIN $JAGORNET_DHCP_OPTS 
-	exit $? 
-}
-
-gentestconfig() {
-	echo Running $GENTESTCONFIG_MAIN
-	$JAVA -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
-			$GENTESTCONFIG_MAIN $JAGORNET_DHCP_OPTS
-	exit $? 
-}
-
-
-case "$OP" in
-	start)
-		start
-		;;
-	stop)
-		stop
-		;;
-	restart)
-		stop
-		sleep 2
-		start
-		;;
-	status)
-		status
-		;;
-	version)
-		version
-		;;
-	test-configfile)
-		testconfigfile
-		;;
-	list-interfaces)
-		listinterfaces
-		;;
-	testclientv4)
-		testclientv4
-		;;
-	testclientv6)
-		testclientv6
-		;;
-	gentestconfig)
-		gentestconfig
-		;;
-	*)
-		echo "Usage: $0 < start [options|-?] | 
-				stop | 
-				restart [options|-?] | 
-				status | 
-				version | 
-				test-configfile <configfile> | 
-				list-interfaces | 
-				testclientv4 [options|-?] | 
-				testclientv6 [options|-?] | 
-				gentestconfig [options|-?] >"
-		exit 1
-		;;
+# Backward compatibility / legacy command handling
+case "$1" in
+  start|run)
+    shift
+    ;;
+  stop|status)
+    echo "Note: The Jagornet DHCP server now runs as a foreground process."
+    echo "If running as a systemd service, use:"
+    echo "  sudo systemctl $1 jagornet-dhcp"
+    echo "If running interactively, press Ctrl+C to stop."
+    exit 1
+    ;;
+  restart)
+    echo "Note: When running as a systemd service, use:"
+    echo "  sudo systemctl restart jagornet-dhcp"
+    exit 1
+    ;;
+  list-interfaces)
+    shift
+    set -- "--list-interfaces" "$@"
+    ;;
+  test-configfile)
+    shift
+    set -- "--test-configfile" "$@"
+    ;;
+  version)
+    shift
+    set -- "--version" "$@"
+    ;;
+  testclientv4|testclientv6|gentestconfig)
+    CMD="$1"
+    shift
+    echo "Redirecting to $CMD... (Note: $CMD is now a standalone script in bin/$CMD)"
+    exec "$JAGORNET_DHCP_HOME/bin/$CMD" "$@"
+    ;;
 esac
-exit 0
+
+# Classpath setup
+CLASSPATH="$JAGORNET_DHCP_HOME/config:$JAGORNET_DHCP_HOME/lib/*:$CLASSPATH"
+export CLASSPATH
+
+JAVA_OPTS="$JAVA_OPTS -server -Djava.awt.headless=true"
+
+# Execute Java directly in foreground (signals like SIGTERM/SIGINT propagate cleanly)
+exec "$JAVA" $JAVA_OPTS -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
+     com.jagornet.dhcp.server.JagornetDhcpServer "$@"

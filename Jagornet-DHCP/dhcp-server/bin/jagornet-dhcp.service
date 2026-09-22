@@ -1,0 +1,40 @@
+[Unit]
+Description=Jagornet DHCP Server
+Documentation=https://github.com/jagornet/Jagornet-DHCP
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jagornet
+Group=jagornet
+
+# Ambient capabilities allow the server to run as an unprivileged user
+# while still binding to privileged DHCP ports (67/547) and capturing raw packets.
+AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_NET_RAW
+
+# Set default home; can be overridden in /etc/default/jagornet-dhcp
+Environment="JAGORNET_DHCP_HOME=/opt/jagornet/dhcp"
+EnvironmentFile=-/etc/default/jagornet-dhcp
+
+WorkingDirectory=/opt/jagornet/dhcp
+ExecStart=/opt/jagornet/dhcp/bin/dhcpserver -c /opt/jagornet/dhcp/config/dhcpserver.xml
+
+# Graceful stop: systemd sends SIGTERM, caught by JagornetDhcpServer JVM shutdown hook
+KillSignal=SIGTERM
+TimeoutStopSec=20s
+
+# The JVM exits with 143 (128 + 15) upon receiving SIGTERM; treat as successful shutdown
+SuccessExitStatus=143
+
+# Process recovery
+Restart=on-failure
+RestartSec=5s
+
+# Logging: captured by journald (view with `journalctl -u jagornet-dhcp -f`)
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

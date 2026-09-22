@@ -28,6 +28,7 @@ package com.jagornet.dhcp.server.config;
 import java.beans.Introspector;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +59,7 @@ import javax.xml.stream.XMLInputFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
@@ -1192,8 +1194,19 @@ public class DhcpServerConfiguration
         ConfigSyntax syntax = getConfigSyntax(filename);
     	InputStream inputStream = null;
     	try {
-    		ResourceLoader resourceLoader = new DefaultResourceLoader();
-    		Resource resource = resourceLoader.getResource(filename);
+    		Resource resource = null;
+    		if (filename.startsWith("classpath:")) {
+    			resource = new DefaultResourceLoader().getResource(filename);
+    		}
+    		else {
+    			File file = new File(filename.startsWith("file:") ? filename.substring(5) : filename);
+    			if (file.exists() || file.isAbsolute()) {
+    				resource = new FileSystemResource(file);
+    			}
+    			else {
+    				resource = new DefaultResourceLoader().getResource(filename);
+    			}
+    		}
     		inputStream = resource.getInputStream();
     		if (syntax == ConfigSyntax.XML) {
     			config = loadXmlConfig(inputStream);

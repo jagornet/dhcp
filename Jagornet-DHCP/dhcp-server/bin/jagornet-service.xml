@@ -1,0 +1,22 @@
+<service>
+  <id>JagornetDhcpServer</id>
+  <name>Jagornet DHCP Server</name>
+  <description>Jagornet High-Performance DHCPv4 and DHCPv6 Server</description>
+  <executable>%BASE%\bin\dhcpserver.bat</executable>
+  <arguments>-c "%BASE%\config\dhcpserver.xml"</arguments>
+  <workingdirectory>%BASE%</workingdirectory>
+  
+  <!-- Log rotation -->
+  <logpath>%BASE%\logs</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
+  
+  <!-- Automatic recovery -->
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  
+  <!-- Windows Service Dependencies -->
+  <depend>Tcpip</depend>
+</service>

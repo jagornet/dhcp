@@ -105,6 +105,17 @@ public class TestDhcpServerConfiguration extends TestCase
 		assertEquals(1, config.getPolicies().getPolicyList().size());
 		assertEquals("dhcp.sendRequestedOptionsOnly", config.getPolicies().getPolicyList().get(0).getName());
 		assertEquals("true", config.getPolicies().getPolicyList().get(0).getValue());
+
+		// Test loading directly via absolute and relative filesystem paths (without "file:" prefix)
+		String absFilePath = tmpdir.toFile().toPath().toAbsolutePath().toString() + "/dhcpserver-test-config-save.xml";
+		DhcpServerConfig absConfig = DhcpServerConfiguration.loadConfig(absFilePath);
+		assertNotNull(absConfig);
+		assertNotNull(absConfig.getV6ServerIdOption());
+
+		String rawFilePath = tmpdir.toFile().toPath() + "/dhcpserver-test-config-save.xml";
+		DhcpServerConfig rawConfig = DhcpServerConfiguration.loadConfig(rawFilePath);
+		assertNotNull(rawConfig);
+		assertNotNull(rawConfig.getV6ServerIdOption());
 	}
 	
 	public void testSaveAndLoadJsonConfig() throws Exception

@@ -8,7 +8,7 @@
   </organization>
 
   <groupId>com.jagornet</groupId>
-  <artifactId>jagornet-dhcp-all</artifactId>
+  <artifactId>jagornet-dhcp</artifactId>
   <packaging>pom</packaging>
 
   <properties>
@@ -18,7 +18,7 @@
     which necessitates flatten-maven-plugin in module builds in order to remove
     and replace the installed or deployed module
      -->
-  	<revision>4.1.0</revision>
+  	<revision>4.2.0-SNAPSHOT</revision>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,7 +27,7 @@
   	<junit.version>4.13.1</junit.version>
   </properties>
 
-  <name>jagornet-dhcp-all</name>
+  <name>jagornet-dhcp</name>
   <version>${revision}</version>
 
   <modules>

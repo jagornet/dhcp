@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.jagornet</groupId>
-    <artifactId>jagornet-dhcp-all</artifactId>
+    <artifactId>jagornet-dhcp</artifactId>
     <!-- See parent pom for revision -->
     <version>${revision}</version>
   </parent>
@@ -27,18 +27,16 @@
   </dependencies>
   
   <build>
+    <finalName>jagornet-dhcp-${project.version}</finalName>
   	<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.3.0</version>
 				<configuration>
+				  <appendAssemblyId>false</appendAssemblyId>
 				  <descriptors>
-				    <descriptor>src/assembly/all-db-dist-assembly.xml</descriptor>
-				    <!-- 
-				    <descriptor>src/assembly/derby-dist-assembly.xml</descriptor>
-				    <descriptor>src/assembly/h2-dist-assembly.xml</descriptor>
-				     -->
+				    <descriptor>src/assembly/dist-assembly.xml</descriptor>
 				  </descriptors>
 				</configuration>
 				<executions>

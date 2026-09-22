@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# Jagornet DHCPv6 Client Simulator
+#
+
+# Resolve JAGORNET_DHCP_HOME
+if [ -z "$JAGORNET_DHCP_HOME" ]; then
+  PRG="$0"
+  while [ -h "$PRG" ]; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+      PRG="$link"
+    else
+      PRG=`dirname "$PRG"`/"$link"
+    fi
+  done
+  JAGORNET_DHCP_HOME=`dirname "$PRG"`/..
+  JAGORNET_DHCP_HOME=`cd "$JAGORNET_DHCP_HOME" && pwd`
+fi
+
+# Locate Java executable
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+  JAVA="$JAVA_HOME/bin/java"
+elif command -v java >/dev/null 2>&1; then
+  JAVA="java"
+else
+  echo "Error: Java not found. Please set the JAVA_HOME environment variable or ensure 'java' is in your PATH." >&2
+  exit 1
+fi
+
+CLASSPATH="$JAGORNET_DHCP_HOME/config:$JAGORNET_DHCP_HOME/lib/*:$CLASSPATH"
+export CLASSPATH
+
+exec "$JAVA" -Djagornet.dhcp.home="$JAGORNET_DHCP_HOME" \
+     -Dlog4j.configurationFile=log4j2-testclient.xml \
+     com.jagornet.dhcp.client.ClientSimulatorV6 "$@"

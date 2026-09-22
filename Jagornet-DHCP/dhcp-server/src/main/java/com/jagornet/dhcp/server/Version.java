@@ -44,10 +44,15 @@ public class Version
 	String implVersion = null;
 	
 	public Version() {
-		Package pkg = Version.class.getClassLoader().getDefinedPackage("com.jagornet.dhcp.server");
-		implVendor = pkg.getImplementationTitle();
-		implTitle = pkg.getImplementationTitle();
-		implVersion = pkg.getImplementationVersion();
+		Package pkg = Version.class.getPackage();
+		if (pkg == null) {
+			pkg = Version.class.getClassLoader().getDefinedPackage("com.jagornet.dhcp.server");
+		}
+		if (pkg != null) {
+			implVendor = pkg.getImplementationVendor();
+			implTitle = pkg.getImplementationTitle();
+			implVersion = pkg.getImplementationVersion();
+		}
 		// the Package values are null on Docker because there is
 		// no jar file, so go find the Manifest in the classpath
 		if ((implVendor == null) || (implTitle == null) || (implVersion == null)) {
