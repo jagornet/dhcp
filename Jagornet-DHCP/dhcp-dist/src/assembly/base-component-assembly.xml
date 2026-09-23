@@ -31,6 +31,7 @@
     <fileSet>
       <directory>${project.basedir}/../dhcp-server/bin</directory>
       <outputDirectory>bin</outputDirectory>
+      <fileMode>0755</fileMode>
     </fileSet>
     <fileSet>
       <directory>${project.basedir}/../dhcp-server/config</directory>
@@ -39,6 +40,13 @@
     <fileSet>
       <directory>${project.basedir}/../dhcp-server/db</directory>
       <outputDirectory>db</outputDirectory>
+      <excludes>
+      	<exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/../dhcp-server/log</directory>
+      <outputDirectory>log</outputDirectory>
       <excludes>
       	<exclude>**/*</exclude>
       </excludes>

@@ -4,5 +4,5 @@
 build/
 dist/
 lib/
-log/
+!dhcp-server/log/
 target/

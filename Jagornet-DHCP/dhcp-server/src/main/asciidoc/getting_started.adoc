@@ -158,13 +158,15 @@ Startup examples:
 
 ===== Linux Systemd Service
 
-Jagornet DHCP Server includes a native systemd unit file at `$JAGORNET_DHCP_HOME/bin/jagornet-dhcp.service`.
+Jagornet DHCP Server includes automated service installation and uninstallation scripts in `$JAGORNET_DHCP_HOME/bin/`.
 
-. Install and enable the systemd service:
+The installer script handles creating the `/opt/jagornet/dhcp` symlink, creating the unprivileged `jagornet` system user and group, setting proper file permissions, creating an environment file at `/etc/default/jagornet-dhcp`, and registering and starting the systemd service.
 
- sudo cp $JAGORNET_DHCP_HOME/bin/jagornet-dhcp.service /etc/systemd/system/
- sudo systemctl daemon-reload
- sudo systemctl enable --now jagornet-dhcp
+. Install and start the systemd service:
+
+ sudo $JAGORNET_DHCP_HOME/bin/install-service.sh
+
+NOTE: You can pass `--no-start` to install and enable the service on boot without starting it immediately: `sudo ./bin/install-service.sh --no-start`. Run `sudo ./bin/install-service.sh --help` for all options.
 
 . Manage the service:
 
@@ -172,6 +174,12 @@ Jagornet DHCP Server includes a native systemd unit file at `$JAGORNET_DHCP_HOME
  sudo systemctl stop jagornet-dhcp
  sudo systemctl restart jagornet-dhcp
  sudo journalctl -u jagornet-dhcp -f
+
+. Uninstall the service:
+
+ sudo $JAGORNET_DHCP_HOME/bin/uninstall-service.sh
+
+NOTE: Pass `--remove-symlink` to also clean up the `/opt/jagornet/dhcp` symlink: `sudo ./bin/uninstall-service.sh --remove-symlink`. Application configuration, databases, and logs are preserved.
 
 ==== Windows
 ===== Command Shell
