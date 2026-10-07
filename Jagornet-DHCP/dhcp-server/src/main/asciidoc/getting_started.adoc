@@ -1,18 +1,15 @@
 == Getting Started
 
 === System requirements
-Jagornet DHCP Server requires any platform with a certified Java 8+ runtime environment.
+Jagornet DHCP Server requires any platform with a certified Java 11+ runtime environment.
 
-The server has been successfully tested on Linux (RHEL/CentOS), Windows and Mac OS
-using the Oracle JRE 8 and OpenJDK 8 for the respective platforms.
+The server has been successfully tested on Linux, Windows and Mac OS
+using the Oracle JRE 11 and OpenJDK 11 for the respective platforms.
 
 === Installation
-Java 11+ runtime must be available on the host where the Jagornet DHCP server will be 
-installed. The JAVA_HOME environment variable should be set to the home directory of 
-your Java 11+ JRE.
+Java 11+ runtime must be available on the host where the Jagornet DHCP server will be installed. The JAVA_HOME environment variable should be set to the home directory of your Java 11+ JRE.
 
-. Create the installation directory on the host system and expand the compressed 
-installation file for your target platform.
+. Create the installation directory on the host system and expand the compressed installation file for your target platform.
 * Linux/Unix/Mac
 ** Installation folder: `/opt/jagornet`
 ** Compressed install file: `jagornet-dhcp-{fullversion}.tar.gz`
@@ -21,8 +18,7 @@ installation file for your target platform.
 ** Installation folder: `C:\jagornet`
 ** Compressed install file: `jagornet-dhcp-{fullversion}.zip`
 ** `JAGORNET_DHCP_HOME=C:\jagornet\jagornet-dhcp-{fullversion}`
-. After extracting the compressed files, a jagornet-dhcp-{fullversion} directory will 
-be created in the installation folder, with the following contents.
+. After extracting the compressed files, a jagornet-dhcp-{fullversion} directory will be created in the installation folder, with the following contents.
 * `JAGORNET_DHCP_HOME/bin` - executable command line files. See the section on <<Running the Server>>.
 * `JAGORNET_DHCP_HOME/config` - configuration files. See the section on Configuration.
 * `JAGORNET_DHCP_HOME/db` - database directory. See the section on Binding Database.
@@ -50,8 +46,8 @@ The main Java class of the Jagornet DHCP Server supports the following usage:
 [source]
 ----
 usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
-Jagornet DHCP Server Community Edition 4.1.0
-Copyright 2009-2025 Jagornet Technologies, LLC.  All Rights Reserved.
+Jagornet DHCP Server Community Edition 4.2.0
+Copyright 2009-2026 Jagornet Technologies, LLC.  All Rights Reserved.
   -4b,--v4bcast <interface>         DHCPv4 broadcast interface (default = none).
                                     Use this option to specify the interface for
                                     the server to receive and send broadcast
@@ -233,5 +229,4 @@ error streams. After the server initialization, all messages will be written to
 the `log/dhcpserver.log` file. When the file reaches 10MB, it is "rolled" over to a 
 new `log/dhcpserver-#.log` file up to ten files of logging history. These settings are 
 controlled by the  
-https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender[Log4j2 RollingFileAppender]
-for details.
+https://logging.apache.org/log4j/2.x/manual/appenders.html#RollingFileAppender[Log4j2 RollingFileAppender].
