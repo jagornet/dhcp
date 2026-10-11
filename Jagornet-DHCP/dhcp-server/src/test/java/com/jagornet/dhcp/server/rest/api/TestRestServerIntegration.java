@@ -123,7 +123,14 @@ public class TestRestServerIntegration {
 		baseUri = UriBuilder.fromUri("http://127.0.0.1/").port(port).build();
 
 		ResourceConfig resourceConfig = new ResourceConfig()
-				.packages("com.jagornet.dhcp.server.rest.api")
+				.register(AuthenticationResource.class)
+				.register(DhcpLeasesResource.class)
+				.register(DhcpLinksResource.class)
+				.register(DhcpServerConfigResource.class)
+				.register(DhcpServerStatusResource.class)
+				.register(MetricsResource.class)
+				.register(AuthenticationFilter.class)
+				.register(ApplicationExceptionMapper.class)
 				.register(new ObjectMapperContextResolver())
 				.register(JacksonFeature.class);
 

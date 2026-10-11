@@ -60,9 +60,15 @@ public class JerseyRestServer {
 //    }
 
     public Channel startNettyServer() {
-        // create a resource config that scans for JAX-RS resources and providers
-        // in API_PACKAGE
-        final ResourceConfig resourceConfig = new ResourceConfig().packages(API_PACKAGE);
+        final ResourceConfig resourceConfig = new ResourceConfig()
+                .register(com.jagornet.dhcp.server.rest.api.AuthenticationResource.class)
+                .register(com.jagornet.dhcp.server.rest.api.DhcpLeasesResource.class)
+                .register(com.jagornet.dhcp.server.rest.api.DhcpLinksResource.class)
+                .register(com.jagornet.dhcp.server.rest.api.DhcpServerConfigResource.class)
+                .register(com.jagornet.dhcp.server.rest.api.DhcpServerStatusResource.class)
+                .register(com.jagornet.dhcp.server.rest.api.MetricsResource.class)
+                .register(com.jagornet.dhcp.server.rest.api.AuthenticationFilter.class)
+                .register(com.jagornet.dhcp.server.rest.api.ApplicationExceptionMapper.class);
         
         /*
          * NOTE:
