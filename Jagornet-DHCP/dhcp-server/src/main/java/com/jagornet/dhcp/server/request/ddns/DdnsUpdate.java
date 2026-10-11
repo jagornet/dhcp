@@ -119,14 +119,32 @@ public abstract class DdnsUpdate
 	 */
 	protected Resolver createResolver() throws UnknownHostException, TextParseException 
 	{
-		Resolver res = new SimpleResolver(server);
+		Resolver res;
+		if (server != null && !server.isEmpty()) {
+			int colon = server.lastIndexOf(':');
+			if (colon > 0 && !server.endsWith("]")) {
+				String host = server.substring(0, colon);
+				if (host.startsWith("[") && host.endsWith("]")) {
+					host = host.substring(1, host.length() - 1);
+				}
+				int portNum = Integer.parseInt(server.substring(colon + 1));
+				res = new SimpleResolver(host);
+				res.setPort(portNum);
+			} else {
+				res = new SimpleResolver(server);
+			}
+		} else {
+			res = new SimpleResolver();
+		}
 		if ((tsigKeyName != null) && !tsigKeyName.isEmpty()) {
 			TSIG tsig = null;
-			if (tsigAlgorithm != null) {
-				tsig = new TSIG(new Name(tsigAlgorithm), tsigKeyName, tsigKeyData);
+			String keyName = tsigKeyName.endsWith(".") ? tsigKeyName : tsigKeyName + ".";
+			if ((tsigAlgorithm != null) && !tsigAlgorithm.trim().isEmpty()) {
+				String algo = tsigAlgorithm.endsWith(".") ? tsigAlgorithm : tsigAlgorithm + ".";
+				tsig = new TSIG(new Name(algo), keyName, tsigKeyData);
 			}
 			else {
-				tsig = new TSIG(tsigKeyName, tsigKeyData);
+				tsig = new TSIG(keyName, tsigKeyData);
 			}
 			res.setTSIGKey(tsig);
 		}
