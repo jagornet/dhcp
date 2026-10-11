@@ -221,6 +221,13 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor {
 	 * @return true if processing should continue
 	 */
 	public boolean preProcess() {
+		if (haBackupFSM != null) {
+			if (haBackupFSM.getState() != HaBackupFSM.State.BACKUP_RUNNING) {
+				log.debug("HA Backup is not running.  Dropping DHCPv6 Message");
+				return false;
+			}
+		}
+
 		DhcpV6ClientIdOption clientIdOption = requestMsg.getDhcpClientIdOption();
 		byte[] duid = (clientIdOption != null) ? clientIdOption.getDuid() : null;
 		if (isIgnoredDuid(duid)) {
