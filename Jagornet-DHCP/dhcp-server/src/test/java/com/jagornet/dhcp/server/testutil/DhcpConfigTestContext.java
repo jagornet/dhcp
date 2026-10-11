@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.SortedMap;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.jagornet.dhcp.core.util.Subnet;
 import com.jagornet.dhcp.server.config.DhcpLink;

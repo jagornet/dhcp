@@ -3,7 +3,7 @@ package com.jagornet.dhcp.server.rest.api;
 import java.net.SocketAddress;
 import java.security.Principal;
 
-import javax.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.core.SecurityContext;
 
 import org.glassfish.jersey.netty.httpserver.NettySecurityContext;
 

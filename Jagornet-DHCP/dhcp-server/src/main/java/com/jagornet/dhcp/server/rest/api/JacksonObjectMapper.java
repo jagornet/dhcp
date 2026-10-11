@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.jagornet.dhcp.core.option.base.DhcpOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4OptionFactory;
 import com.jagornet.dhcp.core.option.v6.DhcpV6OptionFactory;
@@ -75,7 +75,7 @@ public class JacksonObjectMapper {
         
 		mapper.setSerializationInclusion(Include.NON_NULL);
 		AnnotationIntrospector introspector = new 
-				JaxbAnnotationIntrospector(mapper.getTypeFactory());   
+				JakartaXmlBindAnnotationIntrospector(mapper.getTypeFactory());   
 		mapper.setAnnotationIntrospector(introspector);
 
 		SimpleModule module = new SimpleModule();
@@ -92,7 +92,7 @@ public class JacksonObjectMapper {
         
 		mapper.setSerializationInclusion(Include.NON_NULL);
 		AnnotationIntrospector introspector = 
-				new JaxbAnnotationIntrospector(mapper.getTypeFactory());   
+				new JakartaXmlBindAnnotationIntrospector(mapper.getTypeFactory());   
 		mapper.setAnnotationIntrospector(introspector);
 
 		SimpleModule module = new SimpleModule();

@@ -35,15 +35,14 @@
   	<postgresql.jdbc.version>42.7.5</postgresql.jdbc.version>
   	<mariadb.jdbc.version>3.5.2</mariadb.jdbc.version>
   	<testcontainers.version>1.20.6</testcontainers.version>
-  	<jersey.version>2.30</jersey.version>
-  	<jaxb.api.version>2.3.1</jaxb.api.version>
-  	<jaxb.core.version>2.3.0.1</jaxb.core.version>
-  	<jaxb.runtime.version>2.3.2</jaxb.runtime.version>
-  	<activation.version>1.1.1</activation.version>
-  	<javax.annotation.version>1.3.2</javax.annotation.version>
+  	<jersey.version>3.1.9</jersey.version>
+  	<jaxb.api.version>4.0.2</jaxb.api.version>
+  	<jaxb.runtime.version>4.0.5</jaxb.runtime.version>
+  	<activation.version>2.1.3</activation.version>
+  	<jakarta.annotation.version>2.1.1</jakarta.annotation.version>
   	<httpclient.version>4.5.14</httpclient.version>
-  	<jackson.version>2.11.2</jackson.version>
-  	<swagger.version>2.1.13</swagger.version>
+  	<jackson.version>2.18.2</jackson.version>
+  	<swagger.version>2.2.28</swagger.version>
 	<grpc.version>1.64.0</grpc.version>
 	<osplugin.version>1.7.1</osplugin.version>
 	<protobuf.version>4.28.3</protobuf.version>
@@ -236,16 +235,11 @@
 	</dependency>
 	<!-- Jersey -->
 
-	<!-- JAXB and activation jars required for Java 11 -->
+	<!-- JAXB and activation jars for Jakarta EE -->
 	<dependency>
-	    <groupId>javax.xml.bind</groupId>
-	    <artifactId>jaxb-api</artifactId>
+	    <groupId>jakarta.xml.bind</groupId>
+	    <artifactId>jakarta.xml.bind-api</artifactId>
 	    <version>${jaxb.api.version}</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.glassfish.jaxb</groupId>
-	    <artifactId>jaxb-core</artifactId>
-	    <version>${jaxb.core.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.glassfish.jaxb</groupId>
@@ -253,16 +247,16 @@
 	    <version>${jaxb.runtime.version}</version>
 	</dependency>
 	<dependency>
-	    <groupId>javax.activation</groupId>
-	    <artifactId>activation</artifactId>
+	    <groupId>jakarta.activation</groupId>
+	    <artifactId>jakarta.activation-api</artifactId>
 	    <version>${activation.version}</version>
 	</dependency>
 	<dependency>
-	    <groupId>javax.annotation</groupId>
-	    <artifactId>javax.annotation-api</artifactId>
-	    <version>${javax.annotation.version}</version>
+	    <groupId>jakarta.annotation</groupId>
+	    <artifactId>jakarta.annotation-api</artifactId>
+	    <version>${jakarta.annotation.version}</version>
 	</dependency>
-	<!-- JAXB and activation jars required for Java 11 -->
+	<!-- JAXB and activation jars for Jakarta EE -->
 
 	<!-- HTTP Client for REST client -->
 	<dependency>
@@ -278,19 +272,24 @@
 	  <version>${jackson.version}</version>
 	</dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+      <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-jaxrs2</artifactId>
+      <artifactId>swagger-jaxrs2-jakarta</artifactId>
       <version>${swagger.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
     </dependency>
 
 	<!-- for ${os} variables below -->
@@ -395,7 +394,7 @@
 		           <pluginExecution>
 		             <pluginExecutionFilter>
 		               <groupId>io.swagger.core.v3</groupId>
-		               <artifactId>swagger-maven-plugin</artifactId>
+		               <artifactId>swagger-maven-plugin-jakarta</artifactId>
 		               <versionRange>${swagger.version}</versionRange>
 		               <goals>
 		                 <goal>resolve</goal>
@@ -533,7 +532,7 @@
 	        <plugin>
 	            <groupId>org.codehaus.mojo</groupId>
 	            <artifactId>jaxb2-maven-plugin</artifactId>
-	            <version>2.5.0</version>
+	            <version>3.2.0</version>
 	            <executions>
 	                <execution>
 	                	<phase>generate-sources</phase>
@@ -559,7 +558,7 @@
 
             <plugin>
                 <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-maven-plugin</artifactId>
+                <artifactId>swagger-maven-plugin-jakarta</artifactId>
                 <version>${swagger.version}</version>
                 <configuration>
                     <outputFileName>openapi</outputFileName>

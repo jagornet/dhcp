@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import javax.ws.rs.client.InvocationCallback;
+import jakarta.ws.rs.client.InvocationCallback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
