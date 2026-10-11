@@ -42,18 +42,17 @@ import com.jagornet.dhcp.server.request.binding.FreeList;
 /**
  * The Class TestFreeList.
  */
-public class TestFreeList extends TestCase
-{
-	
+public class TestFreeList extends TestCase {
+
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(TestFreeList.class);
-	
+
 	/** The prefix64 list. */
 	private FreeList prefix64List;
-	
+
 	/** The smallPool list. */
 	private FreeList smallPool;
-	
+
 	/**
 	 * Instantiates a new test free list.
 	 * 
@@ -62,8 +61,10 @@ public class TestFreeList extends TestCase
 	public TestFreeList(String name) {
 		super(name);
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	@Override
@@ -79,8 +80,10 @@ public class TestFreeList extends TestCase
 				new BigInteger(InetAddress.getByName("3ffe::2").getAddress()));
 		memorySizeDump();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	@Override
@@ -89,7 +92,7 @@ public class TestFreeList extends TestCase
 		prefix64List = null;
 		System.gc();
 	}
-	
+
 	/**
 	 * Memory size dump.
 	 */
@@ -98,14 +101,13 @@ public class TestFreeList extends TestCase
 		log.info("Total: " + rt.totalMemory());
 		log.info("Free: " + rt.freeMemory());
 	}
-	
+
 	/**
 	 * Test set low ip.
 	 * 
 	 * @throws Exception the exception
 	 */
-	public void testSetLowIp() throws Exception
-	{
+	public void testSetLowIp() throws Exception {
 		InetAddress low = InetAddress.getByName("3ffe::1");
 		prefix64List.setUsed(new BigInteger(low.getAddress()));
 		assertTrue(prefix64List.isUsed(new BigInteger(low.getAddress())));
@@ -117,8 +119,7 @@ public class TestFreeList extends TestCase
 	 * 
 	 * @throws Exception the exception
 	 */
-	public void testSetMidIp1() throws Exception
-	{
+	public void testSetMidIp1() throws Exception {
 		InetAddress mid = InetAddress.getByName("3ffe::7fff:fffe");
 		prefix64List.setUsed(new BigInteger(mid.getAddress()));
 		assertTrue(prefix64List.isUsed(new BigInteger(mid.getAddress())));
@@ -130,34 +131,31 @@ public class TestFreeList extends TestCase
 	 * 
 	 * @throws Exception the exception
 	 */
-	public void testSetMidIp2() throws Exception
-	{
+	public void testSetMidIp2() throws Exception {
 		InetAddress mid = InetAddress.getByName("3ffe::ffff:ffff");
 		prefix64List.setUsed(new BigInteger(mid.getAddress()));
 		assertTrue(prefix64List.isUsed(new BigInteger(mid.getAddress())));
 		log.debug(prefix64List.toString());
 	}
-	
+
 	/**
 	 * Test set high ip.
 	 * 
 	 * @throws Exception the exception
 	 */
-	public void testSetHighIp() throws Exception
-	{
+	public void testSetHighIp() throws Exception {
 		InetAddress high = InetAddress.getByName("3ffe::ffff:ffff:ffff:ffff");
 		prefix64List.setUsed(new BigInteger(high.getAddress()));
 		assertTrue(prefix64List.isUsed(new BigInteger(high.getAddress())));
 		log.debug(prefix64List.toString());
 	}
-	
+
 	/**
 	 * Test get next free address.
 	 * 
 	 * @throws Exception the exception
 	 */
-	public void testGetNextFreeAddress() throws Exception
-	{
+	public void testGetNextFreeAddress() throws Exception {
 		InetAddress ip = InetAddress.getByAddress(smallPool.getNextFree().toByteArray());
 		assertNotNull(ip);
 		assertEquals(InetAddress.getByName("3ffe::0"), ip);
@@ -170,17 +168,16 @@ public class TestFreeList extends TestCase
 		BigInteger bi = smallPool.getNextFree();
 		assertNull(bi);
 	}
-	
+
 	/**
 	 * Test get many free addresses.
 	 * 
 	 * @throws Exception the exception
 	 */
-	public void testGetManyFreeAddresses() throws Exception
-	{
+	public void testGetManyFreeAddresses() throws Exception {
 		memorySizeDump();
 		BigInteger bi = new BigInteger(InetAddress.getByName("3ffe::0").getAddress());
-		for (int i=0; i<1000000; i++) {	// 1M leases
+		for (int i = 0; i < 1000000; i++) { // 1M leases
 			InetAddress ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
 			assertNotNull(ip);
 			assertEquals(InetAddress.getByAddress(bi.toByteArray()), ip);
@@ -192,49 +189,46 @@ public class TestFreeList extends TestCase
 		}
 		log.debug(prefix64List.toString());
 	}
-	
+
 	/**
 	 * Test threaded get addresses.
 	 * 
 	 * @throws Exception the exception
 	 */
-	public void testThreadedGetAddresses() throws Exception
-	{
+	public void testThreadedGetAddresses() throws Exception {
 		memorySizeDump();
 		ThreadGroup testGroup = new ThreadGroup("TestThreadGroup");
-		for (int i=0; i<100; i++) {	// 100 threads
+		for (int i = 0; i < 100; i++) { // 100 threads
 			Thread t = new Thread(testGroup, new Runnable() {
 
 				public void run() {
-					for (int i=0; i<10000; i++) {	// 10K leases per thread
+					for (int i = 0; i < 10000; i++) { // 10K leases per thread
 						InetAddress ip = null;
 						try {
 							ip = InetAddress.getByAddress(prefix64List.getNextFree().toByteArray());
 							assertNotNull(ip);
-							log.info("IP=" + ip.getHostAddress());
-						}
-						catch (UnknownHostException ex) {
+							log.trace("IP=" + ip.getHostAddress());
+						} catch (UnknownHostException ex) {
 							fail(ex.getMessage());
 						}
 					}
 				}
-				
-			}, "TestThread-"+i);
+
+			}, "TestThread-" + i);
 			t.start();
 		}
 		while (testGroup.activeCount() > 0) {
-			Thread.sleep(5000);	// wait another 5 seconds for threads to complete
+			Thread.sleep(5000); // wait another 5 seconds for threads to complete
 		}
 	}
-	
+
 	/**
 	 * Suite.
 	 * 
 	 * @return the test
 	 */
-	public static Test suite()
-	{
-//		return new TestSuite(TestFreeList.class);
+	public static Test suite() {
+		// return new TestSuite(TestFreeList.class);
 		TestSuite suite = new TestSuite();
 		suite.addTest(new TestFreeList("testSetLowIp"));
 		suite.addTest(new TestFreeList("testSetMidIp1"));
