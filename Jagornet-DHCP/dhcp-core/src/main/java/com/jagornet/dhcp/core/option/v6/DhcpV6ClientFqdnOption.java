@@ -176,7 +176,7 @@ public class DhcpV6ClientFqdnOption extends BaseDomainNameOption
     public boolean getNoUpdateBit()
     {
     	short nbit = (short) (getFlags() & 0x04);
-    	return (nbit == 1);
+    	return (nbit > 0);
     }
     
     /**
