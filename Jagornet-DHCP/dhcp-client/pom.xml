@@ -10,6 +10,11 @@
 
   <artifactId>jagornet-dhcp-client</artifactId>
 
+  <properties>
+	<commons.cli.version>1.9.0</commons.cli.version>
+  	<netty.version>4.1.139.Final</netty.version>
+  </properties>
+
   <dependencies>
   	<dependency>
   		<groupId>com.jagornet</groupId>
@@ -30,20 +35,13 @@
 	<dependency>
 	    <groupId>commons-cli</groupId>
 	    <artifactId>commons-cli</artifactId>
-	    <version>1.9.0</version>
+	    <version>${commons.cli.version}</version>
 	</dependency>
-	<dependency>
-	    <groupId>io.netty</groupId>
-	    <artifactId>netty</artifactId>
-	    <version>3.10.6.Final</version>
-	</dependency>
-	<!-- 
 	<dependency>
 	    <groupId>io.netty</groupId>
 	    <artifactId>netty-all</artifactId>
-	    <version>4.1.8.Final</version>
+	    <version>${netty.version}</version>
 	</dependency>
-	 -->
   </dependencies>
   
   <build>

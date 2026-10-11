@@ -26,82 +26,62 @@
 package com.jagornet.dhcp.client;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.codec.MessageToMessageDecoder;
+
 /**
- * Title: DhcpChannelDecoder
- * Description: The protocol decoder used by the NETTY-based DHCP server
+ * Title: DhcpV6ChannelDecoder
+ * Description: The protocol decoder used by the NETTY-based DHCPv6 client
  * when receiving packets.
  * 
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class DhcpV6ChannelDecoder extends OneToOneDecoder
+public class DhcpV6ChannelDecoder extends MessageToMessageDecoder<DatagramPacket>
 {
     private static Logger log = LoggerFactory.getLogger(DhcpV6ChannelDecoder.class);
 
     /** The local socket address. */
     protected InetSocketAddress localSocketAddress = null;
     
-    /** The remote socket address. */
-    protected InetSocketAddress remoteSocketAddress = null;
+    protected boolean ignoreSelfPackets = false;
     
-    protected boolean ignoreSelfPackets;
-    
+    public DhcpV6ChannelDecoder(InetSocketAddress localSocketAddress)
+    {
+        this(localSocketAddress, false);
+    }
+
     public DhcpV6ChannelDecoder(InetSocketAddress localSocketAddress, boolean ignoreSelfPackets)
     {
-    	this.localSocketAddress = localSocketAddress;
-    	this.ignoreSelfPackets = ignoreSelfPackets;
+        this.localSocketAddress = localSocketAddress;
+        this.ignoreSelfPackets = ignoreSelfPackets;
     }
     
-    /*
-     * Decodes a received ChannelBuffer into a DhcpMessage.
-     * (non-Javadoc)
-     * @see org.jboss.netty.handler.codec.oneone.OneToOneDecoder#decode(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.Channel, java.lang.Object)
-     */
     @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket packet, List<Object> out) throws Exception
     {
-//    	if (ignoreSelfPackets) {
-//	    	if (JagornetDhcpServer.getAllIPv6Addrs().contains(remoteSocketAddress.getAddress())) {
-//	    		log.debug("Ignoring packet from self: address=" + 
-//	    					remoteSocketAddress.getAddress());
-//	    		return null;
-//	    	}
-//    	}
-    	if (msg instanceof ChannelBuffer) {
-            ChannelBuffer buf = (ChannelBuffer) msg;
-            DhcpV6Message dhcpMessage = 
-            	DhcpV6Message.decode(buf.toByteBuffer(), localSocketAddress, remoteSocketAddress);
-            return dhcpMessage;
+        ByteBuf buf = packet.content();
+        InetSocketAddress remoteSocketAddress = packet.sender();
+        InetSocketAddress localAddress = (localSocketAddress != null) ? 
+                localSocketAddress : (InetSocketAddress) ctx.channel().localAddress();
+
+        DhcpV6Message dhcpMessage = 
+                DhcpV6Message.decode(buf.nioBuffer(), localAddress, remoteSocketAddress);
+        if (dhcpMessage != null) {
+            out.add(dhcpMessage);
         }
         else {
-            String errmsg = "Unknown message object class: " + msg.getClass();
-            log.error(errmsg);
-            return msg;
+            log.warn("Failed to decode DHCPv6 message from: " + remoteSocketAddress);
         }
-    }
-    
-    /* (non-Javadoc)
-     * @see org.jboss.netty.handler.codec.oneone.OneToOneDecoder#handleUpstream(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
-     */
-    @Override
-    public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception
-    {
-    	if (evt instanceof MessageEvent) {
-    		remoteSocketAddress = (InetSocketAddress) ((MessageEvent)evt).getRemoteAddress();
-    	}
-    	super.handleUpstream(ctx, evt);
     }
 }

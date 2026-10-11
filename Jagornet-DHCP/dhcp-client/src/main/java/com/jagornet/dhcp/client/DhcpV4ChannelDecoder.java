@@ -26,98 +26,62 @@
 package com.jagornet.dhcp.client;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.codec.MessageToMessageDecoder;
+
 /**
  * Title: DhcpV4ChannelDecoder
- * Description: The protocol decoder used by the NETTY-based DHCPv4 server
+ * Description: The protocol decoder used by the NETTY-based DHCPv4 client
  * when receiving packets.
  * 
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class DhcpV4ChannelDecoder extends OneToOneDecoder
+public class DhcpV4ChannelDecoder extends MessageToMessageDecoder<DatagramPacket>
 {
-    
-    /** The log. */
     private static Logger log = LoggerFactory.getLogger(DhcpV4ChannelDecoder.class);
 
     /** The local socket address. */
     protected InetSocketAddress localSocketAddress = null;
     
-    /** The remote socket address. */
-    protected InetSocketAddress remoteSocketAddress = null;
+    protected boolean ignoreSelfPackets = false;
     
-    protected boolean ignoreSelfPackets;
-    
+    public DhcpV4ChannelDecoder(InetSocketAddress localSocketAddress)
+    {
+        this(localSocketAddress, false);
+    }
+
     public DhcpV4ChannelDecoder(InetSocketAddress localSocketAddress, boolean ignoreSelfPackets)
     {
-    	this.localSocketAddress = localSocketAddress;
-    	this.ignoreSelfPackets = ignoreSelfPackets;
+        this.localSocketAddress = localSocketAddress;
+        this.ignoreSelfPackets = ignoreSelfPackets;
     }
     
-    /*
-     * Decodes a received ChannelBuffer into a DhcpMessage.
-     * (non-Javadoc)
-     * @see org.jboss.netty.handler.codec.oneone.OneToOneDecoder#decode(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.Channel, java.lang.Object)
-     */
     @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket packet, List<Object> out) throws Exception
     {
-//    	if (DhcpConstants.IS_WINDOWS &&
-//    		!(this instanceof DhcpV4UnicastChannelDecoder) &&
-//    		!remoteSocketAddress.getAddress().equals(DhcpConstants.ZEROADDR_V4)) {
-//        	// we ignore packets from 0.0.0.0 in the DhcpV4UnicastChannelDecoder, so if this is NOT
-//        	// that decoder, then this is the broadcast decoder, in which case we want to ignore
-//        	// packets that are NOT from 0.0.0.0.  This is to workaround Windows implementation which
-//        	// will see duplicate packets on the unicast and broadcast channels
-//        	log.debug("Ignoring packet from " + 
-//        				remoteSocketAddress.getAddress().getHostAddress() + 
-//        				" received on broadcast channel");
-//        	return null;
-//    	}
-//    	
-//    	if (ignoreSelfPackets) {
-//	    	if (JagornetDhcpServer.getAllIPv4Addrs().contains(remoteSocketAddress.getAddress())) {
-//	    		log.debug("Ignoring packet from self: address=" + 
-//	    					remoteSocketAddress.getAddress());
-//	    		return null;
-//	    	}
-//    	}
-    	
-        if (msg instanceof ChannelBuffer) {
-        	ChannelBuffer buf = (ChannelBuffer) msg;
-            DhcpV4Message dhcpMessage =  
-            	DhcpV4Message.decode(buf.toByteBuffer(), localSocketAddress, remoteSocketAddress);
-            return dhcpMessage;
+        ByteBuf buf = packet.content();
+        InetSocketAddress remoteSocketAddress = packet.sender();
+        InetSocketAddress localAddress = (localSocketAddress != null) ? 
+                localSocketAddress : (InetSocketAddress) ctx.channel().localAddress();
+
+        DhcpV4Message dhcpMessage = 
+                DhcpV4Message.decode(buf.nioBuffer(), localAddress, remoteSocketAddress);
+        if (dhcpMessage != null) {
+            out.add(dhcpMessage);
         }
         else {
-            String errmsg = "Unknown message object class: " + msg.getClass();
-            log.error(errmsg);
-            return msg;
+            log.warn("Failed to decode DHCPv4 message from: " + remoteSocketAddress);
         }
-    }
-    
-    /* (non-Javadoc)
-     * @see org.jboss.netty.handler.codec.oneone.OneToOneDecoder#handleUpstream(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelEvent)
-     */
-    @Override
-    public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception
-    {
-    	if (evt instanceof MessageEvent) {
-    		remoteSocketAddress = (InetSocketAddress) ((MessageEvent)evt).getRemoteAddress();
-    	}
-    	super.handleUpstream(ctx, evt);
     }
 }

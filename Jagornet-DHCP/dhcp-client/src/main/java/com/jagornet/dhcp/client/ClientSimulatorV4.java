@@ -47,21 +47,22 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.socket.DatagramChannel;
-import org.jboss.netty.channel.socket.DatagramChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
-import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
-import org.jboss.netty.handler.logging.LoggingHandler;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultAddressedEnvelope;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.handler.codec.DatagramPacketEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ import com.jagornet.dhcp.core.util.Util;
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
+public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message>
 {
 	private static Logger log = LoggerFactory.getLogger(ClientSimulatorV4.class);
 
@@ -115,6 +116,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     protected InetSocketAddress server = null;
     protected InetSocketAddress client = null;
     
+    protected EventLoopGroup group = null;
     protected DatagramChannel channel = null;	
 	//protected ExecutorService executor = Executors.newCachedThreadPool();
     protected ExecutorService executor = null;
@@ -329,22 +331,30 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
      */
     public void start()
     {
-    	DatagramChannelFactory factory = 
-    		new NioDatagramChannelFactory(Executors.newCachedThreadPool());
-    	
     	server = new InetSocketAddress(serverAddr, serverPort);
     	client = new InetSocketAddress(clientPort);
     	
-		ChannelPipeline pipeline = Channels.pipeline();
-        pipeline.addLast("logger", new LoggingHandler());
-        pipeline.addLast("encoder", new DhcpV4ChannelEncoder());
-        pipeline.addLast("decoder", new DhcpV4ChannelDecoder(client, false));
-        pipeline.addLast("executor", new ExecutionHandler(
-        		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
-        pipeline.addLast("handler", this);
+    	group = new NioEventLoopGroup();
+    	Bootstrap b = new Bootstrap();
+    	b.group(group)
+    	 .channel(NioDatagramChannel.class)
+    	 .handler(new ChannelInitializer<DatagramChannel>() {
+    	     @Override
+    	     protected void initChannel(DatagramChannel ch) throws Exception {
+    	         ChannelPipeline pipeline = ch.pipeline();
+    	         pipeline.addLast("logger", new LoggingHandler(LogLevel.DEBUG));
+    	         pipeline.addLast("encoder", new DatagramPacketEncoder<DhcpV4Message>(new DhcpV4ChannelEncoder()));
+    	         pipeline.addLast("decoder", new DhcpV4ChannelDecoder(client));
+    	         pipeline.addLast("handler", ClientSimulatorV4.this);
+    	     }
+    	 });
     	
-        channel = factory.newChannel(pipeline);
-    	channel.bind(client);
+    	try {
+    	    channel = (DatagramChannel) b.bind(client).sync().channel();
+    	} catch (InterruptedException e) {
+    	    log.error("Failed to bind channel to " + client, e);
+    	    return;
+    	}
     	
     	if (requestRate <= 0) {
     		// spin up requests as fast as possible
@@ -414,6 +424,9 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
     	executor.shutdownNow();
     	log.info("Closing channel...");
     	channel.close();
+    	if (group != null) {
+    	    group.shutdownGracefully();
+    	}
     	log.info("Done.");
     	if ((discoversSent.get() == offersReceived.get()) &&
     			(requestsSent.get() == acksReceived.get()) &&
@@ -483,7 +496,8 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 		
 		public void discover() {
 			msg = buildDiscoverMessage(mac); 
-			ChannelFuture future = channel.write(msg, server);
+			ChannelFuture future = channel.writeAndFlush(
+					new DefaultAddressedEnvelope<DhcpV4Message, InetSocketAddress>(msg, server));
 			future.addListener(this);
 			replySemaphore.drainPermits();
 			waitForOffer();
@@ -514,7 +528,8 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 		public void request() {
 			if (offerMsg != null) {
 	        	msg = buildRequestMessage(offerMsg);
-				ChannelFuture future = channel.write(msg, server);
+				ChannelFuture future = channel.writeAndFlush(
+						new DefaultAddressedEnvelope<DhcpV4Message, InetSocketAddress>(msg, server));
 				future.addListener(this);
 				waitForAck();
 			}
@@ -549,7 +564,8 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 			if (sendRelease) {
 				if (ackMsg != null) {
 		        	msg = buildReleaseMessage(ackMsg);
-					ChannelFuture future = channel.write(msg, server);
+					ChannelFuture future = channel.writeAndFlush(
+							new DefaultAddressedEnvelope<DhcpV4Message, InetSocketAddress>(msg, server));
 					future.addListener(this);
 				}
 				else {
@@ -598,7 +614,7 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
 			}
 			else {
 				log.error("Failed to send message id=" + msg.getTransactionId() +
-						  ": " + future.getCause());
+						  ": " + future.cause());
 			}
 		}
     }
@@ -718,63 +734,43 @@ public class ClientSimulatorV4 extends SimpleChannelUpstreamHandler
         return msg;
     }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.jboss.netty.channel.SimpleChannelHandler#messageReceived(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.MessageEvent)
-	 */
 	@Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception
+    protected void channelRead0(ChannelHandlerContext ctx, DhcpV4Message dhcpMessage) throws Exception
     {
-    	Object message = e.getMessage();
-        if (message instanceof DhcpV4Message) {
-            
-            DhcpV4Message dhcpMessage = (DhcpV4Message) message;
-//            if (log.isDebugEnabled())
-//            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
-//            else
-            	log.info("Received: " + dhcpMessage.toString());
-            
-            if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_OFFER) {
-	            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
-	            if (client != null) {
-	            	offersReceived.getAndIncrement();
-	            	client.offerReceived(dhcpMessage);
-	            }
-	            else {
-	            	log.error("Received offer for client not found in map: mac=" + 
-	            			Util.toHexString(dhcpMessage.getChAddr()));
-	            }
-            }
-            else if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_ACK) {
-	            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
-	            if (client != null) {
-	            	acksReceived.getAndIncrement();
-	            	client.ackReceived(dhcpMessage);
-	            }
-	            else {
-	            	log.error("Received ack for client not found in map: mac=" + 
-	            			Util.toHexString(dhcpMessage.getChAddr()));
-	            }
+        log.info("Received: " + dhcpMessage.toString());
+        
+        if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_OFFER) {
+            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
+            if (client != null) {
+            	offersReceived.getAndIncrement();
+            	client.offerReceived(dhcpMessage);
             }
             else {
-            	log.warn("Received unhandled message type: " + dhcpMessage.getMessageType());
+            	log.error("Received offer for client not found in map: mac=" + 
+            			Util.toHexString(dhcpMessage.getChAddr()));
+            }
+        }
+        else if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_ACK) {
+            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
+            if (client != null) {
+            	acksReceived.getAndIncrement();
+            	client.ackReceived(dhcpMessage);
+            }
+            else {
+            	log.error("Received ack for client not found in map: mac=" + 
+            			Util.toHexString(dhcpMessage.getChAddr()));
             }
         }
         else {
-            // Note: in theory, we can't get here, because the
-            // codec would have thrown an exception beforehand
-            log.error("Received unknown message object: " + message.getClass());
+        	log.warn("Received unhandled message type: " + dhcpMessage.getMessageType());
         }
     }
 	 
-	/* (non-Javadoc)
-	 * @see org.jboss.netty.channel.SimpleChannelUpstreamHandler#exceptionCaught(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ExceptionEvent)
-	 */
 	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
 	{
-    	log.error("Exception caught: ", e.getCause());
-    	e.getChannel().close();
+    	log.error("Exception caught: ", cause);
+    	ctx.close();
 	}
     
     /**

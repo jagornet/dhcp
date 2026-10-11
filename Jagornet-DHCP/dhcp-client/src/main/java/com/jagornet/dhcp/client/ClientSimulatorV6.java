@@ -52,21 +52,23 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.socket.DatagramChannel;
-import org.jboss.netty.channel.socket.DatagramChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
-import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
-import org.jboss.netty.handler.logging.LoggingHandler;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultAddressedEnvelope;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.handler.codec.DatagramPacketEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +88,7 @@ import com.jagornet.dhcp.core.util.Util;
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
+public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message>
 {
 	private static Logger log = LoggerFactory.getLogger(ClientSimulatorV6.class);
 
@@ -125,6 +127,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     protected InetSocketAddress server = null;
     protected InetSocketAddress client = null;
     
+    protected EventLoopGroup group = null;
     protected DatagramChannel channel = null;	
 	//protected ExecutorService executor = Executors.newCachedThreadPool();
     protected ExecutorService executor = null;
@@ -373,23 +376,33 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
      */
     public void start()
     {
-    	DatagramChannelFactory factory = 
-    		new NioDatagramChannelFactory(Executors.newCachedThreadPool());
-    	
     	server = new InetSocketAddress(serverAddr, serverPort);
     	client = new InetSocketAddress(clientAddr, clientPort);
     	
-		ChannelPipeline pipeline = Channels.pipeline();
-        pipeline.addLast("logger", new LoggingHandler());
-        pipeline.addLast("encoder", new DhcpV6ChannelEncoder());
-        pipeline.addLast("decoder", new DhcpV6ChannelDecoder(client, false));
-        pipeline.addLast("executor", new ExecutionHandler(
-        		new OrderedMemoryAwareThreadPoolExecutor(16, 1048576, 1048576)));
-        pipeline.addLast("handler", this);
+    	group = new NioEventLoopGroup();
+    	Bootstrap b = new Bootstrap();
+    	b.group(group)
+    	 .channel(NioDatagramChannel.class);
+    	if (mcastNetIf != null) {
+    	    b.option(ChannelOption.IP_MULTICAST_IF, mcastNetIf);
+    	}
+    	b.handler(new ChannelInitializer<DatagramChannel>() {
+    	     @Override
+    	     protected void initChannel(DatagramChannel ch) throws Exception {
+    	         ChannelPipeline pipeline = ch.pipeline();
+    	         pipeline.addLast("logger", new LoggingHandler(LogLevel.DEBUG));
+    	         pipeline.addLast("encoder", new DatagramPacketEncoder<DhcpV6Message>(new DhcpV6ChannelEncoder()));
+    	         pipeline.addLast("decoder", new DhcpV6ChannelDecoder(client));
+    	         pipeline.addLast("handler", ClientSimulatorV6.this);
+    	     }
+    	 });
     	
-        channel = factory.newChannel(pipeline);
-		channel.getConfig().setNetworkInterface(mcastNetIf);
-    	channel.bind(client);
+    	try {
+    	    channel = (DatagramChannel) b.bind(client).sync().channel();
+    	} catch (InterruptedException e) {
+    	    log.error("Failed to bind channel to " + client, e);
+    	    return;
+    	}
 
     	
     	if (requestRate <= 0) {
@@ -461,6 +474,9 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
     	executor.shutdownNow();
     	log.info("Closing channel...");
     	channel.close();
+    	if (group != null) {
+    	    group.shutdownGracefully();
+    	}
     	log.info("Done.");
     	if ((solicitsSent.get() == advertisementsReceived.get()) &&
     			(requestsSent.get() == requestRepliesReceived.get()) &&
@@ -536,7 +552,8 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 		
 		public void solicit() {
 			msg = buildSolicitMessage(duid); 
-			ChannelFuture future = channel.write(msg, server);
+			ChannelFuture future = channel.writeAndFlush(
+					new DefaultAddressedEnvelope<DhcpV6Message, InetSocketAddress>(msg, server));
 			future.addListener(this);
 			replySemaphore.drainPermits();
 			waitForAdvertise();
@@ -598,7 +615,8 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 		public void request() {
 			if (advertiseMsg != null) {
 	        	msg = buildRequestMessage(advertiseMsg);
-				ChannelFuture future = channel.write(msg, server);
+				ChannelFuture future = channel.writeAndFlush(
+						new DefaultAddressedEnvelope<DhcpV6Message, InetSocketAddress>(msg, server));
 				future.addListener(this);
 				waitForRequestReply();
 			}
@@ -664,7 +682,8 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 			if (sendRelease) {
 				if (requestReplyMsg != null) {
 		        	msg = buildReleaseMessage(requestReplyMsg);
-					ChannelFuture future = channel.write(msg, server);
+					ChannelFuture future = channel.writeAndFlush(
+							new DefaultAddressedEnvelope<DhcpV6Message, InetSocketAddress>(msg, server));
 					future.addListener(this);
 				}
 				else {
@@ -706,7 +725,7 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
 			}
 			else {
 				log.error("Failed to send message id=" + msg.getTransactionId() +
-						  ": " + future.getCause());
+						  ": " + future.cause());
 			}
 		}
     }
@@ -809,77 +828,60 @@ public class ClientSimulatorV6 extends SimpleChannelUpstreamHandler
         return msg;
     }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.jboss.netty.channel.SimpleChannelHandler#messageReceived(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.MessageEvent)
-	 */
 	@Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception
+    protected void channelRead0(ChannelHandlerContext ctx, DhcpV6Message dhcpMessage) throws Exception
     {
-    	Object message = e.getMessage();
-        if (message instanceof DhcpV6Message) {
-            
-            DhcpV6Message dhcpMessage = (DhcpV6Message) message;
-            if (log.isDebugEnabled())
-            	log.debug("Received: " + dhcpMessage.toStringWithOptions());
-            else
-            	log.info("Received: " + dhcpMessage.toString());
-            
-            if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_ADVERTISE) {
-	            ClientMachine client = 
-	            		clientMap.get(dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
-	            if (client != null) {
-	            	advertisementsReceived.getAndIncrement();
-	            	client.advertiseReceived(dhcpMessage);
-	            }
-	            else {
-	            	log.error("Received advertise for client not found in map: duid=" + 
-	            			dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
-	            }
-            }
-            else if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_REPLY) {
-            	String key = dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii();
-	            ClientMachine client = clientMap.get(key);
-	            if (client != null) {
-	            	if (!client.released) {
-		            	requestRepliesReceived.getAndIncrement();
-		            	client.requestReplyReceived(dhcpMessage);
-	            	}
-	            	else {
-	            		releaseRepliesReceived.getAndIncrement();
-						clientMap.remove(key);
-						if (poolSize > 0) {
-							synchronized (clientMap) {
-								clientMap.notify();
-							}
-						}
-						doneLatch.countDown();
-	            	}
-	            }
-	            else {
-	            	log.error("Received reply for client not found in map: duid=" + 
-	            			dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
-	            }
+        if (log.isDebugEnabled())
+        	log.debug("Received: " + dhcpMessage.toStringWithOptions());
+        else
+        	log.info("Received: " + dhcpMessage.toString());
+        
+        if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_ADVERTISE) {
+            ClientMachine client = 
+            		clientMap.get(dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
+            if (client != null) {
+            	advertisementsReceived.getAndIncrement();
+            	client.advertiseReceived(dhcpMessage);
             }
             else {
-            	log.warn("Received unhandled message type: " + dhcpMessage.getMessageType());
+            	log.error("Received advertise for client not found in map: duid=" + 
+            			dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
+            }
+        }
+        else if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_REPLY) {
+        	String key = dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii();
+            ClientMachine client = clientMap.get(key);
+            if (client != null) {
+            	if (!client.released) {
+	            	requestRepliesReceived.getAndIncrement();
+	            	client.requestReplyReceived(dhcpMessage);
+            	}
+            	else {
+            		releaseRepliesReceived.getAndIncrement();
+					clientMap.remove(key);
+					if (poolSize > 0) {
+						synchronized (clientMap) {
+							clientMap.notify();
+						}
+					}
+					doneLatch.countDown();
+            	}
+            }
+            else {
+            	log.error("Received reply for client not found in map: duid=" + 
+            			dhcpMessage.getDhcpClientIdOption().getOpaqueData().getAscii());
             }
         }
         else {
-            // Note: in theory, we can't get here, because the
-            // codec would have thrown an exception beforehand
-            log.error("Received unknown message object: " + message.getClass());
+        	log.warn("Received unhandled message type: " + dhcpMessage.getMessageType());
         }
     }
 	 
-	/* (non-Javadoc)
-	 * @see org.jboss.netty.channel.SimpleChannelUpstreamHandler#exceptionCaught(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ExceptionEvent)
-	 */
 	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
 	{
-    	log.error("Exception caught: ", e.getCause());
-    	e.getChannel().close();
+    	log.error("Exception caught: ", cause);
+    	ctx.close();
 	}
     
     /**
