@@ -13,7 +13,7 @@
   <properties>
     <!-- Default to NOT build Docker image -->
   	<skip.jib>true</skip.jib>
-  	<commons.cli.version>1.2</commons.cli.version>
+  	<commons.cli.version>1.9.0</commons.cli.version>
   	<commons.dbcp2.version>2.13.0</commons.dbcp2.version>
   	<commons.io.version>2.18.0</commons.io.version>
   	<commons.pool2.version>2.12.1</commons.pool2.version>
@@ -43,10 +43,10 @@
   	<httpclient.version>4.5.14</httpclient.version>
   	<jackson.version>2.18.2</jackson.version>
   	<swagger.version>2.2.28</swagger.version>
-	<grpc.version>1.64.0</grpc.version>
+	<grpc.version>1.69.1</grpc.version>
 	<osplugin.version>1.7.1</osplugin.version>
 	<protobuf.version>4.28.3</protobuf.version>
-	<micrometer.version>1.12.5</micrometer.version>
+	<micrometer.version>1.16.7</micrometer.version>
   </properties>
 
   <dependencies>
