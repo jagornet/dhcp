@@ -291,7 +291,7 @@ public class DhcpV6ConfigOptions
 			V6StatusCodeOption statusCodeOption = configOptions.getV6StatusCodeOption();
 			if (statusCodeOption != null) {
 				optionMap.put(statusCodeOption.getCode(),
-						new DhcpV6StatusCodeOption(statusCodeOption.getCode(), 
+						new DhcpV6StatusCodeOption(statusCodeOption.getStatusCode(), 
 													statusCodeOption.getMessage()));
 			}
 		}
