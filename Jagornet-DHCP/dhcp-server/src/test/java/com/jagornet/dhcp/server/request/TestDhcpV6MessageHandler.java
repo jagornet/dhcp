@@ -30,6 +30,8 @@ import static org.junit.Assert.assertNotNull;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.jagornet.dhcp.core.message.DhcpV6Message;
@@ -45,6 +47,18 @@ import com.jagornet.dhcp.server.db.BaseTestCase;
 
 public class TestDhcpV6MessageHandler extends BaseTestCase
 {
+	@BeforeClass
+	public static void oneTimeSetUp() throws Exception
+	{
+		initializeContext();
+	}
+
+	@AfterClass
+	public static void oneTimeTearDown() throws Exception
+	{
+		closeContext();
+	}
+
 	@Test
 	public void testHandleMessage() throws Exception
 	{

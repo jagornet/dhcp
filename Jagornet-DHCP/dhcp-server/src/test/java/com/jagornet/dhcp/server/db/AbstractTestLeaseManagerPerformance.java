@@ -38,6 +38,13 @@ public abstract class AbstractTestLeaseManagerPerformance extends BaseTestCase {
 	
 	public static void oneTimeTearDown() throws Exception
 	{
+		if (leaseManager != null) {
+			try {
+				leaseManager.deleteAllLeases();
+			} catch (Exception e) {
+				log.warn("Failed to delete all leases during oneTimeTearDown: " + e.getMessage());
+			}
+		}
 		closeContext();
 	}
 	

@@ -98,6 +98,11 @@ public abstract class BaseTestCase
 					System.out.println("Cleaning " + dbDerby + "...");
 					FileUtils.cleanDirectory(dbDerby);
 				}
+				File dbJdbcDerby = new File("db/jdbc-derby");
+				if (dbJdbcDerby.exists() && dbJdbcDerby.isDirectory()) {
+					System.out.println("Cleaning " + dbJdbcDerby + "...");
+					FileUtils.cleanDirectory(dbJdbcDerby);
+				}
 			}
 			else if (schemaType.contains("h2")) {
 				File dbH2 = new File("db/h2");
@@ -105,6 +110,11 @@ public abstract class BaseTestCase
 					// start with a fresh database
 					System.out.println("Cleaning " + dbH2 + "...");
 					FileUtils.cleanDirectory(dbH2);
+				}
+				File dbJdbcH2 = new File("db/jdbc-h2");
+				if (dbJdbcH2.exists() && dbJdbcH2.isDirectory()) {
+					System.out.println("Cleaning " + dbJdbcH2 + "...");
+					FileUtils.cleanDirectory(dbJdbcH2);
 				}
 			}
 			else if (schemaType.contains("sqlite")) {
