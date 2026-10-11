@@ -14,42 +14,34 @@
     <!-- Default to NOT build Docker image -->
   	<skip.jib>true</skip.jib>
   	<commons.cli.version>1.2</commons.cli.version>
-  	<commons.dbcp2.version>2.7.0</commons.dbcp2.version>
+  	<commons.dbcp2.version>2.13.0</commons.dbcp2.version>
   	<commons.io.version>2.18.0</commons.io.version>
-  	<commons.pool2.version>2.7.0</commons.pool2.version>
-  	<dnsjava.version>3.6.2</dnsjava.version>
-  	<netty.version>4.1.110.Final</netty.version>
+  	<commons.pool2.version>2.12.1</commons.pool2.version>
+  	<dnsjava.version>3.6.3</dnsjava.version>
+  	<netty.version>4.1.139.Final</netty.version>
 	<!--
-		Spring versions:
-		6.1.x - JDK 17-23
-		6.0.x - JDK 17-21
-		5.3.X - JDK 8-21 
-		Jagornet 4.1.0 target is Java 11
+		Spring 7.x requires JDK 17+
+		Jagornet 4.2.0 target is Java 21
 	-->
-  	<spring.version>5.3.39</spring.version>
+  	<spring.version>7.0.9</spring.version>
 	<!-- 
 		Derby DB is a runtime dependency only.
-		Only the latest, 10.17.1.0, is CVE-free,
-		but 10.17 requires Java 21 runtime.
-		10.17 - JRE 21
-		10.16 - JRE 17
-		10.15 - JRE 11
-		10.14 - JRE 8
-		Jagornet 4.1.0 target is Java 11 
+		10.17.1.0 is CVE-free and requires Java 21 runtime.
+		Jagornet 4.2.0 target is Java 21 
 	-->
-  	<derby.version>10.15.2.0</derby.version>
-  	<h2.version>2.2.224</h2.version>
-  	<sqlite.jdbc.version>3.47.1.0</sqlite.jdbc.version>
-  	<postgresql.jdbc.version>42.7.4</postgresql.jdbc.version>
-  	<mariadb.jdbc.version>3.4.1</mariadb.jdbc.version>
-  	<testcontainers.version>1.20.4</testcontainers.version>
+  	<derby.version>10.17.1.0</derby.version>
+  	<h2.version>2.3.232</h2.version>
+  	<sqlite.jdbc.version>3.49.1.0</sqlite.jdbc.version>
+  	<postgresql.jdbc.version>42.7.5</postgresql.jdbc.version>
+  	<mariadb.jdbc.version>3.5.2</mariadb.jdbc.version>
+  	<testcontainers.version>1.20.6</testcontainers.version>
   	<jersey.version>2.30</jersey.version>
   	<jaxb.api.version>2.3.1</jaxb.api.version>
   	<jaxb.core.version>2.3.0.1</jaxb.core.version>
   	<jaxb.runtime.version>2.3.2</jaxb.runtime.version>
   	<activation.version>1.1.1</activation.version>
   	<javax.annotation.version>1.3.2</javax.annotation.version>
-  	<httpclient.version>4.5.13</httpclient.version>
+  	<httpclient.version>4.5.14</httpclient.version>
   	<jackson.version>2.11.2</jackson.version>
   	<swagger.version>2.1.13</swagger.version>
 	<grpc.version>1.64.0</grpc.version>
@@ -465,7 +457,7 @@
 	          <configuration>
 				<skip>${skip.jib}</skip>
 				<from>
-					<image>eclipse-temurin:11-jdk</image>
+					<image>eclipse-temurin:21-jdk</image>
 					<platforms>
 						<platform>
 							<architecture>amd64</architecture>

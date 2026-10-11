@@ -99,7 +99,7 @@ if [ -n "$JAVA_CMD" ]; then
   echo "Java detected:    $JAVA_CMD (version $JAVA_VER)"
 else
   echo "Warning: Java not found in PATH or JAVA_HOME." >&2
-  echo "         Ensure Java 11+ is installed before starting the service." >&2
+  echo "         Ensure Java 21+ is installed before starting the service." >&2
 fi
 
 # 5. Create symlink if needed
