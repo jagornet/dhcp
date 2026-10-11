@@ -1,4 +1,5 @@
 /jdbc-derby/
 /jdbc-h2/
+/jdbc-sqlite/
 /dhcpleases.json
 /ha/
