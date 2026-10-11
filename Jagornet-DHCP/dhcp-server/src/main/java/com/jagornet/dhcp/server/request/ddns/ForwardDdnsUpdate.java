@@ -76,7 +76,7 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 		
 		Resolver res = createResolver();
 		
-		Name owner = new Name(fqdn);
+		Name owner = new Name(fqdn.endsWith(".") ? fqdn : fqdn + ".");
 		Record a_aaaa = null;
 		if (inetAddr instanceof Inet6Address) {
 			a_aaaa = new AAAARecord(owner, DClass.IN, ttl, inetAddr);
@@ -147,7 +147,7 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 		
 		Resolver res = createResolver();
 		
-		Name owner = new Name(fqdn);		
+		Name owner = new Name(fqdn.endsWith(".") ? fqdn : fqdn + ".");		
 		Record a_aaaa = null;
 		if (inetAddr instanceof Inet6Address) {
 			a_aaaa = new AAAARecord(owner, DClass.IN, 0, inetAddr);
@@ -215,11 +215,12 @@ public class ForwardDdnsUpdate extends DdnsUpdate
 	{
 		Name _zone = null;
 		if (zone != null) {
-			_zone = new Name(zone);
+			_zone = new Name(zone.endsWith(".") ? zone : zone + ".");
 		}
 		else {
 			int p = fqdn.indexOf('.');
-			_zone = new Name(fqdn.substring(p+1));
+			String z = (p >= 0) ? fqdn.substring(p + 1) : fqdn;
+			_zone = new Name(z.endsWith(".") ? z : z + ".");
 		}
 		return _zone;
 	}

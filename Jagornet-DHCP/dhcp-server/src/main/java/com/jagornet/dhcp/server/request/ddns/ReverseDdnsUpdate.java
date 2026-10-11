@@ -80,7 +80,8 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		String revIp = buildReverseIpString();
 		
 		Name owner = new Name(revIp.toString());
-		PTRRecord ptr = new PTRRecord(owner, DClass.IN, ttl, new Name(fqdn));
+		Name fqdnName = new Name(fqdn.endsWith(".") ? fqdn : fqdn + ".");
+		PTRRecord ptr = new PTRRecord(owner, DClass.IN, ttl, fqdnName);
 		
 		Name _zone = buildZoneName(revIp);
 		
@@ -120,7 +121,8 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 		String revIp = buildReverseIpString();
 		
 		Name owner = new Name(revIp);
-		PTRRecord ptr = new PTRRecord(owner, DClass.IN, 0, new Name(fqdn));
+		Name fqdnName = new Name(fqdn.endsWith(".") ? fqdn : fqdn + ".");
+		PTRRecord ptr = new PTRRecord(owner, DClass.IN, 0, fqdnName);
 		
 		Name _zone = buildZoneName(revIp);
 		
@@ -209,7 +211,7 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 	{
 		Name _zone = null;
 		if (zone != null) {
-			_zone = new Name(zone);
+			_zone = new Name(zone.endsWith(".") ? zone : zone + ".");
 		}
 		else {
 			if (inetAddr instanceof Inet6Address) {
