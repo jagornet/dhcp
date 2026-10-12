@@ -12,5 +12,5 @@ openAPI:
     contact:
       email: admin@jagornet.com
     license:
-      name: GPL 3.0
-      url: https://www.gnu.org/licenses/gpl-3.0.html
+      name: MPL 2.0
+      url: https://www.mozilla.org/MPL/2.0/

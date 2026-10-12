@@ -1,10 +1,11 @@
 /*
- * Copyright 2026 Jagornet Technologies, LLC.  All Rights Reserved.
+ * Copyright Jagornet Technologies, LLC.  All Rights Reserved.
  *
- * This software is the proprietary information of Jagornet Technologies, LLC. 
- * Use is subject to license terms.
- *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
 package com.jagornet.dhcp.server.testutil;
 
 import java.io.IOException;
