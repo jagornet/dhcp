@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.InetAddress;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +32,7 @@ import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.message.DhcpV6Message;
 import com.jagornet.dhcp.core.option.base.BaseDhcpOption;
 import com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption;
+import com.jagornet.dhcp.core.option.v4.DhcpV4HostnameOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6ClientFqdnOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaAddrOption;
 import com.jagornet.dhcp.core.option.v6.DhcpV6IaNaOption;
@@ -96,6 +98,10 @@ public class TestDhcpRequestLifecycleDdns {
 	}
 
 	private void initServer(String updatePolicy, String domainPolicy) throws Exception {
+		initServer(updatePolicy, domainPolicy, null);
+	}
+
+	private void initServer(String updatePolicy, String domainPolicy, Map<String, String> extraPolicies) throws Exception {
 		if (v4Mgr != null) {
 			v4Mgr.close();
 		}
@@ -106,7 +112,7 @@ public class TestDhcpRequestLifecycleDdns {
 			context.close();
 		}
 		context = new DhcpConfigTestContext();
-		context.initXml(buildConfigXml(updatePolicy, domainPolicy));
+		context.initXml(buildConfigXml(updatePolicy, domainPolicy, extraPolicies));
 
 		v4Mgr = new V4AddrBindingManagerImpl();
 		v4Mgr.setIaMgr(iaMgr);
@@ -123,6 +129,10 @@ public class TestDhcpRequestLifecycleDdns {
 	}
 
 	private String buildConfigXml(String updatePolicy, String domainPolicy) {
+		return buildConfigXml(updatePolicy, domainPolicy, null);
+	}
+
+	private String buildConfigXml(String updatePolicy, String domainPolicy, Map<String, String> extraPolicies) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<dhc:dhcpServerConfig xmlns:dhc=\"http://jagornet.com/dhcp/xml\">\n");
 		sb.append("  <v4ServerIdOption><ipAddress>192.168.1.1</ipAddress></v4ServerIdOption>\n");
@@ -139,6 +149,12 @@ public class TestDhcpRequestLifecycleDdns {
 		}
 		if (domainPolicy != null) {
 			sb.append("    <policyList><name>ddns.domain</name><value>").append(domainPolicy).append("</value></policyList>\n");
+		}
+		if (extraPolicies != null) {
+			for (Map.Entry<String, String> entry : extraPolicies.entrySet()) {
+				sb.append("    <policyList><name>").append(entry.getKey()).append("</name><value>")
+						.append(entry.getValue()).append("</value></policyList>\n");
+			}
 		}
 		sb.append("  </policies>\n");
 		sb.append("  <links>\n");
@@ -656,5 +672,156 @@ public class TestDhcpRequestLifecycleDdns {
 			List<BaseDhcpOption> saved = iaMgr.findDhcpOptionsForAddr(ia.getIaAddresses().iterator().next());
 			assertEquals(0, saved.size());
 		}
+	}
+
+	@Test
+	public void testV4DoraWithDirtyHostnameScrubbedAndOption12Returned() throws Exception {
+		Map<String, String> policies = new java.util.HashMap<>();
+		policies.put("hostname.mode", "scrub");
+		policies.put("hostname.sendOption12", "on-change");
+		initServer("always", "example.com", policies);
+
+		InetAddress clientLink = InetAddress.getByName("192.168.1.1");
+		String mac = "00:aa:bb:cc:dd:ee";
+		String dirtyFqdn = "My_Dirty-Host!#1.local";
+
+		DhcpV4Message discoverMsg = DhcpV4MessageBuilder.discover()
+				.withMac(mac)
+				.withClientFqdn(dirtyFqdn, true, false)
+				.build();
+		DhcpV4Message offerMsg = new DhcpV4DiscoverProcessor(discoverMsg, clientLink).processMessage();
+		assertNotNull(offerMsg);
+
+		// Verify Offer returns scrubbed Option 12 because hostname was changed
+		DhcpV4HostnameOption offerHostname = (DhcpV4HostnameOption) offerMsg.getDhcpOption(DhcpConstants.V4OPTION_HOSTNAME);
+		assertNotNull("Offer should contain Option 12 when hostname is changed", offerHostname);
+		assertEquals("my-dirty-host-1", offerHostname.getString());
+
+		DhcpV4Message requestMsg = DhcpV4MessageBuilder.request()
+				.withMac(mac)
+				.withRequestedIp(offerMsg.getYiAddr().getHostAddress())
+				.withServerId(offerMsg.getDhcpV4ServerIdOption().getIpAddress())
+				.withClientFqdn(dirtyFqdn, true, false)
+				.build();
+		DhcpV4Message ackMsg = new DhcpV4RequestProcessor(requestMsg, clientLink).processMessage();
+		assertNotNull(ackMsg);
+
+		// Verify ACK returns Option 12 with scrubbed short name
+		DhcpV4HostnameOption ackHostname = (DhcpV4HostnameOption) ackMsg.getDhcpOption(DhcpConstants.V4OPTION_HOSTNAME);
+		assertNotNull("ACK must contain Option 12", ackHostname);
+		assertEquals("my-dirty-host-1", ackHostname.getString());
+
+		// Verify Option 81 in ACK has scrubbed FQDN and Override bit set
+		DhcpV4ClientFqdnOption replyFqdn = (DhcpV4ClientFqdnOption) ackMsg.getDhcpOption(DhcpConstants.V4OPTION_CLIENT_FQDN);
+		assertNotNull("ACK must contain Option 81", replyFqdn);
+		assertTrue("Override bit must be set", replyFqdn.getOverrideBit());
+		assertEquals("my-dirty-host-1.example.com", replyFqdn.getDomainName());
+
+		// Verify DNS server received forward update for scrubbed name
+		boolean foundA = false;
+		for (Message q : dnsServer.getReceivedQueries()) {
+			for (Record r : q.getSectionArray(Section.UPDATE)) {
+				if (r instanceof ARecord && r.getName().toString().startsWith("my-dirty-host-1.example.com")) {
+					foundA = true;
+				}
+			}
+		}
+		assertTrue("DNS server must receive A record update for scrubbed FQDN", foundA);
+	}
+
+	@Test
+	public void testV4DoraWithMissingHostnameGeneratedAndOption12Returned() throws Exception {
+		Map<String, String> policies = new java.util.HashMap<>();
+		policies.put("hostname.mode", "always-generate");
+		policies.put("hostname.generate.template", "host-${ip.dashed}");
+		policies.put("hostname.sendOption12", "on-change");
+		initServer("always", "example.com", policies);
+
+		InetAddress clientLink = InetAddress.getByName("192.168.1.1");
+		String mac = "00:55:44:33:22:11";
+
+		// Client sends Discover without Option 12 or Option 81
+		DhcpV4Message discoverMsg = DhcpV4MessageBuilder.discover()
+				.withMac(mac)
+				.build();
+		DhcpV4Message offerMsg = new DhcpV4DiscoverProcessor(discoverMsg, clientLink).processMessage();
+		assertNotNull(offerMsg);
+
+		DhcpV4HostnameOption offerHostname = (DhcpV4HostnameOption) offerMsg.getDhcpOption(DhcpConstants.V4OPTION_HOSTNAME);
+		assertNotNull("Offer must contain generated Option 12", offerHostname);
+		assertEquals("host-192-168-1-100", offerHostname.getString());
+
+		DhcpV4Message requestMsg = DhcpV4MessageBuilder.request()
+				.withMac(mac)
+				.withRequestedIp(offerMsg.getYiAddr().getHostAddress())
+				.withServerId(offerMsg.getDhcpV4ServerIdOption().getIpAddress())
+				.build();
+		DhcpV4Message ackMsg = new DhcpV4RequestProcessor(requestMsg, clientLink).processMessage();
+		assertNotNull(ackMsg);
+
+		DhcpV4HostnameOption ackHostname = (DhcpV4HostnameOption) ackMsg.getDhcpOption(DhcpConstants.V4OPTION_HOSTNAME);
+		assertNotNull("ACK must contain generated Option 12", ackHostname);
+		assertEquals("host-192-168-1-100", ackHostname.getString());
+
+		// Verify DNS server received forward update for generated name
+		boolean foundA = false;
+		for (Message q : dnsServer.getReceivedQueries()) {
+			for (Record r : q.getSectionArray(Section.UPDATE)) {
+				if (r instanceof ARecord && r.getName().toString().startsWith("host-192-168-1-100.example.com")) {
+					foundA = true;
+				}
+			}
+		}
+		assertTrue("DNS server must receive A record update for generated FQDN", foundA);
+	}
+
+	@Test
+	public void testV6SarrWithMissingFqdnGenerated() throws Exception {
+		Map<String, String> policies = new java.util.HashMap<>();
+		policies.put("hostname.mode", "always-generate");
+		policies.put("hostname.generate.template", "v6-${ip.dashed}");
+		initServer("always", "example.com", policies);
+
+		InetAddress clientLink = InetAddress.getByName("2001:db8:1::1");
+		String duidHex = "00010001aabbccdd001122334466";
+
+		// Client sends Solicit without Option 39, but requests Option 39 in ORO
+		DhcpV6Message solicitMsg = DhcpV6MessageBuilder.solicit()
+				.withClientIdHex(duidHex)
+				.withIaNa(1)
+				.withRequestedOptions(DhcpConstants.V6OPTION_CLIENT_FQDN)
+				.build();
+		DhcpV6Message advMsg = new DhcpV6SolicitProcessor(solicitMsg, clientLink).processMessage();
+		assertNotNull(advMsg);
+
+		DhcpV6IaAddrOption iaAddr = advMsg.getIaNaOptions().get(0).getIaAddrOptions().get(0);
+		String leasedIp = iaAddr.getIpAddress();
+		String expectedName = "v6-" + leasedIp.replace('.', '-').replace(':', '-') + ".example.com";
+
+		// Client sends Request
+		DhcpV6Message requestMsg = DhcpV6MessageBuilder.request()
+				.withClientIdHex(duidHex)
+				.withServerId(advMsg.getDhcpServerIdOption())
+				.withIaNaWithAddr(1, leasedIp)
+				.withRequestedOptions(DhcpConstants.V6OPTION_CLIENT_FQDN)
+				.build();
+		DhcpV6Message replyMsg = new DhcpV6RequestProcessor(requestMsg, clientLink).processMessage();
+		assertNotNull(replyMsg);
+
+		DhcpV6ClientFqdnOption replyFqdn = (DhcpV6ClientFqdnOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENT_FQDN);
+		assertNotNull("Reply must contain Option 39", replyFqdn);
+		assertTrue("Override bit must be set", replyFqdn.getOverrideBit());
+		assertEquals(expectedName, replyFqdn.getDomainName());
+
+		// Verify DNS server received AAAA update
+		boolean foundAaaa = false;
+		for (Message q : dnsServer.getReceivedQueries()) {
+			for (Record r : q.getSectionArray(Section.UPDATE)) {
+				if (r instanceof AAAARecord && r.getName().toString().startsWith(expectedName)) {
+					foundAaaa = true;
+				}
+			}
+		}
+		assertTrue("DNS server must receive AAAA record update for generated FQDN", foundAaaa);
 	}
 }

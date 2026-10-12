@@ -103,6 +103,14 @@ public class DhcpServerPolicies
 		DDNS_REVERSE_ZONE_TSIG_KEYNAME("ddns.reverse.zone.tsig.keyName", ""),
 		DDNS_REVERSE_ZONE_TSIG_ALGORITHM("ddns.reverse.zone.tsig.algorithm", ""),
 		DDNS_REVERSE_ZONE_TSIG_KEYDATA("ddns.reverse.zone.tsig.keyData", ""),
+
+		HOSTNAME_MODE("hostname.mode", "as-is"),
+		HOSTNAME_GENERATE_TEMPLATE("hostname.generate.template", "host-${ip.dashed}"),
+		HOSTNAME_SCRUB_ALLOW_UNDERSCORES("hostname.scrub.allowUnderscores", FALSE),
+		HOSTNAME_SCRUB_REPLACE_CHAR("hostname.scrub.replaceChar", "-"),
+		HOSTNAME_SCRUB_COLLAPSE_HYPHENS("hostname.scrub.collapseHyphens", TRUE),
+		HOSTNAME_SCRUB_STRIP_DOMAINS("hostname.scrub.stripDomains", "local,lan,home"),
+		HOSTNAME_SEND_OPTION12("hostname.sendOption12", "on-change"),
 		
 		DHCP_PROCESSOR_RECENT_MESSAGE_TIMER("dhcp.processor.recentMessageTimer", "5000"),
 		DHCP_IGNORE_LOOPBACK("dhcp.ignoreLoopback", TRUE),

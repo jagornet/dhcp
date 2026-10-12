@@ -248,6 +248,56 @@ The following policies are used to configure the Dynamic DNS update processing.
 - Description: The public key data of the TSIG key in base 64 encoding for signed reverse DDNS updates. This policy is only necessary if the reverse DDNS key data is different from the ddns.tsig.keyData policy value.
 - Hierarchy: all
 
+=== Hostname Policies
+Policies controlling client hostname validation, scrubbing for DNS compliance (RFC 952, RFC 1123, RFC 1035), and automatic hostname generation. These policies can be configured globally, per link, per pool, or per filter.
+
+==== Hostname Mode
+- Name: `hostname.mode`
+- Default: `as-is`
+- Description: Hostname processing strategy. Supported values:
+* `as-is` - Use client-supplied hostname/FQDN unmodified (existing behavior).
+* `scrub` - Validate and sanitize client-supplied hostname for DNS compliance. Drops hostname if invalid.
+* `scrub-or-generate` - Validate and sanitize client hostname; if absent or invalid, generate a compliant hostname.
+* `always-generate` - Ignore client-supplied hostname and always generate a compliant hostname.
+* `disabled` - Disable hostname and DDNS processing for matching clients.
+- Hierarchy: all
+
+==== Hostname Generation Template
+- Name: `hostname.generate.template`
+- Default: `host-${ip.dashed}`
+- Description: Template string used when generating hostnames. Supported tokens: `${ip}` (IP address), `${ip.dashed}` (IP address with hyphens instead of dots/colons), `${ip.hex}` (hexadecimal IP), `${mac}` (MAC address in hex), `${mac.dashed}` (MAC address with hyphens), `${duid}` (client DUID in hex), and `${filter.name}` (name of matching filter).
+- Hierarchy: all
+
+==== Hostname Scrub Allow Underscores
+- Name: `hostname.scrub.allowUnderscores`
+- Default: `false`
+- Description: Flag indicating whether underscores (`_`) should be preserved in hostnames. When `false`, underscores are replaced with the replacement character (default `-`).
+- Hierarchy: all
+
+==== Hostname Scrub Replacement Character
+- Name: `hostname.scrub.replaceChar`
+- Default: `-`
+- Description: Character substituted for non-compliant DNS characters during scrubbing.
+- Hierarchy: all
+
+==== Hostname Scrub Collapse Hyphens
+- Name: `hostname.scrub.collapseHyphens`
+- Default: `true`
+- Description: Flag indicating whether multiple consecutive hyphens (`--+`) should be collapsed into a single hyphen (`-`).
+- Hierarchy: all
+
+==== Hostname Scrub Strip Domains
+- Name: `hostname.scrub.stripDomains`
+- Default: `local,lan,home`
+- Description: Comma-separated list of ad-hoc or mDNS domain suffixes to strip from client-supplied hostnames.
+- Hierarchy: all
+
+==== Hostname Send Option 12
+- Name: `hostname.sendOption12`
+- Default: `on-change`
+- Description: Controls when DHCPv4 Option 12 (Host Name) is returned in DHCPOFFER and DHCPACK messages. Supported values: `on-change` (return Option 12 when the hostname was altered or generated), `always`, `never`, and `if-requested` (only if client requested Option 12 in Parameter Request List).
+- Hierarchy: all
+
 
 === DHCP Protocol Policies
 The DHCP protocol handler follows IETF standards.  However, in test labs or

@@ -61,6 +61,8 @@ import com.jagornet.dhcp.server.config.DhcpLink;
 import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
+import com.jagornet.dhcp.server.hostname.HostnameResolution;
+import com.jagornet.dhcp.server.hostname.HostnameService;
 import com.jagornet.dhcp.server.config.DhcpV6DuidFilter;
 import com.jagornet.dhcp.server.config.DhcpV6OptionConfigObject;
 import com.jagornet.dhcp.server.config.xml.V6AddressPool;
@@ -781,42 +783,61 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor {
 	protected void processDdnsUpdates(boolean sendUpdates) {
 		DhcpV6ClientFqdnOption clientFqdnOption = (DhcpV6ClientFqdnOption) requestMsg
 				.getDhcpOption(DhcpConstants.V6OPTION_CLIENT_FQDN);
-		if (clientFqdnOption == null) {
-			// TODO allow name generation?
-			log.debug("No Client FQDN option in request.  Skipping DDNS update processing.");
-			return;
-		}
 
 		boolean includeFqdnOptionInReply = false;
 		if ((requestMsg.getRequestedOptionCodes() != null) &&
 				requestMsg.getRequestedOptionCodes().contains(DhcpConstants.V6OPTION_CLIENT_FQDN)) {
-			// RFC 4704 section 6 says:
-			// Servers MUST only include a Client FQDN option in ADVERTISE and REPLY
-			// messages if the client included a Client FQDN option and the Client
-			// FQDN option is requested by the Option Request option in the client's
-			// message to which the server is responding.
+			// RFC 4704 section 6
 			includeFqdnOptionInReply = true;
 		}
 
-		DhcpV6ClientFqdnOption replyFqdnOption = new DhcpV6ClientFqdnOption();
-		replyFqdnOption.setDomainName(clientFqdnOption.getDomainName());
-		replyFqdnOption.setUpdateAaaaBit(false);
-		replyFqdnOption.setOverrideBit(false);
-		replyFqdnOption.setNoUpdateBit(false);
+		byte[] duid = (requestMsg.getDhcpClientIdOption() != null) ? requestMsg.getDhcpClientIdOption().getDuid()
+				: null;
+		InetAddress assignedIp = null;
+		DhcpConfigObject configObj = null;
+		if (bindings != null && !bindings.isEmpty()) {
+			Binding b = bindings.get(0);
+			if (b.getBindingObjects() != null && !b.getBindingObjects().isEmpty()) {
+				BindingObject bo = b.getBindingObjects().iterator().next();
+				if (bo instanceof V6BindingAddress) {
+					V6BindingAddress ba = (V6BindingAddress) bo;
+					assignedIp = ba.getIpAddress();
+					configObj = ba.getConfigObj();
+				}
+			}
+		}
 
-		String fqdn = clientFqdnOption.getDomainName();
-		if ((fqdn == null) || (fqdn.length() <= 0)) {
-			log.error("Client FQDN option domain name is null/empty.  No DDNS udpates performed.");
-			if (includeFqdnOptionInReply) {
-				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
-				replyMsg.putDhcpOption(replyFqdnOption);
+		String clientSuppliedName = (clientFqdnOption != null) ? clientFqdnOption.getDomainName() : null;
+		HostnameResolution resolution = HostnameService.resolveHostname(
+				requestMsg, clientLink, configObj, clientSuppliedName,
+				assignedIp, null, duid);
+
+		if (!resolution.isValid()) {
+			if (clientFqdnOption != null) {
+				log.error("Client FQDN option domain name is invalid. No DDNS updates performed.");
+				DhcpV6ClientFqdnOption replyFqdnOption = new DhcpV6ClientFqdnOption();
+				replyFqdnOption.setDomainName(clientFqdnOption.getDomainName());
+				replyFqdnOption.setNoUpdateBit(true);
+				if (includeFqdnOptionInReply) {
+					replyMsg.putDhcpOption(replyFqdnOption);
+				}
+			} else {
+				log.debug("No valid Client FQDN option nor generated hostname. Skipping DDNS update processing.");
 			}
 			return;
 		}
 
+		String fqdn = resolution.getFqdn();
 		String policy = DhcpServerPolicies.effectivePolicy(requestMsg,
 				clientLink.getLink(), Property.DDNS_UPDATE);
 		log.info("Server configuration for ddns.update policy: " + policy);
+
+		DhcpV6ClientFqdnOption replyFqdnOption = new DhcpV6ClientFqdnOption();
+		replyFqdnOption.setDomainName(fqdn);
+		replyFqdnOption.setUpdateAaaaBit(false);
+		replyFqdnOption.setOverrideBit(false);
+		replyFqdnOption.setNoUpdateBit(false);
+
 		if ((policy == null) || policy.equalsIgnoreCase("none")) {
 			log.info("Server configuration for ddns.update policy is null or 'none'." +
 					"  No DDNS updates performed.");
@@ -827,42 +848,31 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor {
 			return;
 		}
 
-		if (clientFqdnOption.getNoUpdateBit() && policy.equalsIgnoreCase("honorNoUpdate")) {
+		if (clientFqdnOption != null && clientFqdnOption.getNoUpdateBit() && policy.equalsIgnoreCase("honorNoUpdate")) {
 			log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
 					"  No DDNS updates performed.");
 			if (includeFqdnOptionInReply) {
 				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
 				replyMsg.putDhcpOption(replyFqdnOption);
 			}
-			// TODO: RFC 4704 Section 6.1
-			// ...the server SHOULD delete any RRs that it previously added
-			// via DNS updates for the client.
 			return;
 		}
 
 		boolean doForwardUpdate = true;
-		if (!clientFqdnOption.getUpdateAaaaBit() && policy.equalsIgnoreCase("honorNoAAAA")) {
+		if (clientFqdnOption != null && !clientFqdnOption.getUpdateAaaaBit()
+				&& policy.equalsIgnoreCase("honorNoAAAA")) {
 			log.info("Client FQDN NoAAAA flag set.  Server configured to honor request." +
 					"  No FORWARD DDNS updates performed.");
 			doForwardUpdate = false;
 		} else {
 			replyFqdnOption.setUpdateAaaaBit(true); // server will do update
-			if (!clientFqdnOption.getUpdateAaaaBit())
-				replyFqdnOption.setOverrideBit(true); // tell client that we overrode request flag
+			if (clientFqdnOption == null || !clientFqdnOption.getUpdateAaaaBit() || resolution.isModified()) {
+				replyFqdnOption.setOverrideBit(true); // tell client that we overrode request flag or domain
+			}
 		}
 
-		String domain = DhcpServerPolicies.effectivePolicy(clientLink.getLink(), Property.DDNS_DOMAIN);
-		if ((domain != null) && !domain.isEmpty()) {
-			log.info("Server configuration for domain policy: " + domain);
-			// if there is a configured domain, then replace the domain provide by the
-			// client
-			int dot = fqdn.indexOf('.');
-			if (dot > 0) {
-				fqdn = fqdn.substring(0, dot + 1) + domain;
-			} else {
-				fqdn = fqdn + "." + domain;
-			}
-			replyFqdnOption.setDomainName(fqdn);
+		if (resolution.isModified()) {
+			replyFqdnOption.setOverrideBit(true);
 		}
 
 		if (includeFqdnOptionInReply) {
@@ -878,7 +888,7 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor {
 
 							V6BindingAddress bindingAddr = (V6BindingAddress) bindingObj;
 
-							DhcpConfigObject configObj = bindingAddr.getConfigObj();
+							configObj = bindingAddr.getConfigObj();
 
 							DdnsCallback ddnsComplete = new DhcpV6DdnsComplete(bindingAddr, replyFqdnOption);
 
