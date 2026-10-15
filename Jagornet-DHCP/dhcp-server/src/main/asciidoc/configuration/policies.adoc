@@ -130,18 +130,45 @@ the following IETF RFCs:
 
 The following policies are used to configure the Dynamic DNS update processing.
 
-==== DDNS Update
-- Name: `ddns.update`
-- Default: `none`
-- Description: Support Dynamic DNS updates for clients which send the Client FQDN option. Available values are:
+==== DDNS Mode
+- Name: `ddns.mode`
+- Default: `disabled`
+- Description: Controls Dynamic DNS update delegation between server and client. Available values are:
 
-* `none` - no DDNS updates
-* `server` - performe all DDNS updates
-* `honorNoUpdate` - honor client FQDN NoUpdate flag
-* `honorNoA` - honor client FQDN NoA flag
-* `honorNoAAAA` - honor client FQDN NoAAAA flag
+* `disabled` - no DDNS updates performed.
+* `server` - server performs both forward (A/AAAA) and reverse (PTR) updates, overriding client requests if needed.
+* `client` - server honors client FQDN flags. If client requests not to update (N flag), no updates are performed. If client requests to perform forward updates (S=0), server updates only reverse (PTR) records.
 
-- Hierarchy: global, filter, link, linkFilter
+- Hierarchy: all
+
+NOTE: The legacy policy `ddns.update` (`none`, `server`, `honorNoUpdate`, `honorNoA`, `honorNoAAAA`) is retained for backward compatibility and is automatically mapped to `ddns.mode`.
+
+==== DDNS Record Type
+- Name: `ddns.record.type`
+- Default: `dhcid`
+- Description: Specifies the identification resource record type used in forward DNS zones:
+
+* `dhcid` - RFC 4701 standard DHCID resource record (RR type 49).
+* `txt` - Legacy ISC DHCP "interim" style TXT resource record (RR type 16), facilitating migration from ISC DHCP environments.
+
+- Hierarchy: all
+
+==== DDNS Conflict Strategy
+- Name: `ddns.conflict.strategy`
+- Default: `strict`
+- Description: Controls the conflict resolution strategy used during forward DNS updates:
+
+* `strict` - RFC 4703 client ownership. The first registrant owns the FQDN; other dynamic clients cannot overwrite or claim it.
+* `replace-dynamic` - Dynamic client takeover with static host protection. Dynamic clients can displace other dynamic client entries (identified via a shared dynamic token), while strictly protecting static infrastructure records (servers, routers, printers) that lack the dynamic marker.
+* `unconditional` - Blind replace without prerequisites (equivalent to ISC DHCP `update-conflict-detection false`).
+
+- Hierarchy: all
+
+==== DDNS Dynamic Token
+- Name: `ddns.dynamic.token`
+- Default: `dynamic`
+- Description: The marker string used in TXT or DHCID records when `ddns.conflict.strategy` is set to `replace-dynamic`.
+- Hierarchy: all
 
 ==== DDNS Synchronize
 - Name: `ddns.synchronize`
@@ -182,7 +209,7 @@ The following policies are used to configure the Dynamic DNS update processing.
 
 ==== Forward Zone Name
 - Name: `ddns.forward.zone.name`
-- Description: The name of the dynamic zone for forward DDNS updates. If not set, the zone will be assumed to be the ddns.domain, or if that is not set, then the portion of the client supplied FQDN which follows the first label.
+- Description: The name of the dynamic zone for forward DDNS updates. If not set, the forward zone name is automatically determined in the following order of precedence: (1) the `ddns.domain` policy value, (2) the forward domain configured for the client (Option 15 `v4DomainNameOption` for IPv4 or Option 24 `v6DomainSearchListOption` for IPv6), or (3) the domain portion of the client-supplied FQDN (everything after the first label).
 - Hierarchy: all
 
 ==== Forward Zone TTL
@@ -208,18 +235,18 @@ The following policies are used to configure the Dynamic DNS update processing.
 
 ==== Forward Zone TSIG Key Data
 - Name: `ddns.forward.zone.tsig.keyData`
-- Description: The public key data of the TSIG key in base 64 encoding for signed reverse DDNS updates. This policy is only necessary if the forward DDNS key data is different from the ddns.tsig.keyData policy value.
+- Description: The public key data of the TSIG key in base 64 encoding for signed forward DDNS updates. This policy is only necessary if the forward DDNS key data is different from the ddns.tsig.keyData policy value.
 - Hierarchy: all
 
 ==== Reverse Zone Name
 - Name: `ddns.reverse.zone.name`
-- Description: The name of the dynamic zone for reverse DDNS updates. If not set, the zone will be assumed to be the ip6.arpa domain  corresponding to the subnet based on the ddns.reverse.zone.bitLength policy below.
+- Description: The name of the dynamic zone for reverse DDNS updates. If not set, the reverse zone is automatically calculated from the client's subnet address and prefix length (`in-addr.arpa.` for IPv4 octet-aligned subnets like /24, /16, /8, or `ip6.arpa.` for IPv6 nibble-aligned subnets like /64, /48).
 - Hierarchy: all
 
 ==== Reverse Zone Bit Length
 - Name: `ddns.reverse.zone.bitLength`
-- Default: `64`
-- Description: The number of bits representing the subnet for calculating the reverse zone name.
+- Default: `0`
+- Description: The number of bits representing the subnet for calculating the reverse zone name. When set to `0` (the default), the reverse zone is automatically calculated from the link or pool subnet prefix length (e.g. 24, 16, or 8 for IPv4, and 64, 48, etc. for IPv6). A non-zero value can be specified to explicitly override the prefix length.
 - Hierarchy: all
 
 ==== Reverse Zone TTL
@@ -229,7 +256,7 @@ The following policies are used to configure the Dynamic DNS update processing.
 - Hierarchy: all
 
 ==== Reverse Zone Server
-- Name: `dns.reverse.zone.server`
+- Name: `ddns.reverse.zone.server`
 - Description: The IP address of the dynamic DNS server for sending reverse DDNS updates. This policy is only necessary if the reverse DDNS server is different from the ddns.server policy value.
 - Hierarchy: all
 

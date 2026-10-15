@@ -433,9 +433,10 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor {
 			replyMsg.putDhcpOption(new DhcpV4HostnameOption(resolution.getHostname()));
 		}
 
+		String ddnsMode = DhcpServerPolicies.effectiveDdnsMode(requestMsg, clientLink.getLink());
 		String ddnsUpdatePolicy = DhcpServerPolicies.effectivePolicy(requestMsg,
 				clientLink.getLink(), Property.DDNS_UPDATE);
-		log.info("Server configuration for ddns.update policy: " + ddnsUpdatePolicy);
+		log.info("Server configuration for ddns.mode: " + ddnsMode + " (legacy ddns.update: " + ddnsUpdatePolicy + ")");
 
 		String fqdn = resolution.getFqdn();
 		DhcpV4ClientFqdnOption replyFqdnOption = null;
@@ -450,30 +451,41 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor {
 			replyFqdnOption.setRcode1((short) 0xff); // RFC 4702 says server should set to 255
 			replyFqdnOption.setRcode2((short) 0xff); // RFC 4702 says server should set to 255
 
-			if ((ddnsUpdatePolicy == null) || ddnsUpdatePolicy.equalsIgnoreCase("none")) {
-				log.info("Server configuration for ddns.update policy is null or 'none'." +
-						"  No DDNS updates performed.");
+			if (ddnsMode.equalsIgnoreCase("disabled")) {
+				log.info("DDNS mode is disabled.  No DDNS updates performed.");
 				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
 				replyMsg.putDhcpOption(replyFqdnOption);
 				return;
 			}
 
-			if (clientFqdnOption.getNoUpdateBit() && ddnsUpdatePolicy.equalsIgnoreCase("honorNoUpdate")) {
-				log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
-						"  No DDNS updates performed.");
-				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
-				replyMsg.putDhcpOption(replyFqdnOption);
-				return;
+			if (clientFqdnOption.getNoUpdateBit()) {
+				if (ddnsMode.equalsIgnoreCase("client") ||
+						(ddnsUpdatePolicy != null && ddnsUpdatePolicy.equalsIgnoreCase("honorNoUpdate"))) {
+					log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
+							"  No DDNS updates performed.");
+					replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
+					replyMsg.putDhcpOption(replyFqdnOption);
+					return;
+				} else {
+					replyFqdnOption.setNoUpdateBit(false);
+					replyFqdnOption.setOverrideBit(true);
+					replyFqdnOption.setUpdateABit(true);
+				}
 			}
 
-			if (!clientFqdnOption.getUpdateABit() && ddnsUpdatePolicy.equalsIgnoreCase("honorNoA")) {
-				log.info("Client FQDN NoA flag set.  Server configured to honor request." +
-						"  No FORWARD DDNS updates performed.");
-				doForwardUpdate = false;
+			if (!clientFqdnOption.getUpdateABit()) {
+				if (ddnsMode.equalsIgnoreCase("client") ||
+						(ddnsUpdatePolicy != null && ddnsUpdatePolicy.equalsIgnoreCase("honorNoA"))) {
+					log.info("Client FQDN NoA flag set.  Server configured to honor request." +
+							"  No FORWARD DDNS updates performed.");
+					doForwardUpdate = false;
+					replyFqdnOption.setUpdateABit(false);
+				} else {
+					replyFqdnOption.setUpdateABit(true);
+					replyFqdnOption.setOverrideBit(true);
+				}
 			} else {
 				replyFqdnOption.setUpdateABit(true); // server will do update
-				if (!clientFqdnOption.getUpdateABit() || resolution.isModified())
-					replyFqdnOption.setOverrideBit(true); // tell client that we overrode request flag or name
 			}
 
 			if (resolution.isModified()) {
@@ -483,9 +495,8 @@ public abstract class BaseDhcpV4Processor implements DhcpV4MessageProcessor {
 			// since the client DID send option 81, return it in the reply
 			replyMsg.putDhcpOption(replyFqdnOption);
 		} else {
-			if ((ddnsUpdatePolicy == null) || ddnsUpdatePolicy.equalsIgnoreCase("none")) {
-				log.info("Server configuration for ddns.update policy is null or 'none'." +
-						"  No DDNS updates performed.");
+			if (ddnsMode.equalsIgnoreCase("disabled")) {
+				log.info("DDNS mode is disabled.  No DDNS updates performed.");
 				return;
 			}
 			// The client did not send an FQDN option, so we formulate the FQDN

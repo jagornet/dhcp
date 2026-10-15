@@ -259,6 +259,10 @@ public class DhcpV4MessageBuilder {
 		}
 	}
 
+	public DhcpV4MessageBuilder withRequestedIp(InetAddress ip) {
+		return withRequestedIp(ip != null ? ip.getHostAddress() : null);
+	}
+
 	public DhcpV4MessageBuilder withClientFqdn(String fqdn, boolean serverUpdate, boolean noUpdate) {
 		com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption option = 
 				new com.jagornet.dhcp.core.option.v4.DhcpV4ClientFqdnOption(fqdn);
@@ -283,6 +287,10 @@ public class DhcpV4MessageBuilder {
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid serverId IP: " + ip, e);
 		}
+	}
+
+	public DhcpV4MessageBuilder withServerId(InetAddress ip) {
+		return withServerId(ip != null ? ip.getHostAddress() : null);
 	}
 
 	public DhcpV4MessageBuilder withHostName(String hostName) {

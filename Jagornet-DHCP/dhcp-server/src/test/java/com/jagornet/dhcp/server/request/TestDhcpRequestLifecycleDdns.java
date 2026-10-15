@@ -25,8 +25,10 @@ import org.xbill.DNS.ARecord;
 import org.xbill.DNS.DHCIDRecord;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.PTRRecord;
+import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Section;
+import org.xbill.DNS.TXTRecord;
 
 import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.message.DhcpV6Message;
@@ -113,6 +115,33 @@ public class TestDhcpRequestLifecycleDdns {
 		}
 		context = new DhcpConfigTestContext();
 		context.initXml(buildConfigXml(updatePolicy, domainPolicy, extraPolicies));
+
+		v4Mgr = new V4AddrBindingManagerImpl();
+		v4Mgr.setIaMgr(iaMgr);
+		v4Mgr.init();
+
+		v6Mgr = new V6NaAddrBindingManagerImpl();
+		v6Mgr.setIaMgr(iaMgr);
+		v6Mgr.init();
+
+		DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
+		config.setIaMgr(iaMgr);
+		config.setV4AddrBindingMgr(v4Mgr);
+		config.setV6NaAddrBindingMgr(v6Mgr);
+	}
+
+	private void initServerWithConfig(String configXml) throws Exception {
+		if (v4Mgr != null) {
+			v4Mgr.close();
+		}
+		if (v6Mgr != null) {
+			v6Mgr.close();
+		}
+		if (context != null) {
+			context.close();
+		}
+		context = new DhcpConfigTestContext();
+		context.initXml(configXml);
 
 		v4Mgr = new V4AddrBindingManagerImpl();
 		v4Mgr.setIaMgr(iaMgr);
@@ -823,5 +852,380 @@ public class TestDhcpRequestLifecycleDdns {
 			}
 		}
 		assertTrue("DNS server must receive AAAA record update for generated FQDN", foundAaaa);
+	}
+
+	@Test
+	public void testDhcpV4DoraWithTxtInterimRecord() throws Exception {
+		Map<String, String> policies = new java.util.HashMap<>();
+		policies.put("ddns.mode", "server");
+		policies.put("ddns.record.type", "txt");
+		initServer(null, "example.com", policies);
+
+		byte[] mac = new byte[] { 0x00, 0x11, 0x22, 0x33, 0x44, 0x77 };
+		String fqdn = "interim-v4.example.com";
+
+		// Discover
+		DhcpV4Message discoverMsg = DhcpV4MessageBuilder.discover()
+				.withMac(mac)
+				.withClientFqdn(fqdn, true, false)
+				.build();
+		DhcpV4Message offerMsg = new DhcpV4DiscoverProcessor(discoverMsg, InetAddress.getByName("192.168.1.1")).processMessage();
+		assertNotNull(offerMsg);
+		InetAddress offeredIp = offerMsg.getYiAddr();
+
+		// Request
+		DhcpV4Message requestMsg = DhcpV4MessageBuilder.request()
+				.withMac(mac)
+				.withServerId(InetAddress.getByName("192.168.1.1"))
+				.withRequestedIp(offeredIp)
+				.withClientFqdn(fqdn, true, false)
+				.build();
+		DhcpV4Message ackMsg = new DhcpV4RequestProcessor(requestMsg, InetAddress.getByName("192.168.1.1")).processMessage();
+		assertNotNull(ackMsg);
+
+		// Verify DNS received a TXT record update instead of DHCID
+		boolean foundTxt = false;
+		boolean foundDhcid = false;
+		for (Message q : dnsServer.getReceivedQueries()) {
+			for (Record r : q.getSectionArray(Section.UPDATE)) {
+				if (r instanceof TXTRecord) {
+					foundTxt = true;
+				}
+				if (r instanceof DHCIDRecord) {
+					foundDhcid = true;
+				}
+			}
+		}
+		assertTrue("DNS server must receive TXT record in interim mode", foundTxt);
+		assertFalse("DNS server must not receive DHCID record when record.type=txt", foundDhcid);
+	}
+
+	@Test
+	public void testDhcpV4DoraWithReplaceDynamicTakeover() throws Exception {
+		Map<String, String> policies = new java.util.HashMap<>();
+		policies.put("ddns.mode", "server");
+		policies.put("ddns.conflict.strategy", "replace-dynamic");
+		policies.put("ddns.record.type", "txt");
+		policies.put("ddns.dynamic.token", "dynamic");
+		initServer(null, "example.com", policies);
+
+		byte[] mac1 = new byte[] { 0x00, 0x11, 0x22, 0x33, 0x44, 0x01 };
+		byte[] mac2 = new byte[] { 0x00, 0x11, 0x22, 0x33, 0x44, 0x02 };
+		String fqdn = "shared-host.example.com";
+
+		// Client 1 leases and registers DDNS
+		DhcpV4Message d1 = DhcpV4MessageBuilder.discover().withMac(mac1).withClientFqdn(fqdn, true, false).build();
+		DhcpV4Message o1 = new DhcpV4DiscoverProcessor(d1, InetAddress.getByName("192.168.1.1")).processMessage();
+		DhcpV4Message r1 = DhcpV4MessageBuilder.request().withMac(mac1)
+				.withServerId(InetAddress.getByName("192.168.1.1")).withRequestedIp(o1.getYiAddr())
+				.withClientFqdn(fqdn, true, false).build();
+		DhcpV4Message ack1 = new DhcpV4RequestProcessor(r1, InetAddress.getByName("192.168.1.1")).processMessage();
+		assertNotNull(ack1);
+
+		// Configure DNS server: next absent check returns YXDOMAIN (name exists), but marker check succeeds
+		dnsServer.setRcodeProvider(new java.util.function.Function<Message, Integer>() {
+			private int attempt = 0;
+			@Override
+			public Integer apply(Message msg) {
+				attempt++;
+				if (attempt == 1) {
+					return Rcode.YXDOMAIN;
+				}
+				return Rcode.NOERROR;
+			}
+		});
+
+		// Client 2 requests same name -> replace-dynamic takes over!
+		DhcpV4Message d2 = DhcpV4MessageBuilder.discover().withMac(mac2).withClientFqdn(fqdn, true, false).build();
+		DhcpV4Message o2 = new DhcpV4DiscoverProcessor(d2, InetAddress.getByName("192.168.1.1")).processMessage();
+		DhcpV4Message r2 = DhcpV4MessageBuilder.request().withMac(mac2)
+				.withServerId(InetAddress.getByName("192.168.1.1")).withRequestedIp(o2.getYiAddr())
+				.withClientFqdn(fqdn, true, false).build();
+		DhcpV4Message ack2 = new DhcpV4RequestProcessor(r2, InetAddress.getByName("192.168.1.1")).processMessage();
+		assertNotNull(ack2);
+	}
+
+	@Test
+	public void testDhcpV4DoraWithReplaceDynamicStaticProtection() throws Exception {
+		Map<String, String> policies = new java.util.HashMap<>();
+		policies.put("ddns.mode", "server");
+		policies.put("ddns.conflict.strategy", "replace-dynamic");
+		policies.put("ddns.record.type", "txt");
+		initServer(null, "example.com", policies);
+
+		// DNS simulates a static host: name exists (YXDOMAIN), but lacks dynamic marker (NXRRSET)
+		dnsServer.setRcodeProvider(new java.util.function.Function<Message, Integer>() {
+			private int attempt = 0;
+			@Override
+			public Integer apply(Message msg) {
+				attempt++;
+				if (attempt == 1) {
+					return Rcode.YXDOMAIN;
+				}
+				return Rcode.NXRRSET; // Prereq that dynamic marker is present fails!
+			}
+		});
+
+		byte[] mac = new byte[] { 0x00, 0x11, 0x22, 0x33, 0x44, 0x03 };
+		DhcpV4Message d = DhcpV4MessageBuilder.discover().withMac(mac).withClientFqdn("dc01.example.com", true, false).build();
+		DhcpV4Message o = new DhcpV4DiscoverProcessor(d, InetAddress.getByName("192.168.1.1")).processMessage();
+		DhcpV4Message r = DhcpV4MessageBuilder.request().withMac(mac)
+				.withServerId(InetAddress.getByName("192.168.1.1")).withRequestedIp(o.getYiAddr())
+				.withClientFqdn("dc01.example.com", true, false).build();
+		DhcpV4Message ack = new DhcpV4RequestProcessor(r, InetAddress.getByName("192.168.1.1")).processMessage();
+		assertNotNull(ack);
+	}
+
+	@Test
+	public void testDhcpV6SarrWithDdnsModeClientHonorNoAAAA() throws Exception {
+		Map<String, String> policies = new java.util.HashMap<>();
+		policies.put("ddns.mode", "client");
+		initServer(null, "example.com", policies);
+
+		InetAddress clientLink = InetAddress.getByName("2001:db8:1::1");
+		String duidHex = "00010001aabbccdd001122334488";
+		String fqdn = "client-handles-aaaa.example.com";
+
+		// Client sends Solicit with Option 47 (S=0, client will update AAAA record)
+		DhcpV6Message solicitMsg = DhcpV6MessageBuilder.solicit()
+				.withClientIdHex(duidHex)
+				.withIaNa(1)
+				.withClientFqdn(fqdn, false, false) // S=0, N=0
+				.withRequestedOptions(DhcpConstants.V6OPTION_CLIENT_FQDN)
+				.build();
+		DhcpV6Message advMsg = new DhcpV6SolicitProcessor(solicitMsg, clientLink).processMessage();
+		assertNotNull(advMsg);
+
+		DhcpV6IaAddrOption iaAddr = advMsg.getIaNaOptions().get(0).getIaAddrOptions().get(0);
+		String leasedIp = iaAddr.getIpAddress();
+
+		// Request
+		DhcpV6Message requestMsg = DhcpV6MessageBuilder.request()
+				.withClientIdHex(duidHex)
+				.withServerId(advMsg.getDhcpServerIdOption())
+				.withIaNaWithAddr(1, leasedIp)
+				.withClientFqdn(fqdn, false, false) // S=0, N=0
+				.withRequestedOptions(DhcpConstants.V6OPTION_CLIENT_FQDN)
+				.build();
+		DhcpV6Message replyMsg = new DhcpV6RequestProcessor(requestMsg, clientLink).processMessage();
+		assertNotNull(replyMsg);
+
+		DhcpV6ClientFqdnOption replyFqdn = (DhcpV6ClientFqdnOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENT_FQDN);
+		assertNotNull(replyFqdn);
+		assertFalse("Server must honor client S=0 flag in client mode", replyFqdn.getUpdateAaaaBit());
+		assertFalse("Override bit must not be set when honoring client S=0", replyFqdn.getOverrideBit());
+
+		// Verify DNS server received PTR update but NO AAAA update
+		boolean foundAaaa = false;
+		boolean foundPtr = false;
+		for (Message q : dnsServer.getReceivedQueries()) {
+			for (Record rec : q.getSectionArray(Section.UPDATE)) {
+				if (rec instanceof AAAARecord) {
+					foundAaaa = true;
+				}
+				if (rec instanceof PTRRecord) {
+					foundPtr = true;
+				}
+			}
+		}
+		assertFalse("Server must NOT send forward AAAA update when client handles it", foundAaaa);
+		assertTrue("Server must send reverse PTR update", foundPtr);
+	}
+
+	@Test
+	public void testV4LifecycleWithDefaultForwardDomainAndCalculatedReverseZone() throws Exception {
+		String configXml = "<dhc:dhcpServerConfig xmlns:dhc=\"http://jagornet.com/dhcp/xml\">\n" +
+				"  <v4ServerIdOption><ipAddress>192.168.1.1</ipAddress></v4ServerIdOption>\n" +
+				"  <policies>\n" +
+				"    <policyList><name>ddns.synchronize</name><value>true</value></policyList>\n" +
+				"    <policyList><name>ddns.mode</name><value>server</value></policyList>\n" +
+				"    <policyList><name>ddns.server</name><value>127.0.0.1:" + dnsServer.getPort() + "</value></policyList>\n" +
+				"    <policyList><name>ddns.ttl</name><value>3600</value></policyList>\n" +
+				"    <policyList><name>v4.defaultLeasetime</name><value>86400</value></policyList>\n" +
+				"  </policies>\n" +
+				"  <links>\n" +
+				"    <linkList>\n" +
+				"      <name>V4AutoLink</name>\n" +
+				"      <address>192.168.1.0/24</address>\n" +
+				"      <v4ConfigOptions>\n" +
+				"        <v4DomainNameOption>\n" +
+				"          <domainName>autov4.example.com</domainName>\n" +
+				"        </v4DomainNameOption>\n" +
+				"      </v4ConfigOptions>\n" +
+				"      <v4AddrPools>\n" +
+				"        <poolList>\n" +
+				"          <range>192.168.1.100-192.168.1.199</range>\n" +
+				"        </poolList>\n" +
+				"      </v4AddrPools>\n" +
+				"    </linkList>\n" +
+				"  </links>\n" +
+				"</dhc:dhcpServerConfig>";
+
+		initServerWithConfig(configXml);
+
+		InetAddress clientLink = InetAddress.getByName("192.168.1.1");
+		String mac = "00:11:22:33:44:77";
+
+		// Step 1: DISCOVER with unqualified hostname option "client-v4"
+		DhcpV4Message discoverMsg = DhcpV4MessageBuilder.discover()
+				.withMac(mac)
+				.withHostname("client-v4")
+				.build();
+		DhcpV4Message offerMsg = new DhcpV4DiscoverProcessor(discoverMsg, clientLink).processMessage();
+		assertNotNull(offerMsg);
+		assertEquals(InetAddress.getByName("192.168.1.100"), offerMsg.getYiAddr());
+
+		// Step 2: REQUEST selecting offered address
+		DhcpV4Message requestMsg = DhcpV4MessageBuilder.request()
+				.withMac(mac)
+				.withRequestedIp(offerMsg.getYiAddr().getHostAddress())
+				.withServerId(offerMsg.getDhcpV4ServerIdOption().getIpAddress())
+				.withHostname("client-v4")
+				.build();
+		DhcpV4Message ackMsg = new DhcpV4RequestProcessor(requestMsg, clientLink).processMessage();
+		assertNotNull(ackMsg);
+		assertEquals(InetAddress.getByName("192.168.1.100"), ackMsg.getYiAddr());
+
+		// Verify DNS updates: forward in autov4.example.com., reverse in 1.168.192.in-addr.arpa.
+		List<Message> queries = dnsServer.getReceivedQueries();
+		assertEquals("Must have 2 DNS update messages (forward + reverse)", 2, queries.size());
+
+		Message fwdMsg = queries.get(0);
+		assertEquals("autov4.example.com.", fwdMsg.getQuestion().getName().toString());
+		ARecord aRec = null;
+		for (Record r : fwdMsg.getSectionArray(Section.UPDATE)) {
+			if (r instanceof ARecord) { aRec = (ARecord) r; }
+		}
+		assertNotNull("Must include A record in forward update", aRec);
+		assertEquals("client-v4.autov4.example.com.", aRec.getName().toString());
+
+		Message revMsg = queries.get(1);
+		assertEquals("1.168.192.in-addr.arpa.", revMsg.getQuestion().getName().toString());
+		PTRRecord ptrRec = null;
+		for (Record r : revMsg.getSectionArray(Section.UPDATE)) {
+			if (r instanceof PTRRecord) { ptrRec = (PTRRecord) r; }
+		}
+		assertNotNull("Must include PTR record in reverse update", ptrRec);
+		assertEquals("100.1.168.192.in-addr.arpa.", ptrRec.getName().toString());
+		assertEquals("client-v4.autov4.example.com.", ptrRec.getTarget().toString());
+
+		// Step 3: RELEASE should delete both records from their respective zones
+		dnsServer.clear();
+		DhcpV4Message releaseMsg = DhcpV4MessageBuilder.release()
+				.withMac(mac)
+				.withCiAddr(offerMsg.getYiAddr())
+				.withServerId(offerMsg.getDhcpV4ServerIdOption().getIpAddress())
+				.build();
+		new DhcpV4ReleaseProcessor(releaseMsg, clientLink).processMessage();
+
+		List<Message> delQueries = dnsServer.getReceivedQueries();
+		assertTrue("Release must trigger at least 2 DNS update messages (delete forward + reverse)", delQueries.size() >= 2);
+		for (Message q : delQueries) {
+			String zoneName = q.getQuestion().getName().toString();
+			assertTrue("Query zone " + zoneName + " must be either forward or reverse zone",
+					zoneName.equals("autov4.example.com.") || zoneName.equals("1.168.192.in-addr.arpa."));
+		}
+	}
+
+	@Test
+	public void testV6LifecycleWithDefaultForwardDomainAndCalculatedReverseZone() throws Exception {
+		String configXml = "<dhc:dhcpServerConfig xmlns:dhc=\"http://jagornet.com/dhcp/xml\">\n" +
+				"  <v6ServerIdOption><opaqueData><hexValue>00010001aabbccdd001122334455</hexValue></opaqueData></v6ServerIdOption>\n" +
+				"  <policies>\n" +
+				"    <policyList><name>ddns.synchronize</name><value>true</value></policyList>\n" +
+				"    <policyList><name>ddns.mode</name><value>server</value></policyList>\n" +
+				"    <policyList><name>ddns.server</name><value>127.0.0.1:" + dnsServer.getPort() + "</value></policyList>\n" +
+				"    <policyList><name>ddns.ttl</name><value>3600</value></policyList>\n" +
+				"    <policyList><name>v6.validLifetime</name><value>86400</value></policyList>\n" +
+				"    <policyList><name>v6.preferredLifetime</name><value>43200</value></policyList>\n" +
+				"  </policies>\n" +
+				"  <links>\n" +
+				"    <linkList>\n" +
+				"      <name>V6AutoLink</name>\n" +
+				"      <address>2001:db8:1::/64</address>\n" +
+				"      <v6MsgConfigOptions>\n" +
+				"        <v6DomainSearchListOption>\n" +
+				"          <domainNameList>autov6.example.com</domainNameList>\n" +
+				"        </v6DomainSearchListOption>\n" +
+				"      </v6MsgConfigOptions>\n" +
+				"      <v6NaAddrPools>\n" +
+				"        <poolList>\n" +
+				"          <range>2001:db8:1::100-2001:db8:1::199</range>\n" +
+				"        </poolList>\n" +
+				"      </v6NaAddrPools>\n" +
+				"    </linkList>\n" +
+				"  </links>\n" +
+				"</dhc:dhcpServerConfig>";
+
+		initServerWithConfig(configXml);
+
+		InetAddress clientLink = InetAddress.getByName("2001:db8:1::1");
+		String duidHex = "00010001aabbccdd001122334488";
+
+		// Step 1: SOLICIT with unqualified client FQDN "client-v6"
+		DhcpV6Message solicitMsg = DhcpV6MessageBuilder.solicit()
+				.withClientIdHex(duidHex)
+				.withIaNa(1)
+				.withClientFqdn("client-v6", true, false)
+				.withRequestedOptions(DhcpConstants.V6OPTION_CLIENT_FQDN)
+				.build();
+		DhcpV6Message advMsg = new DhcpV6SolicitProcessor(solicitMsg, clientLink).processMessage();
+		assertNotNull(advMsg);
+
+		DhcpV6IaAddrOption iaAddr = advMsg.getIaNaOptions().get(0).getIaAddrOptions().get(0);
+
+		// Step 2: REQUEST
+		DhcpV6Message requestMsg = DhcpV6MessageBuilder.request()
+				.withClientIdHex(duidHex)
+				.withServerId(advMsg.getDhcpServerIdOption())
+				.withIaNaWithAddr(1, iaAddr.getIpAddress())
+				.withClientFqdn("client-v6", true, false)
+				.withRequestedOptions(DhcpConstants.V6OPTION_CLIENT_FQDN)
+				.build();
+		DhcpV6Message replyMsg = new DhcpV6RequestProcessor(requestMsg, clientLink).processMessage();
+		assertNotNull(replyMsg);
+
+		DhcpV6ClientFqdnOption replyFqdn = (DhcpV6ClientFqdnOption) replyMsg.getDhcpOption(DhcpConstants.V6OPTION_CLIENT_FQDN);
+		assertNotNull(replyFqdn);
+		assertEquals("client-v6.autov6.example.com", replyFqdn.getDomainName());
+
+		// Verify DNS updates: forward in autov6.example.com., reverse in 0.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa.
+		List<Message> queries = dnsServer.getReceivedQueries();
+		assertEquals("Must have 2 DNS update messages (forward + reverse)", 2, queries.size());
+
+		Message fwdMsg = queries.get(0);
+		assertEquals("autov6.example.com.", fwdMsg.getQuestion().getName().toString());
+		AAAARecord aaaaRec = null;
+		for (Record r : fwdMsg.getSectionArray(Section.UPDATE)) {
+			if (r instanceof AAAARecord) { aaaaRec = (AAAARecord) r; }
+		}
+		assertNotNull("Must include AAAA record in forward update", aaaaRec);
+		assertEquals("client-v6.autov6.example.com.", aaaaRec.getName().toString());
+
+		Message revMsg = queries.get(1);
+		assertEquals("0.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa.", revMsg.getQuestion().getName().toString());
+		PTRRecord ptrRec = null;
+		for (Record r : revMsg.getSectionArray(Section.UPDATE)) {
+			if (r instanceof PTRRecord) { ptrRec = (PTRRecord) r; }
+		}
+		assertNotNull("Must include PTR record in reverse update", ptrRec);
+		assertEquals("client-v6.autov6.example.com.", ptrRec.getTarget().toString());
+
+		// Step 3: RELEASE should delete both records
+		dnsServer.clear();
+		DhcpV6Message releaseMsg = DhcpV6MessageBuilder.release()
+				.withClientIdHex(duidHex)
+				.withServerId(advMsg.getDhcpServerIdOption())
+				.withIaNaWithAddr(1, iaAddr.getIpAddress())
+				.build();
+		new DhcpV6ReleaseProcessor(releaseMsg, clientLink).processMessage();
+
+		List<Message> delQueries = dnsServer.getReceivedQueries();
+		assertTrue("Release must trigger at least 2 DNS update messages (delete forward + reverse)", delQueries.size() >= 2);
+		for (Message q : delQueries) {
+			String zoneName = q.getQuestion().getName().toString();
+			assertTrue("Query zone " + zoneName + " must be either forward or reverse zone",
+					zoneName.equals("autov6.example.com.") || zoneName.equals("0.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."));
+		}
 	}
 }

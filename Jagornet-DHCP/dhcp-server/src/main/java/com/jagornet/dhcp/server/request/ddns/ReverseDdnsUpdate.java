@@ -199,6 +199,17 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 	}
 	
 	/**
+	 * Builds the zone name using the address reverse IP string.
+	 *
+	 * @return the zone Name
+	 * @throws TextParseException
+	 */
+	public Name buildZoneName() throws TextParseException
+	{
+		return buildZoneName(buildReverseIpString());
+	}
+
+	/**
 	 * Builds the zone name.
 	 * 
 	 * @param revIp the rev ip
@@ -207,7 +218,7 @@ public class ReverseDdnsUpdate extends DdnsUpdate
 	 * 
 	 * @throws TextParseException the text parse exception
 	 */
-	private Name buildZoneName(String revIp) throws TextParseException
+	public Name buildZoneName(String revIp) throws TextParseException
 	{
 		Name _zone = null;
 		if (zone != null) {

@@ -828,9 +828,10 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor {
 		}
 
 		String fqdn = resolution.getFqdn();
+		String ddnsMode = DhcpServerPolicies.effectiveDdnsMode(requestMsg, clientLink.getLink());
 		String policy = DhcpServerPolicies.effectivePolicy(requestMsg,
 				clientLink.getLink(), Property.DDNS_UPDATE);
-		log.info("Server configuration for ddns.update policy: " + policy);
+		log.info("Server configuration for ddns.mode: " + ddnsMode + " (legacy ddns.update: " + policy + ")");
 
 		DhcpV6ClientFqdnOption replyFqdnOption = new DhcpV6ClientFqdnOption();
 		replyFqdnOption.setDomainName(fqdn);
@@ -838,9 +839,8 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor {
 		replyFqdnOption.setOverrideBit(false);
 		replyFqdnOption.setNoUpdateBit(false);
 
-		if ((policy == null) || policy.equalsIgnoreCase("none")) {
-			log.info("Server configuration for ddns.update policy is null or 'none'." +
-					"  No DDNS updates performed.");
+		if (ddnsMode.equalsIgnoreCase("disabled")) {
+			log.info("DDNS mode is disabled.  No DDNS updates performed.");
 			if (includeFqdnOptionInReply) {
 				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
 				replyMsg.putDhcpOption(replyFqdnOption);
@@ -848,22 +848,35 @@ public abstract class BaseDhcpV6Processor implements DhcpV6MessageProcessor {
 			return;
 		}
 
-		if (clientFqdnOption != null && clientFqdnOption.getNoUpdateBit() && policy.equalsIgnoreCase("honorNoUpdate")) {
-			log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
-					"  No DDNS updates performed.");
-			if (includeFqdnOptionInReply) {
-				replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
-				replyMsg.putDhcpOption(replyFqdnOption);
+		if (clientFqdnOption != null && clientFqdnOption.getNoUpdateBit()) {
+			if (ddnsMode.equalsIgnoreCase("client") ||
+					(policy != null && policy.equalsIgnoreCase("honorNoUpdate"))) {
+				log.info("Client FQDN NoUpdate flag set.  Server configured to honor request." +
+						"  No DDNS updates performed.");
+				if (includeFqdnOptionInReply) {
+					replyFqdnOption.setNoUpdateBit(true); // tell client that server did no updates
+					replyMsg.putDhcpOption(replyFqdnOption);
+				}
+				return;
+			} else {
+				replyFqdnOption.setNoUpdateBit(false);
+				replyFqdnOption.setOverrideBit(true);
+				replyFqdnOption.setUpdateAaaaBit(true);
 			}
-			return;
 		}
 
 		boolean doForwardUpdate = true;
-		if (clientFqdnOption != null && !clientFqdnOption.getUpdateAaaaBit()
-				&& policy.equalsIgnoreCase("honorNoAAAA")) {
-			log.info("Client FQDN NoAAAA flag set.  Server configured to honor request." +
-					"  No FORWARD DDNS updates performed.");
-			doForwardUpdate = false;
+		if (clientFqdnOption != null && !clientFqdnOption.getUpdateAaaaBit()) {
+			if (ddnsMode.equalsIgnoreCase("client") ||
+					(policy != null && policy.equalsIgnoreCase("honorNoAAAA"))) {
+				log.info("Client FQDN NoAAAA flag set.  Server configured to honor request." +
+						"  No FORWARD DDNS updates performed.");
+				doForwardUpdate = false;
+				replyFqdnOption.setUpdateAaaaBit(false);
+			} else {
+				replyFqdnOption.setUpdateAaaaBit(true);
+				replyFqdnOption.setOverrideBit(true);
+			}
 		} else {
 			replyFqdnOption.setUpdateAaaaBit(true); // server will do update
 			if (clientFqdnOption == null || !clientFqdnOption.getUpdateAaaaBit() || resolution.isModified()) {

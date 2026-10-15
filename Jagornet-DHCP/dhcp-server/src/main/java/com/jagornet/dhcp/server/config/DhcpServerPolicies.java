@@ -83,6 +83,10 @@ public class DhcpServerPolicies
 		DATABASE_SCHEMA_VERSION("database.schemaVersion", "2"),
 		
 		DDNS_UPDATE("ddns.update", "none"),	// acceptable values: none, server, client, etc...
+		DDNS_MODE("ddns.mode", "disabled"),	// acceptable values: disabled, server, client
+		DDNS_RECORD_TYPE("ddns.record.type", "dhcid"),	// acceptable values: dhcid, txt
+		DDNS_CONFLICT_STRATEGY("ddns.conflict.strategy", "strict"),	// acceptable values: strict, replace-dynamic, unconditional
+		DDNS_DYNAMIC_TOKEN("ddns.dynamic.token", "dynamic"),
 		DDNS_SYNCHRONIZE("ddns.synchronize", FALSE),
 		DDNS_DOMAIN("ddns.domain", ""),
 		DDNS_TTL("ddns.ttl", "0.3"),	// 1/3 of the lifetime
@@ -97,7 +101,7 @@ public class DhcpServerPolicies
 		DDNS_FORWARD_ZONE_TSIG_ALGORITHM("ddns.forward.zone.tsig.algorithm", ""),
 		DDNS_FORWARD_ZONE_TSIG_KEYDATA("ddns.forward.zone.tsig.keyData", ""),
 		DDNS_REVERSE_ZONE_NAME("ddns.reverse.zone.name", ""),
-		DDNS_REVERSE_ZONE_BITLENGTH("ddns.reverse.zone.bitLength", "64"),
+		DDNS_REVERSE_ZONE_BITLENGTH("ddns.reverse.zone.bitLength", "0"),
 		DDNS_REVERSE_ZONE_TTL("ddns.reverse.zone.ttl", "0.3"),
 		DDNS_REVERSE_ZONE_SERVER("ddns.reverse.zone.server", ""),
 		DDNS_REVERSE_ZONE_TSIG_KEYNAME("ddns.reverse.zone.tsig.keyName", ""),
@@ -761,7 +765,54 @@ public class DhcpServerPolicies
 			DhcpConfigObject configObj, Link link, Property prop)
     {
     	return Float.parseFloat(effectivePolicy(requestMsg, configObj, link, prop));
-    }    
+    }
+
+    /**
+     * Effective DDNS mode, supporting modern ddns.mode and legacy ddns.update fallback.
+     *
+     * @param requestMsg the request msg
+     * @param link the link
+     * @return the effective ddns mode string ("disabled", "server", or "client")
+     */
+    public static String effectiveDdnsMode(DhcpMessage requestMsg, Link link) {
+    	return effectiveDdnsMode(requestMsg, null, link);
+    }
+
+    /**
+     * Effective DDNS mode, supporting modern ddns.mode and legacy ddns.update fallback.
+     *
+     * @param requestMsg the request msg
+     * @param configObj the config obj
+     * @param link the link
+     * @return the effective ddns mode string ("disabled", "server", or "client")
+     */
+    public static String effectiveDdnsMode(DhcpMessage requestMsg, DhcpConfigObject configObj, Link link) {
+    	String mode = (configObj != null) 
+    			? effectivePolicy(requestMsg, configObj, link, Property.DDNS_MODE)
+    			: effectivePolicy(requestMsg, link, Property.DDNS_MODE);
+    	if ((mode != null) && !mode.trim().isEmpty() && !mode.trim().equalsIgnoreCase("disabled")) {
+    		return mode.trim().toLowerCase();
+    	}
+    	String update = (configObj != null)
+    			? effectivePolicy(requestMsg, configObj, link, Property.DDNS_UPDATE)
+    			: effectivePolicy(requestMsg, link, Property.DDNS_UPDATE);
+    	if ((update != null) && !update.trim().isEmpty()) {
+    		String u = update.trim().toLowerCase();
+    		if (u.equals("server") || u.equals("always")) {
+    			return "server";
+    		}
+    		if (u.equals("client") || u.equals("honornoupdate") || u.equals("honornoa") || u.equals("honornoaaaa")) {
+    			return "client";
+    		}
+    		if (u.equals("none")) {
+    			return "disabled";
+    		}
+    	}
+    	if ((mode != null) && !mode.trim().isEmpty()) {
+    		return mode.trim().toLowerCase();
+    	}
+    	return "disabled";
+    }
 
     /**
      * Gets the policy.

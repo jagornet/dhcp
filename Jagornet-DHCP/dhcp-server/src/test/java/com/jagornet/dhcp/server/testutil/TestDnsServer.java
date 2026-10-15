@@ -161,6 +161,10 @@ public class TestDnsServer implements AutoCloseable {
 	}
 
 	public void setTsig(String keyName, String keyData) {
+		if (keyName == null || keyData == null) {
+			this.tsig = null;
+			return;
+		}
 		try {
 			this.tsig = new TSIG(keyName.endsWith(".") ? keyName : keyName + ".", keyData);
 		}
@@ -170,6 +174,10 @@ public class TestDnsServer implements AutoCloseable {
 	}
 
 	public void setTsig(String algorithm, String keyName, String keyData) {
+		if (keyName == null || keyData == null) {
+			this.tsig = null;
+			return;
+		}
 		try {
 			String algo = algorithm.endsWith(".") ? algorithm : algorithm + ".";
 			String name = keyName.endsWith(".") ? keyName : keyName + ".";

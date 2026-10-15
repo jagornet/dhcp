@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
-import com.jagornet.dhcp.core.message.DhcpV4Message;
 import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
 import com.jagornet.dhcp.server.config.DhcpLink;
@@ -44,15 +43,16 @@ public class HostnameService {
 	public static final String MODE_DISABLED = "disabled";
 
 	/**
-	 * Resolves the client hostname and FQDN according to configuration and request details.
+	 * Resolves the client hostname and FQDN according to configuration and request
+	 * details.
 	 * 
-	 * @param requestMsg the DHCP request message
-	 * @param clientLink the client DHCP link
-	 * @param configObj the binding configuration object (pool/link/etc.)
+	 * @param requestMsg         the DHCP request message
+	 * @param clientLink         the client DHCP link
+	 * @param configObj          the binding configuration object (pool/link/etc.)
 	 * @param clientSuppliedName the client-supplied hostname or FQDN (if any)
-	 * @param assignedIp the IP address assigned or leased to the client
-	 * @param chAddr client hardware address (MAC)
-	 * @param duid client DUID
+	 * @param assignedIp         the IP address assigned or leased to the client
+	 * @param chAddr             client hardware address (MAC)
+	 * @param duid               client DUID
 	 * @return HostnameResolution result
 	 */
 	public static HostnameResolution resolveHostname(DhcpMessage requestMsg,
@@ -72,10 +72,25 @@ public class HostnameService {
 		}
 
 		String domain = DhcpServerPolicies.effectivePolicy(link, Property.DDNS_DOMAIN);
+		if (domain == null || domain.trim().isEmpty()) {
+			domain = DhcpServerPolicies.effectivePolicy(link, Property.DDNS_FORWARD_ZONE_NAME);
+		}
+		if (domain == null || domain.trim().isEmpty()) {
+			DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
+			if (config != null) {
+				domain = config.findConfiguredForwardDomain(requestMsg, link, configObj, assignedIp);
+			}
+		}
 		if (domain != null) {
 			domain = domain.trim();
-			if (domain.startsWith(".")) {
+			while (domain.startsWith(".")) {
 				domain = domain.substring(1);
+			}
+			while (domain.endsWith(".")) {
+				domain = domain.substring(0, domain.length() - 1);
+			}
+			if (domain.isEmpty()) {
+				domain = null;
 			}
 		}
 
@@ -195,7 +210,8 @@ public class HostnameService {
 	}
 
 	private static String extractFirstLabel(String name) {
-		if (name == null) return null;
+		if (name == null)
+			return null;
 		int dot = name.indexOf('.');
 		if (dot > 0) {
 			return name.substring(0, dot);
@@ -204,7 +220,8 @@ public class HostnameService {
 	}
 
 	private static String buildFqdn(String hostname, String domain) {
-		if (hostname == null) return null;
+		if (hostname == null)
+			return null;
 		if (domain != null && !domain.isEmpty()) {
 			return hostname + "." + domain;
 		}
@@ -212,7 +229,8 @@ public class HostnameService {
 	}
 
 	private static String buildFqdnFromClient(String clientName, String configuredDomain) {
-		if (clientName == null) return null;
+		if (clientName == null)
+			return null;
 		int dot = clientName.indexOf('.');
 		if (configuredDomain != null && !configuredDomain.isEmpty()) {
 			if (dot > 0) {
@@ -225,9 +243,11 @@ public class HostnameService {
 	}
 
 	private static String findMatchingFilterName(DhcpMessage requestMsg, DhcpLink clientLink) {
-		if (requestMsg == null) return null;
+		if (requestMsg == null)
+			return null;
 		DhcpServerConfiguration config = DhcpServerConfiguration.getInstance();
-		if (config == null) return null;
+		if (config == null)
+			return null;
 
 		// Check link filters first
 		if (clientLink != null && clientLink.getLink() != null) {

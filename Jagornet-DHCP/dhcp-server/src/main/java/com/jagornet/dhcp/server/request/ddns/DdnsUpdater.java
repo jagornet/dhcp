@@ -25,6 +25,7 @@
  */
 package com.jagornet.dhcp.server.request.ddns;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jagornet.dhcp.core.message.DhcpMessage;
 import com.jagornet.dhcp.server.config.DhcpConfigObject;
+import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies;
 import com.jagornet.dhcp.server.config.DhcpServerPolicies.Property;
 import com.jagornet.dhcp.server.config.xml.Link;
@@ -79,6 +81,8 @@ public class DdnsUpdater implements Runnable
 	/** The rev zone bit length. */
 	private int revZoneBitLength;
 	
+	private int v4RevZoneBitLength = 24;
+
 	/** The rev ttl. */
 	private long revTtl;
 	
@@ -93,6 +97,15 @@ public class DdnsUpdater implements Runnable
 	
 	/** The rev tsig key data. */
 	private String revTsigKeyData;
+
+	/** The ddns record type. */
+	private DdnsRecordType recordType = DdnsRecordType.DHCID;
+
+	/** The ddns conflict strategy. */
+	private DdnsConflictStrategy conflictStrategy = DdnsConflictStrategy.STRICT;
+
+	/** The ddns dynamic token. */
+	private String dynamicToken = "dynamic";
 	
 	private DhcpMessage requestMsg;
 	
@@ -191,6 +204,9 @@ public class DdnsUpdater implements Runnable
 		try {
 			if (doForwardUpdate) {
 				ForwardDdnsUpdate fwdUpdate = new ForwardDdnsUpdate(fqdn, addr, duid);
+				fwdUpdate.setRecordType(recordType);
+				fwdUpdate.setConflictStrategy(conflictStrategy);
+				fwdUpdate.setDynamicToken(dynamicToken);
 				fwdUpdate.setServer(fwdServer);
 				fwdUpdate.setZone(fwdZone);
 				fwdUpdate.setTtl(fwdTtl);
@@ -206,6 +222,7 @@ public class DdnsUpdater implements Runnable
 			revUpdate.setServer(revServer);
 			revUpdate.setZone(revZone);
 			revUpdate.setRevZoneBitLength(revZoneBitLength);
+			revUpdate.setV4RevZoneBitLength(v4RevZoneBitLength);
 			revUpdate.setTtl(revTtl);
 			revUpdate.setTsigKeyName(revTsigKeyName);
 			revUpdate.setTsigAlgorithm(revTsigAlgorithm);
@@ -236,16 +253,71 @@ public class DdnsUpdater implements Runnable
 		
 		String zone = DhcpServerPolicies.effectivePolicy(requestMsg, 
 				addrBindingPool, clientLink, Property.DDNS_FORWARD_ZONE_NAME);
-		if ((zone != null) && !zone.isEmpty())
+		if ((zone != null) && !zone.isEmpty()) {
 			fwdZone = zone;
+		} else {
+			String domain = DhcpServerPolicies.effectivePolicy(requestMsg, 
+					addrBindingPool, clientLink, Property.DDNS_DOMAIN);
+			if (domain != null && !domain.trim().isEmpty()) {
+				fwdZone = domain.trim();
+			} else {
+				DhcpServerConfiguration serverConfig = DhcpServerConfiguration.getInstance();
+				String clientDomain = null;
+				if (serverConfig != null) {
+					clientDomain = serverConfig.findConfiguredForwardDomain(requestMsg, clientLink, addrBindingPool, addr);
+				}
+				if (clientDomain != null && !clientDomain.trim().isEmpty()) {
+					fwdZone = clientDomain.trim();
+				} else if (fqdn != null && fqdn.contains(".")) {
+					int p = fqdn.indexOf('.');
+					fwdZone = fqdn.substring(p + 1);
+				}
+			}
+		}
 		
 		zone = DhcpServerPolicies.effectivePolicy(requestMsg, 
 				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_NAME);
-		if ((zone != null) && !zone.isEmpty())
+		if ((zone != null) && !zone.isEmpty()) {
 			revZone = zone;
+		}
 		
-		revZoneBitLength = DhcpServerPolicies.effectivePolicyAsInt(requestMsg, 
+		int policyBitLength = DhcpServerPolicies.effectivePolicyAsInt(requestMsg, 
 				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_BITLENGTH);
+		
+		int subnetPrefix = -1;
+		DhcpServerConfiguration serverConfig = DhcpServerConfiguration.getInstance();
+		if (serverConfig != null) {
+			subnetPrefix = serverConfig.findSubnetPrefixLength(addr, clientLink, addrBindingPool);
+		}
+
+		if (addr instanceof Inet6Address) {
+			if (policyBitLength > 0) {
+				revZoneBitLength = policyBitLength;
+			} else if (subnetPrefix > 0) {
+				revZoneBitLength = (subnetPrefix / 4) * 4;
+			} else {
+				revZoneBitLength = 64;
+			}
+		} else {
+			if (policyBitLength > 0) {
+				v4RevZoneBitLength = policyBitLength;
+			} else if (subnetPrefix > 0) {
+				v4RevZoneBitLength = subnetPrefix;
+			} else {
+				v4RevZoneBitLength = 24;
+			}
+		}
+
+		if (revZone == null || revZone.isEmpty()) {
+			try {
+				ReverseDdnsUpdate revUpdate = new ReverseDdnsUpdate(fqdn, addr, duid);
+				revUpdate.setRevZoneBitLength(revZoneBitLength);
+				revUpdate.setV4RevZoneBitLength(v4RevZoneBitLength);
+				revZone = revUpdate.buildZoneName().toString();
+			} catch (Exception ex) {
+				log.warn("Could not calculate reverse zone name for address " + addr + ": " + ex);
+			}
+		}
 		
 		long ttl = 0;
 		float ttlFloat = DhcpServerPolicies.effectivePolicyAsFloat(requestMsg,
@@ -342,5 +414,44 @@ public class DdnsUpdater implements Runnable
 				addrBindingPool, clientLink, Property.DDNS_REVERSE_ZONE_TSIG_KEYDATA);
 		if ((tsigKeyData != null) && !tsigKeyData.isEmpty())
 			revTsigKeyData = tsigKeyData;
+
+		String recTypeStr = DhcpServerPolicies.effectivePolicy(requestMsg, 
+				addrBindingPool, clientLink, Property.DDNS_RECORD_TYPE);
+		if ((recTypeStr != null) && !recTypeStr.isEmpty())
+			recordType = DdnsRecordType.fromString(recTypeStr);
+
+		String conflictStr = DhcpServerPolicies.effectivePolicy(requestMsg, 
+				addrBindingPool, clientLink, Property.DDNS_CONFLICT_STRATEGY);
+		if ((conflictStr != null) && !conflictStr.isEmpty())
+			conflictStrategy = DdnsConflictStrategy.fromString(conflictStr);
+
+		String dynToken = DhcpServerPolicies.effectivePolicy(requestMsg, 
+				addrBindingPool, clientLink, Property.DDNS_DYNAMIC_TOKEN);
+		if ((dynToken != null) && !dynToken.isEmpty())
+			dynamicToken = dynToken;
 	}	
+
+	public String getFwdZone() {
+		return fwdZone;
+	}
+
+	public String getRevZone() {
+		return revZone;
+	}
+
+	public String getFwdServer() {
+		return fwdServer;
+	}
+
+	public String getRevServer() {
+		return revServer;
+	}
+
+	public int getRevZoneBitLength() {
+		return revZoneBitLength;
+	}
+
+	public int getV4RevZoneBitLength() {
+		return v4RevZoneBitLength;
+	}
 }

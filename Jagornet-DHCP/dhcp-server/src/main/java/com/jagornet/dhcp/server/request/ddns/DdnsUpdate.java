@@ -28,16 +28,23 @@ package com.jagornet.dhcp.server.request.ddns;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xbill.DNS.DClass;
+import org.xbill.DNS.DHCIDRecord;
 import org.xbill.DNS.Name;
+import org.xbill.DNS.Record;
 import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SimpleResolver;
 import org.xbill.DNS.TSIG;
+import org.xbill.DNS.TXTRecord;
 import org.xbill.DNS.TextParseException;
+
+import com.jagornet.dhcp.core.util.Util;
 
 /**
  * The Class DdnsUpdate.  The abstract base class for handling DDNS updates
@@ -62,6 +69,18 @@ public abstract class DdnsUpdate
 	
 	/** The data. */
 	protected byte[] data;
+
+	/** The raw duid or client identifier bytes. */
+	protected byte[] duid;
+
+	/** The ddns record type (dhcid vs txt). */
+	protected DdnsRecordType recordType = DdnsRecordType.DHCID;
+
+	/** The conflict resolution strategy. */
+	protected DdnsConflictStrategy conflictStrategy = DdnsConflictStrategy.STRICT;
+
+	/** The dynamic marker token for replace-dynamic strategy. */
+	protected String dynamicToken = "dynamic";
 	
 	/** The server. */
 	protected String server;
@@ -92,20 +111,23 @@ public abstract class DdnsUpdate
 	{
 		this.fqdn = fqdn;
 		this.inetAddr = inetAddr;
+		this.duid = duid;
 		
-		byte[] buf = new byte[duid.length + fqdn.getBytes().length];
-		System.arraycopy(duid, 0, buf, 0, duid.length);
-		System.arraycopy(fqdn.getBytes(), 0, buf, duid.length, fqdn.getBytes().length);
-		
-		MessageDigest md = getSha256MsgDigest();
-		if (md != null) {
-			byte[] hash = md.digest(buf);
+		if (duid != null) {
+			byte[] buf = new byte[duid.length + fqdn.getBytes(StandardCharsets.UTF_8).length];
+			System.arraycopy(duid, 0, buf, 0, duid.length);
+			System.arraycopy(fqdn.getBytes(StandardCharsets.UTF_8), 0, buf, duid.length, fqdn.getBytes(StandardCharsets.UTF_8).length);
 			
-			this.data = new byte[3 + hash.length];
-			data[0] = (byte)0x00;
-			data[1] = (byte)0x02;
-			data[2] = (byte)0x01;
-			System.arraycopy(hash, 0, data, 3, hash.length);
+			MessageDigest md = getSha256MsgDigest();
+			if (md != null) {
+				byte[] hash = md.digest(buf);
+				
+				this.data = new byte[3 + hash.length];
+				data[0] = (byte)0x00;
+				data[1] = (byte)0x02;
+				data[2] = (byte)0x01;
+				System.arraycopy(hash, 0, data, 3, hash.length);
+			}
 		}
 	}
 	
@@ -271,6 +293,111 @@ public abstract class DdnsUpdate
 	 */
 	public void setTsigKeyData(String tsigKeyData) {
 		this.tsigKeyData = tsigKeyData;
+	}
+
+	public DdnsRecordType getRecordType() {
+		return recordType;
+	}
+
+	public void setRecordType(DdnsRecordType recordType) {
+		this.recordType = (recordType != null) ? recordType : DdnsRecordType.DHCID;
+	}
+
+	public DdnsConflictStrategy getConflictStrategy() {
+		return conflictStrategy;
+	}
+
+	public void setConflictStrategy(DdnsConflictStrategy conflictStrategy) {
+		this.conflictStrategy = (conflictStrategy != null) ? conflictStrategy : DdnsConflictStrategy.STRICT;
+	}
+
+	public String getDynamicToken() {
+		return dynamicToken;
+	}
+
+	public void setDynamicToken(String dynamicToken) {
+		this.dynamicToken = dynamicToken;
+	}
+
+	public byte[] getDuid() {
+		return duid;
+	}
+
+	public byte[] getData() {
+		return data;
+	}
+
+	/**
+	 * Computes DHCID data for the configured dynamic token.
+	 *
+	 * @return the DHCID byte array for the dynamic token
+	 */
+	public byte[] computeDynamicDhcidData() {
+		String token = (dynamicToken != null && !dynamicToken.isEmpty()) ? dynamicToken : "dynamic";
+		byte[] tokenBytes = token.getBytes(StandardCharsets.UTF_8);
+		byte[] fqdnBytes = (fqdn != null) ? fqdn.getBytes(StandardCharsets.UTF_8) : new byte[0];
+		byte[] buf = new byte[tokenBytes.length + fqdnBytes.length];
+		System.arraycopy(tokenBytes, 0, buf, 0, tokenBytes.length);
+		System.arraycopy(fqdnBytes, 0, buf, tokenBytes.length, fqdnBytes.length);
+
+		MessageDigest md = getSha256MsgDigest();
+		if (md != null) {
+			byte[] hash = md.digest(buf);
+			byte[] dynData = new byte[3 + hash.length];
+			dynData[0] = (byte) 0x00;
+			dynData[1] = (byte) 0x02;
+			dynData[2] = (byte) 0x01;
+			System.arraycopy(hash, 0, dynData, 3, hash.length);
+			return dynData;
+		}
+		return new byte[0];
+	}
+
+	/**
+	 * Builds a dynamic marker record (used in replace-dynamic strategy).
+	 *
+	 * @param owner the record owner Name
+	 * @param recordTtl the TTL
+	 * @return the dynamic marker Record (TXTRecord or DHCIDRecord)
+	 */
+	public Record buildDynamicMarkerRecord(Name owner, long recordTtl) {
+		if (recordType == DdnsRecordType.TXT) {
+			String token = (dynamicToken != null && !dynamicToken.isEmpty()) ? dynamicToken : "dynamic";
+			return new TXTRecord(owner, DClass.IN, recordTtl, token);
+		} else {
+			return new DHCIDRecord(owner, DClass.IN, recordTtl, computeDynamicDhcidData());
+		}
+	}
+
+	/**
+	 * Builds a client-specific record (used in strict strategy).
+	 *
+	 * @param owner the record owner Name
+	 * @param recordTtl the TTL
+	 * @return the client Record (TXTRecord or DHCIDRecord)
+	 */
+	public Record buildClientRecord(Name owner, long recordTtl) {
+		if (recordType == DdnsRecordType.TXT) {
+			String txtVal = (data != null) ? Util.toHexString(data).toLowerCase() : "";
+			return new TXTRecord(owner, DClass.IN, recordTtl, txtVal);
+		} else {
+			return new DHCIDRecord(owner, DClass.IN, recordTtl, (data != null) ? data : new byte[0]);
+		}
+	}
+
+	/**
+	 * Builds the appropriate identification record based on configured strategy.
+	 *
+	 * @param owner the record owner Name
+	 * @param recordTtl the TTL
+	 * @return the identification Record
+	 */
+	public Record buildIdentificationRecord(Name owner, long recordTtl) {
+		if (conflictStrategy == DdnsConflictStrategy.REPLACE_DYNAMIC) {
+			return buildDynamicMarkerRecord(owner, recordTtl);
+		} else {
+			return buildClientRecord(owner, recordTtl);
+		}
 	}
 
 	/**

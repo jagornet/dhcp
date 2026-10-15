@@ -118,6 +118,8 @@ import com.jagornet.dhcp.server.config.xml.PoliciesType;
 import com.jagornet.dhcp.server.config.xml.Policy;
 import com.jagornet.dhcp.server.config.xml.StringOptionType;
 import com.jagornet.dhcp.server.config.xml.UnsignedByteListOptionType;
+import com.jagornet.dhcp.server.config.xml.V4DomainNameOption;
+import com.jagornet.dhcp.server.config.xml.V6DomainSearchListOption;
 import com.jagornet.dhcp.server.config.xml.UnsignedByteOptionType;
 import com.jagornet.dhcp.server.config.xml.UnsignedIntOptionType;
 import com.jagornet.dhcp.server.config.xml.UnsignedShortListOptionType;
@@ -907,7 +909,170 @@ public class DhcpServerConfiguration
             	}
             }
     	}
+        if ((dhcpLinkMap != null) && !dhcpLinkMap.isEmpty() && (inetAddr != null)) {
+            for (DhcpLink link : dhcpLinkMap.values()) {
+                if (link.getSubnet() != null && link.getSubnet().contains(inetAddr)) {
+                    return link;
+                }
+            }
+        }
         return null;
+    }
+
+    /**
+     * Find DhcpLink corresponding to an XML Link.
+     *
+     * @param link the XML Link
+     * @return the DhcpLink wrapper, or null if not found
+     */
+    public DhcpLink findDhcpLink(Link link)
+    {
+        if (link != null && dhcpLinkMap != null) {
+            for (DhcpLink dhcpLink : dhcpLinkMap.values()) {
+                if (dhcpLink.getLink() == link) {
+                    return dhcpLink;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds the forward domain name configured for a DHCP client.
+     * Checks explicit policies (ddns.domain, ddns.forward.zone.name), followed by
+     * the client's configured DHCP domain name option (Option 15 for v4, Option 24 for v6).
+     *
+     * @param requestMsg the DHCP request message, if available
+     * @param link the XML link, if available
+     * @param configObj the config object, if available
+     * @param addr the assigned IP address, if available
+     * @return the configured forward domain name, or null if none found
+     */
+    public String findConfiguredForwardDomain(DhcpMessage requestMsg,
+                                              Link link,
+                                              DhcpConfigObject configObj,
+                                              InetAddress addr)
+    {
+        // 1. Explicit ddns.domain policy
+        String domain = DhcpServerPolicies.effectivePolicy(requestMsg, configObj, link, Property.DDNS_DOMAIN);
+        if (domain != null && !domain.trim().isEmpty()) {
+            return domain.trim();
+        }
+
+        // 2. Explicit ddns.forward.zone.name policy
+        String zone = DhcpServerPolicies.effectivePolicy(requestMsg, configObj, link, Property.DDNS_FORWARD_ZONE_NAME);
+        if (zone != null && !zone.trim().isEmpty()) {
+            return zone.trim();
+        }
+
+        // 3. Fallback to client configured DHCP domain option (Option 15 for v4, Option 24 for v6)
+        boolean isV6 = (addr instanceof Inet6Address) || (requestMsg instanceof DhcpV6Message);
+        if (!isV6 && addr == null && requestMsg == null && link != null && link.getAddress() != null) {
+            isV6 = link.getAddress().contains(":");
+        }
+
+        DhcpLink dhcpLink = (configObj instanceof DhcpLink) ? (DhcpLink) configObj : findDhcpLink(link);
+        if (dhcpLink == null && addr != null) {
+            dhcpLink = findLinkForAddress(addr);
+        }
+
+        if (isV6) {
+            DhcpV6OptionConfigObject v6ConfigObj = (configObj instanceof DhcpV6OptionConfigObject) ? (DhcpV6OptionConfigObject) configObj : null;
+            DhcpV6Message v6Msg = (requestMsg instanceof DhcpV6Message) ? (DhcpV6Message) requestMsg : null;
+            Map<Integer, DhcpOption> optMap = effectiveMsgOptions(v6Msg, dhcpLink, v6ConfigObj);
+            if (optMap != null) {
+                DhcpOption opt = optMap.get(DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST);
+                if (opt instanceof BaseDomainNameListOption) {
+                    List<String> list = ((BaseDomainNameListOption) opt).getDomainNameList();
+                    if (list != null && !list.isEmpty()) {
+                        String dom = list.get(0);
+                        if (dom != null && !dom.trim().isEmpty()) {
+                            return dom.trim();
+                        }
+                    }
+                }
+            }
+            if (link != null && link.getV6MsgConfigOptions() != null) {
+                V6DomainSearchListOption sl = link.getV6MsgConfigOptions().getV6DomainSearchListOption();
+                if (sl != null && sl.getDomainNameList() != null && !sl.getDomainNameList().isEmpty()) {
+                    String dom = sl.getDomainNameList().get(0);
+                    if (dom != null && !dom.trim().isEmpty()) {
+                        return dom.trim();
+                    }
+                }
+            }
+            if (globalV6MsgConfigOptions != null) {
+                DhcpOption opt = globalV6MsgConfigOptions.getDhcpOptionMap().get(DhcpConstants.V6OPTION_DOMAIN_SEARCH_LIST);
+                if (opt instanceof BaseDomainNameListOption) {
+                    List<String> list = ((BaseDomainNameListOption) opt).getDomainNameList();
+                    if (list != null && !list.isEmpty()) {
+                        String dom = list.get(0);
+                        if (dom != null && !dom.trim().isEmpty()) {
+                            return dom.trim();
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            DhcpV4OptionConfigObject v4ConfigObj = (configObj instanceof DhcpV4OptionConfigObject) ? (DhcpV4OptionConfigObject) configObj : null;
+            DhcpV4Message v4Msg = (requestMsg instanceof DhcpV4Message) ? (DhcpV4Message) requestMsg : null;
+            Map<Integer, DhcpOption> optMap = effectiveV4AddrOptions(v4Msg, dhcpLink, v4ConfigObj);
+            if (optMap != null) {
+                DhcpOption opt = optMap.get(DhcpConstants.V4OPTION_DOMAIN_NAME);
+                if (opt instanceof BaseDomainNameOption) {
+                    String dom = ((BaseDomainNameOption) opt).getDomainName();
+                    if (dom != null && !dom.trim().isEmpty()) {
+                        return dom.trim();
+                    }
+                }
+            }
+            if (link != null && link.getV4ConfigOptions() != null) {
+                V4DomainNameOption dno = link.getV4ConfigOptions().getV4DomainNameOption();
+                if (dno != null && dno.getDomainName() != null && !dno.getDomainName().trim().isEmpty()) {
+                    return dno.getDomainName().trim();
+                }
+            }
+            if (globalV4ConfigOptions != null) {
+                DhcpOption opt = globalV4ConfigOptions.getDhcpOptionMap().get(DhcpConstants.V4OPTION_DOMAIN_NAME);
+                if (opt instanceof BaseDomainNameOption) {
+                    String dom = ((BaseDomainNameOption) opt).getDomainName();
+                    if (dom != null && !dom.trim().isEmpty()) {
+                        return dom.trim();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Determines the subnet prefix length for a client address or link.
+     *
+     * @param addr the client IP address, if available
+     * @param link the XML link, if available
+     * @param configObj the config object, if available
+     * @return the prefix length, or -1 if not determined
+     */
+    public int findSubnetPrefixLength(InetAddress addr, Link link, DhcpConfigObject configObj)
+    {
+        DhcpLink dhcpLink = (configObj instanceof DhcpLink) ? (DhcpLink) configObj : findDhcpLink(link);
+        if (dhcpLink == null && addr != null) {
+            dhcpLink = findLinkForAddress(addr);
+        }
+        if (dhcpLink != null && dhcpLink.getSubnet() != null) {
+            return dhcpLink.getSubnet().getPrefixLength();
+        }
+        if (link != null && link.getAddress() != null) {
+            String linkAddr = link.getAddress();
+            int slash = linkAddr.indexOf('/');
+            if (slash >= 0) {
+                try {
+                    return Integer.parseInt(linkAddr.substring(slash + 1).trim());
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return -1;
     }
     
     /*
