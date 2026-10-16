@@ -1,9 +1,9 @@
 /*
- * Copyright 2026 Jagornet Technologies, LLC.  All Rights Reserved.
+ * Copyright Jagornet Technologies, LLC.  All Rights Reserved.
  *
- * This software is the proprietary information of Jagornet Technologies, LLC. 
- * Use is subject to license terms.
- *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 package com.jagornet.dhcp.server.hostname;
 
@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Validates and scrubs hostnames and FQDNs for DNS compliance (RFC 952, RFC 1123, RFC 1035).
+ * Validates and scrubs hostnames and FQDNs for DNS compliance (RFC 952, RFC
+ * 1123, RFC 1035).
  * 
  * @author A. Gregory Rabil
  */
@@ -49,11 +50,14 @@ public class HostnameScrubber {
 	/**
 	 * Scrubs the given raw hostname or domain name according to DNS rules.
 	 * 
-	 * @param rawName the raw client-supplied name
+	 * @param rawName          the raw client-supplied name
 	 * @param allowUnderscores whether to allow underscores in labels
-	 * @param replaceChar the replacement string/character for invalid characters (e.g. "-")
-	 * @param collapseHyphens whether to collapse multiple consecutive hyphens into one
-	 * @param stripDomains list of domain suffixes to strip (e.g. "local", "lan", "home")
+	 * @param replaceChar      the replacement string/character for invalid
+	 *                         characters (e.g. "-")
+	 * @param collapseHyphens  whether to collapse multiple consecutive hyphens into
+	 *                         one
+	 * @param stripDomains     list of domain suffixes to strip (e.g. "local",
+	 *                         "lan", "home")
 	 * @return ScrubResult containing cleaned name, modified flag, and validity
 	 */
 	public static ScrubResult scrub(String rawName, boolean allowUnderscores,
@@ -117,7 +121,8 @@ public class HostnameScrubber {
 			return new ScrubResult(result, true, false);
 		}
 
-		boolean modified = !result.equalsIgnoreCase(original) && !result.equalsIgnoreCase(original.replaceAll("\\.+$", ""));
+		boolean modified = !result.equalsIgnoreCase(original)
+				&& !result.equalsIgnoreCase(original.replaceAll("\\.+$", ""));
 		return new ScrubResult(result, modified, true);
 	}
 

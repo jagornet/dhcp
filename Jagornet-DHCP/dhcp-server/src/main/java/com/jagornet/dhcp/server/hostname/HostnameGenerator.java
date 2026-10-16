@@ -1,9 +1,9 @@
 /*
- * Copyright 2026 Jagornet Technologies, LLC.  All Rights Reserved.
+ * Copyright Jagornet Technologies, LLC.  All Rights Reserved.
  *
- * This software is the proprietary information of Jagornet Technologies, LLC. 
- * Use is subject to license terms.
- *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 package com.jagornet.dhcp.server.hostname;
 
@@ -15,13 +15,15 @@ import com.jagornet.dhcp.core.util.Util;
  * Deterministic template-based hostname generator.
  * Supports tokens:
  * <ul>
- *   <li><code>${ip}</code> - Assigned IP address (e.g. 192.168.1.100)</li>
- *   <li><code>${ip.dashed}</code> - IP with dots/colons replaced with hyphens (e.g. 192-168-1-100)</li>
- *   <li><code>${ip.hex}</code> - IP in hexadecimal format</li>
- *   <li><code>${mac}</code> - MAC address in 12-char hex (e.g. 001122334455)</li>
- *   <li><code>${mac.dashed}</code> - MAC address with hyphens (e.g. 00-11-22-33-44-55)</li>
- *   <li><code>${duid}</code> - DUID in hex</li>
- *   <li><code>${filter.name}</code> - Matching filter name</li>
+ * <li><code>${ip}</code> - Assigned IP address (e.g. 192.168.1.100)</li>
+ * <li><code>${ip.dashed}</code> - IP with dots/colons replaced with hyphens
+ * (e.g. 192-168-1-100)</li>
+ * <li><code>${ip.hex}</code> - IP in hexadecimal format</li>
+ * <li><code>${mac}</code> - MAC address in 12-char hex (e.g. 001122334455)</li>
+ * <li><code>${mac.dashed}</code> - MAC address with hyphens (e.g.
+ * 00-11-22-33-44-55)</li>
+ * <li><code>${duid}</code> - DUID in hex</li>
+ * <li><code>${filter.name}</code> - Matching filter name</li>
  * </ul>
  * 
  * @author A. Gregory Rabil
@@ -33,10 +35,10 @@ public class HostnameGenerator {
 	/**
 	 * Generates a hostname using the given template and client details.
 	 * 
-	 * @param template the template string (e.g. "host-${ip.dashed}")
-	 * @param ip the assigned IP address (v4 or v6)
-	 * @param chAddr client hardware address (MAC) or DUID bytes
-	 * @param duid client DUID bytes (if distinct from chAddr)
+	 * @param template   the template string (e.g. "host-${ip.dashed}")
+	 * @param ip         the assigned IP address (v4 or v6)
+	 * @param chAddr     client hardware address (MAC) or DUID bytes
+	 * @param duid       client DUID bytes (if distinct from chAddr)
 	 * @param filterName name of matched filter, if any
 	 * @return generated hostname string (unqualified)
 	 */
@@ -76,7 +78,8 @@ public class HostnameGenerator {
 
 			StringBuilder macDashed = new StringBuilder();
 			for (int i = 0; i < chAddr.length; i++) {
-				if (i > 0) macDashed.append("-");
+				if (i > 0)
+					macDashed.append("-");
 				macDashed.append(String.format("%02x", chAddr[i]));
 			}
 			result = result.replace("${mac.dashed}", macDashed.toString());
