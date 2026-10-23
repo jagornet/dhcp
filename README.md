@@ -1,33 +1,110 @@
 # Jagornet DHCP Server
-An open source DHCPv4/DHCPv6 Server written in Java
 
-## Description
-Jagornet DHCP Server is an open source, standards compliant Dynamic Host Configuration Protocol Server for IPv4 and IPv6.
+[![Release](https://img.shields.io/github/v/release/jagornet/dhcp?color=blue)](https://github.com/jagornet/dhcp/releases)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+[![Java](https://img.shields.io/badge/Java-21%2B-orange.svg)](https://openjdk.org/)
+[![IPv6 Ready](https://img.shields.io/badge/IPv6_Ready-Phase_II_Certified-blue.svg)](https://www.ipv6ready.org/)
 
-## Features
-* DHCPv4 (including Bootp support)
-* DHCPv6 (IPv6 Ready Phase II Certified)
-* Static bindings (reservations)
-* Client filtering (client classes)
-* Dynamic DNS updates
-* High Availability (primary/backup) utilizing [gRPC](http://grpc.io)
-* REST API (Swagger/Open API)
-* Platform independent (Java 11+)
-* Highly scalable, multithreaded architecture featuring [Netty](http://netty.io)
-* Flexible XML, JSON, or YAML configuration file format
-* Docker/OCI images
+**Jagornet DHCP Server** is an open source, enterprise-grade DHCPv4 and DHCPv6 server built on a high-performance, multithreaded [Netty](https://netty.io) network engine. 
 
-## Documentation
-[Jagornet DHCP Server Community Edition 4.1 User Guide](https://www.jagornet.com/documentation)
+Designed for cloud, container, and on-premises environments, Jagornet delivers standards compliance, high availability, and modern observability within an all-in-one, lightweight runtime.
 
-## Downloads
-[Jagornet DHCP Server Community Edition 4.1 Releases](https://github.com/jagornet/dhcp/releases)
+---
 
-## GitHub Discussions
-[Jagornet DHCP Server GitHub Discussions](https://github.com/jagornet/dhcp/discussions)
+## Why Jagornet?
 
-## Website
-[Visit us at Jagornet Technologies](http://www.jagornet.com)
+* **Unified Single-Service Model:** Run DHCPv4, DHCPv6, Dynamic DNS (DDNS), High Availability (HA), and REST management within a single service. Avoid the operational overhead and daemon sprawl of multi-process architectures that require orchestrating 4–5 separate processes.
+* **Modern Replacement for Legacy Servers:** An active, standards-compliant drop-in successor for organizations migrating away from end-of-life (EOL) ISC DHCP or seeking an operationally simpler alternative to Kea.
+* **Built-in High Availability:** High-speed active/standby failover powered by [gRPC](https://grpc.io) state synchronization, with no external clustering dependencies required.
+* **Cloud-Native & Container-Ready:** Ships with Docker/OCI support, native Prometheus metrics, OpenAPI REST APIs, and subnet/server-ID overrides tailored for cloud topologies.
+
+---
+
+## Key Capabilities
+
+### 🌐 Dual-Stack & Protocol Standards
+* **DHCPv4:** Fully compliant (RFC 2131, RFC 2132) including BOOTP support.
+* **DHCPv6:** IPv6 Ready Phase II Certified for stateful/stateless addressing (RFC 3315, RFC 3736), prefix delegation (RFC 3633), and DNS options (RFC 3646).
+* **Flexible Policy & Scopes:** Static reservations, client class filtering, and MAC/DUID inclusion/exclusion pools.
+* **Dynamic DNS (DDNS):** Multi-strategy forward and reverse DNS updates with built-in hostname generation and validation (RFC 4703, RFC 4704).
+
+### 🛡️ Enterprise Resilience & Storage
+* **High Availability:** Primary/backup clustering via [gRPC](https://grpc.io) with automated lease synchronization.
+* **Pluggable Storage:** Flexible lease persistence backends including **PostgreSQL**, **MySQL / MariaDB**, **SQLite**, and embedded **H2**.
+
+### 📊 Modern Management & Observability
+* **Prometheus Metrics:** Out-of-the-box telemetry for lease allocations, request rates, error counters, and server health.
+* **REST API:** Complete Swagger / OpenAPI 3.0 interface for programmatic configuration and integration.
+* **Flexible Configuration:** Author and manage configurations in **YAML**, **JSON**, or **XML** (validated against our published schema).
+
+### ⚡ Scalability & Portability
+* High-throughput, non-blocking I/O powered by [Netty](https://netty.io).
+* Cross-platform support across Linux, macOS, and Windows running on Java 21+.
+* Pre-configured systemd service scripts (Linux) and Windows Service Wrapper (WinSW).
+
+---
+
+## 🚀 Quick Start
+
+### Running with Docker
+
+Run a standalone Jagornet DHCP server instance:
+
+```bash
+docker run -d \
+  --name jagornet-dhcp \
+  --net=host \
+  -v $(pwd)/config:/app/config \
+  jagornet/dhcp:5.0.0
+```
+
+### Running from Distribution
+
+1. Download and extract the latest release archive (`.tar.gz` or `.zip`) from [GitHub Releases](https://github.com/jagornet/dhcp/releases).
+2. Ensure `JAVA_HOME` points to Java 21+.
+3. Start the server:
+
+```bash
+# Linux / macOS (requires root or sudo for default ports 67/547)
+sudo ./bin/dhcpserver -c config/dhcpserver.yaml
+
+# Windows (Command Prompt as Administrator)
+bin\dhcpserver.bat -c config\dhcpserver.yaml
+```
+
+*(For production systemd service installation or Windows Service setup, refer to the [User Guide](https://www.jagornet.com/documentation).)*
+
+### ⚡ 60-Second Evaluation (Local Test Without Root)
+
+Quickly test lease allocation on your workstation without `sudo` or impacting your local network:
+
+1. **Generate a test configuration** matching your active network interface:
+   ```bash
+   ./bin/gentestconfig -i eth0   # or en0 on macOS
+   ```
+2. **Start the server on unprivileged test ports**:
+   ```bash
+   ./bin/dhcpserver -4p 10067 -6p 10547 -c dhcpserver-test-config.xml
+   ```
+3. **Simulate a client lease request** in a separate terminal:
+   ```bash
+   ./bin/testclientv4 -p 10067
+   ```
+
+---
+
+## Documentation & Resources
+
+* 📖 **Documentation:** [Jagornet DHCP Server User Guide](https://www.jagornet.com/documentation)
+* 📋 **Config Schema:** [dhcpserver.xsd Schema](https://raw.githubusercontent.com/jagornet/dhcp-docs/main/dhcpserver.xsd)
+* 🔌 **REST API Specification:** [OpenAPI 3.0 Specification](https://raw.githubusercontent.com/jagornet/dhcp-docs/main/openapi.yaml)
+* 📦 **Downloads & Releases:** [GitHub Releases](https://github.com/jagornet/dhcp/releases)
+* 💬 **Community & Support:** [GitHub Discussions](https://github.com/jagornet/dhcp/discussions)
+* 🌐 **Website:** [Jagornet Technologies](https://www.jagornet.com)
+
+---
 
 ## License
-This project is licensed under the Mozilla Public License 2.0 (MPL 2.0) - see the [LICENSE.md](LICENSE.md) file for details.
+
+Jagornet DHCP Server is licensed under the [Mozilla Public License 2.0 (MPL 2.0)](LICENSE.md).
+

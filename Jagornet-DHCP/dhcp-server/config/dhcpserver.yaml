@@ -1,0 +1,5 @@
+---
+# Jagornet DHCP Server Configuration
+# Empty configuration: server starts safely without serving any subnets
+v4ServerIdOption: {}
+v6ServerIdOption: {}
