@@ -98,6 +98,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
     protected AtomicInteger requestRepliesReceived = new AtomicInteger();
     protected AtomicInteger releasesSent = new AtomicInteger();
     protected AtomicInteger releaseRepliesReceived = new AtomicInteger();
+    protected AtomicInteger timedOut = new AtomicInteger();
     protected int successCnt = 0;
     protected long startTime = 0;    
     protected long endTime = 0;
@@ -124,7 +125,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
      * @param args the args
      * @throws Exception the exception
      */
-    public ClientSimulatorV6(String[] args) throws Exception 
+    public ClientSimulatorV6(String[] args, boolean start) throws Exception 
     {
     	DEFAULT_NETIF = NetworkInterface.getNetworkInterfaces().nextElement();
     	for (Enumeration<NetworkInterface> netIfs = NetworkInterface.getNetworkInterfaces();
@@ -152,23 +153,33 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
             formatter = new HelpFormatter();
             String cliName = this.getClass().getName();
             formatter.printHelp(cliName, options);
-            System.exit(0);
+            if (start) {
+                System.exit(0);
+            }
+            return;
         }
         
-        log.info("Starting ClientSimulatorV6 with threadPoolSize=" + threadPoolSize);
-        if (threadPoolSize <= 0) {
-        	executor = Executors.newCachedThreadPool();
+        if (start) {
+            log.info("Starting ClientSimulatorV6 with threadPoolSize=" + threadPoolSize);
+            if (threadPoolSize <= 0) {
+            	executor = Executors.newCachedThreadPool();
+            }
+            else {
+            	executor = Executors.newFixedThreadPool(threadPoolSize);
+            }
+            
+            try {
+    			start();
+    		} 
+            catch (Exception ex) {
+    			ex.printStackTrace();
+    		}
         }
-        else {
-        	executor = Executors.newFixedThreadPool(threadPoolSize);
-        }
-        
-        try {
-			start();
-		} 
-        catch (Exception ex) {
-			ex.printStackTrace();
-		}
+    }
+
+    public ClientSimulatorV6(String[] args) throws Exception 
+    {
+    	this(args, true);
     }
     
 	/**
@@ -195,6 +206,11 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
         								"Address of DHCPv6 Server" +
         								" [" + DEFAULT_SERVER_ADDR + "]");		
         options.addOption(saOption);
+
+        Option pOption = new Option("p", "port", true,
+        							  "Server Port Number (alias for -sp)" +
+        							  " [" + serverPort + "]");
+        options.addOption(pOption);
 
         Option cpOption = new Option("cp", "clientport", true,
         							  "Client Port Number" +
@@ -234,9 +250,10 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 				"Request rate per second");
         options.addOption(rrOption);
 
-        Option helpOption = new Option("?", "help", false, "Show this help page.");
-        
+        Option helpOption = new Option("h", "help", false, "Show this help page.");
         options.addOption(helpOption);
+        Option qhelpOption = new Option("?", false, "Show this help page.");
+        options.addOption(qhelpOption);
     }
 
 	
@@ -277,9 +294,12 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
      */
     protected boolean parseOptions(String[] args)
     {
+    	if ((args == null) || (args.length == 0)) {
+    		return false;
+    	}
         try {
             CommandLine cmd = parser.parse(options, args);
-            if (cmd.hasOption("?")) {
+            if (cmd.hasOption("h") || cmd.hasOption("?") || cmd.hasOption("help")) {
                 return false;
             }
             if (cmd.hasOption("n")) {
@@ -306,15 +326,25 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
             	serverAddr = 
             			parseIpAddressOption("server addr", cmd.getOptionValue("sa"), DEFAULT_SERVER_ADDR);
             }
-            if (cmd.hasOption("cp")) {
-            	clientPort = 
-            			parseIntegerOption("client port", cmd.getOptionValue("cp"), 
-            								DhcpConstants.V6_CLIENT_PORT);
+            if (cmd.hasOption("p")) {
+            	serverPort = 
+            			parseIntegerOption("port", cmd.getOptionValue("p"), 
+            								DhcpConstants.V6_SERVER_PORT);
             }
             if (cmd.hasOption("sp")) {
             	serverPort = 
             			parseIntegerOption("server port", cmd.getOptionValue("sp"), 
             								DhcpConstants.V6_SERVER_PORT);
+            }
+            if (cmd.hasOption("cp")) {
+            	clientPort = 
+            			parseIntegerOption("client port", cmd.getOptionValue("cp"), 
+            								DhcpConstants.V6_CLIENT_PORT);
+            }
+            else if (serverPort != DhcpConstants.V6_SERVER_PORT) {
+            	// When targeting an unprivileged server port, default client to serverPort + 1
+            	// to avoid privileged port requirements on localhost
+            	clientPort = serverPort + 1;
             }
             if (cmd.hasOption("r")) {
             	rapidCommit = true;
@@ -445,13 +475,15 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
     	
 		endTime = System.currentTimeMillis();
 
-		log.info("Complete: solicitsSent=" + solicitsSent +
-				" advertisementsReceived=" + advertisementsReceived +
-				" requestsSent=" + requestsSent +
-				" requestRepliesReceived=" + requestRepliesReceived +
-				" releasesSent=" + releasesSent +
-				" releaseRepliesReceived=" + releaseRepliesReceived +
-				" elapsedTime=" + (endTime - startTime) + "ms");
+		log.info("Complete:\n" +
+				"  solicitsSent=" + solicitsSent + "\n" +
+				"  advertisementsReceived=" + advertisementsReceived + "\n" +
+				"  requestsSent=" + requestsSent + "\n" +
+				"  requestRepliesReceived=" + requestRepliesReceived + "\n" +
+				"  releasesSent=" + releasesSent + "\n" +
+				"  releaseRepliesReceived=" + releaseRepliesReceived + "\n" +
+				"  timedOut=" + timedOut + "\n" +
+				"  elapsedTime=" + (endTime - startTime) + "ms");
 
     	log.info("Shutting down executor...");
     	executor.shutdownNow();
@@ -463,11 +495,14 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
     	log.info("Done.");
     	if ((solicitsSent.get() == advertisementsReceived.get()) &&
     			(requestsSent.get() == requestRepliesReceived.get()) &&
-    			(releasesSent.get() == releaseRepliesReceived.get())) {
+    			(!sendRelease || (releasesSent.get() == releaseRepliesReceived.get())) &&
+    			(timedOut.get() == 0)) {
     		
+    		log.info("System exit 0 (success)");
     		System.exit(0);
     	}
     	else {
+    		log.info("System exit 1 (failure)");
     		System.exit(1);
     	}
     }
@@ -530,6 +565,11 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 		 */
 		public void doneRun() {
 			clientMap.remove(duid);
+			if (poolSize > 0) {
+				synchronized (clientMap) {
+					clientMap.notify();
+				}
+			}
 			doneLatch.countDown();			
 		}
 		
@@ -547,8 +587,13 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 				if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 					if (retry) {
 						retry = false;
-						log.warn("Solicit timeout after 2 seconds, retrying...");
+						log.warn("Solicit timeout after 2 seconds, retrying... duid=" + duid);
 						solicit();
+					}
+					else {
+						log.error("Solicit timeout after retry, giving up duid=" + duid);
+						timedOut.getAndIncrement();
+						doneRun();
 					}
 				}
 				else {
@@ -562,6 +607,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 						log.error("Received Advertise message with unsuccessful status code=" +
 								statusCodeOption.getStatusCode() + " msg=" +
 								statusCodeOption.getMessage());
+						timedOut.getAndIncrement();
 						doneRun();
 					}
 					else {
@@ -573,6 +619,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 								log.error("Received Advertise IA_NA with unsuccessful status code=" +
 										statusCodeOption.getStatusCode() + " msg=" +
 										statusCodeOption.getMessage());
+								timedOut.getAndIncrement();
 								doneRun();
 							}
 							else {
@@ -581,12 +628,15 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 						}
 						else {
 							log.error("No IA_NA options in Advertise message");
+							timedOut.getAndIncrement();
 							doneRun();
 						}
 					}
 				}
 			} catch (InterruptedException e) {
 				log.warn(e.getMessage());
+				timedOut.getAndIncrement();
+				doneRun();
 			}
 	    }
 	    
@@ -605,6 +655,8 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 			}
 			else {
 				log.error("No advertise to request!");
+				timedOut.getAndIncrement();
+				doneRun();
 			}
 		}
 	    
@@ -613,8 +665,13 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 	    		if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 	    			if (retry) {
 	    				retry = false;
-						log.warn("Request timeout after 2 seconds, retrying...");
+						log.warn("Request timeout after 2 seconds, retrying... duid=" + duid);
 	    				request();
+	    			}
+	    			else {
+						log.error("Request timeout after retry, giving up duid=" + duid);
+						timedOut.getAndIncrement();
+						doneRun();
 	    			}
 	    		}
 	    		else {
@@ -628,6 +685,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 						log.error("Received RequestReply message with unsuccessful status code=" +
 								statusCodeOption.getStatusCode() + " msg=" +
 								statusCodeOption.getMessage());
+						timedOut.getAndIncrement();
 						doneRun();
 					}
 					else {
@@ -639,6 +697,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 								log.error("Received RequestReply IA_NA with unsuccessful status code=" +
 										statusCodeOption.getStatusCode() + " msg=" +
 										statusCodeOption.getMessage());
+								timedOut.getAndIncrement();
 								doneRun();
 							}
 							else {
@@ -647,12 +706,15 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 						}
 						else {
 							log.error("No IA_NA options in RequestReply message");
+							timedOut.getAndIncrement();
 							doneRun();
 						}
 					}
 	    		}
 			} catch (InterruptedException e) {
 				log.warn(e.getMessage());
+				timedOut.getAndIncrement();
+				doneRun();
 			}
 	    }
 	    
@@ -671,6 +733,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 				}
 				else {
 					log.error("No request reply to release!");
+					doneRun();
 				}
 			}
 			else {
@@ -709,6 +772,9 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 			else {
 				log.error("Failed to send message id=" + msg.getTransactionId() +
 						  ": " + future.cause());
+				if (msg != null && msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_RELEASE) {
+					doneRun();
+				}
 			}
 		}
     }
@@ -867,6 +933,34 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
     	ctx.close();
 	}
     
+    public AtomicInteger getSolicitsSent() {
+        return solicitsSent;
+    }
+
+    public AtomicInteger getAdvertisementsReceived() {
+        return advertisementsReceived;
+    }
+
+    public AtomicInteger getRequestsSent() {
+        return requestsSent;
+    }
+
+    public AtomicInteger getRequestRepliesReceived() {
+        return requestRepliesReceived;
+    }
+
+    public AtomicInteger getReleasesSent() {
+        return releasesSent;
+    }
+
+    public AtomicInteger getReleaseRepliesReceived() {
+        return releaseRepliesReceived;
+    }
+
+    public AtomicInteger getTimedOut() {
+        return timedOut;
+    }
+
     /**
      * The main method.
      * 
@@ -881,3 +975,4 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
     }
 
 }
+

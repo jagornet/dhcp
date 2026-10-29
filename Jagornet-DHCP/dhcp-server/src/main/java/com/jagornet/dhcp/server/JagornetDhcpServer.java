@@ -747,8 +747,10 @@ public class JagornetDhcpServer
         		"Show version information, then exit.");
         options.addOption(versionOption);
         
-        Option helpOption = new Option("?", "help", false, "Show this help page.");        
+        Option helpOption = new Option("h", "help", false, "Show this help page.");        
         options.addOption(helpOption);
+        Option qhelpOption = new Option("?", false, "Show this help page.");
+        options.addOption(qhelpOption);
     }
 
     /**
@@ -762,7 +764,7 @@ public class JagornetDhcpServer
     {
         try {
             CommandLine cmd = parser.parse(options, args);
-            if (cmd.hasOption("?")) {
+            if (cmd.hasOption("h") || cmd.hasOption("?") || cmd.hasOption("help")) {
                 showHelp();
                 System.exit(0);
             }

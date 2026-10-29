@@ -87,6 +87,7 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
     protected AtomicInteger requestsSent = new AtomicInteger();
     protected AtomicInteger acksReceived = new AtomicInteger();
     protected AtomicInteger releasesSent = new AtomicInteger();
+    protected AtomicInteger timedOut = new AtomicInteger();
     protected int successCnt = 0;
     protected long startTime = 0;    
     protected long endTime = 0;
@@ -113,7 +114,7 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
      * @param args the args
      * @throws Exception the exception
      */
-    public ClientSimulatorV4(String[] args) throws Exception 
+    public ClientSimulatorV4(String[] args, boolean start) throws Exception 
     {
     	DEFAULT_ADDR = InetAddress.getLocalHost();
     	
@@ -123,22 +124,32 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
             formatter = new HelpFormatter();
             String cliName = this.getClass().getName();
             formatter.printHelp(cliName, options);
-            System.exit(0);
+            if (start) {
+                System.exit(0);
+            }
+            return;
         }
         
-        log.info("Starting ClientSimulatorV4 with threadPoolSize=" + threadPoolSize);
-        if (threadPoolSize <= 0) {
-        	executor = Executors.newCachedThreadPool();
+        if (start) {
+            log.info("Starting ClientSimulatorV4 with threadPoolSize=" + threadPoolSize);
+            if (threadPoolSize <= 0) {
+            	executor = Executors.newCachedThreadPool();
+            }
+            else {
+            	executor = Executors.newFixedThreadPool(threadPoolSize);
+            }
+            try {
+    			start();
+    		} 
+            catch (Exception ex) {
+    			ex.printStackTrace();
+    		}
         }
-        else {
-        	executor = Executors.newFixedThreadPool(threadPoolSize);
-        }
-        try {
-			start();
-		} 
-        catch (Exception ex) {
-			ex.printStackTrace();
-		}
+    }
+
+    public ClientSimulatorV4(String[] args) throws Exception 
+    {
+    	this(args, true);
     }
     
 	/**
@@ -160,6 +171,11 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
         								"Address of DHCPv4 Server" +
         								" [" + DEFAULT_ADDR + "]");		
         options.addOption(saOption);
+
+        Option pOption = new Option("p", "port", true,
+        							  "Server Port Number (alias for -sp)" +
+        							  " [" + serverPort + "]");
+        options.addOption(pOption);
 
         Option cpOption = new Option("cp", "clientport", true,
         							  "Client Port Number" +
@@ -191,17 +207,18 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
         							"Send release");
         options.addOption(xOption);
         
-        Option hOption = new Option("h", "hostname", false,
+        Option hnOption = new Option("hn", "hostname", false,
         							"Send hostname");
-        options.addOption(hOption);
+        options.addOption(hnOption);
         
         Option rrOption = new Option("rr","requestrate", true,
         							"Request rate per second");
         options.addOption(rrOption);
         
-        Option helpOption = new Option("?", "help", false, "Show this help page.");
-        
+        Option helpOption = new Option("h", "help", false, "Show this help page.");
         options.addOption(helpOption);
+        Option qhelpOption = new Option("?", false, "Show this help page.");
+        options.addOption(qhelpOption);
     }
 
 	
@@ -242,9 +259,12 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
      */
     protected boolean parseOptions(String[] args)
     {
+    	if ((args == null) || (args.length == 0)) {
+    		return false;
+    	}
         try {
             CommandLine cmd = parser.parse(options, args);
-            if (cmd.hasOption("?")) {
+            if (cmd.hasOption("h") || cmd.hasOption("?") || cmd.hasOption("help")) {
                 return false;
             }
             if (cmd.hasOption("n")) {
@@ -261,15 +281,25 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
             	serverAddr = 
             			parseIpAddressOption("server", cmd.getOptionValue("sa"), DEFAULT_ADDR);
             }
-            if (cmd.hasOption("cp")) {
-            	clientPort = 
-            			parseIntegerOption("client port", cmd.getOptionValue("cp"), 
-            								DhcpConstants.V6_CLIENT_PORT);
+            if (cmd.hasOption("p")) {
+            	serverPort = 
+            			parseIntegerOption("port", cmd.getOptionValue("p"), 
+            								DhcpConstants.V4_SERVER_PORT);
             }
             if (cmd.hasOption("sp")) {
             	serverPort = 
             			parseIntegerOption("server port", cmd.getOptionValue("sp"), 
-            								DhcpConstants.V6_SERVER_PORT);
+            								DhcpConstants.V4_SERVER_PORT);
+            }
+            if (cmd.hasOption("cp")) {
+            	clientPort = 
+            			parseIntegerOption("client port", cmd.getOptionValue("cp"), 
+            								DhcpConstants.V4_SERVER_PORT);
+            }
+            else if (serverPort != DhcpConstants.V4_SERVER_PORT) {
+            	// When targeting an unprivileged server port, default client to serverPort + 1
+            	// to avoid port collisions and privileged port requirements on localhost
+            	clientPort = serverPort + 1;
             }
             if (cmd.hasOption("r")) {
             	rapidCommit = true;
@@ -289,7 +319,7 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
             if (cmd.hasOption("x")) {
             	sendRelease = true;
             }
-            if (cmd.hasOption("h")) {
+            if (cmd.hasOption("hn")) {
             	sendHostname = true;
             }
             if (cmd.hasOption("rr")) {
@@ -396,12 +426,14 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
     	
 		endTime = System.currentTimeMillis();
     	
-		log.info("Complete: discoversSent=" + discoversSent +
-				" offersReceived=" + offersReceived +
-				" requestsSent=" + requestsSent +
-				" acksReceived=" + acksReceived +
-				" releasesSent=" + releasesSent +
-				" elapsedTime=" + (endTime - startTime) + "ms");
+		log.info("Complete:\n" +
+				"  discoversSent=" + discoversSent + "\n" +
+				"  offersReceived=" + offersReceived + "\n" +
+				"  requestsSent=" + requestsSent + "\n" +
+				"  acksReceived=" + acksReceived + "\n" +
+				"  releasesSent=" + releasesSent + "\n" +
+				"  timedOut=" + timedOut + "\n" +
+				"  elapsedTime=" + (endTime - startTime) + "ms");
 
     	log.info("Shutting down executor...");
     	executor.shutdownNow();
@@ -413,7 +445,8 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
     	log.info("Done.");
     	if ((discoversSent.get() == offersReceived.get()) &&
     			(requestsSent.get() == acksReceived.get()) &&
-    			(!sendRelease || (releasesSent.get() == numRequests))) {
+    			(!sendRelease || (releasesSent.get() == numRequests)) &&
+    			(timedOut.get() == 0)) {
     		
     		log.info("System exit 0 (success)");
     		System.exit(0);
@@ -476,6 +509,19 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 			}
 			discover();
 		}
+
+		/**
+		 * This client is done running.
+		 */
+		public void doneRun() {
+			clientMap.remove(key);
+			if (poolSize > 0) {
+				synchronized (clientMap) {
+					clientMap.notify();
+				}
+			}
+			doneLatch.countDown();
+		}
 		
 		public void discover() {
 			msg = buildDiscoverMessage(mac); 
@@ -491,8 +537,13 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 				if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 					if (retry) {
 						retry = false;
-						log.warn("Discover timeout after 2 seconds, retrying...");
+						log.warn("Discover timeout after 2 seconds, retrying... mac=" + Util.toHexString(mac));
 						discover();
+					}
+					else {
+						log.error("Discover timeout after retry, giving up mac=" + Util.toHexString(mac));
+						timedOut.getAndIncrement();
+						doneRun();
 					}
 				}
 				else {
@@ -500,6 +551,8 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 				}
 			} catch (InterruptedException e) {
 				log.warn(e.getMessage());
+				timedOut.getAndIncrement();
+				doneRun();
 			}
 	    }
 	    
@@ -518,6 +571,8 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 			}
 			else {
 				log.error("No offer to request!");
+				timedOut.getAndIncrement();
+				doneRun();
 			}
 		}
 	    
@@ -526,8 +581,13 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 	    		if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 	    			if (retry) {
 	    				retry = false;
-						log.warn("Request timeout after 2 seconds, retrying...");
+						log.warn("Request timeout after 2 seconds, retrying... mac=" + Util.toHexString(mac));
 	    				request();
+	    			}
+	    			else {
+						log.error("Request timeout after retry, giving up mac=" + Util.toHexString(mac));
+						timedOut.getAndIncrement();
+						doneRun();
 	    			}
 	    		}
 	    		else {
@@ -535,6 +595,8 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 	    		}
 			} catch (InterruptedException e) {
 				log.warn(e.getMessage());
+				timedOut.getAndIncrement();
+				doneRun();
 			}
 	    }
 	    
@@ -553,11 +615,11 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 				}
 				else {
 					log.error("No ack to release!");
+					doneRun();
 				}
 			}
 			else {
-				clientMap.remove(key);
-				doneLatch.countDown();
+				doneRun();
 			}
 		}
 		
@@ -586,18 +648,15 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 					releasesSent.getAndIncrement();
 					log.info("Successfully sent release message mac=" + Util.toHexString(mac) +
 							" cnt=" + releasesSent);
-					clientMap.remove(key);
-					if (poolSize > 0) {
-						synchronized (clientMap) {
-							clientMap.notify();
-						}
-					}
-					doneLatch.countDown();
+					doneRun();
 				}
 			}
 			else {
 				log.error("Failed to send message id=" + msg.getTransactionId() +
 						  ": " + future.cause());
+				if (msg != null && msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
+					doneRun();
+				}
 			}
 		}
     }
@@ -756,6 +815,30 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
     	ctx.close();
 	}
     
+    public AtomicInteger getDiscoversSent() {
+        return discoversSent;
+    }
+
+    public AtomicInteger getOffersReceived() {
+        return offersReceived;
+    }
+
+    public AtomicInteger getRequestsSent() {
+        return requestsSent;
+    }
+
+    public AtomicInteger getAcksReceived() {
+        return acksReceived;
+    }
+
+    public AtomicInteger getReleasesSent() {
+        return releasesSent;
+    }
+
+    public AtomicInteger getTimedOut() {
+        return timedOut;
+    }
+
     /**
      * The main method.
      * 
@@ -770,3 +853,4 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
     }
 
 }
+

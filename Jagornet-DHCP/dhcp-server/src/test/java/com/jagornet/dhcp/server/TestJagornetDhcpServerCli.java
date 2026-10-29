@@ -46,10 +46,27 @@ public class TestJagornetDhcpServerCli {
         assertTrue(options.hasOption("6m"));
         assertTrue(options.hasOption("ga"));
         assertTrue(options.hasOption("ha"));
+        assertTrue(options.hasOption("h"));
+        assertTrue(options.hasOption("help"));
+        assertTrue(options.hasOption("?"));
 
         assertEquals(10067, server.v4PortNumber);
         assertEquals(10547, server.v6PortNumber);
         assertEquals(9066, server.grpcPortNumber);
         assertEquals(9067, server.httpsPortNumber);
+    }
+
+    @Test
+    public void testGenerateTestConfigCliOptions() {
+        com.jagornet.dhcp.server.config.GenerateTestConfig gen = 
+            new com.jagornet.dhcp.server.config.GenerateTestConfig(new String[] { "-h" }, false);
+        Options options = gen.getOptions();
+        assertNotNull(options);
+        assertTrue(options.hasOption("f"));
+        assertTrue(options.hasOption("i"));
+        assertTrue(options.hasOption("v"));
+        assertTrue(options.hasOption("h"));
+        assertTrue(options.hasOption("help"));
+        assertTrue(options.hasOption("?"));
     }
 }

@@ -78,17 +78,17 @@ bin\dhcpserver.bat -c config\dhcpserver.yaml
 
 Quickly test lease allocation on your workstation without `sudo` or impacting your local network:
 
-1. **Generate a test configuration** matching your active network interface:
+1. **Generate a test DHCPv4 configuration** matching your active network interface:
    ```bash
-   ./bin/gentestconfig -i eth0   # or en0 on macOS
+   ./bin/gentestconfig -v 4 -i eth0   # or ens1, en0, etc.
    ```
-2. **Start the server on unprivileged test ports**:
+2. **Start the server on an unprivileged test port**:
    ```bash
-   ./bin/dhcpserver -4p 10067 -6p 10547 -c dhcpserver-test-config.xml
+   ./bin/dhcpserver -4p 10067 -c dhcpserver-test-config.xml
    ```
-3. **Simulate a client lease request** in a separate terminal:
+3. **Simulate DHCPv4 client lease requests** in a separate terminal:
    ```bash
-   ./bin/testclientv4 -p 10067
+   ./bin/testclientv4 -sp 10067
    ```
 
 ---
