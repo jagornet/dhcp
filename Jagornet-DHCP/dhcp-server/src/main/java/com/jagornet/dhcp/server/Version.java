@@ -10,7 +10,6 @@ package com.jagornet.dhcp.server;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Calendar;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -18,14 +17,13 @@ import java.util.jar.Manifest;
  * @author A. Gregory Rabil
  *
  */
-public class Version
-{
+public class Version {
 	static final String MANIFEST_FILE = "/META-INF/MANIFEST.MF";
-	
+
 	String implVendor = null;
 	String implTitle = null;
 	String implVersion = null;
-	
+
 	public Version() {
 		Package pkg = Version.class.getPackage();
 		if (pkg == null) {
@@ -51,7 +49,7 @@ public class Version
 			implVersion = "";
 		}
 	}
-	
+
 	public String getVersion() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(implTitle);
@@ -59,14 +57,10 @@ public class Version
 		sb.append(implVersion);
 		sb.append(System.getProperty("line.separator"));
 		sb.append("Copyright ");
-		sb.append("2009-");
-		sb.append(Calendar.getInstance().get(Calendar.YEAR));
-		sb.append(" ");
 		sb.append(implVendor);
-		sb.append(".  All Rights Reserved.");
 		return sb.toString();
 	}
-	
+
 	private void getImplAttrsFromManifest() {
 		InputStream is = null;
 		try {
@@ -79,18 +73,15 @@ public class Version
 					if ((mfImplVendor != null) && mfImplVendor.startsWith("Jagornet")) {
 						implVendor = mfImplVendor;
 						implTitle = attrs.getValue("Implementation-Title");
-						implVersion = attrs.getValue("Implementation-Version");	
+						implVersion = attrs.getValue("Implementation-Version");
 					}
 				}
-			}
-			else {
+			} else {
 				System.err.println("Resource not found: " + MANIFEST_FILE);
 			}
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			System.err.println(ex);
-		}
-		finally {
+		} finally {
 			if (is != null) {
 				try {
 					is.close();
@@ -100,7 +91,7 @@ public class Version
 			}
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		Version v = new Version();
 		System.out.println(v.getVersion());
