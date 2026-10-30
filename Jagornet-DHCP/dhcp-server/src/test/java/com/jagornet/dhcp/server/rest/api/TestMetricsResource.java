@@ -23,7 +23,8 @@ public class TestMetricsResource {
     @Test
     public void testMetricsEndpoint() {
         // Record sample metrics
-        DhcpMetrics.getInstance().incrementPacketCounter("v4", "DISCOVER", "success");
+        DhcpMetrics.getInstance().incrementPacketCounter("v4", "DISCOVER", "processed");
+        DhcpMetrics.getInstance().incrementPacketCounter("v4", "OFFER", "sent");
         DhcpMetrics.getInstance().recordPacketLatency("v4", "DISCOVER", 1500000L);
 
         MetricsResource resource = new MetricsResource();
@@ -36,6 +37,9 @@ public class TestMetricsResource {
         assertNotNull(metricsText);
         assertTrue(metricsText.contains("dhcp_packets_total"));
         assertTrue(metricsText.contains("type=\"DISCOVER\""));
+        assertTrue(metricsText.contains("type=\"OFFER\""));
+        assertTrue(metricsText.contains("result=\"processed\""));
+        assertTrue(metricsText.contains("result=\"sent\""));
         assertTrue(metricsText.contains("version=\"v4\""));
     }
 }

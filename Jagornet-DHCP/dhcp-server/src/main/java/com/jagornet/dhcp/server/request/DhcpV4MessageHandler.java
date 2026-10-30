@@ -115,11 +115,16 @@ public class DhcpV4MessageHandler {
 				}
 				if (processor != null) {
 					replyMessage = processor.processMessage();
-					String result = (replyMessage != null) ? "success" : "no_reply";
+					String result = (replyMessage != null) ? "processed" : "no_reply";
 					com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
 							.incrementPacketCounter("v4", msgTypeStr, result);
 					com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
 							.recordPacketLatency("v4", msgTypeStr, System.nanoTime() - startTime);
+					if (replyMessage != null) {
+						String replyTypeStr = DhcpConstants.getV4MessageString(replyMessage.getMessageType());
+						com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+								.incrementPacketCounter("v4", replyTypeStr, "sent");
+					}
 				} else {
 					log.error("No processor found for message type: " + msgType);
 					com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()

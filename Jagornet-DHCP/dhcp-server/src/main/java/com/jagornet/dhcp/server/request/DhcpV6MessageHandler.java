@@ -184,11 +184,16 @@ public class DhcpV6MessageHandler
     	}
     	if (processor != null) {
     		DhcpV6Message reply = processor.processMessage();
-    		String result = (reply != null) ? "success" : "no_reply";
+    		String result = (reply != null) ? "processed" : "no_reply";
     		com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
     			.incrementPacketCounter("v6", msgTypeStr, result);
     		com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
     			.recordPacketLatency("v6", msgTypeStr, System.nanoTime() - startTime);
+    		if (reply != null) {
+    			String replyTypeStr = com.jagornet.dhcp.core.util.DhcpConstants.getV6MessageString(reply.getMessageType());
+    			com.jagornet.dhcp.server.metrics.DhcpMetrics.getInstance()
+    				.incrementPacketCounter("v6", replyTypeStr, "sent");
+    		}
     		return reply;
     	}
     	else {
