@@ -104,7 +104,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
     protected long endTime = 0;
     protected long timeout = 0;
     protected int poolSize = 0;
-    protected int threadPoolSize = 0;
+    protected int threadPoolSize = 64;
     protected int requestRate = 0;
     protected CountDownLatch doneLatch = null;
 
@@ -235,7 +235,8 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
         options.addOption(psOption);
         
         Option tpsOption = new Option("tps", "threadpoolsize", true,
-        							"Size of the thread pool used by the client");
+        							"Size of the thread pool used by the client" +
+        							" [" + threadPoolSize + "]");
         options.addOption(tpsOption);
         
         Option xOption = new Option("x", "release", false,
@@ -359,7 +360,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
             }
             if (cmd.hasOption("tps")) {
             	threadPoolSize = 
-            			parseIntegerOption("thread pool size used by client", cmd.getOptionValue("tps"), 0);
+            			parseIntegerOption("thread pool size used by client", cmd.getOptionValue("tps"), threadPoolSize);
             }
             if (cmd.hasOption("x")) {
             	sendRelease = true;
@@ -403,7 +404,9 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
     	     @Override
     	     protected void initChannel(DatagramChannel ch) throws Exception {
     	         ChannelPipeline pipeline = ch.pipeline();
-    	         pipeline.addLast("logger", new LoggingHandler(LogLevel.DEBUG));
+    	         if (log.isDebugEnabled()) {
+    	             pipeline.addLast("logger", new LoggingHandler(LogLevel.DEBUG));
+    	         }
     	         pipeline.addLast("encoder", new DatagramPacketEncoder<DhcpV6Message>(new DhcpV6ChannelEncoder()));
     	         pipeline.addLast("decoder", new DhcpV6ChannelDecoder(client));
     	         pipeline.addLast("handler", ClientSimulatorV6.this);
@@ -417,6 +420,7 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
     	    return;
     	}
 
+    	doneLatch = new CountDownLatch(numRequests);
     	
     	if (requestRate <= 0) {
     		// spin up requests as fast as possible
@@ -458,7 +462,6 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 	    	requestThread.start();
     	}
 
-    	doneLatch = new CountDownLatch(numRequests);
     	try {
     		if (timeout <= 0) {
     			log.info("Waiting for completion");
@@ -750,22 +753,22 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 			if (future.isSuccess()) {
 				if (startTime == 0) {
 					startTime = System.currentTimeMillis();
-					log.info("Starting at: " + startTime);
+					log.debug("Starting at: " + startTime);
 				}
 				if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_SOLICIT) {
 					solicitsSent.getAndIncrement();
-					log.info("Successfully sent solicit message duid=" + duid +
+					log.debug("Successfully sent solicit message duid=" + duid +
 							" cnt=" + solicitsSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_REQUEST) {
 					requestsSent.getAndIncrement();
-					log.info("Successfully sent request message duid=" + duid +
+					log.debug("Successfully sent request message duid=" + duid +
 							" cnt=" + requestsSent);
 				}
 				else if (msg.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_RELEASE) {
 					released = true;
 					releasesSent.getAndIncrement();
-					log.info("Successfully sent release message duid=" + duid +
+					log.debug("Successfully sent release message duid=" + duid +
 							" cnt=" + releasesSent);
 				}
 			}
@@ -880,10 +883,9 @@ public class ClientSimulatorV6 extends SimpleChannelInboundHandler<DhcpV6Message
 	@Override
     protected void channelRead0(ChannelHandlerContext ctx, DhcpV6Message dhcpMessage) throws Exception
     {
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
         	log.debug("Received: " + dhcpMessage.toStringWithOptions());
-        else
-        	log.info("Received: " + dhcpMessage.toString());
+        }
         
         if (dhcpMessage.getMessageType() == DhcpConstants.V6MESSAGE_TYPE_ADVERTISE) {
             ClientMachine client = 

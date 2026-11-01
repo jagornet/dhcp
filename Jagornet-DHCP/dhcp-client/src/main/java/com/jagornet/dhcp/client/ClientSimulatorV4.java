@@ -58,374 +58,355 @@ import com.jagornet.dhcp.core.util.DhcpConstants;
 import com.jagornet.dhcp.core.util.Util;
 
 /**
- * A test client that sends discover/request/release messages 
+ * A test client that sends discover/request/release messages
  * to a DHCPv4 server via unicast, as if sent via a relay.
  * 
  * @author A. Gregory Rabil
  */
 @ChannelHandler.Sharable
-public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message>
-{
+public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message> {
 	private static Logger log = LoggerFactory.getLogger(ClientSimulatorV4.class);
 
 	protected Random random = new Random();
-    protected Options options = new Options();
-    protected CommandLineParser parser = new BasicParser();
-    protected HelpFormatter formatter;
-    
+	protected Options options = new Options();
+	protected CommandLineParser parser = new BasicParser();
+	protected HelpFormatter formatter;
+
 	protected InetAddress DEFAULT_ADDR;
-    protected InetAddress serverAddr;
-    protected int serverPort = DhcpConstants.V4_SERVER_PORT;
-    protected InetAddress clientAddr;
-    protected int clientPort = DhcpConstants.V4_SERVER_PORT;	// the test client acts as a relay
-    protected boolean rapidCommit = false;
-    protected boolean sendRelease = false;
-    protected boolean sendHostname = false;
-    protected int numRequests = 100;
-    protected AtomicInteger discoversSent = new AtomicInteger();
-    protected AtomicInteger offersReceived = new AtomicInteger();
-    protected AtomicInteger requestsSent = new AtomicInteger();
-    protected AtomicInteger acksReceived = new AtomicInteger();
-    protected AtomicInteger releasesSent = new AtomicInteger();
-    protected AtomicInteger timedOut = new AtomicInteger();
-    protected int successCnt = 0;
-    protected long startTime = 0;    
-    protected long endTime = 0;
-    protected long timeout = 0;
-    protected int poolSize = 0;
-    protected int threadPoolSize = 0;
-    protected int requestRate = 0;
-    protected CountDownLatch doneLatch = null;
+	protected InetAddress serverAddr;
+	protected int serverPort = DhcpConstants.V4_SERVER_PORT;
+	protected InetAddress clientAddr;
+	protected int clientPort = DhcpConstants.V4_SERVER_PORT; // the test client acts as a relay
+	protected boolean rapidCommit = false;
+	protected boolean sendRelease = false;
+	protected boolean sendHostname = false;
+	protected int numRequests = 100;
+	protected AtomicInteger discoversSent = new AtomicInteger();
+	protected AtomicInteger offersReceived = new AtomicInteger();
+	protected AtomicInteger requestsSent = new AtomicInteger();
+	protected AtomicInteger acksReceived = new AtomicInteger();
+	protected AtomicInteger releasesSent = new AtomicInteger();
+	protected AtomicInteger timedOut = new AtomicInteger();
+	protected int successCnt = 0;
+	protected long startTime = 0;
+	protected long endTime = 0;
+	protected long timeout = 0;
+	protected int poolSize = 0;
+	protected int threadPoolSize = 64;
+	protected int requestRate = 0;
+	protected CountDownLatch doneLatch = null;
 
-    protected InetSocketAddress server = null;
-    protected InetSocketAddress client = null;
-    
-    protected EventLoopGroup group = null;
-    protected DatagramChannel channel = null;	
-	//protected ExecutorService executor = Executors.newCachedThreadPool();
-    protected ExecutorService executor = null;
-	
-	protected Map<BigInteger, ClientMachine> clientMap =
-			Collections.synchronizedMap(new HashMap<BigInteger, ClientMachine>());
+	protected InetSocketAddress server = null;
+	protected InetSocketAddress client = null;
 
-    /**
-     * Instantiates a new test client.
-     *
-     * @param args the args
-     * @throws Exception the exception
-     */
-    public ClientSimulatorV4(String[] args, boolean start) throws Exception 
-    {
-    	DEFAULT_ADDR = InetAddress.getLocalHost();
-    	
-        setupOptions();
+	protected EventLoopGroup group = null;
+	protected DatagramChannel channel = null;
+	// protected ExecutorService executor = Executors.newCachedThreadPool();
+	protected ExecutorService executor = null;
 
-        if(!parseOptions(args)) {
-            formatter = new HelpFormatter();
-            String cliName = this.getClass().getName();
-            formatter.printHelp(cliName, options);
-            if (start) {
-                System.exit(0);
-            }
-            return;
-        }
-        
-        if (start) {
-            log.info("Starting ClientSimulatorV4 with threadPoolSize=" + threadPoolSize);
-            if (threadPoolSize <= 0) {
-            	executor = Executors.newCachedThreadPool();
-            }
-            else {
-            	executor = Executors.newFixedThreadPool(threadPoolSize);
-            }
-            try {
-    			start();
-    		} 
-            catch (Exception ex) {
-    			ex.printStackTrace();
-    		}
-        }
-    }
+	protected Map<BigInteger, ClientMachine> clientMap = Collections
+			.synchronizedMap(new HashMap<BigInteger, ClientMachine>());
 
-    public ClientSimulatorV4(String[] args) throws Exception 
-    {
-    	this(args, true);
-    }
-    
+	/**
+	 * Instantiates a new test client.
+	 *
+	 * @param args the args
+	 * @throws Exception the exception
+	 */
+	public ClientSimulatorV4(String[] args, boolean start) throws Exception {
+		DEFAULT_ADDR = InetAddress.getLocalHost();
+
+		setupOptions();
+
+		if (!parseOptions(args)) {
+			formatter = new HelpFormatter();
+			String cliName = this.getClass().getName();
+			formatter.printHelp(cliName, options);
+			if (start) {
+				System.exit(0);
+			}
+			return;
+		}
+
+		if (start) {
+			log.info("Starting ClientSimulatorV4 with threadPoolSize=" + threadPoolSize);
+			if (threadPoolSize <= 0) {
+				executor = Executors.newCachedThreadPool();
+			} else {
+				executor = Executors.newFixedThreadPool(threadPoolSize);
+			}
+			try {
+				start();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	public ClientSimulatorV4(String[] args) throws Exception {
+		this(args, true);
+	}
+
 	/**
 	 * Setup options.
 	 */
-	private void setupOptions()
-    {
+	private void setupOptions() {
 		Option numOption = new Option("n", "number", true,
-										"Number of client requests to send" +
-										" [" + numRequests + "]");
+				"Number of client requests to send" +
+						" [" + numRequests + "]");
 		options.addOption(numOption);
-		
-        Option caOption = new Option("ca", "clientaddress", true,
-        								"Address of DHCPv4 Client (relay)" +
-        								" [" + DEFAULT_ADDR + "]");		
-        options.addOption(caOption);
-		
-        Option saOption = new Option("sa", "serveraddress", true,
-        								"Address of DHCPv4 Server" +
-        								" [" + DEFAULT_ADDR + "]");		
-        options.addOption(saOption);
 
-        Option pOption = new Option("p", "port", true,
-        							  "Server Port Number (alias for -sp)" +
-        							  " [" + serverPort + "]");
-        options.addOption(pOption);
+		Option caOption = new Option("ca", "clientaddress", true,
+				"Address of DHCPv4 Client (relay)" +
+						" [" + DEFAULT_ADDR + "]");
+		options.addOption(caOption);
 
-        Option cpOption = new Option("cp", "clientport", true,
-        							  "Client Port Number" +
-        							  " [" + clientPort + "]");
-        options.addOption(cpOption);
+		Option saOption = new Option("sa", "serveraddress", true,
+				"Address of DHCPv4 Server" +
+						" [" + DEFAULT_ADDR + "]");
+		options.addOption(saOption);
 
-        Option spOption = new Option("sp", "serverport", true,
-        							  "Server Port Number" +
-        							  " [" + serverPort + "]");
-        options.addOption(spOption);
-        
-        Option rOption = new Option("r", "rapidcommit", false,
-        							"Send rapid-commit Solicit requests");
-        options.addOption(rOption);
-        
-        Option toOption = new Option("to", "timeout", true,
-        							"Timeout");
-        options.addOption(toOption);
-        
-        Option psOption = new Option("ps", "poolsize", true,
-        							"Size of the pool configured on the server; wait for release after this many requests");
-        options.addOption(psOption);
-        
-        Option tpsOption = new Option("tps", "threadpoolsize", true,
-        							"Size of the thread pool used by the client");
-        options.addOption(tpsOption);
-        
-        Option xOption = new Option("x", "release", false,
-        							"Send release");
-        options.addOption(xOption);
-        
-        Option hnOption = new Option("hn", "hostname", false,
-        							"Send hostname");
-        options.addOption(hnOption);
-        
-        Option rrOption = new Option("rr","requestrate", true,
-        							"Request rate per second");
-        options.addOption(rrOption);
-        
-        Option helpOption = new Option("h", "help", false, "Show this help page.");
-        options.addOption(helpOption);
-        Option qhelpOption = new Option("?", false, "Show this help page.");
-        options.addOption(qhelpOption);
-    }
+		Option pOption = new Option("p", "port", true,
+				"Server Port Number (alias for -sp)" +
+						" [" + serverPort + "]");
+		options.addOption(pOption);
 
-	
+		Option cpOption = new Option("cp", "clientport", true,
+				"Client Port Number" +
+						" [" + clientPort + "]");
+		options.addOption(cpOption);
+
+		Option spOption = new Option("sp", "serverport", true,
+				"Server Port Number" +
+						" [" + serverPort + "]");
+		options.addOption(spOption);
+
+		Option rOption = new Option("r", "rapidcommit", false,
+				"Send rapid-commit Solicit requests");
+		options.addOption(rOption);
+
+		Option toOption = new Option("to", "timeout", true,
+				"Timeout");
+		options.addOption(toOption);
+
+		Option psOption = new Option("ps", "poolsize", true,
+				"Size of the pool configured on the server; wait for release after this many requests");
+		options.addOption(psOption);
+
+		Option tpsOption = new Option("tps", "threadpoolsize", true,
+				"Size of the thread pool used by the client" +
+						" [" + threadPoolSize + "]");
+		options.addOption(tpsOption);
+
+		Option xOption = new Option("x", "release", false,
+				"Send release");
+		options.addOption(xOption);
+
+		Option hnOption = new Option("hn", "hostname", false,
+				"Send hostname");
+		options.addOption(hnOption);
+
+		Option rrOption = new Option("rr", "requestrate", true,
+				"Request rate per second");
+		options.addOption(rrOption);
+
+		Option helpOption = new Option("h", "help", false, "Show this help page.");
+		options.addOption(helpOption);
+		Option qhelpOption = new Option("?", false, "Show this help page.");
+		options.addOption(qhelpOption);
+	}
+
 	protected int parseIntegerOption(String opt, String str, int defval) {
-    	int val = defval;
-    	try {
-    		val = Integer.parseInt(str);
-    	}
-    	catch (NumberFormatException ex) {
-    		System.err.println("Invalid " + opt + " '" + str +
-    							"' using default: " + defval +
-    							" Exception=" + ex);
-    		val = defval;
-    	}
-    	return val;
-	}
-	
-	protected InetAddress parseIpAddressOption(String opt, String str, InetAddress defaddr) {
-    	InetAddress addr = defaddr;
-    	try {
-    		addr = InetAddress.getByName(str);
-    	}
-    	catch (UnknownHostException ex) {
-    		System.err.println("Invalid " + opt + " address: '" + str +
-    							"' using default: " + defaddr +
-    							" Exception=" + ex);
-    		addr = defaddr;
-    	}
-    	return addr;
-	}
-	
-    /**
-     * Parses the options.
-     * 
-     * @param args the args
-     * 
-     * @return true, if successful
-     */
-    protected boolean parseOptions(String[] args)
-    {
-    	if ((args == null) || (args.length == 0)) {
-    		return false;
-    	}
-        try {
-            CommandLine cmd = parser.parse(options, args);
-            if (cmd.hasOption("h") || cmd.hasOption("?") || cmd.hasOption("help")) {
-                return false;
-            }
-            if (cmd.hasOption("n")) {
-            	numRequests = 
-            			parseIntegerOption("num requests", cmd.getOptionValue("n"), 100);
-            }
-            clientAddr = DEFAULT_ADDR;
-            if (cmd.hasOption("ca")) {
-            	clientAddr = 
-            			parseIpAddressOption("client", cmd.getOptionValue("ca"), DEFAULT_ADDR);
-            }
-            serverAddr = DEFAULT_ADDR;
-            if (cmd.hasOption("sa")) {
-            	serverAddr = 
-            			parseIpAddressOption("server", cmd.getOptionValue("sa"), DEFAULT_ADDR);
-            }
-            if (cmd.hasOption("p")) {
-            	serverPort = 
-            			parseIntegerOption("port", cmd.getOptionValue("p"), 
-            								DhcpConstants.V4_SERVER_PORT);
-            }
-            if (cmd.hasOption("sp")) {
-            	serverPort = 
-            			parseIntegerOption("server port", cmd.getOptionValue("sp"), 
-            								DhcpConstants.V4_SERVER_PORT);
-            }
-            if (cmd.hasOption("cp")) {
-            	clientPort = 
-            			parseIntegerOption("client port", cmd.getOptionValue("cp"), 
-            								DhcpConstants.V4_SERVER_PORT);
-            }
-            else if (serverPort != DhcpConstants.V4_SERVER_PORT) {
-            	// When targeting an unprivileged server port, default client to serverPort + 1
-            	// to avoid port collisions and privileged port requirements on localhost
-            	clientPort = serverPort + 1;
-            }
-            if (cmd.hasOption("r")) {
-            	rapidCommit = true;
-            }
-            if (cmd.hasOption("to")) {
-            	timeout = 
-            			parseIntegerOption("timeout", cmd.getOptionValue("to"), 0);
-            }
-            if (cmd.hasOption("ps")) {
-            	poolSize = 
-            			parseIntegerOption("address pool size configured on server", cmd.getOptionValue("ps"), 0);
-            }
-            if (cmd.hasOption("tps")) {
-            	threadPoolSize = 
-            			parseIntegerOption("thread pool size used by client", cmd.getOptionValue("tps"), 0);
-            }
-            if (cmd.hasOption("x")) {
-            	sendRelease = true;
-            }
-            if (cmd.hasOption("hn")) {
-            	sendHostname = true;
-            }
-            if (cmd.hasOption("rr")) {
-            	requestRate = 
-            			parseIntegerOption("request rate per second", cmd.getOptionValue("rr"), 0);
-            }
-            
-            if (poolSize > 0 && !sendRelease) {
-            	System.err.println("Must specify -x/--release when using -ps/--poolsize");
-            	return false;
-            }
-        }
-        catch (ParseException pe) {
-            System.err.println("Command line option parsing failure: " + pe);
-            return false;
+		int val = defval;
+		try {
+			val = Integer.parseInt(str);
+		} catch (NumberFormatException ex) {
+			System.err.println("Invalid " + opt + " '" + str +
+					"' using default: " + defval +
+					" Exception=" + ex);
+			val = defval;
 		}
-        return true;
-    }
-    
-    /**
-     * Start sending DHCPv4 DISCOVERs.
-     */
-    public void start()
-    {
-    	server = new InetSocketAddress(serverAddr, serverPort);
-    	client = new InetSocketAddress(clientPort);
-    	
-    	group = new NioEventLoopGroup();
-    	Bootstrap b = new Bootstrap();
-    	b.group(group)
-    	 .channel(NioDatagramChannel.class)
-    	 .handler(new ChannelInitializer<DatagramChannel>() {
-    	     @Override
-    	     protected void initChannel(DatagramChannel ch) throws Exception {
-    	         ChannelPipeline pipeline = ch.pipeline();
-    	         pipeline.addLast("logger", new LoggingHandler(LogLevel.DEBUG));
-    	         pipeline.addLast("encoder", new DatagramPacketEncoder<DhcpV4Message>(new DhcpV4ChannelEncoder()));
-    	         pipeline.addLast("decoder", new DhcpV4ChannelDecoder(client));
-    	         pipeline.addLast("handler", ClientSimulatorV4.this);
-    	     }
-    	 });
-    	
-    	try {
-    	    channel = (DatagramChannel) b.bind(client).sync().channel();
-    	} catch (InterruptedException e) {
-    	    log.error("Failed to bind channel to " + client, e);
-    	    return;
-    	}
-    	
-    	if (requestRate <= 0) {
-    		// spin up requests as fast as possible
-	    	for (int i=1; i<=numRequests; i++) {
-	    		log.debug("Executing client " + i);
-	    		executor.execute(new ClientMachine(i));
-	    	}
-    	}
-    	else {
-	    	// spin up requests at the given rate per second
-	    	Thread requestThread = new Thread() {
-	    		@Override
-	    		public void run() {
-	    	    	long before = System.currentTimeMillis();
-	    	    	log.debug("Spinning up " + numRequests + " clients at " + before);
-	    	    	for (int i=1; i<=numRequests; i++) {
-	    	    		log.debug("Executing client " + i);
-	    	    		executor.execute(new ClientMachine(i));
-	    	    		// if not the last request, see if on request rate boundary
-	    	    		if ((i < numRequests) && (i % requestRate == 0)) {
-	    	    			long now = System.currentTimeMillis();
-	    	    			long diff = now - before;
-	    	    			// if less than one second since starting last batch
-	    	    			if (diff < 1000) {
-	    	    				long wait = 1000 - diff;
-	    	    				try {
-	    	    					log.debug("Waiting " + wait + "ms to honor requestRate=" + requestRate);
-	    							Thread.sleep(wait);
-	    							before = System.currentTimeMillis();
-	    						} catch (InterruptedException e) {
-	    							// TODO Auto-generated catch block
-	    							e.printStackTrace();
-	    						}
-	    	    			}
-	    	    		}
-	    	    	}
-	    		}
-	    	};
-	    	requestThread.start();
-    	}
-    	
-    	doneLatch = new CountDownLatch(numRequests);
-    	try {
-    		if (timeout <= 0) {
-    			log.info("Waiting for completion");
-    			doneLatch.await();
-    		}
-    		else {
-	    		log.info("Waiting total of " + timeout + " seconds for completion");
+		return val;
+	}
+
+	protected InetAddress parseIpAddressOption(String opt, String str, InetAddress defaddr) {
+		InetAddress addr = defaddr;
+		try {
+			addr = InetAddress.getByName(str);
+		} catch (UnknownHostException ex) {
+			System.err.println("Invalid " + opt + " address: '" + str +
+					"' using default: " + defaddr +
+					" Exception=" + ex);
+			addr = defaddr;
+		}
+		return addr;
+	}
+
+	/**
+	 * Parses the options.
+	 * 
+	 * @param args the args
+	 * 
+	 * @return true, if successful
+	 */
+	protected boolean parseOptions(String[] args) {
+		if ((args == null) || (args.length == 0)) {
+			return false;
+		}
+		try {
+			CommandLine cmd = parser.parse(options, args);
+			if (cmd.hasOption("h") || cmd.hasOption("?") || cmd.hasOption("help")) {
+				return false;
+			}
+			if (cmd.hasOption("n")) {
+				numRequests = parseIntegerOption("num requests", cmd.getOptionValue("n"), 100);
+			}
+			clientAddr = DEFAULT_ADDR;
+			if (cmd.hasOption("ca")) {
+				clientAddr = parseIpAddressOption("client", cmd.getOptionValue("ca"), DEFAULT_ADDR);
+			}
+			serverAddr = DEFAULT_ADDR;
+			if (cmd.hasOption("sa")) {
+				serverAddr = parseIpAddressOption("server", cmd.getOptionValue("sa"), DEFAULT_ADDR);
+			}
+			if (cmd.hasOption("p")) {
+				serverPort = parseIntegerOption("port", cmd.getOptionValue("p"),
+						DhcpConstants.V4_SERVER_PORT);
+			}
+			if (cmd.hasOption("sp")) {
+				serverPort = parseIntegerOption("server port", cmd.getOptionValue("sp"),
+						DhcpConstants.V4_SERVER_PORT);
+			}
+			if (cmd.hasOption("cp")) {
+				clientPort = parseIntegerOption("client port", cmd.getOptionValue("cp"),
+						DhcpConstants.V4_SERVER_PORT);
+			} else if (serverPort != DhcpConstants.V4_SERVER_PORT) {
+				// When targeting an unprivileged server port, default client to serverPort + 1
+				// to avoid port collisions and privileged port requirements on localhost
+				clientPort = serverPort + 1;
+			}
+			if (cmd.hasOption("r")) {
+				rapidCommit = true;
+			}
+			if (cmd.hasOption("to")) {
+				timeout = parseIntegerOption("timeout", cmd.getOptionValue("to"), 0);
+			}
+			if (cmd.hasOption("ps")) {
+				poolSize = parseIntegerOption("address pool size configured on server", cmd.getOptionValue("ps"), 0);
+			}
+			if (cmd.hasOption("tps")) {
+				threadPoolSize = parseIntegerOption("thread pool size used by client", cmd.getOptionValue("tps"),
+						threadPoolSize);
+			}
+			if (cmd.hasOption("x")) {
+				sendRelease = true;
+			}
+			if (cmd.hasOption("hn")) {
+				sendHostname = true;
+			}
+			if (cmd.hasOption("rr")) {
+				requestRate = parseIntegerOption("request rate per second", cmd.getOptionValue("rr"), 0);
+			}
+
+			if (poolSize > 0 && !sendRelease) {
+				System.err.println("Must specify -x/--release when using -ps/--poolsize");
+				return false;
+			}
+		} catch (ParseException pe) {
+			System.err.println("Command line option parsing failure: " + pe);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Start sending DHCPv4 DISCOVERs.
+	 */
+	public void start() {
+		server = new InetSocketAddress(serverAddr, serverPort);
+		client = new InetSocketAddress(clientPort);
+
+		group = new NioEventLoopGroup();
+		Bootstrap b = new Bootstrap();
+		b.group(group)
+				.channel(NioDatagramChannel.class)
+				.handler(new ChannelInitializer<DatagramChannel>() {
+					@Override
+					protected void initChannel(DatagramChannel ch) throws Exception {
+						ChannelPipeline pipeline = ch.pipeline();
+						if (log.isDebugEnabled()) {
+							pipeline.addLast("logger", new LoggingHandler(LogLevel.DEBUG));
+						}
+						pipeline.addLast("encoder",
+								new DatagramPacketEncoder<DhcpV4Message>(new DhcpV4ChannelEncoder()));
+						pipeline.addLast("decoder", new DhcpV4ChannelDecoder(client));
+						pipeline.addLast("handler", ClientSimulatorV4.this);
+					}
+				});
+
+		try {
+			channel = (DatagramChannel) b.bind(client).sync().channel();
+		} catch (InterruptedException e) {
+			log.error("Failed to bind channel to " + client, e);
+			return;
+		}
+
+		doneLatch = new CountDownLatch(numRequests);
+
+		if (requestRate <= 0) {
+			// spin up requests as fast as possible
+			for (int i = 1; i <= numRequests; i++) {
+				log.debug("Executing client " + i);
+				executor.execute(new ClientMachine(i));
+			}
+		} else {
+			// spin up requests at the given rate per second
+			Thread requestThread = new Thread() {
+				@Override
+				public void run() {
+					long before = System.currentTimeMillis();
+					log.debug("Spinning up " + numRequests + " clients at " + before);
+					for (int i = 1; i <= numRequests; i++) {
+						log.debug("Executing client " + i);
+						executor.execute(new ClientMachine(i));
+						// if not the last request, see if on request rate boundary
+						if ((i < numRequests) && (i % requestRate == 0)) {
+							long now = System.currentTimeMillis();
+							long diff = now - before;
+							// if less than one second since starting last batch
+							if (diff < 1000) {
+								long wait = 1000 - diff;
+								try {
+									log.debug("Waiting " + wait + "ms to honor requestRate=" + requestRate);
+									Thread.sleep(wait);
+									before = System.currentTimeMillis();
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+				}
+			};
+			requestThread.start();
+		}
+
+		try {
+			if (timeout <= 0) {
+				log.info("Waiting for completion");
+				doneLatch.await();
+			} else {
+				log.info("Waiting total of " + timeout + " seconds for completion");
 				doneLatch.await(timeout, TimeUnit.SECONDS);
-    		}
+			}
 		} catch (InterruptedException e) {
 			log.warn("Waiting interrupted");
 			System.err.println("Interrupted");
 		}
-    	
+
 		endTime = System.currentTimeMillis();
-    	
+
 		log.info("Complete:\n" +
 				"  discoversSent=" + discoversSent + "\n" +
 				"  offersReceived=" + offersReceived + "\n" +
@@ -435,57 +416,57 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 				"  timedOut=" + timedOut + "\n" +
 				"  elapsedTime=" + (endTime - startTime) + "ms");
 
-    	log.info("Shutting down executor...");
-    	executor.shutdownNow();
-    	log.info("Closing channel...");
-    	channel.close();
-    	if (group != null) {
-    	    group.shutdownGracefully();
-    	}
-    	log.info("Done.");
-    	if ((discoversSent.get() == offersReceived.get()) &&
-    			(requestsSent.get() == acksReceived.get()) &&
-    			(!sendRelease || (releasesSent.get() == numRequests)) &&
-    			(timedOut.get() == 0)) {
-    		
-    		log.info("System exit 0 (success)");
-    		System.exit(0);
-    	}
-    	else {
-    		log.info("System exit 1 (failure)");
-    		System.exit(1);
-    	}
-    }
+		log.info("Shutting down executor...");
+		executor.shutdownNow();
+		log.info("Closing channel...");
+		channel.close();
+		if (group != null) {
+			group.shutdownGracefully();
+		}
+		log.info("Done.");
+		if ((discoversSent.get() == offersReceived.get()) &&
+				(requestsSent.get() == acksReceived.get()) &&
+				(!sendRelease || (releasesSent.get() == numRequests)) &&
+				(timedOut.get() == 0)) {
 
-    /**
-     * The Class ClientMachine.
-     */
-    class ClientMachine implements Runnable, ChannelFutureListener
-    {
-    	DhcpV4Message msg;
-    	int id;
-    	byte[] mac;
-    	BigInteger key;
-    	Semaphore replySemaphore;
-    	DhcpV4Message offerMsg;
-    	DhcpV4Message ackMsg;
-    	boolean retry;
-    	
-    	/**
-	     * Instantiates a new client machine.
-	     *
-	     * @param msg the msg
-	     * @param server the server
-	     */
-	    public ClientMachine(int id) {
-    		this.id = id;
-    		this.mac = buildChAddr(id);
-    		this.key = new BigInteger(mac);
-    		this.replySemaphore = new Semaphore(1);
-    		this.retry = true;	// configure to retry
-    	}
-		
-		/* (non-Javadoc)
+			log.info("System exit 0 (success)");
+			System.exit(0);
+		} else {
+			log.info("System exit 1 (failure)");
+			System.exit(1);
+		}
+	}
+
+	/**
+	 * The Class ClientMachine.
+	 */
+	class ClientMachine implements Runnable, ChannelFutureListener {
+		DhcpV4Message msg;
+		int id;
+		byte[] mac;
+		BigInteger key;
+		Semaphore replySemaphore;
+		DhcpV4Message offerMsg;
+		DhcpV4Message ackMsg;
+		boolean retry;
+
+		/**
+		 * Instantiates a new client machine.
+		 *
+		 * @param msg    the msg
+		 * @param server the server
+		 */
+		public ClientMachine(int id) {
+			this.id = id;
+			this.mac = buildChAddr(id);
+			this.key = new BigInteger(mac);
+			this.replySemaphore = new Semaphore(1);
+			this.retry = true; // configure to retry
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
@@ -496,15 +477,13 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 						try {
 							log.info("Waiting for release...");
 							clientMap.wait();
-						} 
-						catch (InterruptedException ex) {
+						} catch (InterruptedException ex) {
 							log.error("Interrupted", ex);
 						}
 					}
 					clientMap.put(key, this);
 				}
-			}
-			else {
+			} else {
 				clientMap.put(key, this);
 			}
 			discover();
@@ -522,31 +501,29 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 			}
 			doneLatch.countDown();
 		}
-		
+
 		public void discover() {
-			msg = buildDiscoverMessage(mac); 
+			msg = buildDiscoverMessage(mac);
 			ChannelFuture future = channel.writeAndFlush(
 					new DefaultAddressedEnvelope<DhcpV4Message, InetSocketAddress>(msg, server));
 			future.addListener(this);
 			replySemaphore.drainPermits();
 			waitForOffer();
 		}
-	    
-	    public void waitForOffer() {
-	    	try {
+
+		public void waitForOffer() {
+			try {
 				if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
 					if (retry) {
 						retry = false;
 						log.warn("Discover timeout after 2 seconds, retrying... mac=" + Util.toHexString(mac));
 						discover();
-					}
-					else {
+					} else {
 						log.error("Discover timeout after retry, giving up mac=" + Util.toHexString(mac));
 						timedOut.getAndIncrement();
 						doneRun();
 					}
-				}
-				else {
+				} else {
 					request();
 				}
 			} catch (InterruptedException e) {
@@ -554,303 +531,290 @@ public class ClientSimulatorV4 extends SimpleChannelInboundHandler<DhcpV4Message
 				timedOut.getAndIncrement();
 				doneRun();
 			}
-	    }
-	    
-	    public void offerReceived(DhcpV4Message offerMsg) {
-	    	this.offerMsg = offerMsg;
-	    	replySemaphore.release();
-	    }
-		
+		}
+
+		public void offerReceived(DhcpV4Message offerMsg) {
+			this.offerMsg = offerMsg;
+			replySemaphore.release();
+		}
+
 		public void request() {
 			if (offerMsg != null) {
-	        	msg = buildRequestMessage(offerMsg);
+				msg = buildRequestMessage(offerMsg);
 				ChannelFuture future = channel.writeAndFlush(
 						new DefaultAddressedEnvelope<DhcpV4Message, InetSocketAddress>(msg, server));
 				future.addListener(this);
 				waitForAck();
-			}
-			else {
+			} else {
 				log.error("No offer to request!");
 				timedOut.getAndIncrement();
 				doneRun();
 			}
 		}
-	    
-	    public void waitForAck() {
-	    	try {
-	    		if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
-	    			if (retry) {
-	    				retry = false;
+
+		public void waitForAck() {
+			try {
+				if (!replySemaphore.tryAcquire(2, TimeUnit.SECONDS)) {
+					if (retry) {
+						retry = false;
 						log.warn("Request timeout after 2 seconds, retrying... mac=" + Util.toHexString(mac));
-	    				request();
-	    			}
-	    			else {
+						request();
+					} else {
 						log.error("Request timeout after retry, giving up mac=" + Util.toHexString(mac));
 						timedOut.getAndIncrement();
 						doneRun();
-	    			}
-	    		}
-	    		else {
-	    			release();
-	    		}
+					}
+				} else {
+					release();
+				}
 			} catch (InterruptedException e) {
 				log.warn(e.getMessage());
 				timedOut.getAndIncrement();
 				doneRun();
 			}
-	    }
-	    
-	    public void ackReceived(DhcpV4Message ackMsg) {
-	    	this.ackMsg = ackMsg;
-	    	replySemaphore.release();
-	    }
-		
+		}
+
+		public void ackReceived(DhcpV4Message ackMsg) {
+			this.ackMsg = ackMsg;
+			replySemaphore.release();
+		}
+
 		public void release() {
 			if (sendRelease) {
 				if (ackMsg != null) {
-		        	msg = buildReleaseMessage(ackMsg);
+					msg = buildReleaseMessage(ackMsg);
 					ChannelFuture future = channel.writeAndFlush(
 							new DefaultAddressedEnvelope<DhcpV4Message, InetSocketAddress>(msg, server));
 					future.addListener(this);
-				}
-				else {
+				} else {
 					log.error("No ack to release!");
 					doneRun();
 				}
-			}
-			else {
+			} else {
 				doneRun();
 			}
 		}
-		
-		/* (non-Javadoc)
-		 * @see org.jboss.netty.channel.ChannelFutureListener#operationComplete(org.jboss.netty.channel.ChannelFuture)
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.jboss.netty.channel.ChannelFutureListener#operationComplete(org.jboss.
+		 * netty.channel.ChannelFuture)
 		 */
 		@Override
-		public void operationComplete(ChannelFuture future) throws Exception
-		{
+		public void operationComplete(ChannelFuture future) throws Exception {
 			if (future.isSuccess()) {
 				if (startTime == 0) {
 					startTime = System.currentTimeMillis();
-					log.info("Starting at: " + startTime);
+					log.debug("Starting at: " + startTime);
 				}
 				if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_DISCOVER) {
 					discoversSent.getAndIncrement();
-					log.info("Successfully sent discover message mac=" + Util.toHexString(mac) +
+					log.debug("Successfully sent discover message mac=" + Util.toHexString(mac) +
 							" cnt=" + discoversSent);
-				}
-				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_REQUEST) {
+				} else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_REQUEST) {
 					requestsSent.getAndIncrement();
-					log.info("Successfully sent request message mac=" + Util.toHexString(mac) +
+					log.debug("Successfully sent request message mac=" + Util.toHexString(mac) +
 							" cnt=" + requestsSent);
-				}
-				else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
+				} else if (msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
 					releasesSent.getAndIncrement();
-					log.info("Successfully sent release message mac=" + Util.toHexString(mac) +
+					log.debug("Successfully sent release message mac=" + Util.toHexString(mac) +
 							" cnt=" + releasesSent);
 					doneRun();
 				}
-			}
-			else {
+			} else {
 				log.error("Failed to send message id=" + msg.getTransactionId() +
-						  ": " + future.cause());
+						": " + future.cause());
 				if (msg != null && msg.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_RELEASE) {
 					doneRun();
 				}
 			}
 		}
-    }
-
-    private byte[] buildChAddr(long id) {
-        byte[] bid = BigInteger.valueOf(id).toByteArray();
-        byte[] chAddr = new byte[6];
-        chAddr[0] = (byte)0xde;
-        chAddr[1] = (byte)0xb1;
-        if (bid.length == 4) {
-            chAddr[2] = bid[0];
-            chAddr[3] = bid[1];
-            chAddr[4] = bid[2];
-            chAddr[5] = bid[3];
-        }
-        else if (bid.length == 3) {
-	        chAddr[2] = 0;
-	        chAddr[3] = bid[0];
-	        chAddr[4] = bid[1];
-	        chAddr[5] = bid[2];
-        }
-        else if (bid.length == 2) {
-	        chAddr[2] = 0;
-	        chAddr[3] = 0;
-	        chAddr[4] = bid[0];
-	        chAddr[5] = bid[1];
-        }
-        else if (bid.length == 1) {
-	        chAddr[2] = 0;
-	        chAddr[3] = 0;
-	        chAddr[4] = 0;
-	        chAddr[5] = bid[0];
-        }
-        return chAddr;
-    }
-    
-    /**
-     * Builds the discover message.
-     * 
-     * @return the  dhcp message
-     */
-    private DhcpV4Message buildDiscoverMessage(byte[] chAddr)
-    {
-        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
-
-        msg.setOp((short)DhcpConstants.V4_OP_REQUEST);
-        msg.setTransactionId(random.nextLong());
-        msg.setHtype((short)1);	// ethernet
-        msg.setHlen((byte)6);
-        msg.setChAddr(chAddr);
-        msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
-        
-        DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_DISCOVER);
-        
-        msg.putDhcpOption(msgTypeOption);
-        
-        if (sendHostname) {
-        	DhcpV4HostnameOption hostnameOption = new DhcpV4HostnameOption();
-        	hostnameOption.setString("jagornet-clientsimv4-" + Util.toHexString(chAddr));
-        	msg.putDhcpOption(hostnameOption);
-        }
-        
-        return msg;
-    }
-    
-    private DhcpV4Message buildRequestMessage(DhcpV4Message offer) {
-    	
-        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
-
-        msg.setOp((short)DhcpConstants.V4_OP_REQUEST);
-        msg.setTransactionId(offer.getTransactionId());
-        msg.setHtype((short)1);	// ethernet
-        msg.setHlen((byte)6);
-        msg.setChAddr(offer.getChAddr());
-        msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
-        
-        DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_REQUEST);
-        
-        msg.putDhcpOption(msgTypeOption);
-        
-        if (sendHostname) {
-        	DhcpV4HostnameOption hostnameOption = new DhcpV4HostnameOption();
-        	hostnameOption.setString("jagornet-clientsimv4-" + Util.toHexString(offer.getChAddr()));
-        	msg.putDhcpOption(hostnameOption);
-        }
-        
-        DhcpV4RequestedIpAddressOption reqIpOption = new DhcpV4RequestedIpAddressOption();
-        reqIpOption.setIpAddress(offer.getYiAddr().getHostAddress());
-        msg.putDhcpOption(reqIpOption);
-        
-        // MUST include serverId option for selecting state
-        DhcpV4ServerIdOption serverIdOption = offer.getDhcpV4ServerIdOption();
-        msg.putDhcpOption(serverIdOption);
-        
-        return msg;
-    }
-    
-    private DhcpV4Message buildReleaseMessage(DhcpV4Message ack) {
-    	
-        DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
-
-        msg.setOp((short)DhcpConstants.V4_OP_REQUEST);
-        msg.setTransactionId(ack.getTransactionId());
-        msg.setHtype((short)1);	// ethernet
-        msg.setHlen((byte)6);
-        msg.setChAddr(ack.getChAddr());
-        msg.setGiAddr(clientAddr);	// look like a relay to the DHCP server
-        msg.setCiAddr(ack.getYiAddr());
-        
-        DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
-        msgTypeOption.setUnsignedByte((short)DhcpConstants.V4MESSAGE_TYPE_RELEASE);
-        
-        msg.putDhcpOption(msgTypeOption);
-        
-        return msg;
-    }
-
-	@Override
-    protected void channelRead0(ChannelHandlerContext ctx, DhcpV4Message dhcpMessage) throws Exception
-    {
-        log.info("Received: " + dhcpMessage.toString());
-        
-        if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_OFFER) {
-            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
-            if (client != null) {
-            	offersReceived.getAndIncrement();
-            	client.offerReceived(dhcpMessage);
-            }
-            else {
-            	log.error("Received offer for client not found in map: mac=" + 
-            			Util.toHexString(dhcpMessage.getChAddr()));
-            }
-        }
-        else if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_ACK) {
-            ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
-            if (client != null) {
-            	acksReceived.getAndIncrement();
-            	client.ackReceived(dhcpMessage);
-            }
-            else {
-            	log.error("Received ack for client not found in map: mac=" + 
-            			Util.toHexString(dhcpMessage.getChAddr()));
-            }
-        }
-        else {
-        	log.warn("Received unhandled message type: " + dhcpMessage.getMessageType());
-        }
-    }
-	 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
-	{
-    	log.error("Exception caught: ", cause);
-    	ctx.close();
 	}
-    
-    public AtomicInteger getDiscoversSent() {
-        return discoversSent;
-    }
 
-    public AtomicInteger getOffersReceived() {
-        return offersReceived;
-    }
+	private byte[] buildChAddr(long id) {
+		byte[] bid = BigInteger.valueOf(id).toByteArray();
+		byte[] chAddr = new byte[6];
+		chAddr[0] = (byte) 0xde;
+		chAddr[1] = (byte) 0xb1;
+		if (bid.length == 4) {
+			chAddr[2] = bid[0];
+			chAddr[3] = bid[1];
+			chAddr[4] = bid[2];
+			chAddr[5] = bid[3];
+		} else if (bid.length == 3) {
+			chAddr[2] = 0;
+			chAddr[3] = bid[0];
+			chAddr[4] = bid[1];
+			chAddr[5] = bid[2];
+		} else if (bid.length == 2) {
+			chAddr[2] = 0;
+			chAddr[3] = 0;
+			chAddr[4] = bid[0];
+			chAddr[5] = bid[1];
+		} else if (bid.length == 1) {
+			chAddr[2] = 0;
+			chAddr[3] = 0;
+			chAddr[4] = 0;
+			chAddr[5] = bid[0];
+		}
+		return chAddr;
+	}
 
-    public AtomicInteger getRequestsSent() {
-        return requestsSent;
-    }
+	/**
+	 * Builds the discover message.
+	 * 
+	 * @return the dhcp message
+	 */
+	private DhcpV4Message buildDiscoverMessage(byte[] chAddr) {
+		DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
 
-    public AtomicInteger getAcksReceived() {
-        return acksReceived;
-    }
+		msg.setOp((short) DhcpConstants.V4_OP_REQUEST);
+		msg.setTransactionId(random.nextLong());
+		msg.setHtype((short) 1); // ethernet
+		msg.setHlen((byte) 6);
+		msg.setChAddr(chAddr);
+		msg.setGiAddr(clientAddr); // look like a relay to the DHCP server
 
-    public AtomicInteger getReleasesSent() {
-        return releasesSent;
-    }
+		DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
+		msgTypeOption.setUnsignedByte((short) DhcpConstants.V4MESSAGE_TYPE_DISCOVER);
 
-    public AtomicInteger getTimedOut() {
-        return timedOut;
-    }
+		msg.putDhcpOption(msgTypeOption);
 
-    /**
-     * The main method.
-     * 
-     * @param args the arguments
-     */
-    public static void main(String[] args) {
-        try {
+		if (sendHostname) {
+			DhcpV4HostnameOption hostnameOption = new DhcpV4HostnameOption();
+			hostnameOption.setString("jagornet-clientsimv4-" + Util.toHexString(chAddr));
+			msg.putDhcpOption(hostnameOption);
+		}
+
+		return msg;
+	}
+
+	private DhcpV4Message buildRequestMessage(DhcpV4Message offer) {
+
+		DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
+
+		msg.setOp((short) DhcpConstants.V4_OP_REQUEST);
+		msg.setTransactionId(offer.getTransactionId());
+		msg.setHtype((short) 1); // ethernet
+		msg.setHlen((byte) 6);
+		msg.setChAddr(offer.getChAddr());
+		msg.setGiAddr(clientAddr); // look like a relay to the DHCP server
+
+		DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
+		msgTypeOption.setUnsignedByte((short) DhcpConstants.V4MESSAGE_TYPE_REQUEST);
+
+		msg.putDhcpOption(msgTypeOption);
+
+		if (sendHostname) {
+			DhcpV4HostnameOption hostnameOption = new DhcpV4HostnameOption();
+			hostnameOption.setString("jagornet-clientsimv4-" + Util.toHexString(offer.getChAddr()));
+			msg.putDhcpOption(hostnameOption);
+		}
+
+		DhcpV4RequestedIpAddressOption reqIpOption = new DhcpV4RequestedIpAddressOption();
+		reqIpOption.setIpAddress(offer.getYiAddr().getHostAddress());
+		msg.putDhcpOption(reqIpOption);
+
+		// MUST include serverId option for selecting state
+		DhcpV4ServerIdOption serverIdOption = offer.getDhcpV4ServerIdOption();
+		msg.putDhcpOption(serverIdOption);
+
+		return msg;
+	}
+
+	private DhcpV4Message buildReleaseMessage(DhcpV4Message ack) {
+
+		DhcpV4Message msg = new DhcpV4Message(null, new InetSocketAddress(serverAddr, serverPort));
+
+		msg.setOp((short) DhcpConstants.V4_OP_REQUEST);
+		msg.setTransactionId(ack.getTransactionId());
+		msg.setHtype((short) 1); // ethernet
+		msg.setHlen((byte) 6);
+		msg.setChAddr(ack.getChAddr());
+		msg.setGiAddr(clientAddr); // look like a relay to the DHCP server
+		msg.setCiAddr(ack.getYiAddr());
+
+		DhcpV4MsgTypeOption msgTypeOption = new DhcpV4MsgTypeOption();
+		msgTypeOption.setUnsignedByte((short) DhcpConstants.V4MESSAGE_TYPE_RELEASE);
+
+		msg.putDhcpOption(msgTypeOption);
+
+		return msg;
+	}
+
+	@Override
+	protected void channelRead0(ChannelHandlerContext ctx, DhcpV4Message dhcpMessage) throws Exception {
+
+		if (log.isDebugEnabled()) {
+			log.debug("Received: " + dhcpMessage.toString());
+		}
+
+		if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_OFFER) {
+			ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
+			if (client != null) {
+				offersReceived.getAndIncrement();
+				client.offerReceived(dhcpMessage);
+			} else {
+				log.error("Received offer for client not found in map: mac=" +
+						Util.toHexString(dhcpMessage.getChAddr()));
+			}
+		} else if (dhcpMessage.getMessageType() == DhcpConstants.V4MESSAGE_TYPE_ACK) {
+			ClientMachine client = clientMap.get(new BigInteger(dhcpMessage.getChAddr()));
+			if (client != null) {
+				acksReceived.getAndIncrement();
+				client.ackReceived(dhcpMessage);
+			} else {
+				log.error("Received ack for client not found in map: mac=" +
+						Util.toHexString(dhcpMessage.getChAddr()));
+			}
+		} else {
+			log.warn("Received unhandled message type: " + dhcpMessage.getMessageType());
+		}
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		log.error("Exception caught: ", cause);
+		ctx.close();
+	}
+
+	public AtomicInteger getDiscoversSent() {
+		return discoversSent;
+	}
+
+	public AtomicInteger getOffersReceived() {
+		return offersReceived;
+	}
+
+	public AtomicInteger getRequestsSent() {
+		return requestsSent;
+	}
+
+	public AtomicInteger getAcksReceived() {
+		return acksReceived;
+	}
+
+	public AtomicInteger getReleasesSent() {
+		return releasesSent;
+	}
+
+	public AtomicInteger getTimedOut() {
+		return timedOut;
+	}
+
+	/**
+	 * The main method.
+	 * 
+	 * @param args the arguments
+	 */
+	public static void main(String[] args) {
+		try {
 			new ClientSimulatorV4(args);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-    }
+	}
 
 }
-
