@@ -19,9 +19,12 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 		<property name="password">
 			<value>${jdbc.password}</value>
 		</property>
-		<!-- Not in DBCP2  <property name="removeAbandoned" value="true"/> -->
-		<!--  <property name="initialSize" value="10" />  -->
-		<!--  <property name="maxActive" value="20" />  -->
+		<property name="initialSize" value="16" />
+		<property name="maxTotal" value="32" />
+		<property name="maxIdle" value="16" />
+		<property name="minIdle" value="8" />
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxOpenPreparedStatements" value="50" />
 	</bean>
 
 </beans>
