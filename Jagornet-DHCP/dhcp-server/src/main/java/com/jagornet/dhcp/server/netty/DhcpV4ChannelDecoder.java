@@ -101,15 +101,19 @@ public class DhcpV4ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
 		// remoteSocketAddress is set by DhcpV4PacketDecoder.channelRead
-		log.info("Decoding broadcast message:" +
-				 " local=" + Util.socketAddressAsString(localSocketAddress) + 
-				 " remote=" + Util.socketAddressAsString(remoteSocketAddress));
+		if (log.isDebugEnabled()) {
+			log.debug("Decoding broadcast message:" +
+					 " local=" + Util.socketAddressAsString(localSocketAddress) + 
+					 " remote=" + Util.socketAddressAsString(remoteSocketAddress));
+		}
 		// Netty's ByteBuf.nioBuffer() returns the underlying ByteBuffer, 
 		// without additional allocations, so should not be necessary 
 		// to have a NettyDhcpV4Message.decode() for Netty's ByteBuf
         DhcpV4Message dhcpMessage = 
         	DhcpV4Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
-        log.info("Broadcast message decoded: msg=" + dhcpMessage);
+        if (log.isDebugEnabled()) {
+        	log.debug("Broadcast message decoded: msg=" + dhcpMessage);
+        }
 		// send the message to the next handler in the pipeline, which is
 		// the DhcpV4ChannelHandler
         out.add(dhcpMessage);

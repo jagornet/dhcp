@@ -54,9 +54,6 @@ public class DhcpV4ChannelHandler extends SimpleChannelInboundHandler<DhcpV4Mess
         if (log.isDebugEnabled()) {
         	log.debug("Received: " + msg.toStringWithOptions());
         }
-        else {
-        	log.info("Received: " + msg.toString());
-        }
         
         DhcpV4Message replyMessage = 
         	DhcpV4MessageHandler.handleMessage(msg.getLocalAddress().getAddress(), msg);
@@ -72,9 +69,6 @@ public class DhcpV4ChannelHandler extends SimpleChannelInboundHandler<DhcpV4Mess
     		}
         	if (log.isDebugEnabled()) {
         		log.debug("Sending: " + replyMessage.toStringWithOptions());
-        	}
-        	else {
-        		log.info("Sending: " + replyMessage.toString());
         	}
 			ChannelFuture future = outboundChannel.writeAndFlush(
 					new DefaultAddressedEnvelope<DhcpV4Message, SocketAddress>(

@@ -78,15 +78,19 @@ public class DhcpV6ChannelDecoder extends MessageToMessageDecoder<ByteBuf>
     
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
-		log.info("Decoding multicast message:" +
-				 " local=" + Util.socketAddressAsString(localSocketAddress) + 
-				 " remote=" + Util.socketAddressAsString(remoteSocketAddress));
+		if (log.isDebugEnabled()) {
+			log.debug("Decoding multicast message:" +
+					 " local=" + Util.socketAddressAsString(localSocketAddress) + 
+					 " remote=" + Util.socketAddressAsString(remoteSocketAddress));
+		}
 		// Netty's ByteBuf.nioBuffer() returns the underlying ByteBuffer, 
 		// without additional allocations, so should not be necessary 
 		// to have a NettyDhcpV4Message.decode() for Netty's ByteBuf
         DhcpV6Message dhcpMessage = 
         	DhcpV6Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
-        log.info("Multicast message decoded: msg=" + dhcpMessage);
+        if (log.isDebugEnabled()) {
+        	log.debug("Multicast message decoded: msg=" + dhcpMessage);
+        }
 		// send the message to the next handler in the pipeline, which is
 		// the DhcpV6ChannelHandler
         out.add(dhcpMessage);

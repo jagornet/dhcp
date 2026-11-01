@@ -35,9 +35,13 @@ public class DhcpV4ChannelEncoder extends MessageToMessageEncoder<DhcpV4Message>
 
     @Override
 	protected void encode(ChannelHandlerContext ctx, DhcpV4Message msg, List<Object> out) throws Exception {
-		log.info("Encoding message: msg=" + msg);
+		if (log.isDebugEnabled()) {
+			log.debug("Encoding message: msg=" + msg);
+		}
         ByteBuffer buf = msg.encode();
-        log.info("Message encoded: limit=" + buf.limit());
+		if (log.isDebugEnabled()) {
+			log.debug("Message encoded: limit=" + buf.limit());
+		}
         out.add(Unpooled.wrappedBuffer(buf));
 	}   
 }

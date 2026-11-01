@@ -52,9 +52,6 @@ public class DhcpV6ChannelHandler extends SimpleChannelInboundHandler<DhcpV6Mess
         if (log.isDebugEnabled()) {
         	log.debug("Received: " + dhcpMessage.toStringWithOptions());
         }
-        else {
-        	log.info("Received: " + dhcpMessage.toString());
-        }
         
 //        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
         InetSocketAddress remoteAddress = dhcpMessage.getRemoteAddress();
@@ -70,9 +67,6 @@ public class DhcpV6ChannelHandler extends SimpleChannelInboundHandler<DhcpV6Mess
         if (replyMessage != null) {
         	if (log.isDebugEnabled()) {
         		log.debug("Sending: " + replyMessage.toStringWithOptions());
-        	}
-        	else {
-        		log.info("Sending: " + replyMessage.toString());
         	}
 			ChannelFuture future = outboundChannel.writeAndFlush(
 					new DefaultAddressedEnvelope<DhcpV6Message, SocketAddress>(

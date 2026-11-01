@@ -178,7 +178,9 @@ public class NettyDhcpServer
 						@Override
 						protected void initChannel(DatagramChannel channel) throws Exception {
 			        		ChannelPipeline pipeline = channel.pipeline();
-				            pipeline.addLast("logger", new LoggingHandler());
+			        		if (log.isDebugEnabled()) {
+				            	pipeline.addLast("logger", new LoggingHandler());
+			        		}
 				            pipeline.addLast("decoder",
 				            		new DhcpV4PacketDecoder(
 				            				new DhcpV4UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
@@ -239,7 +241,9 @@ public class NettyDhcpServer
 							@Override
 							protected void initChannel(DatagramChannel channel) throws Exception {
 				        		ChannelPipeline pipeline = channel.pipeline();
-					            pipeline.addLast("logger", new LoggingHandler());
+				        		if (log.isDebugEnabled()) {
+					            	pipeline.addLast("logger", new LoggingHandler());
+				        		}
 					            pipeline.addLast("decoder",
 					            		new DhcpV4PacketDecoder(
 					            				new DhcpV4ChannelDecoder(sockAddr, ignoreSelfPackets, v4NetIf)));
@@ -305,7 +309,9 @@ public class NettyDhcpServer
 						@Override
 						protected void initChannel(DatagramChannel channel) throws Exception {
 			        		ChannelPipeline pipeline = channel.pipeline();
-				            pipeline.addLast("logger", new LoggingHandler());
+			        		if (log.isDebugEnabled()) {
+				            	pipeline.addLast("logger", new LoggingHandler());
+			        		}
 				            pipeline.addLast("decoder", 
 				            		new DhcpV6PacketDecoder(
 				            				new DhcpV6UnicastChannelDecoder(sockAddr, ignoreSelfPackets)));
@@ -355,7 +361,9 @@ public class NettyDhcpServer
 						@Override
 						protected void initChannel(DatagramChannel channel) throws Exception {
 			        		ChannelPipeline pipeline = channel.pipeline();
-				            pipeline.addLast("logger", new LoggingHandler());
+			        		if (log.isDebugEnabled()) {
+				            	pipeline.addLast("logger", new LoggingHandler());
+			        		}
 				            pipeline.addLast("decoder", 
 				            		new DhcpV6PacketDecoder(
 				            				new DhcpV6ChannelDecoder(sockAddr, ignoreSelfPackets)));

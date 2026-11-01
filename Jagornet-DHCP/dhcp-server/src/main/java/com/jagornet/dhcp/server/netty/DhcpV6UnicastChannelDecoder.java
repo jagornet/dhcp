@@ -39,9 +39,11 @@ public class DhcpV6UnicastChannelDecoder extends DhcpV6ChannelDecoder
     
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf buf, List<Object> out) throws Exception {
-		log.info("Decoding unicast message:" +
-				 " local=" + Util.socketAddressAsString(localSocketAddress) + 
-				 " remote=" + Util.socketAddressAsString(remoteSocketAddress));
+		if (log.isDebugEnabled()) {
+			log.debug("Decoding unicast message:" +
+					 " local=" + Util.socketAddressAsString(localSocketAddress) + 
+					 " remote=" + Util.socketAddressAsString(remoteSocketAddress));
+		}
 		// Netty's ByteBuf.nioBuffer() returns the underlying ByteBuffer, 
 		// without additional allocations, so should not be necessary 
 		// to have a NettyDhcpV4Message.decode() for Netty's ByteBuf
@@ -49,7 +51,9 @@ public class DhcpV6UnicastChannelDecoder extends DhcpV6ChannelDecoder
         	DhcpV6Message.decode(buf.nioBuffer(), localSocketAddress, remoteSocketAddress);
         // DHCP message received via unicast
         dhcpMessage.setUnicast(true);
-        log.info("Unicast message decoded: msg=" + dhcpMessage);
+        if (log.isDebugEnabled()) {
+        	log.debug("Unicast message decoded: msg=" + dhcpMessage);
+        }
         out.add(dhcpMessage);
     }
 }

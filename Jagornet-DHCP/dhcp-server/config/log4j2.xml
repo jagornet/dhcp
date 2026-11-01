@@ -19,13 +19,16 @@
       	<SizeBasedTriggeringPolicy size="10 MB"/>
       </Policies>
     </RollingFile>
+    <Async name="Async">
+      <AppenderRef ref="Logfile"/>
+    </Async>
   </Appenders>
   <Loggers>
     <Root level="INFO">
       <!-- <AppenderRef ref="Console" level="INFO"/> -->
-      <AppenderRef ref="Logfile" level="DEBUG"/>
+      <AppenderRef ref="Async"/>
     </Root>
-    <Logger name="com.jagornet" level="DEBUG">
+    <Logger name="com.jagornet" level="INFO">
       <!-- Inherit appenders from root logger -->
     </Logger>
   </Loggers>
