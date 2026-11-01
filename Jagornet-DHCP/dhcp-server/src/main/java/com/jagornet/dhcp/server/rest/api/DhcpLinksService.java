@@ -17,12 +17,16 @@ import com.jagornet.dhcp.server.config.DhcpServerConfiguration;
 
 public class DhcpLinksService {
 
-    protected static DhcpServerConfiguration dhcpServerConfig = 
-                                        DhcpServerConfiguration.getInstance();
-	private SortedMap<Subnet, DhcpLink> dhcpLinkMap;
+    protected static DhcpServerConfiguration dhcpServerConfig;
+
+    protected DhcpServerConfiguration getConfig() {
+        if (dhcpServerConfig != null) {
+            return dhcpServerConfig;
+        }
+        return DhcpServerConfiguration.getInstance();
+    }
 
     public DhcpLinksService() {
-		dhcpLinkMap = dhcpServerConfig.getLinkMap();
 	}
     
     public DhcpLink.State getLinkState(String linkAddress, int prefixLen) throws UnknownHostException {
@@ -30,9 +34,15 @@ public class DhcpLinksService {
     }
     
 	public DhcpLink.State getLinkState(Subnet subnet) {
-		DhcpLink dhcpLink = dhcpLinkMap.get(subnet);
-		if (dhcpLink != null) {
-			return dhcpLink.getState();
+		DhcpServerConfiguration config = getConfig();
+		if (config != null) {
+			SortedMap<Subnet, DhcpLink> dhcpLinkMap = config.getLinkMap();
+			if (dhcpLinkMap != null) {
+				DhcpLink dhcpLink = dhcpLinkMap.get(subnet);
+				if (dhcpLink != null) {
+					return dhcpLink.getState();
+				}
+			}
 		}
 		return null;
 	}

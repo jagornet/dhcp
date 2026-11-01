@@ -54,6 +54,10 @@ public class DhcpConfigTestContext implements AutoCloseable {
 			instanceField.setAccessible(true);
 			instanceField.set(null, null);
 
+			Field filenameField = DhcpServerConfiguration.class.getDeclaredField("serverConfigFilename");
+			filenameField.setAccessible(true);
+			filenameField.set(null, null);
+
 			syncStaticReferences();
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to reset DhcpServerConfiguration or DhcpServerPolicies via reflection", e);
@@ -65,6 +69,9 @@ public class DhcpConfigTestContext implements AutoCloseable {
 		setStaticField("com.jagornet.dhcp.server.request.binding.BaseBindingManager", "serverConfig", currentConfig);
 		setStaticField("com.jagornet.dhcp.server.request.BaseDhcpV4Processor", "dhcpServerConfig", currentConfig);
 		setStaticField("com.jagornet.dhcp.server.request.BaseDhcpV6Processor", "dhcpServerConfig", currentConfig);
+		setStaticField("com.jagornet.dhcp.server.rest.api.DhcpServerConfigService", "dhcpServerConfiguration", currentConfig);
+		setStaticField("com.jagornet.dhcp.server.rest.api.DhcpLinksService", "dhcpServerConfig", currentConfig);
+		setStaticField("com.jagornet.dhcp.server.rest.api.DhcpServerStatusService", "dhcpServerConfig", currentConfig);
 	}
 
 	private static void setStaticField(String className, String fieldName, Object val) {
