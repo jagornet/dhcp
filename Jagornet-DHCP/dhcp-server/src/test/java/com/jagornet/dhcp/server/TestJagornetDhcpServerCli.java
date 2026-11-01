@@ -22,7 +22,8 @@ public class TestJagornetDhcpServerCli {
         Version v = new Version();
         String versionStr = v.getVersion();
         assertNotNull(versionStr);
-        assertTrue(versionStr.contains("Copyright 2009-"));
+        assertTrue(versionStr.contains("Jagornet DHCP Server"));
+        assertTrue(versionStr.contains("Copyright "));
         assertTrue(versionStr.contains("Jagornet Technologies, LLC"));
     }
 
