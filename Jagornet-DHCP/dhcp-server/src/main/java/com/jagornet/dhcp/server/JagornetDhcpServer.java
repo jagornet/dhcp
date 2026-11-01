@@ -934,11 +934,13 @@ public class JagornetDhcpServer
             		System.err.println("Testing server configuration file: " + filename);
             		DhcpServerConfig config = DhcpServerConfiguration.loadConfig(filename);
             		if (config != null) {
+            			DhcpServerConfiguration.validateConfig(config);
             			System.err.println("OK: " + filename + " is a valid Jagornet DHCP server configuration file.");
             		}
             	}
             	catch (Exception ex) {
             		System.err.println("ERROR: " + ex);
+            		System.exit(1);
             	}
             	System.exit(0);
             }

@@ -572,13 +572,26 @@ public class DhcpServerConfiguration
     }
 */
 
+	/**
+	 * Validate a loaded DhcpServerConfig by checking policies and links/pools.
+	 *
+	 * @param config the DhcpServerConfig to validate
+	 * @throws DhcpServerConfigException if validation fails
+	 */
+	public static void validateConfig(DhcpServerConfig config) throws DhcpServerConfigException {
+		if (config != null) {
+			validateConfigPolicies(config);
+			buildDhcpLinkMap(config.getLinks());
+		}
+	}
+
     /**
      * Build the DhcpLink map from the Links in the configuration
      * 
      * @return the map of DhcpLinks, which may be empty
      * @throws DhcpServerConfigException the exception
      */
-    protected SortedMap<Subnet, DhcpLink> buildDhcpLinkMap(LinksType linksType) throws DhcpServerConfigException
+    public static SortedMap<Subnet, DhcpLink> buildDhcpLinkMap(LinksType linksType) throws DhcpServerConfigException
     {
     	SortedMap<Subnet, DhcpLink> linkMap = 
     			Collections.synchronizedSortedMap(new TreeMap<Subnet, DhcpLink>());
@@ -596,7 +609,7 @@ public class DhcpServerConfiguration
     	return linkMap;
     }
 
-	private DhcpLink buildDhcpLink(Link link) throws DhcpServerConfigException {
+	public static DhcpLink buildDhcpLink(Link link) throws DhcpServerConfigException {
 		String ifname = link.getInterface();
 		if (ifname != null) {
 			try {
@@ -619,7 +632,9 @@ public class DhcpServerConfiguration
 		    if ((s != null) && (s.length == 2)) {
 		        try {
 					Subnet subnet = new Subnet(s[0], s[1]);
-					validateLinkPools(subnet, link);
+					if (ifname == null) {
+						validateLinkPools(subnet, link);
+					}
 					return new DhcpLink(subnet, link);
 				} 
 		        catch (NumberFormatException ex) {
@@ -645,6 +660,9 @@ public class DhcpServerConfiguration
 	
 	public static void validateLinkPools(Subnet subnet, Link link) throws DhcpServerConfigException {
 		if ((subnet != null) && (link != null)) {
+			if (link.getInterface() != null) {
+				return;
+			}
 			if (!subnet.isV6()) {
 				V4AddressPoolsType addrPoolsType = link.getV4AddrPools();
 				if (addrPoolsType != null) {
@@ -707,7 +725,7 @@ public class DhcpServerConfiguration
 		}
 	}
 	
-	public void putDhcpLink(SortedMap<Subnet, DhcpLink> map, DhcpLink dhcpLink) {
+	public static void putDhcpLink(SortedMap<Subnet, DhcpLink> map, DhcpLink dhcpLink) {
 		Subnet subnet = dhcpLink.getSubnet();
 		Link link = dhcpLink.getLink();
 		log.info("Putting subnet=" + subnet.toString() +
@@ -739,7 +757,7 @@ public class DhcpServerConfiguration
 		}
 	}
 
-	private NetworkInterface getNetworkInterface(String ifname) throws SocketException, DhcpServerConfigException {
+	public static NetworkInterface getNetworkInterface(String ifname) throws SocketException, DhcpServerConfigException {
 		NetworkInterface netIf = NetworkInterface.getByName(ifname);
 		if (netIf == null) {
 			// if not found by name, see if the name is actually an address
