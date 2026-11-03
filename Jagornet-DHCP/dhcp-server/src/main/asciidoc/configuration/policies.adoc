@@ -37,88 +37,86 @@ policies:
   - name: "ha.role"
     value: "primary"
   - name: "ha.peerServer"
-  	value: "10.0.0.20"
+    value: "10.0.0.20"
 ----
 
-The tables below describes the policies available for the Jagornet DHCP Server. 
+The sections below describe the configuration policies available for the Jagornet DHCP Server. 
 The Hierarchy list indicates which levels of the configuration hierarchy 
 the policy is supported. For policies that are supported at 'all' levels, the lower 
 level policy overrides the value of any matching higher level policy.
  
 === Channel Resource Policies
-Channels are used for processing all requests.  The following _expert_ policies can be adjusted if necessary.
+Channels are used for processing all incoming network requests. The following _expert_ policies can be adjusted if necessary.
 
-==== Thread Pool Size
+==== Policy: channel.threadPoolSize (Thread Pool Size)
 - Name: `channel.threadPoolSize`
 - Default: `16`
-- Description: The size of the thread pool for network channel processing.
+- Description: The size of the Netty thread pool allocated for network channel request processing.
 - Hierarchy: global
 
-==== Read Buffer Size
+==== Policy: channel.readBufferSize (Read Buffer Size)
 - Name: `channel.readBufferSize`
 - Default: `307200`
-- Description: The size, in bytes, of the network channel read buffer.
+- Description: The size, in bytes, of the network channel socket read buffer for receiving incoming DHCP packets.
 - Hierarchy: global
 
-==== Write Buffer Size
-- Name:`channel.writeBufferSize`
+==== Policy: channel.writeBufferSize (Write Buffer Size)
+- Name: `channel.writeBufferSize`
 - Default: `307200`
-- Description: The size, in bytes, of the network channel write buffer.
+- Description: The size, in bytes, of the network channel socket write buffer for transmitting outgoing DHCP responses.
 - Hierarchy: global
 
 === Lease Database Policies
-The lease information is stored in a supported JDBC database.  The following 
+The lease information is stored in a supported JDBC database. The following 
 _expert_ policies can be adjusted if necessary.
 
-==== Schema Type
+==== Policy: database.schemaType (Schema Type)
 - Name: `database.schemaType`
 - Default: `jdbc-h2`
-- Description: The binding database schema type, which can be one of the following:
+- Description: The lease database schema and persistence backend type. Supported options:
 
-* `jdbc-h2` - this default schema type uses JDBC to access an embedded H2 database for lease bindings.
-* `jdbc-derby` - this schema type uses JDBC to access an embedded Apache Derby database for lease bindings.
-* `jdbc-sqlite` - this schema type uses JDBC to access an embedded SQLite database for lease bindings.
-* `jdbc-postgres` - this schema type uses JDBC to access an external PostgreSQL database for lease bindings.
-* `jdbc-mysql` - this schema type uses JDBC to access an external MySQL or MariaDB database for lease bindings.
+* `jdbc-h2` - uses JDBC to access an embedded H2 database for lease bindings (default).
+* `jdbc-derby` - uses JDBC to access an embedded Apache Derby database for lease bindings.
+* `jdbc-sqlite` - uses JDBC to access an embedded SQLite database for lease bindings.
+* `jdbc-postgres` - uses JDBC to access an external PostgreSQL database for lease bindings.
+* `jdbc-mysql` - uses JDBC to access an external MySQL or MariaDB database for lease bindings.
 * `jdbc-mariadb` - alias for `jdbc-mysql`.
 
 - Hierarchy: global
 
-==== Schema Version
+==== Policy: database.schemaVersion (Schema Version)
 - Name: `database.schemaVersion`
 - Default: `2`
-- Description: The binding database schema version. Version 1 schema uses the deprecated relational model, 
-and can only be used with the jdbc-* schemaTypes. Version 2 uses a single table model and 
-can be used with all schemaTypes.	
+- Description: The lease database schema version. Version 1 schema uses the deprecated relational model and can only be used with the `jdbc-*` schema types. Version 2 uses a high-performance single-table model and can be used with all schema types.
 - Hierarchy: global
 
 === Binding Manager Policies
-The binding manager is responsible for lease binding maintenance.  The following 
+The binding manager is responsible for lease binding lifecycle maintenance. The following 
 _expert_ policies can be adjusted if necessary.
 
-==== Reaper Startup Delay
+==== Policy: binding.manager.reaper.startupDelay (Reaper Startup Delay)
 - Name: `binding.manager.reaper.startupDelay`
 - Default: `10000`
-- Description: Number of milliseconds for background thread to wait before checking for expired leases at server startup. Note that bindings are always expired when needed to free them for assignment.
+- Description: Number of milliseconds for the background reaper thread to wait after server startup before performing the initial scan for expired lease bindings. Note that bindings are always expired on demand when needed to free them for assignment.
 - Hierarchy: global
 
-==== Reaper Run Period
+==== Policy: binding.manager.reaper.runPeriod (Reaper Run Period)
 - Name: `binding.manager.reaper.runPeriod`
 - Default: `60000`
-- Description: Number of milliseconds for background thread to wait between checks for expired leases. Note that bindings are always expired when needed to free them for assignment.
+- Description: Number of milliseconds for the background reaper thread to wait between periodic checks for expired lease bindings.
 - Hierarchy: global
 
-==== Offer Expiration
+==== Policy: binding.manager.offerExpiration (Offer Expiration)
 - Name: `binding.manager.offerExpiration`
 - Default: `12000`
-- Description: Number of milliseconds after which an offered address is considered free if the address is not requested by the client.
+- Description: Number of milliseconds after which an offered IP address is considered expired and returned to the free pool if the client does not complete the lease request.
 - Hierarchy: global
 
-==== Delete Old Bindings
+==== Policy: binding.manager.deleteOldBindings (Delete Old Bindings)
 - Name: `binding.manager.deleteOldBindings`
 - Default: `false`
-- Description: Flag to indicate if the server should delete bindings upon expiration, or keep the binding while marking it expired.
-- Hierachy: global
+- Description: Flag indicating whether the server should permanently delete lease bindings upon expiration, or keep the binding record in the database marked as expired.
+- Hierarchy: global
 
 === Dynamic DNS Update Policies
 Jagornet DHCP Server supports standard Dynamic DNS Update mechanisms defined by
@@ -128,12 +126,12 @@ the following IETF RFCs:
 * http://www.ietf.org/rfc/rfc4703.txt[RFC 4703]
 * http://www.ietf.org/rfc/rfc4704.txt[RFC 4704]
 
-The following policies are used to configure the Dynamic DNS update processing.
+The following policies configure Dynamic DNS update processing.
 
-==== DDNS Mode
+==== Policy: ddns.mode (DDNS Mode)
 - Name: `ddns.mode`
 - Default: `disabled`
-- Description: Controls Dynamic DNS update delegation between server and client. Available values are:
+- Description: Controls Dynamic DNS (DDNS) update delegation between the DHCP server and clients. Available values:
 
 * `disabled` - no DDNS updates performed.
 * `server` - server performs both forward (A/AAAA) and reverse (PTR) updates, overriding client requests if needed.
@@ -143,17 +141,17 @@ The following policies are used to configure the Dynamic DNS update processing.
 
 NOTE: The legacy policy `ddns.update` (`none`, `server`, `honorNoUpdate`, `honorNoA`, `honorNoAAAA`) is retained for backward compatibility and is automatically mapped to `ddns.mode`.
 
-==== DDNS Record Type
+==== Policy: ddns.record.type (DDNS Record Type)
 - Name: `ddns.record.type`
 - Default: `dhcid`
-- Description: Specifies the identification resource record type used in forward DNS zones:
+- Description: Specifies the identification resource record type published in forward DNS zones during DDNS updates:
 
 * `dhcid` - RFC 4701 standard DHCID resource record (RR type 49).
 * `txt` - Legacy ISC DHCP "interim" style TXT resource record (RR type 16), facilitating migration from ISC DHCP environments.
 
 - Hierarchy: all
 
-==== DDNS Conflict Strategy
+==== Policy: ddns.conflict.strategy (DDNS Conflict Strategy)
 - Name: `ddns.conflict.strategy`
 - Default: `strict`
 - Description: Controls the conflict resolution strategy used during forward DNS updates:
@@ -164,306 +162,308 @@ NOTE: The legacy policy `ddns.update` (`none`, `server`, `honorNoUpdate`, `honor
 
 - Hierarchy: all
 
-==== DDNS Dynamic Token
+==== Policy: ddns.dynamic.token (DDNS Dynamic Token)
 - Name: `ddns.dynamic.token`
 - Default: `dynamic`
-- Description: The marker string used in TXT or DHCID records when `ddns.conflict.strategy` is set to `replace-dynamic`.
+- Description: The marker string embedded in TXT or DHCID records when `ddns.conflict.strategy` is set to `replace-dynamic` to distinguish dynamic client registrations from static infrastructure.
 - Hierarchy: all
 
-==== DDNS Synchronize
+==== Policy: ddns.synchronize (DDNS Synchronize)
 - Name: `ddns.synchronize`
 - Default: `false`
-- Description: Flag to indicate if the server should synchronize DDNS updates with issuing of leases.  That is, the DHCP Reply message will not be sent to the client until the DDNS update completes.
+- Description: Flag indicating whether the DHCP server should synchronize DDNS updates with issuing of leases. When `true`, the DHCP Reply message is held until the DDNS update completes. When `false` (default), DDNS updates are queued and performed asynchronously.
 - Hierarchy: all
 
-==== DDNS Domain
+==== Policy: ddns.domain (DDNS Domain)
 - Name: `ddns.domain`
-- Description: The domain to use for the client FQDN. If the Client FQDN option in an unqualified hostname, this domain will be appended to the hostname to form the FQDN for DDNS updates. If the Client FQDN contains a domain name, that domain name (everything after the first label, i.e. after the first dot ".") will be replaced by this configured domain name.
+- Description: The default DNS domain suffix to append to unqualified client hostnames to form a Fully Qualified Domain Name (FQDN) for DDNS updates. If the client FQDN already contains a domain name, that domain name (everything after the first label) is replaced by this configured domain.
 - Hierarchy: all
 
-==== DDNS TTL
+==== Policy: ddns.ttl (DDNS TTL)
 - Name: `ddns.ttl`
 - Default: `0.3`
-- Description: Value for the TTL of DDNS updates. If the value is less than one(1), it is assumed to be a percentage of the valid lifetime in seconds.  If the value is greater than or equal to one(1), it assumed to be an absolute number of seconds.
+- Description: Time-to-Live (TTL) for DDNS updates. If the value is less than 1.0, it is calculated as a fraction of the client lease valid lifetime in seconds (e.g. `0.3` = 30% of lease time). If 1.0 or greater, it represents an absolute number of seconds.
 - Hierarchy: all
 
-==== DDNS Server
+==== Policy: ddns.server (DDNS Server)
 - Name: `ddns.server`
-- Description: The IP address of the dynamic DNS server for sending DDNS updates.
+- Description: The IP address or hostname of the dynamic DNS server for sending DDNS updates.
 - Hierarchy: all
 
-==== TSIG Key Name
+==== Policy: ddns.tsig.keyName (TSIG Key Name)
 - Name: `ddns.tsig.keyName`
-- Description: The name of the TSIG key for signed DDNS updates.
+- Description: The key name identifier for TSIG (Transaction Signature, RFC 2845) authenticated DDNS updates.
 - Hierarchy: all
 
-==== TSIG Algorithm
+==== Policy: ddns.tsig.algorithm (TSIG Algorithm)
 - Name: `ddns.tsig.algorithm`
-- Description: The algorithm name used for the TSIG key for signed DDNS updates.  Currently supported value is 'hmac-sha256.'
+- Description: The cryptographic algorithm name used for TSIG-signed DDNS updates. Currently supported value is `hmac-sha256`.
 - Hierarchy: all
 
-==== TSIG Key Data
+==== Policy: ddns.tsig.keyData (TSIG Key Data)
 - Name: `ddns.tsig.keyData`
-- Description: The public key data of the TSIG key in base 64 encoding.
+- Description: The base64-encoded shared secret key data used for TSIG-signed DDNS updates.
 - Hierarchy: all
 
-==== Forward Zone Name
+==== Policy: ddns.forward.zone.name (Forward Zone Name)
 - Name: `ddns.forward.zone.name`
-- Description: The name of the dynamic zone for forward DDNS updates. If not set, the forward zone name is automatically determined in the following order of precedence: (1) the `ddns.domain` policy value, (2) the forward domain configured for the client (Option 15 `v4DomainNameOption` for IPv4 or Option 24 `v6DomainSearchListOption` for IPv6), or (3) the domain portion of the client-supplied FQDN (everything after the first label).
+- Description: The name of the dynamic DNS zone for forward (A/AAAA) updates. If not set, the forward zone name is automatically determined in order of precedence: (1) `ddns.domain` policy value, (2) domain configured for client (Option 15 `v4DomainNameOption` or Option 24 `v6DomainSearchListOption`), or (3) domain portion of client-supplied FQDN.
 - Hierarchy: all
 
-==== Forward Zone TTL
+==== Policy: ddns.forward.zone.ttl (Forward Zone TTL)
 - Name: `ddns.forward.zone.ttl`
 - Default: `0.3`
-- Description: Value for the TTL of forward DDNS updates. If the value is less than one(1), it is assumed to be a percentage of the valid lifetime in seconds.  If the value is greater than or equal to one(1), it assumed to be an absolute number of seconds.  This policy is only necessary if the forward DDNS TTL is different from the ddns.ttl policy value.
+- Description: Time-to-Live (TTL) specific to forward zone DDNS updates. Overrides `ddns.ttl` for forward updates. Values < 1.0 represent lease percentage; values >= 1.0 represent absolute seconds.
 - Hierarchy: all
 
-==== Forward Zone Server
+==== Policy: ddns.forward.zone.server (Forward Zone Server)
 - Name: `ddns.forward.zone.server`
-- Description: The IP address of the dynamic DNS server for sending forward DDNS updates. This policy is only necessary if the forward DDNS server is different from the ddns.server policy value.
+- Description: The IP address or hostname of the dynamic DNS server for sending forward zone DDNS updates. Overrides `ddns.server` for forward updates.
 - Hierarchy: all
 
-==== Forward Zone TSIG Key Name
+==== Policy: ddns.forward.zone.tsig.keyName (Forward Zone TSIG Key Name)
 - Name: `ddns.forward.zone.tsig.keyName`
-- Description: The name of the TSIG key for signed forward DDNS updates. This policy is only necessary if the forward DDNS key name is different from the ddns.tsig.keyName policy value.
+- Description: The TSIG key name for signed forward zone DDNS updates. Overrides `ddns.tsig.keyName` for forward updates.
 - Hierarchy: all
 
-==== Forward Zone TSIG Algorithm
+==== Policy: ddns.forward.zone.tsig.algorithm (Forward Zone TSIG Algorithm)
 - Name: `ddns.forward.zone.tsig.algorithm`
-- Description: The algorithm name used for the TSIG key for signed forward DDNS updates. This policy is only necessary if the forward DDNS algorithm is different from the 'ddns.tsig.algorithm' policy value. Currently supported value is 'hmac-sha256.'
+- Description: The TSIG algorithm name for signed forward zone DDNS updates. Overrides `ddns.tsig.algorithm` for forward updates. Currently supported value is `hmac-sha256`.
 - Hierarchy: all
 
-==== Forward Zone TSIG Key Data
+==== Policy: ddns.forward.zone.tsig.keyData (Forward Zone TSIG Key Data)
 - Name: `ddns.forward.zone.tsig.keyData`
-- Description: The public key data of the TSIG key in base 64 encoding for signed forward DDNS updates. This policy is only necessary if the forward DDNS key data is different from the ddns.tsig.keyData policy value.
+- Description: The base64-encoded TSIG key data for signed forward zone DDNS updates. Overrides `ddns.tsig.keyData` for forward updates.
 - Hierarchy: all
 
-==== Reverse Zone Name
+==== Policy: ddns.reverse.zone.name (Reverse Zone Name)
 - Name: `ddns.reverse.zone.name`
-- Description: The name of the dynamic zone for reverse DDNS updates. If not set, the reverse zone is automatically calculated from the client's subnet address and prefix length (`in-addr.arpa.` for IPv4 octet-aligned subnets like /24, /16, /8, or `ip6.arpa.` for IPv6 nibble-aligned subnets like /64, /48).
+- Description: The name of the dynamic DNS zone for reverse (PTR) updates. If not set, the reverse zone is automatically calculated from the client's subnet address and prefix length (`in-addr.arpa.` for IPv4 octet-aligned subnets, or `ip6.arpa.` for IPv6 nibble-aligned subnets).
 - Hierarchy: all
 
-==== Reverse Zone Bit Length
+==== Policy: ddns.reverse.zone.bitLength (Reverse Zone Bit Length)
 - Name: `ddns.reverse.zone.bitLength`
 - Default: `0`
-- Description: The number of bits representing the subnet for calculating the reverse zone name. When set to `0` (the default), the reverse zone is automatically calculated from the link or pool subnet prefix length (e.g. 24, 16, or 8 for IPv4, and 64, 48, etc. for IPv6). A non-zero value can be specified to explicitly override the prefix length.
+- Description: The number of bits representing the subnet prefix length for calculating reverse zone names. When set to `0` (default), the subnet prefix length of the pool or link is used.
 - Hierarchy: all
 
-==== Reverse Zone TTL
+==== Policy: ddns.reverse.zone.ttl (Reverse Zone TTL)
 - Name: `ddns.reverse.zone.ttl`
 - Default: `0.3`
-- Description: Value for the TTL of reverse DDNS updates. If the value is less than one(1), it is assumed to be a percentage of the valid lifetime in seconds. If the value is greater than or equal to one(1), it assumed to be an absolute number of seconds. This policy is only necessary if the reverse DDNS TTL is different from the ddns.ttl policy value.
+- Description: Time-to-Live (TTL) specific to reverse zone DDNS updates. Overrides `ddns.ttl` for reverse updates. Values < 1.0 represent lease percentage; values >= 1.0 represent absolute seconds.
 - Hierarchy: all
 
-==== Reverse Zone Server
+==== Policy: ddns.reverse.zone.server (Reverse Zone Server)
 - Name: `ddns.reverse.zone.server`
-- Description: The IP address of the dynamic DNS server for sending reverse DDNS updates. This policy is only necessary if the reverse DDNS server is different from the ddns.server policy value.
+- Description: The IP address or hostname of the dynamic DNS server for sending reverse zone DDNS updates. Overrides `ddns.server` for reverse updates.
 - Hierarchy: all
 
-==== Reverse Zone TSIG Key Name
+==== Policy: ddns.reverse.zone.tsig.keyName (Reverse Zone TSIG Key Name)
 - Name: `ddns.reverse.zone.tsig.keyName`
-- Description: The name of the TSIG key for signed reverse DDNS updates. This policy is only necessary if the reverse DDNS key name is different from the ddns.tsig.keyName policy value.
+- Description: The TSIG key name for signed reverse zone DDNS updates. Overrides `ddns.tsig.keyName` for reverse updates.
 - Hierarchy: all
 
-==== Reverse Zone TSIG Algorithm
+==== Policy: ddns.reverse.zone.tsig.algorithm (Reverse Zone TSIG Algorithm)
 - Name: `ddns.reverse.zone.tsig.algorithm`
-- Description: The algorithm name used for the TSIG key for signed reverse DDNS updates. This policy is only necessary if the reverse DDNS algorithm is different from the ddns.tsig.algorithm policy value. Currently supported value is 'hmac-sha256.'
+- Description: The TSIG algorithm name for signed reverse zone DDNS updates. Overrides `ddns.tsig.algorithm` for reverse updates. Currently supported value is `hmac-sha256`.
 - Hierarchy: all
 
-==== Reverse Zone TSIG Key Data
+==== Policy: ddns.reverse.zone.tsig.keyData (Reverse Zone TSIG Key Data)
 - Name: `ddns.reverse.zone.tsig.keyData`
-- Description: The public key data of the TSIG key in base 64 encoding for signed reverse DDNS updates. This policy is only necessary if the reverse DDNS key data is different from the ddns.tsig.keyData policy value.
+- Description: The base64-encoded TSIG key data for signed reverse zone DDNS updates. Overrides `ddns.tsig.keyData` for reverse updates.
 - Hierarchy: all
 
 === Hostname Policies
 Policies controlling client hostname validation, scrubbing for DNS compliance (RFC 952, RFC 1123, RFC 1035), and automatic hostname generation. These policies can be configured globally, per link, per pool, or per filter.
 
-==== Hostname Mode
+==== Policy: hostname.mode (Hostname Mode)
 - Name: `hostname.mode`
 - Default: `as-is`
-- Description: Hostname processing strategy. Supported values:
-* `as-is` - Use client-supplied hostname/FQDN unmodified (existing behavior).
+- Description: Hostname processing strategy for client identification and DDNS updates. Supported values:
+
+* `as-is` - Use client-supplied hostname/FQDN unmodified (existing default behavior).
 * `scrub` - Validate and sanitize client-supplied hostname for DNS compliance. Drops hostname if invalid.
 * `scrub-or-generate` - Validate and sanitize client hostname; if absent or invalid, generate a compliant hostname.
-* `always-generate` - Ignore client-supplied hostname and always generate a compliant hostname.
+* `always-generate` - Ignore client-supplied hostname and always generate a compliant hostname from template.
 * `disabled` - Disable hostname and DDNS processing for matching clients.
+
 - Hierarchy: all
 
-==== Hostname Generation Template
+==== Policy: hostname.generate.template (Hostname Generation Template)
 - Name: `hostname.generate.template`
 - Default: `host-${ip.dashed}`
-- Description: Template string used when generating hostnames. Supported tokens: `${ip}` (IP address), `${ip.dashed}` (IP address with hyphens instead of dots/colons), `${ip.hex}` (hexadecimal IP), `${mac}` (MAC address in hex), `${mac.dashed}` (MAC address with hyphens), `${duid}` (client DUID in hex), and `${filter.name}` (name of matching filter).
+- Description: Template string used when generating hostnames for clients. Supported tokens: `${ip}` (IP address), `${ip.dashed}` (IP address with hyphens instead of dots/colons), `${ip.hex}` (hexadecimal IP), `${mac}` (MAC address in hex), `${mac.dashed}` (MAC address with hyphens), `${duid}` (client DUID in hex), and `${filter.name}` (name of matching filter).
 - Hierarchy: all
 
-==== Hostname Scrub Allow Underscores
+==== Policy: hostname.scrub.allowUnderscores (Hostname Scrub Allow Underscores)
 - Name: `hostname.scrub.allowUnderscores`
 - Default: `false`
-- Description: Flag indicating whether underscores (`_`) should be preserved in hostnames. When `false`, underscores are replaced with the replacement character (default `-`).
+- Description: Controls whether underscores (`_`) should be preserved in sanitized hostnames. When `false`, underscores are converted to the replacement character (default `-`) for strict DNS RFC compliance.
 - Hierarchy: all
 
-==== Hostname Scrub Replacement Character
+==== Policy: hostname.scrub.replaceChar (Hostname Scrub Replacement Character)
 - Name: `hostname.scrub.replaceChar`
 - Default: `-`
-- Description: Character substituted for non-compliant DNS characters during scrubbing.
+- Description: Character substituted for non-compliant DNS characters during hostname scrubbing.
 - Hierarchy: all
 
-==== Hostname Scrub Collapse Hyphens
+==== Policy: hostname.scrub.collapseHyphens (Hostname Scrub Collapse Hyphens)
 - Name: `hostname.scrub.collapseHyphens`
 - Default: `true`
-- Description: Flag indicating whether multiple consecutive hyphens (`--+`) should be collapsed into a single hyphen (`-`).
+- Description: Controls whether consecutive hyphens (`--+`) in sanitized hostnames should be collapsed into a single hyphen (`-`).
 - Hierarchy: all
 
-==== Hostname Scrub Strip Domains
+==== Policy: hostname.scrub.stripDomains (Hostname Scrub Strip Domains)
 - Name: `hostname.scrub.stripDomains`
 - Default: `local,lan,home`
-- Description: Comma-separated list of ad-hoc or mDNS domain suffixes to strip from client-supplied hostnames.
+- Description: Comma-separated list of ad-hoc or mDNS domain suffixes to strip from client-supplied hostnames during sanitization.
 - Hierarchy: all
 
-==== Hostname Send Option 12
+==== Policy: hostname.sendOption12 (Hostname Send Option 12)
 - Name: `hostname.sendOption12`
 - Default: `on-change`
-- Description: Controls when DHCPv4 Option 12 (Host Name) is returned in DHCPOFFER and DHCPACK messages. Supported values: `on-change` (return Option 12 when the hostname was altered or generated), `always`, `never`, and `if-requested` (only if client requested Option 12 in Parameter Request List).
+- Description: Controls when DHCPv4 Option 12 (Host Name) is returned in DHCPOFFER and DHCPACK messages. Supported values: `on-change` (return Option 12 when hostname was altered or generated), `always`, `never`, and `if-requested` (only if client requested Option 12 in Parameter Request List).
 - Hierarchy: all
-
 
 === DHCP Protocol Policies
-The DHCP protocol handler follows IETF standards.  However, in test labs or
-some environments, it may be desirable to modify certain behavior.  The following 
+The DHCP protocol handler follows IETF standards. However, in test labs or
+specialized environments, it may be desirable to modify certain behavior. The following 
 _expert_ policies can be adjusted if necessary.
 
-==== Ignore Loopback
+==== Policy: dhcp.ignoreLoopback (Ignore Loopback)
 - Name: `dhcp.ignoreLoopback`
 - Default: `true`
-- Description: Ignore the loopback addresses when binding sockets during server startup.	
+- Description: Configures whether the DHCP server ignores loopback network interfaces when binding sockets during server startup.
 - Hierarchy: global
 
-==== Ignore Link Local
+==== Policy: dhcp.ignoreLinkLocal (Ignore Link Local)
 - Name: `dhcp.ignoreLinkLocal`
 - Default: `true`
-- Description: Ignore the link local addresses when binding sockets during server startup.	
+- Description: Configures whether the DHCP server ignores IPv4 link-local (169.254.0.0/16) and IPv6 link-local (fe80::/10) addresses when binding sockets during server startup.
 - Hierarchy: global
 
-==== Ignore Self Packets
+==== Policy: dhcp.ignoreSelfPackets (Ignore Self Packets)
 - Name: `dhcp.ignoreSelfPackets`
 - Default: `true`
-- Description: Ignore packets received from one of the server's addresses.	
+- Description: Configures whether the DHCP server discards packets received from one of the server's own local IP addresses to prevent feedback loops.
 - Hierarchy: global
 
-==== Recent Message Timer
+==== Policy: dhcp.processor.recentMessageTimer (Recent Message Timer)
 - Name: `dhcp.processor.recentMessageTimer`
 - Default: `5000`
-- Description: Number of milliseconds to keep track of recent messages.  Used to minimize replays of the same message to the server.  That is, to help mitigate denial of service (DOS) attacks.
+- Description: Number of milliseconds to retain transaction state for recently processed client messages to mitigate replay attacks and duplicate packet processing (DoS protection).
 - Hierarchy: global
 
-==== Send Requested Options Only
+==== Policy: dhcp.sendRequestedOptionsOnly (Send Requested Options Only)
 - Name: `dhcp.sendRequestedOptionsOnly`
 - Default: `false`
-- Description: Flag to indicate if the server should return only the options requested by a client in the Option Request Option (ORO) if available, or send all configured options.
+- Description: Flag indicating whether the DHCP server returns only options explicitly requested by the client in its Option Request Option / Parameter Request List, or includes all configured options.
 - Hierarchy: all
 
-==== Support Rapid Commit
+==== Policy: dhcp.supportRapidCommit (Support Rapid Commit)
 - Name: `dhcp.supportRapidCommit`
 - Default: `false`
-- Description: Flag to indicate if the server should support clients requesting rapid commit of binding.
+- Description: Flag indicating whether the DHCP server honors 2-message DHCPv6 Rapid Commit exchanges (SOLICIT -> REPLY, RFC 8415 / RFC 3315).
 - Hierarchy: global, filter, link, linkFilter
 
-
 === DHCPv4 Policies
+The following policies configure DHCPv4-specific behaviors and filtering.
 
-==== Header: Server Name
+==== Policy: v4.header.sname (Header: Server Name)
 - Name: `v4.header.sname`
-- Description: The server host name field of the DHCPv4 header. Used in conjunction with v4.header.filename. See also - v4TftpServerNameOption.	
+- Description: Populates the optional `sname` (server host name) field in the fixed DHCPv4 message header. Typically used in network boot environments (PXE/TFTP). See also `v4TftpServerNameOption` (Option 66).
 - Hierarchy: all
 
-==== Header: Bootfile Name
+==== Policy: v4.header.filename (Header: Bootfile Name)
 - Name: `v4.header.filename`
-- Description: The boot file name field of the DHCPv4 header. The name of a boot file which the client will retrieve from the server specified in the sname header field. See also - v4BootFileNameOption.	
+- Description: Populates the optional `file` (boot file name) field in the fixed DHCPv4 message header. Specifies the boot image file path which the client retrieves from the TFTP server. See also `v4BootFileNameOption` (Option 67).
 - Hierarchy: all
 
-==== Ignored MAC Addresses
+==== Policy: v4.ignoredMacAddrs (Ignored MAC Addresses)
 - Name: `v4.ignoredMacAddrs`
 - Default: `000000000000, FFFFFFFFFFFF`
-- Description: A list of comma separated MAC addresses for the server to ignore requests from.
+- Description: Comma-separated list of client MAC addresses that the DHCPv4 server will silently ignore.
 - Hierarchy: all
 
-==== Excluded MAC Addresses File
+==== Policy: v4.excludedMacAddrsFile (Excluded MAC Addresses File)
 - Name: `v4.excludedMacAddrsFile`
 - Default: empty
-- Description: Path to a file containing MAC addresses to ignore/exclude (denylist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. The file format contains one MAC address per line (supporting `00:11:22:33:44:55`, `00-11-22-33-44-55`, `0011.2233.4455`, or `001122334455`). Lines starting with `#`, `//`, or `;` are treated as comments. File changes are automatically hot-reloaded.
+- Description: Path to a file containing MAC addresses to ignore/exclude from DHCPv4 service (denylist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. Supports one MAC address per line in any standard format (`00:11:22:33:44:55`, `00-11-22-33-44-55`, `0011.2233.4455`, `001122334455`), with comments starting with `#`, `//`, or `;`. Automatically hot-reloaded on file modification.
 - Hierarchy: global
 
-==== Included MAC Addresses File
+==== Policy: v4.includedMacAddrsFile (Included MAC Addresses File)
 - Name: `v4.includedMacAddrsFile`
 - Default: empty
-- Description: Path to a file containing MAC addresses to allow (allowlist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. When configured and non-empty, only clients with MAC addresses in this list will be serviced; all others will be ignored. The file format is identical to `v4.excludedMacAddrsFile`. If an address appears in both the included and excluded lists, exclusion takes precedence. File changes are automatically hot-reloaded.
+- Description: Path to a file containing MAC addresses permitted to receive DHCPv4 service (allowlist). When populated, only clients with MAC addresses in this file receive service; all other requests are dropped. If an address appears in both allowlist and denylist files, exclusion takes precedence. Automatically hot-reloaded on file modification.
 - Hierarchy: global
 
-==== Default Lease Time
+==== Policy: v4.defaultLeasetime (Default Lease Time)
 - Name: `v4.defaultLeasetime`
 - Default: `3600`
-- Description: The lease time for DHCPv4 clients.	
+- Description: Default lease duration in seconds granted to DHCPv4 clients when no client lease time is requested (Option 51).
 - Hierarchy: all
 
-==== Ping Check Timeout
+==== Policy: v4.pingCheckTimeout (Ping Check Timeout)
 - Name: `v4.pingCheckTimeout`
 - Default: `0`
-- Description: The number of milliseconds to wait for a response to a ping before offering new addresses to DHCPv4 clients.	
+- Description: Number of milliseconds to wait for an ICMP ping response before offering an unassigned IPv4 address to a client. When set to `0` (default), ping check is disabled.
 - Hierarchy: global
 
 === DHCPv6 Policies
+The following policies configure DHCPv6-specific behaviors and filtering.
 
-==== Excluded DUIDs File
+==== Policy: v6.excludedDuidsFile (Excluded DUIDs File)
 - Name: `v6.excludedDuidsFile`
 - Default: empty
-- Description: Path to a file containing client DUIDs to ignore/exclude (denylist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. The file format contains one DUID per line (supporting hex strings with or without colons, dashes, or dots). Lines starting with `#`, `//`, or `;` are treated as comments. File changes are automatically hot-reloaded.
+- Description: Path to a file containing DHCP Unique Identifiers (DUIDs) to ignore/exclude from DHCPv6 service (denylist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. Supports one hex DUID per line with or without colons/dashes/dots, and comment lines starting with `#`, `//`, or `;`. Automatically hot-reloaded on file modification.
 - Hierarchy: global
 
-==== Included DUIDs File
+==== Policy: v6.includedDuidsFile (Included DUIDs File)
 - Name: `v6.includedDuidsFile`
 - Default: empty
-- Description: Path to a file containing client DUIDs to allow (allowlist). Relative paths are resolved against `$JAGORNET_DHCP_HOME/config`. When configured and non-empty, only clients with DUIDs in this list will be serviced; all others will be ignored. The file format is identical to `v6.excludedDuidsFile`. If a DUID appears in both the included and excluded lists, exclusion takes precedence. File changes are automatically hot-reloaded.
+- Description: Path to a file containing client DUIDs permitted to receive DHCPv6 service (allowlist). When populated, only clients with matching DUIDs receive service; all other requests are dropped. If a DUID appears in both allowlist and denylist files, exclusion takes precedence. Automatically hot-reloaded on file modification.
 - Hierarchy: global
 
-==== Preferred Lifetime
+==== Policy: v6.preferredLifetime (Preferred Lifetime)
 - Name: `v6.preferredLifetime`
 - Default: `3600`
-- Description: Number of seconds for the preferred lifetime of addresses/prefixes provided by the server to a DHCPv6 client.
+- Description: Preferred lifetime in seconds for IA_NA addresses or IA_PD prefixes granted to DHCPv6 clients.
 - Hierarchy: global, link, pool
 
-==== Valid Lifetime
+==== Policy: v6.validLifetime (Valid Lifetime)
 - Name: `v6.validLifetime`
 - Default: `3600`
-- Description: Number of seconds for the valid lifetime of addresses/prefixes provided by the server to a DHCPv6 client.
+- Description: Valid lifetime in seconds for IA_NA addresses or IA_PD prefixes granted to DHCPv6 clients.
 - Hierarchy: global, link, pool
 
-==== Verify Uknown Rebind
+==== Policy: v6.verifyUnknownRebind (Verify Unknown Rebind)
 - Name: `v6.verifyUnknownRebind`
 - Default: `false`
-- Description: Flag to indicate if the server should attempt to verify that addresses in a DHCPv6 client's request are appropriate for the client's link, even though that client is unknown to the server.  See section 18.2.4 of RFC 3315.
+- Description: Controls whether the DHCPv6 server verifies that addresses in an unknown client's REBIND request are appropriate for the receiving link per RFC 8415 / RFC 3315 section 18.2.4.
 - Hierarchy: global, filter, link, linkFilter
 
-==== IA NA T1
+==== Policy: v6.iaNaT1 (IA NA T1)
 - Name: `v6.iaNaT1`
 - Default: `0.5`
-- Description: Percentage of shortest preferred lifetime of DHCPv6 addresses in the IA_NA to set the IA_NA T1 (renew) time in server replies.
+- Description: Percentage/fraction of shortest preferred lifetime in an IA_NA used to calculate the T1 (renewal) timer returned in DHCPv6 server replies (e.g. `0.5` = 50%).
 - Hierarchy: global, link
 
-==== IA NA T2
+==== Policy: v6.iaNaT2 (IA NA T2)
 - Name: `v6.iaNaT2`
 - Default: `0.8`
-- Description: Percentage of shortest preferred lifetime of DHCPv6 addresses in the IA_NA to set the IA_NA T2 (rebind) time in server replies.
+- Description: Percentage/fraction of shortest preferred lifetime in an IA_NA used to calculate the T2 (rebind) timer returned in DHCPv6 server replies (e.g. `0.8` = 80%).
 - Hierarchy: global, link
 
-==== IA PD T1
+==== Policy: v6.iaPdT1 (IA PD T1)
 - Name: `v6.iaPdT1`
 - Default: `0.5`
-- Description: Percentage of shortest preferred lifetime of DHCPv6 prefixes in the IA_PD to set the IA_PD T1 (renew) time in server replies.
+- Description: Percentage/fraction of shortest preferred lifetime in an IA_PD prefix delegation option used to calculate the T1 (renewal) timer returned in DHCPv6 server replies (e.g. `0.5` = 50%).
 - Hierarchy: global, link
 
-==== IA PD T2
+==== Policy: v6.iaPdT2 (IA PD T2)
 - Name: `v6.iaPdT2`
 - Default: `0.8`
-- Description: Percentage of shortest preferred lifetime of DHCPv6 addresses in the IA_PD to set the IA_PD T2 (rebind) time in server replies.
+- Description: Percentage/fraction of shortest preferred lifetime in an IA_PD prefix delegation option used to calculate the T2 (rebind) timer returned in DHCPv6 server replies (e.g. `0.8` = 80%).
 - Hierarchy: global, link
 
 === High Availability
@@ -529,131 +529,127 @@ NOTE: In the event of catastrophic failure or database corruption on the Primary
 
 Several policies are available to configure High Availability (HA) behavior.
 
-==== HA Role		
+==== Policy: ha.role (HA Role)
 - Name: `ha.role`
-- Description: High Availability (HA) Role:
+- Description: High Availability (HA) node role:
 
-* `primary` - active server
-* `backup` - standby server
+* `primary` - active server processing client requests and replicating to peer
+* `backup` - standby server monitoring primary and ready for hot failover
 
 - Hierarchy: global
 
-==== HA Protocol
+==== Policy: ha.protocol (HA Protocol)
 - Name: `ha.protocol`
 - Default: `grpc`
-- Description: High Availability (HA) Protocol:
+- Description: Inter-node communication protocol used for High Availability lease synchronization and heartbeat polling:
 
-* `grpc` - uses Mutual TLS (mTLS) for authentication
-* `rest` - uses username/password for authentication, see policies below
+* `grpc` - high-speed gRPC over TLS using Mutual TLS (mTLS) certificates (recommended)
+* `rest` - legacy HTTP REST endpoints using username/password basic authentication
 
 - Hierarchy: global
 
-==== HA Binding Update Mode
+==== Policy: ha.bindingUpdateMode (HA Binding Update Mode)
 - Name: `ha.bindingUpdateMode`
 - Default: `sync`
-- Description: The High Availability update mode:
+- Description: The High Availability lease update synchronization mode:
 
 * `sync`: synchronous - update the peer before responding to the client
-* `async`: asychronous - update the peer in the background while responding to the client
+* `async`: asynchronous - update the peer in the background while responding immediately to the client
 * `database`: delegate binding updates to database cluster/replication technology
 
 - Hierarchy: global
 
-==== HA Peer Server
+==== Policy: ha.peerServer (HA Peer Server)
 - Name: `ha.peerServer`
-- Description: The IP address of the HA peer server
+- Description: The IP address or hostname of the remote High Availability peer server.
 - Hierarchy: global
 
-==== HA Peer Port
+==== Policy: ha.peerPort (HA Peer Port)
 - Name: `ha.peerPort`
 - Default: `9066`
-- Description: The port of the HA peer server
+- Description: The TCP port of the remote High Availability peer server for heartbeat and lease replication traffic.
 - Hierarchy: global
 
-==== HA Poll Seconds
+==== Policy: ha.pollSeconds (HA Poll Seconds)
 - Name: `ha.pollSeconds`
 - Default: `30`
-- Description: The number of seconds between poll messages to HA peer server
+- Description: Interval in seconds between periodic heartbeat poll requests sent to the High Availability peer server.
 - Hierarchy: global
 
-==== HA Poll Reply Timeout
+==== Policy: ha.pollReplyTimeout (HA Poll Reply Timeout)
 - Name: `ha.pollReplyTimeout`
 - Default: `1000`
-- Description: The number of milliseconds to wait for a poll reply from HA peer server
+- Description: Timeout in milliseconds to wait for a heartbeat poll reply from the High Availability peer server before recording a failure.
 - Hierarchy: global
 
-==== HA Poll Reply Failure Count
+==== Policy: ha.pollReplyFailureCount (HA Poll Reply Failure Count)
 - Name: `ha.pollReplyFailureCount`
 - Default: `5`
-- Description: The number of poll reply failures before considering the HA peer server unavailable
+- Description: Number of consecutive unacknowledged heartbeat poll attempts before declaring the High Availability peer server unavailable and triggering failover.
 - Hierarchy: global
 
-==== HA Request All Leases On Restart
+==== Policy: ha.requestAllLeasesOnRestart (HA Request All Leases On Restart)
 - Name: `ha.requestAllLeasesOnRestart`
 - Default: `true`
-- Description: Flag to request all leases on restart, or only those that have changed since last communication with HA peer server
+- Description: Flag indicating whether a recovering High Availability server requests a complete synchronization of all leases on restart, or only leases changed since the last communication with the peer server.
 - Hierarchy: global
 
-==== HA Username
+==== Policy: ha.username (HA Username)
 - Name: `ha.username`
 - Default: `hapeer`
-- Description: High Availability (HA) username.  Ensure that the `ha.peerUsername` configured
-on the peer server matches this value.  _For REST HA protocol only._
+- Description: Username accepted for inbound High Availability REST authentication when `ha.protocol` is set to `rest`. Ensure that the `ha.peerUsername` configured on the peer server matches this value.
 - Hierarchy: global
 
-==== HA Password
+==== Policy: ha.password (HA Password)
 - Name: `ha.password`
 - Default: `jagornet`
-- Description: High Availability (HA) password.  Ensure that the `ha.peerPassword` configured
-on the peer server matches this value.  _For REST HA protocol only._
+- Description: Password accepted for inbound High Availability REST authentication when `ha.protocol` is set to `rest`. Ensure that the `ha.peerPassword` configured on the peer server matches this value.
 - Hierarchy: global
 
-==== HA Peer Username
+==== Policy: ha.peerUsername (HA Peer Username)
 - Name: `ha.peerUsername`
 - Default: `hapeer`
-- Description: High Availability (HA) peer username.  Ensure that this value matches the
-`ha.username` configured on the peer server.  _For REST HA protocol only._
+- Description: Username sent for outbound High Availability REST authentication when `ha.protocol` is set to `rest`. Ensure that this value matches the `ha.username` configured on the peer server.
 - Hierarchy: global
 
-==== HA Peer Password
+==== Policy: ha.peerPassword (HA Peer Password)
 - Name: `ha.peerPassword`
 - Default: `jagornet`
-- Description: High Availability (HA) peer password  Ensure that this value matches the
-`ha.password` configured on the peer server.  _For REST HA protocol only._
+- Description: Password sent for outbound High Availability REST authentication when `ha.protocol` is set to `rest`. Ensure that this value matches the `ha.password` configured on the peer server.
 - Hierarchy: global
 
-==== HA State DB File
+==== Policy: ha.stateDbFile (HA State DB File)
 - Name: `ha.stateDbFile`
 - Default: `db/ha/jagornet-ha-state.db`
-- Description: The HA state database filename
+- Description: File path to the local embedded database used by High Availability to track peer replication states and lease synchronization checkpoints.
 - Hierarchy: global
 
-==== HA Max Stored States
+==== Policy: ha.maxStoredStates (HA Max Stored States)
 - Name: `ha.maxStoredStates`
 - Default: `10`
-- Description: The number of previous states maintained in the HA state database file
+- Description: Maximum number of previous synchronization checkpoints maintained in the local HA state database file.
 - Hierarchy: global
 
 === REST API
-The REST API is enabled by default over HTTPS port 9067 on the server host.  See
-startup options for controlling the port or network interfaces used for HTTPS.  The
-API is hosted at https://{jagornet-dhcp-server-name-or-ip}:9067.  Please view the
+The REST API is enabled by default over HTTPS port 9067 on the server host. See
+startup options for controlling the port or network interfaces used for HTTPS. The
+API is hosted at `https://<server-ip>:9067`. Please view the
 Open API 3.0 documentation in the Swagger Editor:
 
 WARNING: The dhcpleases POST/PUT/DELETE endpoints are intended for internal use only!
 
 https://editor.swagger.io/?url=https://raw.githubusercontent.com/jagornet/dhcp-docs/main/openapi.yaml[View Jagornet DHCP Server Open API docs in Swagger Editor]
 
-==== REST API Username
+==== Policy: rest.api.username (REST API Username)
 - Name: `rest.api.username`
 - Default: `jagornet`
-- Description: The REST API username
+- Description: Username for HTTP Basic Authentication to the server's management REST API and Prometheus `/metrics` endpoint.
 - Hierarchy: global
 
-==== REST API Password
+==== Policy: rest.api.password (REST API Password)
 - Name: `rest.api.password`
 - Default: `jagornet`
-- Description: The REST API password
+- Description: Password for HTTP Basic Authentication to the server's management REST API and Prometheus `/metrics` endpoint.
 - Hierarchy: global
 
 === Observability: Prometheus Metrics
