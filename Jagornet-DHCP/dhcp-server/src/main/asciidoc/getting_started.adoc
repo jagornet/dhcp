@@ -1,13 +1,13 @@
 == Getting Started
 
 === System requirements
-Jagornet DHCP Server requires any platform with a certified Java 11+ runtime environment.
+Jagornet DHCP Server requires any platform with a certified Java 21+ runtime environment.
 
 The server has been successfully tested on Linux, Windows and Mac OS
-using the Oracle JRE 11 and OpenJDK 11 for the respective platforms.
+using Eclipse Temurin, Oracle JDK, and OpenJDK 21 for the respective platforms.
 
 === Installation
-Java 11+ runtime must be available on the host where the Jagornet DHCP server will be installed. The JAVA_HOME environment variable should be set to the home directory of your Java 11+ JRE.
+Java 21+ runtime must be available on the host where the Jagornet DHCP server will be installed. The JAVA_HOME environment variable should be set to the home directory of your Java 21+ JRE or JDK.
 
 . Create the installation directory on the host system and expand the compressed installation file for your target platform.
 * Linux/Unix/Mac
@@ -43,10 +43,10 @@ Enable DHCPv4 and DHCPv6 UDP port traffic on all intervening network equipment.
 ==== Startup Options
 The main Java class of the Jagornet DHCP Server supports the following usage:
 
-[source]
+[source,subs="attributes+"]
 ----
 usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
-Jagornet DHCP Server Community Edition 4.2.0
+Jagornet DHCP Server Community Edition {fullversion}
 Copyright 2009-2026 Jagornet Technologies, LLC.  All Rights Reserved.
   -4b,--v4bcast <interface>         DHCPv4 broadcast interface (default = none).
                                     Use this option to specify the interface for
@@ -219,6 +219,84 @@ Jagornet DHCP Server can operate as a Microsoft Windows Service using https://gi
 1. Run `%JAGORNET_DHCP_HOME%\bin\winsw-install.bat` as Administrator to install and start the service.
 2. Manage the service using Windows Services (`services.msc`) or `%JAGORNET_DHCP_HOME%\bin\jagornet-service.exe [start|stop|status]`.
 3. Run `%JAGORNET_DHCP_HOME%\bin\winsw-uninstall.bat` as Administrator to remove the service.
+
+==== Docker / Container Deployment
+
+Jagornet DHCP Server is available as an optimized, multi-architecture OCI/Docker container image.
+
+To run the container attached to the host network (required for standard broadcast and multicast DHCP traffic):
+
+[source,bash]
+----
+docker run -d \
+  --name jagornet-dhcp \
+  --net=host \
+  -v /path/to/my/config:/app/config \
+  jagornet/dhcp:{fullversion}
+----
+
+The container runs with `/app` as its working directory and mounts configuration files under `/app/config`. By default, the container starts with `/app/config/dhcpserver-jib.json`, which binds the server without serving any client links until custom configuration is mounted.
+
+=== Testing and Simulation Tools
+
+Jagornet DHCP Server includes built-in command-line utilities in `$JAGORNET_DHCP_HOME/bin/` to simplify local testing, configuration generation, and traffic simulation without requiring client hardware or administrator privileges.
+
+==== Test Configuration Generator (`gentestconfig`)
+
+The `gentestconfig` utility automatically inspects active host network interfaces, discovers the local IP subnet, and generates a working configuration file tailored to the local environment.
+
+[source,bash]
+----
+# Generate a test configuration for a specific network interface:
+./bin/gentestconfig -v 4 -i eth0 -f config/dhcpserver-test.xml
+
+# Show all options:
+./bin/gentestconfig --help
+----
+
+*Options:*
+
+* `-i, --interface <name>`: Network interface to inspect (e.g. `eth0`, `en0`). Defaults to the first active interface.
+* `-v, --version <4|6|both>`: Protocol version to generate (default: `both`).
+* `-f, --filename <file>`: Output configuration file path (default: `dhcpserver-test-config.xml`).
+
+==== DHCPv4 Client Simulator (`testclientv4`)
+
+The `testclientv4` utility simulates DHCPv4 client requests (DISCOVER -> OFFER -> REQUEST -> ACK -> RELEASE) directly to a target server. It behaves like a DHCP relay agent communicating unicast with the server, making it possible to test lease allocation on arbitrary test ports.
+
+[source,bash]
+----
+# Run 25 client requests against an unprivileged test port:
+./bin/testclientv4 -sp 10067 -n 25
+
+# Simulate requests with FQDN / hostname options:
+./bin/testclientv4 -sp 10067 -hn
+
+# Show all options:
+./bin/testclientv4 --help
+----
+
+*Key Options:*
+
+* `-sp, --serverport <port>`: Destination server port (default: 67).
+* `-cp, --clientport <port>`: Source port for receiving server replies. When `-sp` is set to an unprivileged port, `-cp` automatically defaults to `serverport + 1` to prevent port collisions on the same host.
+* `-n, --number <count>`: Number of simulated client requests to send (default: 100).
+* `-hn, --hostname`: Include DHCPv4 Host Name option in requests.
+* `-x, --release`: Send DHCPRELEASE messages after acquiring leases.
+* `-rr, --requestrate <rate>`: Throttle transmission to a maximum request rate per second.
+
+==== DHCPv6 Client Simulator (`testclientv6`)
+
+The `testclientv6` utility simulates DHCPv6 client requests (SOLICIT -> ADVERTISE -> REQUEST -> REPLY) for stateful IPv6 address assignments.
+
+[source,bash]
+----
+# Run client requests against a DHCPv6 test port:
+./bin/testclientv6 -p 10547 -n 10
+
+# Show all options:
+./bin/testclientv6 --help
+----
 
 === Logging
 Logging for the Jagornet DHCP server is performed using the 

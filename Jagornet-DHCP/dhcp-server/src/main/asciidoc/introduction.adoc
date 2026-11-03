@@ -2,32 +2,50 @@
 == Introduction
 
 === Welcome
-Welcome to Jagornet DHCP Server Community Edition Version {appversion}. 
-Please visit these links for the latest news and information on Jagornet DHCP Server.
+Welcome to the *Jagornet DHCP Server Community Edition Version {appversion}* User Guide. 
 
-http://www.jagornet.com[Jagornet Technologies Website]
+Jagornet DHCP Server is an open source, enterprise-grade Dynamic Host Configuration Protocol server for IPv4 (DHCPv4) and IPv6 (DHCPv6) built on a high-throughput, non-blocking Java network engine.
 
-https://github.com/jagornet/dhcp[Jagornet DHCP Community Server on Github]
+For the latest releases, documentation updates, and community support:
 
-=== Features
-Jagornet DHCP Server is an open source Dynamic Host Configuration Protocol server for 
-IPv4 (DHCPv4) and IPv6 (DHCPv6) implemented in Java.
-The server supports the following features:
+* Website: http://www.jagornet.com[Jagornet Technologies]
+* Source Code & Issue Tracking: https://github.com/jagornet/dhcp[Jagornet DHCP on GitHub]
+* Community Discussions: https://github.com/jagornet/dhcp/discussions[GitHub Discussions]
 
-* Standards compliant DHCPv4 server
-* Core DHCPv4 RFCs:
-** DHCPv4 - http://www.ietf.org/rfc/rfc2131.txt[RFC 2131]
-** DHCPv4 Options - http://www.ietf.org/rfc/rfc2132.txt[RFC 2132]
-* Certified IPv6 Phase II DHCPv6 server - http://www.ipv6ready.org[IPv6 Ready Logo]
-* Core DHCPv6 RFCs:
-** Stateful DHCPv6 - http://www.ietf.org/rfc/rfc3315.txt[RFC 3315]
-** Prefix Delegation - http://www.ietf.org/rfc/rfc3633.txt[RFC 3633]
-** DNS Options - http://www.ietf.org/rfc/rfc3646.txt[RFC 3646]
-** Stateless DHCPv6 - http://www.ietf.org/rfc/rfc3736.txt[RFC 3736]
-* Other
-** High Availability (HA) - Primary/Backup failover
-** Dynamic DNS for DHCPv4/v6 - http://www.ietf.org/rfc/rfc4703.txt[RFC 4703], http://www.ietf.org/rfc/rfc4704.txt[RFC 4704]
-** Highly-scalable, multithreaded architecture using http://netty.io[Netty]
-** Flexible XML/JSON/YAML configuration file format - https://raw.githubusercontent.com/jagornet/dhcp-docs/main/dhcpserver.xsd[Schema]
-** Open API 3.0 REST API using https://jersey.github.io[Jersey]
-** Optimized Docker/OCI Images using https://github.com/GoogleContainerTools/jib[Jib]
+=== Architectural Overview
+Jagornet DHCP is designed with a **unified single-service architecture**. Unlike multi-process solutions that require deploying and orchestrating separate daemons for DHCPv4, DHCPv6, Dynamic DNS (DDNS), high availability, and REST control agents, Jagornet provides an all-in-one service:
+
+* **Dual-Stack in One Process:** DHCPv4 and DHCPv6 engines operate concurrently within a single runtime instance.
+* **Integrated Dynamic DNS:** Forward and reverse DNS updates are performed directly by the server engine without external relay daemons.
+* **Native High Availability:** Active/standby state synchronization communicates peer-to-peer using high-performance link:https://grpc.io[gRPC].
+* **High-Concurrency I/O:** Network packet processing is driven by an asynchronous, multithreaded link:https://netty.io[Netty] pipeline.
+
+=== Key Capabilities & Standards Conformance
+
+==== DHCPv4 Standards
+* Full standards-compliant DHCPv4 server including BOOTP relay support.
+* http://www.ietf.org/rfc/rfc2131.txt[RFC 2131] - Dynamic Host Configuration Protocol
+* http://www.ietf.org/rfc/rfc2132.txt[RFC 2132] - DHCP Options and BOOTP Vendor Extensions
+
+==== DHCPv6 Standards & Certification
+* **Certified IPv6 Ready Phase II** DHCPv6 server (link:http://www.ipv6ready.org[IPv6 Ready Logo Program]).
+* http://www.ietf.org/rfc/rfc3315.txt[RFC 3315] - Dynamic Host Configuration Protocol for IPv6 (Stateful)
+* http://www.ietf.org/rfc/rfc3633.txt[RFC 3633] - IPv6 Prefix Options for DHCPv6 (Prefix Delegation)
+* http://www.ietf.org/rfc/rfc3646.txt[RFC 3646] - DNS Configuration options for DHCPv6
+* http://www.ietf.org/rfc/rfc3736.txt[RFC 3736] - Stateless Dynamic Host Configuration Protocol for IPv6
+
+==== Dynamic DNS (DDNS)
+* Multi-strategy forward and reverse DNS update engine with hostname validation and generation.
+* http://www.ietf.org/rfc/rfc4703.txt[RFC 4703] - Resolution of FQDN Conflicts among DHCP Clients
+* http://www.ietf.org/rfc/rfc4704.txt[RFC 4704] - The DHCPv4 Client FQDN Option
+
+==== High Availability & Lease Storage
+* Peer-to-peer active/standby high availability clustering powered by link:https://grpc.io[gRPC] lease replication.
+* Pluggable database persistence supporting **PostgreSQL**, **MySQL / MariaDB**, **SQLite**, and embedded **H2**.
+
+==== Management, Observability & Cloud Operations
+* **Prometheus Metrics:** Out-of-the-box `/metrics` endpoint for Prometheus scraping (lease counts, packet rates, latency, health).
+* **OpenAPI 3.0 REST API:** Full programmatic administration via REST/JSON endpoints using link:https://jersey.github.io[Jersey].
+* **Flexible Configuration Formats:** Author configuration files in **YAML**, **JSON**, or **XML** validated against our published link:https://raw.githubusercontent.com/jagornet/dhcp-docs/main/dhcpserver.xsd[XML Schema].
+* **Container-Ready:** Automated OCI/Docker container images built with link:https://github.com/GoogleContainerTools/jib[Jib] with support for cloud subnet overrides and non-root execution.
+
