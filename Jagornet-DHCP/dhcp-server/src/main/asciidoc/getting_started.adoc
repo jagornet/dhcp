@@ -40,6 +40,45 @@ IMPORTANT: Ensure that DHCP relay agents on network routers are configured to re
 DHCP traffic from the client subnet(s) to the IP address of the Jagornet DHCP server.
 Enable DHCPv4 and DHCPv6 UDP port traffic on all intervening network equipment.
 
+==== Network Deployment Models
+
+In enterprise deployments, Jagornet DHCP Server generally operates in one of two network topologies:
+
+===== 1. Relayed Subnets (Standard Enterprise Model)
+
+In most networks, the DHCP server is centralized in a management VLAN or data center, while clients reside on separate access VLANs across routers or layer-3 switches.
+
+[source]
+----
+ +-------------+       Broadcast       +--------------------------+
+ | DHCP Client | --------------------> | Router / Layer-3 Switch  |
+ +-------------+                       | (DHCP Relay Agent)       |
+                                       +--------------------------+
+                                                    |
+                                                    | Unicast UDP 67/547
+                                                    | (giaddr set to client subnet)
+                                                    v
+                                       +--------------------------+
+                                       |   Jagornet DHCP Server   |
+                                       +--------------------------+
+----
+
+* *Router Configuration:* Configure your switch or router interface with an `ip helper-address` (Cisco) or `dhcp-relay` (Juniper/Arista) pointing to the Jagornet server IP.
+* *Server Binding:* Start the server with `-4u <server-ip>` or bind to all unicast interfaces (default).
+* *Subnet Matching:* The relay agent sets `giaddr` to the client's gateway IP. Jagornet maps `giaddr` directly against the `<address>` defined in your `link` configuration (e.g. `10.100.1.0/24`).
+
+===== 2. Local Broadcast Subnets (Direct Attachment)
+
+When the server is directly attached to the same broadcast domain as the clients:
+
+* *DHCPv4:* The server must listen for broadcast packets by specifying the interface at startup:
++
+[source,bash]
+----
+sudo ./bin/dhcpserver -4b eth0 -c config/dhcpserver.yaml
+----
+* *Subnet Matching:* Because `giaddr` is `0.0.0.0`, Jagornet matches the request against the link whose network CIDR matches the primary IP address configured on `eth0`.
+
 ==== Startup Options
 The main Java class of the Jagornet DHCP Server supports the following usage:
 

@@ -467,31 +467,67 @@ _expert_ policies can be adjusted if necessary.
 - Hierarchy: global, link
 
 === High Availability
-Jagornet DHCP Server supports High Availability (HA).  The implementation is a
-simple "warm-standby" backup mechanism.  This is not the same as other failover
-implementations.  Instead, HA is attained through a process which involves the
-following:
 
-* DHCP Relays configured with IP address of both Primary and Backup Jagornet
-DHCP servers
-* Primary and Backup Jagornet DHCP servers have identical configurations except
-for the HA related policies described below
-* Primary is started, gives out leases
-* Backup comes online, syncs all leases from Primary
-* Backup starts polling loop to check Primary operational status
-* Primary handles all lease requests
-* Backup ignores all lease requests while poll requests are answered by Primary
-* If poll failures reach threshold defined by HA policies below, then Backup
-becomes active and starts handling lease requests
-* Primary comes back online, syncs lease changes from backup
-* Primary takes over lease handling as each link is sync'd
-* In the event that the Primary failure was catastrophic, or in situations where
-the lease database has been lost or has been corrupt, then the Primary can be
-forced to sync all leases from the backup, instead of just those leases that are
-new or changed since the Primary went offline.  To do so, simply delete the
-file defined for the `ha.stateDbFile` policy below before starting the Primary.
+Jagornet DHCP Server provides native Active/Standby high availability designed for enterprise resilience without requiring external cluster managers (like Corosync or Pacemaker).
 
-Several policies are available to configure the High Availability (HA) behavior.
+[source]
+----
+     +------------------------+                     +------------------------+
+     |     Primary Server     |   gRPC Replication  |     Backup Server      |
+     |   (Active Processor)   | <=================> |   (Hot Standby Peer)   |
+     +------------------------+       (mTLS)        +------------------------+
+                 |                                               |
+                 +-----------------------+-----------------------+
+                                         |
+                                         v
+                            +------------------------+
+                            |  Network Relay Agents  |
+                            | (Relay to BOTH servers)|
+                            +------------------------+
+----
+
+==== Operational Mechanics
+
+* **Lease Replication via gRPC:** The Primary processes client requests and replicates lease updates to the Backup over high-speed gRPC (port `9066`) secured with Mutual TLS (mTLS).
+* **Failure Detection:** The Backup continuously polls the Primary at `ha.pollSeconds` (default: 30s). If the Primary fails to respond after `ha.pollReplyFailureCount` attempts (default: 5), the Backup transitions to the active state and begins serving client leases.
+* **Failback & Synchronization:** When the Primary recovers, it automatically synchronizes changed leases from the Backup before taking over lease handling for each subnet link.
+* **Router Relay Recommendation:** For seamless failover, configure DHCP relay agents on switches/routers with the IP addresses of **both** servers (e.g. `ip helper-address 10.0.0.10` and `ip helper-address 10.0.0.11`).
+
+==== High Availability Configuration Example
+
+.Primary Server Configuration (`dhcpserver.yaml` on 10.0.0.10)
+[source,yaml]
+----
+policies:
+  policyList:
+  - name: "ha.role"
+    value: "primary"
+  - name: "ha.peerServer"
+    value: "10.0.0.11"
+  - name: "ha.peerPort"
+    value: "9066"
+  - name: "ha.bindingUpdateMode"
+    value: "sync"
+----
+
+.Backup Server Configuration (`dhcpserver.yaml` on 10.0.0.11)
+[source,yaml]
+----
+policies:
+  policyList:
+  - name: "ha.role"
+    value: "backup"
+  - name: "ha.peerServer"
+    value: "10.0.0.10"
+  - name: "ha.peerPort"
+    value: "9066"
+  - name: "ha.bindingUpdateMode"
+    value: "sync"
+----
+
+NOTE: In the event of catastrophic failure or database corruption on the Primary, the Primary can be forced to synchronize all leases from the Backup by deleting the state database file defined by `ha.stateDbFile` before restarting.
+
+Several policies are available to configure High Availability (HA) behavior.
 
 ==== HA Role		
 - Name: `ha.role`
@@ -619,4 +655,35 @@ https://editor.swagger.io/?url=https://raw.githubusercontent.com/jagornet/dhcp-d
 - Default: `jagornet`
 - Description: The REST API password
 - Hierarchy: global
+
+=== Observability: Prometheus Metrics
+
+Jagornet DHCP Server provides an embedded Prometheus `/metrics` endpoint over HTTPS for real-time telemetry, capacity planning, and alerting.
+
+* **Endpoint:** `https://<server-ip>:9067/metrics`
+* **Authentication:** Protected with HTTP Basic Authentication using the configured `rest.api.username` and `rest.api.password`.
+
+==== Example Prometheus Scrape Configuration (`prometheus.yml`)
+
+[source,yaml]
+----
+scrape_configs:
+  - job_name: 'jagornet-dhcp'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true   # Set to false if using enterprise CA certificates
+    basic_auth:
+      username: 'jagornet'
+      password: 'your-secure-password'
+    static_configs:
+      - targets: ['dhcp1.example.com:9067', 'dhcp2.example.com:9067']
+----
+
+==== Exported Metrics Overview
+
+* **Lease Allocation:** Active lease count, pool utilization percentage, and available addresses per subnet link.
+* **Traffic Rates & Counters:** DHCPDISCOVER, DHCPOFFER, DHCPREQUEST, DHCPACK, and DHCPNAK messages.
+* **DHCPv6 Counters:** SOLICIT, ADVERTISE, REQUEST, CONFIRM, RENEW, REBIND, and REPLY messages.
+* **Server Health:** JVM heap memory, garbage collection duration, and Netty event loop thread performance.
+
 
