@@ -509,12 +509,38 @@ public class TestRestResourcesUnit {
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
 	}
 
+	private SecurityContext mockSecurityContext(String role) {
+		SecurityContext secContext = mock(SecurityContext.class);
+		when(secContext.isUserInRole(role)).thenReturn(true);
+		return secContext;
+	}
+
 	@Test
-	public void testDhcpLeasesResourcePostNewLease() throws Exception {
+	public void testDhcpLeasesResourcePostRestApiRoleForbidden() throws Exception {
 		DhcpLeasesResource resource = new DhcpLeasesResource();
 		DhcpLease newLease = createSampleLease("192.168.1.151");
 
-		Response response = resource.postDhcpLease(newLease, "false");
+		Response response = resource.postDhcpLease(mockSecurityContext("REST_API"), newLease, "false");
+		assertNotNull(response);
+		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+	}
+
+	@Test
+	public void testDhcpLeasesResourcePostNullSecurityContextForbidden() throws Exception {
+		DhcpLeasesResource resource = new DhcpLeasesResource();
+		DhcpLease newLease = createSampleLease("192.168.1.151");
+
+		Response response = resource.postDhcpLease(null, newLease, "false");
+		assertNotNull(response);
+		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+	}
+
+	@Test
+	public void testDhcpLeasesResourcePostNewLeaseHaPeerRole() throws Exception {
+		DhcpLeasesResource resource = new DhcpLeasesResource();
+		DhcpLease newLease = createSampleLease("192.168.1.151");
+
+		Response response = resource.postDhcpLease(mockSecurityContext("HA_PEER"), newLease, "false");
 		assertNotNull(response);
 		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
@@ -528,7 +554,7 @@ public class TestRestResourcesUnit {
 		DhcpLeasesResource resource = new DhcpLeasesResource();
 		DhcpLease newLease = createSampleLease("192.168.1.152");
 
-		Response response = resource.postDhcpLease(newLease, "true");
+		Response response = resource.postDhcpLease(mockSecurityContext("HA_PEER"), newLease, "true");
 		assertNotNull(response);
 		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
@@ -541,19 +567,41 @@ public class TestRestResourcesUnit {
 	@Test
 	public void testDhcpLeasesResourcePostNullLeaseReturns400() {
 		DhcpLeasesResource resource = new DhcpLeasesResource();
-		Response response = resource.postDhcpLease(null, "false");
+		Response response = resource.postDhcpLease(mockSecurityContext("HA_PEER"), null, "false");
 		assertNotNull(response);
 		assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 
 	@Test
-	public void testDhcpLeasesResourcePutUpdateLease() throws Exception {
+	public void testDhcpLeasesResourcePutRestApiRoleForbidden() throws Exception {
+		DhcpLease initialLease = createSampleLease("192.168.1.153");
+		iaMgr.insertDhcpLease(initialLease);
+
+		DhcpLeasesResource resource = new DhcpLeasesResource();
+		Response response = resource.putDhcpLease(mockSecurityContext("REST_API"), "192.168.1.153", initialLease, "false");
+		assertNotNull(response);
+		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+	}
+
+	@Test
+	public void testDhcpLeasesResourcePutNullSecurityContextForbidden() throws Exception {
+		DhcpLease initialLease = createSampleLease("192.168.1.153");
+		iaMgr.insertDhcpLease(initialLease);
+
+		DhcpLeasesResource resource = new DhcpLeasesResource();
+		Response response = resource.putDhcpLease(null, "192.168.1.153", initialLease, "false");
+		assertNotNull(response);
+		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), response.getStatus());
+	}
+
+	@Test
+	public void testDhcpLeasesResourcePutUpdateLeaseHaPeerRole() throws Exception {
 		DhcpLease initialLease = createSampleLease("192.168.1.153");
 		iaMgr.insertDhcpLease(initialLease);
 
 		DhcpLeasesResource resource = new DhcpLeasesResource();
 		initialLease.setState(IaAddress.AVAILABLE);
-		Response response = resource.putDhcpLease("192.168.1.153", initialLease, "false");
+		Response response = resource.putDhcpLease(mockSecurityContext("HA_PEER"), "192.168.1.153", initialLease, "false");
 		assertNotNull(response);
 		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
@@ -565,30 +613,28 @@ public class TestRestResourcesUnit {
 	@Test
 	public void testDhcpLeasesResourcePutNullLeaseReturns400() {
 		DhcpLeasesResource resource = new DhcpLeasesResource();
-		Response response = resource.putDhcpLease("192.168.1.153", null, "false");
+		Response response = resource.putDhcpLease(mockSecurityContext("HA_PEER"), "192.168.1.153", null, "false");
 		assertNotNull(response);
 		assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 	}
 
 	@Test
-	public void testDhcpLeasesResourceDeleteExistingLease() throws Exception {
+	public void testDhcpLeasesServiceDeleteExistingLease() throws Exception {
 		DhcpLease lease = createSampleLease("192.168.1.154");
 		iaMgr.insertDhcpLease(lease);
 
-		DhcpLeasesResource resource = new DhcpLeasesResource();
-		Response response = resource.deleteDhcpLease("192.168.1.154");
-		assertNotNull(response);
-		assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+		DhcpLeasesService service = new DhcpLeasesService();
+		boolean deleted = service.deleteDhcpLease(InetAddress.getByName("192.168.1.154"));
+		assertTrue(deleted);
 
 		assertNull(iaMgr.findDhcpLeaseForInetAddr(InetAddress.getByName("192.168.1.154")));
 	}
 
 	@Test
-	public void testDhcpLeasesResourceDeleteNonExistentLeaseReturnsError() {
-		DhcpLeasesResource resource = new DhcpLeasesResource();
-		Response response = resource.deleteDhcpLease("192.168.1.199");
-		assertNotNull(response);
-		assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+	public void testDhcpLeasesServiceDeleteNonExistentLeaseReturnsFalse() throws Exception {
+		DhcpLeasesService service = new DhcpLeasesService();
+		boolean deleted = service.deleteDhcpLease(InetAddress.getByName("192.168.1.199"));
+		assertFalse(deleted);
 	}
 
 	@Test

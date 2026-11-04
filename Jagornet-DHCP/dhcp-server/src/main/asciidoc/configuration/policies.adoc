@@ -633,10 +633,14 @@ Several policies are available to configure High Availability (HA) behavior.
 === REST API
 The REST API is enabled by default over HTTPS port 9067 on the server host. See
 startup options for controlling the port or network interfaces used for HTTPS. The
-API is hosted at `https://<server-ip>:9067`. Please view the
-Open API 3.0 documentation in the Swagger Editor:
+API is hosted at `https://<server-ip>:9067`.
 
-WARNING: The dhcpleases POST/PUT/DELETE endpoints are intended for internal use only!
+NOTE: The `/dhcpleases` endpoints for external REST API clients are read-only (`GET`).
+Lease synchronization mutations (`PUT`, `POST`) are strictly restricted to the internal
+High Availability peer role (`ha.peerUsername` / `ha.peerPassword`), returning `403 Forbidden`
+for standard REST API users. Arbitrary lease deletion (`DELETE`) is disabled.
+
+Please view the Open API 3.0 documentation in the Swagger Editor:
 
 https://editor.swagger.io/?url=https://raw.githubusercontent.com/jagornet/dhcp-docs/main/openapi.yaml[View Jagornet DHCP Server Open API docs in Swagger Editor]
 

@@ -366,7 +366,7 @@ public class TestRestServerIntegration {
 				.get();
 		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), getNotFound.getStatus());
 
-		// 2. POST new lease
+		// 2. Lease payload
 		DhcpLease lease = new DhcpLease();
 		lease.setIpAddress(java.net.InetAddress.getByName(testIp));
 		lease.setDuid("00010001aabbccddeeff".getBytes());
@@ -377,16 +377,24 @@ public class TestRestServerIntegration {
 		lease.setPreferredEndTime(new Date(System.currentTimeMillis() + 3600000));
 		lease.setValidEndTime(new Date(System.currentTimeMillis() + 7200000));
 
-		Response postResp = target.path("dhcpleases")
+		// 3. Attempt POST with REST_API role (jagornet): Expect 403 FORBIDDEN
+		Response postForbidden = target.path("dhcpleases")
 				.request(MediaType.APPLICATION_JSON)
 				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("jagornet", "jagornet"))
+				.post(Entity.entity(lease, MediaType.APPLICATION_JSON));
+		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), postForbidden.getStatus());
+
+		// 4. POST new lease with HA_PEER role (hapeer): Expect 200 OK
+		Response postResp = target.path("dhcpleases")
+				.request(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("hapeer", "jagornet"))
 				.post(Entity.entity(lease, MediaType.APPLICATION_JSON));
 
 		assertEquals(Response.Status.OK.getStatusCode(), postResp.getStatus());
 		DhcpLease createdLease = postResp.readEntity(DhcpLease.class);
 		assertEquals(testIp, createdLease.getIpAddress().getHostAddress());
 
-		// 3. GET newly created lease: Expect 200 OK
+		// 5. GET newly created lease with REST_API role (jagornet): Expect 200 OK
 		Response getOk = target.path("dhcpleases").path(testIp)
 				.request(MediaType.APPLICATION_JSON)
 				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("jagornet", "jagornet"))
@@ -397,18 +405,25 @@ public class TestRestServerIntegration {
 		assertEquals(testIp, fetchedLease.getIpAddress().getHostAddress());
 		assertNotNull(fetchedLease.getDuid());
 
-		// 4. PUT update lease (change state to OFFERED)
+		// 6. Attempt PUT update lease with REST_API role (jagornet): Expect 403 FORBIDDEN
 		fetchedLease.setState(IaAddress.OFFERED);
-		Response putResp = target.path("dhcpleases").path(testIp)
+		Response putForbidden = target.path("dhcpleases").path(testIp)
 				.request(MediaType.APPLICATION_JSON)
 				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("jagornet", "jagornet"))
+				.put(Entity.entity(fetchedLease, MediaType.APPLICATION_JSON));
+		assertEquals(Response.Status.FORBIDDEN.getStatusCode(), putForbidden.getStatus());
+
+		// 7. PUT update lease with HA_PEER role (hapeer): Expect 200 OK
+		Response putResp = target.path("dhcpleases").path(testIp)
+				.request(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("hapeer", "jagornet"))
 				.put(Entity.entity(fetchedLease, MediaType.APPLICATION_JSON));
 
 		assertEquals(Response.Status.OK.getStatusCode(), putResp.getStatus());
 		DhcpLease updatedLease = putResp.readEntity(DhcpLease.class);
 		assertEquals(IaAddress.OFFERED, updatedLease.getState());
 
-		// 5. GET Range Lease IPs
+		// 8. GET Range Lease IPs with REST_API role (jagornet)
 		Response ipsResp = target.path("dhcpleases").path("ips")
 				.queryParam("start", "192.168.1.100")
 				.queryParam("end", "192.168.1.200")
@@ -420,21 +435,13 @@ public class TestRestServerIntegration {
 		String ipList = ipsResp.readEntity(String.class);
 		assertTrue("IP list should contain " + testIp, ipList.contains(testIp));
 
-		// 6. DELETE lease
+		// 9. DELETE lease: Expect 405 METHOD_NOT_ALLOWED (endpoint removed)
 		Response delResp = target.path("dhcpleases").path(testIp)
 				.request()
 				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("jagornet", "jagornet"))
 				.delete();
 
-		assertEquals(Response.Status.OK.getStatusCode(), delResp.getStatus());
-
-		// 7. GET after DELETE: Expect 404 NOT FOUND
-		Response getDeleted = target.path("dhcpleases").path(testIp)
-				.request(MediaType.APPLICATION_JSON)
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("jagornet", "jagornet"))
-				.get();
-
-		assertEquals(Response.Status.NOT_FOUND.getStatusCode(), getDeleted.getStatus());
+		assertEquals(Response.Status.METHOD_NOT_ALLOWED.getStatusCode(), delResp.getStatus());
 	}
 
 	@Test
@@ -453,7 +460,7 @@ public class TestRestServerIntegration {
 		Response postResp = target.path("dhcpleases")
 				.queryParam("haupdate", "true")
 				.request(MediaType.APPLICATION_JSON)
-				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("jagornet", "jagornet"))
+				.header(HttpHeaders.AUTHORIZATION, basicAuthHeader("hapeer", "jagornet"))
 				.post(Entity.entity(syncLease, MediaType.APPLICATION_JSON));
 
 		assertEquals(Response.Status.OK.getStatusCode(), postResp.getStatus());

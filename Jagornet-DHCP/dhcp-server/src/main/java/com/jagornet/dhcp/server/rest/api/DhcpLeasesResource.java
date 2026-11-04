@@ -17,7 +17,6 @@ import java.net.InetAddress;
 import java.util.List;
 
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -26,10 +25,14 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.StreamingOutput;
+
+import io.swagger.v3.oas.annotations.Hidden;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,10 +233,18 @@ public class DhcpLeasesResource {
 
     @POST 
     @Secured	// registration AuthenticationFilter
+    @Hidden
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response postDhcpLease(DhcpLease dhcpLease,
+    public Response postDhcpLease(@Context SecurityContext securityContext,
+    							  DhcpLease dhcpLease,
     							  @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
+    	if ((securityContext == null) ||
+    		!securityContext.isUserInRole(AuthenticationFilter.AuthRole.HA_PEER.toString())) {
+    		return Response.status(Response.Status.FORBIDDEN)
+    				.entity("POST /dhcpleases is restricted to HA peer")
+    				.build();
+    	}
     	try {
     		log.debug("postDhcpLease: data=" + dhcpLease);
         	if (dhcpLease != null) {
@@ -267,12 +278,20 @@ public class DhcpLeasesResource {
 	
     @PUT
     @Secured	// registration AuthenticationFilter
+    @Hidden
     @Path(IPADDRESS)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response putDhcpLease(@PathParam(PATHPARAM_IPADDRESS) String ipAddress,
+    public Response putDhcpLease(@Context SecurityContext securityContext,
+    							 @PathParam(PATHPARAM_IPADDRESS) String ipAddress,
 				    		 	 DhcpLease dhcpLease,
 				    		 	 @QueryParam(QUERYPARAM_HAUPDATE) String haUpdate) {
+    	if ((securityContext == null) ||
+    		!securityContext.isUserInRole(AuthenticationFilter.AuthRole.HA_PEER.toString())) {
+    		return Response.status(Response.Status.FORBIDDEN)
+    				.entity("PUT /dhcpleases/{ipaddress} is restricted to HA peer")
+    				.build();
+    	}
 		try {
     		log.debug("putDhcpLease: data=" + dhcpLease);
 			if (dhcpLease != null) {
@@ -300,28 +319,6 @@ public class DhcpLeasesResource {
 		}
 		catch (Exception ex) {
 			log.error("Exception caught in putDhcpLease", ex);
-			return Response.serverError().entity(ex).build();
-		}
-    }
- 
-    @DELETE
-    @Secured	// registration AuthenticationFilter
-    @Path(IPADDRESS)
-    public Response deleteDhcpLease(@PathParam(PATHPARAM_IPADDRESS) String ipAddress) {
-    	try {
-    		log.debug("deleteDhcpLease: ipAddress=" + ipAddress);
-    		if (leasesService.deleteDhcpLease(InetAddress.getByName(ipAddress))) {
-    			return Response.ok().build();
-    		}
-    		else {
-				return Response
-						.serverError()
-						.entity("DELETE - deleteDhcpLease failed!")
-						.build();
-    		}
-		}
-		catch (Exception ex) {
-			log.error("Exception caught in deleteDhcpLease", ex);
 			return Response.serverError().entity(ex).build();
 		}
     }

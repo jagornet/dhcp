@@ -15,8 +15,10 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class ApplicationExceptionMapper implements ExceptionMapper<Exception> {
 
-    public Response toResponse(Exception e) {    	
-    	
+    public Response toResponse(Exception e) {
+        if (e instanceof jakarta.ws.rs.WebApplicationException wae) {
+            return wae.getResponse();
+        }
         return Response
 		        .status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
 		        .type(MediaType.TEXT_PLAIN)
