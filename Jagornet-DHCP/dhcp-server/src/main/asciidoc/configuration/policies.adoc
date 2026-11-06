@@ -640,9 +640,9 @@ Lease synchronization mutations (`PUT`, `POST`) are strictly restricted to the i
 High Availability peer role (`ha.peerUsername` / `ha.peerPassword`), returning `403 Forbidden`
 for standard REST API users. Arbitrary lease deletion (`DELETE`) is disabled.
 
-Please view the Open API 3.0 documentation in the Swagger Editor:
+Explore the interactive OpenAPI 3.0 reference and download the raw specification online:
 
-https://editor.swagger.io/?url=https://raw.githubusercontent.com/jagornet/dhcp-docs/main/openapi.yaml[View Jagornet DHCP Server Open API docs in Swagger Editor]
+https://www.jagornet.com/documentation?tab=api[View Jagornet DHCP Server REST API Reference] (raw spec: https://www.jagornet.com/docs/openapi.yaml[openapi.yaml])
 
 ==== Policy: rest.api.username (REST API Username)
 - Name: `rest.api.username`

@@ -46,6 +46,6 @@ Jagornet DHCP is designed with a **unified single-service architecture**. Unlike
 ==== Management, Observability & Cloud Operations
 * **Prometheus Metrics:** Out-of-the-box `/metrics` endpoint for Prometheus scraping (lease counts, packet rates, latency, health).
 * **OpenAPI 3.0 REST API:** Full programmatic administration via REST/JSON endpoints using link:https://jersey.github.io[Jersey].
-* **Flexible Configuration Formats:** Author configuration files in **YAML**, **JSON**, or **XML** validated against our published link:https://raw.githubusercontent.com/jagornet/dhcp-docs/main/dhcpserver.xsd[XML Schema].
+* **Flexible Configuration Formats:** Author configuration files in **YAML**, **JSON**, or **XML** validated against our published link:https://www.jagornet.com/docs/dhcpserver.xsd[XML Schema].
 * **Container-Ready:** Automated OCI/Docker container images built with link:https://github.com/GoogleContainerTools/jib[Jib] with support for cloud subnet overrides and non-root execution.
 

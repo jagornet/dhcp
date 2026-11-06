@@ -96,8 +96,8 @@ Quickly test lease allocation on your workstation without `sudo` or impacting yo
 ## Documentation & Resources
 
 * 📖 **Documentation:** [Jagornet DHCP Server User Guide](https://www.jagornet.com/documentation)
-* 📋 **Config Schema:** [dhcpserver.xsd Schema](https://raw.githubusercontent.com/jagornet/dhcp-docs/main/dhcpserver.xsd)
-* 🔌 **REST API Specification:** [OpenAPI 3.0 Specification](https://raw.githubusercontent.com/jagornet/dhcp-docs/main/openapi.yaml)
+* 📋 **Config Schema:** [dhcpserver.xsd Schema](https://www.jagornet.com/docs/dhcpserver.xsd)
+* 🔌 **REST API Specification:** [OpenAPI 3.0 Specification](https://www.jagornet.com/docs/openapi.yaml)
 * 📦 **Downloads & Releases:** [GitHub Releases](https://github.com/jagornet/dhcp/releases)
 * 💬 **Community & Support:** [GitHub Discussions](https://github.com/jagornet/dhcp/discussions)
 * 🌐 **Website:** [Jagornet Technologies](https://www.jagornet.com)
