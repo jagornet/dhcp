@@ -1,9 +1,8 @@
 == Configuration
 === Hierarchy
-The Jagornet DHCP server is configured via the `config/dhcpserver.xml` XML document. 
-See the <<Startup Options>> to change the name and location of the configuration file. 
-The XML schema which defines all server configuration elements is available at 
-`config/dhcpserver.xsd`. The configuration file has this general hierarchical structure:
+The Jagornet DHCP server supports configuration files in **XML** (`.xml`), **YAML** (`.yaml` or `.yml`), and **JSON** (`.json` or `.jsn`) formats. By default, the server loads `config/dhcpserver.xml`; use the `-c` / `--configfile` option (see <<Startup Options>>) to specify a YAML, JSON, or alternate XML configuration file (see `config/dhcpserver-basic.*` and `config/dhcpserver-sample.*` for examples in all three formats).
+
+All three formats share the same structure and element names formally defined by the XML schema at `config/dhcpserver.xsd`. The configuration file has this general hierarchical structure:
 
 * Global policies and options
 * Global filters
