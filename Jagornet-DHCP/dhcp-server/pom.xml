@@ -13,22 +13,17 @@
   <properties>
     <!-- Default to NOT build Docker image -->
   	<skip.jib>true</skip.jib>
+    <!-- Default Docker Hub repository (jagornet/${docker.repo}) -->
+    <docker.repo>dhcp-server</docker.repo>
+    <!-- Default architecture for local docker builds -->
+    <docker.architecture>amd64</docker.architecture>
   	<commons.cli.version>1.9.0</commons.cli.version>
   	<commons.dbcp2.version>2.13.0</commons.dbcp2.version>
   	<commons.io.version>2.18.0</commons.io.version>
   	<commons.pool2.version>2.12.1</commons.pool2.version>
   	<dnsjava.version>3.6.3</dnsjava.version>
   	<netty.version>4.1.139.Final</netty.version>
-	<!--
-		Spring 7.x requires JDK 17+
-		Jagornet 4.2.0 target is Java 21
-	-->
   	<spring.version>7.0.9</spring.version>
-	<!-- 
-		Derby DB is a runtime dependency only.
-		10.17.1.0 is CVE-free and requires Java 21 runtime.
-		Jagornet 4.2.0 target is Java 21 
-	-->
   	<derby.version>10.17.1.0</derby.version>
   	<h2.version>2.3.232</h2.version>
   	<sqlite.jdbc.version>3.49.1.0</sqlite.jdbc.version>
@@ -459,16 +454,9 @@
 					<image>eclipse-temurin:21-jdk</image>
 					<platforms>
 						<platform>
-							<architecture>amd64</architecture>
+							<architecture>${docker.architecture}</architecture>
 							<os>linux</os>
 						</platform>
-						<!-- needed to build for Apple M1/M2 chips
-							 but only build one platform at a time
-						<platform>
-							<architecture>arm64</architecture>
-							<os>linux</os>
-						</platform>
-						-->
 					</platforms>
 				</from>
 	            <to>
@@ -510,6 +498,23 @@
 				  </paths>
 				</extraDirectories>
 	          </configuration>
+			  <!--
+			  Do not bind jib:build to the package phase, because any package command
+			  with skip.jib=false would immediately attempt to push to Docker Hub.
+
+			  1. Local Docker testing (builds single-arch into local Docker daemon):
+			     mvn package jib:dockerBuild -Dskip.jib=false -DskipTests
+
+			  2. Release push to Docker Hub (multi-arch amd64 + arm64 and :latest tag):
+			     read -s "DOCKER_TOKEN?Docker Hub PAT: " && echo
+			     mvn clean package jib:build \
+			       -Dskip.jib=false \
+			       -Djib.from.platforms=linux/amd64,linux/arm64 \
+			       -Djib.to.tags=latest \
+			       -Ddocker.io-auth-username=YOUR_DOCKERHUB_USER \
+			       -Ddocker.io-auth-password="$DOCKER_TOKEN"
+			     unset DOCKER_TOKEN
+
 			  <executions>
 			    <execution>
 			      <phase>package</phase>
@@ -518,6 +523,7 @@
 			      </goals>
 			    </execution>
 			  </executions>
+			  -->
 	        </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -744,5 +750,19 @@
 	    </plugin>
 	  </plugins>
 	</reporting>
+ 
+	<profiles>
+		<profile>
+			<id>arm64-mac</id>
+			<activation>
+				<os>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<docker.architecture>arm64</docker.architecture>
+			</properties>
+		</profile>
+	</profiles>
  
 </project>
