@@ -271,7 +271,7 @@ docker run -d \
   --name jagornet-dhcp \
   --net=host \
   -v /path/to/my/config:/app/config \
-  jagornet/dhcp:{fullversion}
+  jagornet/dhcp-server:{fullversion}
 ----
 
 The container runs with `/app` as its working directory and mounts configuration files under `/app/config`. By default, the container starts with `/app/config/dhcpserver-jib.json`, which binds the server without serving any client links until custom configuration is mounted.

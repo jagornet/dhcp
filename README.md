@@ -55,7 +55,7 @@ docker run -d \
   --name jagornet-dhcp \
   --net=host \
   -v $(pwd)/config:/app/config \
-  jagornet/dhcp:5.0.0
+  jagornet/dhcp-server:5.0.0
 ```
 
 ### Running from Distribution
