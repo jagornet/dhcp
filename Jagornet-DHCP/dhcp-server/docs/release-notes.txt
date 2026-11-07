@@ -1,3 +1,25 @@
+Changes in 5.0.0
+----------------
+	- Migrate license to Mozilla Public License 2.0 (MPL 2.0)
+	- Java 21+ required; migrate to Jakarta EE namespaces and upgrade third-party
+	  libraries (Spring 7.0, Netty 4.1, Log4j2 2.26, gRPC, Jackson, Jersey, Derby)
+	- #80: Add support for DHCPv4 Subnet Selection Option (RFC 3011) and Relay Agent
+	  Link Selection Sub-option (RFC 3527)
+	- #81: Add support for DHCPv4 Server Identifier Override Sub-option (RFC 5107)
+	- #83: Add v2 database schema SQL files and JDBC support for PostgreSQL, MySQL,
+	  MariaDB, SQLite, and embedded H2, with tuned DBCP2 connection pooling
+	- #84: Add file-based client MAC and DUID filtering with automatic hot-reloading
+	- #85: Integrate Micrometer metrics and add Prometheus /metrics REST endpoint
+	- #87, #88: Modernize foreground daemon/CLI execution with Linux systemd
+	  installer/uninstaller scripts and Windows Service Wrapper (WinSW) support
+	- #89, #90: Overhaul Dynamic DNS (DDNS) configuration with separate delegation
+	  and conflict resolution policies, default forward/reverse zones, and hostname
+	  validation, scrubbing, and generation
+	- Harden REST API /dhcpleases endpoint security and expand offline configuration
+	  validation (--test-configfile)
+	- Migrate DHCPv4/v6 client simulators to Netty 4, add gentestconfig utility
+	  enhancements, and ship production-tuned async Log4j2 defaults
+
 Changes in 4.1.0
 ----------------
 	- Java 11+ required

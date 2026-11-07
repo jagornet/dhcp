@@ -4,7 +4,7 @@ prettyPrint: true
 cacheTTL: 0
 openAPI:
   info:
-    version: '4.0.0'
+    version: '5.0.0'
     title: 'Jagornet DHCP Server REST API'
     description: 'This is the REST API for the Jagornet DHCP server.  You can find 
       out more about Jagornet at [https://jagornet.com](https://jagornet.com).'
