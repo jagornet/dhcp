@@ -28,7 +28,7 @@
   	<h2.version>2.3.232</h2.version>
   	<sqlite.jdbc.version>3.49.1.0</sqlite.jdbc.version>
   	<postgresql.jdbc.version>42.7.5</postgresql.jdbc.version>
-  	<mariadb.jdbc.version>3.5.2</mariadb.jdbc.version>
+  	<mariadb.jdbc.version>3.5.11</mariadb.jdbc.version>
   	<testcontainers.version>1.20.6</testcontainers.version>
   	<jersey.version>3.1.9</jersey.version>
   	<jaxb.api.version>4.0.2</jaxb.api.version>
