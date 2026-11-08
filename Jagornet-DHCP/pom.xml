@@ -26,7 +26,7 @@
     which necessitates flatten-maven-plugin in module builds in order to remove
     and replace the installed or deployed module
      -->
-  	<revision>5.0.0-SNAPSHOT</revision>
+  	<revision>5.0.0</revision>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <maven.compiler.release>21</maven.compiler.release>
