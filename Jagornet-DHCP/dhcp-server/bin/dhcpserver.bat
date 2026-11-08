@@ -12,10 +12,10 @@ goto setupEnv
 
 :showHelp
 echo Jagornet DHCP Server
-echo Usage: dhcpserver.bat [options]
+echo Usage: dhcpserver.bat -c ^<configfile^> [options]
 echo.
 echo Server Options:
-echo   -c,  --configfile ^<filename^>    Configuration file (default = config\dhcpserver.xml)
+echo   -c,  --configfile ^<filename^>    Configuration file (required: XML, JSON, or YAML)
 echo   -4b, --v4bcast ^<interface^>     DHCPv4 broadcast interface (default = none)
 echo   -4u, --v4ucast ^<addresses...^>  DHCPv4 unicast addresses (default = all IPv4 addresses)
 echo   -4p, --v4port ^<portnum^>        DHCPv4 port number (default = 67)
@@ -29,9 +29,13 @@ echo   -hp, --hport ^<portnum^>         HTTPS port number (default = 9067)
 echo.
 echo Utility Options:
 echo   -tc, --test-configfile ^<file^>   Test configuration file syntax, then exit
-echo   -li, --list-interfaces          Show detailed host interface list, then exit
 echo   -v,  --version                  Show version information, then exit
 echo   -?,  --help                     Show this help page
+echo.
+echo Companion Utilities (in bin\):
+echo   listinterfaces.bat              List host network interfaces and addresses
+echo   gentestconfig.bat               Generate a test configuration for a local interface
+echo   testclientv4.bat / testclientv6.bat  Simulate DHCPv4 / DHCPv6 client requests
 echo.
 echo Windows Service Management (WinSW):
 echo   jagornet-service.exe install    Install service

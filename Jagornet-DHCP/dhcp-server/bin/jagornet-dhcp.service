@@ -1,6 +1,6 @@
 [Unit]
 Description=Jagornet DHCP Server
-Documentation=https://github.com/jagornet/Jagornet-DHCP
+Documentation=https://github.com/jagornet/dhcp
 After=network.target network-online.target
 Wants=network-online.target
 
@@ -14,12 +14,14 @@ Group=jagornet
 AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_NET_RAW
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_NET_RAW
 
-# Set default home; can be overridden in /etc/default/jagornet-dhcp
+# Set defaults; can be overridden in /etc/default/jagornet-dhcp
 Environment="JAGORNET_DHCP_HOME=/opt/jagornet/dhcp"
+Environment="JAGORNET_DHCP_CONFIG=/opt/jagornet/dhcp/config/dhcpserver.xml"
+Environment="JAGORNET_DHCP_OPTS="
 EnvironmentFile=-/etc/default/jagornet-dhcp
 
 WorkingDirectory=/opt/jagornet/dhcp
-ExecStart=/opt/jagornet/dhcp/bin/dhcpserver -c /opt/jagornet/dhcp/config/dhcpserver.xml
+ExecStart=/opt/jagornet/dhcp/bin/dhcpserver -c ${JAGORNET_DHCP_CONFIG} $JAGORNET_DHCP_OPTS
 
 # Graceful stop: systemd sends SIGTERM, caught by JagornetDhcpServer JVM shutdown hook
 KillSignal=SIGTERM

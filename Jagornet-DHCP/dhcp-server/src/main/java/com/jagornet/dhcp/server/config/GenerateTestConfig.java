@@ -8,15 +8,11 @@
 
 package com.jagornet.dhcp.server.config;
 
-import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.UnknownHostException;
 import java.util.Enumeration;
-
-import jakarta.xml.bind.JAXBException;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -44,6 +40,7 @@ import com.jagornet.dhcp.server.config.xml.V6ConfigOptionsType;
 import com.jagornet.dhcp.server.config.xml.V6DnsServersOption;
 import com.jagornet.dhcp.server.config.xml.V6DomainSearchListOption;
 import com.jagornet.dhcp.server.config.xml.V6ServerIdOption;
+import com.jagornet.dhcp.server.util.ListInterfaces;
 
 public class GenerateTestConfig {
 
@@ -55,6 +52,7 @@ public class GenerateTestConfig {
 	protected InetAddress ipv4Address;
 	protected InetAddress ipv6Address;
 	protected String protocolVersion;
+	protected boolean listOnly = false;
 	protected boolean valid = false;
 
 	public GenerateTestConfig(String[] args, boolean exitOnError) {
@@ -82,7 +80,7 @@ public class GenerateTestConfig {
 
 	private void setupOptions() {
 		Option filenameOption = new Option("f", "filename", true,
-				"Output configuration filename [dhcpserver-test-config.xml");
+				"Output configuration filename [dhcpserver-test-config.xml]");
 		options.addOption(filenameOption);
 
 		Option interfaceOption = new Option("i", "interface", true,
@@ -92,6 +90,10 @@ public class GenerateTestConfig {
 		Option versionOption = new Option("v", "protocol version", true,
 				"Protocol Version (4|6|both)[both]");
 		options.addOption(versionOption);
+
+		Option listOption = new Option("l", "list-interfaces", false,
+				"List available host network interfaces, then exit.");
+		options.addOption(listOption);
 
 		Option helpOption = new Option("h", "help", false, "Show this help page.");
 		options.addOption(helpOption);
@@ -104,6 +106,11 @@ public class GenerateTestConfig {
 			CommandLine cmd = parser.parse(options, args);
 			if (cmd.hasOption("h") || cmd.hasOption("?") || cmd.hasOption("help")) {
 				return false;
+			}
+			if (cmd.hasOption("l") || cmd.hasOption("list-interfaces")) {
+				ListInterfaces.printInterfaces(false, System.out);
+				listOnly = true;
+				return true;
 			}
 			if (cmd.hasOption("f")) {
 				filename = cmd.getOptionValue("f");
@@ -182,7 +189,7 @@ public class GenerateTestConfig {
 	}
 
 	public void generate() {
-		if (!valid) {
+		if (!valid || listOnly) {
 			return;
 		}
 		try {

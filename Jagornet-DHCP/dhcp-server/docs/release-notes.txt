@@ -10,8 +10,10 @@ Changes in 5.0.0
 	  MariaDB, SQLite, and embedded H2, with tuned DBCP2 connection pooling
 	- #84: Add file-based client MAC and DUID filtering with automatic hot-reloading
 	- #85: Integrate Micrometer metrics and add Prometheus /metrics REST endpoint
-	- #87, #88: Modernize foreground daemon/CLI execution with Linux systemd
-	  installer/uninstaller scripts and Windows Service Wrapper (WinSW) support
+	- #87, #88: Modernize foreground daemon/CLI execution (requiring explicit -c
+	  configuration file at startup, with standalone listinterfaces utility), add
+	  Linux systemd installer/uninstaller scripts, and add Windows Service Wrapper
+	  (WinSW) support
 	- #89, #90: Overhaul Dynamic DNS (DDNS) configuration with separate delegation
 	  and conflict resolution policies, default forward/reverse zones, and hostname
 	  validation, scrubbing, and generation

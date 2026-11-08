@@ -1,4 +1,4 @@
-echo on
+@echo off
 if "%OS%"=="Windows_NT" @setlocal
 
 rem %~dp0 is expanded pathname of the current script under NT

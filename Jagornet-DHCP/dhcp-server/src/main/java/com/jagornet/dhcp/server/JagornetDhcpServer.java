@@ -151,6 +151,11 @@ public class JagornetDhcpServer
      */
     public JagornetDhcpServer(String[] args)
     {
+    	this(args, true);
+    }
+
+    public JagornetDhcpServer(String[] args, boolean exitOnError)
+    {
     	version = new Version();
         options = new Options();
         parser = new BasicParser();
@@ -159,7 +164,9 @@ public class JagornetDhcpServer
         if(!parseOptions(args)) {
         	System.err.println("Invalid command line options: " + Arrays.toString(args));
         	showHelp();
-            System.exit(0);
+        	if (exitOnError) {
+        		System.exit(1);
+        	}
         }
         this.args = args;
     }
@@ -169,7 +176,7 @@ public class JagornetDhcpServer
         String cliName = this.getClass().getName();
 //        formatter.printHelp(cliName, options);
         PrintWriter stderr = new PrintWriter(System.err, true);	// auto-flush=true
-        formatter.printHelp(stderr, 80, cliName + " [options]", 
+        formatter.printHelp(stderr, 80, cliName + " -c <filename> [options]", 
         				    version.getVersion(), options, 2, 2, null);    	
     }
     
@@ -621,7 +628,7 @@ public class JagornetDhcpServer
         Option configFileOption =
         	OptionBuilder.withLongOpt("configfile")
         	.withArgName("filename")
-        	.withDescription("Configuration file (default = " + DEFAULT_CONFIG_FILENAME + ").")
+        	.withDescription("Configuration file (required: XML, JSON, or YAML).")
         	.hasArg()
         	.create("c");
         options.addOption(configFileOption);
@@ -739,10 +746,6 @@ public class JagornetDhcpServer
         	.create("tc");
         options.addOption(testConfigFileOption);
 
-        Option listIfOption = new Option("li", "list-interfaces", false, 
-        		"Show detailed host interface list, then exit.");
-        options.addOption(listIfOption);
-
         Option versionOption = new Option("v", "version", false, 
         		"Show version information, then exit.");
         options.addOption(versionOption);
@@ -768,10 +771,34 @@ public class JagornetDhcpServer
                 showHelp();
                 System.exit(0);
             }
-            
-            if (cmd.hasOption("c")) {
-                configFilename = cmd.getOptionValue("c");
+
+            if (cmd.hasOption("v")) {
+            	System.err.println(version.getVersion());
+            	System.exit(0);
             }
+
+            if (cmd.hasOption("tc")) {
+            	try {
+            		String filename = cmd.getOptionValue("tc");
+            		System.err.println("Testing server configuration file: " + filename);
+            		DhcpServerConfig config = DhcpServerConfiguration.loadConfig(filename);
+            		if (config != null) {
+            			DhcpServerConfiguration.validateConfig(config);
+            			System.err.println("OK: " + filename + " is a valid Jagornet DHCP server configuration file.");
+            		}
+            	}
+            	catch (Exception ex) {
+            		System.err.println("ERROR: " + ex);
+            		System.exit(1);
+            	}
+            	System.exit(0);
+            }
+
+            if (!cmd.hasOption("c")) {
+            	System.err.println("Missing required option: -c (--configfile <filename>)");
+            	return false;
+            }
+            configFilename = cmd.getOptionValue("c");
             
             v4BcastNetIf = null;	// default
             if (cmd.hasOption("4b")) {
@@ -921,39 +948,6 @@ public class JagornetDhcpServer
             							"' using default: " + grpcPortNumber +
             							" Exception=" + ex);
             	}
-            }
-            
-            if (cmd.hasOption("v")) {
-            	System.err.println(version.getVersion());
-            	System.exit(0);
-            }
-            
-            if (cmd.hasOption("tc")) {
-            	try {
-            		String filename = cmd.getOptionValue("tc");
-            		System.err.println("Testing server configuration file: " + filename);
-            		DhcpServerConfig config = DhcpServerConfiguration.loadConfig(filename);
-            		if (config != null) {
-            			DhcpServerConfiguration.validateConfig(config);
-            			System.err.println("OK: " + filename + " is a valid Jagornet DHCP server configuration file.");
-            		}
-            	}
-            	catch (Exception ex) {
-            		System.err.println("ERROR: " + ex);
-            		System.exit(1);
-            	}
-            	System.exit(0);
-            }
-            
-            if (cmd.hasOption("li")) {
-    			Enumeration<NetworkInterface> netIfs = NetworkInterface.getNetworkInterfaces();
-    			if (netIfs != null) {
-    				while (netIfs.hasMoreElements()) {
-    					NetworkInterface ni = netIfs.nextElement();
-    					System.err.println(ni);
-    				}
-    			}
-            	System.exit(0);
             }
             
         }

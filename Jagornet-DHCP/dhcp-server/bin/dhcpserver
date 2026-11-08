@@ -6,10 +6,10 @@
 show_help() {
   cat << 'EOF'
 Jagornet DHCP Server
-Usage: dhcpserver [options]
+Usage: dhcpserver -c <configfile> [options]
 
 Server Options:
-  -c,  --configfile <filename>    Configuration file (default = config/dhcpserver.xml)
+  -c,  --configfile <filename>    Configuration file (required: XML, JSON, or YAML)
   -4b, --v4bcast <interface>      DHCPv4 broadcast interface (default = none)
   -4u, --v4ucast <addresses...>   DHCPv4 unicast addresses (default = all IPv4 addresses)
   -4p, --v4port <portnum>         DHCPv4 port number (default = 67)
@@ -23,9 +23,13 @@ Server Options:
 
 Utility Options:
   -tc, --test-configfile <file>   Test configuration file syntax, then exit
-  -li, --list-interfaces          Show detailed host interface list, then exit
   -v,  --version                  Show version information, then exit
   -?,  --help                     Show this help page
+
+Companion Utilities (in bin/):
+  listinterfaces                  List host network interfaces and addresses
+  gentestconfig                   Generate a test configuration for a local interface
+  testclientv4 / testclientv6     Simulate DHCPv4 / DHCPv6 client requests
 
 Service Management (systemd):
   systemctl start jagornet-dhcp    Start the server service
@@ -92,9 +96,10 @@ case "$1" in
     echo "  sudo systemctl restart jagornet-dhcp"
     exit 1
     ;;
-  list-interfaces)
+  list-interfaces|-li|--list-interfaces)
     shift
-    set -- "--list-interfaces" "$@"
+    echo "Redirecting to listinterfaces... (Note: listinterfaces is now a standalone script in bin/listinterfaces)"
+    exec "$JAGORNET_DHCP_HOME/bin/listinterfaces" "$@"
     ;;
   test-configfile)
     shift
@@ -104,7 +109,7 @@ case "$1" in
     shift
     set -- "--version" "$@"
     ;;
-  testclientv4|testclientv6|gentestconfig)
+  testclientv4|testclientv6|gentestconfig|listinterfaces)
     CMD="$1"
     shift
     echo "Redirecting to $CMD... (Note: $CMD is now a standalone script in bin/$CMD)"

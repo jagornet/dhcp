@@ -159,6 +159,8 @@ if [ ! -f /etc/default/jagornet-dhcp ]; then
 # Uncomment and customize as needed:
 
 # JAGORNET_DHCP_HOME=/opt/jagornet/dhcp
+# JAGORNET_DHCP_CONFIG=/opt/jagornet/dhcp/config/dhcpserver.xml
+# JAGORNET_DHCP_OPTS="-4b eth0 -6m eth0"
 # JAVA_HOME=/usr/lib/jvm/default-java
 # JAVA_OPTS="-Xms512m -Xmx2g"
 EOF

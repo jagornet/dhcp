@@ -7,7 +7,7 @@
   <workingdirectory>%BASE%</workingdirectory>
   
   <!-- Log rotation -->
-  <logpath>%BASE%\logs</logpath>
+  <logpath>%BASE%\log</logpath>
   <log mode="roll-by-size">
     <sizeThreshold>10240</sizeThreshold>
     <keepFiles>5</keepFiles>

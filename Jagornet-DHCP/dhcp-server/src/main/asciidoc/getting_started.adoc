@@ -84,7 +84,7 @@ The main Java class of the Jagornet DHCP Server supports the following usage:
 
 [source,subs="attributes+"]
 ----
-usage: com.jagornet.dhcp.server.JagornetDhcpServer [options]
+usage: com.jagornet.dhcp.server.JagornetDhcpServer -c <filename> [options]
 Jagornet DHCP Server Community Edition {fullversion}
 Copyright 2009-2026 Jagornet Technologies, LLC.  All Rights Reserved.
   -4b,--v4bcast <interface>         DHCPv4 broadcast interface (default = none).
@@ -117,9 +117,8 @@ Copyright 2009-2026 Jagornet Technologies, LLC.  All Rights Reserved.
                                     more DHCPv6 relay agents connected to DHCPv6
                                     client links.
   -?,--help                         Show this help page.
-  -c,--configfile <filename>        Configuration file (default =
-                                    file:${jagornet.dhcp.home}/config/dhcpserver
-                                    .xml).
+  -c,--configfile <filename>        Configuration file (required: XML, JSON, or
+                                    YAML).
   -ga,--gaddr <address>             gRPC address (default = all IP addresses).
                                     Use this option to instruct the server to
                                     bind to a specific IP address for gRPC
@@ -132,8 +131,6 @@ Copyright 2009-2026 Jagornet Technologies, LLC.  All Rights Reserved.
                                     communications. Set the value to 'none'
                                     (without quotes) to disable HTTPS.
   -hp,--hport <portnum>             HTTPS Port number (default = 9067).
-  -li,--list-interfaces             Show detailed host interface list, then
-                                    exit.
   -tc,--test-configfile <filename>  Test configuration file, then exit.
   -v,--version                      Show version information, then exit.
 ----
@@ -144,24 +141,9 @@ Java VM arguments. See the following sections for Linux/Unix/Mac or Windows
 host systems.
 
 ==== Linux/Mac
-The $JAGORNET_DHCP_HOME/bin/dhcpserver script can be used to operate the server
-from a command shell. This script supports the following options:
+The `$JAGORNET_DHCP_HOME/bin/dhcpserver` script runs the server in the foreground from a command shell (press `Ctrl+C` to stop, or see <<Linux Systemd Service>> for background daemon management). A configuration file (`-c <filename>`) is required when starting the server; invoking `dhcpserver` with no arguments displays the help summary and exits immediately.
 
-`start [startup options]` - starts the server with any startup options provided.
-
-`stop` - stops the server.
-
-`restart [startup options]` - stop and start the server.
-
-`status` - check if the server is running.
-
-`version` - display server version and exit.  A convenience option which can be used instead of 'start -v' or 'start --version'.
-
-`test-configfile <configfile>` - test server configuration file and exit. A convenience option instead of 'start -tc <filename>' or 'start --test-configfile <filename>'.
-
-`list-interfaces` - list host interfaces and exit. A convenience method instead of 'start -li' or 'start --list-interfaces'.
-
-Startup examples:
+Examples:
 
 . Display the server version and exit:
 
@@ -171,25 +153,29 @@ Startup examples:
 
  $JAGORNET_DHCP_HOME/bin/dhcpserver --help
 
-. Start the server with default options:
+. Test a configuration file offline and exit:
 
- $JAGORNET_DHCP_HOME/bin/dhcpserver
+ $JAGORNET_DHCP_HOME/bin/dhcpserver -tc config/dhcpserver.xml
+
+. Start the server with the default configuration file:
+
+ $JAGORNET_DHCP_HOME/bin/dhcpserver -c config/dhcpserver.xml
 
 . Start the server on a test DHCPv4 port with broadcast on 'eth0':
  
- $JAGORNET_DHCP_HOME/bin/dhcpserver -4p 10067 -4b eth0
+ $JAGORNET_DHCP_HOME/bin/dhcpserver -c config/dhcpserver.xml -4p 10067 -4b eth0
 
 . Start the server on a test DHCPv6 port with multicast on all IPv6 multicast interfaces:
  
- $JAGORNET_DHCP_HOME/bin/dhcpserver -6p 10547 -6m
+ $JAGORNET_DHCP_HOME/bin/dhcpserver -c config/dhcpserver.xml -6p 10547 -6m
 
 . Start the server with support for DHCPv4 broadcast on 'eth0' and DHCPv6 multicast on 'eth1':
 
- $JAGORNET_DHCP_HOME/bin/dhcpserver -4b eth0 -6m eth1
+ $JAGORNET_DHCP_HOME/bin/dhcpserver -c config/dhcpserver.xml -4b eth0 -6m eth1
 
 . Start the server with an alternate configuration file, one unicast address, and two multicast interfaces:
 
- $JAGORNET_DHCP_HOME/bin/dhcpserver -c config/my-dhcpserver.xml -6u 2001:db8::1 -6m eth0 eth1
+ $JAGORNET_DHCP_HOME/bin/dhcpserver -c config/my-dhcpserver.yaml -6u 2001:db8::1 -6m eth0 eth1
 
 ===== Linux Systemd Service
 
@@ -202,6 +188,22 @@ The installer script handles creating the `/opt/jagornet/dhcp` symlink, creating
  sudo $JAGORNET_DHCP_HOME/bin/install-service.sh
 
 NOTE: You can pass `--no-start` to install and enable the service on boot without starting it immediately: `sudo ./bin/install-service.sh --no-start`. Run `sudo ./bin/install-service.sh --help` for all options.
+
+. Customize the configuration file, interfaces/ports, or JVM options in `/etc/default/jagornet-dhcp`:
+
+[source,bash]
+----
+# Override configuration file path (default: /opt/jagornet/dhcp/config/dhcpserver.xml)
+JAGORNET_DHCP_CONFIG=/opt/jagornet/dhcp/config/my-dhcpserver.yaml
+
+# Specify startup options such as broadcast/multicast interfaces or ports
+JAGORNET_DHCP_OPTS="-4b eth0 -6m eth0"
+
+# Override JVM heap settings
+JAVA_OPTS="-Xms512m -Xmx2g"
+----
+
+After modifying `/etc/default/jagornet-dhcp`, restart the service (`sudo systemctl restart jagornet-dhcp`) for changes to take effect.
 
 . Manage the service:
 
@@ -219,41 +221,47 @@ NOTE: Pass `--remove-symlink` to also clean up the `/opt/jagornet/dhcp` symlink:
 ==== Windows
 ===== Command Shell
 
-The `%JAGORNET_DHCP_HOME%\bin\dhcpserver.bat` batch file is used to operate the server from a command prompt. Provide any desired startup options on the command line. Press `Ctrl+C` in the command prompt to stop the server.
+The `%JAGORNET_DHCP_HOME%\bin\dhcpserver.bat` batch file runs the server in the foreground from a command prompt (press `Ctrl+C` to stop). A configuration file (`-c <filename>`) is required when starting the server; invoking `dhcpserver.bat` with no arguments displays the help summary and exits.
 
-Startup examples:
+Examples:
 
 . Display the startup options and exit:
 
  %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat --help
 
-. Start the server with default options:
+. Test a configuration file offline and exit:
 
- %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -tc config\dhcpserver.xml
 
-. Start the server with a specific configuration file:
+. Start the server with the default configuration file:
 
- %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -c config\my-dhcpserver.xml
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -c config\dhcpserver.xml
+
+. Start the server with an alternate configuration file:
+
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -c config\my-dhcpserver.yaml
 
 . Start the server on a test DHCPv4 port with support for broadcast on the IPv4 broadcast-enabled interface named 'eth0':
  
- %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -4p 10067 -4b eth0
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -c config\dhcpserver.xml -4p 10067 -4b eth0
 
 . Start the server on a test DHCPv6 port with support for multicast on all IPv6 multicast-enabled interfaces:
  
- %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -6p 10547 -6m
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -c config\dhcpserver.xml -6p 10547 -6m
 
 . Start the server with support for DHCPv4 broadcast on the interface named 'eth0' and DHCPv6 multicast on the interface named 'eth1':
 
- %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -4b eth0 -6m eth1
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -c config\dhcpserver.xml -4b eth0 -6m eth1
 
 . Start the server with an alternate configuration file, one specific unicast address, and two specific multicast interfaces:
 
- %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -c config\my-dhcpserver.xml -6u 2001:db8::1 -6m eth0 eth1
+ %JAGORNET_DHCP_HOME%\bin\dhcpserver.bat -c config\my-dhcpserver.yaml -6u 2001:db8::1 -6m eth0 eth1
 
 ===== Windows Service (WinSW)
 
 Jagornet DHCP Server can operate as a Microsoft Windows Service using https://github.com/winsw/winsw[WinSW (Windows Service Wrapper)]. The wrapper is pre-bundled as `%JAGORNET_DHCP_HOME%\bin\jagornet-service.exe` with its configuration `%JAGORNET_DHCP_HOME%\bin\jagornet-service.xml`.
+
+To customize the configuration file path, interface/port startup options, or JVM heap settings for the Windows service, edit `<arguments>` in `%JAGORNET_DHCP_HOME%\bin\jagornet-service.xml` before starting or restarting the service.
 
 1. Run `%JAGORNET_DHCP_HOME%\bin\winsw-install.bat` as Administrator to install and start the service.
 2. Manage the service using Windows Services (`services.msc`) or `%JAGORNET_DHCP_HOME%\bin\jagornet-service.exe [start|stop|status]`.
@@ -278,7 +286,20 @@ The container runs with `/app` as its working directory and mounts configuration
 
 === Testing and Simulation Tools
 
-Jagornet DHCP Server includes built-in command-line utilities in `$JAGORNET_DHCP_HOME/bin/` to simplify local testing, configuration generation, and traffic simulation without requiring client hardware or administrator privileges.
+Jagornet DHCP Server includes built-in command-line utilities in `$JAGORNET_DHCP_HOME/bin/` to simplify host interface discovery, local configuration generation, and traffic simulation without requiring client hardware or administrator privileges.
+
+==== Network Interface Discovery (`listinterfaces`)
+
+The `listinterfaces` utility (`listinterfaces.bat` on Windows) displays the host network interfaces, hardware (MAC) addresses, and IPv4/IPv6 CIDR addresses as identified by the Java runtime. This is especially useful on Windows to see the exact interface name (e.g. `eth4`, `wlan0`) corresponding to a Windows adapter description for use with `-4b`, `-6m`, `gentestconfig -i`, or `<interface>` link configuration.
+
+[source,bash]
+----
+# List active (UP, non-loopback) network interfaces:
+./bin/listinterfaces
+
+# Include inactive (DOWN) and loopback interfaces:
+./bin/listinterfaces -a
+----
 
 ==== Test Configuration Generator (`gentestconfig`)
 
@@ -289,6 +310,9 @@ The `gentestconfig` utility automatically inspects active host network interface
 # Generate a test configuration for a specific network interface:
 ./bin/gentestconfig -v 4 -i eth0 -f config/dhcpserver-test.xml
 
+# List available network interfaces:
+./bin/gentestconfig -l
+
 # Show all options:
 ./bin/gentestconfig --help
 ----
@@ -298,6 +322,7 @@ The `gentestconfig` utility automatically inspects active host network interface
 * `-i, --interface <name>`: Network interface to inspect (e.g. `eth0`, `en0`). Defaults to the first active interface.
 * `-v, --version <4|6|both>`: Protocol version to generate (default: `both`).
 * `-f, --filename <file>`: Output configuration file path (default: `dhcpserver-test-config.xml`).
+* `-l, --list-interfaces`: List active host network interfaces and exit.
 
 ==== DHCPv4 Client Simulator (`testclientv4`)
 
