@@ -1,4 +1,4 @@
-Jagornet DHCP Server Community Edition
+Jagornet DHCP Server
 Copyright Jagornet Technologies, LLC
 
 This product is licensed under the terms of the

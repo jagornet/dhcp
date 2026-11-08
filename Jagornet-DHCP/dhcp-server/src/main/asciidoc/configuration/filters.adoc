@@ -966,5 +966,5 @@ filterExpressions:
 
 ==== Custom Expressions
 _Custom expressions are used to define filter expressions that cannot be configured 
-using standard option expressions. Currently, Jagornet DHCP Server Community Edition 
+using standard option expressions. Currently, Jagornet DHCP Server 
 does not support custom expressions._

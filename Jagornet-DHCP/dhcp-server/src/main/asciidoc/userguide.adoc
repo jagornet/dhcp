@@ -1,11 +1,11 @@
 :appversion: 5.0
 :appbuild: 0
 :fullversion: {appversion}.{appbuild}
-= Jagornet DHCP Server {appversion}: Community Edition User Guide
+= Jagornet DHCP Server {appversion} User Guide
 :doctype: book
 :author: A. Gregory Rabil
 :email: greg.rabil@jagornet.com
-:homepage: http://jagornet.com[Jagornet Technologies, LLC]
+:homepage: https://www.jagornet.com[Jagornet Technologies, LLC]
 :toc:
 
 {author} {email} 

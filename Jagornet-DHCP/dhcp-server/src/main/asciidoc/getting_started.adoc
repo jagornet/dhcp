@@ -85,8 +85,8 @@ The main Java class of the Jagornet DHCP Server supports the following usage:
 [source,subs="attributes+"]
 ----
 usage: com.jagornet.dhcp.server.JagornetDhcpServer -c <filename> [options]
-Jagornet DHCP Server Community Edition {fullversion}
-Copyright 2009-2026 Jagornet Technologies, LLC.  All Rights Reserved.
+Jagornet DHCP Server {fullversion}
+Copyright Jagornet Technologies, LLC
   -4b,--v4bcast <interface>         DHCPv4 broadcast interface (default = none).
                                     Use this option to specify the interface for
                                     the server to receive and send broadcast

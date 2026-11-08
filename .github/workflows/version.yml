@@ -12,7 +12,7 @@ on:
         # Friendly description to be shown in the UI instead of 'release'
         description: 'Release to test'
         # Default value if no value is explicitly provided
-        default: '4.2.0-SNAPSHOT'
+        default: '5.0.0'
         # Input has to be provided for the workflow to run
         required: true
         # The data type of the input
@@ -40,5 +40,5 @@ jobs:
     - name: Unpack the release package
       run: tar xvf "jagornet-dhcp-${{ inputs.release }}.tar.gz"
     - name: Test the server version
-      run: "jagornet-dhcp-${{ inputs.release }}/bin/dhcpserver version 2>&1 |grep ${{ inputs.release}}"
+      run: "jagornet-dhcp-${{ inputs.release }}/bin/dhcpserver --version 2>&1 |grep ${{ inputs.release}}"
         

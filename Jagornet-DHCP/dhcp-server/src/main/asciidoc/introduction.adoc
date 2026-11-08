@@ -2,13 +2,13 @@
 == Introduction
 
 === Welcome
-Welcome to the *Jagornet DHCP Server Community Edition Version {appversion}* User Guide. 
+Welcome to the *Jagornet DHCP Server Version {appversion}* User Guide. 
 
 Jagornet DHCP Server is an open source, enterprise-grade Dynamic Host Configuration Protocol server for IPv4 (DHCPv4) and IPv6 (DHCPv6) built on a high-throughput, non-blocking Java network engine.
 
 For the latest releases, documentation updates, and community support:
 
-* Website: http://www.jagornet.com[Jagornet Technologies]
+* Website: https://www.jagornet.com[Jagornet Technologies]
 * Source Code & Issue Tracking: https://github.com/jagornet/dhcp[Jagornet DHCP on GitHub]
 * Community Discussions: https://github.com/jagornet/dhcp/discussions[GitHub Discussions]
 
