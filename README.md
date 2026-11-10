@@ -4,6 +4,7 @@
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![Java](https://img.shields.io/badge/Java-21%2B-orange.svg)](https://openjdk.org/)
 [![IPv6 Ready](https://img.shields.io/badge/IPv6_Ready-Phase_II_Certified-blue.svg)](https://www.ipv6ready.org/)
+[![Downloads](https://img.shields.io/github/downloads/jagornet/dhcp/total.svg)](https://github.com/jagornet/dhcp/releases)
 
 **Jagornet DHCP Server** is an open source, enterprise-grade DHCPv4 and DHCPv6 server built on a high-performance, multithreaded [Netty](https://netty.io) network engine. 
 
